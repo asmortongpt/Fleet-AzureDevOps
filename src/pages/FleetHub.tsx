@@ -1,8 +1,11 @@
 /**
  * FleetHub - Premium Fleet Management Hub
- * 
+ *
  * Production-ready, compact layout with error-resilient tabs.
  * Route: /fleet
+ *
+ * PROFESSIONALLY REDESIGNED: Clean white cards, high contrast typography, muted colors
+ * Following Salesforce Lightning/Microsoft 365 enterprise standards
  */
 
 import {
@@ -59,18 +62,18 @@ class TabErrorBoundary extends Component<{ children: ReactNode; tabName: string 
     render() {
         if (this.state.hasError) {
             return (
-                <div className="flex flex-col items-center justify-center h-full p-8 bg-gradient-to-b from-slate-900/50 to-transparent">
-                    <div className="bg-gradient-to-br from-amber-900/40 to-amber-950/60 rounded-xl border border-amber-500/30 p-8 text-center max-w-md">
-                        <Warning className="w-12 h-12 text-amber-400 mx-auto mb-4" />
-                        <h3 className="text-xl font-bold text-white mb-2">Tab Temporarily Unavailable</h3>
-                        <p className="text-sm text-slate-400 mb-4">
+                <div className="flex flex-col items-center justify-center h-full p-8 bg-slate-50 dark:bg-slate-900">
+                    <div className="bg-white dark:bg-slate-800 rounded-lg border border-amber-200 dark:border-amber-800 p-8 text-center max-w-md shadow-lg">
+                        <Warning className="w-12 h-12 text-amber-600 mx-auto mb-4" />
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">Tab Temporarily Unavailable</h3>
+                        <p className="text-base text-slate-600 dark:text-slate-400 mb-6">
                             The {this.props.tabName} feature is currently unavailable. Our team has been notified.
                         </p>
                         <Button
                             onClick={() => this.setState({ hasError: false, error: undefined })}
                             variant="outline"
                             size="sm"
-                            className="border-amber-500/50 text-amber-300 hover:bg-amber-500/20"
+                            className="border-amber-600 text-amber-700 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20"
                         >
                             Try Again
                         </Button>
@@ -87,25 +90,25 @@ class TabErrorBoundary extends Component<{ children: ReactNode; tabName: string 
 // ============================================================================
 function TabLoadingFallback() {
     return (
-        <div className="p-4 sm:p-6 space-y-4 animate-pulse">
-            <Skeleton className="h-6 w-1/4" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                <Skeleton className="h-24 sm:h-28 rounded-xl" />
-                <Skeleton className="h-24 sm:h-28 rounded-xl" />
-                <Skeleton className="h-24 sm:h-28 rounded-xl" />
-                <Skeleton className="h-24 sm:h-28 rounded-xl" />
+        <div className="p-6 sm:p-8 space-y-6 animate-pulse bg-slate-50 dark:bg-slate-900">
+            <Skeleton className="h-8 w-1/4 bg-slate-200 dark:bg-slate-700" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Skeleton className="h-32 rounded-lg bg-slate-200 dark:bg-slate-700" />
+                <Skeleton className="h-32 rounded-lg bg-slate-200 dark:bg-slate-700" />
+                <Skeleton className="h-32 rounded-lg bg-slate-200 dark:bg-slate-700" />
+                <Skeleton className="h-32 rounded-lg bg-slate-200 dark:bg-slate-700" />
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
-                <Skeleton className="h-32 rounded-xl" />
-                <Skeleton className="h-32 rounded-xl" />
-                <Skeleton className="h-32 rounded-xl" />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <Skeleton className="h-48 rounded-lg bg-slate-200 dark:bg-slate-700" />
+                <Skeleton className="h-48 rounded-lg bg-slate-200 dark:bg-slate-700" />
+                <Skeleton className="h-48 rounded-lg bg-slate-200 dark:bg-slate-700" />
             </div>
         </div>
     )
 }
 
 // ============================================================================
-// FLEET OVERVIEW CONTENT - Premium Compact Layout with Drilldown
+// FLEET OVERVIEW CONTENT - Professional Clean Design
 // ============================================================================
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
@@ -153,18 +156,18 @@ function FleetOverviewContent() {
     }
 
     return (
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 h-full overflow-auto">
-            {/* Header Row */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="p-6 sm:p-8 space-y-8 bg-slate-50 dark:bg-slate-900 h-full overflow-auto">
+            {/* Header Row - Clean Professional Typography */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-foreground">Fleet Overview</h2>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Real-time fleet status • Click metrics for details</p>
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Fleet Overview</h2>
+                    <p className="text-base text-slate-600 dark:text-slate-400">Real-time fleet status • Click metrics for details</p>
                 </div>
                 <StatusDot status="online" label="Live" />
             </div>
 
-            {/* Primary Stats - Responsive grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            {/* Primary Stats - Clean White Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard
                     title="Vehicles"
                     value="156"
@@ -209,27 +212,27 @@ function FleetOverviewContent() {
                 />
             </div>
 
-            {/* Secondary Row - Responsive widgets */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
-                {/* Utilization Ring - Clickable */}
+            {/* Secondary Row - Professional Cards with High Contrast */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Utilization Ring - Clean White Card */}
                 <div
-                    className="bg-card/80 backdrop-blur-xl rounded-xl border border-border/50 p-4 sm:p-5 flex items-center gap-4 cursor-pointer hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                    className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 flex items-center gap-6 cursor-pointer hover:border-blue-600 hover:shadow-lg transition-all duration-200 shadow-sm"
                     onClick={() => push({ id: 'utilization-data-excel', type: 'utilization-data-excel', label: 'Utilization Data (Excel View)', data: { view: 'utilization' } })}
                     role="button"
                     tabIndex={0}
                 >
                     <ProgressRing progress={87} color="blue" label="Utilized" />
                     <div className="min-w-0">
-                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Fleet Utilization</h3>
-                        <p className="text-xl sm:text-2xl font-bold text-foreground">87%</p>
-                        <p className="text-xs text-muted-foreground/70">vs 82% last week</p>
+                        <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">Fleet Utilization</h3>
+                        <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">87%</p>
+                        <p className="text-base text-slate-600 dark:text-slate-400 mt-1">vs 82% last week</p>
                     </div>
                 </div>
 
-                {/* Quick Stats - ALL CLICKABLE */}
-                <div className="bg-card/80 backdrop-blur-xl rounded-xl border border-border/50 p-4 sm:p-5">
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Performance</h3>
-                    <div className="space-y-0.5">
+                {/* Quick Stats - ALL CLICKABLE - Clean Design */}
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 shadow-sm">
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-4">Performance</h3>
+                    <div className="space-y-1">
                         <QuickStat
                             label="Miles/Day"
                             value="245"
@@ -257,18 +260,18 @@ function FleetOverviewContent() {
                     </div>
                 </div>
 
-                {/* Safety Ring - Clickable */}
+                {/* Safety Ring - Clean Professional Card */}
                 <div
-                    className="bg-card/80 backdrop-blur-xl rounded-xl border border-border/50 p-4 sm:p-5 flex items-center gap-4 cursor-pointer hover:border-success/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                    className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 flex items-center gap-6 cursor-pointer hover:border-emerald-600 hover:shadow-lg transition-all duration-200 shadow-sm"
                     onClick={() => push({ id: 'safety-score', type: 'safety-score', label: 'Safety Score Breakdown', data: { view: 'safety' } })}
                     role="button"
                     tabIndex={0}
                 >
                     <ProgressRing progress={92} color="green" label="Score" />
                     <div className="min-w-0">
-                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Safety Score</h3>
-                        <p className="text-xl sm:text-2xl font-bold text-foreground">92/100</p>
-                        <p className="text-xs text-muted-foreground/70">47 days incident-free</p>
+                        <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">Safety Score</h3>
+                        <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">92/100</p>
+                        <p className="text-base text-slate-600 dark:text-slate-400 mt-1">47 days incident-free</p>
                     </div>
                 </div>
             </div>
@@ -277,7 +280,7 @@ function FleetOverviewContent() {
 }
 
 // ============================================================================
-// VIDEO TELEMATICS CONTENT
+// VIDEO TELEMATICS CONTENT - Professional Redesign
 // ============================================================================
 
 interface CameraFeed {
@@ -324,22 +327,22 @@ function VideoPlayer({ camera }: { camera: CameraFeed }) {
 
     if (!camera.streamUrl || camera.status === 'offline') {
         return (
-            <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center relative">
-                <Video className="w-8 h-8 text-slate-600" />
-                <div className="absolute top-2 left-2 flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-gray-500" />
-                    <span className="text-[10px] text-white font-medium">OFFLINE</span>
+            <div className="aspect-video bg-slate-100 dark:bg-slate-800 flex items-center justify-center relative border border-slate-200 dark:border-slate-700">
+                <Video className="w-10 h-10 text-slate-400 dark:text-slate-600" />
+                <div className="absolute top-3 left-3 flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-slate-400" />
+                    <span className="text-xs text-slate-700 dark:text-slate-300 font-semibold">OFFLINE</span>
                 </div>
-                <span className="absolute bottom-2 left-2 text-xs text-slate-400">{camera.id}</span>
+                <span className="absolute bottom-3 left-3 text-sm text-slate-600 dark:text-slate-400 font-medium">{camera.id}</span>
             </div>
         )
     }
 
     return (
-        <div className="aspect-video bg-black relative overflow-hidden">
+        <div className="aspect-video bg-black relative overflow-hidden border border-slate-200 dark:border-slate-700">
             {error ? (
                 <div className="w-full h-full flex items-center justify-center text-slate-500">
-                    <Video className="w-8 h-8" />
+                    <Video className="w-10 h-10" />
                 </div>
             ) : (
                 <video
@@ -350,18 +353,20 @@ function VideoPlayer({ camera }: { camera: CameraFeed }) {
                     autoPlay
                 />
             )}
-            <div className="absolute top-2 left-2 flex items-center gap-1">
-                <div className={`w-2 h-2 rounded-full ${camera.status === 'recording' ? 'bg-red-500 animate-pulse' : 'bg-yellow-500'}`} />
-                <span className="text-[10px] text-white font-medium">
+            <div className="absolute top-3 left-3 flex items-center gap-2 bg-white/90 dark:bg-slate-900/90 px-2 py-1 rounded">
+                <div className={`w-2.5 h-2.5 rounded-full ${camera.status === 'recording' ? 'bg-red-600 animate-pulse' : 'bg-amber-600'}`} />
+                <span className="text-xs text-slate-900 dark:text-slate-100 font-semibold">
                     {camera.status === 'recording' ? 'LIVE' : 'BUFFERING'}
                 </span>
             </div>
-            <span className="absolute bottom-2 left-2 text-xs text-white/70 drop-shadow">{camera.id}</span>
+            <span className="absolute bottom-3 left-3 text-sm text-white font-medium drop-shadow-lg">{camera.id}</span>
         </div>
     )
 }
 
 function VideoContent() {
+    const { push } = useDrilldown()
+
     // Camera feeds - streamUrl can be set to real HLS/RTSP-to-HLS URL
     const cameras: CameraFeed[] = [
         { id: 'CAM-001', location: 'Front Gate', status: 'recording', streamUrl: undefined },
@@ -370,17 +375,21 @@ function VideoContent() {
         { id: 'CAM-004', location: 'Service Bay', status: 'offline', streamUrl: undefined },
     ]
 
+    const recordingCameras = cameras.filter(c => c.status === 'recording').length
+
     return (
-        <div className="p-4 space-y-4 bg-gradient-to-b from-slate-900/50 to-transparent h-full overflow-hidden flex flex-col">
+        <div className="p-6 sm:p-8 space-y-8 bg-slate-50 dark:bg-slate-900 h-full overflow-hidden flex flex-col">
+            {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-lg font-bold text-white">Video Telematics</h2>
-                    <p className="text-xs text-slate-400">Live camera feeds from fleet vehicles</p>
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Video Telematics</h2>
+                    <p className="text-base text-slate-600 dark:text-slate-400">Live camera feeds from fleet vehicles</p>
                 </div>
                 <StatusDot status="online" label={`${recordingCameras} Recording`} />
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            {/* Stats - Clean White Cards */}
+            <div className="grid grid-cols-3 gap-6">
                 <StatCard
                     title="Cameras"
                     value="148"
@@ -420,18 +429,19 @@ function VideoContent() {
                 />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 flex-1">
+            {/* Camera Grid - Clean Professional Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 flex-1">
                 {cameras.map(camera => (
-                    <div key={camera.id} className="bg-card rounded-xl border border-border/50 overflow-hidden cursor-pointer hover:border-primary/40 hover:shadow-lg transition-all duration-300">
+                    <div key={camera.id} className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden cursor-pointer hover:border-blue-600 hover:shadow-lg transition-all duration-200 shadow-sm">
                         <VideoPlayer camera={camera} />
-                        <div className="p-3 border-t border-border/50">
-                            <p className="text-sm font-medium text-foreground">{camera.location}</p>
+                        <div className="p-4 border-t border-slate-200 dark:border-slate-700">
+                            <p className="text-base font-semibold text-slate-900 dark:text-slate-100">{camera.location}</p>
                         </div>
                     </div>
                 ))}
             </div>
 
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-sm text-slate-600 dark:text-slate-400 text-center font-medium">
                 Configure camera stream URLs in the Video Management settings
             </p>
         </div>
@@ -523,7 +533,7 @@ export function FleetHub() {
             icon={<FleetIcon className="w-6 h-6" />}
             description="Fleet vehicles, tracking, and telemetry"
             tabs={tabs}
-            defaultTab="google-maps"
+            defaultTab="overview"
         />
     )
 }
