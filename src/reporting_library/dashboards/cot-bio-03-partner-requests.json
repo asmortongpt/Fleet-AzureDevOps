@@ -1,0 +1,14 @@
+{
+  "id": "cot-bio-03",
+  "title": "Partner Request Forms",
+  "domain": "bio",
+  "category": "city_tallahassee_bio",
+  "description": "Contact info and waste-oil estimates",
+  "datasource": {"type": "sqlView", "view": "vw_biodiesel_requests", "parameters": {}},
+  "filters": [],
+  "visuals": [
+    {"id": "request_table", "type": "table", "title": "Partner Requests", "columns": [{"field": "partner_name", "label": "Partner"}, {"field": "contact_name", "label": "Contact"}, {"field": "contact_email", "label": "Email"}, {"field": "contact_phone", "label": "Phone"}, {"field": "estimated_gallons", "label": "Est. Gallons", "format": "decimal"}], "pagination": {"pageSize": 50}, "layout": {"x": 0, "y": 0, "w": 12, "h": 8}}
+  ],
+  "exports": [{"format": "csv"}, {"format": "xlsx"}, {"format": "pdf"}],
+  "security": {"rowLevel": [{"role": "Admin", "rule": "TRUE"}]}
+}
