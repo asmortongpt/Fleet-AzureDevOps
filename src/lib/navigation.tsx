@@ -91,19 +91,11 @@ export const navigationItems: NavigationItem[] = [
 
   // ==================== COMPLIANCE & SAFETY ====================
   {
-    id: "compliance-hub-consolidated",
-    label: "Compliance Hub",
+    id: "safety-compliance-hub",
+    label: "Safety & Compliance",
     icon: <Shield className="w-5 h-5" />,
     section: "hubs",
-    category: "Compliance",
-    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'SafetyOfficer', 'Auditor']
-  },
-  {
-    id: "safety-hub-consolidated",
-    label: "Safety Hub",
-    icon: <Warning className="w-5 h-5" />,
-    section: "hubs",
-    category: "Compliance",
+    category: "Safety & Compliance",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'SafetyOfficer', 'Auditor']
   },
   {
