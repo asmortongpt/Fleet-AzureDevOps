@@ -1,0 +1,14 @@
+{
+  "id": "cot-driver-06",
+  "title": "PM Count",
+  "domain": "pm",
+  "category": "city_tallahassee_driver",
+  "description": "Completed vs due PMs",
+  "datasource": {"type": "sqlView", "view": "vw_pm_count", "parameters": {"month": "{{month}}"}},
+  "filters": [{"name": "month", "type": "month", "default": "current_month", "required": true}],
+  "visuals": [
+    {"id": "kpis", "type": "kpiTiles", "title": "PM Summary", "measures": [{"id": "pm_due", "label": "Due", "format": "integer", "aggregation": "sum", "field": "pm_due_count"}, {"id": "pm_completed", "label": "Completed", "format": "integer", "aggregation": "sum", "field": "pm_completed_count"}], "layout": {"x": 0, "y": 0, "w": 12, "h": 2}}
+  ],
+  "exports": [{"format": "csv"}, {"format": "xlsx"}, {"format": "pdf"}],
+  "security": {"rowLevel": [{"role": "Admin", "rule": "TRUE"}]}
+}

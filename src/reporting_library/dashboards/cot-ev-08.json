@@ -1,0 +1,14 @@
+{
+  "id": "cot-ev-08",
+  "title": "Hybrid Vehicles",
+  "domain": "ev",
+  "category": "city_tallahassee_ev",
+  "description": "Performance metrics and telematics",
+  "datasource": {"type": "sqlView", "view": "vw_ev_08", "parameters": {"date_start": "{{dateRange.start}}", "date_end": "{{dateRange.end}}"}},
+  "filters": [{"name": "dateRange", "type": "dateRange", "default": "current_month", "required": true}],
+  "visuals": [
+    {"id": "kpis", "type": "kpiTiles", "title": "EV Metrics", "measures": [{"id": "metric_value", "label": "Hybrid Vehicles", "format": "integer", "aggregation": "sum", "field": "value"}], "layout": {"x": 0, "y": 0, "w": 12, "h": 2}}
+  ],
+  "exports": [{"format": "csv"}, {"format": "xlsx"}, {"format": "pdf"}],
+  "security": {"rowLevel": [{"role": "Admin", "rule": "TRUE"}]}
+}
