@@ -48,6 +48,7 @@ import {
   AlertCircle,
   FileStack
 } from 'lucide-react'
+import { DocumentPreview } from '@/components/documents/DocumentPreview'
 
 // Types
 interface Document {
@@ -105,7 +106,7 @@ const ACCESS_LEVELS = [
 ]
 
 export function DocumentsHub() {
-  const { toast } = useToast()
+  const { toast} = useToast()
 
   // State
   const [documents, setDocuments] = useState<Document[]>([])
@@ -128,6 +129,10 @@ export function DocumentsHub() {
     tags: '',
     accessLevel: 'internal'
   })
+
+  // Preview state
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewDocument, setPreviewDocument] = useState<Document | null>(null)
 
   // Fetch documents
   const fetchDocuments = useCallback(async () => {
@@ -255,6 +260,12 @@ export function DocumentsHub() {
         variant: 'destructive'
       })
     }
+  }
+
+  // Preview document
+  const handlePreview = (document: Document) => {
+    setPreviewDocument(document)
+    setPreviewOpen(true)
   }
 
   // Download document
@@ -569,7 +580,17 @@ export function DocumentsHub() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
+                          onClick={() => handlePreview(doc)}
+                          title="Preview"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
                           onClick={() => handleDownload(doc.id, doc.originalFilename)}
+                          title="Download"
                         >
                           <Download className="w-4 h-4" />
                         </Button>
@@ -578,6 +599,7 @@ export function DocumentsHub() {
                           size="icon"
                           className="h-8 w-8"
                           onClick={() => handleDelete(doc.id)}
+                          title="Delete"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -645,7 +667,16 @@ export function DocumentsHub() {
                           <Button
                             variant="ghost"
                             size="icon"
+                            onClick={() => handlePreview(doc)}
+                            title="Preview"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => handleDownload(doc.id, doc.originalFilename)}
+                            title="Download"
                           >
                             <Download className="w-4 h-4" />
                           </Button>
@@ -653,6 +684,7 @@ export function DocumentsHub() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleDelete(doc.id)}
+                            title="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -728,6 +760,27 @@ export function DocumentsHub() {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Document Preview Modal */}
+      {previewDocument && (
+        <DocumentPreview
+          open={previewOpen}
+          onClose={() => {
+            setPreviewOpen(false)
+            setPreviewDocument(null)
+          }}
+          document={{
+            id: previewDocument.id,
+            title: previewDocument.title,
+            file_name: previewDocument.originalFilename,
+            file_type: previewDocument.mimeType,
+            file_size: previewDocument.fileSize,
+            file_path: previewDocument.filename,
+            content_text: previewDocument.aiGeneratedSummary
+          }}
+          downloadUrl={`/api/documents/${previewDocument.id}/download`}
+        />
+      )}
     </HubPage>
   )
 }
