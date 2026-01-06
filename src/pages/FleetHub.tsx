@@ -108,172 +108,46 @@ function TabLoadingFallback() {
 }
 
 // ============================================================================
-// FLEET OVERVIEW CONTENT - Professional Clean Design
+// FLEET OVERVIEW CONTENT - Table-First Navigation Pattern (Placeholder)
 // ============================================================================
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
 function FleetOverviewContent() {
     const { push } = useDrilldown()
 
-    // Drilldown handlers - each triggers a rich detail view
-    const handleVehiclesDrilldown = () => {
-        push({
-            id: 'fleet-overview',
-            type: 'fleet-overview',
-            label: 'Fleet Overview',
-            data: { filter: 'all' }
-        })
-    }
-
-    const handleActiveDrilldown = () => {
-        // Trigger new Excel-style view
-        push({
-            id: 'active-vehicles-excel',
-            type: 'active-vehicles-excel',
-            label: 'Active Vehicles (Excel View)',
-            data: { filter: 'active', status: 'active' }
-        })
-    }
-
-    const handleMaintenanceDrilldown = () => {
-        // Trigger new Excel-style maintenance records view
-        push({
-            id: 'maintenance-records-excel',
-            type: 'maintenance-records-excel',
-            label: 'Maintenance Records (Excel View)',
-            data: { filter: 'maintenance' }
-        })
-    }
-
-    const handleFuelDrilldown = () => {
-        // Trigger cost analysis Excel view
-        push({
-            id: 'cost-analysis-excel',
-            type: 'cost-analysis-excel',
-            label: 'Cost Analysis (Excel View)',
-            data: { view: 'fuel' }
-        })
-    }
-
     return (
-        <div className="p-6 sm:p-8 space-y-8 bg-slate-50 dark:bg-slate-900 h-full overflow-auto">
-            {/* Header Row - Clean Professional Typography */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Fleet Overview</h2>
-                    <p className="text-base text-slate-600 dark:text-slate-400">Real-time fleet status • Click metrics for details</p>
-                </div>
-                <StatusDot status="online" label="Live" />
+        <div style={{
+            padding: 'var(--s-xl)',
+            background: 'var(--bg)',
+            minHeight: '100vh'
+        }}>
+            {/* Header */}
+            <div style={{ marginBottom: 'var(--s-xl)' }}>
+                <h2 style={{
+                    fontSize: 28,
+                    fontWeight: 700,
+                    color: 'var(--text)',
+                    marginBottom: 8
+                }}>Fleet Overview</h2>
+                <p style={{
+                    fontSize: 14,
+                    color: 'var(--muted)'
+                }}>Table-first navigation pattern - awaiting real data integration</p>
             </div>
 
-            {/* Primary Stats - Clean White Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard
-                    title="Vehicles"
-                    value="156"
-                    subtitle="12 new this month"
-                    trend="up"
-                    trendValue="+8%"
-                    variant="primary"
-                    icon={<Truck className="w-5 h-5" />}
-                    onClick={handleVehiclesDrilldown}
-                    drilldownLabel="View all fleet vehicles"
-                />
-                <StatCard
-                    title="Active"
-                    value="142"
-                    subtitle="91% of fleet"
-                    trend="up"
-                    trendValue="+3"
-                    variant="success"
-                    icon={<MapPin className="w-5 h-5" />}
-                    onClick={handleActiveDrilldown}
-                    drilldownLabel="View active vehicles on map"
-                />
-                <StatCard
-                    title="Maintenance"
-                    value="8"
-                    subtitle="5.1% of fleet"
-                    trend="down"
-                    trendValue="-2"
-                    variant="warning"
-                    icon={<Engine className="w-5 h-5" />}
-                    onClick={handleMaintenanceDrilldown}
-                    drilldownLabel="View maintenance work orders"
-                />
-                <StatCard
-                    title="Fuel Today"
-                    value="$2,450"
-                    subtitle="Est. daily"
-                    variant="default"
-                    icon={<GasPump className="w-5 h-5" />}
-                    onClick={handleFuelDrilldown}
-                    drilldownLabel="View fuel consumption details"
-                />
-            </div>
-
-            {/* Secondary Row - Professional Cards with High Contrast */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Utilization Ring - Clean White Card */}
-                <div
-                    className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 flex items-center gap-6 cursor-pointer hover:border-blue-600 hover:shadow-lg transition-all duration-200 shadow-sm"
-                    onClick={() => push({ id: 'utilization-data-excel', type: 'utilization-data-excel', label: 'Utilization Data (Excel View)', data: { view: 'utilization' } })}
-                    role="button"
-                    tabIndex={0}
-                >
-                    <ProgressRing progress={87} color="blue" label="Utilized" />
-                    <div className="min-w-0">
-                        <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">Fleet Utilization</h3>
-                        <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">87%</p>
-                        <p className="text-base text-slate-600 dark:text-slate-400 mt-1">vs 82% last week</p>
-                    </div>
-                </div>
-
-                {/* Quick Stats - ALL CLICKABLE - Clean Design */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 shadow-sm">
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-4">Performance</h3>
-                    <div className="space-y-1">
-                        <QuickStat
-                            label="Miles/Day"
-                            value="245"
-                            trend="up"
-                            onClick={() => push({ id: 'miles-day', type: 'miles-day', label: 'Daily Mileage Analysis', data: { metricType: 'miles-day' } })}
-                        />
-                        <QuickStat
-                            label="On-Time"
-                            value="94.2%"
-                            trend="up"
-                            onClick={() => push({ id: 'on-time', type: 'on-time', label: 'On-Time Performance', data: { metricType: 'on-time' } })}
-                        />
-                        <QuickStat
-                            label="Idle Time"
-                            value="12.3%"
-                            trend="down"
-                            onClick={() => push({ id: 'idle-time', type: 'idle-time', label: 'Idle Time Analysis', data: { metricType: 'idle-time' } })}
-                        />
-                        <QuickStat
-                            label="MPG Avg"
-                            value="18.4"
-                            trend="up"
-                            onClick={() => push({ id: 'mpg', type: 'mpg', label: 'Fuel Efficiency Report', data: { metricType: 'mpg' } })}
-                        />
-                    </div>
-                </div>
-
-                {/* Safety Ring - Clean Professional Card */}
-                <div
-                    className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 flex items-center gap-6 cursor-pointer hover:border-emerald-600 hover:shadow-lg transition-all duration-200 shadow-sm"
-                    onClick={() => push({ id: 'safety-score', type: 'safety-score', label: 'Safety Score Breakdown', data: { view: 'safety' } })}
-                    role="button"
-                    tabIndex={0}
-                >
-                    <ProgressRing progress={92} color="green" label="Score" />
-                    <div className="min-w-0">
-                        <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">Safety Score</h3>
-                        <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">92/100</p>
-                        <p className="text-base text-slate-600 dark:text-slate-400 mt-1">47 days incident-free</p>
-                    </div>
-                </div>
+            {/* Placeholder for VehicleTable - will integrate with real API data */}
+            <div style={{
+                padding: 'var(--s-xl)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--r-lg)',
+                background: 'var(--panel)',
+                textAlign: 'center',
+                color: 'var(--muted)'
+            }}>
+                <p>VehicleTable component ready - integrate with real fleet data API</p>
+                <p style={{ fontSize: 12, marginTop: 8 }}>
+                    Pattern: Table → Expand → Nested Table → Row click → Full record view
+                </p>
             </div>
         </div>
     )
