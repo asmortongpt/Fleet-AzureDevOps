@@ -21,12 +21,12 @@ import {
     Server,
     Link,
     ShieldCheck,
-    Activity,
+    Pulse as Activity,
     Workflow,
     GitBranch
 } from '@phosphor-icons/react'
 
-import { HubPage, HubTab } from '@/components/ui/hub-page'
+import { HubPage, type HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 

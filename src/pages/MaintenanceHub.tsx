@@ -20,16 +20,16 @@ function GarageContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 min-h-full overflow-auto">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900 min-h-full overflow-auto">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Garage & Service</h2>
-                    <p className="text-sm text-muted-foreground mt-0.5">Maintenance bay status and work orders</p>
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Garage & Service</h2>
+                    <p className="text-base text-slate-700 dark:text-slate-300 mt-2">Maintenance bay status and work orders</p>
                 </div>
                 <StatusDot status="online" label="Shop Open" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard title="Work Orders" value="12" subtitle="4 urgent" variant="primary" icon={<ClipboardText className="w-6 h-6" />} onClick={() => push({ type: 'work-orders', data: { title: 'Work Orders' }, id: 'work-orders' } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="In Progress" value="5" subtitle="2 technicians" variant="warning" icon={<Wrench className="w-6 h-6" />} onClick={() => push({ type: 'in-progress', data: { title: 'In Progress' }, id: 'in-progress' } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="Completed Today" value="8" trend="up" trendValue="+3" variant="success" onClick={() => push({ type: 'garage-overview', data: { title: 'Completed Today' }, id: 'completed-today' } as Omit<DrilldownLevel, "timestamp">)} />
@@ -37,16 +37,16 @@ function GarageContent() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'bay-utilization', data: { title: 'Bay Utilization' }, id: 'bay-utilization' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Bay Utilization</h3>
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => push({ type: 'bay-utilization', data: { title: 'Bay Utilization' }, id: 'bay-utilization' } as Omit<DrilldownLevel, "timestamp">)}>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">Bay Utilization</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={75} color="blue" label="5 of 8" sublabel="bays in use" />
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'maintenance-calendar', data: { title: 'Weekly Schedule' }, id: 'weekly-schedule' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">This Week</h3>
-                    <div className="space-y-1">
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => push({ type: 'maintenance-calendar', data: { title: 'Weekly Schedule' }, id: 'weekly-schedule' } as Omit<DrilldownLevel, "timestamp">)}>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">This Week</h3>
+                    <div className="space-y-2">
                         <QuickStat label="Scheduled" value="24" />
                         <QuickStat label="Completed" value="18" trend="up" />
                         <QuickStat label="Avg Repair Time" value="3.2 hrs" trend="down" />
@@ -54,8 +54,8 @@ function GarageContent() {
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors" onClick={() => push({ type: 'garage-overview', data: { title: 'Efficiency Score' }, id: 'efficiency-score' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Efficiency</h3>
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => push({ type: 'garage-overview', data: { title: 'Efficiency Score' }, id: 'efficiency-score' } as Omit<DrilldownLevel, "timestamp">)}>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">Efficiency</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={88} color="green" label="Score" sublabel="vs 82% last month" />
                     </div>
@@ -69,9 +69,12 @@ function PredictiveContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
-            <h2 className="text-2xl font-bold text-white">Predictive Maintenance</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
+            <div>
+                <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Predictive Maintenance</h2>
+                <p className="text-base text-slate-700 dark:text-slate-300 mt-2">AI-powered failure prediction and prevention</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <StatCard title="Predictions Active" value="156" variant="primary" icon={<ChartLine className="w-6 h-6" />} onClick={() => push({ type: 'predictions-active', data: { title: 'Active Predictions' }, id: 'predictions-active' } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="Alerts" value="8" variant="warning" onClick={() => push({ type: 'predictive-maintenance', data: { title: 'Alerts' }, id: 'alerts' } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="Prevented Failures" value="12" variant="success" trend="up" trendValue="this month" onClick={() => push({ type: 'predictive-maintenance', data: { title: 'Prevented Failures' }, id: 'prevented-failures' } as Omit<DrilldownLevel, "timestamp">)} />
@@ -85,9 +88,12 @@ function CalendarContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
-            <h2 className="text-2xl font-bold text-white">Maintenance Calendar</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
+            <div>
+                <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Maintenance Calendar</h2>
+                <p className="text-base text-slate-700 dark:text-slate-300 mt-2">Scheduled maintenance and service planning</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <StatCard title="Today" value="4" variant="primary" icon={<CalendarDots className="w-6 h-6" />} onClick={() => push({ type: 'maintenance-today', data: { title: 'Today\'s Schedule' }, id: 'today-schedule' } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="This Week" value="18" variant="default" onClick={() => push({ type: 'maintenance-calendar', data: { title: 'Weekly Schedule' }, id: 'weekly-schedule' } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="Overdue" value="2" variant="danger" onClick={() => push({ type: 'maintenance-overdue', data: { title: 'Overdue' }, id: 'overdue' } as Omit<DrilldownLevel, "timestamp">)} />
@@ -100,9 +106,12 @@ function RequestsContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
-            <h2 className="text-2xl font-bold text-white">Maintenance Requests</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
+            <div>
+                <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Maintenance Requests</h2>
+                <p className="text-base text-slate-700 dark:text-slate-300 mt-2">Driver and fleet maintenance request tracking</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <StatCard title="New Requests" value="6" variant="primary" onClick={() => push({ type: 'maintenance-requests', data: { title: 'New Requests', filter: 'new' }, id: 'new-requests' } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="In Review" value="4" variant="warning" onClick={() => push({ type: 'maintenance-requests', data: { title: 'In Review', filter: 'review' }, id: 'in-review' } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="Approved" value="8" variant="success" onClick={() => push({ type: 'maintenance-requests', data: { title: 'Approved', filter: 'approved' }, id: 'approved' } as Omit<DrilldownLevel, "timestamp">)} />

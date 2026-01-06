@@ -80,9 +80,9 @@ const variantStyles = {
 const sizeStyles = {
     sm: {
         padding: 'p-3',
-        title: 'text-[10px]',
+        title: 'text-xs',
         value: 'text-lg sm:text-xl',
-        subtitle: 'text-[10px]',
+        subtitle: 'text-xs',
         icon: 'p-1.5',
         iconSize: 'w-4 h-4'
     },
@@ -300,8 +300,8 @@ export function ProgressRing({
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-lg sm:text-xl font-bold text-foreground tabular-nums">{progress}%</span>
-                {label && <span className="text-[10px] text-muted-foreground font-medium">{label}</span>}
-                {sublabel && <span className="text-[8px] text-muted-foreground/70">{sublabel}</span>}
+                {label && <span className="text-xs text-muted-foreground font-medium">{label}</span>}
+                {sublabel && <span className="text-xs text-muted-foreground/70">{sublabel}</span>}
             </div>
         </motion.div>
     )
