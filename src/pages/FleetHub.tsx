@@ -108,21 +108,67 @@ function TabLoadingFallback() {
 }
 
 // ============================================================================
-// FLEET OVERVIEW CONTENT - Table-First Navigation Pattern (Placeholder)
+// FLEET OVERVIEW CONTENT - Professional Table-First Navigation Pattern
 // ============================================================================
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { EntityAvatar } from '@/shared/design-system/EntityAvatar'
+import { StatusChip } from '@/shared/design-system/StatusChip'
+import { RowExpandPanel } from '@/shared/design-system/RowExpandPanel'
+import type { VehicleRow } from '@/shared/design-system/types'
+import { useState } from 'react'
 
 function FleetOverviewContent() {
     const { push } = useDrilldown()
+    const [expandedRow, setExpandedRow] = useState<string | null>(null)
+
+    // Sample vehicle data - will be replaced with real API data
+    const vehicles: VehicleRow[] = [
+        {
+            entityType: 'vehicle',
+            id: 'VEH-001',
+            displayName: 'Truck 42',
+            status: 'good',
+            kind: 'Semi Truck',
+            odometer: 142500,
+            fuelPct: 72,
+            healthScore: 94,
+            alerts: 0,
+            updatedAgo: '2m ago'
+        },
+        {
+            entityType: 'vehicle',
+            id: 'VEH-002',
+            displayName: 'Van 18',
+            status: 'warn',
+            kind: 'Cargo Van',
+            odometer: 89200,
+            fuelPct: 45,
+            healthScore: 78,
+            alerts: 2,
+            updatedAgo: '5m ago'
+        },
+        {
+            entityType: 'vehicle',
+            id: 'VEH-003',
+            displayName: 'Truck 07',
+            status: 'bad',
+            kind: 'Box Truck',
+            odometer: 203400,
+            fuelPct: 15,
+            healthScore: 52,
+            alerts: 5,
+            updatedAgo: '1m ago'
+        }
+    ]
 
     return (
         <div style={{
-            padding: 'var(--s-xl)',
+            padding: 24,
             background: 'var(--bg)',
             minHeight: '100vh'
         }}>
             {/* Header */}
-            <div style={{ marginBottom: 'var(--s-xl)' }}>
+            <div style={{ marginBottom: 24 }}>
                 <h2 style={{
                     fontSize: 28,
                     fontWeight: 700,
@@ -132,23 +178,139 @@ function FleetOverviewContent() {
                 <p style={{
                     fontSize: 14,
                     color: 'var(--muted)'
-                }}>Table-first navigation pattern - awaiting real data integration</p>
+                }}>Professional table-first navigation with expandable drilldowns</p>
             </div>
 
-            {/* Placeholder for VehicleTable - will integrate with real API data */}
+            {/* Vehicle Table - Professional Design */}
             <div style={{
-                padding: 'var(--s-xl)',
                 border: '1px solid var(--border)',
-                borderRadius: 'var(--r-lg)',
+                borderRadius: 16,
                 background: 'var(--panel)',
-                textAlign: 'center',
-                color: 'var(--muted)'
+                overflow: 'hidden'
             }}>
-                <p>VehicleTable component ready - integrate with real fleet data API</p>
-                <p style={{ fontSize: 12, marginTop: 8 }}>
-                    Pattern: Table → Expand → Nested Table → Row click → Full record view
-                </p>
+                <table style={{
+                    width: '100%',
+                    borderCollapse: 'separate',
+                    borderSpacing: 0
+                }}>
+                    <thead>
+                        <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
+                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Vehicle</th>
+                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Type</th>
+                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Odometer</th>
+                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Fuel</th>
+                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Health</th>
+                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Alerts</th>
+                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Updated</th>
+                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {vehicles.map(vehicle => (
+                            <React.Fragment key={vehicle.id}>
+                                <tr style={{
+                                    borderBottom: '1px solid rgba(255,255,255,0.06)',
+                                    cursor: 'pointer',
+                                    background: expandedRow === vehicle.id ? 'rgba(96,165,250,0.08)' : 'transparent',
+                                    transition: 'background 0.15s'
+                                }}
+                                    onClick={() => setExpandedRow(expandedRow === vehicle.id ? null : vehicle.id)}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = expandedRow === vehicle.id ? 'rgba(96,165,250,0.08)' : 'rgba(255,255,255,0.03)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = expandedRow === vehicle.id ? 'rgba(96,165,250,0.08)' : 'transparent'}
+                                >
+                                    <td style={{ padding: 16 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                            <EntityAvatar entity={vehicle} size={38} />
+                                            <div>
+                                                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{vehicle.displayName}</div>
+                                                <div style={{ fontSize: 12, color: 'var(--muted)' }}>{vehicle.id}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style={{ padding: 16, fontSize: 14, color: 'var(--text)' }}>{vehicle.kind}</td>
+                                    <td style={{ padding: 16, fontSize: 14, color: 'var(--text)' }}>{vehicle.odometer.toLocaleString()} mi</td>
+                                    <td style={{ padding: 16 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <div style={{ width: 60, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.1)', overflow: 'hidden' }}>
+                                                <div style={{
+                                                    width: `${vehicle.fuelPct}%`,
+                                                    height: '100%',
+                                                    background: vehicle.fuelPct < 25 ? 'var(--bad)' : vehicle.fuelPct < 50 ? 'var(--warn)' : 'var(--good)',
+                                                    transition: 'width 0.3s'
+                                                }} />
+                                            </div>
+                                            <span style={{ fontSize: 12, color: 'var(--muted)' }}>{vehicle.fuelPct}%</span>
+                                        </div>
+                                    </td>
+                                    <td style={{ padding: 16, fontSize: 14, fontWeight: 600, color: vehicle.healthScore >= 80 ? 'var(--good)' : vehicle.healthScore >= 60 ? 'var(--warn)' : 'var(--bad)' }}>
+                                        {vehicle.healthScore}
+                                    </td>
+                                    <td style={{ padding: 16 }}>
+                                        {vehicle.alerts > 0 ? (
+                                            <StatusChip status={vehicle.status} label={`${vehicle.alerts} Alert${vehicle.alerts > 1 ? 's' : ''}`} />
+                                        ) : (
+                                            <StatusChip status="good" label="OK" />
+                                        )}
+                                    </td>
+                                    <td style={{ padding: 16, fontSize: 12, color: 'var(--muted)' }}>{vehicle.updatedAgo}</td>
+                                    <td style={{ padding: 16 }}>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                push({
+                                                    id: vehicle.id,
+                                                    type: 'vehicle-details',
+                                                    label: `${vehicle.displayName} Details`,
+                                                    data: vehicle
+                                                })
+                                            }}
+                                            style={{
+                                                padding: '8px 12px',
+                                                borderRadius: 12,
+                                                border: '1px solid var(--border)',
+                                                background: 'rgba(96,165,250,0.15)',
+                                                color: 'var(--text)',
+                                                cursor: 'pointer',
+                                                fontSize: 12,
+                                                fontWeight: 600
+                                            }}
+                                        >
+                                            View
+                                        </button>
+                                    </td>
+                                </tr>
+                                {expandedRow === vehicle.id && (
+                                    <tr>
+                                        <td colSpan={8} style={{ padding: 16, background: 'rgba(0,0,0,0.12)' }}>
+                                            <RowExpandPanel
+                                                anomalies={[
+                                                    { status: 'good', label: 'Engine Temp: Normal' },
+                                                    { status: 'warn', label: 'Tire Pressure: Low' },
+                                                    { status: vehicle.fuelPct < 25 ? 'bad' : 'good', label: `Fuel: ${vehicle.fuelPct}%` }
+                                                ]}
+                                                records={[
+                                                    { id: 'REC-001', summary: 'Routine maintenance completed', timestamp: '2h ago', severity: 'info' },
+                                                    { id: 'REC-002', summary: 'Low tire pressure detected', timestamp: '5h ago', severity: 'warn' }
+                                                ]}
+                                                onOpenRecord={(id) => push({
+                                                    id,
+                                                    type: 'record-details',
+                                                    label: `Record ${id}`,
+                                                    data: { recordId: id }
+                                                })}
+                                            />
+                                        </td>
+                                    </tr>
+                                )}
+                            </React.Fragment>
+                        ))}
+                    </tbody>
+                </table>
             </div>
+
+            <p style={{ marginTop: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'center' }}>
+                Click rows to expand telemetry drilldowns • Click "View" for full vehicle details
+            </p>
         </div>
     )
 }
