@@ -164,7 +164,7 @@ function FleetOverviewContent() {
     return (
         <div style={{
             padding: 24,
-            background: 'var(--bg)',
+            background: '#030712',
             minHeight: '100vh'
         }}>
             {/* Header */}
@@ -172,21 +172,22 @@ function FleetOverviewContent() {
                 <h2 style={{
                     fontSize: 28,
                     fontWeight: 700,
-                    color: 'var(--text)',
+                    color: '#f9fafb',
                     marginBottom: 8
                 }}>Fleet Overview</h2>
                 <p style={{
                     fontSize: 14,
-                    color: 'var(--muted)'
+                    color: '#9ca3af'
                 }}>Professional table-first navigation with expandable drilldowns</p>
             </div>
 
             {/* Vehicle Table - Professional Design */}
             <div style={{
-                border: '1px solid var(--border)',
+                border: '1px solid rgba(148, 163, 184, 0.2)',
                 borderRadius: 16,
-                background: 'var(--panel)',
-                overflow: 'hidden'
+                background: 'linear-gradient(135deg, #1a2332 0%, #0f1419 100%)',
+                overflow: 'hidden',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
             }}>
                 <table style={{
                     width: '100%',
@@ -194,15 +195,15 @@ function FleetOverviewContent() {
                     borderSpacing: 0
                 }}>
                     <thead>
-                        <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
-                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Vehicle</th>
-                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Type</th>
-                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Odometer</th>
-                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Fuel</th>
-                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Health</th>
-                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Alerts</th>
-                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}>Updated</th>
-                            <th style={{ padding: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em' }}></th>
+                        <tr style={{ background: 'rgba(96, 165, 250, 0.08)', borderBottom: '1px solid rgba(96, 165, 250, 0.2)' }}>
+                            <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Vehicle</th>
+                            <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Type</th>
+                            <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Odometer</th>
+                            <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Fuel</th>
+                            <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Health</th>
+                            <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Alerts</th>
+                            <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Updated</th>
+                            <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -222,27 +223,27 @@ function FleetOverviewContent() {
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                             <EntityAvatar entity={vehicle} size={38} />
                                             <div>
-                                                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{vehicle.displayName}</div>
-                                                <div style={{ fontSize: 12, color: 'var(--muted)' }}>{vehicle.id}</div>
+                                                <div style={{ fontSize: 14, fontWeight: 600, color: '#f9fafb' }}>{vehicle.displayName}</div>
+                                                <div style={{ fontSize: 12, color: '#9ca3af' }}>{vehicle.id}</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td style={{ padding: 16, fontSize: 14, color: 'var(--text)' }}>{vehicle.kind}</td>
-                                    <td style={{ padding: 16, fontSize: 14, color: 'var(--text)' }}>{vehicle.odometer.toLocaleString()} mi</td>
+                                    <td style={{ padding: 16, fontSize: 14, color: '#e5e7eb' }}>{vehicle.kind}</td>
+                                    <td style={{ padding: 16, fontSize: 14, color: '#e5e7eb' }}>{vehicle.odometer.toLocaleString()} mi</td>
                                     <td style={{ padding: 16 }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                            <div style={{ width: 60, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.1)', overflow: 'hidden' }}>
+                                            <div style={{ width: 60, height: 6, borderRadius: 3, background: 'rgba(148, 163, 184, 0.2)', overflow: 'hidden' }}>
                                                 <div style={{
                                                     width: `${vehicle.fuelPct}%`,
                                                     height: '100%',
-                                                    background: vehicle.fuelPct < 25 ? 'var(--bad)' : vehicle.fuelPct < 50 ? 'var(--warn)' : 'var(--good)',
+                                                    background: vehicle.fuelPct < 25 ? '#ef4444' : vehicle.fuelPct < 50 ? '#f59e0b' : '#22c55e',
                                                     transition: 'width 0.3s'
                                                 }} />
                                             </div>
-                                            <span style={{ fontSize: 12, color: 'var(--muted)' }}>{vehicle.fuelPct}%</span>
+                                            <span style={{ fontSize: 12, color: '#d1d5db' }}>{vehicle.fuelPct}%</span>
                                         </div>
                                     </td>
-                                    <td style={{ padding: 16, fontSize: 14, fontWeight: 600, color: vehicle.healthScore >= 80 ? 'var(--good)' : vehicle.healthScore >= 60 ? 'var(--warn)' : 'var(--bad)' }}>
+                                    <td style={{ padding: 16, fontSize: 14, fontWeight: 600, color: vehicle.healthScore >= 80 ? '#22c55e' : vehicle.healthScore >= 60 ? '#f59e0b' : '#ef4444' }}>
                                         {vehicle.healthScore}
                                     </td>
                                     <td style={{ padding: 16 }}>
@@ -252,7 +253,7 @@ function FleetOverviewContent() {
                                             <StatusChip status="good" label="OK" />
                                         )}
                                     </td>
-                                    <td style={{ padding: 16, fontSize: 12, color: 'var(--muted)' }}>{vehicle.updatedAgo}</td>
+                                    <td style={{ padding: 16, fontSize: 12, color: '#9ca3af' }}>{vehicle.updatedAgo}</td>
                                     <td style={{ padding: 16 }}>
                                         <button
                                             onClick={(e) => {
@@ -265,14 +266,23 @@ function FleetOverviewContent() {
                                                 })
                                             }}
                                             style={{
-                                                padding: '8px 12px',
-                                                borderRadius: 12,
-                                                border: '1px solid var(--border)',
-                                                background: 'rgba(96,165,250,0.15)',
-                                                color: 'var(--text)',
+                                                padding: '8px 16px',
+                                                borderRadius: 8,
+                                                border: '1px solid rgba(96, 165, 250, 0.3)',
+                                                background: 'rgba(96, 165, 250, 0.12)',
+                                                color: '#93c5fd',
                                                 cursor: 'pointer',
-                                                fontSize: 12,
-                                                fontWeight: 600
+                                                fontSize: 13,
+                                                fontWeight: 600,
+                                                transition: 'all 0.2s'
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.background = 'rgba(96, 165, 250, 0.2)'
+                                                e.currentTarget.style.borderColor = 'rgba(96, 165, 250, 0.5)'
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.background = 'rgba(96, 165, 250, 0.12)'
+                                                e.currentTarget.style.borderColor = 'rgba(96, 165, 250, 0.3)'
                                             }}
                                         >
                                             View
@@ -308,7 +318,7 @@ function FleetOverviewContent() {
                 </table>
             </div>
 
-            <p style={{ marginTop: 16, fontSize: 12, color: 'var(--muted)', textAlign: 'center' }}>
+            <p style={{ marginTop: 16, fontSize: 12, color: '#6b7280', textAlign: 'center' }}>
                 Click rows to expand telemetry drilldowns • Click "View" for full vehicle details
             </p>
         </div>
@@ -616,6 +626,12 @@ function VideoContent() {
 export function FleetHub() {
     const tabs: HubTab[] = [
         {
+            id: 'overview',
+            label: 'Overview',
+            icon: <Speedometer className="w-4 h-4" />,
+            content: <FleetOverviewContent />,
+        },
+        {
             id: 'google-maps',
             label: 'Live Tracking',
             icon: <MapPin className="w-4 h-4" />,
@@ -638,12 +654,6 @@ export function FleetHub() {
                     </Suspense>
                 </TabErrorBoundary>
             ),
-        },
-        {
-            id: 'overview',
-            label: 'Overview',
-            icon: <Speedometer className="w-4 h-4" />,
-            content: <FleetOverviewContent />,
         },
         {
             id: 'telemetry',

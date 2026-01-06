@@ -55,104 +55,60 @@
   High-contrast, vibrant, and glassmorphic aesthetic
 */
 :root {
-  /* Premium Dark Mode - Deep Midnight Theme */
-  --background: #020617;
-  /* Slate 950 - Almost black */
-  --foreground: #f8fafc;
-  /* Slate 50 - Bright white text */
+  /* CONSISTENT DARK THEME - Production Enterprise Standard */
+  --background: #0F1419;
+  /* Deep midnight background */
+  --foreground: #F9FAFB;
+  /* Crisp white text */
 
-  --card: #0f172a;
-  /* Slate 900 - Deep rich background */
-  --card-foreground: #f8fafc;
-  /* Slate 50 */
+  --card: #1A1F2E;
+  /* Card background - slightly lighter */
+  --card-foreground: #F9FAFB;
+  /* Crisp white text */
 
-  --popover: #0f172a;
-  /* Slate 900 */
-  --popover-foreground: #f8fafc;
-  /* Slate 50 */
+  --popover: #242B3D;
+  /* Popover background */
+  --popover-foreground: #F9FAFB;
+  /* Crisp white text */
 
   --primary: #3b82f6;
-  /* Blue 500 - Vibrant Electric Blue */
+  /* Blue 500 - SINGLE ACCENT COLOR */
   --primary-foreground: #ffffff;
 
-  --secondary: #1e293b;
-  /* Slate 800 - Subtle contrast */
-  --secondary-foreground: #f8fafc;
+  --secondary: #2A3347;
+  /* Subtle secondary */
+  --secondary-foreground: #D1D5DB;
 
-  --muted: #1e293b;
-  /* Slate 800 */
-  --muted-foreground: #94a3b8;
-  /* Slate 400 */
+  --muted: #242B3D;
+  /* Muted background */
+  --muted-foreground: #9CA3AF;
+  /* Muted text */
 
-  --accent: #6366f1;
-  /* Indigo 500 - Secondary vibrant accent */
+  --accent: #3b82f6;
+  /* SAME AS PRIMARY - Blue 500 - SINGLE ACCENT COLOR */
   --accent-foreground: #ffffff;
 
   --destructive: #ef4444;
-  /* Red 500 - Vaporwave Red */
+  /* Red 500 */
   --destructive-foreground: #ffffff;
 
   --success: #10b981;
-  /* Emerald 500 - Neon Green */
+  /* Emerald 500 */
   --warning: #f59e0b;
-  /* Amber 500 - Bright Orange */
+  /* Amber 500 */
 
-  --border: rgba(148, 163, 184, 0.15);
-  /* Subtle glass border */
-  --input: #1e293b;
-  /* Slate 800 */
+  --border: rgba(75, 85, 99, 0.3);
+  /* Consistent border */
+  --input: #242B3D;
+  /* Input background */
   --ring: #3b82f6;
-  /* Blue 500 */
+  /* Blue 500 - focus ring */
 
   --radius: 0.75rem;
   /* Modern 12px corners */
 }
 
-/*
-  LIGHT MODE - Crisp Modern Theme
-  Clean, airy, and high-contrast
-*/
-.light {
-  --background: #ffffff;
-  /* Pure white */
-  --foreground: #020617;
-  /* Slate 950 - High contrast text */
-
-  --card: #ffffff;
-  --card-foreground: #020617;
-
-  --popover: #ffffff;
-  --popover-foreground: #020617;
-
-  --primary: #2563eb;
-  /* Blue 600 */
-  --primary-foreground: #ffffff;
-
-  --secondary: #f1f5f9;
-  /* Slate 100 */
-  --secondary-foreground: #0f172a;
-
-  --muted: #f8fafc;
-  /* Slate 50 */
-  --muted-foreground: #64748b;
-  /* Slate 500 */
-
-  --accent: #eeeeff;
-  /* Very light indigo tint */
-  --accent-foreground: #4338ca;
-  /* Indigo 700 */
-
-  --destructive: #dc2626;
-  --destructive-foreground: #ffffff;
-
-  --success: #059669;
-  --warning: #d97706;
-
-  --border: #e2e8f0;
-  /* Slate 200 */
-  --input: #ffffff;
-  --ring: #2563eb;
-}
+/* REMOVE LIGHT MODE - Commit to single dark theme for consistency */
 
 @theme {
   --color-background: var(--background);
