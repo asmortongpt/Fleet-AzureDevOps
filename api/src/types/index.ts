@@ -1,7 +1,7 @@
 // Core Type Definitions for Fleet Management System
 
 import { Request } from 'express';
-import { QueryResult as PgQueryResult } from 'pg';
+import { QueryResult as PgQueryResult, QueryResultRow as PgQueryResultRow } from 'pg';
 
 // ============================================================================
 // User and Authentication Types
@@ -53,8 +53,8 @@ export interface RegisterRequest {
 export interface JWTPayload {
   id: string;
   email: string;
-  role: UserRole;
-  tenant_id: string;
+  role?: UserRole;
+  tenant_id?: string;
   iat?: number;
   exp?: number;
 }
@@ -241,7 +241,7 @@ export interface PaginatedResponse<T> {
 // Database Query Types
 // ============================================================================
 
-export interface QueryResult<T> extends PgQueryResult<T> {
+export interface QueryResult<T extends PgQueryResultRow = any> extends PgQueryResult<T> {
   rows: T[];
   rowCount: number;
 }

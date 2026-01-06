@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface AuditLog {
   id: number;
@@ -15,11 +15,9 @@ export interface AuditLog {
 
 export class AuditLogsRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('audit_logs', pool);
-    this.pool = pool;
+    super(pool, 'audit_logs');
   }
 
   async create(tenantId: string, auditLog: Omit<AuditLog, 'id' | 'created_at' | 'updated_at'>): Promise<AuditLog> {
@@ -74,6 +72,6 @@ export class AuditLogsRepository extends BaseRepository<any> {
       RETURNING id
     `;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

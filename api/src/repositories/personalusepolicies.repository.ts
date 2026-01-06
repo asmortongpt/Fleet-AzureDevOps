@@ -1,10 +1,9 @@
 import { Pool, QueryResult } from 'pg';
 
 class PersonalUsePoliciesRepository {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    this.pool = pool;
+    super(pool, 'personal_use_policies');
   }
 
   async createPersonalUsePolicy(

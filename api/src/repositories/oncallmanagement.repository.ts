@@ -1,10 +1,9 @@
 import { Pool } from 'pg';
 
 class OnCallManagementRepository {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    this.pool = pool;
+    super(pool, 'on_call_schedules');
   }
 
   async createOnCallSchedule(tenantId: string, schedule: any): Promise<any> {
@@ -71,7 +70,7 @@ class OnCallManagementRepository {
       WHERE tenant_id = $1 AND id = $2
     `;
     const result = await this.pool.query(query, [tenantId, scheduleId]);
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 }
 

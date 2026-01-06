@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 interface Claim {
   id: number;
@@ -14,11 +14,9 @@ interface Claim {
 }
 
 export class ClaimsManagementRepository extends BaseRepository<any> {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('claims', pool);
-    this.pool = pool;
+    super(pool, 'claims');
   }
 
   // Create a new claim
@@ -86,7 +84,7 @@ export class ClaimsManagementRepository extends BaseRepository<any> {
     const values = [id, tenant_id];
 
     const result: QueryResult<{ id: number }> = await this.pool.query(query, values);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 
   // List all claims for a tenant

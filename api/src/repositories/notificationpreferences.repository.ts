@@ -2,13 +2,12 @@
 import { Pool } from 'pg';
 
 import { NotificationPreferences } from '../models/notification-preferences.model';
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export class NotificationPreferencesRepository extends BaseRepository<any> {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    this.pool = pool;
+    super(pool, 'notification_preferences');
   }
 
   async getAll(tenantId: string): Promise<NotificationPreferences[]> {
@@ -62,6 +61,6 @@ export class NotificationPreferencesRepository extends BaseRepository<any> {
   async delete(id: string, tenantId: string): Promise<boolean> {
     const query = 'DELETE FROM notification_preferences WHERE id = $1 AND tenant_id = $2';
     const result = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 }

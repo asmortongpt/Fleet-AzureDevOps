@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 
 export interface VehicleTelematics {
@@ -18,14 +18,16 @@ export interface VehicleTelematics {
 }
 
 export class VehicleTelematicsRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+  constructor(pool: Pool) {
+    super(pool, 'vehicle_telematics');
+  }
 
   async findAll(tenantId: number): Promise<VehicleTelematics[]> {
     const query = 'SELECT id, created_at, updated_at FROM vehicle_telematics WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY timestamp DESC';
     try {
       const result: QueryResult<VehicleTelematics> = await this.pool.query(query, [tenantId]);
       return result.rows;
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(`Failed to fetch vehicle telematics data: ${error.message}`);
     }
   }
@@ -35,7 +37,7 @@ export class VehicleTelematicsRepository extends BaseRepository<any> {
     try {
       const result: QueryResult<VehicleTelematics> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(`Failed to fetch vehicle telematics data by ID: ${error.message}`);
     }
   }
@@ -46,7 +48,7 @@ export class VehicleTelematicsRepository extends BaseRepository<any> {
     try {
       const result: QueryResult<VehicleTelematics> = await this.pool.query(query, values);
       return result.rows[0];
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(`Failed to create vehicle telematics data: ${error.message}`);
     }
   }
@@ -58,7 +60,7 @@ export class VehicleTelematicsRepository extends BaseRepository<any> {
     try {
       const result: QueryResult<VehicleTelematics> = await this.pool.query(query, values);
       return result.rows[0] || null;
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(`Failed to update vehicle telematics data: ${error.message}`);
     }
   }
@@ -68,7 +70,7 @@ export class VehicleTelematicsRepository extends BaseRepository<any> {
     try {
       const result: QueryResult<VehicleTelematics> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(`Failed to soft delete vehicle telematics data: ${error.message}`);
     }
   }

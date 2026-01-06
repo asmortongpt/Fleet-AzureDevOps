@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface IntegrationLog {
   id: number;
@@ -16,11 +16,9 @@ export interface IntegrationLog {
 
 export class IntegrationLogsRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('integration_logs', pool);
-    this.pool = pool;
+    super(pool, 'integration_logs');
   }
 
   async createLog(tenantId: number, log: Omit<IntegrationLog, 'id' | 'created_at'>): Promise<IntegrationLog> {
@@ -57,6 +55,6 @@ export class IntegrationLogsRepository extends BaseRepository<any> {
   async deleteLog(tenantId: number, id: number): Promise<boolean> {
     const query = `DELETE FROM integration_logs WHERE id = $1 AND tenant_id = $2 RETURNING id`;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

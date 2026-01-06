@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 // Define the interface for carbon tracking data
 interface CarbonTrackingData {
@@ -13,11 +13,9 @@ interface CarbonTrackingData {
 }
 
 export class CarbonTrackingRepository extends BaseRepository<any> {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('carbon_tracking', pool);
-    this.pool = pool;
+    super(pool, 'carbon_tracking');
   }
 
   // Create a new carbon tracking entry
@@ -80,7 +78,7 @@ export class CarbonTrackingRepository extends BaseRepository<any> {
     const values = [id, tenant_id];
 
     const result: QueryResult<{ id: number }> = await this.pool.query(query, values);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 
   // List carbon tracking entries for a tenant

@@ -2,13 +2,12 @@
 import { Pool } from 'pg';
 
 import { InsurancePolicy } from '../models/insurance-policy.model';
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export class InsurancePoliciesRepository extends BaseRepository<any> {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    this.pool = pool;
+    super(pool, 'insurance_policies');
   }
 
   async getAll(tenantId: string): Promise<InsurancePolicy[]> {
@@ -75,6 +74,6 @@ export class InsurancePoliciesRepository extends BaseRepository<any> {
       WHERE tenant_id = $1 AND id = $2
     `;
     const result = await this.pool.query(query, [tenantId, id]);
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 }

@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 
 export interface Trip {
@@ -15,7 +15,9 @@ export interface Trip {
 }
 
 export class TripManagementRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+  constructor(pool: Pool) {
+    super(pool, 'trips');
+  }
 
   async findAll(tenantId: number): Promise<Trip[]> {
     try {

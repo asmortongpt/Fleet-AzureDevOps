@@ -12,7 +12,7 @@
 
 import { Pool } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface PolicyTemplate {
   id: number;
@@ -109,7 +109,9 @@ export interface PaginationResult<T> {
 }
 
 export class PolicyTemplatesRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+  constructor(pool: Pool) {
+    super(pool, 'policy_templates');
+  }
 
   // ============================================================================
   // Policy Templates

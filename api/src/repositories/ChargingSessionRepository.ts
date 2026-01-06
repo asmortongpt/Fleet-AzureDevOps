@@ -70,6 +70,6 @@ export class ChargingSessionRepository extends BaseRepository<ChargingSession> {
     `
 
     const result = await this.query(query, [id, tenantId])
-    return result.rowCount > 0
+    return (result.rowCount ?? 0) > 0
   }
 }

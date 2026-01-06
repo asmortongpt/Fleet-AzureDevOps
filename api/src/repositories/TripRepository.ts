@@ -70,6 +70,6 @@ export class TripRepository extends BaseRepository<Trip> {
     `
 
     const result = await this.query(query, [id, tenantId])
-    return result.rowCount > 0
+    return (result.rowCount ?? 0) > 0
   }
 }

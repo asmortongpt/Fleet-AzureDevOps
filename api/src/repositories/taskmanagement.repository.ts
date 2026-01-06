@@ -1,10 +1,9 @@
 import { Pool, QueryResult } from 'pg';
 
 class TaskManagementRepository {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    this.pool = pool;
+    super(pool, 'tasks');
   }
 
   async createTask(

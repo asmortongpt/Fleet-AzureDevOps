@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface DataExport {
   id: number;
@@ -13,11 +13,9 @@ export interface DataExport {
 
 export class DataExportRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('data_exports', pool);
-    this.pool = pool;
+    super(pool, 'data_exports');
   }
 
   async create(tenantId: number, dataExport: Omit<DataExport, 'id' | 'created_at' | 'updated_at'>): Promise<DataExport> {
@@ -59,7 +57,7 @@ export class DataExportRepository extends BaseRepository<any> {
   async delete(tenantId: string, id: number): Promise<boolean> {
     const query = `DELETE FROM data_exports WHERE id = $1 AND tenant_id = $2 RETURNING id`;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 
   async list(tenantId: string): Promise<DataExport[]> {

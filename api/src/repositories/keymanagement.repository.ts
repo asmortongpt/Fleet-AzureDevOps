@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface KeyManagement {
     id: number;
@@ -13,11 +13,9 @@ export interface KeyManagement {
 
 export class KeyManagementRepository extends BaseRepository<any> {
 
-    private pool: Pool;
 
     constructor(pool: Pool) {
-        super('key_management', pool);
-        this.pool = pool;
+        super(pool, 'key_management');
     }
 
     async createKeyManagement(tenant_id: number, keyName: string, keyValue: string): Promise<KeyManagement> {
@@ -52,6 +50,6 @@ export class KeyManagementRepository extends BaseRepository<any> {
         const query = 'DELETE FROM key_management WHERE id = $1 AND tenant_id = $2 RETURNING id';
         const values = [id, tenant_id];
         const result: QueryResult = await this.pool.query(query, values);
-        return result.rowCount ? result.rowCount > 0 : false;
+        return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
     }
 }

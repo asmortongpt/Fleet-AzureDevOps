@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 // Define the interface for tire management data
 interface TireManagement {
@@ -18,11 +18,9 @@ interface TireManagement {
 
 // TireManagementRepository class
 export class TireManagementRepository extends BaseRepository<any> {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('tire_management', pool);
-    this.pool = pool;
+    super(pool, 'tire_management');
   }
 
   // Create a new tire management record
@@ -98,7 +96,7 @@ export class TireManagementRepository extends BaseRepository<any> {
     const values = [id, tenant_id];
 
     const result: QueryResult = await this.pool.query(query, values);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 
   // List all tire management records for a tenant
