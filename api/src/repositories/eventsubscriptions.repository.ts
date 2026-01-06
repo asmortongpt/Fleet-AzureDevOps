@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface EventSubscription {
   id: number;
@@ -13,11 +13,9 @@ export interface EventSubscription {
 
 export class EventSubscriptionsRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('event_subscriptions', pool);
-    this.pool = pool;
+    super(pool, 'event_subscriptions');
   }
 
   async create(tenantId: number, eventSubscription: Omit<EventSubscription, 'id' | 'created_at' | 'updated_at'>): Promise<EventSubscription> {
@@ -67,7 +65,7 @@ export class EventSubscriptionsRepository extends BaseRepository<any> {
   async delete(tenantId: number, id: number): Promise<boolean> {
     const query = `DELETE FROM event_subscriptions WHERE id = $1 AND tenant_id = $2 RETURNING id`;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 
   async list(tenantId: number): Promise<EventSubscription[]> {

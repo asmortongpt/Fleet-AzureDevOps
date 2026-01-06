@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 
 export interface RouteOptimization {
@@ -14,7 +14,9 @@ export interface RouteOptimization {
 }
 
 export class RouteOptimizationRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+  constructor(pool: Pool) {
+    super(pool, 'route_optimizations');
+  }
 
   async findAll(tenantId: number): Promise<RouteOptimization[]> {
     try {

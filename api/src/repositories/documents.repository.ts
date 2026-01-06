@@ -18,7 +18,7 @@
 import { Pool } from 'pg';
 
 import { NotFoundError } from '../errors/app-error';
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface Document {
   id: number;
@@ -135,7 +135,9 @@ export interface DashboardData {
 }
 
 export class DocumentsRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+  constructor(pool: Pool) {
+    super(pool, 'documents');
+  }
 
   /**
    * Get paginated list of documents with filters

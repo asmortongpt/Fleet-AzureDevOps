@@ -1,7 +1,7 @@
 import { pool } from '../db';
 
 export abstract class BaseRepository<T> {
-  constructor(protected tableName: string) {}
+  constructor(protected tableName: string) { }
 
   async findById(id: number, tenantId: number): Promise<T | null> {
     const result = await pool.query(
@@ -53,6 +53,6 @@ export abstract class BaseRepository<T> {
       `DELETE FROM ${this.tableName} WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
     );
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 }

@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface FacilityManagement {
   id: number;
@@ -16,11 +16,9 @@ export interface FacilityManagement {
 
 export class FacilityManagementRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('facility_management', pool);
-    this.pool = pool;
+    super(pool, 'facility_management');
   }
 
   async create(tenantId: number, facilityManagement: Omit<FacilityManagement, 'id' | 'created_at' | 'updated_at'>): Promise<FacilityManagement> {
@@ -65,6 +63,6 @@ export class FacilityManagementRepository extends BaseRepository<any> {
   async delete(tenantId: number, id: number): Promise<boolean> {
     const query = `DELETE FROM facility_management WHERE id = $1 AND tenant_id = $2 RETURNING id`;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

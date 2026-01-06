@@ -15,11 +15,8 @@ interface OshaCompliance {
 
 export class OshaComplianceRepository extends BaseRepository<any> {
 
-  private pool: Pool;
-
   constructor(pool: Pool) {
-    super('osha_compliance', pool);
-    this.pool = pool;
+    super(pool, 'osha_compliance');
   }
 
   async getAllOshaCompliances(tenantId: number): Promise<OshaCompliance[]> {
@@ -91,6 +88,6 @@ export class OshaComplianceRepository extends BaseRepository<any> {
   async deleteOshaCompliance(id: number, tenantId: number): Promise<boolean> {
     const query = 'DELETE FROM osha_compliance WHERE id = $1 AND tenant_id = $2 RETURNING id';
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

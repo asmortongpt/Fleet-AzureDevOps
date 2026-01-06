@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 /**
  * Reimbursement Requests Repository
@@ -117,7 +117,9 @@ export interface DriverSummary {
 }
 
 export class ReimbursementRequestsRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+  constructor(pool: Pool) {
+    super(pool, 'personal_use_charges');
+  }
 
   /**
    * Query 1: Get charge with policy information

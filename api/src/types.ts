@@ -22,6 +22,7 @@ export const TYPES = {
   DocumentService: Symbol.for("DocumentService"),
   AssignmentNotificationService: Symbol.for("AssignmentNotificationService"),
   FuelTransactionService: Symbol.for("FuelTransactionService"),
+  CacheService: Symbol.for("CacheService"),
 
   // Repositories
   VehicleRepository: Symbol.for("VehicleRepository"),

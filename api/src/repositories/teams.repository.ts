@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 /**
  * Teams Repository
@@ -27,7 +27,9 @@ export interface Team {
 }
 
 export class TeamsRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+  constructor(pool: Pool) {
+    super(pool, 'tenant_teams_config');
+  }
 
   /**
    * Find all teams for a tenant
@@ -160,7 +162,7 @@ export class TeamsRepository extends BaseRepository<any> {
     query += ` WHERE id = $1 AND tenant_id = $2`;
 
     const result = await this.pool.query(query, values);
-    return result.rowCount !== null && result.rowCount > 0;
+    return result.rowCount !== null && (result.rowCount ?? 0) > 0;
   }
 
   /**
@@ -171,7 +173,7 @@ export class TeamsRepository extends BaseRepository<any> {
       'DELETE FROM tenant_teams_config WHERE id = $1 AND tenant_id = $2',
       [id, tenantId]
     );
-    return result.rowCount !== null && result.rowCount > 0;
+    return result.rowCount !== null && (result.rowCount ?? 0) > 0;
   }
 
   /**

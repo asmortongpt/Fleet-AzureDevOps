@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface LicenseRenewal {
   id: number;
@@ -15,11 +15,9 @@ export interface LicenseRenewal {
 
 export class LicenseRenewalsRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('license_renewals', pool);
-    this.pool = pool;
+    super(pool, 'license_renewals');
   }
 
   async createLicenseRenewal(tenantId: number, licenseRenewalData: Omit<LicenseRenewal, 'id' | 'created_at' | 'updated_at'>): Promise<LicenseRenewal> {
@@ -74,6 +72,6 @@ export class LicenseRenewalsRepository extends BaseRepository<any> {
   async deleteLicenseRenewal(tenantId: number, id: number): Promise<boolean> {
     const query = `DELETE FROM license_renewals WHERE id = $1 AND tenant_id = $2 RETURNING id`;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

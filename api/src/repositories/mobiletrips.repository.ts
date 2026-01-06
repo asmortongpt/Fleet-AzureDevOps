@@ -19,11 +19,8 @@ export interface MobileTrip {
 
 export class MobileTripsRepository extends BaseRepository<any> {
 
-  private pool: Pool;
-
   constructor(pool: Pool) {
-    super('mobile_trips', pool);
-    this.pool = pool;
+    super(pool, 'mobile_trips');
   }
 
   async getAllTrips(tenantId: number): Promise<MobileTrip[]> {
@@ -93,7 +90,7 @@ export class MobileTripsRepository extends BaseRepository<any> {
   async deleteTrip(tripId: number, tenantId: number): Promise<boolean> {
     const query = 'DELETE FROM mobile_trips WHERE id = $1 AND tenant_id = $2 RETURNING id';
     const result: QueryResult = await this.pool.query(query, [tripId, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }
 

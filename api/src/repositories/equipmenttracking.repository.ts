@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface EquipmentTracking {
   id: number;
@@ -15,11 +15,9 @@ export interface EquipmentTracking {
 
 export class EquipmentTrackingRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('equipment_tracking', pool);
-    this.pool = pool;
+    super(pool, 'equipment_tracking');
   }
 
   async create(tenantId: number, equipmentTracking: Omit<EquipmentTracking, 'id' | 'created_at' | 'updated_at' | 'last_updated'>): Promise<EquipmentTracking> {
@@ -71,6 +69,6 @@ export class EquipmentTrackingRepository extends BaseRepository<any> {
   async delete(tenantId: number, id: number): Promise<boolean> {
     const query = `DELETE FROM equipment_tracking WHERE id = $1 AND tenant_id = $2 RETURNING id`;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

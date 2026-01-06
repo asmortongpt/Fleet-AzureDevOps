@@ -3,7 +3,7 @@ import { Pool } from 'pg';
 import { pool } from '../config/database' // Changed to valid pool import
 import { container } from '../container'
 import { NotFoundError, ValidationError } from '../errors/app-error'
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 import { CacheService, CacheKeys } from '../services/cache.service'
 
 export interface PaginationParams {
@@ -35,12 +35,14 @@ export interface Vehicle {
  * All operations enforce tenant isolation
  * Includes Redis caching layer with cache invalidation on mutations
  */
+import { TYPES } from '../types';
+
 export class VehiclesRepository extends BaseRepository<any> {
   private cache: CacheService
 
   constructor(pool: Pool) {
-    super('vehicles', pool);
-    this.cache = container.resolve(CacheService)
+    super(pool, 'vehicles');
+    this.cache = container.get<CacheService>(TYPES.CacheService)
   }
 
   /**
@@ -247,7 +249,7 @@ export class VehiclesRepository extends BaseRepository<any> {
    * @param tenantId Tenant ID for isolation
    * @returns Total count
    */
-  async count(tenantId: string): Promise<number> {
+  async countByTenant(tenantId: string): Promise<number> {
     const result = await this.pool.query(
       'SELECT COUNT(*) FROM vehicles WHERE tenant_id = $1',
       [tenantId]

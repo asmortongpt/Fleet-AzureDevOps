@@ -1,10 +1,9 @@
 import { Pool, QueryResult } from 'pg';
 
 class AiChatRepository {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    this.pool = pool;
+    super(pool, 'ai_chats');
   }
 
   async createAiChat(tenantId: string, userId: string, message: string, response: string): Promise<number> {

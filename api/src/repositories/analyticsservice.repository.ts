@@ -1,10 +1,9 @@
 import { Pool, QueryResult } from 'pg';
 
 class AnalyticsServiceRepository {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    this.pool = pool;
+    super(pool, 'analytics_services');
   }
 
   async createAnalyticsService(tenantId: string, name: string, description: string): Promise<QueryResult> {

@@ -1,6 +1,6 @@
 import { Pool, PoolClient } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 
 export interface StartTripData {
@@ -102,7 +102,9 @@ export interface TripUsageClassificationData {
  * Handles all database interactions for trip tracking, OBD2 metrics, GPS breadcrumbs, and events
  */
 export class MobileTripsRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+  constructor(pool: Pool) {
+    super(pool, 'trips');
+  }
 
   /**
    * Start a new trip

@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface ServiceSchedule {
   id: number;
@@ -15,11 +15,9 @@ export interface ServiceSchedule {
 
 export class ServiceSchedulesRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('service_schedules', pool);
-    this.pool = pool;
+    super(pool, 'service_schedules');
   }
 
   async findAll(tenantId: number): Promise<ServiceSchedule[]> {
@@ -70,6 +68,6 @@ export class ServiceSchedulesRepository extends BaseRepository<any> {
   async delete(id: number, tenantId: number): Promise<boolean> {
     const query = `DELETE FROM service_schedules WHERE id = $1 AND tenant_id = $2 RETURNING id`;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

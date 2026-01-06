@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface Geofencing {
   id: number;
@@ -14,11 +14,9 @@ export interface Geofencing {
 
 export class GeofencingRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('geofencing', pool);
-    this.pool = pool;
+    super(pool, 'geofencing');
   }
 
   async createGeofencing(tenantId: number, geofencingData: Omit<Geofencing, 'id' | 'created_at' | 'updated_at'>): Promise<Geofencing> {
@@ -72,6 +70,6 @@ export class GeofencingRepository extends BaseRepository<any> {
   async deleteGeofencing(tenantId: number, id: number): Promise<boolean> {
     const query = `DELETE FROM geofencing WHERE id = $1 AND tenant_id = $2 RETURNING id`;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

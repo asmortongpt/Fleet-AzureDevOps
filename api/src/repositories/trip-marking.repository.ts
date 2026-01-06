@@ -1,6 +1,6 @@
 
 import { pool } from '../db'
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface PaginationParams {
   page?: number

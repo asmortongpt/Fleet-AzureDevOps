@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface IdleTimeTracking {
   id: number;
@@ -16,11 +16,9 @@ export interface IdleTimeTracking {
 
 export class IdleTimeTrackingRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('idle_time_tracking', pool);
-    this.pool = pool;
+    super(pool, 'idle_time_tracking');
   }
 
   async create(tenantId: number, idleTimeTracking: Omit<IdleTimeTracking, 'id' | 'created_at' | 'updated_at'>): Promise<IdleTimeTracking> {
@@ -67,6 +65,6 @@ export class IdleTimeTrackingRepository extends BaseRepository<any> {
     const query = 'DELETE FROM idle_time_tracking WHERE tenant_id = $1 AND id = $2 RETURNING id';
     const values = [tenantId, id];
     const result: QueryResult = await this.pool.query(query, values);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }
