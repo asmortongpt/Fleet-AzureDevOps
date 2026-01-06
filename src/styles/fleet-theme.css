@@ -1,0 +1,100 @@
+/**
+ * Fleet Design System - CSS Custom Properties
+ *
+ * Dark theme with glassmorphic elements for professional government interface
+ */
+
+:root {
+  /* Background Colors */
+  --bg: #070c16;
+  --panel: #0c162a;
+  --panel2: #0b1426;
+
+  /* Text Colors */
+  --text: #eaf0ff;
+  --muted: #92a3c7;
+
+  /* Border & Accent */
+  --border: rgba(255, 255, 255, 0.08);
+  --accent: #60a5fa;
+
+  /* Status Colors */
+  --good: #22c55e;
+  --warn: #f59e0b;
+  --bad: #ef4444;
+
+  /* Border Radius */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-pill: 999px;
+
+  /* Spacing */
+  --s-xs: 6px;
+  --s-sm: 10px;
+  --s-md: 14px;
+  --s-lg: 18px;
+  --s-xl: 24px;
+
+  /* Shadows */
+  --shadow-panel: 0 12px 34px rgba(0, 0, 0, 0.45);
+
+  /* Fonts */
+  --font: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Apply dark theme to body */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+}
+
+/* Glassmorphic panel styling */
+.panel {
+  background: var(--panel);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-panel);
+}
+
+.panel2 {
+  background: var(--panel2);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+}
+
+/* Status indicator utilities */
+.status-good { color: var(--good); }
+.status-warn { color: var(--warn); }
+.status-bad { color: var(--bad); }
+.status-info { color: var(--accent); }
+
+/* Muted text utility */
+.text-muted {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+/* Border utilities */
+.border {
+  border: 1px solid var(--border);
+}
+
+.border-radius-sm { border-radius: var(--r-sm); }
+.border-radius-md { border-radius: var(--r-md); }
+.border-radius-lg { border-radius: var(--r-lg); }
+.border-radius-pill { border-radius: var(--r-pill); }
+
+/* Spacing utilities */
+.p-xs { padding: var(--s-xs); }
+.p-sm { padding: var(--s-sm); }
+.p-md { padding: var(--s-md); }
+.p-lg { padding: var(--s-lg); }
+.p-xl { padding: var(--s-xl); }
+
+.gap-xs { gap: var(--s-xs); }
+.gap-sm { gap: var(--s-sm); }
+.gap-md { gap: var(--s-md); }
+.gap-lg { gap: var(--s-lg); }
+.gap-xl { gap: var(--s-xl); }
