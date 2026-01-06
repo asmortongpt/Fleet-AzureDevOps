@@ -88,7 +88,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                         >
                             <div className="hidden lg:flex flex-col items-end">
                                 <span className="text-sm font-medium text-foreground leading-none">Admin User</span>
-                                <span className="text-[10px] text-muted-foreground leading-none mt-1">Fleet Manager</span>
+                                <span className="text-xs text-muted-foreground leading-none mt-1">Fleet Manager</span>
                             </div>
                             <Avatar className="h-8 w-8 border-2 border-border/50 ring-2 ring-background">
                                 <AvatarImage src="https://github.com/shadcn.png" alt="Admin User profile picture" />
