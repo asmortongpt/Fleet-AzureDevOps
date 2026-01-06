@@ -132,3 +132,11 @@ PRODUCTION_STATUS_*.md
 PRODUCTION_ISSUES_*.md
 COMPREHENSIVE_TEST_REPORT.md
 qa-framework/auto-remediate-issues.cjs
+
+# Additional QA framework files with secrets
+qa-framework/start-ai-agents.cjs
+
+# Documentation files with API key examples
+QA_FRAMEWORK_RAG_CAG_MCP_DOCUMENTATION.md
+QA_FRAMEWORK_QUICK_START.md
+RAG_CAG_MCP_RECREATION_GUIDE.md
