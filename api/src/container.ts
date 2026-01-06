@@ -35,6 +35,7 @@ import { PushNotificationRepository } from './repositories/push-notification.rep
 import { VehicleAssignmentsRepository } from "./repositories/vehicle-assignments.repository";
 import { FueltransactionService } from "./services/FuelTransactionService";
 import { AssignmentNotificationService } from "./services/assignment-notification.service";
+import { CacheService } from "./services/cache.service";
 import { TYPES } from "./types";
 
 const container = new Container();
@@ -95,6 +96,9 @@ container.bind(TYPES.VehicleAssignmentsRepository).to(VehicleAssignmentsReposito
 // Assignment Notification Service
 container.bind(TYPES.AssignmentNotificationService).to(AssignmentNotificationService);
 container.bind(TYPES.FuelTransactionService).to(FueltransactionService);
+
+// Cache Service
+container.bind(TYPES.CacheService).to(CacheService);
 
 export { container };
 container.bind(TYPES.PushNotificationRepository).to(PushNotificationRepository);

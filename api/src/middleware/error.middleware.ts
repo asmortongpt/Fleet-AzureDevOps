@@ -36,3 +36,13 @@ export function errorMiddleware(err: Error, req: Request, res: Response, next: N
     requestId: req.headers['x-request-id']
   });
 }
+
+export const createErrorMiddleware = (auditService: any) => ({
+  handle: (err: Error, req: Request, res: Response, next: NextFunction) => {
+    // Optionally log to audit service here
+    if (auditService && req.headers['x-request-id']) {
+      // auditService.logError(...) - placeholder
+    }
+    errorMiddleware(err, req, res, next);
+  }
+});

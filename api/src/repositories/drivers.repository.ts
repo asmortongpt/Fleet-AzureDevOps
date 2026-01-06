@@ -1,7 +1,7 @@
 import { Pool, QueryResult } from 'pg';
 
 import { NotFoundError, ValidationError } from '../lib/errors';
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface Driver {
   id: number
@@ -28,11 +28,9 @@ export interface PaginationParams {
 
 export class DriversRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('drivers', pool);
-    this.pool = pool;
+    super(pool, 'drivers');
   }
 
   async findById(id: number, tenantId: number): Promise<Driver | null> {

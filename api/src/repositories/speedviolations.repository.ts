@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface SpeedViolation {
   id: number;
@@ -12,11 +12,9 @@ export interface SpeedViolation {
 }
 
 export class SpeedViolationsRepository extends BaseRepository<any> {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('speed_violations', pool);
-    this.pool = pool;
+    super(pool, 'speed_violations');
   }
 
   /**
@@ -105,7 +103,7 @@ export class SpeedViolationsRepository extends BaseRepository<any> {
     const values = [id, tenantId];
 
     const result: QueryResult = await this.pool.query(query, values);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 
   /**

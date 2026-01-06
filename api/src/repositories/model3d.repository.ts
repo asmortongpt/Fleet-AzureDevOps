@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 
 interface Model3D {
@@ -14,10 +14,9 @@ interface Model3D {
 }
 
 export class Model3DRepository extends BaseRepository<any> {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    this.pool = pool;
+    super(pool, 'model3ds');
   }
 
   async getAllModels(tenantId: number): Promise<Model3D[]> {
@@ -61,6 +60,6 @@ export class Model3DRepository extends BaseRepository<any> {
   async deleteModel(id: number, tenantId: number): Promise<boolean> {
     const query = 'DELETE FROM model3ds WHERE id = $1 AND tenant_id = $2';
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 }

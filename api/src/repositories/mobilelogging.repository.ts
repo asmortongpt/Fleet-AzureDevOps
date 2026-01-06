@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 
 export interface MobileLog {
@@ -14,7 +14,9 @@ export interface MobileLog {
 }
 
 export class MobileLoggingRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+  constructor(pool: Pool) {
+    super(pool, 'mobile_logs');
+  }
 
   async findAll(tenantId: number): Promise<MobileLog[]> {
     try {

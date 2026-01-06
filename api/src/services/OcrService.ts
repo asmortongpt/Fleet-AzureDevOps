@@ -417,14 +417,14 @@ export class OcrService {
     let fullText = '';
     const pages: OcrPage[] = [];
 
-    workbook.worksheets.forEach((worksheet, index) => {
+    workbook.worksheets.forEach((worksheet: any, index: number) => {
       const sheetName = worksheet.name;
       let sheetText = '';
 
       // Convert worksheet to CSV-like text
-      worksheet.eachRow((row, rowNumber) => {
+      worksheet.eachRow((row: any, rowNumber: number) => {
         const rowValues: string[] = [];
-        row.eachCell((cell, colNumber) => {
+        row.eachCell((cell: any, colNumber: number) => {
           rowValues.push(cell.value?.toString() || '');
         });
         sheetText += rowValues.join(',') + '\n';

@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface ComplianceCalendarItem {
   id: number;
@@ -12,11 +12,9 @@ export interface ComplianceCalendarItem {
 
 export class ComplianceCalendarRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('compliance_calendar', pool);
-    this.pool = pool;
+    super(pool, 'compliance_calendar');
   }
 
   async create(tenantId: number, item: Omit<ComplianceCalendarItem, 'id'>): Promise<ComplianceCalendarItem> {
@@ -69,6 +67,6 @@ export class ComplianceCalendarRepository extends BaseRepository<any> {
   async delete(tenantId: number, id: number): Promise<boolean> {
     const query = `DELETE FROM compliance_calendar WHERE id = $1 AND tenant_id = $2 RETURNING id`;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

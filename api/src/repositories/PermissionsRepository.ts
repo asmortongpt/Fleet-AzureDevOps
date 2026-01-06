@@ -43,10 +43,8 @@ export interface UserRoleWithDetails extends UserModuleRole {
  */
 @injectable()
 export class PermissionsRepository {
-  private pool: Pool;
 
   constructor(@inject(TYPES.DatabasePool) pool: Pool) {
-    this.pool = pool;
   }
 
   /**

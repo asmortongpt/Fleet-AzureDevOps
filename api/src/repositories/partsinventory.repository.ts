@@ -2,13 +2,12 @@
 import { Pool } from 'pg';
 
 import { PartsInventory } from '../models/parts-inventory.model';
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export class PartsInventoryRepository extends BaseRepository<any> {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    this.pool = pool;
+    super(pool, 'parts_inventory');
   }
 
   async getAll(tenantId: string): Promise<PartsInventory[]> {
@@ -40,6 +39,6 @@ export class PartsInventoryRepository extends BaseRepository<any> {
   async delete(id: string, tenantId: string): Promise<boolean> {
     const query = 'DELETE FROM parts_inventory WHERE id = $1 AND tenant_id = $2';
     const result = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 }

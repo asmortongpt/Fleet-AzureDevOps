@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface GeoZone {
   id: number;
@@ -15,11 +15,9 @@ export interface GeoZone {
 
 export class GeoZonesRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('geo_zones', pool);
-    this.pool = pool;
+    super(pool, 'geo_zones');
   }
 
   async findAll(tenantId: number): Promise<GeoZone[]> {
@@ -59,6 +57,6 @@ export class GeoZonesRepository extends BaseRepository<any> {
   async delete(id: number, tenantId: number): Promise<boolean> {
     const query = `UPDATE geo_zones SET deleted_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING id`;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 interface ReimbursementRequest {
   id: number;
@@ -14,11 +14,9 @@ interface ReimbursementRequest {
 }
 
 export class ReimbursementRequestsRepository extends BaseRepository<any> {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('reimbursement_requests', pool);
-    this.pool = pool;
+    super(pool, 'reimbursement_requests');
   }
 
   async getAll(tenantId: number): Promise<ReimbursementRequest[]> {
@@ -60,6 +58,6 @@ export class ReimbursementRequestsRepository extends BaseRepository<any> {
   async delete(id: number, tenantId: number): Promise<boolean> {
     const query = 'DELETE FROM reimbursement_requests WHERE id = $1 AND tenant_id = $2';
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface EmergencyContact {
   id: number;
@@ -14,11 +14,9 @@ export interface EmergencyContact {
 
 export class EmergencyContactsRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('emergency_contacts', pool);
-    this.pool = pool;
+    super(pool, 'emergency_contacts');
   }
 
   async create(tenantId: number, contact: Omit<EmergencyContact, 'id' | 'created_at' | 'updated_at'>): Promise<EmergencyContact> {
@@ -67,6 +65,6 @@ export class EmergencyContactsRepository extends BaseRepository<any> {
   async delete(tenantId: number, id: number): Promise<boolean> {
     const query = `DELETE FROM emergency_contacts WHERE id = $1 AND tenant_id = $2 RETURNING id`;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

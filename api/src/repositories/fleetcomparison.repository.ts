@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface FleetComparison {
     id: number;
@@ -14,11 +14,9 @@ export interface FleetComparison {
 
 export class FleetComparisonRepository extends BaseRepository<any> {
 
-    private pool: Pool;
 
     constructor(pool: Pool) {
-        super('fleet_comparison', pool);
-        this.pool = pool;
+        super(pool, 'fleet_comparison');
     }
 
     async create(tenantId: number, fleetComparison: Omit<FleetComparison, 'id' | 'created_at' | 'updated_at'>): Promise<FleetComparison> {
@@ -61,6 +59,6 @@ export class FleetComparisonRepository extends BaseRepository<any> {
     async delete(tenantId: number, id: number): Promise<boolean> {
         const query = `DELETE FROM fleet_comparison WHERE tenant_id = $1 AND id = $2 RETURNING id`;
         const result: QueryResult = await this.pool.query(query, [tenantId, id]);
-        return result.rowCount ? result.rowCount > 0 : false;
+        return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
     }
 }

@@ -32,7 +32,6 @@ export interface SlowQueryCount {
  */
 @injectable()
 export class HealthCheckRepository {
-  private pool: Pool;
 
   constructor() {
     this.pool = connectionManager.getPool();

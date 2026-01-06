@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 /**
  * Interface for Tag entity
@@ -19,11 +19,9 @@ export interface Tag {
  */
 export class TagsRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('tags', pool);
-    this.pool = pool;
+    super(pool, 'tags');
   }
 
   /**

@@ -4,7 +4,7 @@ import { BaseRepository } from './base/BaseRepository';
 
 export class VehiclesRepository extends BaseRepository<any> {
   constructor(pool: Pool) {
-    super('vehicles', pool);
+    super(pool, 'vehicles');
   }
 
   /**

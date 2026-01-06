@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface CollisionDetection {
   id: number;
@@ -15,11 +15,9 @@ export interface CollisionDetection {
 
 export class CollisionDetectionRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('collision_detections', pool);
-    this.pool = pool;
+    super(pool, 'collision_detections');
   }
 
   async create(tenantId: number, collisionDetection: Omit<CollisionDetection, 'id' | 'created_at' | 'updated_at'>): Promise<CollisionDetection> {
@@ -69,6 +67,6 @@ export class CollisionDetectionRepository extends BaseRepository<any> {
   async delete(tenantId: number, id: number): Promise<boolean> {
     const query = `DELETE FROM collision_detections WHERE id = $1 AND tenant_id = $2 RETURNING id`;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

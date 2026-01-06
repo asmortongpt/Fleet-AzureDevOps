@@ -2,7 +2,7 @@
 import { Pool } from 'pg'
 
 import { NotFoundError, ValidationError } from '../lib/errors'
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 import { FIPSCryptoService } from '../services/fips-crypto.service'
 
 export interface PaginationParams {
@@ -63,7 +63,9 @@ export interface UpdateUserData {
  * Provides auth-specific methods for login, registration, token management
  */
 export class UsersRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+  constructor(pool: Pool) {
+    super(pool, 'users');
+  }
 
   /**
    * Find user by ID with tenant isolation

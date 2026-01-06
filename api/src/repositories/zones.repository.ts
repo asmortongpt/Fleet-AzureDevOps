@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 
 /**
@@ -19,7 +19,9 @@ export interface ZoneEntity {
  * Zones Repository Class
  */
 export class ZonesRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+  constructor(pool: Pool) {
+    super(pool, 'zones');
+  }
 
   /**
    * Find all zones
@@ -105,7 +107,7 @@ export class ZonesRepository extends BaseRepository<any> {
         WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
       `;
       const result = await this.pool.query(query, [id, tenantId]);
-      return result.rowCount > 0;
+      return (result.rowCount ?? 0) > 0;
     } catch (error) {
       console.error('Error in softDelete:', error);
       throw new Error('Failed to delete record');

@@ -2,13 +2,12 @@
 import { Pool } from 'pg';
 
 import { LocationHistory } from '../models/location-history.model';
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export class LocationHistoryRepository extends BaseRepository<any> {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    this.pool = pool;
+    super(pool, 'location_history');
   }
 
   async create(locationHistory: LocationHistory): Promise<LocationHistory> {
@@ -53,7 +52,7 @@ export class LocationHistoryRepository extends BaseRepository<any> {
     `;
     const values = [id, tenant_id];
     const result = await this.pool.query(query, values);
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   async list(tenant_id: string): Promise<LocationHistory[]> {

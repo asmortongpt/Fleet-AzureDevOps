@@ -21,7 +21,7 @@ import { Pool } from 'pg'
 import { connectionManager } from '../config/connection-manager'
 import logger from '../config/logger'
 import { NotFoundError, ValidationError, DatabaseError } from '../errors/app-error'
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface Asset {
   id: string
@@ -96,16 +96,11 @@ export interface AssetAnalytics {
 }
 
 export class AssetManagementRepository extends BaseRepository<any> {
-  private pool: Pool
 
   constructor() {
-    const pool = connectionManager.getPool();
-    super('assets', pool);
-    this.pool = pool;
+    const pool = connectionManager.getPool() as Pool;
+    super(pool, 'assets');
   }
-
-
-
 
   /**
    * Get connection pool (supports transactions)
@@ -344,7 +339,8 @@ export class AssetManagementRepository extends BaseRepository<any> {
       const values: any[] = []
       let paramCount = 1
 
-      Object.keys(updates).forEach(key => {
+      Object.keys(updates).forEach(k => {
+        const key = k as keyof Asset;
         if (updates[key] !== undefined && key !== 'id' && key !== 'tenant_id') {
           setClauses.push(`${key} = $${paramCount}`)
           values.push(updates[key])

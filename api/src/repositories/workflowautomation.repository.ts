@@ -1,15 +1,21 @@
 import { Pool, QueryResult } from 'pg';
 
-import { WorkflowAutomation } from '../models/WorkflowAutomation';
-
 import { BaseRepository } from './base/BaseRepository';
 
+export interface WorkflowAutomation {
+  id?: string;
+  name: string;
+  description?: string;
+  configuration: any;
+  tenant_id: string;
+  created_at?: Date;
+  updated_at?: Date;
+}
+
 export class WorkflowAutomationRepository extends BaseRepository<any> {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('workflow_automations', pool);
-    this.pool = pool;
+    super(pool, 'workflow_automations');
   }
 
   /**
@@ -93,7 +99,7 @@ export class WorkflowAutomationRepository extends BaseRepository<any> {
     const values = [id, tenantId];
 
     const result: QueryResult = await this.pool.query(query, values);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 
   /**

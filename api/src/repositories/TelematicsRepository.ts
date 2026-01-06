@@ -179,7 +179,9 @@ export interface DiagnosticSummary {
 
 @injectable()
 export class TelematicsRepository {
-  constructor(private pool: Pool) {}
+  constructor(pool: Pool) {
+    super(pool, 'telematics_providers');
+  }
 
   // ==========================================================================
   // Providers

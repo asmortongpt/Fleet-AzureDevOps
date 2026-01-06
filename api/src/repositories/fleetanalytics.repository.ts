@@ -1,10 +1,9 @@
 import { Pool, QueryResult } from 'pg';
 
 class FleetAnalyticsRepository {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    this.pool = pool;
+    super(pool, 'fleet_analytics');
   }
 
   async getFleetAnalytics(tenantId: string): Promise<QueryResult> {

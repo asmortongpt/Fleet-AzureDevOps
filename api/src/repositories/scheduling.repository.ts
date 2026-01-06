@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 
 export interface SchedulingEntity {
@@ -15,7 +15,10 @@ export interface SchedulingEntity {
 }
 
 export class SchedulingRepository extends BaseRepository<any> {
-  constructor(private pool: Pool) {}
+
+  constructor(pool: Pool) {
+    super(pool, 'scheduling');
+  }
 
   async findAll(tenantId: number): Promise<SchedulingEntity[]> {
     try {

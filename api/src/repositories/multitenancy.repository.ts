@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface Tenant {
   id: number;
@@ -14,11 +14,9 @@ export interface Tenant {
 
 export class MultiTenancyRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('tenants', pool);
-    this.pool = pool;
+    super(pool, 'tenants');
   }
 
   async findTenantById(id: number): Promise<Tenant | null> {
@@ -67,6 +65,6 @@ export class MultiTenancyRepository extends BaseRepository<any> {
   async deleteTenant(id: number): Promise<boolean> {
     const query = `DELETE FROM tenants WHERE id = $1`;
     const result: QueryResult = await this.pool.query(query, [id]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

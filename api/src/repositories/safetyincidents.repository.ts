@@ -2,13 +2,12 @@
 import { Pool } from 'pg';
 
 import { SafetyIncident } from '../models/safety-incident.model';
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export class SafetyIncidentsRepository extends BaseRepository<any> {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    this.pool = pool;
+    super(pool, 'safety_incidents');
   }
 
   async create(incident: SafetyIncident, tenantId: string): Promise<SafetyIncident> {
@@ -53,7 +52,7 @@ export class SafetyIncidentsRepository extends BaseRepository<any> {
     `;
     const values = [id, tenantId];
     const result = await this.pool.query(query, values);
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   async list(tenantId: string): Promise<SafetyIncident[]> {

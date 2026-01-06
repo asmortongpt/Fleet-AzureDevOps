@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface BoundaryAlert {
   id: number;
@@ -15,11 +15,9 @@ export interface BoundaryAlert {
 
 export class BoundaryAlertsRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('boundary_alerts', pool);
-    this.pool = pool;
+    super(pool, 'boundary_alerts');
   }
 
   async create(tenantId: string, boundaryAlert: Omit<BoundaryAlert, 'id' | 'created_at' | 'updated_at'>): Promise<BoundaryAlert> {
@@ -81,6 +79,6 @@ export class BoundaryAlertsRepository extends BaseRepository<any> {
       RETURNING id
     `;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

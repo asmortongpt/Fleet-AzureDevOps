@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface FraudDetection {
   id: number;
@@ -16,11 +16,9 @@ export interface FraudDetection {
 
 export class FraudDetectionRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('fraud_detection', pool);
-    this.pool = pool;
+    super(pool, 'fraud_detection');
   }
 
   async create(tenantId: number, data: Omit<FraudDetection, 'id' | 'created_at' | 'updated_at'>): Promise<FraudDetection> {
@@ -74,7 +72,7 @@ export class FraudDetectionRepository extends BaseRepository<any> {
   async delete(id: number, tenantId: number): Promise<boolean> {
     const query = `DELETE FROM fraud_detection WHERE id = $1 AND tenant_id = $2 RETURNING id`;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 
   async findByTenantId(tenantId: number): Promise<FraudDetection[]> {

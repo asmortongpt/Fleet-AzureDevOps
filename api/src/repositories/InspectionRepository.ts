@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface Inspection {
   id: number;
@@ -26,11 +26,9 @@ export interface Inspection {
 
 export class InspectionRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('inspections', pool);
-    this.pool = pool;
+    super(pool, 'inspections');
   }
 
   async findByTenant(tenantId: number): Promise<Inspection[]> {
@@ -93,7 +91,7 @@ return null;
   async deleteInspection(id: number, tenantId: number): Promise<boolean> {
     const query = `UPDATE inspections SET deleted_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING id`;
     const result = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 
   async findByIdAndTenant(id: number, tenantId: number): Promise<Inspection | null> {

@@ -2,10 +2,9 @@
 import { Pool } from 'pg';
 
 class EnvironmentalComplianceRepository {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    this.pool = pool;
+    super(pool, 'environmental_compliance');
   }
 
   async createEnvironmentalCompliance(data: {

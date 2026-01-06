@@ -23,7 +23,7 @@
 
 import { Pool, PoolClient } from 'pg'
 
-import { NotFoundError, DatabaseError } from '../../errors/AppError'
+import { NotFoundError, DatabaseError } from '../../errors/app-error'
 import { isValidIdentifier } from '../../utils/sql-safety'
 
 import { PaginationOptions, PaginatedResult, isValidSortOrder } from './types'
@@ -316,8 +316,8 @@ export abstract class GenericRepository<T extends { id?: string | number }> {
       return result.rows[0]
     } catch (error) {
       if (error instanceof NotFoundError) {
-throw error
-}
+        throw error
+      }
       throw new DatabaseError(`Failed to update ${this.tableName}`, {
         id,
         data,
@@ -350,7 +350,7 @@ throw error
            WHERE ${this.idColumn} = $2 AND tenant_id = $3`,
           [userId, id, tenantId]
         )
-        return result.rowCount > 0
+        return (result.rowCount ?? 0) > 0
       } else {
         // Hard delete
         const result = await pool.query(
@@ -359,15 +359,15 @@ throw error
           [id, tenantId]
         )
 
-        if (result.rowCount === 0) {
+        if ((result.rowCount ?? 0) === 0) {
           throw new NotFoundError(this.tableName)
         }
         return true
       }
     } catch (error) {
       if (error instanceof NotFoundError) {
-throw error
-}
+        throw error
+      }
       throw new DatabaseError(`Failed to delete ${this.tableName}`, {
         id,
         tenantId,

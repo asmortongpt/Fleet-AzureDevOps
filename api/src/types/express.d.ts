@@ -8,6 +8,9 @@ import 'express-rate-limit'
 declare global {
   namespace Express {
     interface Request {
+      // API Versioning
+      apiVersion?: string
+
       // Rate limiting
       rateLimit?: {
         limit: number
@@ -20,15 +23,15 @@ declare global {
       user?: {
         id: string
         email: string
-        role: string
-        tenant_id: string
-        name?: string
+        username?: string
+        role?: string // Legacy/Single role
+        roles?: string[] // RBAC
+        tenant_id?: string // Tenant context
         tenantId?: string  // Deprecated: use tenant_id
         permissions?: string[]
-        // AuthService fields
-        username?: string
-        roles?: string[]
+        name?: string
         sessionId?: string
+        [key: string]: any // Allow extensibility for now
       }
 
       // CSRF token
@@ -63,6 +66,7 @@ declare global {
 
 declare module 'express-serve-static-core' {
   interface Request {
+    apiVersion?: string
     rateLimit?: {
       limit: number
       current: number
@@ -72,15 +76,15 @@ declare module 'express-serve-static-core' {
     user?: {
       id: string
       email: string
-      role: string
-      tenant_id: string
-      name?: string
-      tenantId?: string  // Deprecated: use tenant_id
-      permissions?: string[]
-      // AuthService fields
       username?: string
+      role?: string
       roles?: string[]
+      tenant_id?: string
+      tenantId?: string
+      permissions?: string[]
+      name?: string
       sessionId?: string
+      [key: string]: any
     }
     csrfToken?: () => string
     tenant?: {

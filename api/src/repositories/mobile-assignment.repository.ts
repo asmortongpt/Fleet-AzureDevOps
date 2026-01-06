@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 
 export interface MobileAssignmentRepository {
@@ -26,8 +26,8 @@ export interface MobileAssignmentRepository {
 }
 
 export class MobileAssignmentRepositoryImpl extends BaseRepository<any> implements MobileAssignmentRepository {
-  constructor(private pool: Pool) {
-    super('vehicle_assignments', pool);
+  constructor(pool: Pool) {
+    super(pool, 'drivers');
   }
 
   async findDriverByUserId(userId: string, tenantId: number): Promise<any> {

@@ -7,6 +7,28 @@ import { Pool, PoolClient } from 'pg'
  * SECURITY: All queries use parameterized placeholders ($1, $2, $3)
  * to prevent SQL injection attacks.
  */
+export interface QueryContext {
+  tenantId: string | number;
+  userId?: string;
+}
+
+export interface PaginationOptions {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'ASC' | 'DESC';
+}
+
+export interface PaginatedResult<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 export abstract class BaseRepository<T, CreateDTO = Partial<T>, UpdateDTO = Partial<T>> {
 
   protected pool: Pool

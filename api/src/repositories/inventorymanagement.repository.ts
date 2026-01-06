@@ -2,13 +2,12 @@
 import { Pool } from 'pg';
 
 import { InventoryItem } from '../models/inventory-item.model';
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export class InventoryManagementRepository extends BaseRepository<any> {
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    this.pool = pool;
+    super(pool, 'inventory_items');
   }
 
   async getAllItems(tenantId: string): Promise<InventoryItem[]> {
@@ -40,6 +39,6 @@ export class InventoryManagementRepository extends BaseRepository<any> {
   async deleteItem(itemId: string, tenantId: string): Promise<boolean> {
     const query = 'DELETE FROM inventory_items WHERE id = $1 AND tenant_id = $2';
     const result = await this.pool.query(query, [itemId, tenantId]);
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 }

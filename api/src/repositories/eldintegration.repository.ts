@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface EldIntegration {
   id: number;
@@ -14,11 +14,9 @@ export interface EldIntegration {
 
 export class EldIntegrationRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('eld_integrations', pool);
-    this.pool = pool;
+    super(pool, 'eld_integrations');
   }
 
   async create(tenantId: number, eldIntegration: Omit<EldIntegration, 'id' | 'created_at' | 'updated_at'>): Promise<EldIntegration> {
@@ -67,6 +65,6 @@ export class EldIntegrationRepository extends BaseRepository<any> {
   async delete(tenantId: number, id: number): Promise<boolean> {
     const query = `DELETE FROM eld_integrations WHERE id = $1 AND tenant_id = $2 RETURNING id`;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

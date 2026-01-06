@@ -13,11 +13,8 @@ export interface Model {
 
 export class ModelsRepository extends BaseRepository<any> {
 
-  private pool: Pool;
-
   constructor(pool: Pool) {
-    super('models', pool);
-    this.pool = pool;
+    super(pool, 'models');
   }
 
   // Create a new model
@@ -78,7 +75,7 @@ export class ModelsRepository extends BaseRepository<any> {
     `;
     const values = [modelId, tenantId];
     const result: QueryResult = await this.pool.query(query, values);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }
 

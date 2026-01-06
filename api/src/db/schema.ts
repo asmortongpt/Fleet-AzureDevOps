@@ -402,7 +402,7 @@ export const trainingModules = pgTable('training_modules', {
   description: text('description'),
   category: varchar('category', { length: 100 }).notNull(), // safety, compliance, equipment, emergency, regulatory
   type: varchar('type', { length: 50 }).notNull(), // online, in-person, video, document, hands-on
-  duration Minutes: integer('duration_minutes'),
+  durationMinutes: integer('duration_minutes'),
   contentUrl: varchar('content_url', { length: 500 }),
   content: text('content'),
   learningObjectives: jsonb('learning_objectives'),

@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface FuelEfficiency {
   id: number;
@@ -16,11 +16,9 @@ export interface FuelEfficiency {
 
 export class FuelEfficiencyRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('fuel_efficiency', pool);
-    this.pool = pool;
+    super(pool, 'fuel_efficiency');
   }
 
   async create(tenantId: number, fuelEfficiencyData: Omit<FuelEfficiency, 'id' | 'created_at' | 'updated_at'>): Promise<FuelEfficiency> {
@@ -65,6 +63,6 @@ export class FuelEfficiencyRepository extends BaseRepository<any> {
   async delete(tenantId: number, id: number): Promise<boolean> {
     const query = `DELETE FROM fuel_efficiency WHERE tenant_id = $1 AND id = $2 RETURNING id`;
     const result: QueryResult = await this.pool.query(query, [tenantId, id]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

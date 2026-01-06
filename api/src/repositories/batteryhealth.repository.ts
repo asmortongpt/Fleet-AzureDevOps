@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface BatteryHealth {
   id: number;
@@ -15,11 +15,9 @@ export interface BatteryHealth {
 
 export class BatteryHealthRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('battery_health', pool);
-    this.pool = pool;
+    super(pool, 'battery_health');
   }
 
   async create(tenantId: string, batteryHealth: Omit<BatteryHealth, 'id' | 'created_at' | 'updated_at'>): Promise<BatteryHealth> {
@@ -82,6 +80,6 @@ export class BatteryHealthRepository extends BaseRepository<any> {
       RETURNING id
     `;
     const result: QueryResult = await this.pool.query(query, [id, tenantId]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface ForecastModel {
   id: number;
@@ -15,11 +15,9 @@ export interface ForecastModel {
 
 export class ForecastModelsRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('forecast_models', pool);
-    this.pool = pool;
+    super(pool, 'forecast_models');
   }
 
   async create(tenantId: number, forecastModel: Omit<ForecastModel, 'id' | 'created_at' | 'updated_at'>): Promise<ForecastModel> {
@@ -63,7 +61,7 @@ export class ForecastModelsRepository extends BaseRepository<any> {
   async delete(tenantId: number, modelName: string): Promise<boolean> {
     const query = `DELETE FROM forecast_models WHERE tenant_id = $1 AND model_name = $2 RETURNING id`;
     const result: QueryResult = await this.pool.query(query, [tenantId, modelName]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 
   async getAll(tenantId: number): Promise<ForecastModel[]> {

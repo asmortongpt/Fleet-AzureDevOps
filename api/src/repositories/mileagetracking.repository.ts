@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 
-import { BaseRepository } from '../repositories/BaseRepository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface MileageTracking {
   id: number;
@@ -17,11 +17,9 @@ export interface MileageTracking {
 
 export class MileageTrackingRepository extends BaseRepository<any> {
 
-  private pool: Pool;
 
   constructor(pool: Pool) {
-    super('mileage_tracking', pool);
-    this.pool = pool;
+    super(pool, 'mileage_tracking');
   }
 
   async createMileageTracking(tenant_id: number, mileageTrackingData: Omit<MileageTracking, 'id' | 'created_at' | 'updated_at'>): Promise<MileageTracking> {
@@ -78,6 +76,6 @@ export class MileageTrackingRepository extends BaseRepository<any> {
   async deleteMileageTracking(tenant_id: number, id: number): Promise<boolean> {
     const query = `DELETE FROM mileage_tracking WHERE id = $1 AND tenant_id = $2 RETURNING id`;
     const result: QueryResult = await this.pool.query(query, [id, tenant_id]);
-    return result.rowCount ? result.rowCount > 0 : false;
+    return result.rowCount ? (result.rowCount ?? 0) > 0 : false;
   }
 }

@@ -49,11 +49,8 @@ export interface BreakGlassSessionWithDetails extends BreakGlassSession {
 
 @injectable()
 export class BreakGlassRepository extends BaseRepository<BreakGlassSession> {
-  protected tableName = 'break_glass_sessions';
-  protected idColumn = 'id';
-
-  private get pool(): Pool {
-    return connectionManager.getPool();
+  constructor() {
+    super(connectionManager.getPool(), 'break_glass_sessions');
   }
 
   /**
