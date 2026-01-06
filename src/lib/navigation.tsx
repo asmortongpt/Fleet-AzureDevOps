@@ -12,7 +12,8 @@ import {
   ChatsCircle,
   CurrencyDollar,
   Plugs,
-  BookOpen
+  BookOpen,
+  Database
 } from "@phosphor-icons/react"
 import { ReactNode } from "react"
 
@@ -159,6 +160,24 @@ export const navigationItems: NavigationItem[] = [
     section: "hubs",
     category: "Integrations",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'Finance']
+  },
+
+  // ==================== CTA SUPER ADMIN ====================
+  {
+    id: "cta-configuration-hub",
+    label: "CTA Configuration",
+    icon: <Gear className="w-5 h-5" />,
+    section: "hubs",
+    category: "CTA Admin",
+    roles: ['SuperAdmin', 'CTAOwner']
+  },
+  {
+    id: "data-governance-hub",
+    label: "Data Governance",
+    icon: <Database className="w-5 h-5" />,
+    section: "hubs",
+    category: "CTA Admin",
+    roles: ['SuperAdmin']
   },
 ]
 
