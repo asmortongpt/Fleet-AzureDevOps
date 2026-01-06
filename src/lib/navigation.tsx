@@ -11,7 +11,8 @@ import {
   Barcode,
   ChatsCircle,
   CurrencyDollar,
-  Plugs
+  Plugs,
+  BookOpen
 } from "@phosphor-icons/react"
 import { ReactNode } from "react"
 
@@ -104,6 +105,14 @@ export const navigationItems: NavigationItem[] = [
     section: "hubs",
     category: "Compliance",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'SafetyOfficer', 'Auditor']
+  },
+  {
+    id: "policy-hub",
+    label: "Policy Hub",
+    icon: <BookOpen className="w-5 h-5" />,
+    section: "hubs",
+    category: "Governance",
+    roles: ['SuperAdmin', 'Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'SafetyOfficer', 'Auditor']
   },
 
   // ==================== PROCUREMENT & ASSETS ====================
