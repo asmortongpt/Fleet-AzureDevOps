@@ -456,6 +456,11 @@ function App() {
       case "integrations":
         return <IntegrationsHubPage />
 
+      // DESIGN SYSTEM DEMO - No auth required
+      case "fleet-design-demo":
+        const FleetDesignDemo = lazy(() => import("@/pages/FleetDesignDemo"))
+        return <Suspense fallback={<div>Loading...</div>}><FleetDesignDemo /></Suspense>
+
       default:
         return <CommandCenter />
     }
