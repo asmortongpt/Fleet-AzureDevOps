@@ -9,3 +9,7 @@ export type { TableProps, Column, PaginationConfig } from './Table'
 
 export { DataGrid } from './DataGrid'
 export type { DataGridProps, DataGridColumn } from './DataGrid'
+
+export { EntityAvatar } from './EntityAvatar'
+export { StatusChip } from './StatusChip'
+export { RowExpandPanel } from './RowExpandPanel'
