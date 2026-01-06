@@ -51,6 +51,8 @@ import {
 import { HubPage } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
+import { MetricTooltip, TooltipProvider } from '@/components/ui/tooltip'
+import { DrillDownChart } from '@/components/features/DrillDownChart'
 
 // Professional muted color palette - NO bright/neon colors
 const CHART_COLORS = {
@@ -133,70 +135,114 @@ function CostAnalysisContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
-            {/* Header Section - Clean and professional */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Cost Analysis & Control</h2>
-                    <p className="text-base text-slate-600 dark:text-slate-400">Real-time cost tracking and budget variance monitoring</p>
+        <TooltipProvider>
+            <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
+                {/* Header Section - Clean and professional */}
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Cost Analysis & Control</h2>
+                        <p className="text-base text-slate-600 dark:text-slate-400">Real-time cost tracking and budget variance monitoring</p>
+                    </div>
+                    <div className="flex gap-3">
+                        <button className="px-5 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg border border-slate-300 dark:border-slate-600 transition-all text-sm font-medium shadow-sm">
+                            Export Report
+                        </button>
+                        <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all text-sm font-medium shadow-sm">
+                            Download CSV
+                        </button>
+                    </div>
                 </div>
-                <div className="flex gap-3">
-                    <button className="px-5 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg border border-slate-300 dark:border-slate-600 transition-all text-sm font-medium shadow-sm">
-                        Export Report
-                    </button>
-                    <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all text-sm font-medium shadow-sm">
-                        Download CSV
-                    </button>
-                </div>
-            </div>
 
-            {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                <StatCard
-                    title="Total Monthly Costs"
-                    value="$284.5K"
-                    variant="primary"
-                    icon={<CurrencyDollar className="w-6 h-6" />}
-                    onClick={() => push({
-                        type: 'total-costs',
-                        data: { title: 'Monthly Cost Breakdown', period: 'current' },
-                        id: 'total-monthly-costs'
-                    } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Fuel Costs"
-                    value="$124.2K"
-                    variant="warning"
-                    trend={{ value: "+8.2%", direction: "up" }}
-                    onClick={() => push({
-                        type: 'fuel-costs',
-                        data: { title: 'Fuel Cost Analysis', category: 'fuel' },
-                        id: 'fuel-costs-detail'
-                    } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Maintenance Costs"
-                    value="$89.3K"
-                    variant="success"
-                    trend={{ value: "-3.1%", direction: "down" }}
-                    onClick={() => push({
-                        type: 'maintenance-costs',
-                        data: { title: 'Maintenance Cost Breakdown', category: 'maintenance' },
-                        id: 'maintenance-costs'
-                    } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Cost per Mile"
-                    value="$0.82"
-                    variant="default"
-                    icon={<Calculator className="w-6 h-6" />}
-                    onClick={() => push({
-                        type: 'cost-per-mile',
-                        data: { title: 'Cost per Mile Analysis' },
-                        id: 'cpm-analysis'
-                    } as Omit<DrilldownLevel, "timestamp">)}
-                />
-            </div>
+                {/* KPI Cards with Tooltips */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                    <MetricTooltip
+                        title="Total Monthly Costs"
+                        currentValue="$284,500"
+                        comparison={{ label: "vs Last Month", value: "$271,200 (-4.9%)", trend: "down" }}
+                        benchmark={{ label: "Budget", value: "$310,000" }}
+                        description="Total operational costs for the current month including fuel, maintenance, insurance, and other expenses."
+                    >
+                        <div>
+                            <StatCard
+                                title="Total Monthly Costs"
+                                value="$284.5K"
+                                variant="primary"
+                                icon={<CurrencyDollar className="w-6 h-6" />}
+                                onClick={() => push({
+                                    type: 'total-costs',
+                                    data: { title: 'Monthly Cost Breakdown', period: 'current' },
+                                    id: 'total-monthly-costs'
+                                } as Omit<DrilldownLevel, "timestamp">)}
+                            />
+                        </div>
+                    </MetricTooltip>
+
+                    <MetricTooltip
+                        title="Fuel Costs"
+                        currentValue="$124,200"
+                        comparison={{ label: "vs Last Month", value: "+$9,400 (+8.2%)", trend: "up" }}
+                        benchmark={{ label: "Fleet Average", value: "$0.38/mile" }}
+                        description="Total fuel expenses across all vehicle types. Increase attributed to diesel price surge and higher utilization."
+                    >
+                        <div>
+                            <StatCard
+                                title="Fuel Costs"
+                                value="$124.2K"
+                                variant="warning"
+                                trend={{ value: "+8.2%", direction: "up" }}
+                                onClick={() => push({
+                                    type: 'fuel-costs',
+                                    data: { title: 'Fuel Cost Analysis', category: 'fuel' },
+                                    id: 'fuel-costs-detail'
+                                } as Omit<DrilldownLevel, "timestamp">)}
+                            />
+                        </div>
+                    </MetricTooltip>
+
+                    <MetricTooltip
+                        title="Maintenance Costs"
+                        currentValue="$89,300"
+                        comparison={{ label: "vs Last Month", value: "-$2,900 (-3.1%)", trend: "down" }}
+                        benchmark={{ label: "Industry Avg", value: "$0.28/mile" }}
+                        description="Scheduled and unscheduled maintenance costs. Decrease due to preventive maintenance program effectiveness."
+                    >
+                        <div>
+                            <StatCard
+                                title="Maintenance Costs"
+                                value="$89.3K"
+                                variant="success"
+                                trend={{ value: "-3.1%", direction: "down" }}
+                                onClick={() => push({
+                                    type: 'maintenance-costs',
+                                    data: { title: 'Maintenance Cost Breakdown', category: 'maintenance' },
+                                    id: 'maintenance-costs'
+                                } as Omit<DrilldownLevel, "timestamp">)}
+                            />
+                        </div>
+                    </MetricTooltip>
+
+                    <MetricTooltip
+                        title="Cost per Mile"
+                        currentValue="$0.82/mile"
+                        comparison={{ label: "vs Last Month", value: "$0.79/mile (+3.8%)", trend: "up" }}
+                        benchmark={{ label: "Target", value: "$0.75/mile" }}
+                        description="Average total cost per mile across entire fleet. Target is $0.75/mile for optimal efficiency."
+                    >
+                        <div>
+                            <StatCard
+                                title="Cost per Mile"
+                                value="$0.82"
+                                variant="default"
+                                icon={<Calculator className="w-6 h-6" />}
+                                onClick={() => push({
+                                    type: 'cost-per-mile',
+                                    data: { title: 'Cost per Mile Analysis' },
+                                    id: 'cpm-analysis'
+                                } as Omit<DrilldownLevel, "timestamp">)}
+                            />
+                        </div>
+                    </MetricTooltip>
+                </div>
 
             {/* Detailed Analysis Cards - CLEAN WHITE CARDS */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -226,54 +272,14 @@ function CostAnalysisContent() {
                     </div>
                 </div>
 
-                {/* Cost Distribution Card */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-200"
-                    onClick={() => push({ type: 'cost-categories', data: { title: 'Cost Category Breakdown' }, id: 'category-breakdown' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Cost Distribution by Category</h3>
-                        <ChartLine className="w-6 h-6 text-slate-500 dark:text-slate-400" />
-                    </div>
-                    <div className="space-y-5">
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-base">
-                                <span className="text-slate-700 dark:text-slate-300 font-medium">Fuel</span>
-                                <span className="font-bold text-slate-900 dark:text-slate-100">43.6% <span className="text-amber-600 text-sm">↑</span></span>
-                            </div>
-                            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
-                                <div className="bg-amber-600 h-3 rounded-full transition-all duration-500" style={{ width: '43.6%' }}></div>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-base">
-                                <span className="text-slate-700 dark:text-slate-300 font-medium">Maintenance</span>
-                                <span className="font-bold text-slate-900 dark:text-slate-100">31.4% <span className="text-emerald-600 text-sm">↓</span></span>
-                            </div>
-                            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
-                                <div className="bg-blue-600 h-3 rounded-full transition-all duration-500" style={{ width: '31.4%' }}></div>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-base">
-                                <span className="text-slate-700 dark:text-slate-300 font-medium">Insurance</span>
-                                <span className="font-bold text-slate-900 dark:text-slate-100">15.2%</span>
-                            </div>
-                            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
-                                <div className="bg-purple-600 h-3 rounded-full transition-all duration-500" style={{ width: '15.2%' }}></div>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-base">
-                                <span className="text-slate-700 dark:text-slate-300 font-medium">Other</span>
-                                <span className="font-bold text-slate-900 dark:text-slate-100">9.8%</span>
-                            </div>
-                            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
-                                <div className="bg-slate-500 h-3 rounded-full transition-all duration-500" style={{ width: '9.8%' }}></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {/* Interactive Drill-Down Chart - REPLACES static distribution */}
+                <DrillDownChart
+                    title="Cost Distribution by Category"
+                    subtitle="Click any bar to drill down into detailed cost breakdowns"
+                />
             </div>
         </div>
+        </TooltipProvider>
     )
 }
 

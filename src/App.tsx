@@ -1,6 +1,7 @@
 import { withAITracking } from '@microsoft/applicationinsights-react-js'
 import { Shield } from "lucide-react"
 import { useState, useMemo, lazy, Suspense } from "react"
+import { Toaster } from 'react-hot-toast'
 
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { EnhancedErrorBoundary } from "@/components/errors/EnhancedErrorBoundary"
@@ -457,8 +458,35 @@ function App() {
       {/* Role Switcher FAB button */}
       <RoleSwitcher />
 
-      {/* Toast notifications */}
+      {/* Toast notifications - Legacy */}
       <ToastContainer />
+
+      {/* React Hot Toast - Modern notifications */}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: 'hsl(var(--card))',
+            color: 'hsl(var(--card-foreground))',
+            border: '1px solid hsl(var(--border))',
+            borderRadius: '0.75rem',
+            fontSize: '0.875rem',
+          },
+          success: {
+            iconTheme: {
+              primary: 'hsl(var(--primary))',
+              secondary: 'hsl(var(--primary-foreground))',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: 'white',
+            },
+          },
+        }}
+      />
 
     </DrilldownManager >
   )
