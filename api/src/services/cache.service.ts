@@ -20,7 +20,7 @@ export class CacheService {
     return cached ? JSON.parse(cached) : null;
   }
 
-  async set(key: string, value: any, ttl = 3600) {
+  async set(key: string, value: unknown, ttl = 3600) {
     await this.redis.setex(key, ttl, JSON.stringify(value));
   }
 
@@ -48,7 +48,7 @@ export class CacheService {
     return this.deletePattern(pattern);
   }
 
-  async cacheVehicle(vehicleId: number, data: any) {
+  async cacheVehicle(vehicleId: number, data: unknown) {
     await this.set(CacheKeys.vehicle(vehicleId), data, 300);
   }
 

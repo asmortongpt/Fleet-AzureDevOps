@@ -8,6 +8,8 @@
 
 import fs from 'fs';
 import path from 'path';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
 import axios, { AxiosInstance } from 'axios';
 
@@ -598,8 +600,6 @@ export class AdvancedTextureProcessor {
       fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    const { exec } = require('child_process');
-    const { promisify } = require('util');
     const execAsync = promisify(exec);
 
     // Extract evenly spaced frames

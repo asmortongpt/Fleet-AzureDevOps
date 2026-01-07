@@ -24,6 +24,10 @@ import { NotFoundError, ValidationError, DatabaseError } from '../errors/app-err
 
 import { BaseRepository } from './base/BaseRepository';
 
+export interface AssetSpecifications {
+  [key: string]: string | number | boolean | null;
+}
+
 export interface Asset {
   id: string
   tenant_id: string
@@ -42,7 +46,7 @@ export interface Asset {
   assigned_to?: string
   status: 'active' | 'inactive' | 'maintenance' | 'retired' | 'disposed'
   description?: string
-  specifications?: any
+  specifications?: AssetSpecifications
   photo_url?: string
   qr_code_data?: string
   disposal_date?: Date
@@ -96,7 +100,7 @@ export interface AssetAnalytics {
   total_depreciation: number
 }
 
-export class AssetManagementRepository extends BaseRepository<any> {
+export class AssetManagementRepository extends BaseRepository<Asset> {
 
   constructor() {
     const pool = connectionManager.getPool() as Pool;
@@ -116,7 +120,7 @@ export class AssetManagementRepository extends BaseRepository<any> {
   async findAllAssets(
     tenantId: string,
     filters: AssetFilters = {}
-  ): Promise<{ assets: any[]; total: number }> {
+  ): Promise<{ assets: Asset[]; total: number }> {
     try {
       const { type, status, location, assigned_to, search } = filters
 
@@ -133,7 +137,7 @@ export class AssetManagementRepository extends BaseRepository<any> {
         WHERE a.tenant_id = $1
       `
 
-      const params: any[] = [tenantId]
+      const params: (string | number)[] = [tenantId]
       let paramCount = 1
 
       if (type) {
@@ -337,7 +341,7 @@ export class AssetManagementRepository extends BaseRepository<any> {
 
       // Build dynamic update query
       const setClauses: string[] = []
-      const values: any[] = []
+      const values: (string | number | boolean | Date | AssetSpecifications | null | undefined)[] = []
       let paramCount = 1
 
       Object.keys(updates).forEach(k => {
@@ -535,7 +539,7 @@ export class AssetManagementRepository extends BaseRepository<any> {
   /**
    * Calculate asset depreciation
    */
-  calculateDepreciation(asset: any): DepreciationCalculation {
+  calculateDepreciation(asset: Asset): DepreciationCalculation {
     const purchasePrice = parseFloat(asset.purchase_price) || 0
     const depreciationRate = parseFloat(asset.depreciation_rate) || 0
     const purchaseDate = new Date(asset.purchase_date)
