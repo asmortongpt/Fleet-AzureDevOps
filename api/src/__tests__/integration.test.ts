@@ -23,18 +23,8 @@ interface TestError extends Error {
   code?: string;
 }
 
-interface AuthRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-    role: string;
-    tenant_id: string;
-  };
-}
-
 import { AuditService } from '../services/audit/AuditService';
 import { AuthenticationService } from '../services/auth/AuthenticationService';
-import { AuthorizationService } from '../services/authz/AuthorizationService';
 import { ConfigurationManagementService } from '../services/config/ConfigurationManagementService';
 import { SecretsManagementService } from '../services/secrets/SecretsManagementService';
 
@@ -44,7 +34,6 @@ describe('Fleet Management System - Integration Tests', () => {
   let redis: Redis;
   let auditService: AuditService;
   let authService: AuthenticationService;
-  let authzService: AuthorizationService;
   let secretsService: SecretsManagementService;
   let configService: ConfigurationManagementService;
 

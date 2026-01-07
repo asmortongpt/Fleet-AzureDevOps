@@ -116,10 +116,7 @@ describe('DispatchEmulator', () => {
     });
 
     it('should start generating transmissions', (done) => {
-      let transmissionReceived = false;
-
       emulator.on('transmission', (transmission: DispatchTransmission) => {
-        transmissionReceived = true;
         expect(transmission).toBeDefined();
         expect(transmission.id).toBeDefined();
         expect(transmission.vehicleId).toBe('vehicle-001');
