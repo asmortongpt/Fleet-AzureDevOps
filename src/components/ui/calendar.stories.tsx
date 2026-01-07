@@ -55,7 +55,6 @@ export const MultipleMonths: Story = {
 };
 
 const RangeCalendar = () => {
-    // @ts-expect-error - DateRange type mismatch
     const [date, setDate] = React.useState({
         from: new Date(2023, 0, 20),
         to: new Date(2023, 0, 20 + 20),
