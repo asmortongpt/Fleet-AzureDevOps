@@ -2,6 +2,23 @@ import { Pool } from 'pg';
 
 import { BaseRepository } from './base/BaseRepository';
 
+export interface ChecklistItem {
+  id: string;
+  category: string;
+  item: string;
+  status: 'pass' | 'fail' | 'na';
+  notes?: string;
+}
+
+export interface Defect {
+  id: string;
+  category: string;
+  description: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  location?: string;
+  photo_url?: string;
+}
+
 export interface Inspection {
   id: number;
   tenant_id: number;
@@ -15,8 +32,8 @@ export interface Inspection {
   odometer?: number;
   location?: string;
   notes?: string;
-  checklist_data?: any;
-  defects_found?: any[];
+  checklist_data?: ChecklistItem[];
+  defects_found?: Defect[];
   signature_url?: string;
   passed?: boolean;
   created_at?: Date;
@@ -24,7 +41,7 @@ export interface Inspection {
   deleted_at?: Date;
 }
 
-export class InspectionRepository extends BaseRepository<any> {
+export class InspectionRepository extends BaseRepository<Inspection> {
 
 
   constructor(pool: Pool) {
@@ -140,7 +157,7 @@ return null;
     tenantId: number,
     data: {
       passed: boolean;
-      defects_found?: any[];
+      defects_found?: Defect[];
       notes?: string;
       signature_url?: string;
     }

@@ -2,18 +2,30 @@ import { Pool, QueryResult } from 'pg';
 
 import { BaseRepository } from './base/BaseRepository';
 
+export interface GeoCoordinate {
+  lat: number;
+  lng: number;
+}
+
+export interface BoundaryCoordinates {
+  type: 'polygon' | 'circle' | 'rectangle';
+  points?: GeoCoordinate[];
+  center?: GeoCoordinate;
+  radius?: number;
+}
+
 export interface BoundaryAlert {
   id: number;
   tenant_id: string;
   name: string;
   description: string;
   boundary_type: string;
-  coordinates: any;
+  coordinates: BoundaryCoordinates;
   created_at: Date;
   updated_at: Date;
 }
 
-export class BoundaryAlertsRepository extends BaseRepository<any> {
+export class BoundaryAlertsRepository extends BaseRepository<BoundaryAlert> {
 
 
   constructor(pool: Pool) {

@@ -2,25 +2,43 @@ import { Pool, QueryResult } from 'pg';
 
 import { BaseRepository } from './base/BaseRepository';
 
+export interface CustomFieldOptions {
+  [key: string]: string | number | boolean | string[];
+}
+
 export interface CustomField {
   id: number;
   tenant_id: string;
   name: string;
   type: string;
-  options: any;
+  options: CustomFieldOptions;
   is_required: boolean;
   created_at: Date;
   updated_at: Date;
 }
 
-export class CustomFieldsRepository extends BaseRepository<any> {
+export interface CreateCustomFieldData {
+  name: string;
+  type: string;
+  options: CustomFieldOptions;
+  is_required: boolean;
+}
+
+export interface UpdateCustomFieldData {
+  name?: string;
+  type?: string;
+  options?: CustomFieldOptions;
+  is_required?: boolean;
+}
+
+export class CustomFieldsRepository extends BaseRepository<CustomField> {
 
 
   constructor(pool: Pool) {
     super(pool, 'custom_fields');
   }
 
-  async createCustomField(tenantId: string, data: any): Promise<CustomField> {
+  async createCustomField(tenantId: string, data: CreateCustomFieldData): Promise<CustomField> {
     const query = `
       INSERT INTO custom_fields (tenant_id, name, type, options, is_required, created_at, updated_at)
       VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
@@ -51,7 +69,7 @@ export class CustomFieldsRepository extends BaseRepository<any> {
     return result.rows;
   }
 
-  async updateCustomField(tenantId: string, id: number, data: any): Promise<CustomField | null> {
+  async updateCustomField(tenantId: string, id: number, data: UpdateCustomFieldData): Promise<CustomField | null> {
     const query = `
       UPDATE custom_fields
       SET name = $1, type = $2, options = $3, is_required = $4, updated_at = NOW()
