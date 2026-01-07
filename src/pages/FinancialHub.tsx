@@ -803,7 +803,8 @@ function CostBenefitContent() {
                     value="18.4%"
                     variant="success"
                     icon={<TrendUp className="w-6 h-6" />}
-                    trend={{ value: "+3.2%", direction: "up" }}
+                    trend="up"
+                    trendValue="+3.2%"
                     onClick={() => push({
                         type: 'roi-analysis',
                         data: { title: 'ROI Performance' },
@@ -1023,7 +1024,8 @@ function InvoicesContent() {
                     value="$284.5K"
                     variant="success"
                     icon={<CreditCard className="w-6 h-6" />}
-                    trend={{ value: "+12.4%", direction: "up" }}
+                    trend="up"
+                    trendValue="+12.4%"
                     onClick={() => push({
                         type: 'paid-month',
                         data: { title: 'Paid This Month' },
@@ -1135,7 +1137,8 @@ function PaymentsContent() {
                     value="$1.24M"
                     variant="success"
                     icon={<Bank className="w-6 h-6" />}
-                    trend={{ value: "+8.1%", direction: "up" }}
+                    trend="up"
+                    trendValue="+8.1%"
                     onClick={() => push({
                         type: 'total-payments',
                         data: { title: 'Total Payments' },
