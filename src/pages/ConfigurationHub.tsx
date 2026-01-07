@@ -124,7 +124,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export function ConfigurationHub() {
   const navigate = useNavigate()
-  const { toast } = useToast()
+  const { addToast } = useToast()
 
   // State
   const [configs, setConfigs] = useState<ConfigItem[]>([])
@@ -324,32 +324,32 @@ export function ConfigurationHub() {
     <HubPage
       title="Configuration Hub"
       description="Complete system configuration for CTA owners"
-      icon={Settings}
+      icon={<Settings className="w-6 h-6" />}
     >
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <StatCard
           title="Total Configurations"
           value={stats?.totalConfigs || 0}
-          icon={Settings}
+          icon={<Settings className="w-6 h-6" />}
           trend="neutral"
         />
         <StatCard
           title="CTA Owner Only"
           value={stats?.ctaOwnerOnly || 0}
-          icon={Lock}
+          icon={<Lock className="w-6 h-6" />}
           trend="neutral"
         />
         <StatCard
           title="Recent Changes"
           value={stats?.recentChanges || 0}
-          icon={History}
+          icon={<History className="w-6 h-6" />}
           trend="neutral"
         />
         <StatCard
           title="Categories"
           value={stats ? Object.keys(stats.byCategory).length : 0}
-          icon={Filter}
+          icon={<Filter className="w-6 h-6" />}
           trend="neutral"
         />
       </div>
