@@ -10,7 +10,7 @@ import { csrfProtection } from '../middleware/csrf'
 
 
 // CRIT-F-004: Updated to use centralized rate limiters
-import { authLimiter, registrationLimiter, checkBruteForce, bruteForce } from '../middleware/rateLimiter'
+import { registrationLimiter } from '../middleware/rateLimiter'
 import { FIPSCryptoService } from '../services/fips-crypto.service'
 import { FIPSJWTService } from '../services/fips-jwt.service'
 

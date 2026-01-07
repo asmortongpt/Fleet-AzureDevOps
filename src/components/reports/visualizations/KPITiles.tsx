@@ -1,5 +1,6 @@
-import React from 'react';
 import { TrendingUp, TrendingDown, Minus, ArrowUpRight } from 'lucide-react';
+import React from 'react';
+
 import { Card } from '@/components/ui/card';
 
 export interface KPIMeasure {

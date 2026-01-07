@@ -2,12 +2,16 @@
  * Test Scanner - Extract test results and coverage
  */
 
-import { execa } from 'execa';
 import fs from 'fs/promises';
 import path from 'path';
-import { BaseScanner } from './base-scanner.js';
+
+import { execa } from 'execa';
+
+
 import { CanonicalFinding } from '../types/canonical.js';
 import { logger } from '../utils/logger.js';
+
+import { BaseScanner } from './base-scanner.js';
 
 export interface TestConfig {
   enabled: boolean;

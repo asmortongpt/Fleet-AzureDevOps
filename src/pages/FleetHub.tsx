@@ -16,19 +16,16 @@ import {
     Cube,
     Video,
     Lightning,
-    Truck,
-    GasPump,
-    Engine,
     MapPin,
     Warning
 } from '@phosphor-icons/react'
-import React, { Suspense, lazy, Component, ReactNode, ErrorInfo } from 'react'
+import React, { Suspense, lazy, Component, ReactNode, ErrorInfo , useState } from 'react'
 
 // VideoPlayer import removed to avoid conflict with local definition
+import { AddVehicleDialog } from '@/components/dialogs/AddVehicleDialog'
 import { Button } from '@/components/ui/button'
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { Skeleton } from '@/components/ui/skeleton'
-import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'
 
 // Lazy load heavy components for performance
 const LiveFleetDashboard = lazy(() => import('@/components/dashboard/LiveFleetDashboard').then(m => ({ default: m.LiveFleetDashboard })))
@@ -111,13 +108,11 @@ function TabLoadingFallback() {
 // FLEET OVERVIEW CONTENT - Professional Table-First Navigation Pattern
 // ============================================================================
 import { useDrilldown } from '@/contexts/DrilldownContext'
-import { EntityAvatar } from '@/shared/design-system/EntityAvatar'
-import { StatusChip } from '@/shared/design-system/StatusChip'
-import { RowExpandPanel } from '@/shared/design-system/RowExpandPanel'
-import type { VehicleRow } from '@/shared/design-system/types'
-import { useState } from 'react'
 import { useVehicles, useVehicleMutations } from '@/hooks/use-api'
-import { AddVehicleDialog } from '@/components/dialogs/AddVehicleDialog'
+import { EntityAvatar } from '@/shared/design-system/EntityAvatar'
+import { RowExpandPanel } from '@/shared/design-system/RowExpandPanel'
+import { StatusChip } from '@/shared/design-system/StatusChip'
+import type { VehicleRow } from '@/shared/design-system/types'
 
 function FleetOverviewContent() {
     const { push } = useDrilldown()

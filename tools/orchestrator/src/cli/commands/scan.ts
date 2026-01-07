@@ -2,8 +2,9 @@
  * Scan Command - Run a specific scanner
  */
 
-import ora from 'ora';
 import chalk from 'chalk';
+import ora from 'ora';
+
 import { logger } from '../../utils/logger.js';
 
 export async function runScan(scanner: string, options: { target?: string }): Promise<void> {

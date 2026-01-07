@@ -1,6 +1,7 @@
 
 import { pool } from '../db'
 import { NotFoundError, ValidationError } from '../lib/errors'
+
 import { BaseRepository } from './base/BaseRepository';
 
 export interface PaginationParams {

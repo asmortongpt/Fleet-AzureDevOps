@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test.describe('Fleet Design System - Visual Confirmation', () => {
   test('Visual confirmation of Fleet Overview with design system', async ({ page }) => {

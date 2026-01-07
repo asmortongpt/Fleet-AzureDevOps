@@ -5,7 +5,7 @@
  */
 
 import type { BrandingConfig } from './branding-config'
-import { loadBrandingConfig, generateDocumentNumber } from './branding-config'
+import { loadBrandingConfig } from './branding-config'
 
 export interface DocumentMetadata {
   documentNumber: string

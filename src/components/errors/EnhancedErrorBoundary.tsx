@@ -11,12 +11,13 @@
  * Meets FAANG-level quality standards
  */
 
-import React, { Component, ErrorInfo, ReactNode } from 'react'
-import { Warning, ArrowClockwise, House, EnvelopeSimple, Phone } from '@phosphor-icons/react'
+import { Warning, ArrowClockwise, House, EnvelopeSimple } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
+import React, { Component, ErrorInfo, ReactNode } from 'react'
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 interface Props {
   children: ReactNode

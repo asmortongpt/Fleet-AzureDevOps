@@ -13,7 +13,6 @@
  * - SOP-driven RBAC configuration
  */
 
-import { useState, useEffect } from 'react'
 import {
   Gear,
   Building,
@@ -22,8 +21,6 @@ import {
   Plugs,
   Bell,
   Shield,
-  User,
-  Palette,
   Code,
   Export,
   Upload,
@@ -33,6 +30,7 @@ import {
   Warning as WarningIcon,
   Info
 } from '@phosphor-icons/react'
+import { useState, useEffect } from 'react'
 
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard } from '@/components/ui/stat-card'

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test } from '@playwright/test'
 
 test('Inspect all pages - Bypass auth and capture UI', async ({ page }) => {
   test.setTimeout(300000)

@@ -6,8 +6,8 @@
 
 import { faker } from '@faker-js/faker';
 import * as bcrypt from 'bcrypt';
-import { drizzle } from 'drizzle-orm/node-postgres';
 import * as dotenv from 'dotenv';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import { Client } from 'pg';
 
 // Load environment variables

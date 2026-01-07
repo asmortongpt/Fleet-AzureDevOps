@@ -14,9 +14,10 @@
  * @module services/authz/AuthorizationService
  */
 
-import { Pool, PoolClient } from 'pg';
+import { Pool } from 'pg';
 import { createClient, RedisClientType } from 'redis';
 import { z } from 'zod';
+
 import { logger, securityLogger, perfLogger } from '../../lib/logger';
 
 // ============================================================================

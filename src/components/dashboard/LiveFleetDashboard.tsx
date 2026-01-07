@@ -21,7 +21,6 @@ import { GeofenceIntelligencePanel } from '@/components/panels/GeofenceIntellige
 import { TrafficCameraControlPanel } from '@/components/panels/TrafficCameraControlPanel';
 import { useVehicles, useDrivers } from '@/hooks/use-api';
 import { useGeofenceBreachDetector } from '@/hooks/use-geofence-breach';
-import { generateDemoVehicles } from '@/lib/demo-data';
 import { Geofence, Driver } from '@/lib/types';
 import logger from '@/utils/logger';
 

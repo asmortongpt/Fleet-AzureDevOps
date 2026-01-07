@@ -12,8 +12,6 @@
  * Meets FAANG-level performance standards
  */
 
-import React, { useCallback, useMemo, useRef, useState, useEffect } from 'react'
-import { useVirtualizer } from '@tanstack/react-virtual'
 import {
   ColumnDef,
   flexRender,
@@ -28,24 +26,24 @@ import {
   RowSelectionState,
   ColumnSizingState,
 } from '@tanstack/react-table'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
   Filter,
   Download,
-  Settings,
   Search,
   X,
-  Check,
   ChevronDown,
-  Columns3,
-  MoreHorizontal
+  Columns3
 } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { useCallback, useMemo, useRef, useState, useEffect } from 'react'
 import * as XLSX from 'xlsx'
-import { cn } from '@/lib/utils'
+
+import { Badge } from './badge'
 import { Button } from './button'
+import { Checkbox } from './checkbox'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,8 +54,8 @@ import {
   DropdownMenuCheckboxItem,
 } from './dropdown-menu'
 import { Input } from './input'
-import { Checkbox } from './checkbox'
-import { Badge } from './badge'
+
+import { cn } from '@/lib/utils'
 
 // ============================================================================
 // TYPES

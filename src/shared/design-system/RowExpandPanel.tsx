@@ -1,6 +1,7 @@
 import React from 'react';
-import { RecordRow } from './types';
+
 import { StatusChip } from './StatusChip';
+import { RecordRow } from './types';
 
 export const RowExpandPanel: React.FC<{
   anomalies: {status:'good'|'warn'|'bad'|'info'; label:string}[];

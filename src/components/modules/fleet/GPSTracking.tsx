@@ -1,5 +1,6 @@
+import { MapPin, Circle, Warning, Info } from "@phosphor-icons/react"
 import React, { useMemo, useState, useCallback, useEffect, useRef } from "react"
-import { MapPin, Circle, CheckCircle, Warning, Info, Eye } from "@phosphor-icons/react"
+
 import { UniversalMap } from "@/components/UniversalMap"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Vehicle, GISFacility } from "@/lib/types"

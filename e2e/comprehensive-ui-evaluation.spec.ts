@@ -1,5 +1,6 @@
-import { test, expect } from '@playwright/test'
 import * as fs from 'fs'
+
+import { test } from '@playwright/test'
 
 test('Comprehensive UI Evaluation - Screenshot and analyze all pages', async ({ page }) => {
   test.setTimeout(600000) // 10 minutes

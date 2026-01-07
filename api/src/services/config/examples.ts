@@ -6,14 +6,13 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { Pool } from 'pg';
 import Redis from 'ioredis';
+import { Pool } from 'pg';
+
 import {
   ConfigurationManagementService,
   createConfigurationService,
-  ConfigScope,
-  ImpactLevel,
-  ChangeStatus
+  ConfigScope
 } from './ConfigurationManagementService';
 
 // ============================================================================

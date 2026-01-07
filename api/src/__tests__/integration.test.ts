@@ -12,15 +12,16 @@
  * 5. Audit trail (log verification, tampering detection)
  */
 
-import request from 'supertest';
-import { Pool } from 'pg';
-import Redis from 'ioredis';
 import express, { Express } from 'express';
+import Redis from 'ioredis';
+import { Pool } from 'pg';
+import request from 'supertest';
+
 import { AuditService } from '../services/audit/AuditService';
 import { AuthenticationService } from '../services/auth/AuthenticationService';
 import { AuthorizationService } from '../services/authz/AuthorizationService';
-import { SecretsManagementService } from '../services/secrets/SecretsManagementService';
 import { ConfigurationManagementService } from '../services/config/ConfigurationManagementService';
+import { SecretsManagementService } from '../services/secrets/SecretsManagementService';
 
 describe('Fleet Management System - Integration Tests', () => {
   let app: Express;
