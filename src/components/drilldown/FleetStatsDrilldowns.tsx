@@ -714,7 +714,7 @@ export function VehicleListDrilldown() {
                                             <div className="text-sm font-medium">{vehicle.mileage?.toLocaleString() || '0'} mi</div>
                                             <div className="text-xs text-muted-foreground">Fuel: {vehicle.fuelLevel}%</div>
                                         </div>
-                                        {columns[2].render && columns[2].render(vehicle, 0)}
+                                        {columns[2].render && columns[2].render(vehicle)}
                                     </div>
                                 </div>
                             </div>
