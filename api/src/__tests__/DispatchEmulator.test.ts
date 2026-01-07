@@ -243,7 +243,8 @@ describe('DispatchEmulator', () => {
         unitNumber: 'Unit-101'
       });
 
-      const result = emulator.switchVehicleChannel('vehicle-001', 'invalid' as any);
+      // Type assertion to test invalid input handling
+      const result = emulator.switchVehicleChannel('vehicle-001', 'invalid' as unknown as 'dispatch' | 'emergency' | 'maintenance' | 'operations');
       expect(result).toBe(false);
     });
 

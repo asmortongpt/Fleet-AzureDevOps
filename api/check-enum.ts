@@ -1,8 +1,12 @@
 import pool from './src/config/database.js'
 
+interface EnumRow {
+  enumlabel: string;
+}
+
 async function checkEnum() {
   try {
-    const result = await pool.query(`
+    const result = await pool.query<EnumRow>(`
       SELECT enumlabel
       FROM pg_enum
       WHERE enumtypid = (SELECT oid FROM pg_type WHERE typname = 'user_role')
@@ -14,8 +18,9 @@ async function checkEnum() {
       console.log(`  ${index + 1}. ${row.enumlabel}`)
     })
 
-  } catch (error: any) {
-    console.error('Error:', error.message)
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Error:', errorMessage)
   } finally {
     await pool.end()
   }
