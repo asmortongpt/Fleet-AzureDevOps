@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         // DEMO MODE: Only enabled if explicitly set - SSO-first in production
         const DEMO_MODE = import.meta.env.VITE_USE_MOCK_DATA === 'true' ||
-                          localStorage.getItem('demo_mode') === 'true';
+          localStorage.getItem('demo_mode') === 'true';
 
         if (DEMO_MODE) {
           const demoUser: User = {
@@ -88,7 +88,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
 
         // Check if we have a valid session via httpOnly cookie
-        const response = await fetch('/api/auth/verify', {
+        const response = await fetch('/api/auth/me', {
           method: 'GET',
           credentials: 'include', // Send httpOnly cookie
         });
@@ -124,7 +124,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
       } catch (error) {
         const DEMO_MODE = import.meta.env.VITE_USE_MOCK_DATA === 'true' ||
-                          localStorage.getItem('demo_mode') === 'true';
+          localStorage.getItem('demo_mode') === 'true';
         if (!DEMO_MODE) {
           logger.error('Failed to initialize auth:', { error });
         }

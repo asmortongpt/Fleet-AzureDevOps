@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS video_safety_events (
   duration_seconds INT,
 
   -- Timestamps
-  event_"timestamp" TIMESTAMP NOT NULL,
+  event_timestamp TIMESTAMP NOT NULL,
   event_start_time TIMESTAMP,
   event_end_time TIMESTAMP,
 
