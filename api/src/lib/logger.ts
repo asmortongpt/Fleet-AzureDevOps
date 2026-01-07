@@ -1,3 +1,9 @@
+import winston from 'winston'
+import DailyRotateFile from 'winston-daily-rotate-file'
+import path from 'path'
+import fs from 'fs'
+import { v4 as uuidv4 } from 'uuid'
+
 /**
  * Production-Grade Winston Logging System
  *
@@ -297,6 +303,7 @@ let appInsightsTransport: winston.transport | null = null;
 
 if (process.env.APPLICATIONINSIGHTS_CONNECTION_STRING) {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const appInsights = require('applicationinsights');
     appInsights.setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING)
       .setAutoDependencyCorrelation(true)
@@ -310,6 +317,7 @@ if (process.env.APPLICATIONINSIGHTS_CONNECTION_STRING) {
       .start();
 
     // Custom Winston transport for Application Insights
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { Transport } = require('winston-transport');
 
     class ApplicationInsightsTransport extends Transport {

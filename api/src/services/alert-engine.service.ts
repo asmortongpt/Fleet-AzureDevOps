@@ -279,6 +279,7 @@ return
 
     // Example Twilio integration:
     /*
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const twilio = require(`twilio`)(
       process.env.TWILIO_ACCOUNT_SID,
       process.env.TWILIO_AUTH_TOKEN
