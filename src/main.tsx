@@ -3,11 +3,26 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
 
-// DEMO MODE: Disabled by default - SSO-first production deployment
-// To enable demo mode for development, manually set: localStorage.setItem('demo_mode', 'true')
-if (typeof window !== 'undefined' && !localStorage.getItem('demo_mode')) {
-  localStorage.setItem('demo_mode', 'false');
-  console.log('[Fleet] SSO authentication required - demo mode disabled');
+/**
+ * P0-2 SECURITY FIX: Remove demo_mode localStorage bypass
+ * CRITICAL: Production builds must NEVER allow authentication bypass
+ *
+ * Previous code allowed localStorage.getItem('demo_mode') to bypass SSO authentication.
+ * This is a critical security vulnerability that could allow unauthorized access.
+ */
+if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
+  // P0-2: Clear any demo mode artifacts from localStorage in production
+  localStorage.removeItem('demo_mode');
+  localStorage.removeItem('mock_auth');
+  localStorage.removeItem('bypass_sso');
+  localStorage.removeItem('demo_user');
+
+  // Freeze localStorage to prevent runtime modifications (defense in depth)
+  // Note: This prevents ALL localStorage writes in production, which may affect analytics
+  // If needed, use sessionStorage or cookies for non-sensitive data
+  // Object.freeze(localStorage); // Uncomment if strict security is required
+
+  console.log('[Fleet] Production mode: All authentication bypass mechanisms removed');
 }
 
 // Initialize Sentry before all other imports for proper error tracking
@@ -26,8 +41,18 @@ import { TenantProvider } from "./contexts/TenantContext"
 import { initSentry } from "./lib/sentry"
 initSentry()
 
+/**
+ * P0-3 SECURITY FIX: Startup JWT validation
+ * Import secret management for production environments
+ */
+import { validateSecrets, getSecret, checkKeyVaultHealth } from "./config/secrets"
+
 // Initialize Application Insights for production telemetry
 import telemetryService from "./lib/telemetry"
+
+// PWA Service Worker registration
+// @ts-ignore
+import { registerSW } from 'virtual:pwa-register'
 
 const reactPlugin = telemetryService.initialize()
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
@@ -59,7 +84,109 @@ const queryClient = new QueryClient({
 // const SentryRoutes = Sentry.withSentryRouting(Routes)
 const SentryRoutes = Routes
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+/**
+ * P0-3 SECURITY FIX: Startup configuration validation
+ * CRITICAL: Application MUST NOT start if required secrets are missing or invalid
+ * This prevents silent failures and ensures proper JWT configuration
+ */
+async function validateStartupConfiguration(): Promise<void> {
+  console.log('[Fleet] Starting application configuration validation...');
+
+  try {
+    // Only validate secrets in production mode
+    if (import.meta.env.MODE === 'production') {
+      console.log('[Fleet] Production mode detected - validating Key Vault connectivity...');
+
+      // Step 1: Check Key Vault connectivity
+      const healthCheck = await checkKeyVaultHealth();
+      if (!healthCheck.healthy) {
+        throw new Error(`Key Vault health check failed: ${healthCheck.error}`);
+      }
+      console.log('[Fleet] ✓ Key Vault connectivity verified');
+
+      // Step 2: Validate all required secrets
+      console.log('[Fleet] Validating required secrets...');
+      await validateSecrets();
+      console.log('[Fleet] ✓ All required secrets validated');
+
+      // Step 3: Validate JWT configuration
+      console.log('[Fleet] Validating JWT configuration...');
+      const jwtSecret = await getSecret("JWT-SECRET");
+
+      if (jwtSecret.length < 32) {
+        throw new Error(
+          `JWT-SECRET must be at least 32 characters for security (current: ${jwtSecret.length} chars)`
+        );
+      }
+      console.log('[Fleet] ✓ JWT configuration valid');
+
+      console.log('[Fleet] ✅ Startup validation: PASSED');
+    } else {
+      console.log('[Fleet] Development mode - skipping Key Vault validation');
+      console.log('[Fleet] ⚠️  WARNING: Using local environment variables');
+    }
+  } catch (error) {
+    console.error('[Fleet] ❌ FATAL: Startup validation failed:', error);
+
+    // Show user-friendly error page instead of blank screen
+    const rootElement = document.getElementById("root");
+    if (rootElement) {
+      rootElement.innerHTML = `
+        <div style="
+          padding: 40px;
+          max-width: 800px;
+          margin: 100px auto;
+          text-align: center;
+          font-family: system-ui, -apple-system, sans-serif;
+          background: #fff;
+          border: 2px solid #ef4444;
+          border-radius: 8px;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        ">
+          <h1 style="color: #dc2626; margin-bottom: 20px;">
+            ⚠️ Configuration Error
+          </h1>
+          <p style="color: #374151; font-size: 18px; margin-bottom: 20px;">
+            The application could not start due to missing or invalid configuration.
+          </p>
+          <details style="
+            text-align: left;
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 4px;
+            margin-top: 20px;
+          ">
+            <summary style="cursor: pointer; font-weight: bold; color: #1f2937;">
+              Technical Details (Click to expand)
+            </summary>
+            <pre style="
+              margin-top: 10px;
+              padding: 10px;
+              background: #1f2937;
+              color: #f9fafb;
+              border-radius: 4px;
+              overflow: auto;
+              font-size: 14px;
+            ">${error instanceof Error ? error.message : 'Unknown error'}</pre>
+          </details>
+          <p style="color: #6b7280; margin-top: 30px; font-size: 14px;">
+            Please contact your system administrator or check the deployment configuration.
+          </p>
+        </div>
+      `;
+    }
+
+    // Re-throw to prevent app from starting
+    throw error;
+  }
+}
+
+// P0-3: Run validation BEFORE rendering app
+// This ensures app only starts if all security requirements are met
+validateStartupConfiguration().then(() => {
+  console.log('[Fleet] Starting application...');
+
+  ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="ctafleet-theme">
@@ -103,16 +230,18 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   </React.StrictMode>
 )
 
-// @ts-ignore
-import { registerSW } from 'virtual:pwa-register'
-
-const updateSW = registerSW({
-  onNeedRefresh() {
-    if (confirm('New content available. Reload?')) {
-      updateSW(true)
-    }
-  },
-  onOfflineReady() {
-    console.log('App ready to work offline')
-  },
-})
+  // Register service worker for PWA functionality
+  const updateSW = registerSW({
+    onNeedRefresh() {
+      if (confirm('New content available. Reload?')) {
+        updateSW(true)
+      }
+    },
+    onOfflineReady() {
+      console.log('App ready to work offline')
+    },
+  })
+}).catch((error) => {
+  // P0-3: Validation failed - app will not start
+  console.error('[Fleet] Application startup aborted due to validation failure:', error);
+});

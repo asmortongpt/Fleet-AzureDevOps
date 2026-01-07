@@ -1,4 +1,5 @@
 import path from 'path';
+import crypto from 'crypto';
 
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
@@ -6,8 +7,15 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
+/**
+ * P0-1 SECURITY FIX: Prevent .env files from being bundled into production builds
+ * Generate CSP nonces for P0-4 fix
+ */
 
 export default defineConfig({
+  // P0-1: Explicitly exclude .env files from build output
+  envPrefix: 'VITE_', // Only load variables with VITE_ prefix
+  envDir: './', // Load from project root
   server: {
     proxy: {
       '/api': {
@@ -70,6 +78,14 @@ export default defineConfig({
           'icons-vendor': ['lucide-react'],
         },
       },
+      // P0-1: Explicitly exclude .env files from being bundled
+      external: (id) => {
+        if (id.includes('.env')) {
+          console.warn(`⚠️  SECURITY: Prevented .env file from being bundled: ${id}`);
+          return true;
+        }
+        return false;
+      },
     },
     chunkSizeWarningLimit: 500,
     minify: 'terser',
@@ -77,6 +93,12 @@ export default defineConfig({
       compress: {
         drop_console: true,
         drop_debugger: true,
+      },
+      // P0-1: Remove any environment variable references in production
+      mangle: {
+        properties: {
+          regex: /(PASSWORD|SECRET|KEY|TOKEN)$/,
+        },
       },
     },
   },

@@ -1,9 +1,64 @@
 import dotenv from 'dotenv'
 import { Pool } from 'pg'
+import * as promClient from 'prom-client'
 
 import { ConnectionError } from '../services/dal/errors'
 
 dotenv.config()
+
+/**
+ * P0-5 SECURITY FIX: Prometheus metrics for database connection pool monitoring
+ * CRITICAL: Prevents production outages by monitoring pool exhaustion and connection leaks
+ */
+const poolMetrics = {
+  totalConnections: new promClient.Gauge({
+    name: 'db_pool_total_connections',
+    help: 'Total number of connections in pool',
+    labelNames: ['pool_type']
+  }),
+  idleConnections: new promClient.Gauge({
+    name: 'db_pool_idle_connections',
+    help: 'Number of idle connections in pool',
+    labelNames: ['pool_type']
+  }),
+  waitingClients: new promClient.Gauge({
+    name: 'db_pool_waiting_clients',
+    help: 'Number of clients waiting for connection',
+    labelNames: ['pool_type']
+  }),
+  activeConnections: new promClient.Gauge({
+    name: 'db_pool_active_connections',
+    help: 'Number of active connections in pool',
+    labelNames: ['pool_type']
+  }),
+  utilizationPercentage: new promClient.Gauge({
+    name: 'db_pool_utilization_percentage',
+    help: 'Pool utilization percentage (active/max)',
+    labelNames: ['pool_type']
+  }),
+  connectionErrors: new promClient.Counter({
+    name: 'db_pool_connection_errors_total',
+    help: 'Total number of connection errors',
+    labelNames: ['pool_type', 'error_type']
+  }),
+  connectionAcquisitionDuration: new promClient.Histogram({
+    name: 'db_pool_connection_acquisition_duration_seconds',
+    help: 'Time taken to acquire a connection from the pool',
+    labelNames: ['pool_type'],
+    buckets: [0.001, 0.01, 0.1, 0.5, 1, 2, 5, 10] // 1ms to 10s
+  }),
+  queryDuration: new promClient.Histogram({
+    name: 'db_query_duration_seconds',
+    help: 'Database query execution time',
+    labelNames: ['pool_type', 'query_type'],
+    buckets: [0.001, 0.01, 0.1, 0.5, 1, 5, 10, 30] // 1ms to 30s
+  }),
+  healthCheckFailures: new promClient.Counter({
+    name: 'db_pool_health_check_failures_total',
+    help: 'Total number of health check failures',
+    labelNames: ['pool_type']
+  })
+}
 
 /**
  * Pool types for different database access levels
@@ -57,10 +112,12 @@ export class ConnectionManager {
   private healthCheckIntervals: Map<PoolType, NodeJS.Timeout> = new Map()
   private poolConfigs: Map<PoolType, PoolConfiguration> = new Map()
   private initialized: boolean = false
+  private metricsInterval: NodeJS.Timeout | null = null // P0-5: Metrics collection interval
 
   constructor() {
     this.setupConfigurations()
     this.createPools() // Create pools immediately to support DI at module load
+    this.startMetricsCollection() // P0-5: Start Prometheus metrics collection
   }
 
   /**
@@ -195,6 +252,70 @@ export class ConnectionManager {
   }
 
   /**
+   * P0-5: Start Prometheus metrics collection
+   */
+  private startMetricsCollection(): void {
+    // Update metrics every 10 seconds
+    const interval = parseInt(process.env.DB_METRICS_INTERVAL || '10000')
+
+    this.metricsInterval = setInterval(() => {
+      this.updatePoolMetrics()
+    }, interval)
+
+    console.log(`[ConnectionManager] Prometheus metrics collection started (interval: ${interval}ms)`)
+  }
+
+  /**
+   * P0-5: Update Prometheus metrics for all pools
+   */
+  private updatePoolMetrics(): void {
+    for (const [poolType, pool] of this.pools.entries()) {
+      const config = this.poolConfigs.get(poolType)
+      if (!config) continue
+
+      const totalCount = pool.totalCount
+      const idleCount = pool.idleCount
+      const waitingCount = pool.waitingCount
+      const activeCount = totalCount - idleCount
+      const utilization = (activeCount / config.max) * 100
+
+      // Update Prometheus gauges
+      poolMetrics.totalConnections.set({ pool_type: poolType }, totalCount)
+      poolMetrics.idleConnections.set({ pool_type: poolType }, idleCount)
+      poolMetrics.waitingClients.set({ pool_type: poolType }, waitingCount)
+      poolMetrics.activeConnections.set({ pool_type: poolType }, activeCount)
+      poolMetrics.utilizationPercentage.set({ pool_type: poolType }, utilization)
+
+      // P0-5: Alert on high utilization
+      if (utilization > 80) {
+        console.warn(
+          `[ConnectionManager] HIGH UTILIZATION WARNING: ${poolType} pool at ${utilization.toFixed(1)}% ` +
+          `(${activeCount}/${config.max} connections in use)`
+        )
+      }
+
+      // P0-5: Alert on waiting clients (connection pool exhaustion)
+      if (waitingCount > 0) {
+        console.error(
+          `[ConnectionManager] POOL EXHAUSTION: ${poolType} has ${waitingCount} clients waiting for connections!`
+        )
+        poolMetrics.connectionErrors.inc({
+          pool_type: poolType,
+          error_type: 'pool_exhaustion'
+        })
+      }
+
+      // P0-5: Alert on near-capacity
+      if (waitingCount > 5 || utilization > 90) {
+        console.error(
+          `[ConnectionManager] CRITICAL: ${poolType} pool near capacity - ` +
+          `waiting: ${waitingCount}, utilization: ${utilization.toFixed(1)}%`
+        )
+      }
+    }
+  }
+
+  /**
    * Setup event handlers for a pool
    */
   private setupPoolEventHandlers(pool: Pool, poolType: PoolType): void {
@@ -212,6 +333,11 @@ export class ConnectionManager {
 
     pool.on(`error`, (err, client) => {
       console.error(`[${poolType}] Database pool error:`, err)
+      // P0-5: Track errors in Prometheus
+      poolMetrics.connectionErrors.inc({
+        pool_type: poolType,
+        error_type: err.name || 'unknown'
+      })
     })
   }
 
@@ -291,6 +417,42 @@ export class ConnectionManager {
   }
 
   /**
+   * P0-5: Instrumented connection acquisition with timing metrics
+   */
+  async getConnection(poolType: PoolType = PoolType.WEBAPP): Promise<any> {
+    const startTime = Date.now()
+    const pool = this.getPool(poolType)
+
+    try {
+      const client = await pool.connect()
+      const acquisitionTime = (Date.now() - startTime) / 1000 // Convert to seconds
+
+      // P0-5: Record connection acquisition time
+      poolMetrics.connectionAcquisitionDuration.observe(
+        { pool_type: poolType },
+        acquisitionTime
+      )
+
+      // P0-5: Warn on slow connection acquisition
+      if (acquisitionTime > 1.0) {
+        console.warn(
+          `[ConnectionManager] SLOW CONNECTION ACQUISITION: ${poolType} took ${acquisitionTime.toFixed(3)}s ` +
+          `(pool stats: total=${pool.totalCount}, idle=${pool.idleCount}, waiting=${pool.waitingCount})`
+        )
+      }
+
+      return client
+    } catch (error) {
+      // P0-5: Track connection errors
+      poolMetrics.connectionErrors.inc({
+        pool_type: poolType,
+        error_type: 'connection_failed'
+      })
+      throw error
+    }
+  }
+
+  /**
    * Start health check monitoring for a pool
    */
   private startHealthCheck(poolType: PoolType): void {
@@ -308,6 +470,8 @@ export class ConnectionManager {
         await client.query(`SELECT 1`)
       } catch (error) {
         console.error(`[${poolType}] Health check failed:`, error)
+        // P0-5: Track health check failures
+        poolMetrics.healthCheckFailures.inc({ pool_type: poolType })
       } finally {
         if (client) {
           try {
@@ -490,6 +654,12 @@ export class ConnectionManager {
   async closeAll(): Promise<void> {
     console.log(`Closing all database connection pools...`)
 
+    // P0-5: Clear metrics collection interval
+    if (this.metricsInterval) {
+      clearInterval(this.metricsInterval)
+      this.metricsInterval = null
+    }
+
     // Clear health check intervals
     for (const [poolType, interval] of this.healthCheckIntervals.entries()) {
       clearInterval(interval)
@@ -513,6 +683,23 @@ export class ConnectionManager {
     this.pools.clear()
     this.initialized = false
     console.log(`All database pools closed`)
+  }
+
+  /**
+   * P0-5: Get Prometheus metrics registry
+   * Use this to expose metrics at /metrics endpoint
+   */
+  getMetricsRegistry(): typeof promClient.register {
+    return promClient.register
+  }
+
+  /**
+   * P0-5: Get formatted metrics for Prometheus scraping
+   */
+  async getMetrics(): Promise<string> {
+    // Update metrics one final time before returning
+    this.updatePoolMetrics()
+    return promClient.register.metrics()
   }
 
   /**
