@@ -55,57 +55,79 @@
   High-contrast, vibrant, and glassmorphic aesthetic
 */
 :root {
-  /* CONSISTENT DARK THEME - Production Enterprise Standard */
-  --background: #0F1419;
-  /* Deep midnight background */
-  --foreground: #F9FAFB;
-  /* Crisp white text */
+  /* LIGHT THEME (Default) - Professional Enterprise Standard */
+  --background: #ffffff;
+  --foreground: #0f172a;
 
-  --card: #1A1F2E;
-  /* Card background - slightly lighter */
-  --card-foreground: #F9FAFB;
-  /* Crisp white text */
+  --card: #ffffff;
+  --card-foreground: #0f172a;
 
-  --popover: #242B3D;
-  /* Popover background */
-  --popover-foreground: #F9FAFB;
-  /* Crisp white text */
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
 
-  --primary: #3b82f6;
-  /* Blue 500 - SINGLE ACCENT COLOR */
+  --primary: #2563eb;
+  /* Blue 600 */
   --primary-foreground: #ffffff;
 
-  --secondary: #2A3347;
-  /* Subtle secondary */
-  --secondary-foreground: #D1D5DB;
+  --secondary: #f1f5f9;
+  /* Slate 100 */
+  --secondary-foreground: #0f172a;
 
-  --muted: #242B3D;
-  /* Muted background */
-  --muted-foreground: #9CA3AF;
-  /* Muted text */
+  --muted: #f8fafc;
+  /* Slate 50 */
+  --muted-foreground: #64748b;
+  /* Slate 500 */
 
-  --accent: #3b82f6;
-  /* SAME AS PRIMARY - Blue 500 - SINGLE ACCENT COLOR */
-  --accent-foreground: #ffffff;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
 
   --destructive: #ef4444;
-  /* Red 500 */
   --destructive-foreground: #ffffff;
 
   --success: #10b981;
-  /* Emerald 500 */
   --warning: #f59e0b;
-  /* Amber 500 */
 
-  --border: rgba(75, 85, 99, 0.3);
-  /* Consistent border */
-  --input: #242B3D;
-  /* Input background */
-  --ring: #3b82f6;
-  /* Blue 500 - focus ring */
+  --border: #e2e8f0;
+  /* Slate 200 */
+  --input: #e2e8f0;
+  --ring: #2563eb;
 
   --radius: 0.75rem;
-  /* Modern 12px corners */
+}
+
+.dark {
+  /* DARK THEME - Deep Midnight */
+  --background: #0F1419;
+  --foreground: #F9FAFB;
+
+  --card: #1A1F2E;
+  --card-foreground: #F9FAFB;
+
+  --popover: #242B3D;
+  --popover-foreground: #F9FAFB;
+
+  --primary: #3b82f6;
+  /* Blue 500 */
+  --primary-foreground: #ffffff;
+
+  --secondary: #2A3347;
+  --secondary-foreground: #D1D5DB;
+
+  --muted: #242B3D;
+  --muted-foreground: #9CA3AF;
+
+  --accent: #2A3347;
+  --accent-foreground: #F9FAFB;
+
+  --destructive: #7f1d1d;
+  --destructive-foreground: #fef2f2;
+
+  --success: #059669;
+  --warning: #d97706;
+
+  --border: rgba(75, 85, 99, 0.3);
+  --input: #242B3D;
+  --ring: #3b82f6;
 }
 
 /* REMOVE LIGHT MODE - Commit to single dark theme for consistency */
@@ -280,7 +302,9 @@
   }
 
   .hover-glow {
-    @apply transition-all duration-300 hover:shadow-[0_0_20px_rgba(37,99,235,0.15)];
+    transition-property: all;
+    transition-duration: 300ms;
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.15);
   }
 
   .hover-scale {

@@ -284,24 +284,25 @@ END $$;
 -- =====================================================
 
 -- Push notification templates
-INSERT INTO push_notification_templates (tenant_id, template_name, category, title_template, message_template, data_payload_template, action_buttons, priority, sound)
-VALUES
-    ((SELECT id FROM tenants LIMIT 1), 'maintenance_due', 'maintenance_reminder', 'Maintenance Due: {{vehicleName}}', '{{maintenanceType}} is due on {{dueDate}}', '{"screen": "MaintenanceDetail", "maintenanceId": "{{maintenanceId}}", "vehicleId": "{{vehicleId}}"}'::jsonb, '[{"id": "view", "title": "View Details"}, {"id": "snooze", "title": "Remind Later"}]'::jsonb, 'normal', 'default'),
-    ((SELECT id FROM tenants LIMIT 1), 'task_assigned', 'task_assignment', 'New Task Assigned', 'You have been assigned: {{taskTitle}}', '{"screen": "TaskDetail", "taskId": "{{taskId}}"}'::jsonb, '[{"id": "accept", "title": "Accept"}, {"id": "view", "title": "View"}]'::jsonb, 'high', 'default'),
-    ((SELECT id FROM tenants LIMIT 1), 'vehicle_alert', 'critical_alert', 'Vehicle Alert: {{vehicleName}}', '{{alertMessage}}', '{"screen": "VehicleDetail", "vehicleId": "{{vehicleId}}"}'::jsonb, '[{"id": "view", "title": "View Details"}, {"id": "acknowledge", "title": "Acknowledge"}]'::jsonb, 'critical', 'urgent'),
-    ((SELECT id FROM tenants LIMIT 1), 'inspection_required', 'maintenance_reminder', 'Inspection Required', 'Pre-trip inspection needed for {{vehicleName}}', '{"screen": "InspectionForm", "vehicleId": "{{vehicleId}}"}'::jsonb, '[{"id": "start_inspection", "title": "Start Inspection"}]'::jsonb, 'normal', 'default'),
-    ((SELECT id FROM tenants LIMIT 1), 'shift_reminder', 'task_assignment', 'Shift Starting Soon', 'Your shift starts in {{minutesBefore}} minutes', '{"screen": "Schedule"}'::jsonb, '[{"id": "acknowledge", "title": "Got It"}]'::jsonb, 'normal', 'default')
-ON CONFLICT (tenant_id, template_name) DO NOTHING;
+-- Push notification templates
+-- INSERT INTO push_notification_templates (tenant_id, template_name, category, title_template, message_template, data_payload_template, action_buttons, priority, sound)
+-- VALUES
+--     ((SELECT id FROM tenants LIMIT 1), 'maintenance_due', 'maintenance_reminder', 'Maintenance Due: {{vehicleName}}', '{{maintenanceType}} is due on {{dueDate}}', '{"screen": "MaintenanceDetail", "maintenanceId": "{{maintenanceId}}", "vehicleId": "{{vehicleId}}"}'::jsonb, '[{"id": "view", "title": "View Details"}, {"id": "snooze", "title": "Remind Later"}]'::jsonb, 'normal', 'default'),
+--     ((SELECT id FROM tenants LIMIT 1), 'task_assigned', 'task_assignment', 'New Task Assigned', 'You have been assigned: {{taskTitle}}', '{"screen": "TaskDetail", "taskId": "{{taskId}}"}'::jsonb, '[{"id": "accept", "title": "Accept"}, {"id": "view", "title": "View"}]'::jsonb, 'high', 'default'),
+--     ((SELECT id FROM tenants LIMIT 1), 'vehicle_alert', 'critical_alert', 'Vehicle Alert: {{vehicleName}}', '{{alertMessage}}', '{"screen": "VehicleDetail", "vehicleId": "{{vehicleId}}"}'::jsonb, '[{"id": "view", "title": "View Details"}, {"id": "acknowledge", "title": "Acknowledge"}]'::jsonb, 'critical', 'urgent'),
+--     ((SELECT id FROM tenants LIMIT 1), 'inspection_required', 'maintenance_reminder', 'Inspection Required', 'Pre-trip inspection needed for {{vehicleName}}', '{"screen": "InspectionForm", "vehicleId": "{{vehicleId}}"}'::jsonb, '[{"id": "start_inspection", "title": "Start Inspection"}]'::jsonb, 'normal', 'default'),
+--     ((SELECT id FROM tenants LIMIT 1), 'shift_reminder', 'task_assignment', 'Shift Starting Soon', 'Your shift starts in {{minutesBefore}} minutes', '{"screen": "Schedule"}'::jsonb, '[{"id": "acknowledge", "title": "Got It"}]'::jsonb, 'normal', 'default')
+-- ON CONFLICT (tenant_id, template_name) DO NOTHING;
 
 -- SMS templates
-INSERT INTO sms_templates (tenant_id, name, body, category, variables)
-VALUES
-    ((SELECT id FROM tenants LIMIT 1), 'maintenance_reminder', 'FLEET ALERT: Maintenance due for {{vehicleName}}. {{maintenanceType}} scheduled for {{dueDate}}. Contact dispatch for details.', 'maintenance', '["vehicleName", "maintenanceType", "dueDate"]'::jsonb),
-    ((SELECT id FROM tenants LIMIT 1), 'task_assignment', 'FLEET: New task assigned - {{taskTitle}}. Due: {{dueDate}}. Check app for details.', 'task', '["taskTitle", "dueDate"]'::jsonb),
-    ((SELECT id FROM tenants LIMIT 1), 'vehicle_alert', 'URGENT: {{vehicleName}} - {{alertMessage}}. Contact dispatch immediately.', 'alert', '["vehicleName", "alertMessage"]'::jsonb),
-    ((SELECT id FROM tenants LIMIT 1), 'shift_reminder', 'FLEET: Your shift starts at {{shiftTime}}. Report to {{location}}.', 'schedule', '["shiftTime", "location"]'::jsonb),
-    ((SELECT id FROM tenants LIMIT 1), 'inspection_overdue', 'FLEET: Vehicle inspection overdue for {{vehicleName}}. Complete before next trip.', 'compliance', '["vehicleName"]'::jsonb)
-ON CONFLICT (tenant_id, name) DO NOTHING;
+-- INSERT INTO sms_templates (tenant_id, name, body, category, variables)
+-- VALUES
+--     ((SELECT id FROM tenants LIMIT 1), 'maintenance_reminder', 'FLEET ALERT: Maintenance due for {{vehicleName}}. {{maintenanceType}} scheduled for {{dueDate}}. Contact dispatch for details.', 'maintenance', '["vehicleName", "maintenanceType", "dueDate"]'::jsonb),
+--     ((SELECT id FROM tenants LIMIT 1), 'task_assignment', 'FLEET: New task assigned - {{taskTitle}}. Due: {{dueDate}}. Check app for details.', 'task', '["taskTitle", "dueDate"]'::jsonb),
+--     ((SELECT id FROM tenants LIMIT 1), 'vehicle_alert', 'URGENT: {{vehicleName}} - {{alertMessage}}. Contact dispatch immediately.', 'alert', '["vehicleName", "alertMessage"]'::jsonb),
+--     ((SELECT id FROM tenants LIMIT 1), 'shift_reminder', 'FLEET: Your shift starts at {{shiftTime}}. Report to {{location}}.', 'schedule', '["shiftTime", "location"]'::jsonb),
+--     ((SELECT id FROM tenants LIMIT 1), 'inspection_overdue', 'FLEET: Vehicle inspection overdue for {{vehicleName}}. Complete before next trip.', 'compliance', '["vehicleName"]'::jsonb)
+-- ON CONFLICT (tenant_id, name) DO NOTHING;
 
 -- =====================================================
 -- Comments

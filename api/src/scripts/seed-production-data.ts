@@ -7,7 +7,11 @@
 import { faker } from '@faker-js/faker';
 import * as bcrypt from 'bcrypt';
 import { drizzle } from 'drizzle-orm/node-postgres';
+import * as dotenv from 'dotenv';
 import { Client } from 'pg';
+
+// Load environment variables
+dotenv.config();
 
 import * as schema from '../schemas/production.schema';
 
@@ -43,14 +47,32 @@ interface SeedIds {
 async function main() {
   console.log('🚀 Starting production data seeding...\n');
 
-  const client = new Client({ connectionString: DATABASE_URL });
+  // Construct connection config prioritizing individual vars to match migration runner
+  const dbConfig = {
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD,
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432'),
+    database: process.env.DB_NAME || 'fleet_management',
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  };
+
+  const client = new Client(dbConfig);
   await client.connect();
   const db = drizzle(client, { schema: schema.schema });
 
   try {
     // Clear existing data
     console.log('🧹 Clearing existing data...');
-    await client.query('TRUNCATE TABLE audit_logs, tasks, charging_sessions, charging_stations, assets, invoices, purchase_orders, parts_inventory, vendors, notifications, announcements, documents, training_records, certifications, incidents, geofences, telemetry_data, gps_tracks, dispatches, routes, fuel_transactions, inspections, maintenance_schedules, work_orders, facilities, drivers, vehicles, users, tenants RESTART IDENTITY CASCADE');
+    try {
+      await client.query('TRUNCATE TABLE audit_logs, tasks, charging_sessions, charging_stations, assets, invoices, purchase_orders, parts_inventory, vendors, notifications, announcements, documents, training_records, certifications, incidents, geofences, telemetry_data, gps_tracks, dispatches, routes, fuel_transactions, inspections, maintenance_schedules, work_orders, facilities, drivers, vehicles, users, tenants RESTART IDENTITY CASCADE');
+    } catch (error: any) {
+      if (error.code === '42P01') {
+        console.warn('⚠️  Some tables do not exist, skipping truncate. Ensure migrations are applied.');
+      } else {
+        throw error;
+      }
+    }
 
     const ids: SeedIds = {
       tenantId: '',
@@ -104,7 +126,7 @@ async function main() {
         passwordHash,
         firstName: firstName.substring(0, 50),
         lastName: lastName.substring(0, 50),
-        phone: faker.phone.number('###-###-####').substring(0, 20),
+        phone: faker.phone.number().substring(0, 20),
         role,
         isActive: true,
         lastLoginAt: faker.date.recent({ days: 30 }),
@@ -131,7 +153,7 @@ async function main() {
         capacity: faker.number.int({ min: 20, max: 100 }),
         currentOccupancy: 0,
         contactName: faker.person.fullName().substring(0, 50),
-        contactPhone: faker.phone.number('###-###-####').substring(0, 20),
+        contactPhone: faker.phone.number().substring(0, 20),
         contactEmail: faker.internet.email().substring(0, 255),
         operatingHours: {
           monday: { open: '06:00', close: '18:00' },
@@ -159,7 +181,7 @@ async function main() {
         firstName: firstName.substring(0, 50),
         lastName: lastName.substring(0, 50),
         email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@driver.com`.substring(0, 255),
-        phone: faker.phone.number('###-###-####').substring(0, 20),
+        phone: faker.phone.number().substring(0, 20),
         employeeNumber: `EMP-${1000 + i}`,
         licenseNumber: faker.string.alphanumeric(12).toUpperCase().substring(0, 50),
         licenseState: 'FL',
@@ -175,8 +197,8 @@ async function main() {
         hireDate: faker.date.past({ years: 5 }),
         dateOfBirth: faker.date.birthdate({ min: 21, max: 65, mode: 'age' }),
         emergencyContactName: faker.person.fullName().substring(0, 100),
-        emergencyContactPhone: faker.phone.number('###-###-####').substring(0, 20),
-        performanceScore: faker.number.float({ min: 70, max: 100, fractionDigits: 2 }),
+        emergencyContactPhone: faker.phone.number().substring(0, 20),
+        performanceScore: String(faker.number.float({ min: 70, max: 100, fractionDigits: 2 })),
         metadata: {},
       }).returning();
       ids.driverIds.push(driver.id);
@@ -549,7 +571,7 @@ async function main() {
         type: faker.helpers.arrayElement(['parts', 'fuel', 'service', 'insurance', 'equipment']),
         contactName: faker.person.fullName().substring(0, 50),
         contactEmail: faker.internet.email().substring(0, 255),
-        contactPhone: faker.phone.number('###-###-####').substring(0, 20),
+        contactPhone: faker.phone.number().substring(0, 20),
         address: faker.location.streetAddress().substring(0, 255),
         city: faker.location.city().substring(0, 100),
         state: faker.location.state({ abbreviated: true }),

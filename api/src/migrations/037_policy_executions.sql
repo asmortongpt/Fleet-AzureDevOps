@@ -4,6 +4,8 @@
 -- Date: 2026-01-02
 -- Dependencies: 022_policy_templates_library.sql
 
+DROP TABLE IF EXISTS policy_executions CASCADE;
+
 -- ==============================================================================
 -- POLICY EXECUTIONS TABLE
 -- ==============================================================================

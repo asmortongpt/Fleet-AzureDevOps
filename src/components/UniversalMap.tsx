@@ -315,8 +315,8 @@ function calculateDynamicCenter(
   // Collect vehicle coordinates
   vehicles.forEach(v => {
     if (v.location?.lat && v.location?.lng &&
-        v.location.lat >= -90 && v.location.lat <= 90 &&
-        v.location.lng >= -180 && v.location.lng <= 180) {
+      v.location.lat >= -90 && v.location.lat <= 90 &&
+      v.location.lng >= -180 && v.location.lng <= 180) {
       validCoords.push([v.location.lat, v.location.lng])
     }
   })
@@ -324,8 +324,8 @@ function calculateDynamicCenter(
   // Collect facility coordinates
   facilities.forEach(f => {
     if (f.location?.lat && f.location?.lng &&
-        f.location.lat >= -90 && f.location.lat <= 90 &&
-        f.location.lng >= -180 && f.location.lng <= 180) {
+      f.location.lat >= -90 && f.location.lat <= 90 &&
+      f.location.lng >= -180 && f.location.lng <= 180) {
       validCoords.push([f.location.lat, f.location.lng])
     }
   })
@@ -333,8 +333,8 @@ function calculateDynamicCenter(
   // Collect camera coordinates
   cameras.forEach(c => {
     if (c.latitude && c.longitude &&
-        c.latitude >= -90 && c.latitude <= 90 &&
-        c.longitude >= -180 && c.longitude <= 180) {
+      c.latitude >= -90 && c.latitude <= 90 &&
+      c.longitude >= -180 && c.longitude <= 180) {
       validCoords.push([c.latitude, c.longitude])
     }
   })
@@ -444,9 +444,9 @@ export function UniversalMap(props: UniversalMapProps) {
   // --------------------------------------------------------------------------
 
   const {
-    vehicles = [],
-    facilities = [],
-    cameras = [],
+    vehicles: propVehicles = [],
+    facilities: propFacilities = [],
+    cameras: propCameras = [],
     showVehicles = true,
     showFacilities = true,
     showCameras = true,
@@ -462,6 +462,12 @@ export function UniversalMap(props: UniversalMapProps) {
     enablePerformanceMonitoring = import.meta.env.DEV,
     showPerformanceMonitor = import.meta.env.DEV,
   } = props
+
+  // Test environment data injection
+  const testData = (typeof window !== 'undefined' && (window as any).__TEST_DATA__) || {}
+  const vehicles = testData.vehicles || propVehicles
+  const facilities = testData.facilities || propFacilities
+  const cameras = testData.cameras || propCameras
 
   // --------------------------------------------------------------------------
   // State Management

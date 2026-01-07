@@ -103,8 +103,16 @@ CREATE TABLE IF NOT EXISTS vehicle_idling_thresholds (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     -- Ensure only one threshold per vehicle or vehicle type
-    CONSTRAINT unique_threshold UNIQUE NULLS NOT DISTINCT (vehicle_id, vehicle_type)
+    CONSTRAINT unique_threshold_vehicle UNIQUE (vehicle_id), -- Assumes one threshold per vehicle
+    CONSTRAINT unique_threshold_type UNIQUE (vehicle_type) -- Assumes one threshold per type
+    -- Note: This is simpler than NULLS NOT DISTINCT but strictly enforces uniqueness on non-nulls. 
+    -- If a row has BOTH, it must satisfy both? 
+    -- Actually, if we want (vehicle_id=null, vehicle_type='sedan') to be unique, UNIQUE(vehicle_type) works IF vehicle_id is always null for types.
+    -- Let's stick to partial indexes for clarity and robustness below.
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_threshold_vehicle_type ON vehicle_idling_thresholds(vehicle_type) WHERE vehicle_id IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_threshold_vehicle_id ON vehicle_idling_thresholds(vehicle_id) WHERE vehicle_type IS NULL;
 
 -- Insert default thresholds for common vehicle types
 INSERT INTO vehicle_idling_thresholds (vehicle_type, warning_threshold_seconds, alert_threshold_seconds, fuel_consumption_rate_gph) VALUES
@@ -114,7 +122,7 @@ INSERT INTO vehicle_idling_thresholds (vehicle_type, warning_threshold_seconds, 
     ('suv', 300, 600, 0.20),
     ('electric', 300, 600, 0.00), -- No fuel waste but still track idling
     ('hybrid', 300, 600, 0.10)
-ON CONFLICT DO NOTHING;
+ON CONFLICT (vehicle_type) WHERE vehicle_id IS NULL DO NOTHING;
 
 -- ============================================================================
 -- Daily Idling Summary Table

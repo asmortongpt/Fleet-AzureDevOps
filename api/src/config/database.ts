@@ -84,6 +84,17 @@ export const getPoolStats = () => connectionManager.getAllPoolStats()
  */
 const poolProxy = new Proxy({} as Pool, {
   get(target, prop) {
+    if (process.env.USE_MOCK_DATA === 'true') {
+      // Lazy load mock pool to avoid circular dependencies
+      const { mockPool } = require('../middleware/mock-database')
+      const result = (mockPool as any)[prop]
+
+      // If the property is a function, bind it to the mockPool instance
+      if (typeof result === 'function') {
+        return result.bind(mockPool)
+      }
+      return result
+    }
     const pool = connectionManager.getWritePool()
     return (pool as any)[prop]
   }

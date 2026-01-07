@@ -302,7 +302,7 @@ CREATE TABLE IF NOT EXISTS call_recordings (
 
     -- Compliance
     consent_obtained BOOLEAN DEFAULT FALSE,
-    consent_"timestamp" TIMESTAMP,
+    consent_timestamp TIMESTAMP,
     retention_until DATE,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

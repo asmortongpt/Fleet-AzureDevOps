@@ -54,6 +54,8 @@ export function MapFirstLayout({
           ...(window.innerWidth >= 1024 && !isMapFullscreen ? { width: `${mapRatio}%` } : {})
         }}
         data-testid="map-section"
+        role="region"
+        aria-label="Map view"
       >
         {mapComponent}
 

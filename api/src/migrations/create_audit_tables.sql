@@ -3,39 +3,51 @@
 -- Creates tables for structured audit logging, encryption, and retention
 -- ============================================================================
 
--- Main audit logs table
--- Add missing columns to existing audit_logs table
-DO $$
-BEGIN
-    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS correlation_id UUID;
-    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS event_timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW();
-    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS action_display_name VARCHAR(255);
-    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS resource_type VARCHAR(100);
-    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS resource_id VARCHAR(255);
-    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS resource_name VARCHAR(500);
-    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS result_status VARCHAR(20) DEFAULT 'success';
-    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS result_code INTEGER;
-    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS result_message TEXT;
-    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS severity VARCHAR(20) DEFAULT 'INFO';
-    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS method VARCHAR(20);
-    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS endpoint VARCHAR(500);
-    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS session_id VARCHAR(255);
-    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS encrypted_data JSONB DEFAULT '{}';
-    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS checksum VARCHAR(64) DEFAULT '';
-    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS tier VARCHAR(20) DEFAULT 'HOT';
-    ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS archived_at TIMESTAMP WITH TIME ZONE;
+-- Drop table to ensure clean slate and schema alignment
+DROP TABLE IF EXISTS audit_log_verification CASCADE;
+DROP TABLE IF EXISTS audit_logs CASCADE;
 
-    -- Migrate created_at to event_timestamp if needed
-    UPDATE audit_logs SET event_timestamp = created_at WHERE event_timestamp IS NULL;
-EXCEPTION
-    WHEN OTHERS THEN
-        RAISE NOTICE 'Handled exception in audit_logs columns: %', SQLERRM;
-END $$;
-
--- Ensure the table exists
-CREATE TABLE IF NOT EXISTS audit_logs (
+-- Main audit logs table with comprehensive schema
+CREATE TABLE audit_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    event_timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    
+    -- Core Identity & Scope
+    tenant_id UUID,
+    user_id UUID,
+    
+    -- Action Details
+    action VARCHAR(255),
+    action_display_name VARCHAR(255),
+    method VARCHAR(20),
+    endpoint VARCHAR(500),
+    
+    -- Resource Context
+    resource_type VARCHAR(100),
+    resource_id VARCHAR(255),
+    resource_name VARCHAR(500),
+    resource_attributes JSONB,
+    
+    -- Result & Status
+    result_status VARCHAR(20) DEFAULT 'success',
+    result_code INTEGER,
+    result_message TEXT,
+    severity VARCHAR(20) DEFAULT 'INFO',
+    
+    -- Tracing & Security
+    correlation_id UUID,
+    session_id VARCHAR(255),
+    ip_address VARCHAR(45),
+    user_agent VARCHAR(500),
+    
+    -- Data & Retention
+    encrypted_data JSONB DEFAULT '{}',
+    checksum VARCHAR(64) DEFAULT '',
+    tier VARCHAR(20) DEFAULT 'HOT',
+    
+    -- Timestamps
+    event_timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    archived_at TIMESTAMP WITH TIME ZONE
 );
 
 -- Create indexes for audit logs

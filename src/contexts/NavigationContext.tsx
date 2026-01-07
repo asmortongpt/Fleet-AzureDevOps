@@ -21,18 +21,22 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
     const navigate = useNavigate();
 
     // Initialize state from URL if possible, fallback to default
-    const getModuleFromPath = (path: string) => {
+    const getModuleFromPath = (path: string, search: string) => {
+        const params = new URLSearchParams(search);
+        const moduleParam = params.get('module');
+        if (moduleParam) return moduleParam;
+
         const cleanPath = path.substring(1);
         return cleanPath === '' ? 'live-fleet-dashboard' : cleanPath;
     };
 
-    const [activeModule, setActiveModuleState] = useState(getModuleFromPath(location.pathname));
+    const [activeModule, setActiveModuleState] = useState(getModuleFromPath(location.pathname, location.search));
 
     // Sync URL changes to state
     useEffect(() => {
-        const moduleId = getModuleFromPath(location.pathname);
+        const moduleId = getModuleFromPath(location.pathname, location.search);
         setActiveModuleState(moduleId);
-    }, [location.pathname]);
+    }, [location.pathname, location.search]);
 
     // Filter navigation items based on user role/permissions
     const visibleNavItems = useMemo(() => {
