@@ -141,10 +141,7 @@ export const ChartSkeleton: React.FC<{ height?: string }> = ({ height = '300px' 
             {Array.from({ length: 12 }).map((_, i) => (
               <Skeleton
                 key={i}
-                className="flex-1"
-                style={{
-                  height: `${Math.random() * 80 + 20}%`
-                }}
+                className="flex-1 h-[var(--skeleton-height)]"
               />
             ))}
           </div>
