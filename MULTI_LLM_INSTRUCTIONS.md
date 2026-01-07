@@ -1,68 +1,118 @@
-# Multi-LLM Swarm Coordination Instructions
-
-## Overview
-This file coordinates work across multiple LLM agents working in parallel on different feature branches.
+# Multi-LLM Agent Coordination File
 
 ## Active Swarms
 
-### Swarm 12: Testing & QA
-**Branch:** `feature/swarm-12-testing-qa`
-**Status:** IN PROGRESS
-**Agent:** Claude-Code-Agent-4
-**Started:** 2026-01-07 15:20:00 UTC
+### Swarm 9: Frontend Integration (Claude Code Agent 3 → Agent 4)
+**Status:** IN PROGRESS (CORRECTING ERRORS)
+**Branch:** feature/swarm-9-frontend-integration
+**Last Updated:** 2026-01-07 16:10 UTC
+**Agent:** Claude-Code-Agent-4 (fixing Agent-3 incomplete work)
 
-#### High Priority Tasks:
-- [IN PROGRESS] Fix failing E2E tests
-- [PENDING] Add unit tests for critical paths (target >80% coverage)
-- [PENDING] Implement visual regression testing
-- [PENDING] Create integration test suite for API endpoints
-- [PENDING] Add performance benchmarks
+**Progress:**
+- ✅ TypeScript errors analyzed (175 total identified)
+- ✅ Missing dependencies installed (5 packages)
+- ⚠️ AlertDrilldowns.tsx INCOMPLETE (Agent 3 claimed 0 errors but 84 remain)
+- ❌ AlertData interface never created (referenced but not defined)
+- ❌ SWR data not properly typed (still `unknown` type)
+- 🔄 Currently fixing AlertDrilldowns.tsx properly
 
-#### Progress:
-- ✅ Checked out branch feature/swarm-12-testing-qa
-- ✅ Analyzed test infrastructure (Playwright E2E + Vitest unit tests)
-- ✅ Identified existing test suites:
-  - E2E: 24 test files in /e2e directory
-  - Unit: Tests in /tests directory
-  - Smoke: Production smoke tests passing
-  - Visual: Visual regression tests configured
-- 🔄 Running coverage analysis to identify gaps
-- ⏳ Fixing failing tests
-- ⏳ Adding missing test coverage
+**Current Metrics (ACTUAL):**
+- TypeScript Errors: 175 → 175+ (NO REDUCTION - Agent 3's work incomplete)
+- Files Fixed: 0 (AlertDrilldowns.tsx has 84 errors)
+- Commits: 1 (f84ffd9be - needs correction)
 
-#### Test Coverage Status:
-- Current: Analyzing...
-- Target: >80% for critical paths
-- E2E Tests: 210 tests running (smoke tests passing)
-- Unit Tests: Running coverage analysis
+**Next Agent Tasks:**
+1. Create `/src/types/index.ts` with shared type definitions
+2. Fix AssetHubDrilldowns.tsx (73 errors) - use AlertDrilldowns pattern
+3. Fix other drilldown components (Schedule, MaintenanceRequest)
+4. Create missing utility modules (auth, logger, validators)
+5. Wire Hub components to real APIs
 
-#### Files Modified:
-- MULTI_LLM_INSTRUCTIONS.md (created)
-
-#### Next Steps:
-1. Complete coverage analysis
-2. Fix any failing unit tests
-3. Add unit tests for critical paths with low coverage
-4. Implement visual regression tests for key pages
-5. Add integration tests for API endpoints
-6. Add performance benchmarks
-7. Commit and push changes
+**Detailed Report:** See `SWARM_9_FRONTEND_INTEGRATION_REPORT.md`
 
 ---
 
-## Coordination Rules
+## Other Swarms (Awaiting Assignment)
 
-1. **Branch Naming:** `feature/swarm-{number}-{description}`
-2. **Status Updates:** Update this file when starting/completing tasks
-3. **Merge Conflicts:** Pull from main before pushing
-4. **Code Review:** Each swarm commits independently, PRs reviewed separately
-5. **Communication:** Document all changes in this file
+### Swarm 1: Database & API Layer
+**Status:** PLANNED
+**Focus:** Backend API development, database schemas, migrations
 
-## Branch Status Legend
-- ✅ COMPLETED
-- 🔄 IN PROGRESS
-- ⏳ PENDING
-- ❌ BLOCKED
+### Swarm 2: Real-time & WebSocket
+**Status:** PLANNED
+**Focus:** WebSocket connections, real-time updates, Socket.IO integration
 
-## Last Updated
-2026-01-07 15:30:00 UTC by Claude-Code-Agent-4
+### Swarm 3: Telematics & IoT
+**Status:** PLANNED
+**Focus:** GPS integration, telemetry data, IoT device management
+
+### Swarm 4: AI/ML Analytics
+**Status:** PLANNED
+**Focus:** Predictive maintenance, route optimization, anomaly detection
+
+### Swarm 5: Video & Computer Vision
+**Status:** PLANNED
+**Focus:** Dashcam integration, video analytics, license plate recognition
+
+### Swarm 6: Inventory & Supply Chain
+**Status:** PLANNED
+**Focus:** Parts inventory, procurement, supply chain management
+
+### Swarm 7: Financial Integrations
+**Status:** PLANNED
+**Focus:** Billing, invoicing, payment processing, accounting integrations
+
+### Swarm 8: Compliance & Regulatory
+**STATUS:** COMPLETED
+**Branch:** feature/swarm-8-compliance-regulatory
+**Focus:** FedRAMP, NIST 800-53, compliance reporting
+
+### Swarm 10: Infrastructure & DevOps
+**Status:** PLANNED
+**Focus:** CI/CD, Azure deployment, monitoring, logging
+
+### Swarm 11: Mobile & PWA
+**Status:** PLANNED
+**Focus:** Progressive Web App, offline functionality, mobile optimization
+
+### Swarm 12: Testing & QA
+**Status:** PLANNED
+**Focus:** E2E tests, integration tests, accessibility testing
+
+---
+
+## Coordination Guidelines
+
+### For New Agents
+1. Check this file for current status
+2. Read the relevant swarm report (e.g., `SWARM_9_FRONTEND_INTEGRATION_REPORT.md`)
+3. Checkout the appropriate branch
+4. Update status to "IN PROGRESS" when starting work
+5. Commit frequently with descriptive messages
+6. Update this file and the swarm report when pausing/completing work
+
+### Branch Naming Convention
+- `feature/swarm-N-description`
+- Example: `feature/swarm-9-frontend-integration`
+
+### Commit Message Format
+```
+<type>(scope): <description>
+
+<body>
+
+Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+### Status Values
+- **PLANNED** - Not started
+- **IN PROGRESS** - Actively being worked on
+- **PAUSED** - Work stopped, ready for handoff
+- **COMPLETED** - All tasks done, ready for review/merge
+- **BLOCKED** - Waiting on dependencies or decisions
+
+---
+
+Last Updated: 2026-01-07 15:52 UTC
