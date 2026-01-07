@@ -27,6 +27,38 @@ import { swrFetcher } from '@/lib/fetcher'
 
 const fetcher = swrFetcher
 
+// Alert data type for SWR responses
+interface AlertData {
+  id: string
+  title: string
+  alert_number: string
+  category: string
+  severity: string
+  status: string
+  triggered_at: string
+  duration_minutes?: number
+  description?: string
+  alert_type?: string
+  priority?: string
+  auto_clear_enabled?: boolean
+  threshold_value?: number
+  threshold_metric?: string
+  current_value?: number
+  vehicle_id?: string
+  vehicle_name?: string
+  driver_id?: string
+  driver_name?: string
+  location?: string
+  coordinates?: { lat: number; lng: number }
+  acknowledged_by?: string
+  acknowledged_at?: string
+  resolved_by?: string
+  resolved_at?: string
+  resolution_notes?: string
+  notifications_sent?: Array<{ recipient: string; method: string; sent_at: string }>
+  activity_log?: Array<{ action: string; user: string; timestamp: string; notes?: string }>
+}
+
 // ============================================
 // Alert Detail Panel
 // ============================================
@@ -36,7 +68,7 @@ interface AlertDetailPanelProps {
 
 export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
   const { push } = useDrilldown()
-  const { data: alert, error, isLoading, mutate } = useSWR(
+  const { data: alert, error, isLoading, mutate } = useSWR<AlertData>(
     `/api/alerts/${alertId}`,
     fetcher
   )
@@ -148,8 +180,8 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                   {alert.duration_minutes
                     ? `${alert.duration_minutes} min`
                     : alert.status === 'active'
-                    ? 'Ongoing'
-                    : 'N/A'}
+                      ? 'Ongoing'
+                      : 'N/A'}
                 </p>
               </CardContent>
             </Card>
@@ -231,7 +263,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                             push({
                               id: `vehicle-${alert.vehicle_id}`,
                               type: 'vehicle-detail',
-                              label: alert.vehicle_name,
+                              label: alert.vehicle_name || 'Unknown Vehicle',
                               data: { vehicleId: alert.vehicle_id },
                             })
                           }
@@ -256,7 +288,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                             push({
                               id: `driver-${alert.driver_id}`,
                               type: 'driver-detail',
-                              label: alert.driver_name,
+                              label: alert.driver_name || 'Unknown Driver',
                               data: { driverId: alert.driver_id },
                             })
                           }
@@ -426,7 +458,7 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
     return `/api/alerts?${params.toString()}`
   }
 
-  const { data: alerts, error, isLoading } = useSWR(buildUrl(), fetcher)
+  const { data: alerts, error, isLoading } = useSWR<AlertData[]>(buildUrl(), fetcher)
 
   const statusLabels = {
     active: 'Active Alerts',
@@ -495,8 +527,8 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
             {status
               ? statusLabels[status]
               : severity
-              ? severityLabels[severity]
-              : 'All Alerts'}
+                ? severityLabels[severity]
+                : 'All Alerts'}
           </h3>
           <Badge>{alerts?.length || 0} alerts</Badge>
         </div>
