@@ -55,7 +55,7 @@ export interface HubPageProps {
     /** Hub description/subtitle */
     description?: string
     /** Array of tab configurations */
-    tabs: HubTab[]
+    tabs?: HubTab[]
     /** Default active tab id */
     defaultTab?: string
     /** Action buttons in header */
@@ -66,6 +66,8 @@ export interface HubPageProps {
     className?: string
     /** Full height mode */
     fullHeight?: boolean
+    /** HubTabItems as children */
+    children?: ReactNode
 }
 
 /**
@@ -75,14 +77,36 @@ export function HubPage({
     title,
     icon,
     description,
-    tabs,
+    tabs = [],
     defaultTab,
     headerActions,
     onTabChange,
     className,
     fullHeight = true,
+    children
 }: HubPageProps) {
-    const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.id)
+    // Parse children to convert HubTabItems into tabs
+    const childTabs: HubTab[] = []
+    React.Children.forEach(children, (child) => {
+        if (React.isValidElement(child)) {
+            // We assume valid elements are intended as tabs if they have value/label
+            // Strictly checking for HubTabItem type can be brittle with HMR/bundlers
+            const props = child.props as HubTabItemProps
+            if (props.value && props.label) {
+                childTabs.push({
+                    id: props.value,
+                    label: props.label,
+                    icon: props.icon,
+                    disabled: props.disabled,
+                    content: props.children,
+                    ariaLabel: props.label
+                })
+            }
+        }
+    })
+
+    const allTabs = [...tabs, ...childTabs]
+    const [activeTab, setActiveTab] = useState(defaultTab || allTabs[0]?.id)
 
     const handleTabChange = (tabId: string) => {
         setActiveTab(tabId)
@@ -173,7 +197,7 @@ export function HubPage({
                         )}
                         data-testid="hub-tabs"
                     >
-                        {tabs.map((tab, index) => (
+                        {allTabs.map((tab, index) => (
                             <motion.div
                                 key={tab.id}
                                 initial={{ opacity: 0, y: -5 }}
@@ -201,7 +225,7 @@ export function HubPage({
                 </motion.div>
 
                 {/* Tab Content */}
-                {tabs.map((tab) => (
+                {allTabs.map((tab) => (
                     <TabsContent
                         key={tab.id}
                         value={tab.id}
