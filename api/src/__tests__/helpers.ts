@@ -1,7 +1,33 @@
 import jwt from 'jsonwebtoken';
 import { vi } from 'vitest';
 
-export const createMockUser = (overrides = {}) => ({
+interface MockUser {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: string;
+  tenant_id: string;
+  is_active: boolean;
+}
+
+interface RequestMockOptions {
+  body?: Record<string, unknown>;
+  params?: Record<string, string>;
+  query?: Record<string, string | string[]>;
+  headers?: Record<string, string>;
+  user?: MockUser;
+  ip?: string;
+  get?: (name: string) => string | undefined;
+}
+
+interface MockResponse {
+  status: ReturnType<typeof vi.fn>;
+  json: ReturnType<typeof vi.fn>;
+  send: ReturnType<typeof vi.fn>;
+}
+
+export const createMockUser = (overrides: Partial<MockUser> = {}): MockUser => ({
   id: '1',
   email: 'test@example.com',
   first_name: 'Test',
@@ -12,7 +38,7 @@ export const createMockUser = (overrides = {}) => ({
   ...overrides
 });
 
-export const createAuthToken = (user = createMockUser()) => {
+export const createAuthToken = (user = createMockUser()): string => {
   return jwt.sign(
     { id: user.id, email: user.email, role: user.role, tenant_id: user.tenant_id },
     process.env.JWT_SECRET || 'test-secret',
@@ -20,7 +46,7 @@ export const createAuthToken = (user = createMockUser()) => {
   );
 };
 
-export const mockRequest = (overrides = {}) => ({
+export const mockRequest = (overrides: RequestMockOptions = {}): RequestMockOptions => ({
   body: {},
   params: {},
   query: {},
@@ -29,8 +55,8 @@ export const mockRequest = (overrides = {}) => ({
   ...overrides
 });
 
-export const mockResponse = () => {
-  const res: any = {};
+export const mockResponse = (): MockResponse => {
+  const res = {} as MockResponse;
   res.status = vi.fn().mockReturnValue(res);
   res.json = vi.fn().mockReturnValue(res);
   res.send = vi.fn().mockReturnValue(res);

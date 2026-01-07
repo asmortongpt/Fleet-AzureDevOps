@@ -96,10 +96,12 @@ class QuoteSyntaxFixer {
   /**
    * Fix SQL template literals - replace backticks with single quotes inside
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private fixSqlTemplateLiterals(sourceFile: any, fixes: string[]): void {
     const templateLiterals = sourceFile.getDescendantsOfKind(SyntaxKind.TemplateExpression);
     const noSubTemplateLiterals = sourceFile.getDescendantsOfKind(SyntaxKind.NoSubstitutionTemplateLiteral);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [...templateLiterals, ...noSubTemplateLiterals].forEach((template: any) => {
       const fullText = template.getText();
 
@@ -124,6 +126,7 @@ class QuoteSyntaxFixer {
           }
 
           // Fix middle and tail spans
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           templateSpans.forEach((span: any) => {
             const literal = span.getLiteral();
             const literalText = literal.getText();
@@ -203,10 +206,12 @@ class QuoteSyntaxFixer {
   /**
    * Fix type union literals with mixed quotes
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private fixTypeUnionLiterals(sourceFile: any, fixes: string[]): void {
     const typeNodes = sourceFile.getDescendantsOfKind(SyntaxKind.TypeReference);
     const unionTypes = sourceFile.getDescendantsOfKind(SyntaxKind.UnionType);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [...typeNodes, ...unionTypes].forEach((node: any) => {
       const text = node.getText();
 
@@ -228,9 +233,11 @@ class QuoteSyntaxFixer {
   /**
    * Fix ternary expressions with mixed quotes
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private fixTernaryExpressions(sourceFile: any, fixes: string[]): void {
     const conditionals = sourceFile.getDescendantsOfKind(SyntaxKind.ConditionalExpression);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     conditionals.forEach((conditional: any) => {
       const text = conditional.getText();
 
@@ -260,9 +267,11 @@ class QuoteSyntaxFixer {
   /**
    * Fix object property string literals
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private fixObjectPropertyLiterals(sourceFile: any, fixes: string[]): void {
     const stringLiterals = sourceFile.getDescendantsOfKind(SyntaxKind.StringLiteral);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     stringLiterals.forEach((literal: any) => {
       const text = literal.getText();
 

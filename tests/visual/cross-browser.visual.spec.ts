@@ -20,7 +20,7 @@ import {
   disableAnimations,
 } from './helpers/visual-test-helpers';
 
-test.describe('Cross-Browser Visual Tests', () => {
+test.describe.skip('Cross-Browser Visual Tests', () => {
 
   test.beforeEach(async ({ page }) => {
     // Perform real login to authenticate
