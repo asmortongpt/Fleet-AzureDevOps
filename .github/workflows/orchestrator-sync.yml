@@ -1,0 +1,154 @@
+name: Fleet Orchestrator Sync
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/swarm-*'
+    paths:
+      - '.agent/**'
+      - 'tools/orchestrator/**'
+      - 'FLEET_ORCHESTRATION_CONFIG.json'
+      - '.llm-context.json'
+  pull_request:
+    types: [opened, closed]
+    branches:
+      - main
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # Update progress when swarm branches are merged
+  update-progress:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Determine Swarm from Branch
+        id: swarm
+        run: |
+          BRANCH="${{ github.head_ref }}"
+          if [[ "$BRANCH" =~ feature/swarm-([0-9]+) ]]; then
+            echo "swarm_number=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
+            echo "is_swarm=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_swarm=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update Swarm Status
+        if: steps.swarm.outputs.is_swarm == 'true'
+        run: |
+          SWARM_NUM="${{ steps.swarm.outputs.swarm_number }}"
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          # Update FLEET_ORCHESTRATION_CONFIG.json
+          jq --arg swarm "swarm_$SWARM_NUM" \
+             --arg status "MERGED" \
+             --arg timestamp "$TIMESTAMP" \
+             '.git_branches.swarm_branches[$swarm].status = $status | 
+              .git_branches.swarm_branches[$swarm].merged_at = $timestamp' \
+             FLEET_ORCHESTRATION_CONFIG.json > tmp.json && mv tmp.json FLEET_ORCHESTRATION_CONFIG.json
+
+      - name: Calculate EVM Metrics
+        if: steps.swarm.outputs.is_swarm == 'true'
+        run: |
+          # Count merged swarms
+          MERGED=$(jq '[.git_branches.swarm_branches[] | select(.status == "MERGED")] | length' FLEET_ORCHESTRATION_CONFIG.json)
+          TOTAL=12
+          
+          # Calculate new percent complete (rough estimate)
+          PERCENT=$((28 + (MERGED * 6)))  # Each swarm adds ~6%
+          
+          # Update .llm-context.json
+          jq --arg pct "$PERCENT" \
+             '.current_status.percent_complete = ($pct | tonumber)' \
+             .llm-context.json > tmp.json && mv tmp.json .llm-context.json
+
+      - name: Commit Progress Updates
+        if: steps.swarm.outputs.is_swarm == 'true'
+        run: |
+          git config user.name "Fleet Orchestrator Bot"
+          git config user.email "orchestrator@fleet.internal"
+          git add FLEET_ORCHESTRATION_CONFIG.json .llm-context.json
+          git commit -m "chore: Update progress after swarm-${{ steps.swarm.outputs.swarm_number }} merge" || true
+          git push
+
+  # Validate LLM context on every push
+  validate-context:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate JSON Files
+        run: |
+          echo "Validating .llm-context.json..."
+          jq empty .llm-context.json
+          
+          echo "Validating FLEET_ORCHESTRATION_CONFIG.json..."
+          jq empty FLEET_ORCHESTRATION_CONFIG.json
+          
+          echo "Validating security_certification_progress.json..."
+          jq empty .agent/security_certification_progress.json
+
+      - name: Check Mandatory Files Exist
+        run: |
+          FILES=(
+            ".llm-context.json"
+            "FLEET_ORCHESTRATION_CONFIG.json"
+            "LLM_SYSTEM_PROMPT.txt"
+            ".agent/security_certification_progress.json"
+            ".agent/rbac_truth_table.json"
+            "api/FEDRAMP_CERTIFICATION_FINAL.json"
+          )
+          
+          for file in "${FILES[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "ERROR: Required file missing: $file"
+              exit 1
+            fi
+            echo "✓ $file exists"
+          done
+
+  # Generate status report
+  generate-status-report:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Status Summary
+        run: |
+          echo "# Fleet Orchestration Status" > STATUS_REPORT.md
+          echo "" >> STATUS_REPORT.md
+          echo "Generated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> STATUS_REPORT.md
+          echo "" >> STATUS_REPORT.md
+          
+          # Extract key metrics
+          echo "## EVM Metrics" >> STATUS_REPORT.md
+          jq -r '.evm_metrics | "- Earned Value: $\(.earned_value)\n- Percent Complete: \(.percent_complete)%\n- CPI: \(.cpi)\n- SPI: \(.spi)"' \
+            FLEET_ORCHESTRATION_CONFIG.json >> STATUS_REPORT.md
+          
+          echo "" >> STATUS_REPORT.md
+          echo "## Swarm Status" >> STATUS_REPORT.md
+          jq -r '.git_branches.swarm_branches | to_entries[] | "- \(.value.name): \(.value.status)"' \
+            FLEET_ORCHESTRATION_CONFIG.json >> STATUS_REPORT.md
+          
+          echo "" >> STATUS_REPORT.md
+          echo "## Blockers" >> STATUS_REPORT.md
+          jq -r '.backlog.summary.by_type.quality | "- TypeScript Errors: \(.actual_typescript_errors) in \(.files_affected) files"' \
+            FLEET_ORCHESTRATION_CONFIG.json >> STATUS_REPORT.md
+
+      - name: Upload Status Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: status-report
+          path: STATUS_REPORT.md
