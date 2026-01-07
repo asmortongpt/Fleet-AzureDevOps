@@ -1,10 +1,10 @@
-import csurf from 'csurf'
 import express, { Response } from 'express'
 import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
 
 import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { doubleCsrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { tenantSafeQuery } from '../utils/dbHelpers'
 import { applyFieldMasking } from '../utils/fieldMasking'
@@ -19,12 +19,11 @@ router.use(rateLimit({
   max: 100, // limit each IP to 100 requests per windowMs
 }))
 
-const csrfProtection = csurf({ cookie: true })
-
+// SECURITY: Using csrf-csrf (double-submit cookie) instead of vulnerable csurf
 // Enhanced with CSRF protection on mutations
-router.post('/', csrfProtection, csrfProtection)
-router.put('/:id', csrfProtection, csrfProtection)
-router.delete('/:id', csrfProtection, csrfProtection)
+router.post('/', doubleCsrfProtection)
+router.put('/:id', doubleCsrfProtection)
+router.delete('/:id', doubleCsrfProtection)
 
 // GET /drivers
 router.get(

@@ -1,0 +1,152 @@
+{
+    "system_prompt_context": {
+        "version": "1.0",
+        "last_updated": "2026-01-07T18:16:00Z",
+        "purpose": "Universal context for all LLMs working on Fleet project"
+    },
+    "project_identity": {
+        "name": "Fleet Management System",
+        "company": "Morton Technology Alliance, LLC",
+        "description": "Enterprise fleet management platform for vehicle tracking, maintenance, driver management, and operational analytics",
+        "repository": "/Users/andrewmorton/Documents/GitHub/Fleet",
+        "stack": {
+            "frontend": "React 18 + TypeScript + Vite",
+            "backend": "Node.js + Express + TypeScript",
+            "database": "PostgreSQL with RLS",
+            "cache": "Redis",
+            "auth": "JWT RS256 + Azure AD SSO"
+        }
+    },
+    "mission": {
+        "primary_goal": "Achieve production-ready state with FedRAMP/NIST certification",
+        "quality_standard": "Maximum Outcome Enterprise Excellence",
+        "pillars": [
+            "Functional Correctness",
+            "Security & Compliance",
+            "UI/UX Excellence",
+            "Business Process Integrity",
+            "RBAC Enforcement",
+            "Zero Training Required"
+        ]
+    },
+    "current_status": {
+        "phase": "IN PROGRESS - TypeScript Remediation Needed",
+        "npm_vulnerabilities": 3,
+        "typescript_errors": 1253,
+        "files_with_errors": 187,
+        "e2e_tests_passing": 68,
+        "fedramp_controls_passing": 15,
+        "backlog_reference": "tools/orchestrator/artifacts/remediation_backlog.json",
+        "validated_status": "tools/orchestrator/artifacts/VALIDATED_STATUS_JAN2026.json",
+        "backlog_summary": {
+            "total_findings": 2259,
+            "security_findings": 1069,
+            "quality_findings": 1189,
+            "security_note": "FALSE POSITIVES - Example tokens in documentation",
+            "quality_note": "1253 TypeScript errors - PRIMARY BLOCKER"
+        },
+        "evm_metrics_validated": {
+            "earned_value": "$347K (28% complete)",
+            "cpi": 0.83,
+            "spi": 0.28,
+            "eac": "$1.494M",
+            "note": "Original EV of $384K was overstated"
+        },
+        "master_orchestrator": {
+            "status_doc": "MASTER_ORCHESTRATOR_STATUS.md",
+            "requirements_doc": "COMPREHENSIVE_REQUIREMENTS.html",
+            "execution_plan": "/tmp/fleet-master-execution-plan.md",
+            "agent_script": "/tmp/master-orchestrator-agent.cjs",
+            "swarms": 12,
+            "agents": 156
+        }
+    },
+    "mandatory_rules": {
+        "security": [
+            "NEVER introduce authentication bypasses or hardcoded credentials",
+            "ALWAYS use parameterized SQL queries (no string concatenation)",
+            "ALWAYS enforce tenant isolation on all database queries",
+            "NEVER use localStorage for authentication tokens (httpOnly cookies only)",
+            "ALWAYS validate input with Zod schemas",
+            "NEVER disable rate limiting in production code"
+        ],
+        "code_quality": [
+            "Use TypeScript strict mode",
+            "Replace console.log with Winston logger in production code",
+            "All API endpoints must have authentication middleware",
+            "All mutations must have RBAC permission checks",
+            "All tests must pass before merging"
+        ],
+        "architecture": [
+            "Follow existing patterns - check similar files first",
+            "Use repository pattern for database access",
+            "Use service layer for business logic",
+            "Components should be WCAG 2.1 AA compliant"
+        ]
+    },
+    "rbac_roles": {
+        "hierarchy": [
+            "Admin",
+            "FleetManager",
+            "MaintenanceManager",
+            "Finance",
+            "Safety",
+            "Inspector",
+            "Auditor",
+            "Driver",
+            "Vendor"
+        ],
+        "critical_rules": [
+            "Only Admin can manage users and org settings",
+            "Only Admin + FleetManager can create/delete vehicles",
+            "Drivers can only access their own data",
+            "All queries must include tenant_id filter"
+        ]
+    },
+    "fedramp_controls": {
+        "required": [
+            "AC-2",
+            "AC-3",
+            "AC-7",
+            "AU-2",
+            "AU-3",
+            "AU-9",
+            "IA-2",
+            "IA-5",
+            "IA-8",
+            "SC-5",
+            "SC-7",
+            "SC-8",
+            "SC-13",
+            "SI-2",
+            "SI-10"
+        ],
+        "enforcement": "All code changes must maintain compliance with these controls"
+    },
+    "artifact_locations": {
+        "certification_report": "api/FEDRAMP_CERTIFICATION_FINAL.json",
+        "poam": "api/POAM_JAN2026.json",
+        "ssp": "api/SSP_SUMMARY_JAN2026.json",
+        "deployment_checklist": "api/PRODUCTION_DEPLOYMENT_CHECKLIST.json",
+        "pentest_plan": "api/PENETRATION_TEST_PLAN.json",
+        "rbac_matrix": ".agent/rbac_truth_table.json",
+        "progress": ".agent/security_certification_progress.json"
+    },
+    "how_to_use": {
+        "before_any_task": [
+            "Read this context file to understand current state",
+            "Check artifact_locations for relevant documentation",
+            "Follow mandatory_rules without exception"
+        ],
+        "before_security_changes": [
+            "Review api/FEDRAMP_CERTIFICATION_FINAL.json",
+            "Ensure change doesn't violate fedramp_controls",
+            "Run E2E tests to verify no regression"
+        ],
+        "before_rbac_changes": [
+            "Review .agent/rbac_truth_table.json",
+            "Ensure proper permission hierarchy",
+            "Add tests for new permissions"
+        ]
+    }
+}
