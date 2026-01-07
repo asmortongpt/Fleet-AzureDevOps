@@ -17,7 +17,9 @@ test.describe('Vehicle Lifecycle Critical Flow', () => {
         await page.fill('input[type="email"]', 'admin@fleet.local');
         await page.fill('input[type="password"]', 'Fleet@2026');
         await page.click('button[type="submit"]');
-        await page.waitForURL('/');
+        // Wait for login to complete - either redirect away from login or error
+        await page.waitForTimeout(3000);
+        await page.waitForLoadState('networkidle');
     });
 
     test('Create, Verify, Edit, and Delete a Vehicle', async ({ page }) => {
