@@ -17,4 +17,7 @@ const logger = {
 
 export const createLogger = () => logger
 
+// Named export for { logger } import pattern
+export { logger }
+
 export default logger
