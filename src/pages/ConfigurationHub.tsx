@@ -162,11 +162,7 @@ export function ConfigurationHub() {
       const data = await response.json()
       setConfigs(data.data.configs)
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to load configurations',
-        variant: 'destructive'
-      })
+      addToast('Failed to load configurations', 'error')
     } finally {
       setLoading(false)
     }
@@ -223,21 +219,14 @@ export function ConfigurationHub() {
 
       const data = await response.json()
 
-      toast({
-        title: 'Success',
-        description: data.message
-      })
+      addToast(data.message || 'Configuration updated successfully', 'success')
 
       setEditingConfig(null)
       setEditValue(null)
       fetchConfigurations()
       fetchChangeHistory()
     } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to update configuration',
-        variant: 'destructive'
-      })
+      addToast(error.message || 'Failed to update configuration', 'error')
     }
   }
 
@@ -255,19 +244,12 @@ export function ConfigurationHub() {
 
       const data = await response.json()
 
-      toast({
-        title: 'Success',
-        description: data.message
-      })
+      addToast(data.message || 'Configuration rolled back successfully', 'success')
 
       fetchConfigurations()
       fetchChangeHistory()
     } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to rollback configuration',
-        variant: 'destructive'
-      })
+      addToast(error.message || 'Failed to rollback configuration', 'error')
     }
   }
 
@@ -289,16 +271,9 @@ export function ConfigurationHub() {
       a.download = `configuration-export-${new Date().toISOString()}.json`
       a.click()
 
-      toast({
-        title: 'Success',
-        description: 'Configuration exported successfully'
-      })
+      addToast('Configuration exported successfully', 'success')
     } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: 'Failed to export configuration',
-        variant: 'destructive'
-      })
+      addToast('Failed to export configuration', 'error')
     }
   }
 
