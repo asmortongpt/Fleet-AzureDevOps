@@ -13,6 +13,7 @@ import { Request, Response, NextFunction } from 'express'
 
 import pool from '../config/database'
 import logger from '../config/logger'
+import { sanitizeForLog } from '../utils/logSanitizer'
 
 export interface WebhookRequest extends Request {
   webhookValidated?: boolean
@@ -34,7 +35,6 @@ export const handleValidationToken = (
   if (validationToken) {
     // SECURITY FIX (P0): Sanitize validation token to prevent log injection (CWE-117)
     // Fingerprint: f2a8c4d7e9b6f3a8
-    const { sanitizeForLog } = require('../utils/logSanitizer')
     logger.info('📋 Webhook validation token received', {
       token: sanitizeForLog(validationToken, 20) + '...'
     })

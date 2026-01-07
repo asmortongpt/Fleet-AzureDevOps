@@ -20,6 +20,8 @@
 import { Request, Response, NextFunction } from 'express'
 import rateLimit, { RateLimitRequestHandler } from 'express-rate-limit'
 
+import { sanitizeForLog } from '../utils/logSanitizer'
+
 /**
  * Extend Express Request type to include rate limit information
  */
@@ -460,7 +462,6 @@ export function checkBruteForce(identifierField: string = 'email') {
     if (bruteForce.isLocked(identifier)) {
       // SECURITY FIX (P0): Sanitize identifier to prevent log injection (CWE-117)
       // Fingerprint: a9c6d2e8f4b7c3e9
-      const { sanitizeForLog } = require('../utils/logSanitizer')
       console.warn('[SECURITY] Brute force blocked', {
         identifier: sanitizeForLog(identifier, 100),
         timestamp: new Date().toISOString()

@@ -7,6 +7,7 @@
  * @module middleware/auth
  */
 
+import crypto from 'crypto';
 import { Request, Response, NextFunction } from 'express';
 import Redis from 'ioredis';
 import { Pool } from 'pg';
@@ -254,7 +255,6 @@ export class AuthMiddleware {
     const ip = req.ip || req.socket.remoteAddress || '';
 
     // Create a simple fingerprint (in production, use a more sophisticated library)
-    const crypto = require('crypto');
     const fingerprint = crypto
       .createHash('sha256')
       .update(`${userAgent}|${acceptLanguage}|${acceptEncoding}|${ip}`)
