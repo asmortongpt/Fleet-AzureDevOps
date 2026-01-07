@@ -56,6 +56,13 @@
     "**/*.spec.tsx",
     "src/**/__tests__/**",
     "tests/**",
-    "server/**"
+    "server/**",
+    "src/api/**",
+    "src/components/AssetLocationMap.tsx",
+    "src/components/CheckoutAssetModal.tsx",
+    "src/components/ScanAssetModal.tsx",
+    "src/components/common/ScannerModal.tsx",
+    "src/components/common/FileUpload.tsx",
+    "src/components/Vehicle3DViewer.tsx"
   ]
 }
