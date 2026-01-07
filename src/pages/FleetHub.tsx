@@ -28,7 +28,7 @@ import React, { Suspense, lazy, Component, ReactNode, ErrorInfo, useState, useCa
 // VideoPlayer import removed to avoid conflict with local definition
 import { AddVehicleDialog } from '@/components/dialogs/AddVehicleDialog'
 import { Button } from '@/components/ui/button'
-import { HubPage, HubTabItem } from '@/components/ui/hub-page'
+import { HubPage, HubTab, HubTabItem } from '@/components/ui/hub-page'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
