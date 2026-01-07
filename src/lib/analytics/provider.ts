@@ -80,7 +80,6 @@ export class AnalyticsProvider {
         disable_session_recording: !import.meta.env.PROD,
         session_recording: {
           maskAllInputs: true, // Mask sensitive input fields
-          maskAllText: false,
           recordCrossOriginIframes: false,
         },
 
@@ -309,7 +308,9 @@ export class AnalyticsProvider {
     if (!this.initialized) return;
 
     try {
-      posthog.people.increment(property, value);
+      // PostHog doesn't have increment, so we'll get current value and add to it
+      const currentValue = (posthog.get_property(property) as number) || 0;
+      posthog.people.set(property, currentValue + value);
     } catch (error) {
       console.error(`Failed to increment user property: ${property}`, error);
     }

@@ -162,8 +162,8 @@ export function AnalyticsPage() {
     const avgMilesPerVehicle = totalVehicles > 0 ? Math.round(totalMiles / totalVehicles) : 0;
 
     // Fuel Analytics
-    const totalFuelCost = typedFuel.reduce((sum, f) => sum + (f.totalCost || f.cost || 0), 0);
-    const totalGallons = typedFuel.reduce((sum, f) => sum + (f.gallons || 0), 0);
+    const totalFuelCost = typedFuel.reduce((sum, f) => sum + (f.cost || 0), 0);
+    const totalGallons = typedFuel.reduce((sum, f) => sum + (f.quantity || 0), 0);
     const avgFuelPrice = totalGallons > 0 ? (totalFuelCost / totalGallons).toFixed(2) : '0.00';
     const estimatedMPG = totalGallons > 0 ? (totalMiles / totalGallons).toFixed(1) : '0.0';
 
