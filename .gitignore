@@ -48,6 +48,9 @@ uploads/
 *.xlsx
 *.pdf
 
+# Allow critical project artifacts
+!Fleet_Demo_Requirements.csv
+
 # Test coverage
 coverage/
 .nyc_output/
