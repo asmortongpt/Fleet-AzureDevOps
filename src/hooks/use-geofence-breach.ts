@@ -47,9 +47,11 @@ export function useGeofenceBreachDetector(vehicles: Vehicle[], geofences: Geofen
 
                 if (vLat == null || vLng == null) return;
 
-                const distance = getDistance(geofence.center!.lat, geofence.center!.lng, vLat, vLng);
+                // Already checked above that center exists
+                const { center, radius } = geofence;
+                const distance = getDistance(center.lat, center.lng, vLat, vLng);
 
-                if (distance <= geofence.radius!) {
+                if (distance <= radius) {
                     activeBreaches.push({
                         id: `${geofence.id}-${vehicle.id}-${Date.now()}`,
                         vehicleId: vehicle.id,

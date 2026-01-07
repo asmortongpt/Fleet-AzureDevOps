@@ -195,7 +195,8 @@ export function buildTeamTree(teams: Team[]): TeamNode[] {
 
   // Build tree structure
   teams.forEach((team) => {
-    const node = teamMap.get(team.id)!
+    const node = teamMap.get(team.id)
+    if (!node) return
 
     if (team.parentTeamId) {
       const parent = teamMap.get(team.parentTeamId)
@@ -251,8 +252,9 @@ export function getTeamPath(teamId: string, teams: Team[]): Team[] {
 
   while (currentTeam) {
     path.unshift(currentTeam)
-    currentTeam = currentTeam.parentTeamId
-      ? teams.find((t) => t.id === currentTeam!.parentTeamId)
+    const parentId = currentTeam.parentTeamId
+    currentTeam = parentId
+      ? teams.find((t) => t.id === parentId)
       : undefined
   }
 
