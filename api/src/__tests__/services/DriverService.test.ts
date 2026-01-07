@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 import { DriverService } from '../services/DriverService';
 
@@ -10,22 +11,15 @@ import { DriverService } from '../services/DriverService';
 
 describe('DriverService', () => {
   let service: DriverService;
-  let mockDb: any;
-  let mockLogger: any;
+  let mockDb: MockDatabase;
+  let mockLogger: MockLogger;
 
   beforeEach(() => {
     // Mock database
-    mockDb = {
-      query: vi.fn(),
-      transaction: vi.fn(),
-    };
+    mockDb = createMockDatabase();
 
     // Mock logger
-    mockLogger = {
-      info: vi.fn(),
-      error: vi.fn(),
-      warn: vi.fn(),
-    };
+    mockLogger = createMockLogger();
 
     // Initialize service with mocks
     // Dependencies: db, logger, cache, emailService
