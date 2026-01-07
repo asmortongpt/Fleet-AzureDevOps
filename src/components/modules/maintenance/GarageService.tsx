@@ -56,9 +56,9 @@ export function GarageService() {
   const { push } = useDrilldown()
 
   // Filter and type-check data with safety
-  const serviceBays = (data.serviceBays || []).filter(isServiceBay)
-  const workOrders = (data.workOrders || []).filter(isWorkOrder)
-  const technicians = (data.technicians || []).filter(isTechnician)
+  const serviceBays = ((data.serviceBays || []) as unknown[]).filter(isServiceBay)
+  const workOrders = ((data.workOrders || []) as unknown[]).filter(isWorkOrder)
+  const technicians = ((data.technicians || []) as unknown[]).filter(isTechnician)
 
   const [activeTab, setActiveTab] = useState<string>("dashboard")
 
@@ -192,8 +192,8 @@ export function GarageService() {
                           bay.status === "operational"
                             ? "bg-success/10 text-success border-success/20"
                             : bay.status === "maintenance"
-                            ? "bg-accent/10 text-accent border-accent/20"
-                            : "bg-warning/10 text-warning border-warning/20"
+                              ? "bg-accent/10 text-accent border-accent/20"
+                              : "bg-warning/10 text-warning border-warning/20"
                         }
                       >
                         {bay.status}
@@ -253,8 +253,8 @@ export function GarageService() {
                       bay.status === "operational"
                         ? "border-success/50"
                         : bay.status === "maintenance"
-                        ? "border-accent/50"
-                        : "border-warning/50"
+                          ? "border-accent/50"
+                          : "border-warning/50"
                     }
                   >
                     <CardContent className="p-6">
@@ -267,8 +267,8 @@ export function GarageService() {
                               bay.status === "operational"
                                 ? "bg-success/10 text-success border-success/20 mt-2"
                                 : bay.status === "maintenance"
-                                ? "bg-accent/10 text-accent border-accent/20 mt-2"
-                                : "bg-warning/10 text-warning border-warning/20 mt-2"
+                                  ? "bg-accent/10 text-accent border-accent/20 mt-2"
+                                  : "bg-warning/10 text-warning border-warning/20 mt-2"
                             }
                           >
                             {bay.status}
@@ -397,8 +397,8 @@ export function GarageService() {
                               tech.availability === "available"
                                 ? "bg-success/10 text-success border-success/20 mt-2"
                                 : tech.availability === "busy"
-                                ? "bg-warning/10 text-warning border-warning/20 mt-2"
-                                : "bg-muted text-muted-foreground mt-2"
+                                  ? "bg-warning/10 text-warning border-warning/20 mt-2"
+                                  : "bg-muted text-muted-foreground mt-2"
                             }
                           >
                             {tech.availability}

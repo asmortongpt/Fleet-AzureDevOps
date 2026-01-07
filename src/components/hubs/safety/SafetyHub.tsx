@@ -340,7 +340,7 @@ export function SafetyHub() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-green-500">
-                {demoOSHAMetrics.daysWithoutIncident}
+                {oshaMetrics.daysWithoutIncident}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Target: 30 days
