@@ -115,7 +115,10 @@ export class FleetWebSocketService extends EventEmitter {
     if (!this.subscriptions.has(entity)) {
       this.subscriptions.set(entity, new Set());
     }
-    this.subscriptions.get(entity)!.add(id);
+    const subscriptionSet = this.subscriptions.get(entity);
+    if (subscriptionSet) {
+      subscriptionSet.add(id);
+    }
   }
 
   private unsubscribe(entity: string, id: string): void {
@@ -156,8 +159,10 @@ export class FleetWebSocketService extends EventEmitter {
   private flushMessageQueue(): void {
     console.log('[WebSocket] Flushing', this.messageQueue.length, 'queued messages');
     while (this.messageQueue.length > 0) {
-      const queued = this.messageQueue.shift()!;
-      this.send(queued.message);
+      const queued = this.messageQueue.shift();
+      if (queued) {
+        this.send(queued.message);
+      }
     }
   }
 

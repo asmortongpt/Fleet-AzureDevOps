@@ -514,7 +514,10 @@ export class Metrics {
       this.metrics.set(key, []);
     }
 
-    this.metrics.get(key)!.push(value);
+    const metricValues = this.metrics.get(key);
+    if (metricValues) {
+      metricValues.push(value);
+    }
 
     // Send to telemetry
     telemetry.addEvent(`metric.${name}`, {

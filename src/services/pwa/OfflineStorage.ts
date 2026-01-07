@@ -66,8 +66,9 @@ export class OfflineStorage {
   // Vehicle operations
   async saveVehicles(vehicles: any[]): Promise<void> {
     if (!this.db) await this.init();
+    if (!this.db) throw new Error('Failed to initialize database');
 
-    const tx = this.db!.transaction('vehicles', 'readwrite');
+    const tx = this.db.transaction('vehicles', 'readwrite');
     const now = Date.now();
 
     await Promise.all([
@@ -80,19 +81,22 @@ export class OfflineStorage {
 
   async getVehicles(): Promise<any[]> {
     if (!this.db) await this.init();
-    return this.db!.getAll('vehicles');
+    if (!this.db) throw new Error('Failed to initialize database');
+    return this.db.getAll('vehicles');
   }
 
   async getVehicle(id: string): Promise<any | undefined> {
     if (!this.db) await this.init();
-    return this.db!.get('vehicles', id);
+    if (!this.db) throw new Error('Failed to initialize database');
+    return this.db.get('vehicles', id);
   }
 
   // Reservation operations
   async saveReservations(reservations: any[]): Promise<void> {
     if (!this.db) await this.init();
+    if (!this.db) throw new Error('Failed to initialize database');
 
-    const tx = this.db!.transaction('reservations', 'readwrite');
+    const tx = this.db.transaction('reservations', 'readwrite');
     const now = Date.now();
 
     await Promise.all([
@@ -105,19 +109,22 @@ export class OfflineStorage {
 
   async getReservations(): Promise<any[]> {
     if (!this.db) await this.init();
-    return this.db!.getAll('reservations');
+    if (!this.db) throw new Error('Failed to initialize database');
+    return this.db.getAll('reservations');
   }
 
   async getReservationsByVehicle(vehicleId: string): Promise<any[]> {
     if (!this.db) await this.init();
-    return this.db!.getAllFromIndex('reservations', 'by-vehicle', vehicleId);
+    if (!this.db) throw new Error('Failed to initialize database');
+    return this.db.getAllFromIndex('reservations', 'by-vehicle', vehicleId);
   }
 
   // Sync queue operations
   async addToSyncQueue(mutation: { method: string; url: string; body: any }): Promise<void> {
     if (!this.db) await this.init();
+    if (!this.db) throw new Error('Failed to initialize database');
 
-    await this.db!.add('syncQueue', {
+    await this.db.add('syncQueue', {
       ...mutation,
       timestamp: Date.now(),
       retries: 0,
@@ -126,43 +133,48 @@ export class OfflineStorage {
 
   async getSyncQueue(): Promise<any[]> {
     if (!this.db) await this.init();
-    return this.db!.getAll('syncQueue');
+    if (!this.db) throw new Error('Failed to initialize database');
+    return this.db.getAll('syncQueue');
   }
 
   async removeFromSyncQueue(id: number): Promise<void> {
     if (!this.db) await this.init();
-    await this.db!.delete('syncQueue', id);
+    if (!this.db) throw new Error('Failed to initialize database');
+    await this.db.delete('syncQueue', id);
   }
 
   async incrementRetries(id: number): Promise<void> {
     if (!this.db) await this.init();
+    if (!this.db) throw new Error('Failed to initialize database');
 
-    const item = await this.db!.get('syncQueue', id);
+    const item = await this.db.get('syncQueue', id);
     if (item) {
       item.retries++;
-      await this.db!.put('syncQueue', item);
+      await this.db.put('syncQueue', item);
     }
   }
 
   // Clear all data
   async clear(): Promise<void> {
     if (!this.db) await this.init();
+    if (!this.db) throw new Error('Failed to initialize database');
 
     await Promise.all([
-      this.db!.clear('vehicles'),
-      this.db!.clear('reservations'),
-      this.db!.clear('syncQueue'),
+      this.db.clear('vehicles'),
+      this.db.clear('reservations'),
+      this.db.clear('syncQueue'),
     ]);
   }
 
   // Get storage stats
   async getStats() {
     if (!this.db) await this.init();
+    if (!this.db) throw new Error('Failed to initialize database');
 
     const [vehicleCount, reservationCount, syncQueueCount] = await Promise.all([
-      this.db!.count('vehicles'),
-      this.db!.count('reservations'),
-      this.db!.count('syncQueue'),
+      this.db.count('vehicles'),
+      this.db.count('reservations'),
+      this.db.count('syncQueue'),
     ]);
 
     return {
