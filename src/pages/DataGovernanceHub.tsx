@@ -15,7 +15,6 @@
  * - Data Retention policies
  */
 
-import { useState, useEffect } from 'react'
 import {
   Database,
   ChartBar,
@@ -28,7 +27,6 @@ import {
   Eye,
   Lock,
   Users,
-  TreeStructure,
   Table,
   MagnifyingGlass,
   Download,
@@ -37,6 +35,7 @@ import {
   Trash,
   Info
 } from '@phosphor-icons/react'
+import { useState } from 'react'
 
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard } from '@/components/ui/stat-card'

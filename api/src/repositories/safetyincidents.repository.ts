@@ -2,6 +2,7 @@
 import { Pool } from 'pg';
 
 import { SafetyIncident } from '../models/safety-incident.model';
+
 import { BaseRepository } from './base/BaseRepository';
 
 export class SafetyIncidentsRepository extends BaseRepository<any> {

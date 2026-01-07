@@ -1,8 +1,10 @@
 
-import { Client } from 'pg';
+import path from 'path';
+
 import * as bcrypt from 'bcrypt';
 import * as dotenv from 'dotenv';
-import path from 'path';
+import { Client } from 'pg';
+
 
 // Ensure .env is loaded from parent directory
 dotenv.config({ path: path.join(__dirname, '../../.env') });

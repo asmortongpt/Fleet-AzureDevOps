@@ -7,8 +7,8 @@
  * never in .env files or source code.
  */
 
-import { SecretClient } from "@azure/keyvault-secrets";
 import { DefaultAzureCredential } from "@azure/identity";
+import { SecretClient } from "@azure/keyvault-secrets";
 
 // Key Vault URL from environment (non-sensitive configuration)
 const keyVaultUrl = import.meta.env.VITE_KEY_VAULT_URL || "https://fleet-keyvault.vault.azure.net";

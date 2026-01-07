@@ -8,10 +8,12 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { AuthenticationService, TokenPayload } from '../services/auth/AuthenticationService';
-import { AuditService, AuditCategory, AuditSeverity } from '../services/audit/AuditService';
-import { Pool } from 'pg';
 import Redis from 'ioredis';
+import { Pool } from 'pg';
+
+import { AuditService, AuditCategory, AuditSeverity } from '../services/audit/AuditService';
+import { AuthenticationService, TokenPayload } from '../services/auth/AuthenticationService';
+
 
 // Extend Express Request type to include authenticated user
 declare global {

@@ -1,5 +1,6 @@
-import { CanonicalFinding, Evidence } from '../types/canonical.js';
 import * as crypto from 'crypto';
+
+import { CanonicalFinding, Evidence } from '../types/canonical.js';
 
 export interface ScannerConfig {
   enabled: boolean;

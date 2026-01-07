@@ -1,11 +1,12 @@
+import { Search, Filter, Download, Star, Clock, TrendingUp, BarChart3, Gauge, Plus } from 'lucide-react';
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Search, Filter, ChevronDown, Download, Star, Clock, TrendingUp, BarChart3, Gauge, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+
+import { AIChatbot } from '@/components/reports/AIChatbot';
+import { AIReportBuilder } from '@/components/reports/AIReportBuilder';
 import { ReportCard } from '@/components/reports/ReportCard';
 import { ReportViewer } from '@/components/reports/ReportViewer';
-import { AIReportBuilder } from '@/components/reports/AIReportBuilder';
-import { AIChatbot } from '@/components/reports/AIChatbot';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import reportLibrary from '@/reporting_library/index.json';
 
 // Domain metadata for organization and styling

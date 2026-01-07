@@ -10,9 +10,9 @@
  * 6. Audit logging
  */
 
-import { Pool } from 'pg';
-import Redis from 'ioredis';
 import * as bcrypt from 'bcrypt';
+import Redis from 'ioredis';
+import { Pool } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
 
 describe('Fleet Management System - Simple Integration Tests', () => {

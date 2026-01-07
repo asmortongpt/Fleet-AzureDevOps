@@ -2,8 +2,9 @@
 import { Pool } from 'pg'
 
 import { NotFoundError, ValidationError } from '../lib/errors'
-import { BaseRepository } from './base/BaseRepository';
 import { FIPSCryptoService } from '../services/fips-crypto.service'
+
+import { BaseRepository } from './base/BaseRepository';
 
 export interface PaginationParams {
   page?: number

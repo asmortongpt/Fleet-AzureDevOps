@@ -5,8 +5,6 @@
  * Provides complete system configurability with Policy Hub integration
  */
 
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import {
   Settings,
   Shield,
@@ -23,22 +21,20 @@ import {
   Save,
   RotateCcw,
   Download,
-  Upload,
   Search,
   Filter,
-  AlertCircle,
-  CheckCircle,
-  Info,
   ChevronRight,
-  Lock,
-  Unlock
+  Lock
 } from 'lucide-react'
-import { HubPage } from '../components/ui/hub-page'
-import { StatCard } from '../components/ui/stat-card'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card'
-import { Button } from '../components/ui/button'
-import { Input } from '../components/ui/input'
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+
 import { Badge } from '../components/ui/badge'
+import { Button } from '../components/ui/button'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card'
+import { HubPage } from '../components/ui/hub-page'
+import { Input } from '../components/ui/input'
+import { StatCard } from '../components/ui/stat-card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { useToast } from '../hooks/use-toast'
 

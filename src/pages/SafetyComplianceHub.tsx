@@ -12,12 +12,10 @@ import {
     CheckCircle,
     VideoCamera,
     FileText,
-    ClipboardText,
     FirstAid,
     Truck,
     Receipt,
     ChartBar,
-    Bell,
     ShieldCheck,
     WarningCircle
 } from '@phosphor-icons/react'

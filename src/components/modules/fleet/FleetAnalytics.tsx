@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useCallback } from 'react';
+
 import { useFleetData } from '@/hooks/use-fleet-data';
 
 type AnalyticsStatus = 'good' | 'warn' | 'bad' | 'info';

@@ -1,16 +1,15 @@
 // Smart Indexing Service - AI-Powered Document Analysis
 // Extracts entities, generates summaries, and creates searchable indexes
 
+import { getAIService } from '../api-bus/ai-service'
+
 import {
   Document,
   DocumentIndex,
   IndexingJob,
-  IndexingStep,
   ExtractedEntity,
-  EntityType,
   SentimentAnalysis
 } from './types'
-import { getAIService } from '../api-bus/ai-service'
 
 /**
  * Smart Indexing Service for AI-powered document analysis

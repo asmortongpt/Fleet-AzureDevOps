@@ -3,10 +3,11 @@
  * Autonomous remediation with real-time progress tracking
  */
 
-import { getDashboard } from '../../dashboard/server.js';
-import { logger } from '../../utils/logger.js';
-import { CanonicalFinding } from '../../types/canonical.js';
 import open from 'open';
+
+import { getDashboard } from '../../dashboard/server.js';
+import { CanonicalFinding } from '../../types/canonical.js';
+import { logger } from '../../utils/logger.js';
 
 export interface FinishWithDashboardOptions {
   maxIterations?: number;

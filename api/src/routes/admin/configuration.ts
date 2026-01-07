@@ -6,6 +6,7 @@
  */
 
 import { Router } from 'express'
+
 import { configurationService } from '../../services/configuration/configuration-service'
 import type { PolicyRule } from '../../services/configuration/types'
 

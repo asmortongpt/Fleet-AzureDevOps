@@ -19,13 +19,14 @@
  * @module services/auth
  */
 
-import { hash, verify } from 'argon2';
-import * as jwt from 'jsonwebtoken';
-import * as speakeasy from 'speakeasy';
-import * as QRCode from 'qrcode';
 import { createHash, randomBytes } from 'crypto';
-import type { Pool } from 'pg';
+
+import { hash, verify } from 'argon2';
 import type { Redis } from 'ioredis';
+import * as jwt from 'jsonwebtoken';
+import type { Pool } from 'pg';
+import * as QRCode from 'qrcode';
+import * as speakeasy from 'speakeasy';
 import { z } from 'zod';
 
 // ============================================================================

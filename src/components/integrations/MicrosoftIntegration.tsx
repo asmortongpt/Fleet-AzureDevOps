@@ -2,8 +2,8 @@
 // Features: Email from app, Teams chat, Calendar sync
 // Uses: Microsoft Graph API with existing credentials
 
-import React, { useState } from 'react';
 import { Mail, MessageSquare, Calendar, Send } from 'lucide-react';
+import React, { useState } from 'react';
 
 // Microsoft Graph API configuration
 const GRAPH_CONFIG = {

@@ -4,9 +4,11 @@
  */
 
 import fs from 'fs/promises';
-import yaml from 'js-yaml';
 import path from 'path';
+
+import yaml from 'js-yaml';
 import { z } from 'zod';
+
 import { logger } from './logger.js';
 
 // Zod schemas for validation

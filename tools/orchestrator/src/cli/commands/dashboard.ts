@@ -3,9 +3,10 @@
  * Launch real-time remediation progress dashboard
  */
 
+import open from 'open';
+
 import { getDashboard } from '../../dashboard/server.js';
 import { logger } from '../../utils/logger.js';
-import open from 'open';
 
 export interface DashboardOptions {
   port?: number;

@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { EntityRef } from './types';
 
 function ringColor(status: EntityRef['status']) {

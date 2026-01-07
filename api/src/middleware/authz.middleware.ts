@@ -5,9 +5,10 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { AuthorizationService } from '../services/authz/AuthorizationService';
-import { AuditService, AuditCategory, AuditSeverity } from '../services/audit/AuditService';
 import { Pool } from 'pg';
+
+import { AuditService, AuditCategory, AuditSeverity } from '../services/audit/AuditService';
+import { AuthorizationService } from '../services/authz/AuthorizationService';
 
 export class AuthzMiddleware {
   constructor(

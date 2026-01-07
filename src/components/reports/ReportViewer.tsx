@@ -1,12 +1,16 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { subMonths } from 'date-fns';
 import { ArrowLeft, Download, RefreshCw, Maximize2, Share2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect, useCallback } from 'react';
+
+
 import { FilterBar, FilterValues } from './filters/FilterBar';
+import { DetailTable, TableColumn } from './visualizations/DetailTable';
 import { KPITiles, KPIMeasure } from './visualizations/KPITiles';
 import { TrendChart, TrendDataPoint } from './visualizations/TrendChart';
-import { DetailTable, TableColumn } from './visualizations/DetailTable';
+
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { subMonths } from 'date-fns';
+
 
 interface ReportDefinition {
   id: string;

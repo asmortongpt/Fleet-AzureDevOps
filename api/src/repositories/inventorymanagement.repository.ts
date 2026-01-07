@@ -2,6 +2,7 @@
 import { Pool } from 'pg';
 
 import { InventoryItem } from '../models/inventory-item.model';
+
 import { BaseRepository } from './base/BaseRepository';
 
 export class InventoryManagementRepository extends BaseRepository<any> {

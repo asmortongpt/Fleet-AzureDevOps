@@ -9,6 +9,7 @@
  * - Back navigation support
  */
 
+import { CaretLeft, CaretRight } from '@phosphor-icons/react'
 import { useState } from 'react'
 import {
   BarChart,
@@ -20,7 +21,7 @@ import {
   ResponsiveContainer,
   Cell
 } from 'recharts'
-import { CaretLeft, CaretRight } from '@phosphor-icons/react'
+
 import { cn } from '@/lib/utils'
 
 // Sample 3-layer data structure

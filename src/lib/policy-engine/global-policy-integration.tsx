@@ -15,7 +15,8 @@
  */
 
 import React from 'react'
-import { policyEnforcementEngine, type EnforcementContext, type EnforcementResult } from './policy-enforcement-engine'
+
+import { policyEnforcementEngine, type EnforcementResult } from './policy-enforcement-engine'
 import { policyRulesCompiler } from './policy-rules-compiler'
 import type { Policy } from './types'
 

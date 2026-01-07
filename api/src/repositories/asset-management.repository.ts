@@ -21,6 +21,7 @@ import { Pool } from 'pg'
 import { connectionManager } from '../config/connection-manager'
 import logger from '../config/logger'
 import { NotFoundError, ValidationError, DatabaseError } from '../errors/app-error'
+
 import { BaseRepository } from './base/BaseRepository';
 
 export interface Asset {

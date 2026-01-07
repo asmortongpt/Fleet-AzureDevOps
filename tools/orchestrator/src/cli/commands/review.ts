@@ -2,24 +2,26 @@
  * Review Command - Run all scanners and generate reports
  */
 
-import path from 'path';
 import fs from 'fs/promises';
-import ora from 'ora';
+import path from 'path';
+
 import chalk from 'chalk';
+import ora from 'ora';
+
+import { calculateBlastRadius } from '../../correlator/blast-radius.js';
+import { buildDependencyGraph } from '../../correlator/graph-builder.js';
+import { calculateRiskScores, clusterFindings } from '../../correlator/risk-scorer.js';
+import { deduplicateFindings } from '../../normalizer/deduplicator.js';
+import { generateChiefArchitectReport } from '../../reporter/chief-architect.js';
+import { ESLintScanner } from '../../scanners/eslint-scanner.js';
+import { GitleaksScanner } from '../../scanners/gitleaks-scanner.js';
+import { SemgrepScanner } from '../../scanners/semgrep-scanner.js';
+import { TestScanner } from '../../scanners/test-scanner.js';
+import { TrivyScanner } from '../../scanners/trivy-scanner.js';
+import { TypeScriptScanner } from '../../scanners/typescript-scanner.js';
+import { CanonicalFinding } from '../../types/canonical.js';
 import { loadConfig } from '../../utils/config.js';
 import { logger } from '../../utils/logger.js';
-import { SemgrepScanner } from '../../scanners/semgrep-scanner.js';
-import { ESLintScanner } from '../../scanners/eslint-scanner.js';
-import { TypeScriptScanner } from '../../scanners/typescript-scanner.js';
-import { TrivyScanner } from '../../scanners/trivy-scanner.js';
-import { GitleaksScanner } from '../../scanners/gitleaks-scanner.js';
-import { TestScanner } from '../../scanners/test-scanner.js';
-import { deduplicateFindings } from '../../normalizer/deduplicator.js';
-import { buildDependencyGraph } from '../../correlator/graph-builder.js';
-import { calculateBlastRadius } from '../../correlator/blast-radius.js';
-import { calculateRiskScores, clusterFindings } from '../../correlator/risk-scorer.js';
-import { generateChiefArchitectReport } from '../../reporter/chief-architect.js';
-import { CanonicalFinding } from '../../types/canonical.js';
 
 export async function runReview(options: { config?: string; output?: string }): Promise<void> {
   const spinner = ora('Loading configuration...').start();

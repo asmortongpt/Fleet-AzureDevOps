@@ -1,7 +1,8 @@
 import { useState } from 'react'
+
 import { EntityAvatar } from '@/shared/design-system/EntityAvatar'
-import { StatusChip } from '@/shared/design-system/StatusChip'
 import { RowExpandPanel } from '@/shared/design-system/RowExpandPanel'
+import { StatusChip } from '@/shared/design-system/StatusChip'
 import type { VehicleRow } from '@/shared/design-system/types'
 
 /**

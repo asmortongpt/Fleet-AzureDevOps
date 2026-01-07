@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from 'react';
 import { ArrowLeft, Sparkles, Send, Code, Eye, Save } from 'lucide-react';
+import React, { useState, useCallback } from 'react';
+
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
 
 interface AIReportBuilderProps {
   onBack: () => void;

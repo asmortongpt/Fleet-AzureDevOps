@@ -2,6 +2,7 @@
 import { Pool } from 'pg';
 
 import { InsurancePolicy } from '../models/insurance-policy.model';
+
 import { BaseRepository } from './base/BaseRepository';
 
 export class InsurancePoliciesRepository extends BaseRepository<any> {

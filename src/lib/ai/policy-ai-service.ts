@@ -3,8 +3,7 @@
  * Uses Claude/GPT to intelligently generate policies, SOPs, and configure rules engine
  */
 
-import type { Policy, PolicyType } from '../policy-engine/types'
-import type { PolicyTemplate, SOPTemplate } from '../policy-engine/templates'
+import type { Policy } from '../policy-engine/types'
 
 export interface AIGenerationRequest {
   type: 'policy' | 'sop' | 'training' | 'workflow'

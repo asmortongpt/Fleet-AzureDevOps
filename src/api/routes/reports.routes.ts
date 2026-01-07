@@ -17,11 +17,12 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { multiLLMOrchestrator } from '@/services/multi-llm-orchestrator.service';
-import { body, param, query, validationResult } from 'express-validator';
-import { authenticateJWT } from '../middleware/auth.middleware';
-import { checkRole } from '../middleware/rbac.middleware';
 import { rateLimit } from 'express-rate-limit';
+import { body, validationResult } from 'express-validator';
+
+import { authenticateJWT } from '../middleware/auth.middleware';
+
+import { multiLLMOrchestrator } from '@/services/multi-llm-orchestrator.service';
 
 const router = Router();
 

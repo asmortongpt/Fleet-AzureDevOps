@@ -4,6 +4,7 @@
  */
 
 import OpenAI from 'openai'
+
 import type { AIProviderAdapter, AICompletionRequest, AICompletionResponse } from '../types'
 
 export class OpenAIAdapter implements AIProviderAdapter {

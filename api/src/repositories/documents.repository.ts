@@ -18,6 +18,7 @@
 import { Pool } from 'pg';
 
 import { NotFoundError } from '../errors/app-error';
+
 import { BaseRepository } from './base/BaseRepository';
 
 export interface Document {

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { toast } from 'sonner';
+
 import apiClient from '@/lib/api-client';
 import logger from '@/utils/logger';
-import { toast } from 'sonner';
 
 type OptimizerStatus = 'good' | 'warn' | 'bad' | 'info';
 type Priority = 'low' | 'medium' | 'high' | 'critical';

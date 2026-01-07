@@ -4,12 +4,15 @@
  */
 
 import { Command } from 'commander';
-import { runReview } from './commands/review.js';
-import { runFinish } from './commands/finish.js';
-import { runScan } from './commands/scan.js';
+
+import { logger } from '../utils/logger.js';
+
 import { dashboardCommand } from './commands/dashboard.js';
 import { finishWithDashboard } from './commands/finish-with-dashboard.js';
-import { logger } from '../utils/logger.js';
+import { runFinish } from './commands/finish.js';
+import { runReview } from './commands/review.js';
+import { runScan } from './commands/scan.js';
+
 
 const program = new Command();
 

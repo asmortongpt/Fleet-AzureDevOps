@@ -2,6 +2,7 @@
 import { Pool } from 'pg';
 
 import { PerformanceMetric } from '../models/PerformanceMetric';
+
 import { BaseRepository } from './base/BaseRepository';
 
 export class PerformanceMetricsRepository extends BaseRepository<any> {

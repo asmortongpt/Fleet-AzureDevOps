@@ -12,13 +12,13 @@
  * - Request queuing and rate limiting
  */
 
+import { OpenAIAdapter } from './providers/openai-adapter'
 import type {
   AIProvider,
   AIProviderAdapter,
   AICompletionRequest,
   AICompletionResponse,
 } from './types'
-import { OpenAIAdapter } from './providers/openai-adapter'
 
 export interface AIServiceConfig {
   defaultProvider: AIProvider

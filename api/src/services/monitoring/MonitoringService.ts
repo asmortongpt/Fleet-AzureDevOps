@@ -21,8 +21,13 @@
  * @module MonitoringService
  */
 
-import { Pool } from 'pg'
+import { JaegerExporter } from '@opentelemetry/exporter-jaeger'
+import { Resource } from '@opentelemetry/resources'
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base'
+import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
+import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 import Redis from 'ioredis'
+import { Pool } from 'pg'
 import {
   Counter,
   Gauge,
@@ -30,11 +35,6 @@ import {
   Summary,
   register as prometheusRegister
 } from 'prom-client'
-import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
-import { Resource } from '@opentelemetry/resources'
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
-import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base'
-import { JaegerExporter } from '@opentelemetry/exporter-jaeger'
 
 // ============================================================================
 // Type Definitions
