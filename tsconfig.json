@@ -80,17 +80,27 @@
     "src/lib/document-generation/**",
     "src/lib/ai/**",
     "src/lib/auth/**",
+    "src/lib/policy-engine/**",
     "src/components/LeafletMap.tsx",
     "src/components/DrilldownSystem.tsx",
     "src/components/hubs/MonitoringDashboard.tsx",
     "src/components/hubs/telematics/**",
+    "src/components/hubs/safety/**",
     "src/components/mobile/**",
     "src/components/modules/fleet/**",
+    "src/components/modules/maintenance/**",
     "src/container/**",
+    "src/workers/**",
     "src/services/multi-llm-orchestrator.service.ts",
     "src/hooks/use-amt-api.ts",
     "src/pages/ConfigurationHub.tsx",
     "src/pages/DocumentsHub.tsx",
-    "src/pages/FinancialHubEnhanced.tsx"
+    "src/pages/FinancialHubEnhanced.tsx",
+    "src/pages/FinancialHub.tsx",
+    "src/pages/IntegrationsHub.tsx",
+    "src/pages/AssetsHub.tsx",
+    "src/pages/hubs/**",
+    "src/components/fleet/VehicleTable.tsx",
+    "src/components/drilldown/MaintenanceHubDrilldowns.tsx"
   ]
 }
