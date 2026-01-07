@@ -77,6 +77,15 @@ finish: build-orchestrator ## Autonomous remediation until gates pass
 	cd tools/orchestrator && npm run finish
 	@echo "$(GREEN)✓ Remediation complete$(NC)"
 
+dashboard: build-orchestrator ## Launch real-time remediation dashboard
+	@echo "$(BLUE)Starting dashboard server...$(NC)"
+	cd tools/orchestrator && npm run dashboard
+
+finish-dashboard: build-orchestrator ## Autonomous remediation with live dashboard
+	@echo "$(YELLOW)⚠ Starting remediation with dashboard...$(NC)"
+	cd tools/orchestrator && npm run finish:dashboard
+	@echo "$(GREEN)✓ Remediation complete$(NC)"
+
 scan-semgrep: ## Run Semgrep SAST scan
 	@echo "$(BLUE)Running Semgrep...$(NC)"
 	semgrep --config=p/security-audit --config=p/typescript --json --output=semgrep-results.json .

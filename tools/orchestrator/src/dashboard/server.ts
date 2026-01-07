@@ -113,17 +113,17 @@ export class DashboardServer {
     this.app.use(express.json());
 
     // API endpoint for current metrics
-    this.app.get('/api/metrics', (req, res) => {
+    this.app.get('/api/metrics', (_req, res) => {
       res.json(this.metrics);
     });
 
     // Health check
-    this.app.get('/api/health', (req, res) => {
+    this.app.get('/api/health', (_req, res) => {
       res.json({ status: 'healthy', timestamp: new Date().toISOString() });
     });
 
     // Root serves dashboard
-    this.app.get('/', (req, res) => {
+    this.app.get('/', (_req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'index.html'));
     });
   }
