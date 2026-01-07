@@ -218,7 +218,13 @@ export function PolicyEngineWorkbench() {
       "data-retention": "Data Retention",
       security: "Security",
       "vehicle-use": "Vehicle Use",
-      "driver-behavior": "Driver Behavior"
+      "driver-behavior": "Driver Behavior",
+      "driver-qualification": "Driver Qualification",
+      "preventive-maintenance": "Preventive Maintenance",
+      "fuel-fraud-prevention": "Fuel Fraud Prevention",
+      "maintenance-authorization": "Maintenance Authorization",
+      "telematics": "Telematics",
+      "asset-tracking": "Asset Tracking"
     }
     return labels[type]
   }
