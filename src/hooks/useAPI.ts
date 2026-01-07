@@ -6,7 +6,7 @@
 
 import { useState, useCallback } from 'react';
 
-import { APIClientError } from '@/lib/api-client';
+import { APIError } from '@/lib/api-client';
 
 export interface APIState<T> {
   data: T | null;
@@ -43,7 +43,7 @@ export function useAPI<T>(
         return data;
       } catch (error) {
         const errorMessage =
-          error instanceof APIClientError
+          error instanceof APIError
             ? error.message
             : error instanceof Error
             ? error.message

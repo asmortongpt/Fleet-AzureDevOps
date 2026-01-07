@@ -175,10 +175,10 @@ export function GarageService() {
                     <div
                       key={bay.id}
                       className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => handleServiceBayClick(bay)}
+                      onClick={() => handleServiceBayClick(bay as any)}
                       role="button"
                       tabIndex={0}
-                      onKeyDown={(e) => e.key === 'Enter' && handleServiceBayClick(bay)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleServiceBayClick(bay as any)}
                     >
                       <div>
                         <p className="font-medium">{bay.number}</p>
@@ -382,10 +382,10 @@ export function GarageService() {
                   <Card
                     key={tech.id}
                     className="cursor-pointer hover:bg-muted/30 transition-colors"
-                    onClick={() => handleTechnicianClick(tech)}
+                    onClick={() => handleTechnicianClick(tech as any)}
                     role="button"
                     tabIndex={0}
-                    onKeyDown={(e) => e.key === 'Enter' && handleTechnicianClick(tech)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleTechnicianClick(tech as any)}
                   >
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-4">
