@@ -12,6 +12,9 @@ resource "azurerm_redis_cache" "main" {
   enable_non_ssl_port = var.redis_enable_non_ssl_port
   minimum_tls_version = "1.2"
 
+  # Security: Disable public network access (use private endpoints)
+  public_network_access_enabled = false
+
   # Redis configuration
   redis_configuration {
     enable_authentication           = true
