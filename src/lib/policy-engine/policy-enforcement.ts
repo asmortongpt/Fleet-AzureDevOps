@@ -248,11 +248,10 @@ export async function enforceDriverBehaviorPolicy(
   }
 ): Promise<PolicyEnforcementResult> {
   const context: PolicyEvaluationContext = {
-    driverId: behaviorData.driverId,
+    ...behaviorData,
     driverScorecard: 75, // Would come from actual scorecard
     incidentHistory: 2, // Would come from incident database
-    timestamp: new Date().toISOString(),
-    ...behaviorData
+    timestamp: new Date().toISOString()
   };
 
   const result = await checkPolicyCompliance(policies, 'driver-behavior', context);
@@ -285,10 +284,9 @@ export async function enforceEnvironmentalPolicy(
   }
 ): Promise<PolicyEnforcementResult> {
   const context: PolicyEvaluationContext = {
-    vehicleId: environmentalData.vehicleId,
+    ...environmentalData,
     vehicleLocation: environmentalData.location,
-    timestamp: new Date().toISOString(),
-    ...environmentalData
+    timestamp: new Date().toISOString()
   };
 
   const result = await checkPolicyCompliance(policies, 'environmental', context);
