@@ -253,6 +253,191 @@ const customFilterFn: FilterFn<any> = (row, columnId, filterValue: FilterConfig)
 }
 
 // ============================================================================
+// COLUMN FILTER COMPONENT
+// ============================================================================
+
+interface ColumnFilterProps<T> {
+  columnId: string
+  columnDef: ColumnDef<T>
+  currentFilter: FilterConfig | undefined
+  onApplyFilter: (columnId: string, config: FilterConfig) => void
+  onClearFilter: (columnId: string) => void
+}
+
+function ColumnFilter<T>({
+  columnId,
+  columnDef,
+  currentFilter,
+  onApplyFilter,
+  onClearFilter
+}: ColumnFilterProps<T>) {
+  const [filterType, setFilterType] = useState<FilterConfig['operation']>(currentFilter?.operation || 'contains')
+  const [filterValue, setFilterValue] = useState(currentFilter?.value?.toString() || '')
+  const [filterValue2, setFilterValue2] = useState(currentFilter?.value2?.toString() || '')
+
+  const applyFilter = () => {
+    const config: FilterConfig = {
+      type: columnDef.type === 'select' ? 'select' : columnDef.type || 'text',
+      operation: filterType,
+      value: filterValue,
+    }
+    if (filterType === 'between') {
+      config.value2 = filterValue2
+    }
+    onApplyFilter(columnId, config)
+  }
+
+  const clearFilter = () => {
+    setFilterValue('')
+    setFilterValue2('')
+    onClearFilter(columnId)
+  }
+
+  if (columnDef.type === 'select' && columnDef.filterOptions) {
+    return (
+      <div className="p-2 space-y-2">
+        <Select value={filterValue} onValueChange={setFilterValue}>
+          <SelectTrigger className="h-8">
+            <SelectValue placeholder="Select..." />
+          </SelectTrigger>
+          <SelectContent>
+            {columnDef.filterOptions.map(option => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <div className="flex gap-1">
+          <Button size="sm" onClick={applyFilter} className="flex-1">
+            Apply
+          </Button>
+          <Button size="sm" variant="outline" onClick={clearFilter}>
+            Clear
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (columnDef.type === 'number') {
+    return (
+      <div className="p-2 space-y-2">
+        <Select value={filterType} onValueChange={(v) => setFilterType(v as FilterConfig['operation'])}>
+          <SelectTrigger className="h-8">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="equals">=</SelectItem>
+            <SelectItem value=">">&gt;</SelectItem>
+            <SelectItem value="<">&lt;</SelectItem>
+            <SelectItem value=">=">&gt;=</SelectItem>
+            <SelectItem value="<=">&lt;=</SelectItem>
+            <SelectItem value="between">Between</SelectItem>
+          </SelectContent>
+        </Select>
+        <Input
+          type="number"
+          placeholder="Value"
+          value={filterValue}
+          onChange={(e) => setFilterValue(e.target.value)}
+          className="h-8"
+        />
+        {filterType === 'between' && (
+          <Input
+            type="number"
+            placeholder="Value 2"
+            value={filterValue2}
+            onChange={(e) => setFilterValue2(e.target.value)}
+            className="h-8"
+          />
+        )}
+        <div className="flex gap-1">
+          <Button size="sm" onClick={applyFilter} className="flex-1">
+            Apply
+          </Button>
+          <Button size="sm" variant="outline" onClick={clearFilter}>
+            Clear
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (columnDef.type === 'date') {
+    return (
+      <div className="p-2 space-y-2">
+        <Select value={filterType} onValueChange={(v) => setFilterType(v as FilterConfig['operation'])}>
+          <SelectTrigger className="h-8">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="equals">Equals</SelectItem>
+            <SelectItem value="before">Before</SelectItem>
+            <SelectItem value="after">After</SelectItem>
+            <SelectItem value="between">Between</SelectItem>
+          </SelectContent>
+        </Select>
+        <Input
+          type="date"
+          value={filterValue}
+          onChange={(e) => setFilterValue(e.target.value)}
+          className="h-8"
+        />
+        {filterType === 'between' && (
+          <Input
+            type="date"
+            value={filterValue2}
+            onChange={(e) => setFilterValue2(e.target.value)}
+            className="h-8"
+          />
+        )}
+        <div className="flex gap-1">
+          <Button size="sm" onClick={applyFilter} className="flex-1">
+            Apply
+          </Button>
+          <Button size="sm" variant="outline" onClick={clearFilter}>
+            Clear
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  // Default: text filter
+  return (
+    <div className="p-2 space-y-2">
+      <Select value={filterType} onValueChange={(v) => setFilterType(v as FilterConfig['operation'])}>
+        <SelectTrigger className="h-8">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="contains">Contains</SelectItem>
+          <SelectItem value="equals">Equals</SelectItem>
+          <SelectItem value="startsWith">Starts with</SelectItem>
+          <SelectItem value="endsWith">Ends with</SelectItem>
+        </SelectContent>
+      </Select>
+      <Input
+        placeholder="Filter..."
+        value={filterValue}
+        onChange={(e) => setFilterValue(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && applyFilter()}
+        className="h-8"
+      />
+      <div className="flex gap-1">
+        <Button size="sm" onClick={applyFilter} className="flex-1">
+          Apply
+        </Button>
+        <Button size="sm" variant="outline" onClick={clearFilter}>
+          Clear
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
 // COMPONENT
 // ============================================================================
 
@@ -542,174 +727,6 @@ export function ExcelStyleTable<T extends Record<string, any>>({
   // RENDER HELPERS
   // ============================================================================
 
-  const renderColumnFilter = (columnId: string, columnDef: ColumnDef<T>) => {
-    const currentFilter = activeFilters[columnId]
-    const [filterType, setFilterType] = useState<FilterConfig['operation']>(currentFilter?.operation || 'contains')
-    const [filterValue, setFilterValue] = useState(currentFilter?.value?.toString() || '')
-    const [filterValue2, setFilterValue2] = useState(currentFilter?.value2?.toString() || '')
-
-    const applyFilter = () => {
-      const config: FilterConfig = {
-        type: columnDef.type === 'select' ? 'select' : columnDef.type || 'text',
-        operation: filterType,
-        value: filterValue,
-      }
-      if (filterType === 'between') {
-        config.value2 = filterValue2
-      }
-      handleApplyFilter(columnId, config)
-    }
-
-    const clearFilter = () => {
-      setFilterValue('')
-      setFilterValue2('')
-      handleClearFilter(columnId)
-    }
-
-    if (columnDef.type === 'select' && columnDef.filterOptions) {
-      return (
-        <div className="p-2 space-y-2">
-          <Select value={filterValue} onValueChange={setFilterValue}>
-            <SelectTrigger className="h-8">
-              <SelectValue placeholder="Select..." />
-            </SelectTrigger>
-            <SelectContent>
-              {columnDef.filterOptions.map(option => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <div className="flex gap-1">
-            <Button size="sm" onClick={applyFilter} className="flex-1">
-              Apply
-            </Button>
-            <Button size="sm" variant="outline" onClick={clearFilter}>
-              Clear
-            </Button>
-          </div>
-        </div>
-      )
-    }
-
-    if (columnDef.type === 'number') {
-      return (
-        <div className="p-2 space-y-2">
-          <Select value={filterType} onValueChange={(v) => setFilterType(v as any)}>
-            <SelectTrigger className="h-8">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="equals">=</SelectItem>
-              <SelectItem value=">">&gt;</SelectItem>
-              <SelectItem value="<">&lt;</SelectItem>
-              <SelectItem value=">=">&gt;=</SelectItem>
-              <SelectItem value="<=">&lt;=</SelectItem>
-              <SelectItem value="between">Between</SelectItem>
-            </SelectContent>
-          </Select>
-          <Input
-            type="number"
-            placeholder="Value"
-            value={filterValue}
-            onChange={(e) => setFilterValue(e.target.value)}
-            className="h-8"
-          />
-          {filterType === 'between' && (
-            <Input
-              type="number"
-              placeholder="Value 2"
-              value={filterValue2}
-              onChange={(e) => setFilterValue2(e.target.value)}
-              className="h-8"
-            />
-          )}
-          <div className="flex gap-1">
-            <Button size="sm" onClick={applyFilter} className="flex-1">
-              Apply
-            </Button>
-            <Button size="sm" variant="outline" onClick={clearFilter}>
-              Clear
-            </Button>
-          </div>
-        </div>
-      )
-    }
-
-    if (columnDef.type === 'date') {
-      return (
-        <div className="p-2 space-y-2">
-          <Select value={filterType} onValueChange={(v) => setFilterType(v as any)}>
-            <SelectTrigger className="h-8">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="equals">Equals</SelectItem>
-              <SelectItem value="before">Before</SelectItem>
-              <SelectItem value="after">After</SelectItem>
-              <SelectItem value="between">Between</SelectItem>
-            </SelectContent>
-          </Select>
-          <Input
-            type="date"
-            value={filterValue}
-            onChange={(e) => setFilterValue(e.target.value)}
-            className="h-8"
-          />
-          {filterType === 'between' && (
-            <Input
-              type="date"
-              value={filterValue2}
-              onChange={(e) => setFilterValue2(e.target.value)}
-              className="h-8"
-            />
-          )}
-          <div className="flex gap-1">
-            <Button size="sm" onClick={applyFilter} className="flex-1">
-              Apply
-            </Button>
-            <Button size="sm" variant="outline" onClick={clearFilter}>
-              Clear
-            </Button>
-          </div>
-        </div>
-      )
-    }
-
-    // Default: text filter
-    return (
-      <div className="p-2 space-y-2">
-        <Select value={filterType} onValueChange={(v) => setFilterType(v as any)}>
-          <SelectTrigger className="h-8">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="contains">Contains</SelectItem>
-            <SelectItem value="equals">Equals</SelectItem>
-            <SelectItem value="startsWith">Starts with</SelectItem>
-            <SelectItem value="endsWith">Ends with</SelectItem>
-          </SelectContent>
-        </Select>
-        <Input
-          placeholder="Filter..."
-          value={filterValue}
-          onChange={(e) => setFilterValue(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && applyFilter()}
-          className="h-8"
-        />
-        <div className="flex gap-1">
-          <Button size="sm" onClick={applyFilter} className="flex-1">
-            Apply
-          </Button>
-          <Button size="sm" variant="outline" onClick={clearFilter}>
-            Clear
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
   // ============================================================================
   // RENDER
   // ============================================================================
@@ -874,7 +891,13 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                               </button>
                             </PopoverTrigger>
                             <PopoverContent className="w-64 p-0" align="start">
-                              {renderColumnFilter(header.column.id, columnDef)}
+                              <ColumnFilter
+                                columnId={header.column.id}
+                                columnDef={columnDef}
+                                currentFilter={activeFilters[header.column.id]}
+                                onApplyFilter={handleApplyFilter}
+                                onClearFilter={handleClearFilter}
+                              />
                             </PopoverContent>
                           </Popover>
                         )}

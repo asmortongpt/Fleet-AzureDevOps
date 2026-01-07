@@ -19,55 +19,61 @@ const meta: Meta<typeof Calendar> = {
 export default meta;
 type Story = StoryObj<typeof Calendar>;
 
-export const Default: Story = {
-    render: () => {
-        const [date, setDate] = React.useState<Date | undefined>(new Date())
+const DefaultCalendar = () => {
+    const [date, setDate] = React.useState<Date | undefined>(new Date())
 
-        return (
-            <Calendar
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                className="rounded-md border"
-            />
-        )
-    },
+    return (
+        <Calendar
+            mode="single"
+            selected={date}
+            onSelect={setDate}
+            className="rounded-md border"
+        />
+    )
+}
+
+export const Default: Story = {
+    render: () => <DefaultCalendar />,
 };
+
+const MultipleMonthsCalendar = () => {
+    const [date, setDate] = React.useState<Date | undefined>(new Date())
+
+    return (
+        <Calendar
+            mode="single"
+            selected={date}
+            onSelect={setDate}
+            className="rounded-md border"
+            numberOfMonths={2}
+        />
+    )
+}
 
 export const MultipleMonths: Story = {
-    render: () => {
-        const [date, setDate] = React.useState<Date | undefined>(new Date())
-
-        return (
-            <Calendar
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                className="rounded-md border"
-                numberOfMonths={2}
-            />
-        )
-    },
+    render: () => <MultipleMonthsCalendar />,
 };
 
-export const Range: Story = {
-    render: () => {
-        // @ts-ignore
-        const [date, setDate] = React.useState({
-            from: new Date(2023, 0, 20),
-            to: new Date(2023, 0, 20 + 20),
-        })
+const RangeCalendar = () => {
+    // @ts-expect-error - DateRange type mismatch
+    const [date, setDate] = React.useState({
+        from: new Date(2023, 0, 20),
+        to: new Date(2023, 0, 20 + 20),
+    })
 
-        return (
-            <Calendar
-                mode="range"
-                defaultMonth={new Date(2023, 0, 20)}
-                selected={date}
-                // @ts-ignore
-                onSelect={setDate}
-                className="rounded-md border"
-                numberOfMonths={2}
-            />
-        )
-    }
+    return (
+        <Calendar
+            mode="range"
+            defaultMonth={new Date(2023, 0, 20)}
+            selected={date}
+            // @ts-expect-error - DateRange type mismatch
+            onSelect={setDate}
+            className="rounded-md border"
+            numberOfMonths={2}
+        />
+    )
+}
+
+export const Range: Story = {
+    render: () => <RangeCalendar />
 }
