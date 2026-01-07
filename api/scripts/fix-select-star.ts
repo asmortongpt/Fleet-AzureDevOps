@@ -363,6 +363,7 @@ const tableSchemas: Record<string, string[]> = {
 interface QueryOccurrence {
   file: string;
   lineNumber: number;
+  fullLine?: string;
   query: string;
   tableName: string | null;
 }
@@ -518,7 +519,7 @@ function main() {
   let totalFixed = 0;
   let filesModified = 0;
 
-  for (const [file, fileOccurrences] of fileGroups) {
+  for (const [file, fileOccurrences] of Array.from(fileGroups.entries())) {
     const fixed = fixFileQueries(file, fileOccurrences);
     if (fixed > 0) {
       totalFixed += fixed;
