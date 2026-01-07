@@ -469,7 +469,7 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
     return `/api/alerts?${params.toString()}`
   }
 
-  const { data: alerts, error, isLoading } = useSWR(buildUrl(), fetcher)
+  const { data: alerts, error, isLoading } = useSWR<AlertData[]>(buildUrl(), fetcher)
 
   const statusLabels = {
     active: 'Active Alerts',
@@ -545,13 +545,13 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
         </div>
 
         <div className="space-y-2">
-          {alerts?.map((alert: any) => (
+          {alerts?.map((alert: AlertData) => (
             <Card
-              key={alertData.id}
+              key={alert.id}
               className="cursor-pointer hover:bg-accent transition-colors"
               onClick={() =>
                 push({
-                  id: `alert-${alertData.id}`,
+                  id: `alert-${alert.id}`,
                   type: 'alert-detail',
                   label: alert.title,
                   data: { alertId: alert.id },
@@ -563,33 +563,33 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
                   <div className="space-y-1 flex-1">
                     <div className="flex items-center gap-2">
                       {getSeverityIcon(alert.severity)}
-                      <p className="font-semibold">{alertData.title}</p>
+                      <p className="font-semibold">{alert.title}</p>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {alertData.category} • Alert #{alertData.alert_number}
+                      {alert.category} • Alert #{alert.alert_number}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Triggered {new Date(alert.triggered_at).toLocaleString()}
                     </p>
-                    {alertData.vehicle_name && (
+                    {alert.vehicle_name && (
                       <p className="text-xs text-muted-foreground">
-                        Vehicle: {alertData.vehicle_name}
+                        Vehicle: {alert.vehicle_name}
                       </p>
                     )}
-                    {alertData.driver_name && (
+                    {alert.driver_name && (
                       <p className="text-xs text-muted-foreground">
-                        Driver: {alertData.driver_name}
+                        Driver: {alert.driver_name}
                       </p>
                     )}
                   </div>
                   <div className="text-right space-y-1">
-                    <Badge variant={getStatusVariant(alert.status)}>{alertData.status}</Badge>
+                    <Badge variant={getStatusVariant(alert.status)}>{alert.status}</Badge>
                     <Badge variant={getSeverityVariant(alert.severity)} className="ml-1">
-                      {alertData.severity}
+                      {alert.severity}
                     </Badge>
-                    {alertData.duration_minutes && (
+                    {alert.duration_minutes && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        {alertData.duration_minutes} min
+                        {alert.duration_minutes} min
                       </p>
                     )}
                   </div>
