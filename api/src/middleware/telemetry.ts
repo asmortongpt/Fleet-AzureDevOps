@@ -3,6 +3,7 @@ import crypto from 'crypto'
 import { Request, Response, NextFunction } from 'express'
 
 import telemetryService from '../monitoring/applicationInsights'
+import { sanitizeForLog } from '../utils/logSanitizer'
 
 /**
  * Extended request interface with telemetry tracking
@@ -66,7 +67,6 @@ export function telemetryMiddleware(req: TelemetryRequest, res: Response, next: 
   // SECURITY FIX (P0): Sanitize request details to prevent log injection (CWE-117)
   // Fingerprint: d8e4f2a7c9b3d6e8
   if (process.env.NODE_ENV === 'development') {
-    const { sanitizeForLog } = require('../utils/logSanitizer')
     console.log('📊 Request started', {
       correlationId: req.telemetry.correlationId,
       method: req.method,

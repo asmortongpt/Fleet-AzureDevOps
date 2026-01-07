@@ -10,6 +10,9 @@
  * - Integration with communication_logs table
  */
 
+import fs from 'fs'
+import path from 'path'
+
 import { Pool } from 'pg'
 
 import logger from '../config/logger'
@@ -419,7 +422,8 @@ export class SchedulingNotificationService {
         return
       }
 
-      // Import Twilio dynamically
+      // Import Twilio dynamically (optional dependency)
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const twilio = require('twilio')
       const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
 
@@ -540,9 +544,6 @@ export class SchedulingNotificationService {
    */
   private renderEmailTemplate(type: string, data: any): string {
     // Load and render HTML template
-    const fs = require(`fs`)
-    const path = require('path')
-
     const templatePath = path.join(__dirname, `../templates/scheduling`, `${type}.html`)
 
     try {
