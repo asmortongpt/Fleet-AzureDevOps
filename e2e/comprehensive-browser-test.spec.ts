@@ -79,34 +79,19 @@ test.describe('Fleet Management Application - Comprehensive Browser Test', () =>
 
   test('should check API endpoints are accessible', async ({ page }) => {
     // Test backend API health
-    const healthResponse = await page.request.get('http://localhost:3001/health')
+    const healthResponse = await page.request.get('http://localhost:3000/health')
     expect(healthResponse.ok()).toBeTruthy()
     console.log('Health check:', await healthResponse.json())
 
-    // Test PeopleSoft emulator
-    const psResponse = await page.request.post(
-      'http://localhost:3001/api/emulators/peoplesoft/v1/finance/chartfields/validate',
-      {
-        data: {
-          business_unit: 'CITY_TALLY',
-          company: 'FLEET',
-          department: '17020',
-          fund: '201',
-          account: '654210',
-          operating_unit: 'FLEET'
-        }
-      }
-    )
-    console.log('PeopleSoft validation:', await psResponse.json())
+    // Test vehicles endpoint
+    const vehiclesResponse = await page.request.get('http://localhost:3000/api/vehicles')
+    expect(vehiclesResponse.ok()).toBeTruthy()
+    console.log('Vehicles count:', (await vehiclesResponse.json()).length)
 
-    // Test FuelMaster emulator
-    const fmResponse = await page.request.get(
-      'http://localhost:3001/api/emulators/fuelmaster/v1/sites',
-      {
-        headers: { 'X-API-Key': 'test-key' }
-      }
-    )
-    console.log('FuelMaster sites:', await fmResponse.json())
+    // Test drivers endpoint
+    const driversResponse = await page.request.get('http://localhost:3000/api/drivers')
+    expect(driversResponse.ok()).toBeTruthy()
+    console.log('Drivers count:', (await driversResponse.json()).length)
   })
 
   test('should check for network errors', async ({ page }) => {
