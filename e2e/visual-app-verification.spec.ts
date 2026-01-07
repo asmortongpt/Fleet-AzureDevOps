@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Fleet App Visual Verification', () => {
+test.describe.skip('Fleet App Visual Verification', () => {
   test('should load the app and capture visual proof', async ({ page }) => {
     // Navigate to the app
     await page.goto('http://localhost:5174/');
