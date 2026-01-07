@@ -356,6 +356,24 @@ const tableSchemas: Record<string, string[]> = {
 };
 
 // Total tables: 338
+
+/**
+ * Query occurrence interface
+ */
+interface QueryOccurrence {
+  file: string;
+  lineNumber: number;
+  query: string;
+  tableName: string | null;
+}
+
+/**
+ * Extract table name from a SQL query
+ */
+function extractTableName(query: string): string | null {
+  // Look for FROM clause
+  const fromMatch = query.match(/FROM\s+([a-z_]+)/i);
+
   if (fromMatch) {
     return fromMatch[1];
   }

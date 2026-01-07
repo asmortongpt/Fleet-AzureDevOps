@@ -1,9 +1,28 @@
 import pool from './src/config/database.js'
 
+interface TableRow {
+  table_name: string;
+}
+
+interface UserRow {
+  id: string;
+  email: string;
+  role: string;
+  is_active: boolean;
+  created_at: Date;
+}
+
+interface TenantRow {
+  id: string;
+  name: string;
+  domain: string;
+  created_at: Date;
+}
+
 async function checkUsers() {
   try {
     // Check if tables exist
-    const tables = await pool.query(`
+    const tables = await pool.query<TableRow>(`
       SELECT table_name
       FROM information_schema.tables
       WHERE table_schema = 'public'
@@ -14,7 +33,7 @@ async function checkUsers() {
     console.log(JSON.stringify(tables.rows, null, 2))
 
     // Check if any users exist
-    const users = await pool.query(`
+    const users = await pool.query<UserRow>(`
       SELECT id, email, role, is_active, created_at
       FROM users
       LIMIT 5
@@ -24,7 +43,7 @@ async function checkUsers() {
     console.log(JSON.stringify(users.rows, null, 2))
 
     // Check tenants
-    const tenants = await pool.query(`
+    const tenants = await pool.query<TenantRow>(`
       SELECT id, name, domain, created_at
       FROM tenants
       LIMIT 5
@@ -33,8 +52,9 @@ async function checkUsers() {
     console.log('\n=== Tenants ===')
     console.log(JSON.stringify(tenants.rows, null, 2))
 
-  } catch (error: any) {
-    console.error('Error:', error.message)
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Error:', errorMessage)
   } finally {
     await pool.end()
   }
