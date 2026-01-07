@@ -17,7 +17,7 @@ export const auditLog = (options: AuditOptions) => {
   return async (req: AuthRequest, res: Response, next: NextFunction) => {
     const originalSend = res.json.bind(res)
 
-    res.json = function (body: any) {
+    res.json = function (body: Record<string, unknown>) {
       // Log after response (don't block the request)
       setImmediate(async () => {
         try {
@@ -80,7 +80,7 @@ export async function createAuditLog(
   action: string,
   resourceType: string,
   resourceId: string | null,
-  details: any,
+  details: Record<string, unknown> | null,
   ipAddress: string | null,
   userAgent: string | null,
   outcome: 'success' | 'failure',
