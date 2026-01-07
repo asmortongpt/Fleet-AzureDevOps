@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { useVehicles } from '@/hooks/use-api';
-import { generateDemoVehicles } from '@/lib/demo-data';
 
 interface Vehicle {
   id: string;

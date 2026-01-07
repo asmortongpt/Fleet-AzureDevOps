@@ -24,13 +24,14 @@ import {
     ShieldCheck,
     Warning,
     Lightbulb
-} from '@phosphor-icons/react'
+, Receipt } from '@phosphor-icons/react'
 
+import { PolicyEngineWorkbench } from '@/components/modules/admin/PolicyEngineWorkbench'
+import { PolicyOnboarding } from '@/components/modules/admin/PolicyOnboarding'
+import { Button } from '@/components/ui/button'
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
-import { PolicyEngineWorkbench } from '@/components/modules/admin/PolicyEngineWorkbench'
-import { PolicyOnboarding } from '@/components/modules/admin/PolicyOnboarding'
 import { usePolicies } from '@/contexts/PolicyContext'
 
 /**
@@ -612,8 +613,6 @@ function WorkflowsContent() {
 /**
  * Import missing Button component
  */
-import { Button } from '@/components/ui/button'
-import { Receipt } from '@phosphor-icons/react'
 
 /**
  * Policy Hub Main Component

@@ -6,6 +6,7 @@
  */
 
 import { Router } from 'express'
+
 import { aiService } from '../../services/api-bus'
 import type { AICompletionRequest } from '../../services/api-bus'
 

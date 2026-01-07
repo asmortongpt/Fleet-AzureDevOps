@@ -7,11 +7,12 @@
  */
 
 import React, { useState } from 'react'
+
+import { EntityAvatar } from '@/shared/design-system/components/EntityAvatar'
+import { RowExpandPanel } from '@/shared/design-system/components/RowExpandPanel'
+import { StatusChip } from '@/shared/design-system/components/StatusChip'
 import { Table } from '@/shared/design-system/components/Table'
 import type { Column } from '@/shared/design-system/components/Table'
-import { EntityAvatar } from '@/shared/design-system/components/EntityAvatar'
-import { StatusChip } from '@/shared/design-system/components/StatusChip'
-import { RowExpandPanel } from '@/shared/design-system/components/RowExpandPanel'
 import type { VehicleRow, Status, RecordRow } from '@/shared/design-system/types'
 
 interface VehicleTableProps {

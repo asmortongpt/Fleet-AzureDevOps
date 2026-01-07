@@ -17,12 +17,14 @@
  * @module services/secrets/SecretsManagementService
  */
 
+import crypto from 'crypto';
+
 import { DefaultAzureCredential } from '@azure/identity';
-import { SecretClient, KeyVaultSecret } from '@azure/keyvault-secrets';
+import { SecretClient } from '@azure/keyvault-secrets';
 import { Pool } from 'pg';
 import { createClient, RedisClientType } from 'redis';
-import crypto from 'crypto';
 import { z } from 'zod';
+
 import { logger, securityLogger } from '../../lib/logger';
 import { trackMetric, trackException, trackEvent } from '../../lib/telemetry';
 

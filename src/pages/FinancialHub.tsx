@@ -18,7 +18,6 @@ import {
     TrendUp,
     FileText,
     CreditCard,
-    ChartLine,
     Calculator,
     Invoice,
     Coins,
@@ -48,11 +47,11 @@ import {
     ResponsiveContainer
 } from 'recharts'
 
-import { HubPage } from '@/components/ui/hub-page'
-import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
-import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
-import { MetricTooltip, TooltipProvider } from '@/components/ui/tooltip'
 import { DrillDownChart } from '@/components/features/DrillDownChart'
+import { HubPage } from '@/components/ui/hub-page'
+import { StatCard, ProgressRing } from '@/components/ui/stat-card'
+import { MetricTooltip, TooltipProvider } from '@/components/ui/tooltip'
+import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 
 // Professional muted color palette - NO bright/neon colors
 const CHART_COLORS = {

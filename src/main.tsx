@@ -27,16 +27,17 @@ if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
 
 // Initialize Sentry before all other imports for proper error tracking
 import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { registerSW } from 'virtual:pwa-register'
 
 import App from "./App"
-import { Login } from "./pages/Login"
-import { GlobalCommandPalette } from "./components/common/GlobalCommandPalette"
+import ProtectedRoute from "./components/ProtectedRoute"
 import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
 import { ThemeProvider } from "./components/providers/ThemeProvider"
-import ProtectedRoute from "./components/ProtectedRoute"
+import { validateSecrets, getSecret, checkKeyVaultHealth } from "./config/secrets"
 import { AuthProvider } from "./contexts/AuthContext"
 import { DrilldownProvider } from "./contexts/DrilldownContext"
 import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
+import { Login } from "./pages/Login"
 import { TenantProvider } from "./contexts/TenantContext"
 import { initSentry } from "./lib/sentry"
 initSentry()
@@ -45,14 +46,12 @@ initSentry()
  * P0-3 SECURITY FIX: Startup JWT validation
  * Import secret management for production environments
  */
-import { validateSecrets, getSecret, checkKeyVaultHealth } from "./config/secrets"
 
 // Initialize Application Insights for production telemetry
 import telemetryService from "./lib/telemetry"
 
 // PWA Service Worker registration
 // @ts-ignore
-import { registerSW } from 'virtual:pwa-register'
 
 const reactPlugin = telemetryService.initialize()
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"

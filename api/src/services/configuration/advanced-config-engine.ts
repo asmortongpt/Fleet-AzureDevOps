@@ -11,7 +11,7 @@
  */
 
 import { configurationService } from './configuration-service'
-import type { ConfigItem, PolicyCondition } from './types'
+import type { ConfigItem } from './types'
 
 // ============================================================================
 // AI-POWERED RECOMMENDATIONS

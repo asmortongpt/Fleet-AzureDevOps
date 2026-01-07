@@ -1,9 +1,12 @@
 // Document Management Service
 // Complete document lifecycle management with storage, versioning, search, and workflow
 
+import * as crypto from 'crypto'
 import * as fs from 'fs'
 import * as path from 'path'
-import * as crypto from 'crypto'
+
+import { getIndexingService } from './indexing-service'
+import { getOCRService } from './ocr-service'
 import {
   Document,
   DocumentSearchQuery,
@@ -12,12 +15,9 @@ import {
   BulkOperationRequest,
   BulkOperationResult,
   DocumentCategory,
-  DocumentStatus,
   DocumentVersion,
   AccessLevel
 } from './types'
-import { getOCRService } from './ocr-service'
-import { getIndexingService } from './indexing-service'
 
 /**
  * Document Management Service
@@ -328,7 +328,7 @@ export class DocumentService {
     }
 
     // Get or create version history
-    let versions = this.documentVersions.get(document.id) || []
+    const versions = this.documentVersions.get(document.id) || []
     versions.push(version)
     this.documentVersions.set(document.id, versions)
 

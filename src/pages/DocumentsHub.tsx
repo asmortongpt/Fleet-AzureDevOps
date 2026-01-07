@@ -1,30 +1,6 @@
 // Documents Hub - Enterprise Document Management
 // Complete UI for upload, browse, search, preview, and manage documents
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { HubPage } from '@/components/ui/hub-page'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { useToast } from '@/hooks/use-toast'
 import {
   Upload,
   Search,
@@ -36,19 +12,36 @@ import {
   Eye,
   Grid3x3,
   List,
-  Filter,
-  SortAsc,
   Calendar,
   User,
-  Tag,
-  BarChart3,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
   FileStack
 } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
+
 import { DocumentPreview } from '@/components/documents/DocumentPreview'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { HubPage } from '@/components/ui/hub-page'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useToast } from '@/hooks/use-toast'
 
 // Types
 interface Document {

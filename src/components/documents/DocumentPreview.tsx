@@ -3,8 +3,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
+
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -12,9 +14,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Slider } from '@/components/ui/slider';
+
 import {
   X,
   ZoomIn,
@@ -29,6 +31,7 @@ import {
   Image as ImageIcon,
   File
 } from 'lucide-react';
+
 import { cn } from '@/lib/utils';
 
 // Configure PDF.js worker

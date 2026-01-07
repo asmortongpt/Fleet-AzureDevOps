@@ -3,11 +3,13 @@
  * Provides live updates on remediation progress via WebSocket
  */
 
-import express from 'express';
 import { createServer } from 'http';
-import { Server as SocketIOServer } from 'socket.io';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+import express from 'express';
+import { Server as SocketIOServer } from 'socket.io';
+
 import { logger } from '../utils/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);

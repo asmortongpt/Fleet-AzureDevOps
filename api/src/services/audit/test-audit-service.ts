@@ -10,6 +10,7 @@
  */
 
 import { Pool } from 'pg';
+
 import { AuditService, AuditCategory, AuditSeverity } from './AuditService';
 
 async function main() {

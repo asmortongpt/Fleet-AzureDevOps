@@ -10,7 +10,7 @@
  * - Best practices from NAFA, APWA, and other fleet management associations
  */
 
-import type { Policy, PolicyType, PolicyMode, PolicyStatus } from './types'
+import type { PolicyType, PolicyMode } from './types'
 
 // ============================================================================
 // POLICY TEMPLATES

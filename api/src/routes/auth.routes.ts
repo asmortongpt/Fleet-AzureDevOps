@@ -5,12 +5,14 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { z } from 'zod';
-import { AuthenticationService } from '../services/auth/AuthenticationService';
-import { AuditService, AuditCategory, AuditSeverity } from '../services/audit/AuditService';
-import { Pool } from 'pg';
 import Redis from 'ioredis';
+import { Pool } from 'pg';
+import { z } from 'zod';
+
 import { ApiError } from '../middleware/error.middleware';
+import { AuditService, AuditCategory, AuditSeverity } from '../services/audit/AuditService';
+import { AuthenticationService } from '../services/auth/AuthenticationService';
+
 
 // Validation schemas
 const registerSchema = z.object({

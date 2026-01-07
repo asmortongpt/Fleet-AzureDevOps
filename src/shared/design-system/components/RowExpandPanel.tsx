@@ -1,5 +1,7 @@
 import React from 'react';
+
 import { RecordRow } from '../types';
+
 import { StatusChip } from './StatusChip';
 
 /**

@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
 import { ChevronUp, ChevronDown, ChevronsUpDown, Download } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import React, { useState, useMemo } from 'react';
+
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 export interface TableColumn {
   field: string;

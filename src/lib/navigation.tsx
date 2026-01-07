@@ -7,7 +7,6 @@ import {
   Shield,
   Package,
   Gear,
-  Warning,
   Barcode,
   ChatsCircle,
   CurrencyDollar,

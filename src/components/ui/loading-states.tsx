@@ -9,9 +9,10 @@
  * - Memory-efficient animations
  */
 
-import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Loader2, Clock, CheckCircle, XCircle } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+
 import { cn } from '@/lib/utils'
 
 // ============================================================================

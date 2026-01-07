@@ -19,11 +19,12 @@
  * @module ConfigurationManagementService
  */
 
-import { Pool, PoolClient } from 'pg';
-import { z } from 'zod';
 import * as crypto from 'crypto';
 import { EventEmitter } from 'events';
+
 import Redis from 'ioredis';
+import { Pool } from 'pg';
+import { z } from 'zod';
 
 // ============================================================================
 // Types and Enums
