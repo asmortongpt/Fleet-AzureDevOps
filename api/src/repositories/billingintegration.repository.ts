@@ -2,17 +2,24 @@ import { Pool, QueryResult } from 'pg';
 
 import { BaseRepository } from './base/BaseRepository';
 
+export interface BillingIntegrationConfig {
+  apiKey?: string;
+  apiUrl?: string;
+  webhookUrl?: string;
+  [key: string]: string | number | boolean | undefined;
+}
+
 export interface BillingIntegration {
   id: number;
   tenant_id: string;
   name: string;
   description: string;
-  config: any;
+  config: BillingIntegrationConfig;
   created_at: Date;
   updated_at: Date;
 }
 
-export class BillingIntegrationRepository extends BaseRepository<any> {
+export class BillingIntegrationRepository extends BaseRepository<BillingIntegration> {
 
 
   constructor(pool: Pool) {
