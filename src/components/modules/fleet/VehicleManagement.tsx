@@ -1,5 +1,6 @@
+import { Car, Plus, PencilSimple, Trash, MapPin, Engine, Speedometer } from "@phosphor-icons/react"
 import React, { useState, useMemo } from 'react'
-import { Car, Plus, PencilSimple, Trash, MapPin, GasPump, Engine, CalendarBlank, Speedometer } from "@phosphor-icons/react"
+
 import { useVehicles, Vehicle } from "@/hooks/useVehicles"
 
 // StatusChip component following Fleet Design System

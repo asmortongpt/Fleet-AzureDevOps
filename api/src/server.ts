@@ -4,12 +4,14 @@ import cors from 'cors'
 import express from 'express'
 
 import { initializeConnectionManager } from './config/connection-manager' // Import connection manager initialization
+import { createFuelMasterRouter } from './emulators/fuelmaster/FuelMasterEmulator'
+import { createPeopleSoftRouter } from './emulators/peoplesoft/PeopleSoftEmulator'
 import { processEmailJob } from './jobs/processors/email.processor'
 import { processNotificationJob } from './jobs/processors/notification.processor'
 import { processReportJob } from './jobs/processors/report.processor'
 import { emailQueue, notificationQueue, reportQueue, closeAllQueues } from './jobs/queue'
 import { getCorsConfig, validateCorsConfiguration } from './middleware/corsConfig'
-import { csrfProtection, getCsrfToken } from './middleware/csrf'
+import { getCsrfToken } from './middleware/csrf'
 import { errorHandler } from './middleware/errorHandler'
 import { initializeProcessErrorHandlers } from './middleware/processErrorHandlers'
 import { globalLimiter } from './middleware/rateLimiter'
@@ -54,18 +56,10 @@ import communicationLogsRouter from './routes/communication-logs'
 // Dispatch & Communication Routes
 
 // GPS & Tracking Routes
-import vehicleIdlingRouter from './routes/vehicle-idling.routes'
 
 // Maintenance & Inspection Routes
-import maintenanceSchedulesRouter from './routes/maintenance-schedules'
-import maintenanceDrilldownsRouter from './routes/maintenance-drilldowns'
-import inspectionsRouter from './routes/inspections'
-import videoEventsRouter from './routes/video-events'
-import videoTelematicsRouter from './routes/video-telematics.routes'
-import workOrdersRouter from './routes/work-orders'
 
 // EV Management Routes
-import evManagementRouter from './routes/ev-management.routes'
 
 // Document Management Routes
 import documentsRouter from './routes/documents'
@@ -140,8 +134,6 @@ import outlookRouter from './routes/outlook.routes'
 import emulatorRouter from './routes/emulator.routes'
 import obd2EmulatorRouter from './routes/obd2-emulator.routes'
 import demoRouter from './routes/demo.routes'
-import { createPeopleSoftRouter } from './emulators/peoplesoft/PeopleSoftEmulator'
-import { createFuelMasterRouter } from './emulators/fuelmaster/FuelMasterEmulator'
 
 // System Management Routes
 import monitoringRouter from './routes/monitoring'
@@ -153,14 +145,18 @@ import telemetryRouter from './routes/telemetry'
 import queueRouter from './routes/queue.routes'
 import deploymentsRouter from './routes/deployments'
 import driversRouter from './routes/drivers'
+import evManagementRouter from './routes/ev-management.routes'
 import facilitiesRouter from './routes/facilities'
 import fuelRouter from './routes/fuel-transactions'
 import geofencesRouter from './routes/geofences'
 import gpsRouter from './routes/gps'
 import heavyEquipmentRouter from './routes/heavy-equipment.routes'
 import incidentsRouter from './routes/incidents'
+import inspectionsRouter from './routes/inspections'
 import invoicesRouter from './routes/invoices'
 import maintenanceRouter from './routes/maintenance'
+import maintenanceDrilldownsRouter from './routes/maintenance-drilldowns'
+import maintenanceSchedulesRouter from './routes/maintenance-schedules'
 import partsRouter from './routes/parts'
 import presenceRouter from './routes/presence.routes'
 import purchaseOrdersRouter from './routes/purchase-orders'
@@ -172,8 +168,12 @@ import syncRouter from './routes/sync.routes'
 import tasksRouter from './routes/tasks'
 import teamsRouter from './routes/teams.routes'
 import telematicsRouter from './routes/telematics.routes'
+import vehicleIdlingRouter from './routes/vehicle-idling.routes'
 import vehiclesRouter from './routes/vehicles'
 import vendorsRouter from './routes/vendors'
+import videoEventsRouter from './routes/video-events'
+import videoTelematicsRouter from './routes/video-telematics.routes'
+import workOrdersRouter from './routes/work-orders'
 
 // Job Processing Infrastructure
 import logger from './utils/logger'

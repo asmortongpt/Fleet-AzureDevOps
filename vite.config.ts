@@ -1,5 +1,4 @@
 import path from 'path';
-import crypto from 'crypto';
 
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';

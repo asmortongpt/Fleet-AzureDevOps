@@ -16,51 +16,38 @@
  * Route: /financial-enhanced
  */
 
-import React, { useState, useMemo, useCallback, useEffect, Suspense, lazy } from 'react'
 import {
     CurrencyDollar,
     ChartBar,
-    Receipt,
     Wallet,
     TrendUp,
-    FileText,
     CreditCard,
-    ChartLine,
     Calculator,
     Invoice,
-    Coins,
-    Bank,
-    Users,
-    Sparkle,
-    CheckCircle,
-    XCircle,
-    Clock,
-    ArrowRight,
     Download,
     RefreshCw,
     Bell,
     Filter,
     Settings
 } from '@phosphor-icons/react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { format, subDays, startOfMonth, endOfMonth } from 'date-fns'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { format, startOfMonth, endOfMonth } from 'date-fns'
+import { motion } from 'framer-motion'
+import React, { useState, useMemo, useCallback, useEffect, Suspense, lazy } from 'react'
 import * as XLSX from 'xlsx'
 
-import { HubPage, HubTab } from '@/components/ui/hub-page'
-import { StatCard, ProgressRing, QuickStat, MetricBadge } from '@/components/ui/stat-card'
-import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 import { EnhancedErrorBoundary, SectionErrorBoundary } from '@/components/errors/EnhancedErrorBoundary'
+import { Button } from '@/components/ui/button'
+import { HubPage, HubTab } from '@/components/ui/hub-page'
 import {
     AsyncState,
-    TableSkeleton,
     StatCardSkeleton,
-    ChartSkeleton,
-    LoadingOverlay
+    ChartSkeleton
 } from '@/components/ui/loading-states'
-import { VirtualizedTable } from '@/components/ui/virtualized-table'
-import { Button } from '@/components/ui/button'
+import { StatCard, MetricBadge } from '@/components/ui/stat-card'
 import { useToast } from '@/components/ui/use-toast'
+import { VirtualizedTable } from '@/components/ui/virtualized-table'
+import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
 
 // Lazy load heavy visualizations

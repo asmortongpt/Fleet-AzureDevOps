@@ -20,10 +20,11 @@
  * @compliance SOC2, HIPAA, GDPR, FedRAMP
  */
 
-import { BlobServiceClient } from '@azure/storage-blob';
-import { SecretClient } from '@azure/keyvault-secrets';
-import { DefaultAzureCredential } from '@azure/identity';
 import crypto from 'crypto';
+
+import { DefaultAzureCredential } from '@azure/identity';
+import { SecretClient } from '@azure/keyvault-secrets';
+import { BlobServiceClient } from '@azure/storage-blob';
 import { Pool } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
 

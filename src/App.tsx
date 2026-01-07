@@ -1,19 +1,16 @@
 import { withAITracking } from '@microsoft/applicationinsights-react-js'
 import { Shield } from "lucide-react"
-import { useState, useMemo, lazy, Suspense } from "react"
+import { useState, useMemo, lazy, Suspense , useEffect } from "react"
 import { Toaster } from 'react-hot-toast'
 
 import { DrilldownManager } from "@/components/DrilldownManager"
-import { EnhancedErrorBoundary } from "@/components/errors/EnhancedErrorBoundary"
 import { AIAssistantChat } from "@/components/ai/AIAssistantChat"
 import { ToastContainer } from "@/components/common/ToastContainer"
 import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
+import { EnhancedErrorBoundary } from "@/components/errors/EnhancedErrorBoundary"
 import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
 import { CommandCenterLayout } from "@/components/layout/CommandCenterLayout"
 import { Button } from "@/components/ui/button"
-import { useFleetData } from "@/hooks/use-fleet-data"
-import { navigationItems } from "@/lib/navigation"
-import telemetryService from '@/lib/telemetry'
 
 // Lazy load all modules for code splitting - reduces initial bundle by 80%+
 // Modules now organized in feature-based folders for better maintainability
@@ -166,8 +163,10 @@ const LoadingSpinner = () => (
 
 import { useAuth } from "@/contexts/AuthContext"
 import { useNavigation } from "@/contexts/NavigationContext"
-import { useEffect } from 'react'
+import { useFleetData } from "@/hooks/use-fleet-data"
+import { navigationItems } from "@/lib/navigation"
 import { initializePolicyEngine } from '@/lib/policy-engine/global-policy-integration'
+import telemetryService from '@/lib/telemetry'
 
 // ... existing imports
 

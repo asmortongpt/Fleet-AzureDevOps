@@ -2,6 +2,7 @@
 import { Pool } from 'pg';
 
 import { ReplacementPlanning } from '../models/replacement-planning.model';
+
 import { BaseRepository } from './base/BaseRepository';
 
 export class ReplacementPlanningRepository extends BaseRepository<any> {

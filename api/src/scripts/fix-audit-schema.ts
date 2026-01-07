@@ -1,9 +1,9 @@
 
 import fs from 'fs';
 import path from 'path';
+
 import pool from '../config/database';
 import { FIPSCryptoService } from '../services/fips-crypto.service';
-import logger from '../config/logger';
 
 async function fixAuditSchema() {
     try {

@@ -4,6 +4,7 @@
 
 import fs from 'fs/promises';
 import path from 'path';
+
 import { CanonicalFinding, RiskCluster, ChiefArchitectReport } from '../types/canonical.js';
 import { logger } from '../utils/logger.js';
 

@@ -16,14 +16,8 @@ import {
     Users,
     GasPump,
     Key,
-    Database,
-    Cloud,
-    Server,
-    Link,
     ShieldCheck,
-    Pulse as Activity,
-    Workflow,
-    GitBranch
+    Pulse as Activity
 } from '@phosphor-icons/react'
 
 import { HubPage, type HubTab } from '@/components/ui/hub-page'

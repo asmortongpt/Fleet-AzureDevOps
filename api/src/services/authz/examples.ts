@@ -9,6 +9,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { Pool } from 'pg';
+
 import { AuthorizationService, AuthContext } from './AuthorizationService';
 
 // ============================================================================

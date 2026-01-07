@@ -2,6 +2,7 @@
 import { Pool } from 'pg';
 
 import { NotificationPreferences } from '../models/notification-preferences.model';
+
 import { BaseRepository } from './base/BaseRepository';
 
 export class NotificationPreferencesRepository extends BaseRepository<any> {

@@ -4,9 +4,11 @@
  */
 
 import { execa } from 'execa';
-import { BaseScanner } from './base-scanner.js';
+
 import { CanonicalFinding, Location } from '../types/canonical.js';
 import { logger } from '../utils/logger.js';
+
+import { BaseScanner } from './base-scanner.js';
 
 export interface TypeScriptConfig {
   enabled: boolean;

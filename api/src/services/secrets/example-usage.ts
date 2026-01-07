@@ -5,9 +5,11 @@
  * These examples are production-ready and can be adapted for your use cases.
  */
 
-import { createSecretsService } from './SecretsManagementService';
-import { pool } from '../../db/connection';
 import crypto from 'crypto';
+
+import { pool } from '../../db/connection';
+
+import { createSecretsService } from './SecretsManagementService';
 
 // ============================================================================
 // INITIALIZATION

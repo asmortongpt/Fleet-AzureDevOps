@@ -12,33 +12,25 @@
  * - Implementation roadmap with milestones
  */
 
-import { useState, useEffect } from 'react'
 import {
   CheckCircle2,
   Circle,
   AlertTriangle,
   Sparkles,
-  FileText,
-  Users,
-  Shield,
   TrendingUp,
   Network,
   Zap,
-  BookOpen,
-  Target,
   Calendar,
   BarChart3,
-  GitBranch,
-  Settings,
   Download,
   Play,
-  Pause,
   CheckSquare,
   ArrowRight,
   Info,
   Lightbulb,
   Brain,
 } from 'lucide-react'
+import { useState, useEffect } from 'react'
 
 // ============================================================================
 // Types

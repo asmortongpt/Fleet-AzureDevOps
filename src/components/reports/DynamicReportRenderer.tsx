@@ -3,7 +3,8 @@
  * Renders reports dynamically based on report definitions from the reporting library
  */
 
-import React, { useState, useMemo } from 'react';
+import { FileDown, FileText } from 'lucide-react';
+import React, { useState } from 'react';
 import {
   LineChart,
   Line,
@@ -11,8 +12,6 @@ import {
   Bar,
   PieChart,
   Pie,
-  ScatterChart,
-  Scatter,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -21,7 +20,7 @@ import {
   ResponsiveContainer,
   Cell
 } from 'recharts';
-import { FileDown, Download, FileText } from 'lucide-react';
+
 import type { ReportDefinition, ReportVisual, ReportMeasure } from '../../services/ReportLoaderService';
 
 interface DynamicReportRendererProps {

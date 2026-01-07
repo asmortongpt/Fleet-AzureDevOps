@@ -2,32 +2,34 @@
 // Side-by-side comparison with AI-powered change detection and visual diff
 
 import React, { useState, useEffect } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
+import { pdfjs } from 'react-pdf';
+
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import {
   X,
   GitCompare,
   FileText,
   Zap,
   ArrowLeftRight,
-  Download,
   CheckCircle2,
   XCircle,
   AlertCircle,
   Eye,
   EyeOff
 } from 'lucide-react';
+
 import { cn } from '@/lib/utils';
 
 // Configure PDF.js worker

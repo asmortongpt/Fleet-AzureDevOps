@@ -1,9 +1,10 @@
 // OCR Service - Optical Character Recognition
 // Using Tesseract.js for text extraction from images and PDFs
 
-import { createWorker, Worker, RecognizeResult } from 'tesseract.js'
 import * as fs from 'fs'
-import * as path from 'path'
+
+import { createWorker, Worker, RecognizeResult } from 'tesseract.js'
+
 import {
   OCRConfig,
   OCRResult,

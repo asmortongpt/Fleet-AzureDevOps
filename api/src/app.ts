@@ -15,27 +15,27 @@
  * - OpenAPI documentation
  */
 
+import cors from 'cors';
 import express, { Application, Request, Response } from 'express';
 import helmet from 'helmet';
-import cors from 'cors';
-import { Pool } from 'pg';
 import Redis from 'ioredis';
+import { Pool } from 'pg';
 
 // Services
+import { createAuthMiddleware } from './middleware/auth.middleware';
+import { createAuthzMiddleware } from './middleware/authz.middleware';
+import { createErrorMiddleware } from './middleware/error.middleware';
+import { createRateLimitMiddleware } from './middleware/rate-limit.middleware';
+import { createAuthRoutes } from './routes/auth.routes';
 import { AuditService } from './services/audit/AuditService';
 import { AuthenticationService } from './services/auth/AuthenticationService';
 import { AuthorizationService } from './services/authz/AuthorizationService';
-import { SecretsManagementService } from './services/secrets/SecretsManagementService';
 import { ConfigurationManagementService } from './services/config/ConfigurationManagementService';
+import { SecretsManagementService } from './services/secrets/SecretsManagementService';
 
 // Middleware
-import { createAuthMiddleware } from './middleware/auth.middleware';
-import { createAuthzMiddleware } from './middleware/authz.middleware';
-import { createRateLimitMiddleware } from './middleware/rate-limit.middleware';
-import { createErrorMiddleware } from './middleware/error.middleware';
 
 // Routes
-import { createAuthRoutes } from './routes/auth.routes';
 
 export class FleetAPI {
   private app: Application;

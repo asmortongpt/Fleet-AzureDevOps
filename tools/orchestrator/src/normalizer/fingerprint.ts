@@ -3,6 +3,7 @@
  */
 
 import crypto from 'crypto';
+
 import { CanonicalFinding, Location } from '../types/canonical.js';
 
 /**

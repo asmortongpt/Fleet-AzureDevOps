@@ -1,5 +1,4 @@
 import pool from '../config/database'
-import { BaseRepository } from './base/BaseRepository';
 import {
   UsageType,
   ApprovalStatus,
@@ -7,6 +6,8 @@ import {
   UpdateTripUsageRequest,
   TripUsageFilters
 } from '../types/trip-usage'
+
+import { BaseRepository } from './base/BaseRepository';
 
 export interface TripUsageRow {
   id: string

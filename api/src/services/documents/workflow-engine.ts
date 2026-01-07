@@ -1,8 +1,9 @@
 // Advanced Workflow Engine for Document Management
 // Intelligent routing, approval chains, and automated workflows
 
-import { Document, DocumentStatus, DocumentApproval } from './types'
 import { getAIService } from '../api-bus/ai-service'
+
+import { Document, DocumentApproval } from './types'
 
 export interface WorkflowDefinition {
   id: string
