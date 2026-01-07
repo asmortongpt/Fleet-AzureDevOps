@@ -167,7 +167,7 @@ export abstract class GenericRepository<T extends { id?: string | number }> {
 
       // Build WHERE clause
       const whereConditions = ['tenant_id = $1']
-      const values: any[] = [tenantId]
+      const values: (string | number | boolean | Date | null)[] = [tenantId]
       let paramIndex = 2
 
       for (const [key, value] of Object.entries(conditions)) {
@@ -405,7 +405,7 @@ export abstract class GenericRepository<T extends { id?: string | number }> {
 
       // Build WHERE clause
       const whereConditions = ['tenant_id = $1']
-      const values: any[] = [tenantId]
+      const values: (string | number | boolean | Date | null)[] = [tenantId]
       let paramIndex = 2
 
       for (const [key, value] of Object.entries(conditions)) {
@@ -457,7 +457,7 @@ export abstract class GenericRepository<T extends { id?: string | number }> {
    */
   protected async executeQuery<R>(
     query: string,
-    values: any[],
+    values: (string | number | boolean | Date | null)[],
     client?: PoolClient
   ): Promise<R[]> {
     try {

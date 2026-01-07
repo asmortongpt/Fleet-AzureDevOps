@@ -8,7 +8,7 @@
  */
 
 import { spawn, ChildProcess } from 'child_process'
-import { promises as fs } from 'fs'
+import { promises as fs, createWriteStream } from 'fs'
 import path from 'path'
 
 interface ServiceConnection {
@@ -450,7 +450,7 @@ class SystemOrchestrator {
         stdio: ['ignore', 'pipe', 'pipe']
       })
 
-      const logStream = require('fs').createWriteStream(logFile, { flags: 'a' })
+      const logStream = createWriteStream(logFile, { flags: 'a' })
       proc.stdout?.pipe(logStream)
       proc.stderr?.pipe(logStream)
 

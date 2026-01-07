@@ -37,7 +37,11 @@ export function errorMiddleware(err: Error, req: Request, res: Response, next: N
   });
 }
 
-export const createErrorMiddleware = (auditService: any) => ({
+interface AuditService {
+  logError?: (error: Error, requestId: string | string[] | undefined) => void;
+}
+
+export const createErrorMiddleware = (auditService: AuditService) => ({
   handle: (err: Error, req: Request, res: Response, next: NextFunction) => {
     // Optionally log to audit service here
     if (auditService && req.headers['x-request-id']) {
