@@ -29,7 +29,8 @@ export * from './memoryAPI';
 export * from './performance';
 export * from './privacy';
 export * from './retry';
-export * from './rum';
+// Note: WebVital is exported from ./performance, so we only export functions from ./rum to avoid conflicts
+export { onCLS, onFCP, onFID, onINP, onLCP, onTTFB } from './rum';
 export * from './secure-cookie';
 export * from './secure-storage';
 export * from './toast';

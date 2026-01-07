@@ -77,7 +77,7 @@ export function KPICard({
         className
       )}
       onClick={onClick}
-      {...cardProps}
+      
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
