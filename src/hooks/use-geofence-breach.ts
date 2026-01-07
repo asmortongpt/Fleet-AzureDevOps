@@ -49,6 +49,7 @@ export function useGeofenceBreachDetector(vehicles: Vehicle[], geofences: Geofen
 
                 // Already checked above that center exists
                 const { center, radius } = geofence;
+                if (!center || !radius) return;
                 const distance = getDistance(center.lat, center.lng, vLat, vLng);
 
                 if (distance <= radius) {
