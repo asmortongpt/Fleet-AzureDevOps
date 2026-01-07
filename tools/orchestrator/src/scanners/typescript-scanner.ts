@@ -36,7 +36,12 @@ export class TypeScriptScanner extends BaseScanner {
   async scan(targetPath: string): Promise<TypeScriptDiagnostic[]> {
     logger.info(`Running TypeScript type check on ${targetPath}`);
 
-    const args = ['tsc', '--noEmit', '--project', this.project];
+    // Use absolute path for project if it's relative
+    const projectPath = this.project.startsWith('/')
+      ? this.project
+      : `${targetPath}/${this.project}`;
+
+    const args = ['tsc', '--noEmit', '--project', projectPath];
 
     try {
       const { stdout, stderr } = await execa('npx', args, {
@@ -44,6 +49,10 @@ export class TypeScriptScanner extends BaseScanner {
         timeout: this.config.timeout_ms || 180000,
         reject: false,
       });
+
+      if (stderr && stderr.includes('error')) {
+        logger.warn('TypeScript stderr output', { stderr: stderr.substring(0, 500) });
+      }
 
       // Parse TypeScript compiler output
       return this.parseTypeScriptOutput(stdout + '\n' + stderr);

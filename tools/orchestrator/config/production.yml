@@ -47,7 +47,7 @@ scanners:
 
   eslint:
     enabled: true
-    config: ".eslintrc.json"
+    config: "eslint.config.js"
     ext: [".ts", ".tsx", ".js", ".jsx"]
 
   typescript:
