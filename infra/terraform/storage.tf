@@ -43,10 +43,16 @@ resource "azurerm_storage_account" "main" {
     }
 
     # CORS rules for web access
+    # Security: Only allow specific origins (not wildcard "*")
     cors_rule {
       allowed_headers    = ["*"]
       allowed_methods    = ["GET", "HEAD", "POST", "PUT"]
-      allowed_origins    = ["*"]
+      allowed_origins    = [
+        "https://proud-bay-0fdc8040f.3.azurestaticapps.net",  # Azure Static Web App
+        "https://*.azurestaticapps.net",                      # Other Azure static apps
+        var.environment == "development" ? "http://localhost:5173" : "",  # Local development
+        var.environment == "development" ? "http://localhost:5177" : "",  # Alt local port
+      ]
       exposed_headers    = ["*"]
       max_age_in_seconds = 3600
     }
