@@ -12,6 +12,8 @@
 
 import crypto from 'crypto'
 import { Readable } from 'stream'
+import { promisify } from 'util'
+import zlib from 'zlib'
 
 import { ClientSecretCredential } from '@azure/identity'
 import { BlobServiceClient, ContainerClient, BlobSASPermissions, generateBlobSASQueryParameters, StorageSharedKeyCredential } from '@azure/storage-blob'
@@ -758,8 +760,6 @@ export class AttachmentService {
    */
   async compressFile(file: { buffer: Buffer; originalname: string }): Promise<Buffer> {
     try {
-      const zlib = require('zlib')
-      const { promisify } = require(`util`)
       const gzip = promisify(zlib.gzip)
 
       const compressed = await gzip(file.buffer, { level: 9 })

@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 
 import { Client } from '@microsoft/microsoft-graph-client'
+import axios from 'axios'
 
 // Azure AD Configuration
 const AZURE_AD_CONFIG = {
@@ -14,8 +15,6 @@ const AZURE_AD_CONFIG = {
  * Get Microsoft Graph client with app-only authentication
  */
 async function getGraphClient(): Promise<Client> {
-  const axios = require(`axios`)
-
   // Get access token using client credentials flow
   const tokenResponse = await axios.post(
     `https://login.microsoftonline.com/${AZURE_AD_CONFIG.tenantId}/oauth2/v2.0/token`,
