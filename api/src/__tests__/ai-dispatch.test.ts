@@ -189,6 +189,7 @@ describe('AI Dispatch Service - Vehicle Recommendation', () => {
 
   beforeEach(() => {
     // Mock database query to return vehicles
+    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
     const { pool } = require('../database')
     pool.query.mockResolvedValue({
       rows: mockVehicles.map(v => ({

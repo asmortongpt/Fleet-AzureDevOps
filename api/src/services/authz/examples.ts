@@ -699,7 +699,7 @@ export async function getPermissionUsageStats(
  * Example 15: Complete Express Router with Authorization
  */
 export function createVehicleRouter(authzService: AuthorizationService) {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
   const router = require('express').Router();
   const controller = new VehicleController(authzService);
 

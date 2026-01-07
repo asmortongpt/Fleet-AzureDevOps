@@ -78,7 +78,7 @@ export class ExcelExportService {
     // Uncomment the code below after installing exceljs
 
     /*
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
     const ExcelJS = require(`exceljs`)
     const workbook = new ExcelJS.Workbook()
 
