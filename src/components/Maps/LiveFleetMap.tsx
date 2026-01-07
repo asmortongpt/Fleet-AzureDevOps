@@ -38,14 +38,14 @@ export const LiveFleetMap: React.FC<LiveFleetMapProps> = ({
     let filtered = vehicles
 
     if (filterStatus && filterStatus.length > 0) {
-      filtered = filtered.filter(v => filterStatus.includes(v.status))
+      filtered = filtered.filter(v => v.status && filterStatus.includes(v.status as any))
     }
 
     if (filterType && filterType.length > 0) {
-      filtered = filtered.filter(v => filterType.includes(v.type))
+      filtered = filtered.filter(v => v.type && filterType.includes(v.type as any))
     }
 
-    return filtered
+    return filtered as Vehicle[]
   }, [vehicles, filterStatus, filterType])
 
   // Handle marker click - open vehicle drilldown

@@ -154,7 +154,7 @@ export function AnalyticsPage() {
     // Fleet Overview
     const totalVehicles = typedVehicles.length;
     const activeVehicles = typedVehicles.filter(v => v.status === 'active').length;
-    const inMaintenanceVehicles = typedVehicles.filter(v => v.status === 'maintenance').length;
+    const inMaintenanceVehicles = typedVehicles.filter(v => v.status === 'service').length;
     const utilization = totalVehicles > 0 ? ((activeVehicles / totalVehicles) * 100).toFixed(1) : '0';
 
     // Mileage Analytics
@@ -162,8 +162,8 @@ export function AnalyticsPage() {
     const avgMilesPerVehicle = totalVehicles > 0 ? Math.round(totalMiles / totalVehicles) : 0;
 
     // Fuel Analytics
-    const totalFuelCost = typedFuel.reduce((sum, f) => sum + (f.total_cost || 0), 0);
-    const totalGallons = typedFuel.reduce((sum, f) => sum + (f.gallons || 0), 0);
+    const totalFuelCost = typedFuel.reduce((sum, f) => sum + (f.cost || 0), 0);
+    const totalGallons = typedFuel.reduce((sum, f) => sum + (f.quantity || 0), 0);
     const avgFuelPrice = totalGallons > 0 ? (totalFuelCost / totalGallons).toFixed(2) : '0.00';
     const estimatedMPG = totalGallons > 0 ? (totalMiles / totalGallons).toFixed(1) : '0.0';
 
