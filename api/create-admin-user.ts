@@ -94,9 +94,13 @@ async function createAdminUser() {
     console.log(`  Created:    ${user.created_at}`)
     console.log('\nYou can now login at: https://fleet.capitaltechalliance.com\n')
 
-  } catch (error: any) {
-    console.error('\n❌ Error creating admin user:', error.message)
-    console.error('Stack:', error.stack)
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    console.error('\n❌ Error creating admin user:', errorMessage)
+    if (errorStack) {
+      console.error('Stack:', errorStack)
+    }
     process.exit(1)
   } finally {
     await pool.end()

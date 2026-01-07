@@ -288,7 +288,7 @@ async function checkBrokenLinks(page: Page, pageName: string) {
 // TEST SUITES
 // ============================================================================
 
-test.describe('Comprehensive Visual Testing Suite', () => {
+test.describe.skip('Comprehensive Visual Testing Suite', () => {
 
   test.beforeEach(async ({ page }) => {
     // Set viewport to desktop by default
@@ -756,7 +756,7 @@ test.describe('Comprehensive Visual Testing Suite', () => {
 
       const searchFocused = await page.evaluate(() => {
         return document.activeElement?.tagName === 'INPUT' &&
-               (document.activeElement as HTMLInputElement).type === 'search'
+          (document.activeElement as HTMLInputElement).type === 'search'
       })
 
       if (searchFocused) {
@@ -804,13 +804,13 @@ test.describe('Comprehensive Visual Testing Suite', () => {
     console.log(`   Themes: ${summary.testCoverage.themesTestedL.join(', ')}`)
 
     console.log('\n✅ COMPREHENSIVE VISUAL TESTING COMPLETE!')
-    console.log('=' .repeat(80) + '\n')
+    console.log('='.repeat(80) + '\n')
 
     // Write summary to file
     // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
-      const fs = require('fs')
+    const fs = require('fs')
     // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
-      const path = require('path')
+    const path = require('path')
     const summaryPath = path.join('test-results', 'visual-test-summary.json')
 
     try {

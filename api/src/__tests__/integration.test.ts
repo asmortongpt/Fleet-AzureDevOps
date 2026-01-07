@@ -12,10 +12,25 @@
  * 5. Audit trail (log verification, tampering detection)
  */
 
-import express, { Express } from 'express';
+import express, { Express, Request, Response, NextFunction } from 'express';
 import Redis from 'ioredis';
 import { Pool } from 'pg';
 import request from 'supertest';
+
+// Test-specific type definitions
+interface TestError extends Error {
+  statusCode?: number;
+  code?: string;
+}
+
+interface AuthRequest extends Request {
+  user?: {
+    id: string;
+    email: string;
+    role: string;
+    tenant_id: string;
+  };
+}
 
 import { AuditService } from '../services/audit/AuditService';
 import { AuthenticationService } from '../services/auth/AuthenticationService';
@@ -77,7 +92,7 @@ describe('Fleet Management System - Integration Tests', () => {
     });
 
     // Auth routes
-    app.post('/auth/register', async (req, res, next) => {
+    app.post('/auth/register', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { email, password, name } = req.body;
         const user = await authService.register(email, password, {
@@ -85,12 +100,12 @@ describe('Fleet Management System - Integration Tests', () => {
           roles: ['User']
         });
         res.json({ success: true, data: { userId: user.id } });
-      } catch (error: any) {
+      } catch (error) {
         next(error);
       }
     });
 
-    app.post('/auth/login', async (req, res, next) => {
+    app.post('/auth/login', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { email, password, mfaToken } = req.body;
         const result = await authService.login(email, password, {
@@ -99,12 +114,12 @@ describe('Fleet Management System - Integration Tests', () => {
           mfaToken
         });
         res.json({ success: true, data: result });
-      } catch (error: any) {
+      } catch (error) {
         next(error);
       }
     });
 
-    app.post('/auth/refresh', async (req, res, next) => {
+    app.post('/auth/refresh', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { refreshToken } = req.body;
         const tokens = await authService.refreshAccessToken(refreshToken, {
@@ -112,13 +127,13 @@ describe('Fleet Management System - Integration Tests', () => {
           userAgent: req.get('user-agent') || 'test'
         });
         res.json({ success: true, data: tokens });
-      } catch (error: any) {
+      } catch (error) {
         next(error);
       }
     });
 
     // Authenticated endpoint (requires valid JWT)
-    app.get('/auth/me', async (req, res, next) => {
+    app.get('/auth/me', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const authHeader = req.get('authorization');
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -133,22 +148,22 @@ describe('Fleet Management System - Integration Tests', () => {
         }
 
         res.json({ success: true, data: { userId: validation.userId } });
-      } catch (error: any) {
+      } catch (error) {
         next(error);
       }
     });
 
     // Config routes
-    app.get('/config/:key', async (req, res, next) => {
+    app.get('/config/:key', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const value = await configService.get(req.params.key);
         res.json({ success: true, data: { key: req.params.key, value } });
-      } catch (error: any) {
+      } catch (error) {
         next(error);
       }
     });
 
-    app.post('/config/:key', async (req, res, next) => {
+    app.post('/config/:key', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const version = await configService.set(
           req.params.key,
@@ -158,42 +173,42 @@ describe('Fleet Management System - Integration Tests', () => {
           req.body.comment
         );
         res.json({ success: true, data: { version } });
-      } catch (error: any) {
+      } catch (error) {
         next(error);
       }
     });
 
     // Secrets routes
-    app.get('/secrets/:name', async (req, res, next) => {
+    app.get('/secrets/:name', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const value = await secretsService.getSecret(req.params.name);
         res.json({ success: true, data: { name: req.params.name, value } });
-      } catch (error: any) {
+      } catch (error) {
         next(error);
       }
     });
 
-    app.post('/secrets/:name', async (req, res, next) => {
+    app.post('/secrets/:name', async (req: Request, res: Response, next: NextFunction) => {
       try {
         await secretsService.setSecret(req.params.name, req.body.value);
         res.json({ success: true, data: { name: req.params.name } });
-      } catch (error: any) {
+      } catch (error) {
         next(error);
       }
     });
 
     // Audit routes
-    app.get('/audit/verify', async (req, res, next) => {
+    app.get('/audit/verify', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const result = await auditService.verifyChain();
         res.json({ success: true, data: result });
-      } catch (error: any) {
+      } catch (error) {
         next(error);
       }
     });
 
     // Error handler
-    app.use((error: any, req: any, res: any, next: any) => {
+    app.use((error: TestError, _req: Request, res: Response, _next: NextFunction) => {
       console.error('Test error:', error);
       res.status(error.statusCode || 500).json({
         success: false,
@@ -394,8 +409,8 @@ describe('Fleet Management System - Integration Tests', () => {
     await auditService.log({
       userId: 'test-user',
       action: 'test:action',
-      category: 'authentication' as any,
-      severity: 'info' as any,
+      category: 'authentication',
+      severity: 'info',
       metadata: {
         ipAddress: '127.0.0.1',
         userAgent: 'test'
@@ -441,7 +456,7 @@ describe('Fleet Management System - Integration Tests', () => {
   test('API handles concurrent requests', async () => {
     const startTime = Date.now();
 
-    const promises = Array.from({ length: 10 }, (_, i) =>
+    const promises = Array.from({ length: 10 }, () =>
       request(app)
         .get('/health')
         .expect(200)

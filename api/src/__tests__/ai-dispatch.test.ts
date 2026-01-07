@@ -14,6 +14,9 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
+import { OpenAIClient } from '@azure/openai'
+
+import { pool } from '../database'
 import aiDispatchService from '../services/ai-dispatch'
 import type {
   IncidentParseResult,
@@ -189,9 +192,7 @@ describe('AI Dispatch Service - Vehicle Recommendation', () => {
 
   beforeEach(() => {
     // Mock database query to return vehicles
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
-    const { pool } = require('../database')
-    pool.query.mockResolvedValue({
+    vi.mocked(pool.query).mockResolvedValue({
       rows: mockVehicles.map(v => ({
         id: v.id,
         unit_number: v.unitNumber,
@@ -288,8 +289,7 @@ describe('AI Dispatch Service - Vehicle Recommendation', () => {
   })
 
   it('should throw error when no vehicles are available', async () => {
-    const { pool } = require('../database')
-    pool.query.mockResolvedValueOnce({ rows: [] })
+    vi.mocked(pool.query).mockResolvedValueOnce({ rows: [] })
 
     await expect(async () => {
       await aiDispatchService.recommendVehicle(mockIncident, mockIncidentLocation)
@@ -303,8 +303,7 @@ describe('AI Dispatch Service - Vehicle Recommendation', () => {
 
 describe('AI Dispatch Service - Predictive Analytics', () => {
   beforeEach(() => {
-    const { pool } = require('../database')
-    pool.query.mockResolvedValue({
+    vi.mocked(pool.query).mockResolvedValue({
       rows: [
         {
           incident_type: 'accident',
@@ -357,8 +356,7 @@ describe('AI Dispatch Service - Predictive Analytics', () => {
 
 describe('AI Dispatch Service - Analytics', () => {
   beforeEach(() => {
-    const { pool } = require('../database')
-    pool.query.mockResolvedValue({
+    vi.mocked(pool.query).mockResolvedValue({
       rows: [
         {
           avg_response_time: 12.5,
@@ -467,8 +465,7 @@ describe('AI Dispatch Service - Explanation Generation', () => {
 
 describe('AI Dispatch Service - Error Handling', () => {
   it('should handle AI service failures gracefully', async () => {
-    const { OpenAIClient } = require('@azure/openai')
-    OpenAIClient.mockImplementationOnce(() => ({
+    vi.mocked(OpenAIClient).mockImplementationOnce(() => ({
       getChatCompletions: vi.fn().mockRejectedValue(new Error('API timeout'))
     }))
 
@@ -478,8 +475,7 @@ describe('AI Dispatch Service - Error Handling', () => {
   })
 
   it('should handle database connection errors', async () => {
-    const { pool } = require('../database')
-    pool.query.mockRejectedValueOnce(new Error('Connection lost'))
+    vi.mocked(pool.query).mockRejectedValueOnce(new Error('Connection lost'))
 
     await expect(async () => {
       await aiDispatchService.recommendVehicle(
@@ -563,8 +559,7 @@ describe('AI Dispatch Service - Performance', () => {
   })
 
   it('should recommend vehicle within reasonable time', async () => {
-    const { pool } = require('../database')
-    pool.query.mockResolvedValue({
+    vi.mocked(pool.query).mockResolvedValue({
       rows: mockVehicles.map(v => ({
         id: v.id,
         unit_number: v.unitNumber,
