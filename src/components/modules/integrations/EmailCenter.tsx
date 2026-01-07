@@ -70,8 +70,8 @@ export function EmailCenter() {
       isRead: true,
       hasReceipt: false,
       attachments: [
-        { id: 'att1', name: 'Renewal_Quote_2025.pdf', size: 245760 },
-        { id: 'att2', name: 'Policy_Summary.pdf', size: 128000 },
+        { id: 'att1', name: 'Renewal_Quote_2025.pdf', size: 245760, type: 'application/pdf' },
+        { id: 'att2', name: 'Policy_Summary.pdf', size: 128000, type: 'application/pdf' },
       ],
     },
     {

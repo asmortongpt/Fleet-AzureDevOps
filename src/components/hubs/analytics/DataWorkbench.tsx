@@ -3,10 +3,19 @@
 // Library: AG Grid (Excel-like experience)
 
 import { AgGridReact } from 'ag-grid-react';
+import type { ValueFormatterParams, CellStyleParams, CellValueChangedEvent, ColDef } from 'ag-grid-community';
 import { Download, Filter } from 'lucide-react';
 import React, { useState, useCallback } from 'react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+
+interface RowData {
+  vehicle: string;
+  vin: string;
+  mileage: number;
+  status: string;
+  fuel: number;
+}
 
 export const DataWorkbench: React.FC = () => {
   const [rowData] = useState([

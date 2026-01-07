@@ -261,7 +261,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
               {currentData.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={entry.color || '#2563EB'}
+                  fill={'color' in entry && typeof entry.color === 'string' ? entry.color : '#2563EB'}
                   opacity={hoveredBar === null || hoveredBar === entry.name ? 1 : 0.5}
                   className="transition-opacity duration-200"
                 />

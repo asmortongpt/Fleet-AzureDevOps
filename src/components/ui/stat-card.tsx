@@ -22,7 +22,7 @@ interface StatCardProps {
     trend?: 'up' | 'down' | 'neutral'
     trendValue?: string
     icon?: React.ReactNode
-    variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger'
+    variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info'
     size?: 'sm' | 'default' | 'lg'
     className?: string
     onClick?: () => void
@@ -73,6 +73,15 @@ const variantStyles = {
         accent: 'from-destructive to-destructive/70',
         iconBg: 'bg-destructive/10',
         iconColor: 'text-destructive',
+        valueColor: 'text-foreground'
+    },
+    info: {
+        bg: 'bg-card',
+        border: 'border-blue-500/20',
+        hoverBorder: 'hover:border-blue-500/40',
+        accent: 'from-blue-500 to-blue-500/70',
+        iconBg: 'bg-blue-500/10',
+        iconColor: 'text-blue-500',
         valueColor: 'text-foreground'
     }
 }
