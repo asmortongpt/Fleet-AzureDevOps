@@ -155,7 +155,6 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                   : alertData.status === 'active'
                     ? 'Ongoing'
                     : 'N/A'}
-<<<<<<< Updated upstream
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   {alert.triggered_at &&
@@ -182,12 +181,6 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
               </CardContent>
             </Card>
           </div>
-=======
-              </p>
-            </CardContent>
-          </Card>
-        </div>
->>>>>>> Stashed changes
 
           {/* Tabs */}
           <Tabs defaultValue="details" className="w-full">
