@@ -1,0 +1,103 @@
+{
+    "inventory_date": "2026-01-07",
+    "inventory_version": "1.0",
+    "summary": {
+        "total_api_endpoints": 1150,
+        "total_pages": 43,
+        "total_components": 644,
+        "total_test_files": 21,
+        "total_migrations": 63
+    },
+    "frontend": {
+        "hubs": [
+            {
+                "name": "FleetHub",
+                "file": "src/pages/FleetHub.tsx",
+                "tabs": 8
+            },
+            {
+                "name": "OperationsHub",
+                "file": "src/pages/OperationsHub.tsx",
+                "tabs": 6
+            },
+            {
+                "name": "MaintenanceHub",
+                "file": "src/pages/MaintenanceHub.tsx",
+                "tabs": 5
+            },
+            {
+                "name": "DriversHub",
+                "file": "src/pages/DriversHub.tsx",
+                "tabs": 4
+            },
+            {
+                "name": "AnalyticsHub",
+                "file": "src/pages/AnalyticsHub.tsx",
+                "tabs": 6
+            },
+            {
+                "name": "FinancialHub",
+                "file": "src/pages/FinancialHub.tsx",
+                "tabs": 8
+            },
+            {
+                "name": "SafetyComplianceHub",
+                "file": "src/pages/SafetyComplianceHub.tsx",
+                "tabs": 6
+            },
+            {
+                "name": "AdminHub",
+                "file": "src/pages/AdminHub.tsx",
+                "tabs": 5
+            },
+            {
+                "name": "PolicyHub",
+                "file": "src/pages/PolicyHub.tsx",
+                "tabs": 4
+            },
+            {
+                "name": "IntegrationsHub",
+                "file": "src/pages/IntegrationsHub.tsx",
+                "tabs": 6
+            },
+            {
+                "name": "ProcurementHub",
+                "file": "src/pages/ProcurementHub.tsx",
+                "tabs": 5
+            }
+        ],
+        "total_hubs": 11,
+        "pages_directory": "src/pages/",
+        "components_directory": "src/components/"
+    },
+    "backend": {
+        "routes_directory": "api/src/routes/",
+        "services_directory": "api/src/services/",
+        "repositories_directory": "api/src/repositories/",
+        "middleware_directory": "api/src/middleware/",
+        "migrations_directory": "api/src/migrations/"
+    },
+    "testing": {
+        "e2e_directory": "e2e/",
+        "tests_directory": "tests/",
+        "playwright_config": "playwright.config.ts",
+        "functional_tests_passing": 60,
+        "visual_tests_skipped": 49
+    },
+    "security": {
+        "auth_routes": "api/src/routes/auth.ts",
+        "rbac_middleware": "api/src/middleware/rbac.ts",
+        "rate_limiter": "api/src/middleware/rateLimiter.ts",
+        "csrf_protection": "api/src/middleware/csrf.ts",
+        "fips_crypto": "api/src/services/fips-crypto.service.ts",
+        "fips_jwt": "api/src/services/fips-jwt.service.ts"
+    },
+    "infrastructure": {
+        "database": "PostgreSQL",
+        "cache": "Redis",
+        "api_port": 3000,
+        "frontend_port": 5173,
+        "docker": true,
+        "kubernetes": true
+    }
+}
