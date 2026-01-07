@@ -76,8 +76,6 @@ export function WebSocketProvider({
       reconnectInterval: parseInt(import.meta.env.VITE_WS_RECONNECT_INTERVAL || '1000'),
       maxReconnectAttempts: parseInt(import.meta.env.VITE_WS_MAX_RECONNECT_ATTEMPTS || '10'),
       heartbeatInterval: parseInt(import.meta.env.VITE_WS_HEARTBEAT_INTERVAL || '30000'),
-      queueOfflineMessages: true,
-      maxQueueSize: 100,
     });
 
     const client = clientRef.current;
