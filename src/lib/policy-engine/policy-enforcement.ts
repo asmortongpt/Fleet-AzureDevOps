@@ -89,13 +89,12 @@ export async function enforceMaintenancePolicy(
   }
 ): Promise<PolicyEnforcementResult> {
   const context: PolicyEvaluationContext = {
-    vehicleId: workOrderData.vehicleId,
+    ...workOrderData,
     maintenanceDue: false, // Would check actual maintenance schedule
     odometerReading: 0, // Would come from vehicle data
     costPerMile: workOrderData.estimatedCost / 1000, // Simplified
     budgetRemaining: 50000, // Would come from budget system
-    timestamp: new Date().toISOString(),
-    ...workOrderData
+    timestamp: new Date().toISOString()
   };
 
   const result = await checkPolicyCompliance(policies, 'maintenance', context);
