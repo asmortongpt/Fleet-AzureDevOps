@@ -1,2 +1,0 @@
-"""AutoDev CLI - Autonomous Development Platform"""
-__version__ = "1.0.0"
