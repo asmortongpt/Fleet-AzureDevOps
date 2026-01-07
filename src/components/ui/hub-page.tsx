@@ -22,6 +22,8 @@ export interface HubTab {
     content: ReactNode
     disabled?: boolean
     badge?: string | number
+    /** Accessible label for screen readers */
+    ariaLabel?: string
 }
 
 export interface HubPageProps {
@@ -160,6 +162,7 @@ export function HubPage({
                                 <TabsTrigger
                                     value={tab.id}
                                     disabled={tab.disabled}
+                                    aria-label={tab.ariaLabel || tab.label}
                                     className={cn(
                                         "gap-2 rounded-none px-4",
                                         "data-[state=active]:bg-gradient-to-b data-[state=active]:from-primary/10 data-[state=active]:to-transparent",
