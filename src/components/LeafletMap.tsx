@@ -366,9 +366,9 @@ export function LeafletMap({
 }: LeafletMapProps) {
   // ========== Accessibility ==========
   const {
-    
+
     announceMapChange,
-    
+
   } = useAccessibility({
     enableAnnouncements,
     announceMarkerChanges: true,
@@ -485,9 +485,9 @@ export function LeafletMap({
       setIsLoading(false)
       setIsReady(true)
       onReady?.()
-      announceMapChange('Map loaded successfully')
+      announceMapChange({ type: 'ready', message: 'Map loaded successfully' })
 
-      perf.markEvent('map_initialized')
+      // perf.markEvent('map_initialized')
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to initialize map'
@@ -510,7 +510,8 @@ export function LeafletMap({
 
   // Update markers when data changes
   const updateMarkers = useDebouncedCallback(() => {
-    if (!isReady || !L || !mapInstanceRef.current) return
+    const Leaflet = L
+    if (!isReady || !Leaflet || !mapInstanceRef.current) return
 
     const bounds: [number, number][] = []
 
@@ -529,16 +530,16 @@ export function LeafletMap({
           // Validate coordinates
           if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
             const color = VEHICLE_STATUS_COLORS[vehicle.status] || VEHICLE_STATUS_COLORS.offline
-            const emoji = VEHICLE_TYPE_EMOJI[vehicle.vehicleType as keyof typeof VEHICLE_TYPE_EMOJI] || '🚗'
+            const emoji = VEHICLE_TYPE_EMOJI[vehicle.type as keyof typeof VEHICLE_TYPE_EMOJI] || '🚗'
 
-            const icon = L.divIcon({
+            const icon = Leaflet.divIcon({
               className: 'vehicle-marker',
               html: `<div style="background-color: ${color}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${emoji}</div>`,
               iconSize: [32, 32],
               iconAnchor: [16, 16],
             })
 
-            const marker = L.marker([lat, lng], { icon })
+            const marker = Leaflet.marker([lat, lng], { icon })
               .bindPopup(`<b>${vehicle.name}</b><br/>Status: ${vehicle.status}`)
               .on('click', () => onMarkerClick?.(vehicle.id, 'vehicle'))
 
@@ -552,21 +553,21 @@ export function LeafletMap({
     // Add facility markers
     if (showFacilities && facilities.length > 0) {
       facilities.forEach((facility) => {
-        if (facility.latitude && facility.longitude) {
-          const lat = facility.latitude
-          const lng = facility.longitude
+        if (facility.location?.lat && facility.location?.lng) {
+          const lat = facility.location.lat
+          const lng = facility.location.lng
 
           if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
             const emoji = FACILITY_TYPE_ICONS[facility.type] || '🏢'
 
-            const icon = L.divIcon({
+            const icon = Leaflet.divIcon({
               className: 'facility-marker',
               html: `<div style="background-color: #2563eb; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 18px;">${emoji}</div>`,
               iconSize: [36, 36],
               iconAnchor: [18, 18],
             })
 
-            const marker = L.marker([lat, lng], { icon })
+            const marker = Leaflet.marker([lat, lng], { icon })
               .bindPopup(`<b>${facility.name}</b><br/>Type: ${facility.type}`)
               .on('click', () => onMarkerClick?.(facility.id, 'facility'))
 
@@ -585,14 +586,14 @@ export function LeafletMap({
           const lng = camera.longitude
 
           if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-            const icon = L.divIcon({
+            const icon = Leaflet.divIcon({
               className: 'camera-marker',
               html: `<div style="background-color: #7c3aed; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">📹</div>`,
               iconSize: [28, 28],
               iconAnchor: [14, 14],
             })
 
-            const marker = L.marker([lat, lng], { icon })
+            const marker = Leaflet.marker([lat, lng], { icon })
               .bindPopup(`<b>${camera.name || 'Traffic Camera'}</b>`)
               .on('click', () => onMarkerClick?.(camera.id, 'camera'))
 
@@ -605,7 +606,7 @@ export function LeafletMap({
 
     // Auto-fit bounds
     if (autoFitBounds && bounds.length > 0 && mapInstanceRef.current) {
-      const latLngBounds = L.latLngBounds(bounds)
+      const latLngBounds = Leaflet.latLngBounds(bounds)
       mapInstanceRef.current.fitBounds(latLngBounds, {
         padding: MAP_CONFIG.fitBoundsPadding,
         maxZoom: maxFitBoundsZoom,
@@ -614,7 +615,7 @@ export function LeafletMap({
       })
     }
 
-    perf.markEvent('markers_updated', { count: bounds.length })
+    // perf.markEvent('markers_updated', { count: bounds.length })
   }, MAP_CONFIG.markerUpdateDebounce)
 
   // Trigger marker update when data changes
@@ -640,7 +641,7 @@ export function LeafletMap({
     newTileLayer.addTo(mapInstanceRef.current)
     tileLayerRef.current = newTileLayer
 
-    announceMapChange(`Map style changed to ${mapStyle}`)
+    announceMapChange({ type: 'custom', message: `Map style changed to ${mapStyle}` })
   }, [isReady, mapStyle, tileConfig, announceMapChange])
 
   // Return JSX (placeholder for complete implementation)

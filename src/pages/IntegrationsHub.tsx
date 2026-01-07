@@ -20,7 +20,7 @@ import {
     Pulse as Activity
 } from '@phosphor-icons/react'
 
-import { HubPage, type HubTab } from '@/components/ui/hub-page'
+import { HubPage, type HubTab, HubTabItem } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 
@@ -62,12 +62,13 @@ function PeopleSoftContent() {
                     title="Sync Status"
                     value="97.2%"
                     variant="success"
-                    trend={{ value: "Last: 5 min ago", direction: "neutral" }}
+                    trend="neutral"
+                    trendValue="Last: 5 min ago"
                     onClick={() => push({
                         type: 'sync-status',
                         data: { title: 'Data Synchronization Status' },
                         id: 'sync-status'
-                    } as Omit<DrilldownLevel, "timestamp">)}
+                    })}
                 />
                 <StatCard
                     title="Pending Updates"
@@ -85,7 +86,7 @@ function PeopleSoftContent() {
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'employee-sync', data: { title: 'Employee Data Sync' }, id: 'employee-sync' } as Omit<DrilldownLevel, "timestamp">)}>
                     <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Employee Sync</h3>
-                    <QuickStat label="Active Records" value="342" trend="neutral" />
+                    <QuickStat label="Active Records" value="342" />
                     <QuickStat label="Updated Today" value="18" trend="up" />
                     <QuickStat label="Last Full Sync" value="2 hrs ago" />
                     <QuickStat label="Error Rate" value="0.3%" trend="down" />
@@ -177,12 +178,13 @@ function FuelMasterContent() {
                     title="Monthly Spend"
                     value="$124.2K"
                     variant="warning"
-                    trend={{ value: "+8.2%", direction: "up" }}
+                    trend="up"
+                    trendValue="+8.2%"
                     onClick={() => push({
                         type: 'monthly-spend',
                         data: { title: 'Monthly Fuel Expenditure' },
                         id: 'monthly-spend'
-                    } as Omit<DrilldownLevel, "timestamp">)}
+                    })}
                 />
                 <StatCard
                     title="Transactions Today"
@@ -402,23 +404,25 @@ function APIManagementContent() {
                     title="Avg Response Time"
                     value="185ms"
                     variant="success"
-                    trend={{ value: "-15ms", direction: "down" }}
+                    trend="down"
+                    trendValue="-15ms"
                     onClick={() => push({
                         type: 'response-time',
                         data: { title: 'API Response Time Analysis' },
                         id: 'response-time'
-                    } as Omit<DrilldownLevel, "timestamp">)}
+                    })}
                 />
                 <StatCard
                     title="Error Rate"
                     value="0.3%"
                     variant="success"
-                    trend={{ value: "-0.2%", direction: "down" }}
+                    trend="down"
+                    trendValue="-0.2%"
                     onClick={() => push({
                         type: 'error-rate',
                         data: { title: 'API Error Rate Monitoring' },
                         id: 'error-rate'
-                    } as Omit<DrilldownLevel, "timestamp">)}
+                    })}
                 />
             </div>
 
@@ -457,7 +461,7 @@ function APIManagementContent() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <QuickStat label="Overall Uptime" value="99.7%" trend="up" />
                     <QuickStat label="Failed Requests" value="42 today" trend="down" />
-                    <QuickStat label="Rate Limits" value="Within limits" trend="neutral" />
+                    <QuickStat label="Rate Limits" value="Within limits" />
                     <QuickStat label="Webhooks Active" value="18" trend="up" />
                 </div>
             </div>

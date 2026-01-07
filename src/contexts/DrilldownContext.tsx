@@ -8,14 +8,21 @@ export interface DrilldownLevel {
   id: string
   type: string
   label: string
-  data: any
+  data?: any
   timestamp: number
+}
+
+export interface DrilldownInput {
+  id?: string
+  type: string
+  label?: string
+  data?: any
 }
 
 export interface DrilldownContextType {
   levels: DrilldownLevel[]
   currentLevel: DrilldownLevel | null
-  push: (level: Omit<DrilldownLevel, 'timestamp'>) => void
+  push: (level: DrilldownInput) => void
   pop: () => void
   reset: () => void
   goToLevel: (index: number) => void
@@ -28,7 +35,7 @@ const DrilldownContext = createContext<DrilldownContextType | undefined>(undefin
 export function DrilldownProvider({ children }: { children: ReactNode }) {
   const [levels, setLevels] = useState<DrilldownLevel[]>([])
 
-  const push = useCallback((level: Omit<DrilldownLevel, 'timestamp'>) => {
+  const push = useCallback((level: DrilldownInput) => {
     // Auto-derive label from data.title if not provided (backward compatibility)
     const labelToUse = level.label || level.data?.title || level.type || 'Details'
     const idToUse = level.id || `drilldown-${Date.now()}`
