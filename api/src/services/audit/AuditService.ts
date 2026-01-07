@@ -1300,6 +1300,7 @@ export class AuditService {
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
       // Compress and upload
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const zlib = require('zlib');
       const compressed = zlib.gzipSync(archiveData);
 

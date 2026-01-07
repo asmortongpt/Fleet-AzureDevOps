@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+
 /**
  * Queue Service
  * Manages message queues for reliable asynchronous processing using pg-boss

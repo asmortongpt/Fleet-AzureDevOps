@@ -42,6 +42,78 @@ const CHART_COLORS = [
   '#F97316', // orange-500
 ];
 
+/**
+ * Table Renderer Component - Extracted to use hooks properly
+ */
+interface TableRendererProps {
+  visual: ReportVisual;
+  data: any[];
+  formatValue: (value: any, format?: string) => string;
+}
+
+const TableRenderer: React.FC<TableRendererProps> = ({ visual, data, formatValue }) => {
+  const pageSize = visual.pagination?.pageSize || 50;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const paginatedData = data.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const totalPages = Math.ceil(data.length / pageSize);
+
+  return (
+    <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 mb-8">
+      <h3 className="text-xl font-semibold text-white mb-6">{visual.title}</h3>
+
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-white/10">
+              {visual.columns!.map((col) => (
+                <th key={col.field} className="px-4 py-3 text-left text-sm font-semibold text-white/80">
+                  {col.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedData.map((row, idx) => (
+              <tr key={idx} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                {visual.columns!.map((col) => (
+                  <td key={col.field} className="px-4 py-3 text-sm text-white/90">
+                    {formatValue(row[col.field], col.format)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/10">
+          <div className="text-sm text-white/60">
+            Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, data.length)} of {data.length}
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white transition-colors"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white transition-colors"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
   report,
   data,
@@ -313,67 +385,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
    */
   const renderTable = (visual: ReportVisual) => {
     if (!visual.columns) return null;
-
-    const pageSize = visual.pagination?.pageSize || 50;
-    const [currentPage, setCurrentPage] = useState(1);
-
-    const paginatedData = data.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-    const totalPages = Math.ceil(data.length / pageSize);
-
-    return (
-      <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 mb-8">
-        <h3 className="text-xl font-semibold text-white mb-6">{visual.title}</h3>
-
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-white/10">
-                {visual.columns.map((col) => (
-                  <th key={col.field} className="px-4 py-3 text-left text-sm font-semibold text-white/80">
-                    {col.label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedData.map((row, idx) => (
-                <tr key={idx} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                  {visual.columns!.map((col) => (
-                    <td key={col.field} className="px-4 py-3 text-sm text-white/90">
-                      {formatValue(row[col.field], col.format)}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/10">
-            <div className="text-sm text-white/60">
-              Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, data.length)} of {data.length}
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white transition-colors"
-              >
-                Previous
-              </button>
-              <button
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white transition-colors"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    );
+    return <TableRenderer visual={visual} data={data} formatValue={formatValue} />;
   };
 
   /**

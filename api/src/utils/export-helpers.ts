@@ -290,6 +290,7 @@ export function createExportEndpoint(
 
     try {
       // Get data from service
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const container = (req).container || require('../container').container;
       const service = container.resolve(serviceName);
       const methodName = `getAll${resourceName.charAt(0).toUpperCase() + resourceName.slice(1)}`;

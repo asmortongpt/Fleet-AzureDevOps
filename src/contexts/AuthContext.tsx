@@ -9,6 +9,7 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 
 import { getCsrfToken, refreshCsrfToken, clearCsrfToken } from '@/hooks/use-api';
 import { initializeTokenRefresh, stopTokenRefresh } from '@/lib/auth/token-refresh';
+import { getMicrosoftLoginUrl } from '@/lib/microsoft-auth';
 import logger from '@/utils/logger';
 
 export interface User {
@@ -204,7 +205,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Microsoft OAuth login
   const loginWithMicrosoft = useCallback(() => {
-    const { getMicrosoftLoginUrl } = require('@/lib/microsoft-auth');
     window.location.href = getMicrosoftLoginUrl();
   }, []);
 

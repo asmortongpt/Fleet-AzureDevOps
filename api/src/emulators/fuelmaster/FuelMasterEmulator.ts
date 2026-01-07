@@ -145,6 +145,7 @@ export class FuelMasterEmulator {
       TALLAHASSEE_FUEL_HOSES,
       TALLAHASSEE_FLEET_VEHICLES,
       generateSampleTransactions
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     } = require('./tallahassee-fuel-seed-data')
 
     // Load Sites

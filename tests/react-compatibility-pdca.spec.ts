@@ -52,8 +52,10 @@ test.describe('PDCA: React Compatibility Validation', () => {
   });
 
   test('CHECK Phase 1: Build artifacts exist and are valid', async () => {
-    const fs = require('fs');
-    const path = require('path');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const fs = require('fs');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const path = require('path');
 
     // Check if dist directory exists
     const distPath = path.join(process.cwd(), 'dist');
