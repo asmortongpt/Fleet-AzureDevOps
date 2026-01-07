@@ -68,6 +68,12 @@ export interface HubPageProps {
     fullHeight?: boolean
     /** HubTabItems as children */
     children?: ReactNode
+    /** Custom gradient CSS class for header */
+    gradient?: string
+    /** Restrict access to CTA owners only */
+    ctaOwnerOnly?: boolean
+    /** Restrict access to super admins only */
+    superAdminOnly?: boolean
 }
 
 /**
