@@ -1,0 +1,462 @@
+{
+    "rbac_truth_table": {
+        "generated": "2026-01-07T16:03:00Z",
+        "version": "1.0",
+        "description": "Complete RBAC permission matrix for Fleet application"
+    },
+    "roles": [
+        {
+            "id": "Admin",
+            "level": 100,
+            "description": "Full system access"
+        },
+        {
+            "id": "FleetManager",
+            "level": 80,
+            "description": "Fleet operations management"
+        },
+        {
+            "id": "MaintenanceManager",
+            "level": 70,
+            "description": "Maintenance operations"
+        },
+        {
+            "id": "Finance",
+            "level": 60,
+            "description": "Financial data access"
+        },
+        {
+            "id": "Safety",
+            "level": 60,
+            "description": "Safety and compliance"
+        },
+        {
+            "id": "Inspector",
+            "level": 50,
+            "description": "Vehicle inspections"
+        },
+        {
+            "id": "Auditor",
+            "level": 50,
+            "description": "Read-only audit access"
+        },
+        {
+            "id": "Driver",
+            "level": 30,
+            "description": "Driver self-service"
+        },
+        {
+            "id": "Vendor",
+            "level": 20,
+            "description": "External vendor access"
+        }
+    ],
+    "modules": {
+        "vehicles": {
+            "access": [
+                "Admin",
+                "FleetManager",
+                "MaintenanceManager",
+                "Inspector",
+                "Driver",
+                "Finance",
+                "Safety",
+                "Auditor",
+                "Vendor"
+            ],
+            "denied": []
+        },
+        "garage": {
+            "access": [
+                "Admin",
+                "FleetManager",
+                "MaintenanceManager",
+                "Inspector",
+                "Driver",
+                "Finance",
+                "Safety",
+                "Auditor",
+                "Vendor"
+            ],
+            "denied": []
+        },
+        "inspections": {
+            "access": [
+                "Admin",
+                "FleetManager",
+                "MaintenanceManager",
+                "Inspector",
+                "Safety",
+                "Auditor",
+                "Vendor"
+            ],
+            "denied": [
+                "Driver",
+                "Finance"
+            ]
+        },
+        "maintenance": {
+            "access": [
+                "Admin",
+                "FleetManager",
+                "MaintenanceManager",
+                "Inspector",
+                "Driver",
+                "Finance",
+                "Safety",
+                "Auditor",
+                "Vendor"
+            ],
+            "denied": []
+        },
+        "crashes": {
+            "access": [
+                "Admin",
+                "FleetManager",
+                "Safety",
+                "Auditor"
+            ],
+            "denied": [
+                "MaintenanceManager",
+                "Inspector",
+                "Driver",
+                "Finance",
+                "Vendor"
+            ]
+        },
+        "value": {
+            "access": [
+                "Admin",
+                "FleetManager",
+                "Finance",
+                "Auditor"
+            ],
+            "denied": [
+                "MaintenanceManager",
+                "Inspector",
+                "Driver",
+                "Safety",
+                "Vendor"
+            ]
+        },
+        "reports": {
+            "access": [
+                "Admin",
+                "FleetManager",
+                "MaintenanceManager",
+                "Inspector",
+                "Finance",
+                "Safety",
+                "Auditor",
+                "Vendor"
+            ],
+            "denied": [
+                "Driver"
+            ]
+        },
+        "admin": {
+            "access": [
+                "Admin"
+            ],
+            "denied": [
+                "FleetManager",
+                "MaintenanceManager",
+                "Inspector",
+                "Driver",
+                "Finance",
+                "Safety",
+                "Auditor",
+                "Vendor"
+            ]
+        },
+        "users": {
+            "access": [
+                "Admin"
+            ],
+            "denied": [
+                "FleetManager",
+                "MaintenanceManager",
+                "Inspector",
+                "Driver",
+                "Finance",
+                "Safety",
+                "Auditor",
+                "Vendor"
+            ]
+        }
+    },
+    "action_permissions": {
+        "vehicle.create": {
+            "allowed": [
+                "Admin",
+                "FleetManager"
+            ],
+            "denied": [
+                "MaintenanceManager",
+                "Inspector",
+                "Driver",
+                "Finance",
+                "Safety",
+                "Auditor",
+                "Vendor"
+            ]
+        },
+        "vehicle.read": {
+            "allowed": [
+                "Admin",
+                "FleetManager",
+                "MaintenanceManager",
+                "Inspector",
+                "Driver",
+                "Finance",
+                "Safety",
+                "Auditor",
+                "Vendor"
+            ],
+            "denied": [],
+            "conditions": [
+                "vehicle.org_id == user.org_id OR user.role == 'Admin'"
+            ]
+        },
+        "vehicle.update": {
+            "allowed": [
+                "Admin",
+                "FleetManager"
+            ],
+            "denied": [
+                "MaintenanceManager",
+                "Inspector",
+                "Driver",
+                "Finance",
+                "Safety",
+                "Auditor",
+                "Vendor"
+            ],
+            "conditions": [
+                "vehicle.org_id == user.org_id"
+            ]
+        },
+        "vehicle.archive": {
+            "allowed": [
+                "Admin"
+            ],
+            "denied": [
+                "FleetManager",
+                "MaintenanceManager",
+                "Inspector",
+                "Driver",
+                "Finance",
+                "Safety",
+                "Auditor",
+                "Vendor"
+            ]
+        },
+        "maint.addRecord": {
+            "allowed": [
+                "Admin",
+                "MaintenanceManager"
+            ],
+            "denied": [
+                "FleetManager",
+                "Inspector",
+                "Driver",
+                "Finance",
+                "Safety",
+                "Auditor",
+                "Vendor"
+            ]
+        },
+        "maint.closeWorkOrder": {
+            "allowed": [
+                "Admin",
+                "MaintenanceManager",
+                "Vendor"
+            ],
+            "denied": [
+                "FleetManager",
+                "Inspector",
+                "Driver",
+                "Finance",
+                "Safety",
+                "Auditor"
+            ],
+            "conditions": [
+                "workorder.assigned_to == user.id OR user.role IN ['Admin', 'MaintenanceManager']"
+            ]
+        },
+        "crash.create": {
+            "allowed": [
+                "Admin",
+                "FleetManager",
+                "Safety"
+            ],
+            "denied": [
+                "MaintenanceManager",
+                "Inspector",
+                "Driver",
+                "Finance",
+                "Auditor",
+                "Vendor"
+            ]
+        },
+        "value.setPurchase": {
+            "allowed": [
+                "Admin",
+                "Finance"
+            ],
+            "denied": [
+                "FleetManager",
+                "MaintenanceManager",
+                "Inspector",
+                "Driver",
+                "Safety",
+                "Auditor",
+                "Vendor"
+            ]
+        },
+        "reports.generate": {
+            "allowed": [
+                "Admin",
+                "FleetManager",
+                "MaintenanceManager",
+                "Finance",
+                "Safety",
+                "Auditor"
+            ],
+            "denied": [
+                "Inspector",
+                "Driver",
+                "Vendor"
+            ]
+        },
+        "reservation.approve": {
+            "allowed": [
+                "Admin",
+                "FleetManager"
+            ],
+            "denied": [
+                "MaintenanceManager",
+                "Inspector",
+                "Driver",
+                "Finance",
+                "Safety",
+                "Auditor",
+                "Vendor"
+            ]
+        }
+    },
+    "field_visibility": {
+        "sensitive_financial": {
+            "visible": [
+                "Admin",
+                "Finance",
+                "FleetManager"
+            ],
+            "redacted": [
+                "MaintenanceManager",
+                "Inspector",
+                "Safety",
+                "Auditor"
+            ],
+            "hidden": [
+                "Driver",
+                "Vendor"
+            ]
+        },
+        "pii_data": {
+            "visible": [
+                "Admin"
+            ],
+            "redacted": [
+                "FleetManager",
+                "MaintenanceManager",
+                "Finance",
+                "Safety"
+            ],
+            "hidden": [
+                "Inspector",
+                "Driver",
+                "Auditor",
+                "Vendor"
+            ]
+        },
+        "audit_trail": {
+            "visible": [
+                "Admin",
+                "Auditor"
+            ],
+            "hidden": [
+                "FleetManager",
+                "MaintenanceManager",
+                "Inspector",
+                "Driver",
+                "Finance",
+                "Safety",
+                "Vendor"
+            ]
+        }
+    },
+    "test_scenarios": [
+        {
+            "id": "RBAC-001",
+            "name": "Admin Full Access",
+            "role": "Admin",
+            "expected_modules": 11,
+            "expected_actions": "all"
+        },
+        {
+            "id": "RBAC-002",
+            "name": "Driver Limited Access",
+            "role": "Driver",
+            "expected_modules": 5,
+            "denied_modules": [
+                "inspections",
+                "crashes",
+                "value",
+                "admin",
+                "users",
+                "reports"
+            ]
+        },
+        {
+            "id": "RBAC-003",
+            "name": "Vendor External Access",
+            "role": "Vendor",
+            "expected_modules": 6,
+            "denied_modules": [
+                "crashes",
+                "value",
+                "admin",
+                "users",
+                "recommended_maintenance"
+            ]
+        },
+        {
+            "id": "RBAC-004",
+            "name": "Finance Read-Only with Value Access",
+            "role": "Finance",
+            "can_access": [
+                "value",
+                "vehicles",
+                "maintenance"
+            ],
+            "cannot_access": [
+                "crashes",
+                "admin",
+                "users"
+            ],
+            "special": "Can see financial fields other roles cannot"
+        },
+        {
+            "id": "RBAC-005",
+            "name": "Auditor Read-Only All",
+            "role": "Auditor",
+            "expected_behavior": "Read access to most modules, no write access except reports"
+        }
+    ],
+    "tenant_isolation": {
+        "enforced": true,
+        "mechanism": "Row-Level Security (RLS) + Middleware",
+        "verification": "All queries include tenant_id filter"
+    }
+}
