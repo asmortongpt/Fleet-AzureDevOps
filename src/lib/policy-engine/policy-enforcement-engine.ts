@@ -114,7 +114,10 @@ export class PolicyEnforcementEngine {
         if (!this.rules.has(module)) {
           this.rules.set(module, [])
         }
-        this.rules.get(module)!.push(rule)
+        const moduleRules = this.rules.get(module)
+        if (moduleRules) {
+          moduleRules.push(rule)
+        }
       })
     })
 

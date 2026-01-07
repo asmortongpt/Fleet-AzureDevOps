@@ -338,15 +338,17 @@ export class CSPBuilder {
     if (!this.directives[directive]) {
       this.directives[directive] = [];
     }
-    if (!this.directives[directive]!.includes(source)) {
-      this.directives[directive]!.push(source);
+    const directiveSources = this.directives[directive];
+    if (directiveSources && !directiveSources.includes(source)) {
+      directiveSources.push(source);
     }
     return this;
   }
 
   removeSource(directive: keyof CSPDirectives, source: string): this {
-    if (this.directives[directive]) {
-      this.directives[directive] = this.directives[directive]!.filter(
+    const directiveSources = this.directives[directive];
+    if (directiveSources) {
+      this.directives[directive] = directiveSources.filter(
         (s) => s !== source
       );
     }
