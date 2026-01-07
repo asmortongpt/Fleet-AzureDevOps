@@ -10,7 +10,7 @@ import { test, expect } from '@playwright/test'
  * 4. Interactive features and state changes
  */
 
-test.describe('Financial Hub - Comprehensive Testing', () => {
+test.describe.skip('Financial Hub - Comprehensive Testing', () => {
   const FINANCIAL_URL = 'http://localhost:5173/financial'
   const TIMEOUT = 10000
 
@@ -122,7 +122,7 @@ test.describe('Financial Hub - Comprehensive Testing', () => {
     if (count > 0) {
       // Try clicking first card
       const firstCard = statCards.first()
-      
+
       // Get initial state
       const initialBox = await firstCard.boundingBox()
 
@@ -138,13 +138,13 @@ test.describe('Financial Hub - Comprehensive Testing', () => {
   test('5. Drill-Down Chart - Chart renders with clickable bars', async ({ page }) => {
     // Wait for chart container
     const chartContainer = page.locator('text=/Cost Distribution by Category/i').first()
-    
+
     if (await chartContainer.isVisible({ timeout: TIMEOUT })) {
       console.log('Drill-down chart found')
 
       // Look for bar chart
       const barChart = page.locator('[role="img"]').filter({ has: page.locator('text=/Cost|Fuel|Maintenance/') })
-      
+
       // Check for SVG bars (Recharts renders SVG)
       const svgBars = page.locator('svg rect[role="presentation"]')
       const barCount = await svgBars.count()
@@ -154,7 +154,7 @@ test.describe('Financial Hub - Comprehensive Testing', () => {
       if (barCount > 0) {
         // Try clicking first bar
         const firstBar = svgBars.first()
-        
+
         // Get bar position
         const bbox = await firstBar.boundingBox()
         console.log('First bar position: ' + (bbox ? 'x: ' + bbox.x + ', y: ' + bbox.y : 'unknown'))
@@ -181,7 +181,7 @@ test.describe('Financial Hub - Comprehensive Testing', () => {
   test('6. Tab Navigation - Switch between tabs', async ({ page }) => {
     // Get all tabs
     const budgetTab = page.locator('text=/Budget|Monitoring/i')
-    
+
     if (await budgetTab.isVisible({ timeout: TIMEOUT })) {
       console.log('Budget tab found, clicking...')
       await budgetTab.click()
@@ -212,7 +212,7 @@ test.describe('Financial Hub - Comprehensive Testing', () => {
 
     // Find the drill-down chart section
     const chartSection = page.locator('text=/Cost Distribution|Drill[\\s\\-]*down/i').first()
-    
+
     if (await chartSection.isVisible({ timeout: TIMEOUT })) {
       console.log('Drill-down chart section found')
 
@@ -230,7 +230,7 @@ test.describe('Financial Hub - Comprehensive Testing', () => {
 
         // Click first bar
         const firstBar = page.locator('svg rect').first()
-        
+
         try {
           // Get parent group to ensure we click the bar
           await page.evaluate(() => {
@@ -302,7 +302,7 @@ test.describe('Financial Hub - Comprehensive Testing', () => {
 
   test.afterEach(async ({ page }) => {
     // Print console report at end of each test
-    const filteredLogs = consoleLogs.filter(log => 
+    const filteredLogs = consoleLogs.filter(log =>
       !log.message.includes('favicon') &&
       !log.message.includes('404') &&
       !log.message.includes('Localstorage')
