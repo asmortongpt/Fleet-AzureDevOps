@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-
 /**
  * Queue Service
  * Manages message queues for reliable asynchronous processing using pg-boss
@@ -25,6 +23,7 @@ import {
   SyncPayload
 } from '../types/queue.types';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
 const PgBoss = require('pg-boss');
 
 class QueueService {
