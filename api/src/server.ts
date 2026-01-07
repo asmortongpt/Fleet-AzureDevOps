@@ -554,7 +554,7 @@ const startServer = async () => {
 
       // Initialize Real-Time Collaboration Service
       try {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
         const { collaborationService } = require('./services/collaboration/real-time.service')
         collaborationService.initialize(server)
       } catch (err) {

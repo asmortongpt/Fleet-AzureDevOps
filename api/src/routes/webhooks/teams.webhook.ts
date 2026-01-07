@@ -162,7 +162,7 @@ async function handleMessageUpdate(notification: any): Promise<void> {
     const communicationId = result.rows[0].id
 
     // Fetch updated message from Graph API
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
     const { Client } = require('@microsoft/microsoft-graph-client')
     const { TokenCredentialAuthenticationProvider } = require('@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials')
     const { ClientSecretCredential } = require('@azure/identity')

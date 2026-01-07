@@ -219,7 +219,7 @@ export class VehicleIdentificationService {
 
       // Example production implementation:
       /*
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
       const ComputerVisionClient = require('@azure/cognitiveservices-computervision').ComputerVisionClient
       const ApiKeyCredentials = require('@azure/ms-rest-js').ApiKeyCredentials
 
