@@ -1,10 +1,10 @@
-import csurf from 'csurf';
 import express, { Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { Pool } from 'pg';
 import { z } from 'zod';
 
+import { doubleCsrfProtection } from '../../middleware/csrf';
 import { generateExcel } from './utils/generateExcel';
 import { generatePDF } from './utils/generatePDF';
 import { buildDrillThroughQuery } from './utils/queryBuilder';
@@ -16,7 +16,8 @@ const router = express.Router();
 
 router.use(helmet());
 router.use(express.json());
-router.use(csurf());
+// SECURITY: Using csrf-csrf (double-submit cookie) instead of vulnerable csurf
+router.use(doubleCsrfProtection);
 
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute

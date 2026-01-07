@@ -10,7 +10,7 @@ import { csrfProtection } from '../middleware/csrf'
 
 
 // CRIT-F-004: Updated to use centralized rate limiters
-import { registrationLimiter } from '../middleware/rateLimiter'
+import { registrationLimiter, authLimiter, checkBruteForce } from '../middleware/rateLimiter'
 import { FIPSCryptoService } from '../services/fips-crypto.service'
 import { FIPSJWTService } from '../services/fips-jwt.service'
 
@@ -106,8 +106,16 @@ const registerSchema = z.object({
  */
 // POST /api/auth/login
 // CRIT-F-004: Apply auth rate limiter and brute force protection
-// TEMPORARY: Disabled limiters for E2E testing stability against real DB
-router.post('/login', async (req: Request, res: Response) => {
+// FedRAMP SC-5 (DoS Protection), AC-7 (Unsuccessful Login Attempts), SI-10 (Input Validation)
+// SECURITY: Rate limiting MUST be enabled in production - 5 login attempts per 15 minutes
+// For E2E testing, use environment variable RATE_LIMIT_DISABLED=true to bypass
+const applyRateLimiting = process.env.RATE_LIMIT_DISABLED !== 'true'
+
+const loginMiddleware = applyRateLimiting
+  ? [authLimiter, checkBruteForce('email')]
+  : []
+
+router.post('/login', ...loginMiddleware, async (req: Request, res: Response) => {
   try {
     const { email, password } = loginSchema.parse(req.body)
 
@@ -163,17 +171,41 @@ router.post('/login', async (req: Request, res: Response) => {
       })
     }
 
-    // Verify password using FIPS-compliant PBKDF2
+    // SECURITY: Verify password using cryptographic verification
+    // FedRAMP AC-2, IA-5, IA-8: All authentication MUST use cryptographic verification
+    // NO BACKDOORS OR MOCK PASSWORDS ALLOWED IN PRODUCTION
+    // Supports both FIPS-compliant PBKDF2 (preferred) and bcrypt (legacy) hashes
     let validPassword = false
-    if (user.password_hash === 'MOCK_HASH') {
-      validPassword = (password === 'Fleet@2026')
-    } else {
-      try {
-        validPassword = await FIPSCryptoService.verifyPassword(password, user.password_hash)
-      } catch (err) {
-        logger.error('Password verification error (fallback to false):', err)
+    try {
+      // Handle SSO users who don't have a traditional password hash
+      if (user.password_hash === 'SSO') {
+        // SSO users cannot login via password - must use SSO flow
+        logger.warn(`SSO user ${user.email} attempted password login`)
         validPassword = false
+      } else if (!user.password_hash || user.password_hash.length < 20) {
+        // Invalid or malformed password hash - security violation
+        logger.error(`Invalid password hash detected for user ${user.id}`)
+        validPassword = false
+      } else if (user.password_hash.startsWith('$2a$') ||
+        user.password_hash.startsWith('$2b$') ||
+        user.password_hash.startsWith('$2y$')) {
+        // Legacy bcrypt hash - still cryptographically secure
+        // bcrypt is NIST-approved for password hashing
+        const bcrypt = await import('bcrypt')
+        validPassword = await bcrypt.compare(password, user.password_hash)
+
+        // TODO: Consider migrating to PBKDF2 on successful login
+        // if (validPassword) {
+        //   const newHash = await FIPSCryptoService.hashPassword(password)
+        //   await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [newHash, user.id])
+        // }
+      } else {
+        // FIPS-compliant PBKDF2 password verification (preferred)
+        validPassword = await FIPSCryptoService.verifyPassword(password, user.password_hash)
       }
+    } catch (err) {
+      logger.error('Password verification error (fallback to false):', err)
+      validPassword = false
     }
 
     if (!validPassword) {
@@ -669,7 +701,7 @@ router.get('/microsoft/login', (req: Request, res: Response) => {
     `&scope=${encodeURIComponent('openid profile email User.Read')}` +
     `&state=1`
 
-  console.log('[AUTH] Redirecting to Azure AD:', authUrl)
+  logger.info('[AUTH] Redirecting to Azure AD for SSO', { authUrl: authUrl.substring(0, 100) + '...' })
   res.redirect(authUrl)
 })
 
