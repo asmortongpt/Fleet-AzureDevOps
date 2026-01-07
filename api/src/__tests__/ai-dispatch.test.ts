@@ -12,9 +12,8 @@
  * @module __tests__/ai-dispatch
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-
 import { OpenAIClient } from '@azure/openai'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 import { pool } from '../database'
 import aiDispatchService from '../services/ai-dispatch'
