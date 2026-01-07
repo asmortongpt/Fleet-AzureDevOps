@@ -188,7 +188,8 @@ function CostAnalysisContent() {
                                 title="Fuel Costs"
                                 value="$124.2K"
                                 variant="warning"
-                                trend={{ value: "+8.2%", direction: "up" }}
+                                trend="up"
+                                trendValue="+8.2%"
                                 onClick={() => push({
                                     type: 'fuel-costs',
                                     data: { title: 'Fuel Cost Analysis', category: 'fuel' },
@@ -210,7 +211,8 @@ function CostAnalysisContent() {
                                 title="Maintenance Costs"
                                 value="$89.3K"
                                 variant="success"
-                                trend={{ value: "-3.1%", direction: "down" }}
+                                trend="down"
+                                trendValue="-3.1%"
                                 onClick={() => push({
                                     type: 'maintenance-costs',
                                     data: { title: 'Maintenance Cost Breakdown', category: 'maintenance' },
@@ -314,7 +316,8 @@ function BillingReportsContent() {
                     value="$456.8K"
                     variant="success"
                     icon={<ChartBar className="w-6 h-6" />}
-                    trend={{ value: "+12.3%", direction: "up" }}
+                    trend="up"
+                    trendValue="+12.3%"
                     onClick={() => push({
                         type: 'revenue',
                         data: { title: 'Revenue Breakdown', period: 'monthly' },
@@ -475,7 +478,8 @@ function BudgetTrackingContent() {
                     title="YTD Spent"
                     value="$1.14M"
                     variant="success"
-                    trend={{ value: "On track", direction: "neutral" }}
+                    trend="neutral"
+                    trendValue="On track"
                     onClick={() => push({
                         type: 'ytd-spending',
                         data: { title: 'Year-to-Date Spending' },
