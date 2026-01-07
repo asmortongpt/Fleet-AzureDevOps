@@ -4,9 +4,7 @@ import { ComponentProps, forwardRef } from "react"
 import { cn } from "@/lib/utils"
 
 // Separate the motion props from HTML props
-type CardProps = Omit<ComponentProps<"div">, keyof HTMLMotionProps<"div">> & {
-  className?: string
-}
+type CardProps = HTMLMotionProps<"div">
 
 const Card = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref) => {
   return (

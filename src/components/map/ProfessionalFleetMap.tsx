@@ -28,29 +28,23 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
 
-  // Load vehicles from API or fall back to demo data
+  // Load vehicles from API or test environment
   useEffect(() => {
+    // Check for test data injection (Visual Regression Tests)
+    if (typeof window !== 'undefined' && (window as any).__TEST_DATA__?.vehicles) {
+      setVehicles((window as any).__TEST_DATA__.vehicles);
+      return;
+    }
+
     if (!isLoading) {
-      if (error || !data || (Array.isArray(data) && data.length === 0)) {
-        // API failed or returned empty - use demo data
-        const demoVehicles = generateDemoVehicles(50) as unknown as Vehicle[];
-        setVehicles(demoVehicles);
-      } else if (Array.isArray(data)) {
+      if (Array.isArray(data)) {
         setVehicles(data as unknown as Vehicle[]);
       }
+      // REMOVE: Removed automatic fallback to demo data to comply with "no mock data" policy
     }
   }, [data, isLoading, error]);
 
-  // Also set demo data after timeout if still loading
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (vehicles.length === 0) {
-        const demoVehicles = generateDemoVehicles(50) as unknown as Vehicle[];
-        setVehicles(demoVehicles);
-      }
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [vehicles.length]);
+  // Removed timeout fallback to demo data
 
   // Filter vehicles with coordinates
   const vehiclesWithCoords = vehicles.filter((v: Vehicle) => {

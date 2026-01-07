@@ -363,8 +363,7 @@ function App() {
         return <DriverPerformance />
       case "driver-scorecard":
         return <DriverScorecard />
-      case "drivers":
-        return <DriversWorkspace />
+
       case "fleet-optimizer":
         return <FleetOptimizer />
       case "cost-analysis":
@@ -442,11 +441,7 @@ function App() {
         return <DriversHubPage />
       case "safety":
       case "compliance":
-      case "safety-hub-consolidated":
-      case "compliance-hub-consolidated":
         return <SafetyComplianceHubPage />
-      case "analytics":
-        return <AnalyticsHubPage />
       case "admin":
         return <AdminHubPage />
       case "assets":

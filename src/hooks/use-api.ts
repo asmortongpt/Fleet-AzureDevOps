@@ -433,7 +433,7 @@ export function useVehicleMutations() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeyFactory.vehicles({ tenant_id: '' }) });
+      queryClient.invalidateQueries({ queryKey: ['vehicles'] });
     },
   });
 
