@@ -161,15 +161,11 @@ export function DocumentsHub() {
 
     } catch (error) {
       console.error('Error fetching documents:', error)
-      toast({
-        title: 'Error',
-        description: 'Failed to load documents',
-        variant: 'destructive'
-      })
+      addToast('Failed to load documents', 'error')
     } finally {
       setLoading(false)
     }
-  }, [searchQuery, categoryFilter, statusFilter, toast])
+  }, [searchQuery, categoryFilter, statusFilter, addToast])
 
   // Fetch analytics
   const fetchAnalytics = useCallback(async () => {
@@ -188,20 +184,12 @@ export function DocumentsHub() {
   // Upload document
   const handleUpload = async () => {
     if (!uploadFile) {
-      toast({
-        title: 'No file selected',
-        description: 'Please select a file to upload',
-        variant: 'destructive'
-      })
+      addToast('Please select a file to upload', 'error')
       return
     }
 
     if (!uploadMetadata.title) {
-      toast({
-        title: 'Title required',
-        description: 'Please enter a document title',
-        variant: 'destructive'
-      })
+      addToast('Please enter a document title', 'error')
       return
     }
 
@@ -226,10 +214,8 @@ export function DocumentsHub() {
 
       if (!response.ok) throw new Error('Upload failed')
 
-      toast({
-        title: 'Success',
-        description: 'Document uploaded and indexed successfully'
-      })
+      addToast('Document uploaded and indexed successfully'
+      , 'success')
 
       setUploadDialogOpen(false)
       setUploadFile(null)
@@ -247,11 +233,7 @@ export function DocumentsHub() {
 
     } catch (error) {
       console.error('Upload error:', error)
-      toast({
-        title: 'Upload failed',
-        description: (error as Error).message,
-        variant: 'destructive'
-      })
+      addToast(`Upload failed: ${(error as Error).message}`, 'error')
     }
   }
 
@@ -277,18 +259,11 @@ export function DocumentsHub() {
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
 
-      toast({
-        title: 'Download started',
-        description: `Downloading ${filename}`
-      })
+      addToast(`Downloading ${filename}`, 'success')
 
     } catch (error) {
       console.error('Download error:', error)
-      toast({
-        title: 'Download failed',
-        description: (error as Error).message,
-        variant: 'destructive'
-      })
+      addToast(`Download failed: ${(error as Error).message}`, 'error')
     }
   }
 
@@ -303,21 +278,14 @@ export function DocumentsHub() {
 
       if (!response.ok) throw new Error('Delete failed')
 
-      toast({
-        title: 'Document deleted',
-        description: 'Document has been permanently deleted'
-      })
+      addToast('Document has been permanently deleted', 'success')
 
       fetchDocuments()
       fetchAnalytics()
 
     } catch (error) {
       console.error('Delete error:', error)
-      toast({
-        title: 'Delete failed',
-        description: (error as Error).message,
-        variant: 'destructive'
-      })
+      addToast(`Delete failed: ${(error as Error).message}`, 'error')
     }
   }
 
