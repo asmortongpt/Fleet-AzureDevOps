@@ -2,7 +2,7 @@
  * AI-Driven Policy and Rules Engine - Type Definitions
  */
 
-export type PolicyType = "safety" | "dispatch" | "privacy" | "ev-charging" | "payments" | "maintenance" | "osha" | "environmental" | "data-retention" | "security" | "vehicle-use" | "driver-behavior"
+export type PolicyType = "safety" | "dispatch" | "privacy" | "ev-charging" | "payments" | "maintenance" | "osha" | "environmental" | "data-retention" | "security" | "vehicle-use" | "driver-behavior" | "driver-qualification" | "preventive-maintenance" | "fuel-fraud-prevention" | "maintenance-authorization" | "accident-response" | "vehicle-replacement"
 export type PolicyMode = "monitor" | "human-in-loop" | "autonomous"
 export type PolicyStatus = "draft" | "testing" | "approved" | "active" | "deprecated" | "archived"
 

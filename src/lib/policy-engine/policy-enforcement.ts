@@ -89,13 +89,12 @@ export async function enforceMaintenancePolicy(
   }
 ): Promise<PolicyEnforcementResult> {
   const context: PolicyEvaluationContext = {
-    vehicleId: workOrderData.vehicleId,
+    ...workOrderData,
     maintenanceDue: false, // Would check actual maintenance schedule
     odometerReading: 0, // Would come from vehicle data
     costPerMile: workOrderData.estimatedCost / 1000, // Simplified
     budgetRemaining: 50000, // Would come from budget system
-    timestamp: new Date().toISOString(),
-    ...workOrderData
+    timestamp: new Date().toISOString()
   };
 
   const result = await checkPolicyCompliance(policies, 'maintenance', context);
@@ -249,11 +248,10 @@ export async function enforceDriverBehaviorPolicy(
   }
 ): Promise<PolicyEnforcementResult> {
   const context: PolicyEvaluationContext = {
-    driverId: behaviorData.driverId,
+    ...behaviorData,
     driverScorecard: 75, // Would come from actual scorecard
     incidentHistory: 2, // Would come from incident database
-    timestamp: new Date().toISOString(),
-    ...behaviorData
+    timestamp: new Date().toISOString()
   };
 
   const result = await checkPolicyCompliance(policies, 'driver-behavior', context);
@@ -286,10 +284,9 @@ export async function enforceEnvironmentalPolicy(
   }
 ): Promise<PolicyEnforcementResult> {
   const context: PolicyEvaluationContext = {
-    vehicleId: environmentalData.vehicleId,
+    ...environmentalData,
     vehicleLocation: environmentalData.location,
-    timestamp: new Date().toISOString(),
-    ...environmentalData
+    timestamp: new Date().toISOString()
   };
 
   const result = await checkPolicyCompliance(policies, 'environmental', context);
