@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Security Orchestrator - Live Dashboard</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .header .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .connection-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 12px;
+        }
+
+        .connection-status.connected {
+            background: #10b981;
+            color: white;
+        }
+
+        .connection-status.disconnected {
+            background: #ef4444;
+            color: white;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #667eea;
+        }
+
+        .metric {
+            margin-bottom: 16px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .metric-value.success {
+            color: #10b981;
+        }
+
+        .metric-value.warning {
+            color: #f59e0b;
+        }
+
+        .metric-value.error {
+            color: #ef4444;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+            transition: width 0.3s ease;
+        }
+
+        .severity-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .severity-critical {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .severity-high {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .severity-medium {
+            background: #dbeafe;
+            color: #1e3a8a;
+        }
+
+        .severity-low {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-in_progress {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .recent-fixes {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .fix-item {
+            padding: 12px;
+            border-left: 3px solid #e5e7eb;
+            margin-bottom: 8px;
+            background: #f9fafb;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .fix-item:hover {
+            background: #f3f4f6;
+        }
+
+        .fix-item.success {
+            border-left-color: #10b981;
+        }
+
+        .fix-item.failed {
+            border-left-color: #ef4444;
+        }
+
+        .fix-item.in_progress {
+            border-left-color: #f59e0b;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .fix-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .fix-meta {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .gate-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f9fafb;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .gate-passed {
+            background: #d1fae5;
+        }
+
+        .gate-failed {
+            background: #fee2e2;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 16px;
+        }
+
+        .current-activity {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .timestamp {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                Fleet Security Orchestrator
+                <span class="connection-status" id="connectionStatus">Connecting...</span>
+            </h1>
+            <p class="subtitle">Real-time remediation progress monitoring</p>
+            <p class="timestamp" id="lastUpdate">Last update: Never</p>
+        </div>
+
+        <div class="card">
+            <div class="current-activity" id="currentActivity">Initializing...</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>Overview</h2>
+                <div class="metric">
+                    <div class="metric-label">Total Findings</div>
+                    <div class="metric-value" id="totalFindings">0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Remediated</div>
+                    <div class="metric-value success" id="remediated">0</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="remediatedProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Success Rate</div>
+                    <div class="metric-value" id="successRate">0%</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Status Breakdown</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value success" id="remediatedCount">0</div>
+                        <div class="stat-label">✓ Remediated</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value warning" id="inProgressCount">0</div>
+                        <div class="stat-label">⟳ In Progress</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value error" id="failedCount">0</div>
+                        <div class="stat-label">✗ Failed</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="remainingCount">0</div>
+                        <div class="stat-label">◯ Remaining</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Progress</h2>
+                <div class="metric">
+                    <div class="metric-label">Iteration</div>
+                    <div class="metric-value" id="iteration">0 / 10</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Elapsed Time</div>
+                    <div class="metric-value" id="elapsedTime">0s</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Est. Remaining</div>
+                    <div class="metric-value" id="estimatedTime">--</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>By Severity</h2>
+                <div class="chart-container">
+                    <canvas id="severityChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>By Type</h2>
+                <div class="chart-container">
+                    <canvas id="typeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Risk Trend</h2>
+            <div class="chart-container">
+                <canvas id="riskTrendChart"></canvas>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>Recent Fixes</h2>
+                <div class="recent-fixes" id="recentFixes">
+                    <p style="text-align: center; color: #999; padding: 20px;">No fixes yet</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Gate Results</h2>
+                <div class="recent-fixes" id="gateResults">
+                    <p style="text-align: center; color: #999; padding: 20px;">No gate results yet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Connect to WebSocket
+        const socket = io();
+
+        let severityChart, typeChart, riskTrendChart;
+
+        socket.on('connect', () => {
+            document.getElementById('connectionStatus').textContent = '● Connected';
+            document.getElementById('connectionStatus').className = 'connection-status connected';
+        });
+
+        socket.on('disconnect', () => {
+            document.getElementById('connectionStatus').textContent = '● Disconnected';
+            document.getElementById('connectionStatus').className = 'connection-status disconnected';
+        });
+
+        socket.on('metrics', (data) => {
+            updateDashboard(data);
+        });
+
+        function updateDashboard(metrics) {
+            document.getElementById('lastUpdate').textContent = `Last update: ${new Date(metrics.timestamp).toLocaleTimeString()}`;
+
+            // Overview
+            document.getElementById('totalFindings').textContent = metrics.overview.total_findings;
+            document.getElementById('remediated').textContent = metrics.overview.remediated;
+            document.getElementById('successRate').textContent = metrics.overview.success_rate.toFixed(1) + '%';
+
+            const progressPercent = metrics.overview.total_findings > 0
+                ? (metrics.overview.remediated / metrics.overview.total_findings) * 100
+                : 0;
+            document.getElementById('remediatedProgress').style.width = progressPercent + '%';
+
+            // Status breakdown
+            document.getElementById('remediatedCount').textContent = metrics.overview.remediated;
+            document.getElementById('inProgressCount').textContent = metrics.overview.in_progress;
+            document.getElementById('failedCount').textContent = metrics.overview.failed;
+            document.getElementById('remainingCount').textContent = metrics.overview.remaining;
+
+            // Progress
+            document.getElementById('iteration').textContent = `${metrics.current_iteration} / ${metrics.max_iterations}`;
+            document.getElementById('elapsedTime').textContent = formatDuration(metrics.elapsed_time_ms);
+            document.getElementById('estimatedTime').textContent = metrics.estimated_time_remaining_ms > 0
+                ? formatDuration(metrics.estimated_time_remaining_ms)
+                : '--';
+
+            // Current activity
+            document.getElementById('currentActivity').textContent = metrics.current_activity;
+
+            // Recent fixes
+            updateRecentFixes(metrics.recent_fixes);
+
+            // Gate results
+            updateGateResults(metrics.gate_results);
+
+            // Charts
+            updateSeverityChart(metrics.by_severity);
+            updateTypeChart(metrics.by_type);
+            updateRiskTrendChart(metrics.risk_trend);
+        }
+
+        function updateRecentFixes(fixes) {
+            const container = document.getElementById('recentFixes');
+            if (!fixes || fixes.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No fixes yet</p>';
+                return;
+            }
+
+            container.innerHTML = fixes.map(fix => `
+                <div class="fix-item ${fix.status}">
+                    <div class="fix-title">${escapeHtml(fix.title)}</div>
+                    <div class="fix-meta">
+                        <span class="severity-badge severity-${fix.severity}">${fix.severity}</span>
+                        <span class="status-badge status-${fix.status}">${fix.status.replace('_', ' ')}</span>
+                        <span>${new Date(fix.timestamp).toLocaleTimeString()}</span>
+                        ${fix.duration_ms ? `<span>${formatDuration(fix.duration_ms)}</span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateGateResults(gates) {
+            const container = document.getElementById('gateResults');
+            if (!gates || gates.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No gate results yet</p>';
+                return;
+            }
+
+            container.innerHTML = gates.map(gate => `
+                <div class="gate-item ${gate.passed ? 'gate-passed' : 'gate-failed'}">
+                    <div>
+                        <strong>${gate.gate}</strong>
+                        <div style="font-size: 12px; color: #666;">${new Date(gate.timestamp).toLocaleTimeString()}</div>
+                    </div>
+                    <div>${gate.passed ? '✓ Passed' : '✗ Failed'}</div>
+                </div>
+            `).join('');
+        }
+
+        function updateSeverityChart(bySeverity) {
+            const ctx = document.getElementById('severityChart').getContext('2d');
+
+            const data = {
+                labels: Object.keys(bySeverity),
+                datasets: [
+                    {
+                        label: 'Remaining',
+                        data: Object.values(bySeverity).map(s => s.remaining),
+                        backgroundColor: 'rgba(239, 68, 68, 0.8)'
+                    },
+                    {
+                        label: 'Remediated',
+                        data: Object.values(bySeverity).map(s => s.remediated),
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)'
+                    }
+                ]
+            };
+
+            if (severityChart) {
+                severityChart.data = data;
+                severityChart.update();
+            } else {
+                severityChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { stacked: true },
+                            y: { stacked: true, beginAtZero: true }
+                        }
+                    }
+                });
+            }
+        }
+
+        function updateTypeChart(byType) {
+            const ctx = document.getElementById('typeChart').getContext('2d');
+
+            const data = {
+                labels: Object.keys(byType),
+                datasets: [
+                    {
+                        label: 'Remaining',
+                        data: Object.values(byType).map(t => t.remaining),
+                        backgroundColor: 'rgba(239, 68, 68, 0.8)'
+                    },
+                    {
+                        label: 'Remediated',
+                        data: Object.values(byType).map(t => t.remediated),
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)'
+                    }
+                ]
+            };
+
+            if (typeChart) {
+                typeChart.data = data;
+                typeChart.update();
+            } else {
+                typeChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        scales: {
+                            x: { stacked: true, beginAtZero: true },
+                            y: { stacked: true }
+                        }
+                    }
+                });
+            }
+        }
+
+        function updateRiskTrendChart(riskTrend) {
+            const ctx = document.getElementById('riskTrendChart').getContext('2d');
+
+            const data = {
+                labels: riskTrend.map(r => `Iter ${r.iteration}`),
+                datasets: [
+                    {
+                        label: 'Total Risk Score',
+                        data: riskTrend.map(r => r.total_risk_score),
+                        borderColor: 'rgb(239, 68, 68)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        yAxisID: 'y',
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Findings Count',
+                        data: riskTrend.map(r => r.findings_count),
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        yAxisID: 'y1',
+                        tension: 0.3
+                    }
+                ]
+            };
+
+            if (riskTrendChart) {
+                riskTrendChart.data = data;
+                riskTrendChart.update();
+            } else {
+                riskTrendChart = new Chart(ctx, {
+                    type: 'line',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: { display: true, text: 'Risk Score' }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: { display: true, text: 'Count' },
+                                grid: { drawOnChartArea: false }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function formatDuration(ms) {
+            if (ms < 1000) return ms + 'ms';
+            if (ms < 60000) return (ms / 1000).toFixed(1) + 's';
+            if (ms < 3600000) return (ms / 60000).toFixed(1) + 'm';
+            return (ms / 3600000).toFixed(1) + 'h';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Request initial metrics
+        socket.emit('request-metrics');
+    </script>
+</body>
+</html>

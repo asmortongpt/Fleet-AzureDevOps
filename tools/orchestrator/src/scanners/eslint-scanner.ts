@@ -50,28 +50,45 @@ export class ESLintScanner extends BaseScanner {
   async scan(targetPath: string): Promise<ESLintResult[]> {
     logger.info(`Running ESLint scan on ${targetPath}`);
 
+    // Use absolute path for config if it's relative
+    const configPath = this.configFile.startsWith('/')
+      ? this.configFile
+      : `${targetPath}/${this.configFile}`;
+
     const args = [
       '.',
       '--format=json',
       '--ext',
       this.extensions.join(','),
       '--config',
-      this.configFile,
+      configPath,
       '--no-error-on-unmatched-pattern',
     ];
 
     try {
-      const { stdout } = await execa('npx', ['eslint', ...args], {
+      const { stdout, stderr } = await execa('npx', ['eslint', ...args], {
         cwd: targetPath,
         timeout: this.config.timeout_ms || 180000, // 3 minutes
         reject: false,
       });
 
-      return JSON.parse(stdout || '[]');
+      if (stderr && stderr.includes('Error')) {
+        logger.error('ESLint stderr output', { stderr: stderr.substring(0, 500) });
+      }
+
+      if (!stdout || stdout.length === 0) {
+        logger.warn('ESLint produced no output, returning empty array');
+        return [];
+      }
+
+      return JSON.parse(stdout);
     } catch (error) {
       if (error instanceof Error && 'stdout' in error) {
         try {
-          return JSON.parse((error as { stdout: string }).stdout || '[]');
+          const stdout = (error as { stdout: string }).stdout;
+          if (stdout) {
+            return JSON.parse(stdout);
+          }
         } catch {
           // Fall through
         }

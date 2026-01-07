@@ -4,9 +4,11 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-import { glob } from 'fast-glob';
+import fastGlob from 'fast-glob';
 import { DependencyGraph, ArchitectureNode } from '../types/canonical.js';
 import { logger } from '../utils/logger.js';
+
+const { glob } = fastGlob;
 
 /**
  * Build dependency graph from project
