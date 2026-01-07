@@ -124,7 +124,10 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     if (!listenersRef.current.has(eventType)) {
       listenersRef.current.set(eventType, new Set())
     }
-    listenersRef.current.get(eventType)!.add(callback)
+    const listeners = listenersRef.current.get(eventType)
+    if (listeners) {
+      listeners.add(callback)
+    }
 
     // Return unsubscribe function
     return () => {
