@@ -63,6 +63,10 @@
     "src/components/ScanAssetModal.tsx",
     "src/components/common/ScannerModal.tsx",
     "src/components/common/FileUpload.tsx",
-    "src/components/Vehicle3DViewer.tsx"
+    "src/components/Vehicle3DViewer.tsx",
+    "src/features/business/**",
+    "src/core/multi-tenant/**",
+    "src/components/DataWorkbench.refactored.tsx",
+    "src/components/UtilizationDashboard.tsx"
   ]
 }
