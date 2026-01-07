@@ -27,6 +27,7 @@ if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
 
 // Initialize Sentry before all other imports for proper error tracking
 import { BrowserRouter, Routes, Route } from "react-router-dom"
+// @ts-ignore - virtual module provided by vite-plugin-pwa
 import { registerSW } from 'virtual:pwa-register'
 
 import App from "./App"
