@@ -1,3 +1,6 @@
+import fs from 'fs'
+import path from 'path'
+
 /**
  * Emulator API Routes
  * Comprehensive REST API for controlling the fleet emulation system
@@ -692,8 +695,6 @@ router.get('/inventory/search', async (req: Request, res: Response) => {
  */
 router.get('/scenarios', async (req: Request, res: Response) => {
   try {
-    const fs = require('fs')
-    const path = require('path')
 
     const scenariosPath = path.join(__dirname, '..', 'emulators', 'config', 'scenarios.json')
     const data = JSON.parse(fs.readFileSync(scenariosPath, 'utf-8'))

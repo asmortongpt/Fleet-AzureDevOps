@@ -170,7 +170,9 @@ test.describe('Visual Validation Loop - Honest AI Assessment', () => {
       };
 
       // Write report
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const fs = require('fs');
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const path = require('path');
       const reportDir = 'test-results/visual-reports';
       if (!fs.existsSync(reportDir)) {
