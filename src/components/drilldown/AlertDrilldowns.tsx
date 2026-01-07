@@ -90,44 +90,72 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
     }
   }
 
-  return (
-    <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
-      {alert && (
-        <div className="space-y-6">
-          {/* Alert Header */}
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                {getSeverityIcon(alert.severity)}
-                <h3 className="text-2xl font-bold">{alert.title}</h3>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Alert #{alert.alert_number} • {alert.category}
-              </p>
-              <div className="flex items-center gap-2 mt-2">
-                <Badge variant={getStatusVariant(alert.status)}>{alert.status}</Badge>
-                <Badge variant={getSeverityVariant(alert.severity)}>
-                  {alert.severity} severity
-                </Badge>
-              </div>
-            </div>
-            <AlertTriangle className="h-12 w-12 text-muted-foreground" />
-          </div>
+  if (isLoading || !alert) {
+    return <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()} />
+  }
 
-          {/* Quick Info */}
-          <div className="grid grid-cols-2 gap-4">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  Triggered
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm font-semibold">
-                  {alert.triggered_at
-                    ? new Date(alert.triggered_at).toLocaleString()
+  const alertData: AlertData = alert
+
+  return (
+    <DrilldownContent loading={false} error={error} onRetry={() => mutate()}>
+      <div className="space-y-6">
+        {/* Alert Header */}
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              {getSeverityIcon(alertData.severity)}
+              <h3 className="text-2xl font-bold">{alertData.title}</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Alert #{alertData.alert_number} • {alertData.category}
+            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant={getStatusVariant(alertData.status)}>{alertData.status}</Badge>
+              <Badge variant={getSeverityVariant(alertData.severity)}>
+                {alertData.severity} severity
+              </Badge>
+            </div>
+          </div>
+          <AlertTriangle className="h-12 w-12 text-muted-foreground" />
+        </div>
+
+        {/* Quick Info */}
+        <div className="grid grid-cols-2 gap-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                Triggered
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm font-semibold">
+                {alertData.triggered_at
+                  ? new Date(alertData.triggered_at).toLocaleString()
+                  : 'N/A'}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {alertData.triggered_at &&
+                  `${Math.floor((Date.now() - new Date(alertData.triggered_at).getTime()) / 60000)} minutes ago`}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Activity className="h-4 w-4" />
+                Duration
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm font-semibold">
+                {alertData.duration_minutes
+                  ? `${alertData.duration_minutes} min`
+                  : alertData.status === 'active'
+                    ? 'Ongoing'
                     : 'N/A'}
+<<<<<<< Updated upstream
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   {alert.triggered_at &&
@@ -154,6 +182,12 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
               </CardContent>
             </Card>
           </div>
+=======
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+>>>>>>> Stashed changes
 
           {/* Tabs */}
           <Tabs defaultValue="details" className="w-full">
