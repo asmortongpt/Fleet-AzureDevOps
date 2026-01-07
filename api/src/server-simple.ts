@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { eq, and, SQL, desc } from 'drizzle-orm';
 import express from 'express';
+import fs from 'fs';
 import helmet from 'helmet';
 
 import { db, checkDatabaseConnection } from './db/connection';
@@ -115,7 +116,6 @@ app.get('/api/vehicles/:id', async (req, res) => {
 });
 
 app.post('/api/vehicles', async (req, res) => {
-  const fs = require('fs');
   try {
     const body = req.body;
     fs.writeFileSync('post_vehicle_debug.log', `Received POST: ${JSON.stringify(body)}\n`, { flag: 'a' });

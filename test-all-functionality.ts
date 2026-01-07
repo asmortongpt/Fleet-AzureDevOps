@@ -3,6 +3,7 @@
  * Tests EVERY feature across all 5 hubs
  */
 import { chromium, Page } from '@playwright/test';
+import fs from 'fs';
 
 const BASE_URL = 'http://localhost:5173';
 
@@ -244,7 +245,6 @@ async function testHub(page: Page, hubName: string, hubPath: string, modules: st
 
   // Write detailed report to file
   const reportPath = '/tmp/functionality-test-report.json';
-  const fs = require('fs');
   fs.writeFileSync(reportPath, JSON.stringify({
     timestamp: new Date().toISOString(),
     summary: {

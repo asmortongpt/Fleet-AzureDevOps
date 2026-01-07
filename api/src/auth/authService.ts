@@ -122,7 +122,7 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET
 if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
   throw new Error(
     'FATAL: JWT_SECRET and JWT_REFRESH_SECRET must be set in environment variables. ' +
-    'Generate secure secrets with: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"'
+    'Generate secure secrets with: node -e "import crypto from \'crypto\'; console.log(crypto.randomBytes(32).toString(\'hex\'))"'
   )
 }
 
