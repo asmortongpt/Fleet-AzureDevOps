@@ -130,7 +130,7 @@ export function useFleetData() {
     if (isDemoMode()) {
       return [] // No demo fuel transactions for now
     }
-    
+
     const rawFuelTransactions = fuelTransactionsData || []
     return Array.isArray(rawFuelTransactions) ? rawFuelTransactions : []
   }, [fuelTransactionsData]);
@@ -150,7 +150,7 @@ export function useFleetData() {
     if (isDemoMode()) {
       return [] // No demo maintenance schedules for now
     }
-    
+
     const rawMaintenanceSchedules = maintenanceData || []
     return Array.isArray(rawMaintenanceSchedules) ? rawMaintenanceSchedules : []
   }, [maintenanceData]);
@@ -159,7 +159,7 @@ export function useFleetData() {
     if (isDemoMode()) {
       return [] // No demo routes for now
     }
-    
+
     const rawRoutes = routesData || []
     return Array.isArray(rawRoutes) ? rawRoutes : []
   }, [routesData]);
@@ -287,9 +287,40 @@ export function useFleetData() {
   }, [routeMutations.deleteRoute])
 
   // Filter mileage reimbursements
-  const mileageReimbursements = useMemo(():any => {
+  const mileageReimbursements = useMemo((): any => {
     // TODO: Fetch actual mileage reimbursements from API endpoint
     // For now, return empty array as FuelTransactions don't have mileage type
+    return []
+  }, [])
+
+  // Safety Data (Mock for now)
+  const incidents = useMemo(() => {
+    if (isDemoMode()) {
+      return [
+        { id: 'INC-001', type: 'Collision', severity: 'high', status: 'closed', location: { lat: 30.439, lng: -84.281, address: 'Main St' }, date: new Date().toISOString(), vehicleId: 'veh-demo-1', oshaRecordable: true, workDaysLost: 3, injuries: 1, reportedBy: 'John Doe' },
+        { id: 'INC-002', type: 'Near Miss', severity: 'low', status: 'resolved', location: { lat: 30.462, lng: -84.255, address: 'North Ave' }, date: new Date(Date.now() - 86400000 * 2).toISOString(), vehicleId: 'veh-demo-2', oshaRecordable: false, workDaysLost: 0, injuries: 0, reportedBy: 'Jane Smith' }
+      ]
+    }
+    return []
+  }, [])
+
+  const hazardZones = useMemo(() => {
+    if (isDemoMode()) {
+      return [
+        { id: 'HZ-001', name: 'Downtown Construction', type: 'physical', location: { lat: 30.442, lng: -84.275 }, radius: 300, severity: 'medium', restrictions: ['Speed Limit 25mph'], activeFrom: new Date().toISOString() },
+        { id: 'HZ-002', name: 'Flooded Road', type: 'environmental', location: { lat: 30.425, lng: -84.305 }, radius: 500, severity: 'high', restrictions: ['No Access', 'Detour Required'], activeFrom: new Date().toISOString() }
+      ]
+    }
+    return []
+  }, [])
+
+  const inspections = useMemo(() => {
+    if (isDemoMode()) {
+      return [
+        { id: 'INS-001', vehicleId: 'veh-demo-1', vehicleName: 'Ford F-150', inspectorName: 'Mike Wilson', date: new Date().toISOString(), passed: true, violations: 0, notes: 'All good' },
+        { id: 'INS-002', vehicleId: 'veh-demo-2', vehicleName: 'Toyota Camry', inspectorName: 'Mike Wilson', date: new Date(Date.now() - 86400000).toISOString(), passed: false, violations: 2, notes: 'Worn tires' }
+      ]
+    }
     return []
   }, [])
 
@@ -303,6 +334,9 @@ export function useFleetData() {
     technicians,
     fuelTransactions,
     mileageReimbursements,
+    incidents,
+    hazardZones,
+    inspections,
     maintenanceRequests: maintenanceSchedules,
     routes,
     dataInitialized: true,

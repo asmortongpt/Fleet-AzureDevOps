@@ -16,7 +16,7 @@ export const DataWorkbench: React.FC = () => {
     // ... add more sample data
   ]);
 
-  const [columnDefs] = useState([
+  const [columnDefs] = useState<any[]>([
     {
       field: 'vehicle',
       headerName: 'Vehicle',
@@ -39,7 +39,7 @@ export const DataWorkbench: React.FC = () => {
       editable: true,
       filter: 'agNumberColumnFilter',
       sortable: true,
-      valueFormatter: (params) => params.value?.toLocaleString()
+      valueFormatter: (params: any) => params.value?.toLocaleString()
     },
     {
       field: 'status',
@@ -47,7 +47,7 @@ export const DataWorkbench: React.FC = () => {
       editable: true,
       filter: true,
       sortable: true,
-      cellStyle: (params) => ({
+      cellStyle: (params: any) => ({
         color: params.value === 'Active' ? '#10b981' : '#eab308',
         fontWeight: '500'
       })
@@ -58,7 +58,7 @@ export const DataWorkbench: React.FC = () => {
       editable: true,
       filter: 'agNumberColumnFilter',
       sortable: true,
-      valueFormatter: (params) => params.value?.toFixed(1)
+      valueFormatter: (params: any) => params.value?.toFixed(1)
     }
   ]);
 
@@ -67,7 +67,7 @@ export const DataWorkbench: React.FC = () => {
     minWidth: 100,
   };
 
-  const onCellValueChanged = useCallback((params) => {
+  const onCellValueChanged = useCallback((params: any) => {
     console.log('Cell changed:', params.data);
   }, []);
 
@@ -75,8 +75,8 @@ export const DataWorkbench: React.FC = () => {
     // Export grid data to Excel
     const csv = [
       columnDefs.map(col => col.headerName).join(','),
-      ...rowData.map(row =>
-        columnDefs.map(col => row[col.field]).join(',')
+      ...rowData.map((row: any) =>
+        columnDefs.map((col: any) => row[col.field]).join(',')
       )
     ].join('\n');
 

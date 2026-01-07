@@ -64,7 +64,7 @@ export interface RuleCondition {
 
 export interface RuleAction {
   type: 'block' | 'allow' | 'warn' | 'require-approval' | 'modify' | 'log' | 'notify' | 'execute-workflow' | 'calculate'
-  target?: string
+  target?: string | string[]
   value?: any
   message?: string
   approvers?: string[]

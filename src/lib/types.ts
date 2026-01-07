@@ -202,7 +202,7 @@ export interface Staff {
 export interface ServiceBay {
   id: string
   number: string
-  status: "occupied" | "available" | "maintenance"
+  status: "occupied" | "available" | "maintenance" | "operational" | "closed"
   is_active?: boolean // Active status flag
   vehicle?: string
   technician?: string

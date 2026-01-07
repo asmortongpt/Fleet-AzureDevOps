@@ -14,7 +14,7 @@ import {
     Warning
 } from '@phosphor-icons/react'
 
-import { HubPage, HubTabItem } from '@/components/ui/hub-page'
+import { HubPage, HubTabItem, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 

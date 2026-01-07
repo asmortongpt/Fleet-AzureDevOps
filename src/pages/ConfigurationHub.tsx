@@ -36,7 +36,7 @@ import { HubPage } from '../components/ui/hub-page'
 import { Input } from '../components/ui/input'
 import { StatCard } from '../components/ui/stat-card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
-import { useToast } from '../hooks/use-toast'
+import { useToast } from '@/hooks/useToast'
 
 // ============================================================================
 // TYPES
@@ -124,7 +124,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export function ConfigurationHub() {
   const navigate = useNavigate()
-  const { toast } = useToast()
+  const { addToast } = useToast()
 
   // State
   const [configs, setConfigs] = useState<ConfigItem[]>([])
@@ -162,11 +162,7 @@ export function ConfigurationHub() {
       const data = await response.json()
       setConfigs(data.data.configs)
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to load configurations',
-        variant: 'destructive'
-      })
+      addToast('Failed to load configurations', 'error')
     } finally {
       setLoading(false)
     }
@@ -223,21 +219,14 @@ export function ConfigurationHub() {
 
       const data = await response.json()
 
-      toast({
-        title: 'Success',
-        description: data.message
-      })
+      addToast(data.message || 'Configuration updated successfully', 'success')
 
       setEditingConfig(null)
       setEditValue(null)
       fetchConfigurations()
       fetchChangeHistory()
     } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to update configuration',
-        variant: 'destructive'
-      })
+      addToast(error.message || 'Failed to update configuration', 'error')
     }
   }
 
@@ -255,19 +244,12 @@ export function ConfigurationHub() {
 
       const data = await response.json()
 
-      toast({
-        title: 'Success',
-        description: data.message
-      })
+      addToast(data.message || 'Rollback successful', 'success')
 
       fetchConfigurations()
       fetchChangeHistory()
     } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to rollback configuration',
-        variant: 'destructive'
-      })
+      addToast(error.message || 'Failed to rollback configuration', 'error')
     }
   }
 
@@ -289,16 +271,9 @@ export function ConfigurationHub() {
       a.download = `configuration-export-${new Date().toISOString()}.json`
       a.click()
 
-      toast({
-        title: 'Success',
-        description: 'Configuration exported successfully'
-      })
+      addToast('Configuration exported successfully', 'success')
     } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: 'Failed to export configuration',
-        variant: 'destructive'
-      })
+      addToast('Failed to export configuration', 'error')
     }
   }
 
@@ -324,32 +299,32 @@ export function ConfigurationHub() {
     <HubPage
       title="Configuration Hub"
       description="Complete system configuration for CTA owners"
-      icon={Settings}
+      icon={<Settings className="w-6 h-6" />}
     >
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <StatCard
           title="Total Configurations"
           value={stats?.totalConfigs || 0}
-          icon={Settings}
+          icon={<Settings className="w-6 h-6" />}
           trend="neutral"
         />
         <StatCard
           title="CTA Owner Only"
           value={stats?.ctaOwnerOnly || 0}
-          icon={Lock}
+          icon={<Lock className="w-6 h-6" />}
           trend="neutral"
         />
         <StatCard
           title="Recent Changes"
           value={stats?.recentChanges || 0}
-          icon={History}
+          icon={<History className="w-6 h-6" />}
           trend="neutral"
         />
         <StatCard
           title="Categories"
           value={stats ? Object.keys(stats.byCategory).length : 0}
-          icon={Filter}
+          icon={<Filter className="w-6 h-6" />}
           trend="neutral"
         />
       </div>

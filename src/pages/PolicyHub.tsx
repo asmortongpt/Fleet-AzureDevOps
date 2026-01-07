@@ -29,7 +29,7 @@ import {
 import { PolicyEngineWorkbench } from '@/components/modules/admin/PolicyEngineWorkbench'
 import { PolicyOnboarding } from '@/components/modules/admin/PolicyOnboarding'
 import { Button } from '@/components/ui/button'
-import { HubPage, HubTabItem } from '@/components/ui/hub-page'
+import { HubPage, HubTabItem, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 import { usePolicies } from '@/contexts/PolicyContext'

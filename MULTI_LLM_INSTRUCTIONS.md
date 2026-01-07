@@ -2,6 +2,53 @@
 
 ## Active Swarms
 
+### Swarm 13: Security Remediation & Code Quality (CRITICAL - P0)
+**Status:** IN PROGRESS
+**Branch:** feature/swarm-13-security-remediation
+**Last Updated:** 2026-01-07 20:45 UTC
+**Agent:** Claude-Code-Security-Agent
+**Priority:** P0 (IMMEDIATE)
+
+**Codacy Analysis Results:**
+- **Total Issues:** 19,213
+- **Quality Grade:** B (89/100) - Target: A (95+)
+- **High-Severity Security Issues:** 35 (CRITICAL)
+- **Code Coverage:** 0% (3,994 uncovered files)
+- **Complex Files:** 1,038 (25%)
+- **Code Duplication:** 9%
+
+**Critical Security Issues (35 High-Severity):**
+
+**Azure Key Vault (26 issues):**
+- ❌ 14 secrets without expiration dates
+- ❌ 9 secrets without content type
+- ❌ Missing purge protection
+- ❌ Missing network ACLs
+- ❌ Missing firewall rules
+
+**Azure Kubernetes Service (3 issues):**
+- ❌ API server not restricted by IP ranges
+- ❌ Not configured as private cluster
+- ❌ Missing disk encryption set
+
+**Storage/Network (6 issues):**
+- ❌ CORS allows all origins (XSS/CSRF risk)
+- ❌ Redis public network access enabled
+- ❌ Storage account network misconfiguration
+
+**Progress - Week 1 (P0 - IMMEDIATE):**
+- [ ] Add expiration dates to 14 Key Vault secrets (infra/terraform/keyvault.tf)
+- [ ] Add content types to 9 Key Vault secrets
+- [ ] Enable Key Vault purge protection
+- [ ] Configure Key Vault network ACLs
+- [ ] Fix Storage CORS to specific origins only
+- [ ] Disable Redis public network access
+
+**Estimated Effort:** 8-12 hours
+**Detailed Report:** `codacy-reports/COMPREHENSIVE-REMEDIATION-REPORT.md`
+
+---
+
 ### Swarm 9: Frontend Integration (Agent 4 - CORRECTED)
 **Status:** IN PROGRESS
 **Branch:** feature/swarm-9-frontend-integration
@@ -15,11 +62,17 @@
 - ✅ AlertData interface created with 37 properties
 - ✅ SWR hook properly typed with <AlertData>
 - ✅ Resolved merge conflict markers
-- 🔄 110 TypeScript errors remaining in other files
+- ✅ SafetyHub.tsx fixed (7 errors → 0)
+- ✅ ConfigurationHub.tsx fixed (6 errors → 0)
+- ✅ LeafletMap.tsx fixed (map rendering & types)
+- ✅ GarageService.tsx fixed (4 cast errors)
+- ✅ policy-rules-compiler.ts fixed (10 errors)
+- ✅ DataWorkbench.tsx fixed (6 errors)
+- 🔄 ~58 TypeScript errors remaining (down from 110)
 
 **Current Metrics:**
-- TypeScript Errors: 175 → 110 (-37% reduction)
-- Files Fixed: 1 (AlertDrilldowns.tsx: 100% error-free)
+- TypeScript Errors: 110 → ~58 (-47% reduction)
+- Files Fixed: 7+ (AlertDrilldowns, SafetyHub, LeafletMap, etc.)
 - Commits: 2 (f84ffd9be, pending commit)
 
 **Next Agent Tasks:**
@@ -77,8 +130,15 @@
 **Focus:** Progressive Web App, offline functionality, mobile optimization
 
 ### Swarm 12: Testing & QA
-**Status:** PLANNED
+**Status:** PLANNED (HIGH PRIORITY - 0% coverage)
 **Focus:** E2E tests, integration tests, accessibility testing
+**NOTE:** Code coverage is currently 0% - critical gap identified by Codacy
+
+### Swarm 14: Code Complexity Reduction
+**Status:** PLANNED
+**Focus:** Refactor high-complexity functions, reduce cyclomatic complexity
+**Codacy Issues:** 65+ functions with cyclomatic complexity > 8 (limit)
+**Target:** Reduce complex files from 25% to <10%
 
 ---
 
@@ -116,4 +176,66 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 ---
 
-Last Updated: 2026-01-07 15:52 UTC
+---
+
+## Codacy Integration
+
+**Dashboard:** https://app.codacy.com/gh/asmortongpt/Fleet/dashboard
+**API Token:** Configured in `/Users/andrewmorton/.env`
+**Quality Badge:** ![Codacy Badge](https://app.codacy.com/project/badge/Grade/422b5c48d1094ed6bc871279f9e9a698)
+
+**Current Status:**
+- Grade: B (89/100)
+- Target: A (95+)
+- Total Issues: 19,213
+- Security Issues: 35 (HIGH PRIORITY)
+
+**Reports:**
+- Comprehensive Remediation Report: `codacy-reports/COMPREHENSIVE-REMEDIATION-REPORT.md`
+- Raw API Data: `codacy-reports/all-issues-page1.json`
+
+---
+
+Last Updated: 2026-01-07 22:05 UTC
+
+---
+
+## 🤖 Agent Operating Instructions (Copy/Paste this to new Agents)
+
+**Objective:** You are joining a Multi-Agent Swarm working on the Fleet Management System. Your goal is to contribute effectively while maintaining strict coordination with other agents and the GitHub repository.
+
+### 1. 🚦 Immediate Action Items
+*   **Read `MULTI_LLM_INSTRUCTIONS.md` (this file):** It is the source of truth for active swarms and their status.
+*   **Check `KI` (Knowledge Items):** Look in `.agent/knowledge` or rely on your system prompt summaries to avoid redundant work.
+*   **Identify Your Swarm:** If assigned a Swarm ID (e.g., Swarm 9), strictly follow its objectives. If not, ask the User for assignment.
+
+### 2. 🐙 GitHub Coordination Protocol
+*   **Branching:** ALWAYS work on a feature branch.
+    *   Format: `feature/swarm-<ID>-<short-description>` (e.g., `feature/swarm-13-security`).
+    *   *Never* commit directly to `main` unless explicitly instructed for hotfixes.
+*   **Syncing:**
+    *   Before starting, `git pull origin main` to ensure you have the latest base.
+    *   If your branch is stale, `git merge main` into your branch to resolve conflicts locally.
+*   **Commits:**
+    *   Use atomic commits.
+    *   Format: `<type>(<scope>): <description>`.
+    *   Example: `fix(auth): resolve jwt expiration issue`.
+*   **Pull Requests (PRs):**
+    *   When a task is complete, push your branch: `git push origin <branch-name>`.
+    *   Use the `gh` CLI if available (e.g., `gh pr create`) or instruct the User to create a PR.
+    *   Link related Issues in the PR description (e.g., "Fixes #123").
+
+### 3. 📢 Communication & Handoff
+*   **Update Status:** At the end of your session, UPDATE `MULTI_LLM_INSTRUCTIONS.md`.
+    *   Change Status (e.g., `IN PROGRESS` -> `PAUSED` or `COMPLETED`).
+    *   Update "Last Updated" timestamp.
+    *   Log key progress and "Next Agent Tasks".
+*   **Report Generation:** If you made significant changes, generate a report file (e.g., `REPORTS/SWARM_<ID>_PROGRESS.md`).
+
+### 4. 🛡️ Quality & Safety Standards
+*   **TypeScript:** Zero errors is the goal. Do not settle for `@ts-ignore` unless absolutely necessary and documented.
+*   **Linting:** Run `npm run lint` before finishing. Fix reported issues.
+*   **Tests:** Ensure existing tests pass (`npm run test`). Add tests for new features if possible.
+*   **Security:** Do not hardcode secrets. Use environment variables.
+
+**"We are building a premium, enterprise-grade system. Precision, aesthetics, and robustness are paramount."**

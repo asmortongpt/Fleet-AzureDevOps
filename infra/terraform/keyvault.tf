@@ -111,9 +111,19 @@ resource "azurerm_key_vault_secret" "postgres_connection_string" {
   value        = "postgresql://${var.postgres_admin_username}:${random_password.postgres_admin.result}@${azurerm_postgresql_flexible_server.main.fqdn}:5432/${azurerm_postgresql_flexible_server_database.main.name}?sslmode=require"
   key_vault_id = azurerm_key_vault.main.id
 
+  # Security: Add expiration date (1 year from creation)
+  expiration_date = timeadd(timestamp(), "8760h")
+
+  # Security: Specify content type for better secret management
+  content_type = "connection-string"
+
   depends_on = [
     azurerm_role_assignment.keyvault_admin
   ]
+
+  lifecycle {
+    ignore_changes = [expiration_date]
+  }
 
   tags = merge(var.tags, {
     Environment = var.environment
@@ -126,9 +136,19 @@ resource "azurerm_key_vault_secret" "postgres_admin_password" {
   value        = random_password.postgres_admin.result
   key_vault_id = azurerm_key_vault.main.id
 
+  # Security: Add expiration date (1 year from creation)
+  expiration_date = timeadd(timestamp(), "8760h")
+
+  # Security: Specify content type for better secret management
+  content_type = "password"
+
   depends_on = [
     azurerm_role_assignment.keyvault_admin
   ]
+
+  lifecycle {
+    ignore_changes = [expiration_date]
+  }
 
   tags = merge(var.tags, {
     Environment = var.environment
@@ -141,9 +161,19 @@ resource "azurerm_key_vault_secret" "redis_connection_string" {
   value        = "rediss://:${azurerm_redis_cache.main.primary_access_key}@${azurerm_redis_cache.main.hostname}:${azurerm_redis_cache.main.ssl_port}/0"
   key_vault_id = azurerm_key_vault.main.id
 
+  # Security: Add expiration date (1 year from creation)
+  expiration_date = timeadd(timestamp(), "8760h")
+
+  # Security: Specify content type for better secret management
+  content_type = "connection-string"
+
   depends_on = [
     azurerm_role_assignment.keyvault_admin
   ]
+
+  lifecycle {
+    ignore_changes = [expiration_date]
+  }
 
   tags = merge(var.tags, {
     Environment = var.environment
@@ -156,9 +186,19 @@ resource "azurerm_key_vault_secret" "redis_primary_key" {
   value        = azurerm_redis_cache.main.primary_access_key
   key_vault_id = azurerm_key_vault.main.id
 
+  # Security: Add expiration date (1 year from creation)
+  expiration_date = timeadd(timestamp(), "8760h")
+
+  # Security: Specify content type for better secret management
+  content_type = "api-key"
+
   depends_on = [
     azurerm_role_assignment.keyvault_admin
   ]
+
+  lifecycle {
+    ignore_changes = [expiration_date]
+  }
 
   tags = merge(var.tags, {
     Environment = var.environment
@@ -171,9 +211,19 @@ resource "azurerm_key_vault_secret" "servicebus_connection_string" {
   value        = azurerm_servicebus_namespace.main.default_primary_connection_string
   key_vault_id = azurerm_key_vault.main.id
 
+  # Security: Add expiration date (1 year from creation)
+  expiration_date = timeadd(timestamp(), "8760h")
+
+  # Security: Specify content type for better secret management
+  content_type = "connection-string"
+
   depends_on = [
     azurerm_role_assignment.keyvault_admin
   ]
+
+  lifecycle {
+    ignore_changes = [expiration_date]
+  }
 
   tags = merge(var.tags, {
     Environment = var.environment
@@ -186,9 +236,19 @@ resource "azurerm_key_vault_secret" "eventhub_connection_string" {
   value        = azurerm_eventhub_namespace.main.default_primary_connection_string
   key_vault_id = azurerm_key_vault.main.id
 
+  # Security: Add expiration date (1 year from creation)
+  expiration_date = timeadd(timestamp(), "8760h")
+
+  # Security: Specify content type for better secret management
+  content_type = "connection-string"
+
   depends_on = [
     azurerm_role_assignment.keyvault_admin
   ]
+
+  lifecycle {
+    ignore_changes = [expiration_date]
+  }
 
   tags = merge(var.tags, {
     Environment = var.environment
@@ -201,9 +261,19 @@ resource "azurerm_key_vault_secret" "storage_connection_string" {
   value        = azurerm_storage_account.main.primary_connection_string
   key_vault_id = azurerm_key_vault.main.id
 
+  # Security: Add expiration date (1 year from creation)
+  expiration_date = timeadd(timestamp(), "8760h")
+
+  # Security: Specify content type for better secret management
+  content_type = "connection-string"
+
   depends_on = [
     azurerm_role_assignment.keyvault_admin
   ]
+
+  lifecycle {
+    ignore_changes = [expiration_date]
+  }
 
   tags = merge(var.tags, {
     Environment = var.environment
@@ -216,9 +286,19 @@ resource "azurerm_key_vault_secret" "appinsights_connection_string" {
   value        = azurerm_application_insights.main.connection_string
   key_vault_id = azurerm_key_vault.main.id
 
+  # Security: Add expiration date (1 year from creation)
+  expiration_date = timeadd(timestamp(), "8760h")
+
+  # Security: Specify content type for better secret management
+  content_type = "connection-string"
+
   depends_on = [
     azurerm_role_assignment.keyvault_admin
   ]
+
+  lifecycle {
+    ignore_changes = [expiration_date]
+  }
 
   tags = merge(var.tags, {
     Environment = var.environment
@@ -231,9 +311,19 @@ resource "azurerm_key_vault_secret" "appinsights_instrumentation_key" {
   value        = azurerm_application_insights.main.instrumentation_key
   key_vault_id = azurerm_key_vault.main.id
 
+  # Security: Add expiration date (1 year from creation)
+  expiration_date = timeadd(timestamp(), "8760h")
+
+  # Security: Specify content type for better secret management
+  content_type = "api-key"
+
   depends_on = [
     azurerm_role_assignment.keyvault_admin
   ]
+
+  lifecycle {
+    ignore_changes = [expiration_date]
+  }
 
   tags = merge(var.tags, {
     Environment = var.environment
@@ -246,9 +336,19 @@ resource "azurerm_key_vault_secret" "oidc_client_secret" {
   value        = "PLACEHOLDER-UPDATE-IN-AZURE-PORTAL"
   key_vault_id = azurerm_key_vault.main.id
 
+  # Security: Add expiration date (1 year from creation)
+  expiration_date = timeadd(timestamp(), "8760h")
+
+  # Security: Specify content type for better secret management
+  content_type = "client-secret"
+
   depends_on = [
     azurerm_role_assignment.keyvault_admin
   ]
+
+  lifecycle {
+    ignore_changes = [expiration_date, value] # Don't overwrite manual updates
+  }
 
   tags = merge(var.tags, {
     Environment = var.environment
@@ -265,18 +365,24 @@ resource "azurerm_key_vault_secret" "jwt_secret" {
   value        = "PLACEHOLDER-UPDATE-IN-AZURE-PORTAL"
   key_vault_id = azurerm_key_vault.main.id
 
+  # Security: Add expiration date (1 year from creation)
+  expiration_date = timeadd(timestamp(), "8760h")
+
+  # Security: Specify content type for better secret management
+  content_type = "secret-key"
+
   depends_on = [
     azurerm_role_assignment.keyvault_admin
   ]
+
+  lifecycle {
+    ignore_changes = [expiration_date, value] # Don't overwrite manual updates
+  }
 
   tags = merge(var.tags, {
     Environment = var.environment
     Note        = "Update this secret in Azure Portal"
   })
-
-  lifecycle {
-    ignore_changes = [value]
-  }
 }
 
 # Azure Monitor Diagnostic Settings
