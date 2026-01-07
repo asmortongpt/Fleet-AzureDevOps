@@ -19,10 +19,29 @@
     <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
-    <!-- Content Security Policy - Development Mode -->
-    <!-- Production CSP should be set via HTTP headers for better security -->
+    <!-- P0-4 SECURITY FIX: Content Security Policy with Nonce-Based Script/Style Loading -->
+    <!-- CRITICAL: Removes 'unsafe-inline' and 'unsafe-eval' to prevent XSS attacks -->
+    <!-- Nonce is generated per-request by the server and injected into this meta tag -->
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://maps.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' ws://localhost:* wss://localhost:* http://localhost:* https://localhost:* http://20.161.96.87 ws://20.161.96.87 https://api.fleet-management.com https://fleet.capitaltechalliance.com https://*.azure.com https://*.microsoft.com https://maps.googleapis.com; media-src 'self' blob:; object-src 'none'; frame-src 'self' https://login.microsoftonline.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'; worker-src 'self' blob:;" />
+        content="
+            default-src 'self';
+            script-src 'self' 'nonce-{{CSP_NONCE}}' https://cdn.jsdelivr.net https://unpkg.com https://maps.googleapis.com;
+            style-src 'self' 'nonce-{{CSP_NONCE}}' https://fonts.googleapis.com;
+            font-src 'self' https://fonts.gstatic.com data:;
+            img-src 'self' data: blob: https:;
+            connect-src 'self' ws://localhost:* wss://localhost:* http://localhost:* https://localhost:* http://20.161.96.87 ws://20.161.96.87 https://api.fleet-management.com https://fleet.capitaltechalliance.com https://*.azure.com https://*.microsoft.com https://maps.googleapis.com;
+            media-src 'self' blob:;
+            object-src 'none';
+            frame-src 'self' https://login.microsoftonline.com;
+            frame-ancestors 'none';
+            base-uri 'self';
+            form-action 'self';
+            manifest-src 'self';
+            worker-src 'self' blob:;
+            upgrade-insecure-requests;
+        " />
+    <!-- Note: {{CSP_NONCE}} is replaced at runtime by server middleware -->
+    <!-- For Azure Static Web Apps, configure this in staticwebapp.config.json -->
 
     <!-- PWA Meta Tags -->
     <meta name="description"
