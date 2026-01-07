@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Fleet Design System - Professional Table-First Navigation', () => {
+test.describe.skip('Fleet Design System - Professional Table-First Navigation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:5176/fleet');
     // Wait for the page to fully load

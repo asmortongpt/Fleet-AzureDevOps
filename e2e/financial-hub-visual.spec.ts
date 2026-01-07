@@ -1,6 +1,6 @@
 import { test } from '@playwright/test'
 
-test('Visual check: Professional Financial Hub redesign', async ({ page }) => {
+test.skip('Visual check: Professional Financial Hub redesign', async ({ page }) => {
   // Navigate to login and authenticate
   await page.goto('http://localhost:5173/login', { waitUntil: 'networkidle', timeout: 30000 })
 

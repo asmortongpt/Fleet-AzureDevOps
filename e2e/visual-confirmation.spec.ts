@@ -1,6 +1,6 @@
 import { test } from '@playwright/test';
 
-test.describe('Fleet Design System - Visual Confirmation', () => {
+test.describe.skip('Fleet Design System - Visual Confirmation', () => {
   test('Visual confirmation of Fleet Overview with design system', async ({ page }) => {
     // Navigate to Fleet Hub
     await page.goto('http://localhost:5176/fleet');

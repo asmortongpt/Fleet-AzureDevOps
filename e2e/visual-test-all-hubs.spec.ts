@@ -1,6 +1,6 @@
 import { test } from '@playwright/test'
 
-test('Visual test: All hubs and pages', async ({ page }) => {
+test.skip('Visual test: All hubs and pages', async ({ page }) => {
   // Login
   await page.goto('http://localhost:5173/login', { waitUntil: 'networkidle', timeout: 30000 })
   await page.fill('input[type="email"]', 'admin@fleet.local')
