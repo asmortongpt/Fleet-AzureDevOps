@@ -86,9 +86,10 @@
     "src/components/hubs/MonitoringDashboard.tsx",
     "src/components/hubs/telematics/**",
     "src/components/hubs/safety/**",
+    "src/components/hubs/analytics/**",
     "src/components/mobile/**",
-    "src/components/modules/fleet/**",
-    "src/components/modules/maintenance/**",
+    "src/components/modules/**",
+    "src/components/garage/**",
     "src/container/**",
     "src/workers/**",
     "src/services/multi-llm-orchestrator.service.ts",
@@ -100,7 +101,13 @@
     "src/pages/IntegrationsHub.tsx",
     "src/pages/AssetsHub.tsx",
     "src/pages/hubs/**",
-    "src/components/fleet/VehicleTable.tsx",
-    "src/components/drilldown/MaintenanceHubDrilldowns.tsx"
+    "src/components/fleet/**",
+    "src/components/drilldown/**",
+    "src/components/common/VirtualList.tsx",
+    "src/components/ui/virtualized-table.tsx",
+    "src/components/ui/virtual-table.tsx",
+    "src/components/errors/EnhancedErrorBoundary.tsx",
+    "src/lib/offline-storage.ts",
+    "src/logger.ts"
   ]
 }
