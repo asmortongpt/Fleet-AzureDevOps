@@ -123,7 +123,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
   }
 
   if (isLoading || !alert) {
-    return <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()} />
+    return <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>{null}</DrilldownContent>
   }
 
   const alertData: AlertData = alert
@@ -440,9 +440,8 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
             </TabsContent>
           </Tabs>
         </div>
-      )}
-    </DrilldownContent>
-  )
+      </DrilldownContent>
+    )
 }
 
 // ============================================
