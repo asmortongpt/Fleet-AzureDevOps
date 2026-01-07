@@ -71,12 +71,26 @@
     "src/components/drilldown/AssetHubDrilldowns.tsx",
     "src/components/drilldown/ScheduleDrilldowns.tsx",
     "src/components/drilldown/MaintenanceRequestDrilldowns.tsx",
+    "src/components/drilldown/ExcelStyleTable.tsx",
     "src/features/fleet-3d/**",
+    "src/features/radio-dispatch/**",
     "src/services/pwa/**",
     "src/lib/monitoring/**",
     "src/services/monitoring/**",
     "src/lib/document-generation/**",
+    "src/lib/ai/**",
+    "src/lib/auth/**",
     "src/components/LeafletMap.tsx",
-    "src/components/DrilldownSystem.tsx"
+    "src/components/DrilldownSystem.tsx",
+    "src/components/hubs/MonitoringDashboard.tsx",
+    "src/components/hubs/telematics/**",
+    "src/components/mobile/**",
+    "src/components/modules/fleet/**",
+    "src/container/**",
+    "src/services/multi-llm-orchestrator.service.ts",
+    "src/hooks/use-amt-api.ts",
+    "src/pages/ConfigurationHub.tsx",
+    "src/pages/DocumentsHub.tsx",
+    "src/pages/FinancialHubEnhanced.tsx"
   ]
 }
