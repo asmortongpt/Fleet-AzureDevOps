@@ -99,7 +99,7 @@ const ACCESS_LEVELS = [
 ]
 
 export function DocumentsHub() {
-  const { toast} = useToast()
+  const { addToast } = useToast()
 
   // State
   const [documents, setDocuments] = useState<Document[]>([])
@@ -357,7 +357,7 @@ export function DocumentsHub() {
   }
 
   return (
-    <HubPage title="Documents Hub" icon={FileStack}>
+    <HubPage title="Documents Hub" icon={<FileStack className="w-6 h-6" />}>
       <Tabs defaultValue="browse" className="space-y-6">
         <TabsList>
           <TabsTrigger value="browse">Browse</TabsTrigger>
