@@ -15,33 +15,36 @@
 
     <!-- Security Headers -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <!-- X-Frame-Options: Cannot be set via meta tag - configure in server/Azure headers -->
     <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
-    <!-- P0-4 SECURITY FIX: Content Security Policy with Nonce-Based Script/Style Loading -->
-    <!-- CRITICAL: Removes 'unsafe-inline' and 'unsafe-eval' to prevent XSS attacks -->
-    <!-- Nonce is generated per-request by the server and injected into this meta tag -->
+    <!-- P0-4 SECURITY FIX: Content Security Policy -->
+    <!-- DEVELOPMENT: Allows unsafe-inline for react-hot-toast, sonner, vaul UI libraries -->
+    <!-- PRODUCTION: Configure CSP via HTTP headers in Azure Static Web Apps with nonces -->
     <meta http-equiv="Content-Security-Policy"
         content="
             default-src 'self';
-            script-src 'self' 'nonce-{{CSP_NONCE}}' https://cdn.jsdelivr.net https://unpkg.com https://maps.googleapis.com;
-            style-src 'self' 'nonce-{{CSP_NONCE}}' https://fonts.googleapis.com;
+            script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://maps.googleapis.com;
+            style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
             font-src 'self' https://fonts.gstatic.com data:;
             img-src 'self' data: blob: https:;
             connect-src 'self' ws://localhost:* wss://localhost:* http://localhost:* https://localhost:* http://20.161.96.87 ws://20.161.96.87 https://api.fleet-management.com https://fleet.capitaltechalliance.com https://*.azure.com https://*.microsoft.com https://maps.googleapis.com;
             media-src 'self' blob:;
             object-src 'none';
             frame-src 'self' https://login.microsoftonline.com;
-            frame-ancestors 'none';
             base-uri 'self';
             form-action 'self';
             manifest-src 'self';
             worker-src 'self' blob:;
             upgrade-insecure-requests;
         " />
-    <!-- Note: {{CSP_NONCE}} is replaced at runtime by server middleware -->
-    <!-- For Azure Static Web Apps, configure this in staticwebapp.config.json -->
+    <!-- NOTE: frame-ancestors 'none' must be set via HTTP header (not meta tag) -->
+    <!-- TODO Production: Configure HTTP headers in Azure Static Web Apps:
+         - X-Frame-Options: DENY
+         - Content-Security-Policy with frame-ancestors 'none' and nonces
+         - Configure in staticwebapp.config.json or Azure CDN rules
+    -->
 
     <!-- PWA Meta Tags -->
     <meta name="description"
