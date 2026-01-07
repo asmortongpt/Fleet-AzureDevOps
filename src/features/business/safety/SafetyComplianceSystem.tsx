@@ -52,7 +52,8 @@ import {
   Avatar,
   Divider,
   FormControlLabel,
-  Checkbox
+  Checkbox,
+  Stack
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
@@ -595,7 +596,7 @@ const SafetyComplianceSystem: React.FC = () => {
                             label={incident.severity}
                             color={
                               incident.severity === 'High' ? 'error' :
-                              incident.severity === 'Medium' ? 'warning' : 'default'
+                                incident.severity === 'Medium' ? 'warning' : 'default'
                             }
                           />
                         </ListItemIcon>
@@ -711,7 +712,7 @@ const SafetyComplianceSystem: React.FC = () => {
                                 label={incident.severity}
                                 color={
                                   incident.severity === 'High' ? 'error' :
-                                  incident.severity === 'Medium' ? 'warning' : 'default'
+                                    incident.severity === 'Medium' ? 'warning' : 'default'
                                 }
                               />
                             </TableCell>
