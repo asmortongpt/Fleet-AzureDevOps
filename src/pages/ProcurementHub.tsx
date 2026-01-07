@@ -90,7 +90,8 @@ function PartsContent() {
                     value="1,180"
                     variant="success"
                     icon={<CheckCircle className="w-6 h-6" />}
-                    trend={{ value: "94.8%", direction: "up" }}
+                    trend="up"
+                    trendValue="94.8%"
                     onClick={() => push({ type: 'parts-inventory', data: { title: 'In Stock Items' }, id: 'in-stock' } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
