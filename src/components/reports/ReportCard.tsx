@@ -7,7 +7,7 @@ interface Report {
   id: string;
   title: string;
   domain: string;
-  file: string;
+  file?: string;
 }
 
 interface DomainMeta {
