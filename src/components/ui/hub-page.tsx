@@ -15,7 +15,7 @@ import { DrilldownBreadcrumbs } from '@/components/drilldown/DrilldownBreadcrumb
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 
-export interface HubTab {
+export interface HubTabConfig {
     id: string
     label: string
     icon?: ReactNode
@@ -24,6 +24,27 @@ export interface HubTab {
     badge?: string | number
     /** Accessible label for screen readers */
     ariaLabel?: string
+}
+
+// Backward compatibility alias
+export type HubTab = HubTabConfig
+
+/**
+ * HubTabItem - Component version for child-based API
+ * This is a "marker" component that gets processed by HubPage
+ */
+export interface HubTabItemProps {
+    value: string
+    label: string
+    icon?: ReactNode
+    disabled?: boolean
+    children: ReactNode
+}
+
+export function HubTabItem({ children }: HubTabItemProps) {
+    // This component is a "marker" - its props are extracted by parent
+    // It just renders children directly when used standalone
+    return <>{children}</>
 }
 
 export interface HubPageProps {
