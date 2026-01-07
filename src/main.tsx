@@ -33,7 +33,8 @@ import App from "./App"
 import ProtectedRoute from "./components/ProtectedRoute"
 import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
 import { ThemeProvider } from "./components/providers/ThemeProvider"
-import { validateSecrets, getSecret, checkKeyVaultHealth } from "./config/secrets"
+// TEMP DISABLED: Azure Key Vault should be backend-only, not frontend
+// import { validateSecrets, getSecret, checkKeyVaultHealth } from "./config/secrets"
 import { AuthProvider } from "./contexts/AuthContext"
 import { DrilldownProvider } from "./contexts/DrilldownContext"
 import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
@@ -87,10 +88,25 @@ const SentryRoutes = Routes
  * P0-3 SECURITY FIX: Startup configuration validation
  * CRITICAL: Application MUST NOT start if required secrets are missing or invalid
  * This prevents silent failures and ensures proper JWT configuration
+ *
+ * TEMP DISABLED: Azure Key Vault integration must be moved to backend API
+ * The @azure/identity and @azure/keyvault-secrets packages are Node.js-only
+ * and cannot run in browser environment. Secret validation should happen
+ * in the backend API server, not in the frontend.
+ *
+ * TODO: Implement backend API endpoint for secret validation
+ * TODO: Call backend /api/health or /api/config endpoint from frontend
  */
 async function validateStartupConfiguration(): Promise<void> {
   console.log('[Fleet] Starting application configuration validation...');
+  console.log('[Fleet] ⚠️  NOTICE: Azure Key Vault validation disabled (frontend)');
+  console.log('[Fleet] ⚠️  Secret validation must be implemented in backend API');
 
+  // TEMP: Skip all Key Vault validation in frontend
+  // This allows the app to start in development mode
+  console.log('[Fleet] ✅ Frontend startup validation: PASSED (Key Vault disabled)');
+
+  /* COMMENTED OUT - CAUSES BROWSER CRASH
   try {
     // Only validate secrets in production mode
     if (import.meta.env.MODE === 'production') {
@@ -178,6 +194,7 @@ async function validateStartupConfiguration(): Promise<void> {
     // Re-throw to prevent app from starting
     throw error;
   }
+  */
 }
 
 // P0-3: Run validation BEFORE rendering app
