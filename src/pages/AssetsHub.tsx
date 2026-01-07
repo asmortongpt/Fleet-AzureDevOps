@@ -12,7 +12,7 @@ import {
     Tag
 } from '@phosphor-icons/react'
 
-import { HubPage, HubTab } from '@/components/ui/hub-page'
+import { HubPage, HubTabItem } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 

@@ -38,7 +38,7 @@ import * as XLSX from 'xlsx'
 
 import { EnhancedErrorBoundary, SectionErrorBoundary } from '@/components/errors/EnhancedErrorBoundary'
 import { Button } from '@/components/ui/button'
-import { HubPage, HubTab } from '@/components/ui/hub-page'
+import { HubPage, HubTabItem } from '@/components/ui/hub-page'
 import {
     AsyncState,
     StatCardSkeleton,
@@ -450,8 +450,8 @@ const BudgetUtilizationTable = React.memo(() => {
                         value={status.replace('-', ' ')}
                         variant={
                             status === 'on-track' ? 'success' :
-                            status === 'warning' ? 'warning' :
-                            'danger'
+                                status === 'warning' ? 'warning' :
+                                    'danger'
                         }
                     />
                 )
@@ -525,54 +525,54 @@ export default function EnhancedFinancialHub() {
                     </div>
                 }
             >
-                <HubTab value="cost-analysis" label="Cost Analysis" icon={<Calculator className="w-5 h-5" />}>
+                <HubTabItem value="cost-analysis" label="Cost Analysis" icon={<Calculator className="w-5 h-5" />}>
                     <CostAnalysisContent />
-                </HubTab>
+                </HubTabItem>
 
-                <HubTab value="billing" label="Billing Reports" icon={<ChartBar className="w-5 h-5" />}>
+                <HubTabItem value="billing" label="Billing Reports" icon={<ChartBar className="w-5 h-5" />}>
                     <SectionErrorBoundary>
                         <div className="p-8">
                             <h2 className="text-2xl font-bold text-white mb-4">Billing & Revenue Reports</h2>
                             <p className="text-slate-400">Enhanced billing features coming soon...</p>
                         </div>
                     </SectionErrorBoundary>
-                </HubTab>
+                </HubTabItem>
 
-                <HubTab value="budget" label="Budget Tracking" icon={<Wallet className="w-5 h-5" />}>
+                <HubTabItem value="budget" label="Budget Tracking" icon={<Wallet className="w-5 h-5" />}>
                     <SectionErrorBoundary>
                         <div className="p-8">
                             <h2 className="text-2xl font-bold text-white mb-4">Budget Tracking & Forecasting</h2>
                             <p className="text-slate-400">Advanced budget analytics coming soon...</p>
                         </div>
                     </SectionErrorBoundary>
-                </HubTab>
+                </HubTabItem>
 
-                <HubTab value="cost-benefit" label="ROI Analysis" icon={<TrendUp className="w-5 h-5" />}>
+                <HubTabItem value="cost-benefit" label="ROI Analysis" icon={<TrendUp className="w-5 h-5" />}>
                     <SectionErrorBoundary>
                         <div className="p-8">
                             <h2 className="text-2xl font-bold text-white mb-4">Cost-Benefit & ROI Analysis</h2>
                             <p className="text-slate-400">Investment analysis tools coming soon...</p>
                         </div>
                     </SectionErrorBoundary>
-                </HubTab>
+                </HubTabItem>
 
-                <HubTab value="invoices" label="Invoice Processing" icon={<Invoice className="w-5 h-5" />}>
+                <HubTabItem value="invoices" label="Invoice Processing" icon={<Invoice className="w-5 h-5" />}>
                     <SectionErrorBoundary>
                         <div className="p-8">
                             <h2 className="text-2xl font-bold text-white mb-4">Automated Invoice Processing</h2>
                             <p className="text-slate-400">AI-powered invoice management coming soon...</p>
                         </div>
                     </SectionErrorBoundary>
-                </HubTab>
+                </HubTabItem>
 
-                <HubTab value="payments" label="Payment Tracking" icon={<CreditCard className="w-5 h-5" />}>
+                <HubTabItem value="payments" label="Payment Tracking" icon={<CreditCard className="w-5 h-5" />}>
                     <SectionErrorBoundary>
                         <div className="p-8">
                             <h2 className="text-2xl font-bold text-white mb-4">Payment Tracking & Reconciliation</h2>
                             <p className="text-slate-400">Real-time payment monitoring coming soon...</p>
                         </div>
                     </SectionErrorBoundary>
-                </HubTab>
+                </HubTabItem>
             </HubPage>
         </EnhancedErrorBoundary>
     )

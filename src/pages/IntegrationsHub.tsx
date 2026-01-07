@@ -472,21 +472,21 @@ export default function IntegrationsHub() {
             description="Enterprise system integrations and API management"
             icon={<Plugs className="w-8 h-8" />}
         >
-            <HubTab value="peoplesoft" label="PeopleSoft" icon={<Users className="w-5 h-5" />}>
+            <HubTabItem value="peoplesoft" label="PeopleSoft" icon={<Users className="w-5 h-5" />}>
                 <PeopleSoftContent />
-            </HubTab>
+            </HubTabItem>
 
-            <HubTab value="fuelmaster" label="Fuel Master" icon={<GasPump className="w-5 h-5" />}>
+            <HubTabItem value="fuelmaster" label="Fuel Master" icon={<GasPump className="w-5 h-5" />}>
                 <FuelMasterContent />
-            </HubTab>
+            </HubTabItem>
 
-            <HubTab value="keyvault" label="Key Vault" icon={<Key className="w-5 h-5" />}>
+            <HubTabItem value="keyvault" label="Key Vault" icon={<Key className="w-5 h-5" />}>
                 <KeyVaultContent />
-            </HubTab>
+            </HubTabItem>
 
-            <HubTab value="api-management" label="API Management" icon={<Activity className="w-5 h-5" />}>
+            <HubTabItem value="api-management" label="API Management" icon={<Activity className="w-5 h-5" />}>
                 <APIManagementContent />
-            </HubTab>
+            </HubTabItem>
         </HubPage>
     )
 }

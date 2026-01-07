@@ -32,7 +32,7 @@ import {
     CurrencyDollar
 } from '@phosphor-icons/react'
 
-import { HubPage, HubTab } from '@/components/ui/hub-page'
+import { HubPage, HubTabItem } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'

@@ -32,7 +32,7 @@ import {
 } from '@phosphor-icons/react'
 import { useState, useEffect } from 'react'
 
-import { HubPage, HubTab } from '@/components/ui/hub-page'
+import { HubPage, HubTabItem } from '@/components/ui/hub-page'
 import { StatCard } from '@/components/ui/stat-card'
 import { configurationEngine, CONFIGURATION_SCHEMA, type ConfigSetting, type ConfigCategory } from '@/lib/configuration/configuration-engine'
 
