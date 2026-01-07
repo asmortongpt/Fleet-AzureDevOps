@@ -1,0 +1,342 @@
+{
+    "penetration_test_plan": {
+        "title": "Fleet Application - Penetration Test Plan",
+        "version": "1.0",
+        "date": "2026-01-07",
+        "prepared_by": "Morton Technology Alliance, LLC",
+        "scope": "Web Application and API Security Assessment"
+    },
+    "executive_summary": {
+        "objective": "Conduct comprehensive security assessment of Fleet application to identify vulnerabilities and validate security controls",
+        "methodology": "OWASP Testing Guide v4.2 + PTES (Penetration Testing Execution Standard)",
+        "duration": "5 business days",
+        "classification": "Confidential"
+    },
+    "scope": {
+        "in_scope": [
+            "Fleet Web Application (https://fleet.mortontech.com)",
+            "Fleet API (https://api.fleet.mortontech.com)",
+            "Authentication and authorization mechanisms",
+            "Session management",
+            "Input validation",
+            "Business logic",
+            "API endpoints",
+            "File upload functionality",
+            "Third-party integrations (Azure AD SSO)"
+        ],
+        "out_of_scope": [
+            "Azure infrastructure",
+            "Network-level attacks",
+            "Physical security",
+            "Social engineering",
+            "Denial of Service attacks",
+            "Third-party services (Azure, Sentry, etc.)"
+        ]
+    },
+    "test_cases": {
+        "authentication": [
+            {
+                "id": "AUTH-001",
+                "test": "Brute force protection validation",
+                "priority": "HIGH",
+                "status": "READY"
+            },
+            {
+                "id": "AUTH-002",
+                "test": "Password policy enforcement",
+                "priority": "HIGH",
+                "status": "READY"
+            },
+            {
+                "id": "AUTH-003",
+                "test": "Session token security",
+                "priority": "HIGH",
+                "status": "READY"
+            },
+            {
+                "id": "AUTH-004",
+                "test": "JWT implementation review",
+                "priority": "HIGH",
+                "status": "READY"
+            },
+            {
+                "id": "AUTH-005",
+                "test": "SSO bypass attempts",
+                "priority": "HIGH",
+                "status": "READY"
+            },
+            {
+                "id": "AUTH-006",
+                "test": "Account enumeration",
+                "priority": "MEDIUM",
+                "status": "READY"
+            },
+            {
+                "id": "AUTH-007",
+                "test": "Password reset flow",
+                "priority": "MEDIUM",
+                "status": "READY"
+            }
+        ],
+        "authorization": [
+            {
+                "id": "AUTHZ-001",
+                "test": "RBAC bypass attempts",
+                "priority": "CRITICAL",
+                "status": "READY"
+            },
+            {
+                "id": "AUTHZ-002",
+                "test": "Privilege escalation",
+                "priority": "CRITICAL",
+                "status": "READY"
+            },
+            {
+                "id": "AUTHZ-003",
+                "test": "IDOR (Insecure Direct Object Reference)",
+                "priority": "CRITICAL",
+                "status": "READY"
+            },
+            {
+                "id": "AUTHZ-004",
+                "test": "Tenant isolation bypass",
+                "priority": "CRITICAL",
+                "status": "READY"
+            },
+            {
+                "id": "AUTHZ-005",
+                "test": "Role-based access control validation",
+                "priority": "HIGH",
+                "status": "READY"
+            },
+            {
+                "id": "AUTHZ-006",
+                "test": "API endpoint authorization",
+                "priority": "HIGH",
+                "status": "READY"
+            }
+        ],
+        "injection": [
+            {
+                "id": "INJ-001",
+                "test": "SQL injection (all endpoints)",
+                "priority": "CRITICAL",
+                "status": "READY"
+            },
+            {
+                "id": "INJ-002",
+                "test": "NoSQL injection",
+                "priority": "HIGH",
+                "status": "READY"
+            },
+            {
+                "id": "INJ-003",
+                "test": "Command injection",
+                "priority": "CRITICAL",
+                "status": "READY"
+            },
+            {
+                "id": "INJ-004",
+                "test": "LDAP injection",
+                "priority": "MEDIUM",
+                "status": "READY"
+            },
+            {
+                "id": "INJ-005",
+                "test": "XPath injection",
+                "priority": "MEDIUM",
+                "status": "READY"
+            }
+        ],
+        "xss": [
+            {
+                "id": "XSS-001",
+                "test": "Reflected XSS",
+                "priority": "HIGH",
+                "status": "READY"
+            },
+            {
+                "id": "XSS-002",
+                "test": "Stored XSS",
+                "priority": "CRITICAL",
+                "status": "READY"
+            },
+            {
+                "id": "XSS-003",
+                "test": "DOM-based XSS",
+                "priority": "HIGH",
+                "status": "READY"
+            },
+            {
+                "id": "XSS-004",
+                "test": "CSP bypass attempts",
+                "priority": "MEDIUM",
+                "status": "READY"
+            }
+        ],
+        "csrf": [
+            {
+                "id": "CSRF-001",
+                "test": "CSRF token validation",
+                "priority": "HIGH",
+                "status": "READY"
+            },
+            {
+                "id": "CSRF-002",
+                "test": "CSRF on state-changing operations",
+                "priority": "HIGH",
+                "status": "READY"
+            },
+            {
+                "id": "CSRF-003",
+                "test": "SameSite cookie enforcement",
+                "priority": "MEDIUM",
+                "status": "READY"
+            }
+        ],
+        "api_security": [
+            {
+                "id": "API-001",
+                "test": "API rate limiting validation",
+                "priority": "HIGH",
+                "status": "READY"
+            },
+            {
+                "id": "API-002",
+                "test": "API versioning security",
+                "priority": "MEDIUM",
+                "status": "READY"
+            },
+            {
+                "id": "API-003",
+                "test": "GraphQL introspection (if applicable)",
+                "priority": "MEDIUM",
+                "status": "N/A"
+            },
+            {
+                "id": "API-004",
+                "test": "Mass assignment vulnerabilities",
+                "priority": "HIGH",
+                "status": "READY"
+            },
+            {
+                "id": "API-005",
+                "test": "Excessive data exposure",
+                "priority": "HIGH",
+                "status": "READY"
+            }
+        ],
+        "file_upload": [
+            {
+                "id": "FILE-001",
+                "test": "Malicious file upload",
+                "priority": "HIGH",
+                "status": "READY"
+            },
+            {
+                "id": "FILE-002",
+                "test": "File type validation bypass",
+                "priority": "HIGH",
+                "status": "READY"
+            },
+            {
+                "id": "FILE-003",
+                "test": "Path traversal in file upload",
+                "priority": "CRITICAL",
+                "status": "READY"
+            }
+        ],
+        "business_logic": [
+            {
+                "id": "BL-001",
+                "test": "Workflow bypass",
+                "priority": "HIGH",
+                "status": "READY"
+            },
+            {
+                "id": "BL-002",
+                "test": "Price/quantity manipulation",
+                "priority": "MEDIUM",
+                "status": "READY"
+            },
+            {
+                "id": "BL-003",
+                "test": "Race conditions",
+                "priority": "MEDIUM",
+                "status": "READY"
+            },
+            {
+                "id": "BL-004",
+                "test": "Multi-tenant data leakage",
+                "priority": "CRITICAL",
+                "status": "READY"
+            }
+        ]
+    },
+    "tools": {
+        "automated": [
+            "Burp Suite Professional",
+            "OWASP ZAP",
+            "Nuclei",
+            "SQLMap",
+            "Nikto"
+        ],
+        "manual": [
+            "Browser Developer Tools",
+            "Postman/Insomnia",
+            "Custom scripts"
+        ]
+    },
+    "test_accounts": {
+        "note": "Test accounts to be provided before testing",
+        "roles_required": [
+            "Admin",
+            "FleetManager",
+            "Driver",
+            "Auditor",
+            "Vendor"
+        ],
+        "tenants_required": 2
+    },
+    "deliverables": [
+        "Executive Summary Report",
+        "Detailed Technical Findings",
+        "Risk Ratings (CVSS 3.1)",
+        "Remediation Recommendations",
+        "Proof of Concept for Critical/High Findings",
+        "Retest Report (after remediation)"
+    ],
+    "risk_rating": {
+        "methodology": "CVSS 3.1",
+        "severity_levels": {
+            "critical": {
+                "score": "9.0 - 10.0",
+                "remediation_sla": "24 hours"
+            },
+            "high": {
+                "score": "7.0 - 8.9",
+                "remediation_sla": "7 days"
+            },
+            "medium": {
+                "score": "4.0 - 6.9",
+                "remediation_sla": "30 days"
+            },
+            "low": {
+                "score": "0.1 - 3.9",
+                "remediation_sla": "90 days"
+            },
+            "informational": {
+                "score": "0.0",
+                "remediation_sla": "Best effort"
+            }
+        }
+    },
+    "schedule": {
+        "kickoff": "TBD",
+        "testing_start": "TBD + 1 day",
+        "testing_end": "TBD + 5 days",
+        "draft_report": "TBD + 7 days",
+        "final_report": "TBD + 10 days",
+        "retest": "TBD + 30 days"
+    }
+}
