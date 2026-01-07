@@ -27,6 +27,38 @@ import { swrFetcher } from '@/lib/fetcher'
 
 const fetcher = swrFetcher
 
+// Alert data type for SWR responses
+interface AlertData {
+  id: string
+  title: string
+  alert_number: string
+  category: string
+  severity: string
+  status: string
+  triggered_at: string
+  duration_minutes?: number
+  description?: string
+  alert_type?: string
+  priority?: string
+  auto_clear_enabled?: boolean
+  threshold_value?: number
+  threshold_metric?: string
+  current_value?: number
+  vehicle_id?: string
+  vehicle_name?: string
+  driver_id?: string
+  driver_name?: string
+  location?: string
+  coordinates?: { lat: number; lng: number }
+  acknowledged_by?: string
+  acknowledged_at?: string
+  resolved_by?: string
+  resolved_at?: string
+  resolution_notes?: string
+  notifications_sent?: Array<{ recipient: string; method: string; sent_at: string }>
+  activity_log?: Array<{ action: string; user: string; timestamp: string; notes?: string }>
+}
+
 // ============================================
 // Alert Detail Panel
 // ============================================
@@ -36,7 +68,7 @@ interface AlertDetailPanelProps {
 
 export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
   const { push } = useDrilldown()
-  const { data: alert, error, isLoading, mutate } = useSWR(
+  const { data: alert, error, isLoading, mutate } = useSWR<AlertData>(
     `/api/alerts/${alertId}`,
     fetcher
   )
@@ -90,70 +122,75 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
     }
   }
 
+  if (isLoading || !alert) {
+    return <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()} />
+  }
+
+  const alertData: AlertData = alert
+
   return (
-    <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
-      {alert && (
-        <div className="space-y-6">
-          {/* Alert Header */}
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                {getSeverityIcon(alert.severity)}
-                <h3 className="text-2xl font-bold">{alert.title}</h3>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Alert #{alert.alert_number} • {alert.category}
-              </p>
-              <div className="flex items-center gap-2 mt-2">
-                <Badge variant={getStatusVariant(alert.status)}>{alert.status}</Badge>
-                <Badge variant={getSeverityVariant(alert.severity)}>
-                  {alert.severity} severity
-                </Badge>
-              </div>
+    <DrilldownContent loading={false} error={error} onRetry={() => mutate()}>
+      <div className="space-y-6">
+        {/* Alert Header */}
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              {getSeverityIcon(alertData.severity)}
+              <h3 className="text-2xl font-bold">{alertData.title}</h3>
             </div>
-            <AlertTriangle className="h-12 w-12 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">
+              Alert #{alertData.alert_number} • {alertData.category}
+            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant={getStatusVariant(alertData.status)}>{alertData.status}</Badge>
+              <Badge variant={getSeverityVariant(alertData.severity)}>
+                {alertData.severity} severity
+              </Badge>
+            </div>
           </div>
+          <AlertTriangle className="h-12 w-12 text-muted-foreground" />
+        </div>
 
-          {/* Quick Info */}
-          <div className="grid grid-cols-2 gap-4">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  Triggered
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm font-semibold">
-                  {alert.triggered_at
-                    ? new Date(alert.triggered_at).toLocaleString()
-                    : 'N/A'}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {alert.triggered_at &&
-                    `${Math.floor((Date.now() - new Date(alert.triggered_at).getTime()) / 60000)} minutes ago`}
-                </p>
-              </CardContent>
-            </Card>
+        {/* Quick Info */}
+        <div className="grid grid-cols-2 gap-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                Triggered
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm font-semibold">
+                {alertData.triggered_at
+                  ? new Date(alertData.triggered_at).toLocaleString()
+                  : 'N/A'}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {alertData.triggered_at &&
+                  `${Math.floor((Date.now() - new Date(alertData.triggered_at).getTime()) / 60000)} minutes ago`}
+              </p>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Activity className="h-4 w-4" />
-                  Duration
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm font-semibold">
-                  {alert.duration_minutes
-                    ? `${alert.duration_minutes} min`
-                    : alert.status === 'active'
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Activity className="h-4 w-4" />
+                Duration
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm font-semibold">
+                {alertData.duration_minutes
+                  ? `${alertData.duration_minutes} min`
+                  : alertData.status === 'active'
                     ? 'Ongoing'
                     : 'N/A'}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+              </p>
+            </CardContent>
+          </Card>
+        </div>
 
           {/* Tabs */}
           <Tabs defaultValue="details" className="w-full">
@@ -231,7 +268,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                             push({
                               id: `vehicle-${alert.vehicle_id}`,
                               type: 'vehicle-detail',
-                              label: alert.vehicle_name,
+                              label: alert.vehicle_name || 'Unknown Vehicle',
                               data: { vehicleId: alert.vehicle_id },
                             })
                           }
@@ -256,7 +293,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                             push({
                               id: `driver-${alert.driver_id}`,
                               type: 'driver-detail',
-                              label: alert.driver_name,
+                              label: alert.driver_name || 'Unknown Driver',
                               data: { driverId: alert.driver_id },
                             })
                           }
@@ -426,7 +463,7 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
     return `/api/alerts?${params.toString()}`
   }
 
-  const { data: alerts, error, isLoading } = useSWR(buildUrl(), fetcher)
+  const { data: alerts, error, isLoading } = useSWR<AlertData[]>(buildUrl(), fetcher)
 
   const statusLabels = {
     active: 'Active Alerts',
@@ -495,8 +532,8 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
             {status
               ? statusLabels[status]
               : severity
-              ? severityLabels[severity]
-              : 'All Alerts'}
+                ? severityLabels[severity]
+                : 'All Alerts'}
           </h3>
           <Badge>{alerts?.length || 0} alerts</Badge>
         </div>
