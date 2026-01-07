@@ -187,7 +187,10 @@ class CustomBackend extends AnalyticsBackend {
   }
 
   private async sendToBackend(path: string, data: any): Promise<void> {
-    const endpoint = this.config.custom!.endpoint;
+    const endpoint = this.config.custom?.endpoint;
+    if (!endpoint) {
+      throw new Error('Custom backend endpoint not configured');
+    }
 
     try {
       const response = await fetch(`${endpoint}${path}`, {
@@ -245,10 +248,15 @@ class GoogleAnalyticsBackend extends AnalyticsBackend {
   }
 
   private async loadGtagScript(): Promise<void> {
+    const measurementId = this.config.googleAnalytics?.measurementId;
+    if (!measurementId) {
+      throw new Error('Google Analytics measurement ID not configured');
+    }
+
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.async = true;
-      script.src = `https://www.googletagmanager.com/gtag/js?id=${this.config.googleAnalytics!.measurementId}`;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
 
       script.onload = () => {
         // Initialize gtag
@@ -258,9 +266,9 @@ class GoogleAnalyticsBackend extends AnalyticsBackend {
         };
 
         this.gtag('js', new Date());
-        this.gtag('config', this.config.googleAnalytics!.measurementId, {
+        this.gtag('config', measurementId, {
           anonymize_ip: this.config.anonymizeIp,
-          debug_mode: this.config.googleAnalytics!.debug,
+          debug_mode: this.config.googleAnalytics?.debug,
         });
 
         resolve();
@@ -332,12 +340,17 @@ class MixpanelBackend extends AnalyticsBackend {
   }
 
   private async loadMixpanel(): Promise<void> {
+    const token = this.config.mixpanel?.token;
+    if (!token) {
+      throw new Error('Mixpanel token not configured');
+    }
+
     // In production, load Mixpanel SDK dynamically
     // For now, assume it's loaded globally
     if (typeof (window as any).mixpanel !== 'undefined') {
       this.mixpanel = (window as any).mixpanel;
-      this.mixpanel.init(this.config.mixpanel!.token, {
-        debug: this.config.mixpanel!.debug,
+      this.mixpanel.init(token, {
+        debug: this.config.mixpanel?.debug,
         track_pageview: false,
         persistence: 'localStorage',
       });

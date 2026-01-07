@@ -195,7 +195,10 @@ class ReportLoaderService {
       if (!grouped.has(domain)) {
         grouped.set(domain, []);
       }
-      grouped.get(domain)!.push(report);
+      const domainReports = grouped.get(domain);
+      if (domainReports) {
+        domainReports.push(report);
+      }
     });
 
     return grouped;
@@ -206,8 +209,9 @@ class ReportLoaderService {
    */
   public async loadReport(reportId: string): Promise<ReportDefinition> {
     // Check cache first
-    if (this.cachedReports.has(reportId)) {
-      return this.cachedReports.get(reportId)!;
+    const cachedReport = this.cachedReports.get(reportId);
+    if (cachedReport) {
+      return cachedReport;
     }
 
     const registry = await this.loadRegistry();
