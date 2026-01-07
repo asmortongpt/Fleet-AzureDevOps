@@ -64,7 +64,7 @@ export interface RuleCondition {
 
 export interface RuleAction {
   type: 'block' | 'allow' | 'warn' | 'require-approval' | 'modify' | 'log' | 'notify' | 'execute-workflow' | 'calculate'
-  target?: string
+  target?: string | string[]
   value?: any
   message?: string
   approvers?: string[]
@@ -425,7 +425,7 @@ export class PolicyRulesCompiler {
           },
           {
             type: 'notify',
-            target: ['driver', 'supervisor', 'hr.department', 'fleet.manager'],
+            target: 'driver,supervisor,hr.department,fleet.manager',
             notificationTemplate: 'driver-authorization-suspended',
           },
           {
@@ -533,13 +533,7 @@ export class PolicyRulesCompiler {
         actions: [
           {
             type: 'notify',
-            target: [
-              'fleet.manager',
-              'risk.manager',
-              'hr.director',
-              'city.manager',
-              'legal.department',
-            ],
+            target: 'fleet.manager,risk.manager,hr.director,city.manager,legal.department',
             notificationTemplate: 'serious-accident-alert',
           },
           {

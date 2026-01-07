@@ -617,7 +617,7 @@ class APIClient {
     calculateCharges: (data: { driver_id: string; charge_period: string }) => this.post('/api/personal-use-charges/calculate', data),
 
     // Legacy support
-    markTrip: (tripId: string, data: unknown) => this.post(`/api/trip-usage`, { trip_id: tripId, ...data })
+    markTrip: (tripId: string, data: unknown) => this.post(`/api/trip-usage`, { trip_id: tripId, ...(data as Record<string, unknown>) })
   }
 
   // Adaptive Cards endpoints

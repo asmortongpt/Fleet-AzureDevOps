@@ -46,8 +46,10 @@ export function ChartCard({
   className,
   ...props
 }: ChartCardProps) {
+  // Filter out drag-related props that conflict with framer-motion
+  const { onDrag, onDragStart, onDragEnd, onDragEnter, onDragLeave, onDragOver, ...cardProps } = props
   return (
-    <Card className={cn("h-full flex flex-col", className)} {...props}>
+    <Card className={cn("h-full flex flex-col", className)} {...cardProps}>
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
