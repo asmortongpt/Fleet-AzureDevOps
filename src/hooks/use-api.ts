@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient, QueryKey } from '@tanstack/react
 
 import type { Policy } from '@/lib/policy-engine/types';
 import type { FuelTransaction } from '@/lib/types';
+import type { Vehicle } from '@/types/Vehicle';
 import logger from '@/utils/logger';
 
 /**

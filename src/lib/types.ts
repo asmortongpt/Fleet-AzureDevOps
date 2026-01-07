@@ -259,6 +259,7 @@ export interface FuelTransaction {
   gallons: number
   pricePerGallon: number
   totalCost: number
+  total_cost?: number // Alias for totalCost (snake_case for API compatibility)
   cost?: number // Alias for totalCost for backwards compatibility
   mpg: number
   paymentMethod: string
