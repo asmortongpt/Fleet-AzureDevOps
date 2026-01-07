@@ -12,7 +12,7 @@ export interface AIGenerationRequest {
   organizationContext: OrganizationContext
   requirements: string[]
   regulatoryFrameworks?: string[]
-  includeB estPractices?: boolean
+  includeBestPractices?: boolean
 }
 
 export interface OrganizationContext {
@@ -89,8 +89,8 @@ export async function generatePolicyWithAI(
   try {
     // Get API key from environment
     const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY ||
-                   import.meta.env.VITE_OPENAI_API_KEY ||
-                   import.meta.env.VITE_GEMINI_API_KEY
+      import.meta.env.VITE_OPENAI_API_KEY ||
+      import.meta.env.VITE_GEMINI_API_KEY
 
     if (!apiKey) {
       throw new Error('No AI API key configured. Please set VITE_ANTHROPIC_API_KEY, VITE_OPENAI_API_KEY, or VITE_GEMINI_API_KEY')

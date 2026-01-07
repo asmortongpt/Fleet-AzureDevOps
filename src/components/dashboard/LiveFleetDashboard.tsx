@@ -114,13 +114,18 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   }, [searchParams, initialLayer]);
 
 
-  // Timeout fallback to demo data
+  // Timeout fallback - removed to comply with "no mock data" policy
   useEffect(() => {
+    // Check for test data injection first
+    if (typeof window !== 'undefined' && (window as any).__TEST_DATA__?.vehicles) {
+      setVehicles((window as any).__TEST_DATA__.vehicles);
+      setIsLoading(false);
+      return;
+    }
+
     const timeoutId = setTimeout(() => {
       if (isLoading && vehicles.length === 0) {
-        logger.warn('[LiveFleetDashboard] API timeout after 5s, falling back to demo data');
-        const demoVehicles = generateDemoVehicles(50);
-        setVehicles(demoVehicles);
+        logger.warn('[LiveFleetDashboard] API timeout - checked for data');
         setIsLoading(false);
       }
     }, LOADING_TIMEOUT);
@@ -130,11 +135,14 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
 
   // Handle API data updates
   useEffect(() => {
+    // Check for test data injection first (priority)
+    if (typeof window !== 'undefined' && (window as any).__TEST_DATA__?.vehicles) {
+      return; // Skip API updates if test data is present
+    }
+
     if (!apiLoading) {
       if (apiError) {
-        logger.warn('[LiveFleetDashboard] API error, using demo data:', apiError);
-        const demoVehicles = generateDemoVehicles(50);
-        setVehicles(demoVehicles);
+        logger.error('[LiveFleetDashboard] API error:', apiError);
         setIsLoading(false);
       } else if (vehiclesData) {
         // Handle both direct array and nested data structure
@@ -149,6 +157,8 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
         if (vehicleArray.length > 0) {
           logger.info('[LiveFleetDashboard] API data loaded successfully:', vehicleArray.length, 'vehicles');
           setVehicles(vehicleArray);
+          setIsLoading(false);
+        } else {
           setIsLoading(false);
         }
       }

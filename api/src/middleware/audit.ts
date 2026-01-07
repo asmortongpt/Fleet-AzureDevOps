@@ -39,7 +39,7 @@ export const auditLog = (options: AuditOptions) => {
           await pool.query(
             `INSERT INTO audit_logs (
               tenant_id, user_id, action, resource_type, resource_id,
-              details, ip_address, user_agent, outcome, error_message, hash
+              resource_attributes, ip_address, user_agent, result_status, result_message, checksum
             ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
             [
               req.user?.tenant_id || null,
@@ -99,9 +99,9 @@ export async function createAuditLog(
 
   await pool.query(
     `INSERT INTO audit_logs (
-      tenant_id, user_id, action, entity_type, entity_id,
-      metadata, ip_address, user_agent
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      tenant_id, user_id, action, resource_type, resource_id,
+      resource_attributes, ip_address, user_agent, result_status
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
     [
       tenantId,
       userId,
@@ -110,7 +110,8 @@ export async function createAuditLog(
       resourceId,
       JSON.stringify(details || {}),
       ipAddress,
-      userAgent
+      userAgent,
+      outcome
     ]
   )
 }

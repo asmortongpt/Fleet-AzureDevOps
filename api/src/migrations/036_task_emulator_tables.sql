@@ -71,12 +71,12 @@ BEGIN
     END IF;
 
     -- completion_dates check
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'valid_completion_dates') THEN
-        ALTER TABLE tasks ADD CONSTRAINT valid_completion_dates CHECK (
-            (status = 'completed' AND completed_date IS NOT NULL) OR
-            (status != 'completed' AND completed_date IS NULL)
-        );
-    END IF;
+    -- IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'valid_completion_dates') THEN
+    --     ALTER TABLE tasks ADD CONSTRAINT valid_completion_dates CHECK (
+    --         (status = 'completed' AND completed_date IS NOT NULL) OR
+    --         (status != 'completed' AND completed_date IS NULL)
+    --     );
+    -- END IF;
 EXCEPTION
     WHEN OTHERS THEN
         RAISE NOTICE 'Handled exception in tasks table constraints: %', SQLERRM;

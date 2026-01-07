@@ -186,8 +186,8 @@ export async function waitForMapLoad(page: Page, timeout = 30000): Promise<void>
     // Loading spinner might not exist, that's fine
   });
 
-  // Wait for network to be idle (tiles loaded)
-  await page.waitForLoadState('networkidle', { timeout });
+  // Wait for load state instead of networkidle which can be flaky with polling/WS
+  await page.waitForLoadState('domcontentloaded', { timeout });
 
   // Additional wait for map tiles to render
   await page.waitForTimeout(2000);

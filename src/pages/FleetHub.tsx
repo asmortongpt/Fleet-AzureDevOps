@@ -116,50 +116,35 @@ import { StatusChip } from '@/shared/design-system/StatusChip'
 import { RowExpandPanel } from '@/shared/design-system/RowExpandPanel'
 import type { VehicleRow } from '@/shared/design-system/types'
 import { useState } from 'react'
+import { useVehicles, useVehicleMutations } from '@/hooks/use-api'
+import { AddVehicleDialog } from '@/components/dialogs/AddVehicleDialog'
 
 function FleetOverviewContent() {
     const { push } = useDrilldown()
     const [expandedRow, setExpandedRow] = useState<string | null>(null)
 
-    // Sample vehicle data - will be replaced with real API data
-    const vehicles: VehicleRow[] = [
-        {
+    // Use real data
+    const { data: vehiclesData, isLoading } = useVehicles({ limit: 1000, tenant_id: '' })
+    const { createVehicle } = useVehicleMutations()
+    const vehicles: VehicleRow[] = React.useMemo(() => {
+        if (!vehiclesData) return []
+        return (Array.isArray(vehiclesData) ? vehiclesData : (vehiclesData as any).data || []).map((v: any) => ({
             entityType: 'vehicle',
-            id: 'VEH-001',
-            displayName: 'Truck 42',
-            status: 'good',
-            kind: 'Semi Truck',
-            odometer: 142500,
-            fuelPct: 72,
-            healthScore: 94,
+            id: v.id,
+            displayName: v.number ? `${v.number} - ${v.name || `${v.year} ${v.make} ${v.model}`}` : (v.name || `${v.year} ${v.make} ${v.model}`),
+            status: v.status,
+            kind: v.type,
+            odometer: v.mileage || 0,
+            fuelPct: v.fuelLevel || 0,
+            healthScore: 100, // Placeholder calculation
             alerts: 0,
-            updatedAgo: '2m ago'
-        },
-        {
-            entityType: 'vehicle',
-            id: 'VEH-002',
-            displayName: 'Van 18',
-            status: 'warn',
-            kind: 'Cargo Van',
-            odometer: 89200,
-            fuelPct: 45,
-            healthScore: 78,
-            alerts: 2,
-            updatedAgo: '5m ago'
-        },
-        {
-            entityType: 'vehicle',
-            id: 'VEH-003',
-            displayName: 'Truck 07',
-            status: 'bad',
-            kind: 'Box Truck',
-            odometer: 203400,
-            fuelPct: 15,
-            healthScore: 52,
-            alerts: 5,
-            updatedAgo: '1m ago'
-        }
-    ]
+            updatedAgo: 'Just now'
+        }))
+    }, [vehiclesData])
+
+    const handleAddVehicle = (vehicle: any) => {
+        createVehicle.mutate(vehicle)
+    }
 
     return (
         <div style={{
@@ -168,17 +153,24 @@ function FleetOverviewContent() {
             minHeight: '100vh'
         }}>
             {/* Header */}
-            <div style={{ marginBottom: 24 }}>
-                <h2 style={{
-                    fontSize: 28,
-                    fontWeight: 700,
-                    color: '#f9fafb',
-                    marginBottom: 8
-                }}>Fleet Overview</h2>
-                <p style={{
-                    fontSize: 14,
-                    color: '#9ca3af'
-                }}>Professional table-first navigation with expandable drilldowns</p>
+            <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                    <h2 style={{
+                        fontSize: 28,
+                        fontWeight: 700,
+                        color: '#f9fafb',
+                        marginBottom: 8
+                    }}>Fleet Overview</h2>
+                    <p style={{
+                        fontSize: 14,
+                        color: '#9ca3af'
+                    }}>Professional table-first navigation with expandable drilldowns</p>
+                </div>
+                {/* Add Vehicle Button via Dialog */}
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+
+                    <AddVehicleDialog onAdd={handleAddVehicle} />
+                </div>
             </div>
 
             {/* Vehicle Table - Professional Design */}
@@ -189,139 +181,147 @@ function FleetOverviewContent() {
                 overflow: 'hidden',
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
             }}>
-                <table style={{
-                    width: '100%',
-                    borderCollapse: 'separate',
-                    borderSpacing: 0
-                }}>
-                    <thead>
-                        <tr style={{ background: 'rgba(96, 165, 250, 0.08)', borderBottom: '1px solid rgba(96, 165, 250, 0.2)' }}>
-                            <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Vehicle</th>
-                            <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Type</th>
-                            <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Odometer</th>
-                            <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Fuel</th>
-                            <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Health</th>
-                            <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Alerts</th>
-                            <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Updated</th>
-                            <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {vehicles.map(vehicle => (
-                            <React.Fragment key={vehicle.id}>
-                                <tr style={{
-                                    borderBottom: '1px solid rgba(255,255,255,0.06)',
-                                    cursor: 'pointer',
-                                    background: expandedRow === vehicle.id ? 'rgba(96,165,250,0.08)' : 'transparent',
-                                    transition: 'background 0.15s'
-                                }}
-                                    onClick={() => setExpandedRow(expandedRow === vehicle.id ? null : vehicle.id)}
-                                    onMouseEnter={(e) => e.currentTarget.style.background = expandedRow === vehicle.id ? 'rgba(96,165,250,0.08)' : 'rgba(255,255,255,0.03)'}
-                                    onMouseLeave={(e) => e.currentTarget.style.background = expandedRow === vehicle.id ? 'rgba(96,165,250,0.08)' : 'transparent'}
-                                >
-                                    <td style={{ padding: 16 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                            <EntityAvatar entity={vehicle} size={38} />
-                                            <div>
-                                                <div style={{ fontSize: 14, fontWeight: 600, color: '#f9fafb' }}>{vehicle.displayName}</div>
-                                                <div style={{ fontSize: 12, color: '#9ca3af' }}>{vehicle.id}</div>
+                {isLoading ? (
+                    <div className="p-12 text-center text-slate-500 flex flex-col items-center justify-center gap-4">
+                        <div className="w-8 h-8 rounded-full border-2 border-slate-600 border-t-blue-500 animate-spin" />
+                        <p>Loading fleet data...</p>
+                    </div>
+                ) : (
+                    <table style={{
+                        width: '100%',
+                        borderCollapse: 'separate',
+                        borderSpacing: 0
+                    }}>
+                        <thead>
+                            <tr style={{ background: 'rgba(96, 165, 250, 0.08)', borderBottom: '1px solid rgba(96, 165, 250, 0.2)' }}>
+                                <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Vehicle</th>
+                                <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Type</th>
+                                <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Odometer</th>
+                                <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Fuel</th>
+                                <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Health</th>
+                                <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Alerts</th>
+                                <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Updated</th>
+                                <th style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {vehicles.map(vehicle => (
+                                <React.Fragment key={vehicle.id}>
+                                    <tr style={{
+                                        borderBottom: '1px solid rgba(255,255,255,0.06)',
+                                        cursor: 'pointer',
+                                        background: expandedRow === vehicle.id ? 'rgba(96,165,250,0.08)' : 'transparent',
+                                        transition: 'background 0.15s'
+                                    }}
+                                        onClick={() => setExpandedRow(expandedRow === vehicle.id ? null : vehicle.id)}
+                                        onMouseEnter={(e) => e.currentTarget.style.background = expandedRow === vehicle.id ? 'rgba(96,165,250,0.08)' : 'rgba(255,255,255,0.03)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.background = expandedRow === vehicle.id ? 'rgba(96,165,250,0.08)' : 'transparent'}
+                                    >
+                                        <td style={{ padding: 16 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                                <EntityAvatar entity={vehicle} size={38} />
+                                                <div>
+                                                    <div style={{ fontSize: 14, fontWeight: 600, color: '#f9fafb' }}>{vehicle.displayName}</div>
+                                                    <div style={{ fontSize: 12, color: '#9ca3af' }}>{vehicle.id}</div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: 16, fontSize: 14, color: '#e5e7eb' }}>{vehicle.kind}</td>
-                                    <td style={{ padding: 16, fontSize: 14, color: '#e5e7eb' }}>{vehicle.odometer.toLocaleString()} mi</td>
-                                    <td style={{ padding: 16 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                            <div style={{ width: 60, height: 6, borderRadius: 3, background: 'rgba(148, 163, 184, 0.2)', overflow: 'hidden' }}>
-                                                <div style={{
-                                                    width: `${vehicle.fuelPct}%`,
-                                                    height: '100%',
-                                                    background: vehicle.fuelPct < 25 ? '#ef4444' : vehicle.fuelPct < 50 ? '#f59e0b' : '#22c55e',
-                                                    transition: 'width 0.3s'
-                                                }} />
+                                        </td>
+                                        <td style={{ padding: 16, fontSize: 14, color: '#e5e7eb' }}>{vehicle.kind}</td>
+                                        <td style={{ padding: 16, fontSize: 14, color: '#e5e7eb' }}>{vehicle.odometer.toLocaleString()} mi</td>
+                                        <td style={{ padding: 16 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                <div style={{ width: 60, height: 6, borderRadius: 3, background: 'rgba(148, 163, 184, 0.2)', overflow: 'hidden' }}>
+                                                    <div style={{
+                                                        width: `${vehicle.fuelPct}%`,
+                                                        height: '100%',
+                                                        background: vehicle.fuelPct < 25 ? '#ef4444' : vehicle.fuelPct < 50 ? '#f59e0b' : '#22c55e',
+                                                        transition: 'width 0.3s'
+                                                    }} />
+                                                </div>
+                                                <span style={{ fontSize: 12, color: '#d1d5db' }}>{vehicle.fuelPct}%</span>
                                             </div>
-                                            <span style={{ fontSize: 12, color: '#d1d5db' }}>{vehicle.fuelPct}%</span>
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: 16, fontSize: 14, fontWeight: 600, color: vehicle.healthScore >= 80 ? '#22c55e' : vehicle.healthScore >= 60 ? '#f59e0b' : '#ef4444' }}>
-                                        {vehicle.healthScore}
-                                    </td>
-                                    <td style={{ padding: 16 }}>
-                                        {vehicle.alerts > 0 ? (
-                                            <StatusChip status={vehicle.status} label={`${vehicle.alerts} Alert${vehicle.alerts > 1 ? 's' : ''}`} />
-                                        ) : (
-                                            <StatusChip status="good" label="OK" />
-                                        )}
-                                    </td>
-                                    <td style={{ padding: 16, fontSize: 12, color: '#9ca3af' }}>{vehicle.updatedAgo}</td>
-                                    <td style={{ padding: 16 }}>
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                push({
-                                                    id: vehicle.id,
-                                                    type: 'vehicle-details',
-                                                    label: `${vehicle.displayName} Details`,
-                                                    data: vehicle
-                                                })
-                                            }}
-                                            style={{
-                                                padding: '8px 16px',
-                                                borderRadius: 8,
-                                                border: '1px solid rgba(96, 165, 250, 0.3)',
-                                                background: 'rgba(96, 165, 250, 0.12)',
-                                                color: '#93c5fd',
-                                                cursor: 'pointer',
-                                                fontSize: 13,
-                                                fontWeight: 600,
-                                                transition: 'all 0.2s'
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.background = 'rgba(96, 165, 250, 0.2)'
-                                                e.currentTarget.style.borderColor = 'rgba(96, 165, 250, 0.5)'
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.background = 'rgba(96, 165, 250, 0.12)'
-                                                e.currentTarget.style.borderColor = 'rgba(96, 165, 250, 0.3)'
-                                            }}
-                                        >
-                                            View
-                                        </button>
-                                    </td>
-                                </tr>
-                                {expandedRow === vehicle.id && (
-                                    <tr>
-                                        <td colSpan={8} style={{ padding: 16, background: 'rgba(0,0,0,0.12)' }}>
-                                            <RowExpandPanel
-                                                anomalies={[
-                                                    { status: 'good', label: 'Engine Temp: Normal' },
-                                                    { status: 'warn', label: 'Tire Pressure: Low' },
-                                                    { status: vehicle.fuelPct < 25 ? 'bad' : 'good', label: `Fuel: ${vehicle.fuelPct}%` }
-                                                ]}
-                                                records={[
-                                                    { id: 'REC-001', summary: 'Routine maintenance completed', timestamp: '2h ago', severity: 'info' },
-                                                    { id: 'REC-002', summary: 'Low tire pressure detected', timestamp: '5h ago', severity: 'warn' }
-                                                ]}
-                                                onOpenRecord={(id) => push({
-                                                    id,
-                                                    type: 'record-details',
-                                                    label: `Record ${id}`,
-                                                    data: { recordId: id }
-                                                })}
-                                            />
+                                        </td>
+                                        <td style={{ padding: 16, fontSize: 14, fontWeight: 600, color: vehicle.healthScore >= 80 ? '#22c55e' : vehicle.healthScore >= 60 ? '#f59e0b' : '#ef4444' }}>
+                                            {vehicle.healthScore}
+                                        </td>
+                                        <td style={{ padding: 16 }}>
+                                            {vehicle.alerts > 0 ? (
+                                                <StatusChip status={vehicle.status} label={`${vehicle.alerts} Alert${vehicle.alerts > 1 ? 's' : ''}`} />
+                                            ) : (
+                                                <StatusChip status="good" label="OK" />
+                                            )}
+                                        </td>
+                                        <td style={{ padding: 16, fontSize: 12, color: '#9ca3af' }}>{vehicle.updatedAgo}</td>
+                                        <td style={{ padding: 16 }}>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    push({
+                                                        id: vehicle.id,
+                                                        type: 'vehicle-details',
+                                                        label: `${vehicle.displayName} Details`,
+                                                        data: vehicle
+                                                    })
+                                                }}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    borderRadius: 8,
+                                                    border: '1px solid rgba(96, 165, 250, 0.3)',
+                                                    background: 'rgba(96, 165, 250, 0.12)',
+                                                    color: '#93c5fd',
+                                                    cursor: 'pointer',
+                                                    fontSize: 13,
+                                                    fontWeight: 600,
+                                                    transition: 'all 0.2s'
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.background = 'rgba(96, 165, 250, 0.2)'
+                                                    e.currentTarget.style.borderColor = 'rgba(96, 165, 250, 0.5)'
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.background = 'rgba(96, 165, 250, 0.12)'
+                                                    e.currentTarget.style.borderColor = 'rgba(96, 165, 250, 0.3)'
+                                                }}
+                                            >
+                                                View
+                                            </button>
                                         </td>
                                     </tr>
-                                )}
-                            </React.Fragment>
-                        ))}
-                    </tbody>
-                </table>
+                                    {expandedRow === vehicle.id && (
+                                        <tr>
+                                            <td colSpan={8} style={{ padding: 16, background: 'rgba(0,0,0,0.12)' }}>
+                                                <RowExpandPanel
+                                                    anomalies={[
+                                                        { status: 'good', label: 'Engine Temp: Normal' },
+                                                        { status: 'warn', label: 'Tire Pressure: Low' },
+                                                        { status: vehicle.fuelPct < 25 ? 'bad' : 'good', label: `Fuel: ${vehicle.fuelPct}%` }
+                                                    ]}
+                                                    records={[
+                                                        { id: 'REC-001', summary: 'Routine maintenance completed', timestamp: '2h ago', severity: 'info' },
+                                                        { id: 'REC-002', summary: 'Low tire pressure detected', timestamp: '5h ago', severity: 'warn' }
+                                                    ]}
+                                                    onOpenRecord={(id) => push({
+                                                        id,
+                                                        type: 'record-details',
+                                                        label: `Record ${id}`,
+                                                        data: { recordId: id }
+                                                    })}
+                                                />
+                                            </td>
+                                        </tr>
+                                    )}
+                                </React.Fragment>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
+
 
             <p style={{ marginTop: 16, fontSize: 12, color: '#6b7280', textAlign: 'center' }}>
                 Click rows to expand telemetry drilldowns • Click "View" for full vehicle details
             </p>
-        </div>
+        </div >
     )
 }
 
@@ -629,7 +629,11 @@ export function FleetHub() {
             id: 'overview',
             label: 'Overview',
             icon: <Speedometer className="w-4 h-4" />,
-            content: <FleetOverviewContent />,
+            content: (
+                <TabErrorBoundary tabName="Overview">
+                    <FleetOverviewContent />
+                </TabErrorBoundary>
+            ),
         },
         {
             id: 'google-maps',

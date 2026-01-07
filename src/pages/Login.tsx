@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { useAuth } from '@/hooks/useAuth'
 import { signInWithMicrosoft, setAuthToken } from '@/lib/microsoft-auth'
 import logger from '@/utils/logger'
 
@@ -20,6 +21,8 @@ import logger from '@/utils/logger'
  */
 export function Login() {
   const navigate = useNavigate()
+  const { login } = useAuth()
+
   // Pre-fill credentials in DEV mode for quick access
   const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@fleet.local' : '')
   const [password, setPassword] = useState(import.meta.env.DEV ? 'demo123' : '')
@@ -87,28 +90,18 @@ export function Login() {
   const urlError = params.get('error')
   const urlMessage = params.get('message') || params.get('error_description')
 
-  // Email login mutation using TanStack Query
+  // Email login mutation using usage of AuthContext
   const emailLoginMutation = useMutation({
     mutationFn: async (credentials: { email: string; password: string }) => {
-      const apiUrl = import.meta.env.VITE_API_URL || '/api'
-      const response = await fetch(`${apiUrl}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(credentials)
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Login failed')
-      }
-
-      return response.json()
+      // Use the AuthContext login which handles cookies and state update correctly
+      await login(credentials.email, credentials.password)
     },
-    onSuccess: (data) => {
-      setAuthToken(data.token)
+    onSuccess: () => {
+      // Auth wrapper handles redirect usually, but we can enforce navigation
       navigate('/')
+    },
+    onError: (error: Error) => {
+      logger.error('Login failed', error)
     }
   })
 

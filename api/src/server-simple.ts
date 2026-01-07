@@ -3,6 +3,7 @@
  * Basic server to get started quickly
  */
 
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { eq, and, SQL, desc } from 'drizzle-orm';
 import express from 'express';
@@ -21,6 +22,7 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(helmet());
+app.use(cookieParser());
 app.use(cors({
   origin: process.env.CORS_ORIGIN?.split(',') || [
     'http://localhost:5173',
@@ -108,6 +110,157 @@ app.get('/api/vehicles/:id', async (req, res) => {
     res.json(vehicle);
   } catch (error) {
     console.error('Error fetching vehicle:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/vehicles', async (req, res) => {
+  const fs = require('fs');
+  try {
+    const body = req.body;
+    fs.writeFileSync('post_vehicle_debug.log', `Received POST: ${JSON.stringify(body)}\n`, { flag: 'a' });
+
+    // Basic validation
+    if (!body.number || !body.make || !body.model || !body.vin) {
+      console.error('Validation Error: Missing fields');
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Get a valid tenant ID
+    let tenantId = body.tenantId;
+    // Check if tenantId is a valid UUID, otherwise fetch from DB
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    if (!tenantId || !uuidRegex.test(tenantId)) {
+      console.log(`Invalid/Missing TenantID: ${tenantId}. Fetching default...`);
+      const [defaultTenant] = await db.select().from(schema.tenants).limit(1);
+      if (defaultTenant) {
+        tenantId = defaultTenant.id;
+        console.log(`Using TenantID: ${tenantId}`);
+      } else {
+        // Fallback or error? If seeded, should exist. 
+        // If not seeded, we might be stuck. But we can try a fake UUID?
+        // No, FK constraint will fail.
+        console.error('FATAL: No tenants found in DB.');
+      }
+    }
+
+    // Construct name if missing
+    const vehicleName = body.name || `${body.make} ${body.model}`;
+
+    // Remove ID if present to let DB generate UUID
+    const { id, ...vehicleData } = body;
+
+    // Insert into DB
+    const [newVehicle] = await db.insert(schema.vehicles).values({
+      ...vehicleData,
+      name: vehicleName,
+      // Ensure IDs and timestamps if not provided (DB usually handles default but safe to check)
+      // Assuming schema defaults handle id, createdAt, updatedAt
+      // Map frontend fields to DB columns if slightly different
+      // Frontend sends: number, type, make, model, year, vin, licensePlate...
+      // DB columns: number, type, make, model, year, vin, licensePlate...
+      // ensure numeric fields are numbers
+      year: Number(body.year),
+      odometer: Number(body.mileage || body.odometer || 0),
+      fuelLevel: Number(body.fuelLevel || 100),
+      currentValue: Number(body.currentValue || 0),
+      purchasePrice: Number(body.purchasePrice || 0),
+      tenantId: tenantId,
+    }).returning();
+
+    console.log(`Success: ${JSON.stringify(newVehicle)}`);
+    res.status(201).json(newVehicle);
+  } catch (error) {
+    console.error('Error creating vehicle:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update vehicle
+app.put('/api/vehicles/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const body = req.body;
+    console.log(`Received PUT for vehicle ${id}:`, JSON.stringify(body));
+
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      return res.status(400).json({ error: 'Invalid vehicle ID format' });
+    }
+
+    // Build update object with only allowed fields
+    const allowedFields = ['number', 'make', 'model', 'year', 'vin', 'licensePlate', 'status', 'fuelType', 'fuelLevel', 'odometer', 'name'];
+    const updateData: Record<string, any> = {};
+
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) {
+        if (field === 'year' || field === 'odometer') {
+          updateData[field] = Number(body[field]);
+        } else if (field === 'fuelLevel') {
+          updateData[field] = Number(body[field]);
+        } else {
+          updateData[field] = body[field];
+        }
+      }
+    }
+
+    // Construct name if make/model provided but name not
+    if (!updateData.name && (updateData.make || updateData.model)) {
+      const existingVehicle = await db.select().from(schema.vehicles).where(eq(schema.vehicles.id, id)).limit(1);
+      if (existingVehicle[0]) {
+        const make = updateData.make || existingVehicle[0].make;
+        const model = updateData.model || existingVehicle[0].model;
+        updateData.name = `${make} ${model}`;
+      }
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ error: 'No valid fields to update' });
+    }
+
+    const [updatedVehicle] = await db.update(schema.vehicles)
+      .set(updateData)
+      .where(eq(schema.vehicles.id, id))
+      .returning();
+
+    if (!updatedVehicle) {
+      return res.status(404).json({ error: 'Vehicle not found' });
+    }
+
+    console.log(`Updated vehicle: ${JSON.stringify(updatedVehicle)}`);
+    res.json(updatedVehicle);
+  } catch (error) {
+    console.error('Error updating vehicle:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Delete vehicle
+app.delete('/api/vehicles/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(`Received DELETE for vehicle ${id}`);
+
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      return res.status(400).json({ error: 'Invalid vehicle ID format' });
+    }
+
+    const [deletedVehicle] = await db.delete(schema.vehicles)
+      .where(eq(schema.vehicles.id, id))
+      .returning();
+
+    if (!deletedVehicle) {
+      return res.status(404).json({ error: 'Vehicle not found' });
+    }
+
+    console.log(`Deleted vehicle: ${id}`);
+    res.json({ success: true, deleted: deletedVehicle });
+  } catch (error) {
+    console.error('Error deleting vehicle:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

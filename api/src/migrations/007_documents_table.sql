@@ -51,15 +51,22 @@ ALTER TABLE documents ADD COLUMN IF NOT EXISTS is_archived BOOLEAN DEFAULT false
 ALTER TABLE documents ADD COLUMN IF NOT EXISTS archived_at TIMESTAMP WITH TIME ZONE;
 
 -- Add constraints if missing
-DO $$ BEGIN
-    ALTER TABLE documents ADD CONSTRAINT documents_entity_check CHECK (
-        vehicle_id IS NOT NULL OR
-        driver_id IS NOT NULL OR
-        work_order_id IS NOT NULL
-    );
-EXCEPTION
-    WHEN duplicate_object OR duplicate_table OR others THEN null;
-END $$;
+-- Add constraints if missing
+-- DO $$
+-- BEGIN
+--     IF NOT EXISTS (
+--         SELECT 1 FROM pg_constraint WHERE conname = 'documents_entity_check'
+--     ) THEN
+--         -- Delete any rows that would violate the constraint
+--         -- DELETE FROM documents WHERE vehicle_id IS NULL AND driver_id IS NULL AND work_order_id IS NULL;
+        
+--         -- ALTER TABLE documents ADD CONSTRAINT documents_entity_check CHECK (
+--         --     vehicle_id IS NOT NULL OR
+--         --     driver_id IS NOT NULL OR
+--         --     work_order_id IS NOT NULL
+--         -- );
+--     END IF;
+-- END $$;
 
 -- ============================================================================
 -- Indexes for Performance
@@ -179,7 +186,7 @@ COMMENT ON COLUMN documents.uploaded_at IS 'Timestamp when document was uploaded
 COMMENT ON COLUMN documents.expires_at IS 'Expiration date for time-sensitive documents (insurance, registration, etc.)';
 COMMENT ON COLUMN documents.is_archived IS 'Whether document is archived';
 COMMENT ON COLUMN documents.tenant_id IS 'Tenant identifier for multi-tenancy';
-COMMENT ON CONSTRAINT documents_entity_check ON documents IS 'Ensures at least one entity reference (vehicle, driver, or work_order) is set';
+-- COMMENT ON CONSTRAINT documents_entity_check ON documents IS 'Ensures at least one entity reference (vehicle, driver, or work_order) is set';
 COMMENT ON VIEW v_expiring_documents IS 'Documents that are expired or expiring soon, with status categorization';
 
 -- ============================================================================

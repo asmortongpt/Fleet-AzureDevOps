@@ -1,6 +1,12 @@
 -- Comprehensive Policy and Procedure Templates Library
 -- Industry-standard templates for fleet management, safety, HR, and compliance
 
+DROP TABLE IF EXISTS policy_violations CASCADE;
+DROP TABLE IF EXISTS policy_compliance_audits CASCADE;
+DROP TABLE IF EXISTS prebuilt_safety_policies CASCADE;
+DROP TABLE IF EXISTS policy_acknowledgments CASCADE;
+DROP TABLE IF EXISTS policy_templates CASCADE;
+
 -- ============================================================================
 -- Policy Templates Master Table
 -- ============================================================================
@@ -70,7 +76,7 @@ CREATE TABLE IF NOT EXISTS policy_templates (
 CREATE TABLE IF NOT EXISTS policy_acknowledgments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     policy_id UUID REFERENCES policy_templates(id) NOT NULL,
-    employee_number UUID REFERENCES drivers(id) NOT NULL,
+    driver_id UUID REFERENCES drivers(id) NOT NULL,
 
     -- Acknowledgment Details
     acknowledged_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -95,7 +101,7 @@ CREATE TABLE IF NOT EXISTS policy_acknowledgments (
     is_current BOOLEAN DEFAULT TRUE, -- False when policy is updated
     superseded_by_acknowledgment_id UUID REFERENCES policy_acknowledgments(id),
 
-    UNIQUE(policy_id, employee_number, acknowledged_at)
+    UNIQUE(policy_id, driver_id, acknowledged_at)
 );
 
 -- ============================================================================
@@ -295,7 +301,8 @@ Employees must:
 Effective Date: {EFFECTIVE_DATE}
 Policy Owner: {SAFETY_MANAGER_NAME}',
 '{"EFFECTIVE_DATE": "2025-01-01", "SAFETY_MANAGER_NAME": "Safety Manager", "COMPANY_NAME": "Company Name"}'
-);
+)
+ON CONFLICT (template_name) DO NOTHING;
 
 -- ============================================================================
 -- Policy Compliance Tracking
@@ -350,7 +357,7 @@ CREATE TABLE IF NOT EXISTS policy_compliance_audits (
 CREATE TABLE IF NOT EXISTS policy_violations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     policy_id UUID REFERENCES policy_templates(id) NOT NULL,
-    employee_number UUID REFERENCES drivers(id) NOT NULL,
+    driver_id UUID REFERENCES drivers(id) NOT NULL,
 
     -- Violation Details
     violation_date DATE NOT NULL,
@@ -419,11 +426,11 @@ CREATE INDEX IF NOT EXISTS idx_policies_effective_date ON policy_templates(effec
 CREATE INDEX IF NOT EXISTS idx_policies_review_date ON policy_templates(next_review_date);
 
 CREATE INDEX IF NOT EXISTS idx_acknowledgments_policy ON policy_acknowledgments(policy_id);
-CREATE INDEX IF NOT EXISTS idx_acknowledgments_employee ON policy_acknowledgments(employee_number);
+CREATE INDEX IF NOT EXISTS idx_acknowledgments_employee ON policy_acknowledgments(driver_id);
 CREATE INDEX IF NOT EXISTS idx_acknowledgments_current ON policy_acknowledgments(is_current);
 
 CREATE INDEX IF NOT EXISTS idx_violations_policy ON policy_violations(policy_id);
-CREATE INDEX IF NOT EXISTS idx_violations_employee ON policy_violations(employee_number);
+CREATE INDEX IF NOT EXISTS idx_violations_employee ON policy_violations(driver_id);
 CREATE INDEX IF NOT EXISTS idx_violations_date ON policy_violations(violation_date);
 CREATE INDEX IF NOT EXISTS idx_violations_severity ON policy_violations(severity);
 
@@ -467,8 +474,8 @@ SELECT
 FROM drivers d
 JOIN users u ON d.user_id = u.id
 CROSS JOIN policy_templates pt
-LEFT JOIN policy_acknowledgments pa ON d.id = pa.employee_number AND pt.id = pa.policy_id AND pa.is_current = TRUE
-LEFT JOIN policy_violations pv ON d.id = pv.employee_number
+LEFT JOIN policy_acknowledgments pa ON d.id = pa.driver_id AND pt.id = pa.policy_id AND pa.is_current = TRUE
+LEFT JOIN policy_violations pv ON d.id = pv.driver_id
 WHERE pt.status = 'Active'
     AND (pt.applies_to_roles IS NULL OR u.role::VARCHAR = ANY(pt.applies_to_roles))
 GROUP BY d.id, d.first_name, d.last_name, u.role;

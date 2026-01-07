@@ -65,7 +65,7 @@ export const OutlookEmailButton: React.FC<{
 };
 
 // Start Teams Chat
-export const TeamsChat Button: React.FC<{
+export const TeamsChatButton: React.FC<{
   userEmail: string;
   message?: string;
 }> = ({ userEmail, message = '' }) => {

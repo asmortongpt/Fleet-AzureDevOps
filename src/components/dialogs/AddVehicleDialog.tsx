@@ -218,7 +218,7 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button data-testid="add-vehicle-btn">
           <Plus className="w-4 h-4 mr-2" />
           Add Vehicle
         </Button>
@@ -294,6 +294,7 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
                 <Label htmlFor="number">Vehicle Number *</Label>
                 <Input
                   id="number"
+                  name="number"
                   value={formData.number}
                   onChange={(e) => setFormData({ ...formData, number: e.target.value })}
                   placeholder="FL-1001"
@@ -325,6 +326,7 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
                 <Label htmlFor="make">Make *</Label>
                 <Input
                   id="make"
+                  name="make"
                   value={formData.make}
                   onChange={(e) => setFormData({ ...formData, make: e.target.value })}
                   placeholder="Ford"
@@ -335,6 +337,7 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
                 <Label htmlFor="model">Model *</Label>
                 <Input
                   id="model"
+                  name="model"
                   value={formData.model}
                   onChange={(e) => setFormData({ ...formData, model: e.target.value })}
                   placeholder="Explorer"
@@ -345,6 +348,7 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
                 <Label htmlFor="year">Year</Label>
                 <Input
                   id="year"
+                  name="year"
                   type="number"
                   value={formData.year}
                   onChange={(e) => setFormData({ ...formData, year: e.target.value })}
@@ -355,6 +359,7 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
                 <Label htmlFor="vin">VIN *</Label>
                 <Input
                   id="vin"
+                  name="vin"
                   value={formData.vin}
                   onChange={(e) => setFormData({ ...formData, vin: e.target.value.toUpperCase() })}
                   placeholder="1HGBH41JXMN109186"
@@ -365,6 +370,7 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
                 <Label htmlFor="licensePlate">License Plate *</Label>
                 <Input
                   id="licensePlate"
+                  name="licensePlate"
                   value={formData.licensePlate}
                   onChange={(e) => setFormData({ ...formData, licensePlate: e.target.value.toUpperCase() })}
                   placeholder="ABC1234"
@@ -389,7 +395,12 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
             </div>
           </div>
         </div>
+
+        <div className="flex justify-end gap-3 pt-4 border-t">
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={handleSubmit}>Add Vehicle</Button>
+        </div>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   )
 }

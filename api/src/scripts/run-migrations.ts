@@ -99,7 +99,12 @@ async function runMigration(filename: string): Promise<void> {
 
     console.log(`⏳ Applying migration: ${filename}...`);
     // Run the migration SQL
-    await client.query(sql);
+    const statements = sql.split('--> statement-breakpoint');
+    for (const statement of statements) {
+      if (statement.trim().length > 0) {
+        await client.query(statement);
+      }
+    }
 
     // Record the migration as applied
     await client.query(

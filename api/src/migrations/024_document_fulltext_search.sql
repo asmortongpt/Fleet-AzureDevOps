@@ -52,7 +52,7 @@ BEGIN
   NEW.search_vector :=
     -- File/document name gets highest weight
     setweight(
-      to_tsvector('english', COALESCE(NEW.file_name, COALESCE(NEW.document_name, ''))),
+      to_tsvector('english', COALESCE(NEW.name, COALESCE(NEW.document_name, ''))),
       'A'
     ) ||
     -- Description and vendor name get medium-high weight
@@ -64,9 +64,13 @@ BEGIN
       to_tsvector('english', COALESCE(NEW.vendor_name, '')),
       'B'
     ) ||
-    -- Tags get medium-high weight
+    -- Tags get medium-high weight: handle tags (jsonb) vs ai/manual_tags (text[])
     setweight(
-      to_tsvector('english', COALESCE(array_to_string(NEW.tags, ' '), COALESCE(array_to_string(NEW.ai_tags, ' '), COALESCE(array_to_string(NEW.manual_tags, ' '), '')))),
+      to_tsvector('english', 
+        COALESCE((SELECT string_agg(val, ' ') FROM jsonb_array_elements_text(CASE WHEN jsonb_typeof(NEW.tags) = 'array' THEN NEW.tags ELSE '[]'::jsonb END) val), '') || ' ' ||
+        COALESCE(array_to_string(NEW.ai_tags, ' '), '') || ' ' ||
+        COALESCE(array_to_string(NEW.manual_tags, ' '), '')
+      ),
       'B'
     ) ||
     -- OCR/extracted text gets lower weight (more content, less relevance)
@@ -76,7 +80,7 @@ BEGIN
     ) ||
     -- Document type and category for filtering
     setweight(
-      to_tsvector('english', COALESCE(NEW.document_type, COALESCE(NEW.file_type, ''))),
+      to_tsvector('english', COALESCE(NEW.type::text, '')),
       'B'
     );
 
@@ -90,6 +94,8 @@ $$ LANGUAGE plpgsql;
 
 -- Drop existing trigger if it exists
 DROP TRIGGER IF EXISTS documents_search_vector_trigger ON documents;
+-- Also drop trigger from 023 if it exists to avoid conflicts/errors
+DROP TRIGGER IF EXISTS trigger_update_document_search_vector ON documents;
 
 -- Create trigger to automatically update search_vector
 CREATE TRIGGER documents_search_vector_trigger
@@ -153,7 +159,7 @@ CREATE OR REPLACE FUNCTION search_documents_ranked(
 )
 RETURNS TABLE (
   id UUID,
-  file_name VARCHAR,
+  name VARCHAR,
   description TEXT,
   rank REAL,
   headline TEXT
@@ -162,12 +168,12 @@ BEGIN
   RETURN QUERY
   SELECT
     d.id,
-    d.file_name,
+    d.name,
     d.description,
     ts_rank(d.search_vector, to_tsquery('english', p_query)) AS rank,
     ts_headline(
       'english',
-      COALESCE(d.file_name, '') || ' ' || COALESCE(d.description, ''),
+      COALESCE(d.name, '') || ' ' || COALESCE(d.description, ''),
       to_tsquery('english', p_query),
       'MaxWords=50, MinWords=25, ShortWord=3'
     ) AS headline
