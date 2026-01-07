@@ -49,12 +49,12 @@ export const authenticateJWT = async (
 
   // SECURITY: JWT_SECRET must be set in environment variables and be at least 32 characters
   if (!process.env.JWT_SECRET) {
-    console.error('FATAL: JWT_SECRET environment variable is not set')
+    logger.error('FATAL: JWT_SECRET environment variable is not set')
     return res.status(500).json({ error: 'Server configuration error' })
   }
 
   if (process.env.JWT_SECRET.length < 32) {
-    console.error('FATAL: JWT_SECRET must be at least 32 characters')
+    logger.error('FATAL: JWT_SECRET must be at least 32 characters')
     return res.status(500).json({ error: 'Server configuration error' })
   }
 
@@ -97,7 +97,7 @@ export const authorize = (...roles: string[]) => {
     //
     // Now ALL requests (including GET) must have the proper role authorization
     if (!req.user.role || !roles.includes(req.user.role)) {
-      console.log('❌ AUTHORIZE - Permission denied:', {
+      logger.warn('AUTHORIZE - Permission denied', {
         method: req.method,
         path: req.path,
         required: roles,
@@ -110,7 +110,7 @@ export const authorize = (...roles: string[]) => {
       })
     }
 
-    console.log('✅ AUTHORIZE - Access granted:', {
+    logger.info('AUTHORIZE - Access granted', {
       method: req.method,
       path: req.path,
       role: req.user.role
