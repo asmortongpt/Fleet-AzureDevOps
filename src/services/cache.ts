@@ -39,6 +39,8 @@ export class CacheManager {
 
   async cacheModel(key: string, data: ArrayBuffer): Promise<void> {
     if (!this.db) await this.init();
+    if (!this.db) throw new Error('Failed to initialize database');
+
     const entry: CacheEntry<ArrayBuffer> = {
       key,
       data,
@@ -49,7 +51,11 @@ export class CacheManager {
       lastAccessed: Date.now(),
     };
     return new Promise((resolve, reject) => {
-      const tx = this.db!.transaction(['models3d'], 'readwrite');
+      if (!this.db) {
+        reject(new Error('Database not initialized'));
+        return;
+      }
+      const tx = this.db.transaction(['models3d'], 'readwrite');
       const store = tx.objectStore('models3d');
       const req = store.put(entry);
       req.onsuccess = () => resolve();
@@ -59,8 +65,14 @@ export class CacheManager {
 
   async getModel(key: string): Promise<ArrayBuffer | null> {
     if (!this.db) await this.init();
+    if (!this.db) throw new Error('Failed to initialize database');
+
     return new Promise((resolve, reject) => {
-      const tx = this.db!.transaction(['models3d'], 'readonly');
+      if (!this.db) {
+        reject(new Error('Database not initialized'));
+        return;
+      }
+      const tx = this.db.transaction(['models3d'], 'readonly');
       const store = tx.objectStore('models3d');
       const req = store.get(key);
       req.onsuccess = () => {
@@ -80,7 +92,11 @@ export class CacheManager {
     const storeNames = ['models3d', 'apiResponses'];
     for (const name of storeNames) {
       await new Promise<void>((resolve, reject) => {
-        const tx = this.db!.transaction([name], 'readwrite');
+        if (!this.db) {
+          reject(new Error('Database not initialized'));
+          return;
+        }
+        const tx = this.db.transaction([name], 'readwrite');
         const req = tx.objectStore(name).clear();
         req.onsuccess = () => resolve();
         req.onerror = () => reject(req.error);

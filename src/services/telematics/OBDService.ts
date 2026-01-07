@@ -36,17 +36,23 @@ export class OBDService {
       this.socket = new WebSocket(wsUrl);
 
       return new Promise((resolve, reject) => {
-        this.socket!.onopen = () => {
+        const socket = this.socket;
+        if (!socket) {
+          reject(new Error('Failed to create WebSocket'));
+          return;
+        }
+
+        socket.onopen = () => {
           console.log('✅ OBD-II device connected');
           resolve(true);
         };
 
-        this.socket!.onerror = (error) => {
+        socket.onerror = (error) => {
           console.error('❌ OBD-II connection error:', error);
           reject(false);
         };
 
-        this.socket!.onmessage = (event) => {
+        socket.onmessage = (event) => {
           this.handleOBDData(event.data);
         };
       });
@@ -128,16 +134,18 @@ export class OBDService {
       throw new Error('OBD device not connected');
     }
 
+    const socket = this.socket;
+
     return new Promise((resolve) => {
-      this.socket!.send('03\r'); // Request DTC codes
+      socket.send('03\r'); // Request DTC codes
 
       const handler = (event: MessageEvent) => {
         const codes = this.parseDTCCodes(event.data);
-        this.socket!.removeEventListener('message', handler);
+        socket.removeEventListener('message', handler);
         resolve(codes);
       };
 
-      this.socket!.addEventListener('message', handler);
+      socket.addEventListener('message', handler);
     });
   }
 
