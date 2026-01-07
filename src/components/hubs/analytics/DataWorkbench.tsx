@@ -3,7 +3,7 @@
 // Library: AG Grid (Excel-like experience)
 
 import { AgGridReact } from 'ag-grid-react';
-import type { ValueFormatterParams, CellStyleParams, CellValueChangedEvent, ColDef } from 'ag-grid-community';
+import type { ValueFormatterParams, CellValueChangedEvent, ColDef, CellClassParams } from 'ag-grid-community';
 import { Download, Filter } from 'lucide-react';
 import React, { useState, useCallback } from 'react';
 import 'ag-grid-community/styles/ag-grid.css';
@@ -25,7 +25,7 @@ export const DataWorkbench: React.FC = () => {
     // ... add more sample data
   ]);
 
-  const [columnDefs] = useState([
+  const [columnDefs] = useState<ColDef<RowData>[]>([
     {
       field: 'vehicle',
       headerName: 'Vehicle',
@@ -48,7 +48,7 @@ export const DataWorkbench: React.FC = () => {
       editable: true,
       filter: 'agNumberColumnFilter',
       sortable: true,
-      valueFormatter: (params) => params.value?.toLocaleString()
+      valueFormatter: (params: ValueFormatterParams<RowData>) => params.value?.toLocaleString()
     },
     {
       field: 'status',
@@ -56,7 +56,7 @@ export const DataWorkbench: React.FC = () => {
       editable: true,
       filter: true,
       sortable: true,
-      cellStyle: (params) => ({
+      cellStyle: (params: CellClassParams<RowData>) => ({
         color: params.value === 'Active' ? '#10b981' : '#eab308',
         fontWeight: '500'
       })
@@ -67,7 +67,7 @@ export const DataWorkbench: React.FC = () => {
       editable: true,
       filter: 'agNumberColumnFilter',
       sortable: true,
-      valueFormatter: (params) => params.value?.toFixed(1)
+      valueFormatter: (params: ValueFormatterParams<RowData>) => params.value?.toFixed(1)
     }
   ]);
 
@@ -76,7 +76,7 @@ export const DataWorkbench: React.FC = () => {
     minWidth: 100,
   };
 
-  const onCellValueChanged = useCallback((params) => {
+  const onCellValueChanged = useCallback((params: CellValueChangedEvent<RowData>) => {
     console.log('Cell changed:', params.data);
   }, []);
 
@@ -85,7 +85,7 @@ export const DataWorkbench: React.FC = () => {
     const csv = [
       columnDefs.map(col => col.headerName).join(','),
       ...rowData.map(row =>
-        columnDefs.map(col => row[col.field]).join(',')
+        columnDefs.map(col => col.field ? row[col.field as keyof RowData] : '').join(',')
       )
     ].join('\n');
 

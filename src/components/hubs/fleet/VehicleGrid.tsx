@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Car, MapPin, Wrench } from 'lucide-react';
 import React, { useState } from 'react';
 
-import { Dialog } from './Dialog';
+import { Dialog } from '@/components/shared/Dialog';
 
 interface Vehicle {
   id: string;

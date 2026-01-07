@@ -160,7 +160,7 @@ export function SafetyHub() {
 
   // Transform incidents from fleet data
   const incidents: SafetyIncident[] = useMemo(() => {
-    const rawIncidents = fleetData.incidents || []
+    const rawIncidents = (fleetData as any).incidents || []
     return rawIncidents.map((inc: any) => ({
       id: inc.id,
       type: inc.type || inc.incidentType || 'Incident',
@@ -176,11 +176,11 @@ export function SafetyHub() {
       workDaysLost: inc.workDaysLost || 0,
       reportedBy: inc.reportedBy || 'Unknown'
     }))
-  }, [fleetData.incidents])
+  }, [(fleetData as any).incidents])
 
   // Transform hazard zones from fleet data
   const hazardZones: HazardZone[] = useMemo(() => {
-    const rawZones = fleetData.hazardZones || []
+    const rawZones = (fleetData as any).hazardZones || []
     return rawZones.map((zone: any) => ({
       id: zone.id,
       name: zone.name || 'Hazard Zone',
@@ -192,11 +192,11 @@ export function SafetyHub() {
       activeFrom: zone.activeFrom || new Date().toISOString(),
       activeTo: zone.activeTo
     }))
-  }, [fleetData.hazardZones])
+  }, [(fleetData as any).hazardZones])
 
   // Transform inspections from fleet data
   const inspections: SafetyInspection[] = useMemo(() => {
-    const rawInspections = fleetData.inspections || []
+    const rawInspections = (fleetData as any).inspections || []
     return rawInspections.map((insp: any) => ({
       id: insp.id,
       vehicleId: insp.vehicleId,
@@ -209,7 +209,7 @@ export function SafetyHub() {
       notes: insp.notes || '',
       nextInspection: insp.nextInspection || insp.nextDue || ''
     }))
-  }, [fleetData.inspections])
+  }, [(fleetData as any).inspections])
 
   // Calculate OSHA metrics from incidents data
   const oshaMetrics: OSHAMetrics = useMemo(() => {
@@ -340,7 +340,7 @@ export function SafetyHub() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-green-500">
-                {demoOSHAMetrics.daysWithoutIncident}
+                {oshaMetrics.daysWithoutIncident}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Target: 30 days
