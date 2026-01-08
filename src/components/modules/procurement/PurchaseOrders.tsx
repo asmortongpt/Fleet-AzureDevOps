@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 import { useDrilldown } from "@/contexts/DrilldownContext"
+import { useAuth } from "@/contexts/AuthContext"
 import { PurchaseOrder } from "@/lib/types"
 
 interface POItem {
@@ -43,6 +44,7 @@ interface NewPOForm {
 }
 
 export function PurchaseOrders() {
+  const { hasPermission } = useAuth()
   const { push } = useDrilldown()
   const [orders, setOrders] = useState<PurchaseOrder[]>([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -228,10 +230,12 @@ export function PurchaseOrders() {
           <h2 className="text-2xl font-semibold">Purchase Orders</h2>
           <p className="text-muted-foreground">Manage parts and service purchase orders</p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Create Purchase Order
-        </Button>
+        {hasPermission('po:create') && (
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Create Purchase Order
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-4 gap-4">
@@ -493,7 +497,7 @@ export function PurchaseOrders() {
               )}
 
               <div className="flex justify-end gap-2">
-                {selectedOrder.status === 'pending-approval' && (
+                {selectedOrder.status === 'pending-approval' && hasPermission('po:approve') && (
                   <>
                     <Button variant="outline" onClick={() => setIsRejectDialogOpen(true)}>
                       Reject

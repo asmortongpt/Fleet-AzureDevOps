@@ -237,7 +237,7 @@ return
 }
 
     return new Promise((resolve) => {
-      this.client!.flush()
+      this.client.flush()
       // Wait a moment for flush to complete
       setTimeout(() => resolve(), 100)
     })

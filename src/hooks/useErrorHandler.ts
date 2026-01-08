@@ -88,7 +88,7 @@ export function useErrorHandler(config: RetryConfig = {}) {
     userMessage: null,
   })
 
-  const retryTimeoutRef = useRef<number>()
+  const retryTimeoutRef = useRef<number | undefined>(undefined)
 
   // Merge config with defaults
   const mergedConfig = {

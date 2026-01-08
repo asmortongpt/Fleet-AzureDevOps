@@ -182,19 +182,23 @@ describe('VehicleInventoryEmulator', () => {
       expect(ids.length).toBe(uniqueIds.size)
     })
 
-    it('should emit inventory-initialized event', (done) => {
+    it('should emit inventory-initialized event', async () => {
       const vehicleId = 'vehicle-event-test'
       const vehicleVin = 'EVENT123456789012'
 
-      emulator.once('inventory-initialized', (event) => {
-        expect(event.vehicleId).toBe(vehicleId)
-        expect(event.itemCount).toBeGreaterThan(0)
-        expect(event.totalValue).toBeGreaterThan(0)
-        expect(event.timestamp).toBeDefined()
-        done()
+      const eventPromise = new Promise((resolve) => {
+        emulator.once('inventory-initialized', (event) => {
+          expect(event.vehicleId).toBe(vehicleId)
+          expect(event.itemCount).toBeGreaterThan(0)
+          expect(event.totalValue).toBeGreaterThan(0)
+          expect(event.timestamp).toBeDefined()
+          resolve(true)
+        })
       })
 
       emulator.initializeVehicleInventory(vehicleId, 'van', vehicleVin)
+
+      await eventPromise
     })
   })
 
@@ -385,19 +389,23 @@ describe('VehicleInventoryEmulator', () => {
       }
     })
 
-    it('should emit inspection-completed event', (done) => {
+    it('should emit inspection-completed event', async () => {
       const vehicleId = 'vehicle-event-inspect'
       const vehicleVin = 'EVENTINSP1234567'
 
       emulator.initializeVehicleInventory(vehicleId, 'van', vehicleVin)
 
-      emulator.once('inspection-completed', (inspection) => {
-        expect(inspection.vehicleId).toBe(vehicleId)
-        expect(inspection.status).toBe('completed')
-        done()
+      const eventPromise = new Promise((resolve) => {
+        emulator.once('inspection-completed', (inspection) => {
+          expect(inspection.vehicleId).toBe(vehicleId)
+          expect(inspection.status).toBe('completed')
+          resolve(true)
+        })
       })
 
       emulator.conductInspection(vehicleId, 'inspector-003', 'Test Inspector', 'routine')
+
+      await eventPromise
     })
 
     it('should track inspection history', () => {
@@ -495,29 +503,33 @@ describe('VehicleInventoryEmulator', () => {
   })
 
   describe('Alert System', () => {
-    it('should emit compliance-alert events', (done) => {
+    it('should emit compliance-alert events', async () => {
       const vehicleId = 'vehicle-alert-event'
       const vehicleVin = 'ALERTEVENT12345'
 
       let alertReceived = false
 
-      emulator.once('compliance-alert', (alert) => {
-        alertReceived = true
-        expect(alert.vehicleId).toBe(vehicleId)
-        expect(alert.alertType).toBeDefined()
-        expect(alert.severity).toBeDefined()
-        expect(alert.message).toBeDefined()
-        done()
+      const alertPromise = new Promise((resolve) => {
+        emulator.once('compliance-alert', (alert) => {
+          alertReceived = true
+          expect(alert.vehicleId).toBe(vehicleId)
+          expect(alert.alertType).toBeDefined()
+          expect(alert.severity).toBeDefined()
+          expect(alert.message).toBeDefined()
+          resolve(true)
+        })
+
+        // If no alerts were generated after initialization, resolve anyway
+        setTimeout(() => {
+          if (!alertReceived) {
+            resolve(true)
+          }
+        }, 100)
       })
 
       emulator.initializeVehicleInventory(vehicleId, 'truck', vehicleVin)
 
-      // If no alerts were generated, pass the test
-      setTimeout(() => {
-        if (!alertReceived) {
-          done()
-        }
-      }, 100)
+      await alertPromise
     })
 
     it('should retrieve alerts by vehicle', () => {
