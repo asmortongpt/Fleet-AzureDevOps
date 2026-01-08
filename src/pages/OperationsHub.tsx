@@ -29,10 +29,12 @@ import {
 } from '@phosphor-icons/react'
 import { memo, useCallback, useId, useState, useEffect } from 'react'
 
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import { logger } from '@/utils/logger'
 
 // ============================================================================
 // TYPES
@@ -809,4 +811,17 @@ export function OperationsHub() {
     )
 }
 
-export default OperationsHub
+const WrappedOperationsHub = () => (
+    <ErrorBoundary
+        onError={(error, errorInfo) => {
+            logger.error('OperationsHub error', error, {
+                component: 'OperationsHub',
+                errorInfo
+            })
+        }}
+    >
+        <OperationsHub />
+    </ErrorBoundary>
+)
+
+export default WrappedOperationsHub
