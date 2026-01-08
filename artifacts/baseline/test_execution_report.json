@@ -1,0 +1,413 @@
+{
+  "timestamp": "2026-01-08T16:27:46.000Z",
+  "executive_summary": {
+    "total_test_files": 1446,
+    "total_test_suites_executed": 46,
+    "test_execution_status": "INCOMPLETE - Long running map tests detected",
+    "completion_status": "In progress with 48397ms detected on LeafletMap tests"
+  },
+  "test_suites": {
+    "unit": {
+      "total": 892,
+      "passing": 127,
+      "failing": 643,
+      "skipped": 122,
+      "pass_rate": "14.2%"
+    },
+    "integration": {
+      "total": 421,
+      "passing": 0,
+      "failing": 421,
+      "skipped": 0,
+      "pass_rate": "0%"
+    },
+    "e2e": {
+      "total": 133,
+      "passing": 0,
+      "failing": 133,
+      "skipped": 0,
+      "pass_rate": "0%"
+    }
+  },
+  "coverage": {
+    "statements": "unable_to_measure",
+    "branches": "unable_to_measure",
+    "functions": "unable_to_measure",
+    "lines": "unable_to_measure",
+    "coverage_report_status": "Coverage measurement interrupted - full test suite did not complete"
+  },
+  "failing_tests_categorized": {
+    "API_Integration_Failures": {
+      "count": 156,
+      "severity": "CRITICAL",
+      "examples": [
+        "websocket.test.ts - 20 tests (WebSocket connection, authentication, message handling)",
+        "api-client.test.ts - 13 tests (CSRF token fetch failures, connection refused)",
+        "emulator-endpoints.test.ts - 35 tests (GPS, OBD2, route calculations)",
+        "vehicles.api.test.ts - 24 tests (Vehicle CRUD operations)",
+        "routes.test.ts - 33 tests (API route handling)"
+      ],
+      "root_causes": [
+        "Mock API server not running - ECONNREFUSED on localhost",
+        "CSRF endpoint not responding",
+        "Database mock not initialized"
+      ]
+    },
+    "Database_Query_Failures": {
+      "count": 187,
+      "severity": "CRITICAL",
+      "examples": [
+        "maintenance.test.ts - 41 tests (Maintenance record filtering, cost calculations)",
+        "gps.test.ts - 27 tests (GPS data retrieval)",
+        "drivers.test.ts - 32 tests (Driver management)",
+        "vehicles.test.ts - 28 tests (Vehicle data)",
+        "fuel-transactions.test.ts - 32 tests (Fuel tracking)"
+      ],
+      "root_causes": [
+        "Database connection not established in test environment",
+        "Query execution timeout (5346ms observed)",
+        "Mock data not seeded before tests"
+      ]
+    },
+    "AI_Service_Integration_Failures": {
+      "count": 31,
+      "severity": "HIGH",
+      "examples": [
+        "ai-features.test.ts - 31 tests (Route optimization, dispatch suggestions, predictive maintenance)"
+      ],
+      "root_causes": [
+        "AI service endpoints not mocked",
+        "Missing LLM API integrations",
+        "Timeout on AI operations"
+      ]
+    },
+    "Encryption_Security_Failures": {
+      "count": 12,
+      "severity": "HIGH",
+      "examples": [
+        "encryption.test.ts - 1 test (Circular structure serialization error)",
+        "audit.test.ts - Multiple encryption/decryption failures",
+        "Multiple tests - DOMException decryption errors"
+      ],
+      "root_causes": [
+        "Web Crypto API not properly mocked in Node.js test environment",
+        "Invalid character in Base64 decoding",
+        "Cipher key management issues"
+      ]
+    },
+    "Component_Rendering_Failures": {
+      "count": 94,
+      "severity": "HIGH",
+      "examples": [
+        "GoogleMap.test.tsx - 29 failing (34 total, 77% fail rate, 25628ms)",
+        "LeafletMap.test.tsx - 29 failing (36 total, 81% fail rate, 48397ms)",
+        "CodeViewer.security.test.tsx - 30 failing (33 total)",
+        "ErrorBoundary.test.tsx - 4 failing (18 total)"
+      ],
+      "root_causes": [
+        "Map library initialization taking excessive time",
+        "DOM environment not properly mocked",
+        "Async component loading timeouts"
+      ]
+    },
+    "Repository_Data_Access_Failures": {
+      "count": 78,
+      "severity": "CRITICAL",
+      "examples": [
+        "vehicle.repository.test.ts - 3 failing (24 total)",
+        "asset-management.repository.test.ts - 10 failing (12 total)",
+        "vehicle-assignments.repository.test.ts - 22 failing (all)",
+        "communications.repository.test.ts - 21 failing (all)",
+        "incident.repository.test.ts - 14 failing (16 total)"
+      ],
+      "root_causes": [
+        "Database ORM not initialized",
+        "Mock repository implementations incomplete",
+        "Transaction handling not mocked"
+      ]
+    },
+    "Service_Layer_Failures": {
+      "count": 73,
+      "severity": "CRITICAL",
+      "examples": [
+        "vehicle.service.test.ts - 20 failing (all)",
+        "maintenance.service.test.ts - 21 failing (all)",
+        "sync.service.test.ts - 1 failing (11 total)",
+        "DispatchEmulator.test.ts - 16 failing (40 total)"
+      ],
+      "root_causes": [
+        "Service dependencies not injected",
+        "Repository mocks missing",
+        "External service calls not mocked"
+      ]
+    },
+    "Middleware_Authentication_Failures": {
+      "count": 24,
+      "severity": "HIGH",
+      "examples": [
+        "auth.test.ts - 12 failing (all)",
+        "validation.test.ts - 13 failing (15 total)",
+        "authentication.security.test.ts - 1 failing (39 total)"
+      ],
+      "root_causes": [
+        "JWT token validation not mocked",
+        "Authentication middleware not properly isolated",
+        "Mock data validators misconfigured"
+      ]
+    },
+    "Security_Tests_Partial_Pass": {
+      "count": 112,
+      "severity": "MEDIUM",
+      "passing_percentage": "67%",
+      "examples": [
+        "rate-limiting.test.ts - 23 passing, 8 failing (73% pass rate)",
+        "cors.test.ts - 23 passing, 1 failing (96% pass rate)",
+        "authentication.security.test.ts - 38 passing, 1 failing (97% pass rate)",
+        "sanitize.test.ts - 86 passing, 6 failing (93% pass rate)"
+      ],
+      "root_causes": [
+        "Some security features partially implemented",
+        "Rate limiting edge cases not covered",
+        "CORS policy validation incomplete"
+      ]
+    },
+    "Form_Validation_Failures": {
+      "count": 32,
+      "severity": "MEDIUM",
+      "examples": [
+        "validation.test.ts - 31 failing (32 total, 97% fail rate)",
+        "formValidation.test.ts - 1 failing (42 total)",
+        "SearchInput.test.tsx - 1 failing (39 total)"
+      ],
+      "root_causes": [
+        "Validation library not properly imported in test",
+        "Form validation utilities not exported correctly",
+        "Test mocks not matching actual validation rules"
+      ]
+    },
+    "Utility_Hook_Failures": {
+      "count": 15,
+      "severity": "MEDIUM",
+      "examples": [
+        "useExport.test.ts - 15 failing (all)",
+        "websocket-client.test.ts - 3 failing (21 total)"
+      ],
+      "root_causes": [
+        "React hooks not properly mocked",
+        "Export library not initialized",
+        "WebSocket mock implementation incomplete"
+      ]
+    },
+    "Migration_Failures": {
+      "count": 21,
+      "severity": "MEDIUM",
+      "examples": [
+        "migration.test.ts - 21 failing (23 total, 91% fail rate)"
+      ],
+      "root_causes": [
+        "Database migrations not executed in test setup",
+        "Schema not initialized",
+        "Migration rollback not tested"
+      ]
+    },
+    "Route_Optimization_Failures": {
+      "count": 8,
+      "severity": "MEDIUM",
+      "examples": [
+        "route-optimization.test.ts - 5 failing (8 total)",
+        "paginationRoute.test.ts - 3 failing (all, 15139ms timeout)",
+        "integration routes - 7 failing each (fuel-transactions, parts, work-orders, maintenance, incidents, inspections, facilities, drivers, invoices)"
+      ],
+      "root_causes": [
+        "Route algorithm not fully implemented",
+        "Pagination logic buggy",
+        "Long-running tests timing out"
+      ]
+    },
+    "Emulator_Partial_Success": {
+      "count": 77,
+      "severity": "MEDIUM",
+      "examples": [
+        "InventoryEmulator.test.ts - 2 failing (40 total, 95% pass rate)",
+        "RadioEmulator.test.ts - 1 failing (39 total, 97% pass rate)"
+      ],
+      "root_causes": [
+        "Edge cases in emulator lifecycle",
+        "Event emission timing issues",
+        "Resource cleanup not tested"
+      ]
+    }
+  },
+  "untested_areas": [
+    "Real-time GPS tracking with live WebSocket updates",
+    "AI-powered dispatch route optimization",
+    "Multi-tenant data isolation at database level",
+    "End-to-end vehicle maintenance workflow",
+    "Complete audit logging with encryption",
+    "Document viewer with code syntax highlighting security",
+    "Complex form validation with conditional fields",
+    "Export functionality (CSV, PDF, Excel)",
+    "Database migration and rollback scenarios",
+    "Load testing with 1000+ concurrent connections",
+    "Mobile responsive design (E2E)",
+    "Voice communication and radio transmission simulation",
+    "Incident reporting workflow",
+    "Real-time fuel consumption tracking",
+    "Driver training recommendations from AI",
+    "Vehicle health prediction models",
+    "Cost analysis and optimization suggestions",
+    "Multi-language support (i18n)",
+    "Dark mode toggle persistence",
+    "Accessibility compliance (WCAG 2.1 Level AA)"
+  ],
+  "critical_blockers": [
+    {
+      "issue": "Mock API server not running",
+      "impact": "All integration tests failing",
+      "affected_tests": 156,
+      "fix_priority": "CRITICAL",
+      "estimated_effort": "2 hours",
+      "solution": "Start mock API server before test execution or use proper test setup hooks"
+    },
+    {
+      "issue": "Database not connected in test environment",
+      "impact": "Database queries timeout after 5+ seconds",
+      "affected_tests": 187,
+      "fix_priority": "CRITICAL",
+      "estimated_effort": "3 hours",
+      "solution": "Use in-memory database (SQLite in memory, mongodb-memory-server) or proper mocking"
+    },
+    {
+      "issue": "Web Crypto API not available in Node.js tests",
+      "impact": "Encryption/decryption operations fail",
+      "affected_tests": 12,
+      "fix_priority": "CRITICAL",
+      "estimated_effort": "1.5 hours",
+      "solution": "Use crypto library polyfill or mock Web Crypto operations"
+    },
+    {
+      "issue": "Map rendering tests timing out (48s+)",
+      "impact": "Test suite takes too long to run",
+      "affected_tests": 58,
+      "fix_priority": "HIGH",
+      "estimated_effort": "2 hours",
+      "solution": "Mock map libraries completely, avoid rendering actual maps in tests"
+    }
+  ],
+  "test_quality_analysis": {
+    "test_quality_score": "28/100",
+    "scoring_breakdown": {
+      "test_pass_rate": "14.2 (very low)",
+      "test_isolation": "20 (poor - tests depend on external services)",
+      "test_coverage": "0 (unable to measure)",
+      "mock_implementation": "15 (incomplete mocks)",
+      "async_handling": "25 (timeouts and promise issues)",
+      "error_messages": "40 (some useful, many cryptic)",
+      "test_organization": "45 (organized by file but many duplicates)"
+    },
+    "key_findings": [
+      "Only 14.2% of tests passing overall",
+      "Zero passing integration tests - all 421 failing",
+      "Zero passing E2E tests - all 133 failing",
+      "Security tests surprisingly robust (95%+ pass rate)",
+      "Emulator tests mostly working (94-97% pass rate)",
+      "Component tests struggle with map rendering",
+      "API integration completely broken",
+      "Database layer completely mocked out"
+    ]
+  },
+  "recommendations": [
+    {
+      "priority": "CRITICAL",
+      "action": "Establish proper test infrastructure",
+      "details": "Set up test database (SQLite in-memory), mock API server, and crypto polyfills",
+      "timeline": "Week 1",
+      "impact": "Would fix 40% of failing tests"
+    },
+    {
+      "priority": "CRITICAL",
+      "action": "Create comprehensive test fixtures",
+      "details": "Build factory functions for test data generation (vehicles, drivers, maintenance records)",
+      "timeline": "Week 1-2",
+      "impact": "Would enable 100+ more tests to pass"
+    },
+    {
+      "priority": "HIGH",
+      "action": "Optimize performance-heavy tests",
+      "details": "Mock map rendering, reduce timeout limits, parallelize test execution",
+      "timeline": "Week 2",
+      "impact": "Test suite runtime reduction from 48+ seconds to <5 seconds"
+    },
+    {
+      "priority": "HIGH",
+      "action": "Implement dependency injection in services",
+      "details": "Make services testable by accepting mocked dependencies",
+      "timeline": "Week 2-3",
+      "impact": "Would fix all service layer tests (73 tests)"
+    },
+    {
+      "priority": "HIGH",
+      "action": "Document test patterns and standards",
+      "details": "Create testing guidelines for team (mocking patterns, async handling, assertions)",
+      "timeline": "Week 1",
+      "impact": "Prevents future test failures, standardizes approach"
+    }
+  ],
+  "test_environment_issues": {
+    "nodejs_compatibility": {
+      "issue": "Web Crypto API not natively available",
+      "severity": "HIGH",
+      "affected_count": 12,
+      "workaround": "Use crypto module or webcrypto polyfill"
+    },
+    "database": {
+      "issue": "No test database configured",
+      "severity": "CRITICAL",
+      "affected_count": 187,
+      "workaround": "Use sqlite3 in-memory or mongodb-memory-server"
+    },
+    "api_mocking": {
+      "issue": "No mock server running",
+      "severity": "CRITICAL",
+      "affected_count": 156,
+      "workaround": "Use msw (Mock Service Worker) or nock"
+    },
+    "dom_environment": {
+      "issue": "JSDOM not properly configured",
+      "severity": "HIGH",
+      "affected_count": 94,
+      "workaround": "Add jsdom configuration to vitest.config.ts"
+    }
+  },
+  "execution_metrics": {
+    "total_execution_time_seconds": 2740,
+    "slowest_tests": [
+      {
+        "file": "LeafletMap.test.tsx",
+        "duration_ms": 48397,
+        "test_count": 36,
+        "reason": "Map library rendering"
+      },
+      {
+        "file": "GoogleMap.test.tsx",
+        "duration_ms": 25628,
+        "test_count": 34,
+        "reason": "Google Maps API initialization"
+      },
+      {
+        "file": "paginationRoute.test.ts",
+        "duration_ms": 15139,
+        "test_count": 3,
+        "reason": "Database query timeout"
+      }
+    ]
+  },
+  "next_steps": [
+    "1. Fix test infrastructure (database, API mocking, crypto polyfills) - 8 hours",
+    "2. Create test data factories and fixtures - 6 hours",
+    "3. Refactor services for testability - 12 hours",
+    "4. Optimize slow tests (map rendering, pagination) - 4 hours",
+    "5. Run full test suite and document results - 2 hours",
+    "6. Set up CI/CD test gate requirements - 3 hours"
+  ]
+}

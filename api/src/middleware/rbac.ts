@@ -31,19 +31,29 @@ import { getUserPermissions, clearPermissionCache } from './permissions'
  * Role hierarchy (higher roles inherit all permissions from lower roles)
  */
 export enum Role {
-  ADMIN = 'admin',       // Full system access, can manage users and roles
-  MANAGER = 'manager',   // Can manage fleet operations, vehicles, drivers
-  USER = 'user',         // Read access, limited write access to own resources
-  GUEST = 'guest'        // Read-only access to public resources
+  ADMIN = 'admin',
+  SECURITY_ADMIN = 'security-admin',
+  FLEET_MANAGER = 'fleet-manager',
+  MAINTENANCE_TECH = 'maintenance-tech',
+  COMPLIANCE_OFFICER = 'compliance-officer',
+  ANALYST = 'analyst',
+  DRIVER = 'driver',
+  VIEWER = 'viewer',
+  GUEST = 'guest'
 }
 
 /**
  * Role hierarchy map - each role includes all lower roles
  */
 const ROLE_HIERARCHY: Record<Role, Role[]> = {
-  [Role.ADMIN]: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
-  [Role.MANAGER]: [Role.MANAGER, Role.USER, Role.GUEST],
-  [Role.USER]: [Role.USER, Role.GUEST],
+  [Role.ADMIN]: [Role.ADMIN, Role.SECURITY_ADMIN, Role.FLEET_MANAGER, Role.MAINTENANCE_TECH, Role.COMPLIANCE_OFFICER, Role.ANALYST, Role.DRIVER, Role.VIEWER, Role.GUEST],
+  [Role.SECURITY_ADMIN]: [Role.SECURITY_ADMIN, Role.VIEWER, Role.GUEST],
+  [Role.FLEET_MANAGER]: [Role.FLEET_MANAGER, Role.MAINTENANCE_TECH, Role.ANALYST, Role.DRIVER, Role.VIEWER, Role.GUEST],
+  [Role.MAINTENANCE_TECH]: [Role.MAINTENANCE_TECH, Role.VIEWER, Role.GUEST],
+  [Role.COMPLIANCE_OFFICER]: [Role.COMPLIANCE_OFFICER, Role.VIEWER, Role.GUEST],
+  [Role.ANALYST]: [Role.ANALYST, Role.VIEWER, Role.GUEST],
+  [Role.DRIVER]: [Role.DRIVER, Role.VIEWER, Role.GUEST],
+  [Role.VIEWER]: [Role.VIEWER, Role.GUEST],
   [Role.GUEST]: [Role.GUEST]
 }
 
@@ -412,11 +422,11 @@ export function requireRBAC(config: {
 
     const runNext = (err?: any) => {
       if (err) {
-return next(err)
-}
+        return next(err)
+      }
       if (index >= middlewares.length) {
-return next()
-}
+        return next()
+      }
 
       const middleware = middlewares[index++]
       middleware(req, res, runNext)
@@ -470,7 +480,7 @@ async function verifyTenantOwnership(
       tableName,
       error: error instanceof Error ? error.message : 'Unknown error'
     })
-    return true // Fail open for backward compatibility
+    return false // Fail closed for security
   }
 }
 

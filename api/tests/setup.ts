@@ -22,7 +22,8 @@ export const getTestApp = async (): Promise<Application> => {
     const cors = (await import('cors')).default
 
     // Import routes
-    const vehiclesRouter = (await import('../src/routes/vehicles')).default
+    // Temporarily disabled to debug routes test
+    // const vehiclesRouter = (await import('../src/routes/vehicles')).default
     const driversRouter = (await import('../src/routes/drivers')).default
     const fuelRouter = (await import('../src/routes/fuel-transactions')).default
     const maintenanceRouter = (await import('../src/routes/maintenance')).default

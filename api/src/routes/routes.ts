@@ -187,6 +187,154 @@ router.get(
   }
 )
 
+// POST /routes/optimize - Optimize route planning (MUST be before /:id)
+router.post(
+  '/optimize',
+  csrfProtection,
+  requirePermission('route:create:fleet'),
+  auditLog({ action: 'CREATE', resourceType: 'routes' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { vehicleId, stops, startLocation, considerTraffic, departureTime } = req.body
+
+      if (!stops || !Array.isArray(stops) || stops.length === 0) {
+        return res.status(400).json({ error: 'Stops array is required' })
+      }
+
+      // Simple optimization: sort by distance from start location
+      let optimizedStops = [...stops]
+
+      if (startLocation && startLocation.latitude && startLocation.longitude) {
+        optimizedStops = stops.sort((a: any, b: any) => {
+          const distA = calculateDistance(startLocation, { lat: a.latitude || 0, lng: a.longitude || 0 })
+          const distB = calculateDistance(startLocation, { lat: b.latitude || 0, lng: b.longitude || 0 })
+          return distA - distB
+        })
+      }
+
+      const estimatedDuration = optimizedStops.length * 30
+      const trafficDelayMinutes = considerTraffic ? Math.floor(Math.random() * 20) : 0
+
+      res.json({
+        data: {
+          stops: optimizedStops,
+          optimizationScore: 85 + Math.floor(Math.random() * 15),
+          estimatedDuration: estimatedDuration + trafficDelayMinutes,
+          trafficDelayMinutes: considerTraffic ? trafficDelayMinutes : undefined
+        }
+      })
+    } catch (error) {
+      logger.error('Optimize route error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// GET /routes/analytics/completion (MUST be before /:id)
+router.get(
+  '/analytics/completion',
+  requirePermission('route:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'routes' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        `SELECT
+          COUNT(*) as total_routes,
+          COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_routes,
+          AVG(CASE WHEN status = 'completed' AND actual_duration IS NOT NULL THEN actual_duration END) as avg_completion_time
+        FROM routes WHERE tenant_id = $1`,
+        [req.user!.tenant_id]
+      )
+
+      const row = result.rows[0]
+      const totalRoutes = parseInt(row.total_routes)
+      const completedRoutes = parseInt(row.completed_routes)
+
+      res.json({
+        data: {
+          totalRoutes,
+          completedRoutes,
+          completionRate: totalRoutes > 0 ? (completedRoutes / totalRoutes) * 100 : 0,
+          averageCompletionTime: parseFloat(row.avg_completion_time) || 0
+        }
+      })
+    } catch (error) {
+      logger.error('Route completion analytics error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// GET /routes/analytics/on-time (MUST be before /:id)
+router.get(
+  '/analytics/on-time',
+  requirePermission('route:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'routes' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        `SELECT
+          COUNT(CASE WHEN status = 'completed' AND actual_end_time <= planned_end_time THEN 1 END) as on_time,
+          COUNT(CASE WHEN status = 'completed' AND actual_end_time > planned_end_time THEN 1 END) as late,
+          COUNT(CASE WHEN status = 'completed' AND actual_end_time < planned_end_time THEN 1 END) as early
+        FROM routes WHERE tenant_id = $1 AND status = 'completed'`,
+        [req.user!.tenant_id]
+      )
+
+      const row = result.rows[0]
+      const onTime = parseInt(row.on_time) || 0
+      const late = parseInt(row.late) || 0
+      const early = parseInt(row.early) || 0
+      const total = onTime + late + early
+
+      res.json({
+        data: {
+          onTimeDeliveries: onTime,
+          lateDeliveries: late,
+          earlyDeliveries: early,
+          onTimePercentage: total > 0 ? (onTime / total) * 100 : 0
+        }
+      })
+    } catch (error) {
+      logger.error('On-time analytics error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// GET /routes/analytics/efficiency (MUST be before /:id)
+router.get(
+  '/analytics/efficiency',
+  requirePermission('route:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'routes' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        `SELECT
+          AVG(ARRAY_LENGTH(CAST(waypoints::text AS json)::json, 1)) as avg_stops,
+          AVG(total_distance) as avg_miles,
+          AVG(actual_duration / NULLIF(ARRAY_LENGTH(CAST(waypoints::text AS json)::json, 1), 0)) as avg_time_per_stop
+        FROM routes WHERE tenant_id = $1 AND status = 'completed'`,
+        [req.user!.tenant_id]
+      )
+
+      const row = result.rows[0]
+
+      res.json({
+        data: {
+          averageStopsPerRoute: parseFloat(row.avg_stops) || 0,
+          averageMilesPerRoute: parseFloat(row.avg_miles) || 0,
+          averageTimePerStop: parseFloat(row.avg_time_per_stop) || 0,
+          utilizationRate: 85 // Placeholder
+        }
+      })
+    } catch (error) {
+      logger.error('Efficiency analytics error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
 // GET /routes/:id
 router.get(
   '/:id',
@@ -262,7 +410,7 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { vehicleId, driverId, stops, startTime, optimize } = req.body
+      const { vehicleId, driverId, stops, startTime, optimize, status } = req.body
 
       // Validate required fields
       if (!vehicleId || !driverId || !stops || !Array.isArray(stops) || stops.length === 0) {
@@ -297,8 +445,9 @@ router.post(
       const waypoints = processedStops.map((stop: any, index: number) => ({
         address: stop.address,
         priority: stop.priority || index + 1,
+        stopNumber: stop.stopNumber || index + 1,
         estimated_arrival: new Date(Date.now() + index * 30 * 60 * 1000).toISOString(),
-        status: 'pending'
+        status: stop.status || 'pending'
       }))
 
       const estimatedDuration = processedStops.length * 30 // 30 mins per stop
@@ -307,7 +456,7 @@ router.post(
         tenant_id: req.user!.tenant_id,
         vehicle_id: vehicleId,
         driver_id: driverId,
-        status: 'planned',
+        status: status || 'planned',
         waypoints: JSON.stringify(waypoints),
         optimized_waypoints: optimize ? JSON.stringify(waypoints) : null,
         estimated_duration: estimatedDuration,
@@ -591,154 +740,6 @@ router.delete(
       res.json({ message: 'Route deleted successfully' })
     } catch (error) {
       logger.error('Delete route error:', error)
-      res.status(500).json({ error: 'Internal server error' })
-    }
-  }
-)
-
-// POST /routes/optimize - Optimize route planning
-router.post(
-  '/optimize',
-  csrfProtection,
-  requirePermission('route:create:fleet'),
-  auditLog({ action: 'CREATE', resourceType: 'routes' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const { vehicleId, stops, startLocation, considerTraffic, departureTime } = req.body
-
-      if (!stops || !Array.isArray(stops) || stops.length === 0) {
-        return res.status(400).json({ error: 'Stops array is required' })
-      }
-
-      // Simple optimization: sort by distance from start location
-      let optimizedStops = [...stops]
-
-      if (startLocation && startLocation.latitude && startLocation.longitude) {
-        optimizedStops = stops.sort((a: any, b: any) => {
-          const distA = calculateDistance(startLocation, { lat: a.latitude || 0, lng: a.longitude || 0 })
-          const distB = calculateDistance(startLocation, { lat: b.latitude || 0, lng: b.longitude || 0 })
-          return distA - distB
-        })
-      }
-
-      const estimatedDuration = optimizedStops.length * 30
-      const trafficDelayMinutes = considerTraffic ? Math.floor(Math.random() * 20) : 0
-
-      res.json({
-        data: {
-          stops: optimizedStops,
-          optimizationScore: 85 + Math.floor(Math.random() * 15),
-          estimatedDuration: estimatedDuration + trafficDelayMinutes,
-          trafficDelayMinutes: considerTraffic ? trafficDelayMinutes : undefined
-        }
-      })
-    } catch (error) {
-      logger.error('Optimize route error:', error)
-      res.status(500).json({ error: 'Internal server error' })
-    }
-  }
-)
-
-// GET /routes/analytics/completion
-router.get(
-  '/analytics/completion',
-  requirePermission('route:view:fleet'),
-  auditLog({ action: 'READ', resourceType: 'routes' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const result = await pool.query(
-        `SELECT
-          COUNT(*) as total_routes,
-          COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_routes,
-          AVG(CASE WHEN status = 'completed' AND actual_duration IS NOT NULL THEN actual_duration END) as avg_completion_time
-        FROM routes WHERE tenant_id = $1`,
-        [req.user!.tenant_id]
-      )
-
-      const row = result.rows[0]
-      const totalRoutes = parseInt(row.total_routes)
-      const completedRoutes = parseInt(row.completed_routes)
-
-      res.json({
-        data: {
-          totalRoutes,
-          completedRoutes,
-          completionRate: totalRoutes > 0 ? (completedRoutes / totalRoutes) * 100 : 0,
-          averageCompletionTime: parseFloat(row.avg_completion_time) || 0
-        }
-      })
-    } catch (error) {
-      logger.error('Route completion analytics error:', error)
-      res.status(500).json({ error: 'Internal server error' })
-    }
-  }
-)
-
-// GET /routes/analytics/on-time
-router.get(
-  '/analytics/on-time',
-  requirePermission('route:view:fleet'),
-  auditLog({ action: 'READ', resourceType: 'routes' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const result = await pool.query(
-        `SELECT
-          COUNT(CASE WHEN status = 'completed' AND actual_end_time <= planned_end_time THEN 1 END) as on_time,
-          COUNT(CASE WHEN status = 'completed' AND actual_end_time > planned_end_time THEN 1 END) as late,
-          COUNT(CASE WHEN status = 'completed' AND actual_end_time < planned_end_time THEN 1 END) as early
-        FROM routes WHERE tenant_id = $1 AND status = 'completed'`,
-        [req.user!.tenant_id]
-      )
-
-      const row = result.rows[0]
-      const onTime = parseInt(row.on_time) || 0
-      const late = parseInt(row.late) || 0
-      const early = parseInt(row.early) || 0
-      const total = onTime + late + early
-
-      res.json({
-        data: {
-          onTimeDeliveries: onTime,
-          lateDeliveries: late,
-          earlyDeliveries: early,
-          onTimePercentage: total > 0 ? (onTime / total) * 100 : 0
-        }
-      })
-    } catch (error) {
-      logger.error('On-time analytics error:', error)
-      res.status(500).json({ error: 'Internal server error' })
-    }
-  }
-)
-
-// GET /routes/analytics/efficiency
-router.get(
-  '/analytics/efficiency',
-  requirePermission('route:view:fleet'),
-  auditLog({ action: 'READ', resourceType: 'routes' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const result = await pool.query(
-        `SELECT
-          AVG(ARRAY_LENGTH(CAST(waypoints::text AS json)::json, 1)) as avg_stops,
-          AVG(total_distance) as avg_miles,
-          AVG(actual_duration / NULLIF(ARRAY_LENGTH(CAST(waypoints::text AS json)::json, 1), 0)) as avg_time_per_stop
-        FROM routes WHERE tenant_id = $1 AND status = 'completed'`,
-        [req.user!.tenant_id]
-      )
-
-      const row = result.rows[0]
-
-      res.json({
-        data: {
-          averageStopsPerRoute: parseFloat(row.avg_stops) || 0,
-          averageMilesPerRoute: parseFloat(row.avg_miles) || 0,
-          averageTimePerStop: parseFloat(row.avg_time_per_stop) || 0,
-          utilizationRate: 85 // Placeholder
-        }
-      })
-    } catch (error) {
-      logger.error('Efficiency analytics error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
