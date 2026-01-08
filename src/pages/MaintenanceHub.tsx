@@ -11,7 +11,6 @@
  * - Professional enterprise design
  */
 
-import { memo, useCallback, useId, useState, useEffect, useRef } from 'react'
 import {
     Wrench as MaintenanceIcon,
     Wrench,
@@ -20,19 +19,13 @@ import {
     CalendarDots,
     ClipboardText,
     Plus,
-    MagnifyingGlass,
-    ArrowsClockwise,
-    Clock,
-    CheckCircle,
-    Warning,
-    CaretUp,
-    CaretDown,
     Gear,
     Lightning,
     CurrencyDollar
 } from '@phosphor-icons/react'
+import { memo, useCallback, useId, useState, useEffect } from 'react'
 
-import { HubPage, HubTab, HubTabItem } from '@/components/ui/hub-page'
+import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'

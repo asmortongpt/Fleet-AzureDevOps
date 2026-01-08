@@ -1,0 +1,49 @@
+{
+  "entity": "Safety Incident",
+  "states": [
+    "REPORTED",
+    "INVESTIGATING",
+    "PENDING_INSURANCE",
+    "RESOLVED",
+    "ARCHIVED"
+  ],
+  "transitions": [
+    {
+      "from": "REPORTED",
+      "to": "INVESTIGATING",
+      "action": "Assign Investigator",
+      "role": [
+        "HR_MANAGER",
+        "FLEET_MANAGER"
+      ]
+    },
+    {
+      "from": "INVESTIGATING",
+      "to": "PENDING_INSURANCE",
+      "action": "File Claim",
+      "role": [
+        "HR_MANAGER"
+      ]
+    },
+    {
+      "from": [
+        "INVESTIGATING",
+        "PENDING_INSURANCE"
+      ],
+      "to": "RESOLVED",
+      "action": "Close Case",
+      "role": [
+        "HR_MANAGER"
+      ]
+    },
+    {
+      "from": "RESOLVED",
+      "to": "ARCHIVED",
+      "action": "Archive",
+      "role": [
+        "SUPER_ADMIN",
+        "HR_MANAGER"
+      ]
+    }
+  ]
+}

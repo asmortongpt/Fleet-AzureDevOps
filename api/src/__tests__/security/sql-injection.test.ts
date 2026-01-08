@@ -108,7 +108,7 @@ describe('SQL Injection Protection Tests', () => {
 
       try {
         await pool.query(
-          'SELECT NOW() - ($1 || ' days')::INTERVAL as past_date',
+          "SELECT NOW() - ($1 || ' days')::INTERVAL as past_date",
           [maliciousValue]
         )
         // Should fail due to invalid interval format
@@ -131,7 +131,7 @@ describe('SQL Injection Protection Tests', () => {
     it('should handle numeric validation properly', async () => {
       const validDays = 30
       const result = await pool.query(
-        'SELECT NOW() - ($1 || ' days')::INTERVAL as past_date',
+        "SELECT NOW() - ($1 || ' days')::INTERVAL as past_date",
         [validDays]
       )
 
@@ -150,7 +150,7 @@ describe('SQL Injection Protection Tests', () => {
       expect(testValidation(0, 1, 365, 30)).toBe(1)
       expect(testValidation(999, 1, 365, 30)).toBe(365)
       expect(testValidation("abc", 1, 365, 30)).toBe(30)
-      expect(testValidation("30"; DROP TABLE", 1, 365, 30)).toBe(30)
+      expect(testValidation("30; DROP TABLE", 1, 365, 30)).toBe(30)
     })
   })
 

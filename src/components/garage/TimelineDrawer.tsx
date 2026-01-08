@@ -63,7 +63,7 @@ interface TimelineDrawerProps {
 }
 
 // Event type colors and icons
-const EVENT_CONFIG: Record<EventType, { icon: React.ElementType; color: string; bgColor: string }> = {
+const EVENT_CONFIG: Record<EventType, { icon: any; color: string; bgColor: string }> = {
   maintenance: { icon: Wrench, color: 'text-blue-400', bgColor: 'bg-blue-950/50' },
   damage: { icon: Warning, color: 'text-red-400', bgColor: 'bg-red-950/50' },
   inspection: { icon: ShieldCheck, color: 'text-green-400', bgColor: 'bg-green-950/50' },
@@ -171,8 +171,8 @@ function TimelineEventCard({
               <Badge
                 variant={
                   event.status === 'completed' ? 'default' :
-                  event.status === 'pending' ? 'secondary' :
-                  event.status === 'in_progress' ? 'outline' : 'destructive'
+                    event.status === 'pending' ? 'secondary' :
+                      event.status === 'in_progress' ? 'outline' : 'destructive'
                 }
                 className="text-[10px]"
               >

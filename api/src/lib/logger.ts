@@ -1,8 +1,5 @@
-import winston from 'winston'
-import DailyRotateFile from 'winston-daily-rotate-file'
-import path from 'path'
 import fs from 'fs'
-import { v4 as uuidv4 } from 'uuid'
+
 
 /**
  * Production-Grade Winston Logging System
@@ -20,12 +17,11 @@ import { v4 as uuidv4 } from 'uuid'
  * @module lib/logger
  */
 
-import fs from 'fs';
-import path from 'path';
+import path from 'path'
 
-import { v4 as uuidv4 } from 'uuid';
-import winston from 'winston';
-import DailyRotateFile from 'winston-daily-rotate-file';
+import { v4 as uuidv4 } from 'uuid'
+import winston from 'winston'
+import DailyRotateFile from 'winston-daily-rotate-file'
 
 
 // Ensure logs directory exists
@@ -303,7 +299,7 @@ let appInsightsTransport: winston.transport | null = null;
 
 if (process.env.APPLICATIONINSIGHTS_CONNECTION_STRING) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const appInsights = require('applicationinsights');
     appInsights.setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING)
       .setAutoDependencyCorrelation(true)
@@ -317,7 +313,7 @@ if (process.env.APPLICATIONINSIGHTS_CONNECTION_STRING) {
       .start();
 
     // Custom Winston transport for Application Insights
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { Transport } = require('winston-transport');
 
     class ApplicationInsightsTransport extends Transport {

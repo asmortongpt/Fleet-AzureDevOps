@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
+
 import { DocumentAiService } from '../services/DocumentAiService';
+import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 /**
  * Unit tests for DocumentAiService
@@ -2283,7 +2284,8 @@ describe('DocumentAiService', () => {
 
       // Act & Assert
       expect(() => {
-        service.1(invalidData);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (service as any).processDocument(invalidData);
       }).toThrow();
     });
 

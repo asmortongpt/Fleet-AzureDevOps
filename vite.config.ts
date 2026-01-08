@@ -86,6 +86,7 @@ export default defineConfig({
         return false;
       },
     },
+    sourcemap: false, // Fix for Radix UI / Vite build sourcemap errors
     chunkSizeWarningLimit: 500,
     minify: 'terser',
     terserOptions: {

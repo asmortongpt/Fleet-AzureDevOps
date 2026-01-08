@@ -62,72 +62,42 @@ import communicationLogsRouter from './routes/communication-logs'
 // EV Management Routes
 
 // Document Management Routes
-import documentsRouter from './routes/documents'
-import fleetDocumentsRouter from './routes/fleet-documents.routes'
 // DISABLED: import ocrRouter from './routes/ocr.routes'
 
 // Financial & Cost Management Routes
-import costsRouter from './routes/costs'
 import costAnalysisRouter from './routes/cost-analysis.routes'
 import costBenefitAnalysisRouter from './routes/cost-benefit-analysis.routes'
-import mileageReimbursementRouter from './routes/mileage-reimbursement'
-import chargesRouter from './routes/personal-use-charges'
-import personalUsePoliciesRouter from './routes/personal-use-policies'
+import costsRouter from './routes/costs'
 // DISABLED: import fuelPurchasingRouter from './routes/fuel-purchasing.routes'
 
 // Reporting & Analytics Routes
-import executiveDashboardRouter from './routes/executive-dashboard.routes'
 // DISABLED: import customReportsRouter from './routes/custom-reports.routes'
-import driverScorecardRouter from './routes/driver-scorecard.routes'
 
 // AI & Automation Routes
 // DISABLED: import langchainRouter from './routes/langchain.routes'
 // DISABLED: import fleetOptimizerRouter from './routes/fleet-optimizer.routes'
 
 // Task & Schedule Management Routes
-import schedulingRouter from './routes/scheduling.routes'
-import onCallManagementRouter from './routes/on-call-management.routes'
 
 // Mobile & Integration Routes
-import mobileAssignmentRouter from './routes/mobile-assignment.routes'
-import mobileHardwareRouter from './routes/mobile-hardware.routes'
-import mobileIntegrationRouter from './routes/mobile-integration.routes'
-import mobileMessagingRouter from './routes/mobile-messaging.routes'
 // DISABLED: import mobileNotificationsRouter from './routes/mobile-notifications.routes'
 // DISABLED: import mobileObd2Router from './routes/mobile-obd2.routes'
 // DISABLED: import mobileOcrRouter from './routes/mobile-ocr.routes'
-import mobilePhotosRouter from './routes/mobile-photos.routes'
-import mobileTripsRouter from './routes/mobile-trips.routes'
-import pushNotificationsRouter from './routes/push-notifications.routes'
 
 // Vehicle Management Routes
-import vehicleAssignmentsRouter from './routes/vehicle-assignments.routes'
-import vehicleHistoryRouter from './routes/vehicle-history.routes'
 // DISABLED: import vehicleIdentificationRouter from './routes/vehicle-identification.routes'
-import vehicle3dRouter from './routes/vehicle-3d.routes'
 import damageRouter from './routes/damage'
 import damageReportsRouter from './routes/damage-reports'
 
 // Trip & Route Management Routes
-import routeEmulatorRouter from './routes/route-emulator.routes'
-import routesRouter from './routes/routes'
-import tripUsageRouter from './routes/trip-usage'
 
 // Safety & Compliance Routes
-import safetyIncidentsRouter from './routes/safety-incidents'
-import oshaComplianceRouter from './routes/osha-compliance'
 
 // Policy & Permission Routes
-import policiesRouter from './routes/policies'
-import policyTemplatesRouter from './routes/policy-templates'
-import permissionsRouter from './routes/permissions'
 
 // Authentication & User Management Routes
-import microsoftAuthRouter from './routes/microsoft-auth'
-import sessionRevocationRouter from './routes/session-revocation'
 
 // External Integrations Routes
-import smartcarRouter from './routes/smartcar.routes'
 import outlookRouter from './routes/outlook.routes'
 
 // Emulator & Testing Routes
@@ -144,9 +114,13 @@ import performanceRouter from './routes/performance.routes'
 import telemetryRouter from './routes/telemetry'
 import queueRouter from './routes/queue.routes'
 import deploymentsRouter from './routes/deployments'
+import documentsRouter from './routes/documents'
+import driverScorecardRouter from './routes/driver-scorecard.routes'
 import driversRouter from './routes/drivers'
 import evManagementRouter from './routes/ev-management.routes'
+import executiveDashboardRouter from './routes/executive-dashboard.routes'
 import facilitiesRouter from './routes/facilities'
+import fleetDocumentsRouter from './routes/fleet-documents.routes'
 import fuelRouter from './routes/fuel-transactions'
 import geofencesRouter from './routes/geofences'
 import gpsRouter from './routes/gps'
@@ -157,17 +131,43 @@ import invoicesRouter from './routes/invoices'
 import maintenanceRouter from './routes/maintenance'
 import maintenanceDrilldownsRouter from './routes/maintenance-drilldowns'
 import maintenanceSchedulesRouter from './routes/maintenance-schedules'
+import microsoftAuthRouter from './routes/microsoft-auth'
+import mileageReimbursementRouter from './routes/mileage-reimbursement'
+import mobileAssignmentRouter from './routes/mobile-assignment.routes'
+import mobileHardwareRouter from './routes/mobile-hardware.routes'
+import mobileIntegrationRouter from './routes/mobile-integration.routes'
+import mobileMessagingRouter from './routes/mobile-messaging.routes'
+import mobilePhotosRouter from './routes/mobile-photos.routes'
+import mobileTripsRouter from './routes/mobile-trips.routes'
+import onCallManagementRouter from './routes/on-call-management.routes'
+import oshaComplianceRouter from './routes/osha-compliance'
 import partsRouter from './routes/parts'
+import permissionsRouter from './routes/permissions'
+import chargesRouter from './routes/personal-use-charges'
+import personalUsePoliciesRouter from './routes/personal-use-policies'
+import policiesRouter from './routes/policies'
+import policyTemplatesRouter from './routes/policy-templates'
 import presenceRouter from './routes/presence.routes'
 import purchaseOrdersRouter from './routes/purchase-orders'
+import pushNotificationsRouter from './routes/push-notifications.routes'
 import qualityGatesRouter from './routes/quality-gates'
 import reservationsRouter from './routes/reservations.routes'
+import routeEmulatorRouter from './routes/route-emulator.routes'
+import routesRouter from './routes/routes'
+import safetyIncidentsRouter from './routes/safety-incidents'
+import schedulingRouter from './routes/scheduling.routes'
 import searchRouter from './routes/search'
+import sessionRevocationRouter from './routes/session-revocation'
+import smartcarRouter from './routes/smartcar.routes'
 import storageAdminRouter from './routes/storage-admin'
 import syncRouter from './routes/sync.routes'
 import tasksRouter from './routes/tasks'
 import teamsRouter from './routes/teams.routes'
 import telematicsRouter from './routes/telematics.routes'
+import tripUsageRouter from './routes/trip-usage'
+import vehicle3dRouter from './routes/vehicle-3d.routes'
+import vehicleAssignmentsRouter from './routes/vehicle-assignments.routes'
+import vehicleHistoryRouter from './routes/vehicle-history.routes'
 import vehicleIdlingRouter from './routes/vehicle-idling.routes'
 import vehiclesRouter from './routes/vehicles'
 import vendorsRouter from './routes/vendors'
@@ -554,7 +554,7 @@ const startServer = async () => {
 
       // Initialize Real-Time Collaboration Service
       try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { collaborationService } = require('./services/collaboration/real-time.service')
         collaborationService.initialize(server)
       } catch (err) {

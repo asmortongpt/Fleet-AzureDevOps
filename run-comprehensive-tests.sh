@@ -26,7 +26,7 @@ log_test() { echo -e "${CYAN}  →${NC} $1"; }
 
 # Configuration
 FRONTEND_URL="${FRONTEND_URL:-http://localhost:5174}"
-API_URL="${API_URL:-http://localhost:3001}"
+API_URL="${API_URL:-http://localhost:3000}"
 
 # Create results directory
 mkdir -p test-results/screenshots

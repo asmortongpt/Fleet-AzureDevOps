@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 import { DocumentIndexer } from '../services/DocumentIndexer';
+import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
+
 
 /**
  * Unit tests for DocumentIndexer

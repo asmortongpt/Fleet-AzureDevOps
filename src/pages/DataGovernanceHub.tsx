@@ -37,7 +37,7 @@ import {
 } from '@phosphor-icons/react'
 import { useState } from 'react'
 
-import { HubPage, HubTabItem, HubTab } from '@/components/ui/hub-page'
+import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard } from '@/components/ui/stat-card'
 
 // ============================================================================

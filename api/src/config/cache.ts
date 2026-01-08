@@ -27,7 +27,7 @@ export class CacheService {
     return value ? JSON.parse(value) : null;
   }
 
-  async set(key: string, value: any, ttl: number = this.ttl): Promise<void> {
+  async set(key: string, value: unknown, ttl: number = this.ttl): Promise<void> {
     await redis.setex(key, ttl, JSON.stringify(value));
   }
 

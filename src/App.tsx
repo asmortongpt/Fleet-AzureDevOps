@@ -1,6 +1,6 @@
 import { withAITracking } from '@microsoft/applicationinsights-react-js'
 import { Shield } from "lucide-react"
-import { useState, useMemo, lazy, Suspense , useEffect } from "react"
+import { useState, useMemo, lazy, Suspense, useEffect } from "react"
 import { Toaster } from 'react-hot-toast'
 
 import { DrilldownManager } from "@/components/DrilldownManager"
@@ -52,7 +52,7 @@ const FuelPurchasing = lazy(() => import("@/components/modules/fuel/FuelPurchasi
 const RouteManagement = lazy(() => import("@/components/modules/operations/RouteManagement").then(m => ({ default: m.RouteManagement })))
 const AdvancedRouteOptimization = lazy(() => import("@/components/modules/operations/AdvancedRouteOptimization").then(m => ({ default: m.AdvancedRouteOptimization })))
 const TaskManagement = lazy(() => import("@/components/modules/operations/TaskManagement").then(m => ({ default: m.TaskManagement })))
-
+const DispatchConsole = lazy(() => import("@/components/modules/operations/DispatchConsole"))
 
 // INTEGRATIONS MODULES
 const GISCommandCenter = lazy(() => import("@/components/modules/integrations/GISCommandCenter").then(m => ({ default: m.GISCommandCenter })))
@@ -150,6 +150,7 @@ const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"))
 const SafetyAlertsPage = lazy(() => import("@/pages/SafetyAlertsPage"))
 const HeavyEquipmentPage = lazy(() => import("@/pages/HeavyEquipmentPage"))
+const CreateDamageReportPage = lazy(() => import("@/pages/CreateDamageReport").then(m => ({ default: m.CreateDamageReport })))
 
 // Loading spinner component for Suspense fallback
 const LoadingSpinner = () => (
@@ -259,7 +260,7 @@ function App() {
       case "communication-hub":
         return <CommunicationHub />
       case "dispatch-console":
-        return <CommandCenter />
+        return <DispatchConsole />
       case "fleet-hub": // Assuming 'fleet-hub' was a previous route or will be added
         return <CommandCenter />
 
@@ -346,6 +347,9 @@ function App() {
         return <TaskManagement />
       case "incident-management":
         return <IncidentManagement />
+      case "create-damage-report":
+      case "damage-report-create":
+        return <CreateDamageReportPage />
       case "notifications":
         return <Notifications />
       case "push-notification-admin":

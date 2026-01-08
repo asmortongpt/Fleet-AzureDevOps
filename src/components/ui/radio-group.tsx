@@ -1,4 +1,4 @@
-"use client"
+
 
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
 import { Circle as CircleIcon } from "lucide-react"

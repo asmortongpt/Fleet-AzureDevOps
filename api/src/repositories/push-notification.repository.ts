@@ -89,10 +89,6 @@ export class PushNotificationRepository {
     return this._pool || connectionManager.getPool();
   }
 
-  private get pool(): Pool {
-    return this._pool || connectionManager.getPool();
-  }
-
 
   /**
    * Find existing device by token and user ID

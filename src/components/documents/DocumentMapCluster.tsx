@@ -74,7 +74,7 @@ function AutoFitBounds({ clusters }: { clusters: DocumentCluster[] }) {
     const bounds = clusters.map(c => [c.centerLat, c.centerLng] as [number, number])
 
     if (bounds.length > 0) {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const L = require('leaflet')
       const latLngBounds = L.latLngBounds(bounds)
       map.fitBounds(latLngBounds, { padding: [50, 50], maxZoom: 15 })
