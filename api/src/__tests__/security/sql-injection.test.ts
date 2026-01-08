@@ -95,7 +95,7 @@ describe('SQL Injection Protection Tests', () => {
       // Test that our parameterized INTERVAL syntax works correctly
       const days = 30
       const result = await pool.query(
-        'SELECT NOW() - ($1 || ' days')::INTERVAL as past_date',
+        "SELECT NOW() - ($1 || ' days')::INTERVAL as past_date",
         [days]
       )
 
