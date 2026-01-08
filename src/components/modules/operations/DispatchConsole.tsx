@@ -59,7 +59,7 @@ function TabPanel(props: TabPanelProps) {
 }
 
 export default function DispatchConsole() {
-  const { user: _user } = useAuth();
+  const { hasPermission } = useAuth();
   const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
   const [channels, setChannels] = useState<RadioChannel[]>([]);
   const [isMuted, setIsMuted] = useState(false);
@@ -208,7 +208,7 @@ export default function DispatchConsole() {
             size="large"
             startIcon={<Emergency />}
             onClick={handleEmergencyAlert}
-            disabled={!dispatch.isConnected || !selectedChannelId}
+            disabled={!dispatch.isConnected || !selectedChannelId || !hasPermission('dispatch:emergency')}
           >
             Emergency Alert
           </Button>
@@ -278,7 +278,7 @@ export default function DispatchConsole() {
                       onMouseLeave={ptt.stopPTT}
                       onTouchStart={ptt.startPTT}
                       onTouchEnd={ptt.stopPTT}
-                      disabled={!dispatch.isConnected || !selectedChannelId}
+                      disabled={!dispatch.isConnected || !selectedChannelId || !hasPermission('dispatch:transmit')}
                       sx={{
                         width: 160,
                         height: 160,

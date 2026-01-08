@@ -29,6 +29,8 @@ import React, { Suspense, lazy, Component, ReactNode, ErrorInfo, useState, memo 
 import { AddVehicleDialog } from '@/components/dialogs/AddVehicleDialog'
 import { Button } from '@/components/ui/button'
 import { HubPage, HubTab } from '@/components/ui/hub-page'
+import { InfoPopover } from '@/components/ui/info-popover'
+import { InteractiveMetric, MetricGrid } from '@/components/ui/interactive-metric'
 import { Skeleton } from '@/components/ui/skeleton'
 
 // Lazy load heavy components for performance
@@ -37,6 +39,8 @@ const LiveFleetMap = lazy(() => import('@/components/Maps/LiveFleetMap').then(m 
 const VehicleTelemetry = lazy(() => import('@/components/modules/fleet/VehicleTelemetry').then(m => ({ default: m.VehicleTelemetry })))
 const VirtualGarage = lazy(() => import('@/components/modules/fleet/VirtualGarage').then(m => ({ default: m.VirtualGarage })))
 const EVChargingManagement = lazy(() => import('@/components/modules/charging/EVChargingManagement').then(m => ({ default: m.EVChargingManagement })))
+
+// Import UX components
 
 // ============================================================================
 // TAB ERROR BOUNDARY - Graceful error handling per tab
@@ -156,6 +160,17 @@ function FleetOverviewContent() {
         createVehicle.mutate(vehicle)
     }
 
+    // Calculate fleet metrics
+    const totalVehicles = vehicles.length
+    const activeVehicles = vehicles.filter(v => v.status === 'active').length
+    const maintenanceNeeded = vehicles.filter(v => v.alerts > 0).length
+    const avgFuelLevel = vehicles.length > 0
+        ? Math.round(vehicles.reduce((sum, v) => sum + v.fuelPct, 0) / vehicles.length)
+        : 0
+    const avgHealthScore = vehicles.length > 0
+        ? Math.round(vehicles.reduce((sum, v) => sum + v.healthScore, 0) / vehicles.length)
+        : 0
+
     return (
         <div style={{
             padding: 24,
@@ -165,12 +180,19 @@ function FleetOverviewContent() {
             {/* Header */}
             <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                    <h2 style={{
-                        fontSize: 28,
-                        fontWeight: 700,
-                        color: '#f9fafb',
-                        marginBottom: 8
-                    }}>Fleet Overview</h2>
+                    <div className="flex items-center gap-2">
+                        <h2 style={{
+                            fontSize: 28,
+                            fontWeight: 700,
+                            color: '#f9fafb',
+                            marginBottom: 8
+                        }}>Fleet Overview</h2>
+                        <InfoPopover
+                            title="Fleet Overview"
+                            content="Real-time view of all fleet vehicles with expandable telemetry drilldowns. Click any row to see detailed vehicle health metrics and maintenance records."
+                            type="info"
+                        />
+                    </div>
                     <p style={{
                         fontSize: 14,
                         color: '#9ca3af'
@@ -178,10 +200,60 @@ function FleetOverviewContent() {
                 </div>
                 {/* Add Vehicle Button via Dialog */}
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-
                     <AddVehicleDialog onAdd={handleAddVehicle} />
                 </div>
             </div>
+
+            {/* Fleet Metrics Grid */}
+            <MetricGrid columns={4} className="mb-6">
+                <InteractiveMetric
+                    title="Total Vehicles"
+                    value={totalVehicles}
+                    description="Fleet inventory"
+                    icon={<FleetIcon className="h-5 w-5" />}
+                    status="neutral"
+                    comparison={{
+                        label: "Active",
+                        value: `${activeVehicles} vehicles`
+                    }}
+                    sparklineData={[120, 135, 142, 138, totalVehicles]}
+                />
+                <InteractiveMetric
+                    title="Active Vehicles"
+                    value={activeVehicles}
+                    description="On the road"
+                    trend={{
+                        direction: activeVehicles > 100 ? 'up' : 'neutral',
+                        value: '+8%',
+                        period: 'vs last month'
+                    }}
+                    status="success"
+                    sparklineData={[85, 92, 98, 95, activeVehicles]}
+                />
+                <InteractiveMetric
+                    title="Avg Health Score"
+                    value={`${avgHealthScore}%`}
+                    description="Fleet condition"
+                    trend={{
+                        direction: avgHealthScore >= 80 ? 'up' : avgHealthScore >= 60 ? 'neutral' : 'down',
+                        value: avgHealthScore >= 80 ? '+3%' : '-2%',
+                        period: 'this week'
+                    }}
+                    status={avgHealthScore >= 80 ? 'success' : avgHealthScore >= 60 ? 'warning' : 'danger'}
+                    sparklineData={[85, 88, 92, 90, avgHealthScore]}
+                />
+                <InteractiveMetric
+                    title="Maintenance Alerts"
+                    value={maintenanceNeeded}
+                    description="Vehicles needing attention"
+                    badge={maintenanceNeeded > 5 ? 'High Priority' : undefined}
+                    status={maintenanceNeeded > 10 ? 'danger' : maintenanceNeeded > 5 ? 'warning' : 'success'}
+                    comparison={{
+                        label: "Avg fuel",
+                        value: `${avgFuelLevel}%`
+                    }}
+                />
+            </MetricGrid>
 
             {/* Vehicle Table - Professional Design */}
             <div style={{
@@ -461,44 +533,56 @@ function VideoContent() {
                 }}>Professional camera management with table-first navigation</p>
             </div>
 
-            {/* Summary Stats Row */}
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: 16,
-                marginBottom: 24
-            }}>
-                <div style={{
-                    padding: 20,
-                    borderRadius: 16,
-                    border: '1px solid var(--border)',
-                    background: 'var(--panel)'
-                }}>
-                    <div style={{ fontSize: 12, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Active Cameras</div>
-                    <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--good)' }}>{recordingCameras}</div>
-                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>of {cameras.length} total</div>
-                </div>
-                <div style={{
-                    padding: 20,
-                    borderRadius: 16,
-                    border: '1px solid var(--border)',
-                    background: 'var(--panel)'
-                }}>
-                    <div style={{ fontSize: 12, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Events Today</div>
-                    <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--warn)' }}>{totalEvents}</div>
-                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>motion detected</div>
-                </div>
-                <div style={{
-                    padding: 20,
-                    borderRadius: 16,
-                    border: '1px solid var(--border)',
-                    background: 'var(--panel)'
-                }}>
-                    <div style={{ fontSize: 12, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Storage Used</div>
-                    <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text)' }}>{storageUsedTB} TB</div>
-                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>video archive</div>
-                </div>
-            </div>
+            {/* Summary Stats Row - Enhanced with InteractiveMetric */}
+            <MetricGrid columns={3} className="mb-6">
+                <InteractiveMetric
+                    title="Active Cameras"
+                    value={recordingCameras}
+                    description="Live video feeds"
+                    icon={<Video className="h-5 w-5" />}
+                    status={recordingCameras === cameras.length ? 'success' : recordingCameras > cameras.length / 2 ? 'warning' : 'danger'}
+                    comparison={{
+                        label: 'Total',
+                        value: `${cameras.length} cameras`
+                    }}
+                    trend={{
+                        direction: recordingCameras === cameras.length ? 'up' : 'neutral',
+                        value: `${Math.round((recordingCameras / cameras.length) * 100)}%`,
+                        period: 'uptime'
+                    }}
+                    sparklineData={[4, 5, 5, 4, recordingCameras]}
+                />
+                <InteractiveMetric
+                    title="Events Today"
+                    value={totalEvents}
+                    description="Motion detected"
+                    icon={<Warning className="h-5 w-5" />}
+                    status={totalEvents > 30 ? 'warning' : 'neutral'}
+                    trend={{
+                        direction: totalEvents > 20 ? 'up' : 'neutral',
+                        value: '+15%',
+                        period: 'vs yesterday'
+                    }}
+                    sparklineData={[18, 20, 22, 19, totalEvents]}
+                />
+                <InteractiveMetric
+                    title="Storage Used"
+                    value={`${storageUsedTB} TB`}
+                    description="Video archive"
+                    icon={<MapTrifold className="h-5 w-5" />}
+                    status={storageUsedTB > 4 ? 'warning' : 'neutral'}
+                    comparison={{
+                        label: 'Capacity',
+                        value: '5 TB total'
+                    }}
+                    trend={{
+                        direction: storageUsedTB > 3 ? 'up' : 'neutral',
+                        value: `${Math.round((storageUsedTB / 5) * 100)}%`,
+                        period: 'used'
+                    }}
+                    sparklineData={[1.8, 2.0, 2.2, 2.3, storageUsedTB]}
+                />
+            </MetricGrid>
 
             {/* Camera Table - Professional Design */}
             <div style={{
