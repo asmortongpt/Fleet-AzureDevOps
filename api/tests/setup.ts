@@ -26,10 +26,24 @@ export const getTestApp = async (): Promise<Application> => {
     const driversRouter = (await import('../src/routes/drivers')).default
     const fuelRouter = (await import('../src/routes/fuel-transactions')).default
     const maintenanceRouter = (await import('../src/routes/maintenance')).default
+    const routesRouter = (await import('../src/routes/routes')).default
+    const aiTestRouter = (await import('../src/routes/__tests__/ai-test.routes')).default
 
     testApp = express()
     testApp.use(cors())
     testApp.use(express.json())
+
+    // Minimal mock auth for testing
+    testApp.use((req: any, res, next) => {
+      req.user = {
+        id: 'test-user-123',
+        email: 'test@fleet.com',
+        tenant_id: 1,
+        role: 'admin',
+        permissions: ['*']
+      }
+      next()
+    })
 
     // Health check
     testApp.get('/health', (req, res) => {
@@ -41,6 +55,8 @@ export const getTestApp = async (): Promise<Application> => {
     testApp.use('/api/drivers', driversRouter)
     testApp.use('/api/fuel-transactions', fuelRouter)
     testApp.use('/api/maintenance', maintenanceRouter)
+    testApp.use('/api/routes', routesRouter)
+    testApp.use('/api/ai', aiTestRouter)
 
     // GPS routes (to be implemented)
     testApp.get('/api/gps', (req, res) => {
@@ -57,12 +73,6 @@ export const getTestApp = async (): Promise<Application> => {
     testApp.get('/api/gps/:vehicleId/history', (req, res) => {
       const history = generateGPSHistory(req.params.vehicleId)
       res.json({ data: history })
-    })
-
-    // Routes API (to be implemented)
-    testApp.get('/api/routes', (req, res) => {
-      const routes = generateRoutes()
-      res.json({ data: routes })
     })
 
     // Cost API (to be implemented)
