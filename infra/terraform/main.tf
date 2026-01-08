@@ -77,6 +77,12 @@ resource "azurerm_kubernetes_cluster" "main" {
   dns_prefix          = "${var.project_name}-${var.environment}-${var.location_short}"
   kubernetes_version  = var.kubernetes_version
 
+  # Security: Enable private cluster for production
+  private_cluster_enabled = var.environment == "production"
+
+  # Security: Enable disk encryption using customer-managed keys
+  disk_encryption_set_id = azurerm_disk_encryption_set.aks.id
+
   # Default node pool configuration
   default_node_pool {
     name                = "system"
@@ -125,9 +131,10 @@ resource "azurerm_kubernetes_cluster" "main" {
     admin_group_object_ids = []
   }
 
-  # API server access profile for production
+  # Security: API server access profile - restrict access to authorized IPs
+  # Apply in all environments if IP ranges are configured
   dynamic "api_server_access_profile" {
-    for_each = var.environment == "production" && length(var.allowed_ip_ranges) > 0 ? [1] : []
+    for_each = length(var.allowed_ip_ranges) > 0 ? [1] : []
     content {
       authorized_ip_ranges = var.allowed_ip_ranges
     }
