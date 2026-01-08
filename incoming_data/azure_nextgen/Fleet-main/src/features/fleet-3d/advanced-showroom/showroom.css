@@ -1,0 +1,484 @@
+/* Enhanced Vehicle Showroom - Garage Theme Styling */
+
+.vehicle-showroom {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)" /></svg>');
+  background-size: cover;
+  position: relative;
+  overflow: hidden;
+}
+
+.showroom-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(15, 20, 25, 0.95) 0%,
+    rgba(20, 25, 35, 0.85) 50%,
+    rgba(15, 20, 25, 0.95) 100%
+  );
+  backdrop-filter: blur(2px);
+}
+
+.showroom-content {
+  position: relative;
+  z-index: 10;
+  container-type: inline-size;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.showroom-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+.showroom-title {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, #00b4d8 0%, #0096c7 50%, #00b4d8 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 40px rgba(0, 180, 216, 0.5);
+}
+
+.showroom-subtitle {
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Navigation Controls */
+.nav-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+  animation: fadeIn 1s ease-out 0.2s both;
+}
+
+.nav-button {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-button:hover {
+  background: rgba(0, 180, 216, 0.2);
+  border-color: rgba(0, 180, 216, 0.5);
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(0, 180, 216, 0.5);
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  color: #00b4d8;
+  transition: transform 0.3s;
+}
+
+.nav-button:hover .nav-icon {
+  transform: scale(1.2);
+}
+
+/* Vehicle Indicators */
+.vehicle-indicators {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.indicator:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(1.2);
+}
+
+.indicator-active {
+  background: linear-gradient(135deg, #00b4d8, #0096c7);
+  box-shadow: 0 0 20px rgba(0, 180, 216, 0.8);
+  transform: scale(1.5);
+}
+
+/* Vehicle Display */
+.vehicle-display {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 1s ease-out 0.4s both;
+}
+
+/* Vehicle Card */
+.vehicle-card {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 2.5rem;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 0 80px rgba(0, 180, 216, 0.1),
+    inset 0 0 40px rgba(255, 255, 255, 0.02);
+}
+
+.card-animating {
+  transform: scale(0.95);
+  opacity: 0.7;
+}
+
+.vehicle-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 
+    0 30px 60px rgba(0, 0, 0, 0.5),
+    0 0 100px rgba(0, 180, 216, 0.2),
+    inset 0 0 60px rgba(255, 255, 255, 0.03);
+}
+
+/* Status Badge */
+.status-badge {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  text-transform: capitalize;
+}
+
+.status-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.status-maintenance {
+  background: rgba(251, 146, 60, 0.2);
+  border: 1px solid rgba(251, 146, 60, 0.5);
+  color: #fb923c;
+}
+
+.status-reserved {
+  background: rgba(250, 204, 21, 0.2);
+  border: 1px solid rgba(250, 204, 21, 0.5);
+  color: #facc15;
+}
+
+.status-out {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #ef4444;
+}
+
+/* Vehicle Image */
+.vehicle-image-container {
+  position: relative;
+  margin-bottom: 2rem;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.vehicle-image {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 16px;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5));
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vehicle-image:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.7)) brightness(1.1);
+}
+
+.image-locked {
+  filter: grayscale(0.8) opacity(0.7);
+}
+
+.image-glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(0, 180, 216, 0.2) 100%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.vehicle-image-container:hover .image-glow {
+  opacity: 1;
+}
+
+/* Vehicle Info */
+.vehicle-info {
+  color: white;
+}
+
+.vehicle-name {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.vehicle-trim {
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 2rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.3s;
+}
+
+.stat-item:hover {
+  background: rgba(0, 180, 216, 0.1);
+  border-color: rgba(0, 180, 216, 0.3);
+  transform: translateY(-2px);
+}
+
+.stat-icon {
+  width: 24px;
+  height: 24px;
+  color: #00b4d8;
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Location Info */
+.location-info {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.location-icon {
+  width: 20px;
+  height: 20px;
+  color: #00b4d8;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.location-content {
+  flex: 1;
+}
+
+.location-name {
+  font-weight: 600;
+  color: white;
+  margin-bottom: 0.25rem;
+}
+
+.location-address {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Vehicle Details */
+.vehicle-details {
+  margin-bottom: 2rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-value {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: 'Courier New', monospace;
+}
+
+/* Action Button */
+.action-button {
+  width: 100%;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.button-available {
+  background: linear-gradient(135deg, #00b4d8 0%, #0096c7 100%);
+  color: white;
+  box-shadow: 0 10px 30px rgba(0, 180, 216, 0.3);
+}
+
+.button-available:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(0, 180, 216, 0.5);
+  background: linear-gradient(135deg, #00c4e8 0%, #00a6d7 100%);
+}
+
+.button-locked {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: not-allowed;
+}
+
+/* Keyboard Hint */
+.keyboard-hint {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.875rem;
+  margin-top: 2rem;
+  animation: fadeIn 1s ease-out 0.6s both;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@container (max-width: 768px) {
+  .showroom-content {
+    padding: 1rem;
+  }
+  
+  .vehicle-card {
+    padding: 1.5rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .nav-button {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .vehicle-name {
+    font-size: 1.5rem;
+  }
+}
+
+/* Performance Optimizations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

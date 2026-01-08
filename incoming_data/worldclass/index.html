@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Build Timestamp - Updated: 2026-01-03 00:52:00 UTC -->
+    <!-- Last Commit: feat: Add 100% completion validation build artifacts -->
+
+    <!-- Cache Control - Force browsers to check for updates -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <!-- X-Frame-Options: Cannot be set via meta tag - configure in server/Azure headers -->
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <!-- P0-4 SECURITY FIX: Content Security Policy -->
+    <!-- DEVELOPMENT: Allows unsafe-inline for react-hot-toast, sonner, vaul UI libraries -->
+    <!-- PRODUCTION: Configure CSP via HTTP headers in Azure Static Web Apps with nonces -->
+    <meta http-equiv="Content-Security-Policy"
+        content="
+            default-src 'self';
+            script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://maps.googleapis.com;
+            style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+            font-src 'self' https://fonts.gstatic.com data:;
+            img-src 'self' data: blob: https:;
+            connect-src 'self' ws://localhost:* wss://localhost:* http://localhost:* https://localhost:* http://20.161.96.87 ws://20.161.96.87 https://api.fleet-management.com https://fleet.capitaltechalliance.com https://*.azure.com https://*.microsoft.com https://maps.googleapis.com;
+            media-src 'self' blob:;
+            object-src 'none';
+            frame-src 'self' https://login.microsoftonline.com;
+            base-uri 'self';
+            form-action 'self';
+            manifest-src 'self';
+            worker-src 'self' blob:;
+            upgrade-insecure-requests;
+        " />
+    <!-- NOTE: frame-ancestors 'none' must be set via HTTP header (not meta tag) -->
+    <!-- TODO Production: Configure HTTP headers in Azure Static Web Apps:
+         - X-Frame-Options: DENY
+         - Content-Security-Policy with frame-ancestors 'none' and nonces
+         - Configure in staticwebapp.config.json or Azure CDN rules
+    -->
+
+    <!-- PWA Meta Tags -->
+    <meta name="description"
+        content="Comprehensive multi-tenant fleet management system with real-time tracking, predictive maintenance, and advanced analytics" />
+    <meta name="theme-color" content="#1e40af" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Fleet" />
+    <meta name="application-name" content="Fleet" />
+    <meta name="msapplication-TileColor" content="#1e40af" />
+    <meta name="msapplication-tap-highlight" content="no" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/logos/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/logos/favicon-16.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/logos/favicon-48.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/logos/apple-touch-icon-180.png" />
+
+    <title>Fleet - Fleet Management System</title>
+
+    <!-- Preconnect for Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Google Maps API loaded dynamically by GoogleMap/UniversalMap component - do not load here -->
+    <!-- Falls back to free Leaflet/OpenStreetMap when no API key is present -->
+</head>
+
+<body>
+    <div id="root"></div>
+    <!-- Runtime configuration loaded by Vite plugin - DO NOT ADD MANUALLY -->
+    <script type="module" src="/src/main.tsx"></script>
+
+
+</body>
+
+</html>
