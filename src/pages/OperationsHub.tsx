@@ -11,7 +11,6 @@
  * - Command center aesthetic
  */
 
-import { memo, useCallback, useId, useState, useEffect, useRef } from 'react'
 import {
     Broadcast as OperationsIcon,
     MapTrifold,
@@ -22,20 +21,15 @@ import {
     Package,
     Warning,
     Plus,
-    MagnifyingGlass,
-    ArrowsClockwise,
     Clock,
-    CheckCircle,
-    CaretUp,
-    CaretDown,
     MapPin,
     Path,
     Timer,
-    Star,
     Lightning
 } from '@phosphor-icons/react'
+import { memo, useCallback, useId, useState, useEffect } from 'react'
 
-import { HubPage, HubTab, HubTabItem } from '@/components/ui/hub-page'
+import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'

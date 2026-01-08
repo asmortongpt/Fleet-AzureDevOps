@@ -50,7 +50,7 @@ const RouteManagement = lazy(() => import("@/components/modules/operations/Route
 // const GeofenceManagement = lazy(() => import("@/components/modules/operations/GeofenceManagement").then(m => ({ default: m.GeofenceManagement })));
 const AdvancedRouteOptimization = lazy(() => import("@/components/modules/operations/AdvancedRouteOptimization").then(m => ({ default: m.AdvancedRouteOptimization })));
 const TaskManagement = lazy(() => import("@/components/modules/operations/TaskManagement").then(m => ({ default: m.TaskManagement })));
-const DispatchConsole = lazy(() => import("@/components/DispatchConsole"));
+const DispatchConsole = lazy(() => import("@/components/modules/operations/DispatchConsole"));
 
 // INTEGRATIONS
 const GISCommandCenter = lazy(() => import("@/components/modules/integrations/GISCommandCenter").then(m => ({ default: m.GISCommandCenter })));

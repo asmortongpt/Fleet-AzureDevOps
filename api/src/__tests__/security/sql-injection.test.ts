@@ -5,9 +5,10 @@
  * and are protected against SQL injection attacks.
  */
 
-import pool from '../../config/database'
 import request from 'supertest'
+
 import app from '../../app'
+import pool from '../../config/database'
 
 describe('SQL Injection Protection Tests', () => {
   const sqlInjectionPayloads = [
@@ -108,14 +109,14 @@ describe('SQL Injection Protection Tests', () => {
 
       try {
         await pool.query(
-          'SELECT NOW() - ($1 || ' days')::INTERVAL as past_date',
+          `SELECT NOW() - ($1 || ' days')::INTERVAL as past_date`,
           [maliciousValue]
         )
         // Should fail due to invalid interval format
         fail('Should have thrown an error for invalid interval')
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Expected to fail with PostgreSQL error, not execute malicious SQL
-        expect(error.message).toMatch(/invalid input syntax|interval/)
+        expect((error as Error).message).toMatch(/invalid input syntax|interval/)
       }
 
       // Verify users table still exists
@@ -131,7 +132,7 @@ describe('SQL Injection Protection Tests', () => {
     it('should handle numeric validation properly', async () => {
       const validDays = 30
       const result = await pool.query(
-        'SELECT NOW() - ($1 || ' days')::INTERVAL as past_date',
+        `SELECT NOW() - ($1 || ' days')::INTERVAL as past_date`,
         [validDays]
       )
 
@@ -142,15 +143,15 @@ describe('SQL Injection Protection Tests', () => {
   describe('Input Validation', () => {
     it('should validate and sanitize numeric inputs', () => {
       // Test the validation logic used in routes
-      const testValidation = (input: any, min: number, max: number, defaultVal: number) => {
-        return Math.max(min, Math.min(max, parseInt(input) || defaultVal))
+      const testValidation = (input: unknown, min: number, max: number, defaultVal: number) => {
+        return Math.max(min, Math.min(max, parseInt(String(input)) || defaultVal))
       }
 
       expect(testValidation(30, 1, 365, 30)).toBe(30)
       expect(testValidation(0, 1, 365, 30)).toBe(1)
       expect(testValidation(999, 1, 365, 30)).toBe(365)
       expect(testValidation("abc", 1, 365, 30)).toBe(30)
-      expect(testValidation("30"; DROP TABLE", 1, 365, 30)).toBe(30)
+      expect(testValidation("30; DROP TABLE", 1, 365, 30)).toBe(30)
     })
   })
 
@@ -195,7 +196,7 @@ describe('SQL Injection Protection Tests', () => {
 
       for (const testCase of testCases) {
         const result = await pool.query(
-          'SELECT NOW() - ($1 || ' ' || $2)::INTERVAL as past_date',
+          `SELECT NOW() - ($1 || ' ' || $2)::INTERVAL as past_date`,
           [testCase.value, testCase.unit]
         )
 
@@ -211,7 +212,6 @@ describe('File-Specific SQL Injection Tests', () => {
     it('should use parameterized queries for fuel economy trends', async () => {
       // This would test the actual service method
       // For now, we verify the query pattern is safe
-      const days = 30
       const query = `
         SELECT *
         FROM obd2_fuel_economy_trends
@@ -222,7 +222,7 @@ describe('File-Specific SQL Injection Tests', () => {
 
       // Verify query compiles (doesn't test with actual data)
       expect(query).toContain('$3')
-      expect(query).not.toContain(`${`)
+      expect(query).not.toContain('${')
     })
   })
 
