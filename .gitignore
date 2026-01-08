@@ -153,3 +153,4 @@ qa-framework/*.cjs
 !README.md
 !BUSINESS_REQUIREMENTS_FEATURES.md
 !docs/**/*.md
+artifacts/sync_test_*.json
