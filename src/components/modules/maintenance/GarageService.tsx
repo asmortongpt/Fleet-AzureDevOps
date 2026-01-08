@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { useAuth } from "@/hooks/useAuth"
 import { WorkOrder, ServiceBay, Technician } from "@/lib/types"
 
 // Type guard to check if a facility is a ServiceBay
@@ -52,6 +53,7 @@ function isTechnician(item: any): item is Technician {
 }
 
 export function GarageService() {
+  const { hasPermission } = useAuth()
   const data = useFleetData()
   const { push } = useDrilldown()
 
@@ -108,19 +110,25 @@ export function GarageService() {
       pending: "bg-warning/10 text-warning border-warning/20",
       "in-progress": "bg-accent/10 text-accent border-accent/20",
       completed: "bg-success/10 text-success border-success/20",
-      cancelled: "bg-muted text-muted-foreground"
+      cancelled: "bg-muted text-muted-foreground",
+      open: "bg-primary/10 text-primary border-primary/20",
+      review: "bg-info/10 text-info border-info/20",
+      waiting_parts: "bg-warning/20 text-warning border-warning/40"
     }
-    return colors[status]
+    return colors[status] || colors.pending
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
+
         <h1 className="text-3xl font-semibold tracking-tight">Garage & Service Center</h1>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          New Work Order
-        </Button>
+        {hasPermission('work_order:create') && (
+          <Button>
+            <Plus className="w-4 h-4 mr-2" />
+            New Work Order
+          </Button>
+        )}
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -192,8 +200,8 @@ export function GarageService() {
                           bay.status === "operational"
                             ? "bg-success/10 text-success border-success/20"
                             : bay.status === "maintenance"
-                            ? "bg-accent/10 text-accent border-accent/20"
-                            : "bg-warning/10 text-warning border-warning/20"
+                              ? "bg-accent/10 text-accent border-accent/20"
+                              : "bg-warning/10 text-warning border-warning/20"
                         }
                       >
                         {bay.status}
@@ -253,8 +261,8 @@ export function GarageService() {
                       bay.status === "operational"
                         ? "border-success/50"
                         : bay.status === "maintenance"
-                        ? "border-accent/50"
-                        : "border-warning/50"
+                          ? "border-accent/50"
+                          : "border-warning/50"
                     }
                   >
                     <CardContent className="p-6">
@@ -267,8 +275,8 @@ export function GarageService() {
                               bay.status === "operational"
                                 ? "bg-success/10 text-success border-success/20 mt-2"
                                 : bay.status === "maintenance"
-                                ? "bg-accent/10 text-accent border-accent/20 mt-2"
-                                : "bg-warning/10 text-warning border-warning/20 mt-2"
+                                  ? "bg-accent/10 text-accent border-accent/20 mt-2"
+                                  : "bg-warning/10 text-warning border-warning/20 mt-2"
                             }
                           >
                             {bay.status}
@@ -359,9 +367,30 @@ export function GarageService() {
                         {order.cost ? `$${order.cost.toFixed(2)}` : '-'}
                       </td>
                       <td className="px-4 py-3 text-sm text-right">
-                        <Button variant="ghost" size="sm">
-                          View
-                        </Button>
+                        <div className="flex justify-end gap-2">
+                          <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleWorkOrderClick(order); }}>
+                            View
+                          </Button>
+
+                          {/* Workflow Transitions */}
+                          {order.status === 'open' && hasPermission('work_order:update') && (
+                            <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); /* handleTransition(order.id, 'in-progress') */ }}>
+                              Start
+                            </Button>
+                          )}
+
+                          {order.status === 'in-progress' && hasPermission('work_order:update') && (
+                            <Button size="sm" variant="outline" className="text-green-600 hover:text-green-700" onClick={(e) => { e.stopPropagation(); /* handleTransition(order.id, 'review') */ }}>
+                              Complete
+                            </Button>
+                          )}
+
+                          {order.status === 'review' && hasPermission('work_order:approve') && (
+                            <Button size="sm" variant="outline" className="text-blue-600 hover:text-blue-700" onClick={(e) => { e.stopPropagation(); /* handleTransition(order.id, 'completed') */ }}>
+                              Approve
+                            </Button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -397,8 +426,8 @@ export function GarageService() {
                               tech.availability === "available"
                                 ? "bg-success/10 text-success border-success/20 mt-2"
                                 : tech.availability === "busy"
-                                ? "bg-warning/10 text-warning border-warning/20 mt-2"
-                                : "bg-muted text-muted-foreground mt-2"
+                                  ? "bg-warning/10 text-warning border-warning/20 mt-2"
+                                  : "bg-muted text-muted-foreground mt-2"
                             }
                           >
                             {tech.availability}

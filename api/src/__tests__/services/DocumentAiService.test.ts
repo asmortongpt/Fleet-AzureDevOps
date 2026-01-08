@@ -2284,7 +2284,8 @@ describe('DocumentAiService', () => {
 
       // Act & Assert
       expect(() => {
-        service.processDocument(invalidData);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (service as any).processDocument(invalidData);
       }).toThrow();
     });
 

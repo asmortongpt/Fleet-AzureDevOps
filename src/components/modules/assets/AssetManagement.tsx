@@ -3,6 +3,7 @@ import { Plus, MagnifyingGlass } from "@phosphor-icons/react"
 import { AssetStatsBar } from "./AssetManagement/components/AssetStatsBar"
 import { useAssetFilters } from "./AssetManagement/hooks/useAssetFilters"
 import { useAssets } from "./AssetManagement/hooks/useAssets"
+import { useAuth } from "@/contexts/AuthContext"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -27,6 +28,7 @@ import {
 
 
 export function AssetManagement() {
+  const { hasPermission } = useAuth()
   const { assets, loading } = useAssets()
   const {
     searchTerm,
@@ -86,10 +88,12 @@ export function AssetManagement() {
           <h1 className="text-3xl font-semibold tracking-tight">Asset Management</h1>
           <p className="text-muted-foreground mt-1">Track and manage all organizational assets</p>
         </div>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Asset
-        </Button>
+        {hasPermission('asset:create') && (
+          <Button>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Asset
+          </Button>
+        )}
       </div>
 
       {/* Stats */}
