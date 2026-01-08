@@ -202,7 +202,7 @@ export interface Staff {
 export interface ServiceBay {
   id: string
   number: string
-  status: "occupied" | "available" | "maintenance"
+  status: "occupied" | "available" | "maintenance" | "operational" | "closed"
   is_active?: boolean // Active status flag
   vehicle?: string
   technician?: string
@@ -259,6 +259,7 @@ export interface FuelTransaction {
   gallons: number
   pricePerGallon: number
   totalCost: number
+  total_cost?: number // Alias for totalCost (snake_case for API compatibility)
   cost?: number // Alias for totalCost for backwards compatibility
   mpg: number
   paymentMethod: string

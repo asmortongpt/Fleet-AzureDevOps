@@ -56,8 +56,14 @@ resource "azurerm_subscription_policy_assignment" "cis_benchmark" {
 resource "azurerm_key_vault_key" "encryption" {
   name         = "${var.project_name}-encryption-key"
   key_vault_id = azurerm_key_vault.main.id
-  key_type     = "RSA"
+
+  # Security: Use HSM-backed key for Premium Key Vault
+  # Note: Requires Key Vault SKU to be "premium"
+  key_type     = var.key_vault_sku == "premium" ? "RSA-HSM" : "RSA"
   key_size     = 4096
+
+  # Security: Add explicit expiration date (2 years for encryption keys)
+  expiration_date = timeadd(timestamp(), "17520h")
 
   key_opts = [
     "decrypt",
@@ -77,9 +83,58 @@ resource "azurerm_key_vault_key" "encryption" {
     notify_before_expiry = "P29D"
   }
 
+  lifecycle {
+    ignore_changes = [expiration_date]
+  }
+
   tags = merge(var.tags, {
     Component = "Encryption"
   })
+
+  depends_on = [
+    azurerm_role_assignment.keyvault_admin
+  ]
+}
+
+# =============================================================================
+# Disk Encryption Set for AKS
+# =============================================================================
+
+resource "azurerm_disk_encryption_set" "aks" {
+  name                = "${var.project_name}-${var.environment}-aks-des"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  key_vault_key_id    = azurerm_key_vault_key.encryption.id
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  tags = merge(var.tags, {
+    Component = "AKS Encryption"
+    Purpose   = "Disk encryption for AKS nodes and persistent volumes"
+  })
+
+  depends_on = [
+    azurerm_key_vault_key.encryption
+  ]
+}
+
+# Grant the disk encryption set access to the key vault
+resource "azurerm_key_vault_access_policy" "disk_encryption_set" {
+  key_vault_id = azurerm_key_vault.main.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = azurerm_disk_encryption_set.aks.identity[0].principal_id
+
+  key_permissions = [
+    "Get",
+    "WrapKey",
+    "UnwrapKey",
+  ]
+
+  depends_on = [
+    azurerm_disk_encryption_set.aks
+  ]
 }
 
 # =============================================================================

@@ -58,9 +58,9 @@ export function GarageService() {
   const { push } = useDrilldown()
 
   // Filter and type-check data with safety
-  const serviceBays = (data.serviceBays || []).filter(isServiceBay)
-  const workOrders = (data.workOrders || []).filter(isWorkOrder)
-  const technicians = (data.technicians || []).filter(isTechnician)
+  const serviceBays = ((data.serviceBays || []) as unknown[]).filter(isServiceBay)
+  const workOrders = ((data.workOrders || []) as unknown[]).filter(isWorkOrder)
+  const technicians = ((data.technicians || []) as unknown[]).filter(isTechnician)
 
   const [activeTab, setActiveTab] = useState<string>("dashboard")
 
