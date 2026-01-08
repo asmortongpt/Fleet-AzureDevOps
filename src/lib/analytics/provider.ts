@@ -310,7 +310,7 @@ export class AnalyticsProvider {
     try {
       // PostHog doesn't have increment, so we'll get current value and add to it
       const currentValue = (posthog.get_property(property) as number) || 0;
-      posthog.people.set(property, currentValue + value);
+      posthog.people.set({ [property]: currentValue + value });
     } catch (error) {
       console.error(`Failed to increment user property: ${property}`, error);
     }
