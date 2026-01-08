@@ -322,9 +322,10 @@ export class PolicyEnforcementEngine {
 
         case 'modify':
           if (action.target && action.value !== undefined) {
+            const targetField = Array.isArray(action.target) ? action.target[0] : action.target
             modifications.push({
-              field: action.target,
-              originalValue: context.data[action.target],
+              field: targetField,
+              originalValue: context.data[targetField],
               modifiedValue: action.value,
               reason: action.message || 'Modified by policy',
               ruleId: rule.id,
