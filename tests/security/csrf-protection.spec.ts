@@ -221,9 +221,9 @@ test.describe('CSRF Protection - Frontend Security', () => {
 test.describe('CSRF Protection - Code Review Verification', () => {
   test('CSRF-009: Verify api-client.ts has CSRF implementation', async () => {
     // Read and verify api-client.ts has CSRF protection
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
       const fs = require('fs')
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
       const path = require('path')
 
     const apiClientPath = path.join(__dirname, '../../src/lib/api-client.ts')

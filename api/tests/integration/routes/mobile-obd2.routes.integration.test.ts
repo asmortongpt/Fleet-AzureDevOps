@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+
 import { app } from '../../server';
 
 /**
@@ -247,7 +248,7 @@ describe('/mobile-obd2.routes API Integration Tests', () => {
         });
 
       // Try to access from tenant B
-      const tenantBToken = 'await generateTestToken({ tenantId: "tenant-B", userId: "user-b" })
+      const tenantBToken = await generateTestToken({ tenantId: "tenant-B", userId: "user-b" })
       const responseB = await request(app)
         .get(`/mobile-obd2.routes/${resourceA.body.id}`)
         .set('Authorization', `Bearer ${tenantBToken}`)

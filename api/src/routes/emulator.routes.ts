@@ -11,6 +11,7 @@ import express, { Request, Response } from 'express'
 
 import { EmulatorOrchestrator } from '../emulators/EmulatorOrchestrator'
 import { telemetryService } from '../services/TelemetryService'
+import { getVideoDatasetService } from '../services/video-dataset.service'
 
 const router = express.Router()
 
@@ -702,6 +703,225 @@ router.get('/scenarios', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: data.scenarios
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Unknown error'
+    })
+  }
+})
+
+// ============================================================================
+// VIDEO EMULATOR ENDPOINTS
+// ============================================================================
+
+/**
+ * @openapi
+ * /api/emulator/video/library:
+ *   get:
+ *     tags: [Emulator]
+ *     summary: Get video library
+ */
+router.get('/video/library', async (req: Request, res: Response) => {
+  try {
+    const videoService = getVideoDatasetService()
+
+    // Initialize if needed
+    if (!videoService.isInitialized()) {
+      await videoService.initialize()
+    }
+
+    const { cameraAngle, scenario, weather, timeOfDay, tags } = req.query
+
+    const filter: any = {}
+    if (cameraAngle) filter.cameraAngle = cameraAngle
+    if (scenario) filter.scenario = scenario
+    if (weather) filter.weather = weather
+    if (timeOfDay) filter.timeOfDay = timeOfDay
+    if (tags) filter.tags = Array.isArray(tags) ? tags : [tags]
+
+    const videos = videoService.getVideos(filter)
+
+    res.json({
+      success: true,
+      data: videos,
+      count: videos.length
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Unknown error'
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/emulator/video/library/:videoId:
+ *   get:
+ *     tags: [Emulator]
+ *     summary: Get specific video
+ */
+router.get('/video/library/:videoId', async (req: Request, res: Response) => {
+  try {
+    const videoService = getVideoDatasetService()
+    const { videoId } = req.params
+
+    if (!videoService.isInitialized()) {
+      await videoService.initialize()
+    }
+
+    const video = videoService.getVideoById(videoId)
+
+    if (!video) {
+      return res.status(404).json({
+        success: false,
+        error: 'Video not found'
+      })
+    }
+
+    res.json({
+      success: true,
+      data: video
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Unknown error'
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/emulator/video/stream/:vehicleId/:cameraAngle/start:
+ *   post:
+ *     tags: [Emulator]
+ *     summary: Start video stream
+ */
+router.post('/video/stream/:vehicleId/:cameraAngle/start', async (req: Request, res: Response) => {
+  try {
+    const videoService = getVideoDatasetService()
+    const { vehicleId, cameraAngle } = req.params
+    const { videoId } = req.body
+
+    if (!videoService.isInitialized()) {
+      await videoService.initialize()
+    }
+
+    const stream = videoService.startStream(vehicleId, cameraAngle as any, videoId)
+
+    if (!stream) {
+      return res.status(400).json({
+        success: false,
+        error: 'Failed to start stream - video not found or invalid camera angle'
+      })
+    }
+
+    res.json({
+      success: true,
+      data: stream
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Unknown error'
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/emulator/video/stream/:vehicleId/:cameraAngle/stop:
+ *   post:
+ *     tags: [Emulator]
+ *     summary: Stop video stream
+ */
+router.post('/video/stream/:vehicleId/:cameraAngle/stop', async (req: Request, res: Response) => {
+  try {
+    const videoService = getVideoDatasetService()
+    const { vehicleId, cameraAngle } = req.params
+
+    if (!videoService.isInitialized()) {
+      await videoService.initialize()
+    }
+
+    const stopped = videoService.stopStream(vehicleId, cameraAngle as any)
+
+    res.json({
+      success: true,
+      stopped
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Unknown error'
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/emulator/video/stream/:vehicleId/:cameraAngle:
+ *   get:
+ *     tags: [Emulator]
+ *     summary: Get stream status
+ */
+router.get('/video/stream/:vehicleId/:cameraAngle', async (req: Request, res: Response) => {
+  try {
+    const videoService = getVideoDatasetService()
+    const { vehicleId, cameraAngle } = req.params
+
+    if (!videoService.isInitialized()) {
+      await videoService.initialize()
+    }
+
+    const stream = videoService.getStream(vehicleId, cameraAngle as any)
+
+    if (!stream) {
+      return res.status(404).json({
+        success: false,
+        error: 'Stream not found'
+      })
+    }
+
+    res.json({
+      success: true,
+      data: stream
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Unknown error'
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/emulator/video/streams:
+ *   get:
+ *     tags: [Emulator]
+ *     summary: Get all active streams
+ */
+router.get('/video/streams', async (req: Request, res: Response) => {
+  try {
+    const videoService = getVideoDatasetService()
+
+    if (!videoService.isInitialized()) {
+      await videoService.initialize()
+    }
+
+    const streams = videoService.getAllStreams()
+    const stats = videoService.getStats()
+
+    res.json({
+      success: true,
+      data: {
+        streams,
+        stats
+      }
     })
   } catch (error: any) {
     res.status(500).json({

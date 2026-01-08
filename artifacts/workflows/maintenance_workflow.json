@@ -1,0 +1,81 @@
+{
+    "workflowId": "WF-MAINT-001",
+    "name": "Maintenance Request Lifecycle",
+    "entity": "MaintenanceRequest",
+    "states": [
+        "DRAFT",
+        "SUBMITTED",
+        "REVIEW_PENDING",
+        "APPROVED",
+        "REJECTED",
+        "SCHEDULED",
+        "IN_PROGRESS",
+        "COMPLETED",
+        "VERIFIED",
+        "INVOICED",
+        "PAID",
+        "ARCHIVED"
+    ],
+    "transitions": [
+        {
+            "from": "DRAFT",
+            "to": "SUBMITTED",
+            "action": "Submit",
+            "role": "Driver"
+        },
+        {
+            "from": "SUBMITTED",
+            "to": "REVIEW_PENDING",
+            "action": "Auto-Assign",
+            "system": true
+        },
+        {
+            "from": "REVIEW_PENDING",
+            "to": "APPROVED",
+            "action": "Approve",
+            "role": "FleetManager"
+        },
+        {
+            "from": "REVIEW_PENDING",
+            "to": "REJECTED",
+            "action": "Reject",
+            "role": "FleetManager"
+        },
+        {
+            "from": "APPROVED",
+            "to": "SCHEDULED",
+            "action": "Schedule",
+            "role": "FleetManager"
+        },
+        {
+            "from": "SCHEDULED",
+            "to": "IN_PROGRESS",
+            "action": "Start Work",
+            "role": "Technician"
+        },
+        {
+            "from": "IN_PROGRESS",
+            "to": "COMPLETED",
+            "action": "Complete Work",
+            "role": "Technician"
+        },
+        {
+            "from": "COMPLETED",
+            "to": "VERIFIED",
+            "action": "Verify",
+            "role": "FleetManager"
+        },
+        {
+            "from": "VERIFIED",
+            "to": "INVOICED",
+            "action": "Generate Invoice",
+            "system": true
+        }
+    ],
+    "rules": {
+        "cost_limit": {
+            "threshold": 500,
+            "requires": "Manager Approval"
+        }
+    }
+}

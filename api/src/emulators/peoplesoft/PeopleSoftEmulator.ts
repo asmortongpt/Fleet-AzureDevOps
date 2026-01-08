@@ -163,7 +163,7 @@ export class PeopleSoftEmulator {
 
   private seedChartfields(): void {
     // Import Tallahassee seed data
-    const { TALLAHASSEE_CHARTFIELDS // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+    const { TALLAHASSEE_CHARTFIELDS // eslint-disable-next-line @typescript-eslint/no-require-imports
     } = require('./tallahassee-seed-data')
 
     // Load all valid City of Tallahassee chartfield combinations

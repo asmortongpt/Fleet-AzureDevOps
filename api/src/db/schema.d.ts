@@ -1,3 +1,4 @@
+ 
 export declare const vehicles: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "vehicles";
     schema: undefined;

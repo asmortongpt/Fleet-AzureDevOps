@@ -1,34 +1,34 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-echo ">� Running pre-push quality gates..."
+echo "🧪 Running pre-push quality gates..."
 
 # Run unit tests
-echo ">� Running unit tests..."
+echo "🧪 Running unit tests..."
 npm run test:unit || {
-  echo "L Unit tests failed. Please fix before pushing."
+  echo "❌ Unit tests failed. Please fix before pushing."
   exit 1
 }
 
 # Run coverage check
-echo "=� Checking test coverage..."
+echo "📊 Checking test coverage..."
 npm run test:coverage || {
-  echo "L Coverage threshold not met. Please add more tests."
+  echo "❌ Coverage threshold not met. Please add more tests."
   exit 1
 }
 
 # Run linting
-echo "= Running linter..."
+echo "🔍 Running linter..."
 npm run lint || {
-  echo "L Linting errors detected. Please fix before pushing."
+  echo "❌ Linting errors detected. Please fix before pushing."
   exit 1
 }
 
 # Run build check
-echo "<� Verifying build..."
+echo "🏗️ Verifying build..."
 npm run build || {
-  echo "L Build failed. Please fix before pushing."
+  echo "❌ Build failed. Please fix before pushing."
   exit 1
 }
 
-echo " All pre-push checks passed!"
+echo "✅ All pre-push checks passed!"
