@@ -87,7 +87,7 @@ const poolProxy = new Proxy({} as Pool, {
     if (process.env.USE_MOCK_DATA === 'true') {
       // Lazy load mock pool to avoid circular dependencies
       // Note: This is synchronous but imports mockPool at runtime
-      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { mockPool } = require('../middleware/mock-database')
       const result = (mockPool as any)[prop]
 
