@@ -150,6 +150,7 @@ const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"))
 const SafetyAlertsPage = lazy(() => import("@/pages/SafetyAlertsPage"))
 const HeavyEquipmentPage = lazy(() => import("@/pages/HeavyEquipmentPage"))
+const CreateDamageReportPage = lazy(() => import("@/pages/CreateDamageReport").then(m => ({ default: m.CreateDamageReport })))
 
 // Loading spinner component for Suspense fallback
 const LoadingSpinner = () => (
@@ -346,6 +347,9 @@ function App() {
         return <TaskManagement />
       case "incident-management":
         return <IncidentManagement />
+      case "create-damage-report":
+      case "damage-report-create":
+        return <CreateDamageReportPage />
       case "notifications":
         return <Notifications />
       case "push-notification-admin":

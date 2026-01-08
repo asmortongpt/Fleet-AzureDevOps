@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+
 import { app } from '../../server';
 
 /**
@@ -143,7 +144,7 @@ describe('/trip-marking API Integration Tests', () => {
         });
 
       // Try to access from tenant B
-      const tenantBToken = 'await generateTestToken({ tenantId: "tenant-B", userId: "user-b" })
+      const tenantBToken = await generateTestToken({ tenantId: "tenant-B", userId: "user-b" })
       const responseB = await request(app)
         .get(`/trip-marking/${resourceA.body.id}`)
         .set('Authorization', `Bearer ${tenantBToken}`)

@@ -101,4 +101,133 @@ router.delete("/:id",
   asyncHandler((req, res, next) => maintenanceController.deleteMaintenance(req, res, next))
 )
 
+// GET upcoming maintenance (scheduled in future)
+router.get("/upcoming",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
+    permissions: [PERMISSIONS.MAINTENANCE_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'maintenance'
+  }),
+  asyncHandler(async (req, res, next) => {
+    const pool = (await import('../config/database')).default
+    const tenantId = (req as any).user?.tenant_id
+    const { vehicleId } = req.query
+
+    let query = `
+      SELECT * FROM maintenance_records
+      WHERE tenant_id = $1
+      AND status = 'scheduled'
+      AND scheduled_date > NOW()
+    `
+    const params: any[] = [tenantId]
+
+    if (vehicleId) {
+      query += ` AND vehicle_id = $2`
+      params.push(vehicleId)
+    }
+
+    query += ` ORDER BY scheduled_date ASC`
+
+    const result = await pool.query(query, params)
+    res.json({ data: result.rows })
+  })
+)
+
+// GET overdue maintenance (scheduled in past, not completed)
+router.get("/overdue",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
+    permissions: [PERMISSIONS.MAINTENANCE_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'maintenance'
+  }),
+  asyncHandler(async (req, res, next) => {
+    const pool = (await import('../config/database')).default
+    const tenantId = (req as any).user?.tenant_id
+
+    const result = await pool.query(
+      `SELECT * FROM maintenance_records
+       WHERE tenant_id = $1
+       AND status = 'scheduled'
+       AND scheduled_date < NOW()
+       ORDER BY scheduled_date ASC`,
+      [tenantId]
+    )
+
+    res.json({ data: result.rows })
+  })
+)
+
+// GET maintenance history (completed maintenance for a vehicle)
+router.get("/history",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
+    permissions: [PERMISSIONS.MAINTENANCE_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'maintenance'
+  }),
+  asyncHandler(async (req, res, next) => {
+    const pool = (await import('../config/database')).default
+    const tenantId = (req as any).user?.tenant_id
+    const { vehicleId } = req.query
+
+    if (!vehicleId) {
+      return res.status(400).json({ error: 'vehicleId query parameter required' })
+    }
+
+    const result = await pool.query(
+      `SELECT * FROM maintenance_records
+       WHERE tenant_id = $1
+       AND vehicle_id = $2
+       AND status = 'completed'
+       ORDER BY completed_date DESC`,
+      [tenantId, vehicleId]
+    )
+
+    res.json({ data: result.rows })
+  })
+)
+
+// GET maintenance costs (total costs for a vehicle)
+router.get("/costs",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
+    permissions: [PERMISSIONS.MAINTENANCE_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'maintenance'
+  }),
+  asyncHandler(async (req, res, next) => {
+    const pool = (await import('../config/database')).default
+    const tenantId = (req as any).user?.tenant_id
+    const { vehicleId } = req.query
+
+    if (!vehicleId) {
+      return res.status(400).json({ error: 'vehicleId query parameter required' })
+    }
+
+    const result = await pool.query(
+      `SELECT
+         SUM(total_cost) as total_cost,
+         SUM(labor_cost) as labor_cost,
+         SUM(parts_cost) as parts_cost,
+         COUNT(*) as record_count
+       FROM maintenance_records
+       WHERE tenant_id = $1
+       AND vehicle_id = $2`,
+      [tenantId, vehicleId]
+    )
+
+    const row = result.rows[0]
+    res.json({
+      data: {
+        totalCost: parseFloat(row.total_cost) || 0,
+        laborCost: parseFloat(row.labor_cost) || 0,
+        partsCost: parseFloat(row.parts_cost) || 0,
+        recordCount: parseInt(row.record_count) || 0
+      }
+    })
+  })
+)
+
 export default router
