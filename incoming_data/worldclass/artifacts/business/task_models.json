@@ -1,0 +1,5306 @@
+{
+  "gps-tracking": {
+    "domain": "OPERATIONS",
+    "tasks": [
+      {
+        "name": "View gps-tracking Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New gps-tracking Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit gps-tracking Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export gps-tracking Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "dispatch": {
+    "domain": "OPERATIONS",
+    "tasks": [
+      {
+        "name": "View dispatch Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New dispatch Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit dispatch Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export dispatch Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "ai-dispatch": {
+    "domain": "OPERATIONS",
+    "tasks": [
+      {
+        "name": "View ai-dispatch Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New ai-dispatch Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit ai-dispatch Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export ai-dispatch Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "drill-through.routes.enhanced": {
+    "domain": "OPERATIONS",
+    "tasks": [
+      {
+        "name": "View drill-through.routes.enhanced Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New drill-through.routes.enhanced Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit drill-through.routes.enhanced Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export drill-through.routes.enhanced Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "geofences": {
+    "domain": "OPERATIONS",
+    "tasks": [
+      {
+        "name": "View geofences Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New geofences Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit geofences Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export geofences Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "gps": {
+    "domain": "OPERATIONS",
+    "tasks": [
+      {
+        "name": "View gps Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New gps Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit gps Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export gps Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "mobile-trips": {
+    "domain": "OPERATIONS",
+    "tasks": [
+      {
+        "name": "View mobile-trips Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New mobile-trips Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit mobile-trips Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export mobile-trips Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "paginationRoute": {
+    "domain": "OPERATIONS",
+    "tasks": [
+      {
+        "name": "View paginationRoute Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New paginationRoute Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit paginationRoute Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export paginationRoute Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "route-emulator": {
+    "domain": "OPERATIONS",
+    "tasks": [
+      {
+        "name": "View route-emulator Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New route-emulator Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit route-emulator Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export route-emulator Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "route-optimization": {
+    "domain": "OPERATIONS",
+    "tasks": [
+      {
+        "name": "View route-optimization Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New route-optimization Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit route-optimization Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export route-optimization Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "routes": {
+    "domain": "OPERATIONS",
+    "tasks": [
+      {
+        "name": "View routes Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New routes Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit routes Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export routes Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "telematics": {
+    "domain": "OPERATIONS",
+    "tasks": [
+      {
+        "name": "View telematics Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New telematics Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit telematics Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export telematics Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "test-routes": {
+    "domain": "OPERATIONS",
+    "tasks": [
+      {
+        "name": "View test-routes Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New test-routes Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit test-routes Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export test-routes Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "traffic-cameras": {
+    "domain": "OPERATIONS",
+    "tasks": [
+      {
+        "name": "View traffic-cameras Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New traffic-cameras Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit traffic-cameras Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export traffic-cameras Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "trip-marking": {
+    "domain": "OPERATIONS",
+    "tasks": [
+      {
+        "name": "View trip-marking Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New trip-marking Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit trip-marking Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export trip-marking Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "trip-usage": {
+    "domain": "OPERATIONS",
+    "tasks": [
+      {
+        "name": "View trip-usage Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New trip-usage Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit trip-usage Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export trip-usage Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "video-telematics": {
+    "domain": "OPERATIONS",
+    "tasks": [
+      {
+        "name": "View video-telematics Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New video-telematics Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit video-telematics Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export video-telematics Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "maintenance": {
+    "domain": "MAINTENANCE",
+    "tasks": [
+      {
+        "name": "View maintenance Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New maintenance Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit maintenance Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export maintenance Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "garage-bays": {
+    "domain": "MAINTENANCE",
+    "tasks": [
+      {
+        "name": "View garage-bays Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New garage-bays Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit garage-bays Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export garage-bays Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "inspections.dal-example": {
+    "domain": "MAINTENANCE",
+    "tasks": [
+      {
+        "name": "View inspections.dal-example Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New inspections.dal-example Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit inspections.dal-example Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export inspections.dal-example Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "inspections": {
+    "domain": "MAINTENANCE",
+    "tasks": [
+      {
+        "name": "View inspections Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New inspections Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit inspections Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export inspections Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "maintenance-drilldowns": {
+    "domain": "MAINTENANCE",
+    "tasks": [
+      {
+        "name": "View maintenance-drilldowns Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New maintenance-drilldowns Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit maintenance-drilldowns Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export maintenance-drilldowns Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "maintenance-schedules": {
+    "domain": "MAINTENANCE",
+    "tasks": [
+      {
+        "name": "View maintenance-schedules Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New maintenance-schedules Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit maintenance-schedules Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export maintenance-schedules Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "parts": {
+    "domain": "MAINTENANCE",
+    "tasks": [
+      {
+        "name": "View parts Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New parts Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit parts Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export parts Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "work-orders": {
+    "domain": "MAINTENANCE",
+    "tasks": [
+      {
+        "name": "View work-orders Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New work-orders Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit work-orders Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export work-orders Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "vehicles": {
+    "domain": "ASSET_MANAGEMENT",
+    "tasks": [
+      {
+        "name": "View vehicles Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New vehicles Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit vehicles Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export vehicles Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "procurement": {
+    "domain": "ASSET_MANAGEMENT",
+    "tasks": [
+      {
+        "name": "View procurement Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New procurement Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit procurement Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export procurement Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "assets": {
+    "domain": "ASSET_MANAGEMENT",
+    "tasks": [
+      {
+        "name": "View assets Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New assets Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit assets Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export assets Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "ai-task-asset": {
+    "domain": "ASSET_MANAGEMENT",
+    "tasks": [
+      {
+        "name": "View ai-task-asset Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New ai-task-asset Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit ai-task-asset Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export ai-task-asset Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "asset-analytics": {
+    "domain": "ASSET_MANAGEMENT",
+    "tasks": [
+      {
+        "name": "View asset-analytics Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New asset-analytics Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit asset-analytics Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export asset-analytics Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "asset-management": {
+    "domain": "ASSET_MANAGEMENT",
+    "tasks": [
+      {
+        "name": "View asset-management Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New asset-management Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit asset-management Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export asset-management Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "asset-relationships": {
+    "domain": "ASSET_MANAGEMENT",
+    "tasks": [
+      {
+        "name": "View asset-relationships Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New asset-relationships Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit asset-relationships Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export asset-relationships Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "assets-mobile": {
+    "domain": "ASSET_MANAGEMENT",
+    "tasks": [
+      {
+        "name": "View assets-mobile Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New assets-mobile Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit assets-mobile Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export assets-mobile Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "vehicle-3d": {
+    "domain": "ASSET_MANAGEMENT",
+    "tasks": [
+      {
+        "name": "View vehicle-3d Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New vehicle-3d Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit vehicle-3d Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export vehicle-3d Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "vehicle-assignments": {
+    "domain": "ASSET_MANAGEMENT",
+    "tasks": [
+      {
+        "name": "View vehicle-assignments Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New vehicle-assignments Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit vehicle-assignments Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export vehicle-assignments Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "vehicle-history": {
+    "domain": "ASSET_MANAGEMENT",
+    "tasks": [
+      {
+        "name": "View vehicle-history Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New vehicle-history Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit vehicle-history Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export vehicle-history Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "vehicle-identification": {
+    "domain": "ASSET_MANAGEMENT",
+    "tasks": [
+      {
+        "name": "View vehicle-identification Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New vehicle-identification Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit vehicle-identification Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export vehicle-identification Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "vehicle-idling": {
+    "domain": "ASSET_MANAGEMENT",
+    "tasks": [
+      {
+        "name": "View vehicle-idling Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New vehicle-idling Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit vehicle-idling Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export vehicle-idling Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "vehicles-refactored.example": {
+    "domain": "ASSET_MANAGEMENT",
+    "tasks": [
+      {
+        "name": "View vehicles-refactored.example Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New vehicles-refactored.example Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit vehicles-refactored.example Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export vehicles-refactored.example Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "vehicles.optimized.example": {
+    "domain": "ASSET_MANAGEMENT",
+    "tasks": [
+      {
+        "name": "View vehicles.optimized.example Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New vehicles.optimized.example Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit vehicles.optimized.example Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export vehicles.optimized.example Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "drivers": {
+    "domain": "HR_DRIVERS",
+    "tasks": [
+      {
+        "name": "View drivers Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New drivers Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit drivers Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export drivers Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "calendar": {
+    "domain": "HR_DRIVERS",
+    "tasks": [
+      {
+        "name": "View calendar Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New calendar Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit calendar Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export calendar Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "driver-scorecard": {
+    "domain": "HR_DRIVERS",
+    "tasks": [
+      {
+        "name": "View driver-scorecard Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New driver-scorecard Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit driver-scorecard Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export driver-scorecard Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "query-performance.enhanced": {
+    "domain": "HR_DRIVERS",
+    "tasks": [
+      {
+        "name": "View query-performance.enhanced Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New query-performance.enhanced Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit query-performance.enhanced Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export query-performance.enhanced Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "query-performance": {
+    "domain": "HR_DRIVERS",
+    "tasks": [
+      {
+        "name": "View query-performance Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New query-performance Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit query-performance Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export query-performance Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "performance": {
+    "domain": "HR_DRIVERS",
+    "tasks": [
+      {
+        "name": "View performance Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New performance Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit performance Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export performance Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "safety-training": {
+    "domain": "HR_DRIVERS",
+    "tasks": [
+      {
+        "name": "View safety-training Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New safety-training Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit safety-training Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export safety-training Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "teams": {
+    "domain": "HR_DRIVERS",
+    "tasks": [
+      {
+        "name": "View teams Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New teams Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit teams Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export teams Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "teams.webhook": {
+    "domain": "HR_DRIVERS",
+    "tasks": [
+      {
+        "name": "View teams.webhook Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New teams.webhook Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit teams.webhook Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export teams.webhook Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "adaptive-cards": {
+    "domain": "FINANCIAL",
+    "tasks": [
+      {
+        "name": "View adaptive-cards Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New adaptive-cards Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit adaptive-cards Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export adaptive-cards Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Approve adaptive-cards Request",
+        "type": "APPROVAL",
+        "complexity": "HIGH",
+        "roles": [
+          "Manager",
+          "Admin"
+        ]
+      }
+    ]
+  },
+  "billing-reports": {
+    "domain": "FINANCIAL",
+    "tasks": [
+      {
+        "name": "View billing-reports Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New billing-reports Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit billing-reports Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export billing-reports Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Approve billing-reports Request",
+        "type": "APPROVAL",
+        "complexity": "HIGH",
+        "roles": [
+          "Manager",
+          "Admin"
+        ]
+      }
+    ]
+  },
+  "cost-analysis": {
+    "domain": "FINANCIAL",
+    "tasks": [
+      {
+        "name": "View cost-analysis Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New cost-analysis Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit cost-analysis Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export cost-analysis Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Approve cost-analysis Request",
+        "type": "APPROVAL",
+        "complexity": "HIGH",
+        "roles": [
+          "Manager",
+          "Admin"
+        ]
+      }
+    ]
+  },
+  "cost-benefit-analysis": {
+    "domain": "FINANCIAL",
+    "tasks": [
+      {
+        "name": "View cost-benefit-analysis Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New cost-benefit-analysis Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit cost-benefit-analysis Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export cost-benefit-analysis Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Approve cost-benefit-analysis Request",
+        "type": "APPROVAL",
+        "complexity": "HIGH",
+        "roles": [
+          "Manager",
+          "Admin"
+        ]
+      }
+    ]
+  },
+  "costs": {
+    "domain": "FINANCIAL",
+    "tasks": [
+      {
+        "name": "View costs Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New costs Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit costs Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export costs Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Approve costs Request",
+        "type": "APPROVAL",
+        "complexity": "HIGH",
+        "roles": [
+          "Manager",
+          "Admin"
+        ]
+      }
+    ]
+  },
+  "fuel-purchasing": {
+    "domain": "FINANCIAL",
+    "tasks": [
+      {
+        "name": "View fuel-purchasing Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New fuel-purchasing Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit fuel-purchasing Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export fuel-purchasing Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Approve fuel-purchasing Request",
+        "type": "APPROVAL",
+        "complexity": "HIGH",
+        "roles": [
+          "Manager",
+          "Admin"
+        ]
+      }
+    ]
+  },
+  "fuel-transactions": {
+    "domain": "FINANCIAL",
+    "tasks": [
+      {
+        "name": "View fuel-transactions Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New fuel-transactions Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit fuel-transactions Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export fuel-transactions Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Approve fuel-transactions Request",
+        "type": "APPROVAL",
+        "complexity": "HIGH",
+        "roles": [
+          "Manager",
+          "Admin"
+        ]
+      }
+    ]
+  },
+  "invoices": {
+    "domain": "FINANCIAL",
+    "tasks": [
+      {
+        "name": "View invoices Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New invoices Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit invoices Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export invoices Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Approve invoices Request",
+        "type": "APPROVAL",
+        "complexity": "HIGH",
+        "roles": [
+          "Manager",
+          "Admin"
+        ]
+      }
+    ]
+  },
+  "mileage-reimbursement": {
+    "domain": "FINANCIAL",
+    "tasks": [
+      {
+        "name": "View mileage-reimbursement Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New mileage-reimbursement Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit mileage-reimbursement Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export mileage-reimbursement Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Approve mileage-reimbursement Request",
+        "type": "APPROVAL",
+        "complexity": "HIGH",
+        "roles": [
+          "Manager",
+          "Admin"
+        ]
+      }
+    ]
+  },
+  "purchase-orders": {
+    "domain": "FINANCIAL",
+    "tasks": [
+      {
+        "name": "View purchase-orders Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New purchase-orders Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit purchase-orders Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export purchase-orders Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Approve purchase-orders Request",
+        "type": "APPROVAL",
+        "complexity": "HIGH",
+        "roles": [
+          "Manager",
+          "Admin"
+        ]
+      }
+    ]
+  },
+  "reimbursement-requests": {
+    "domain": "FINANCIAL",
+    "tasks": [
+      {
+        "name": "View reimbursement-requests Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New reimbursement-requests Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit reimbursement-requests Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export reimbursement-requests Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Approve reimbursement-requests Request",
+        "type": "APPROVAL",
+        "complexity": "HIGH",
+        "roles": [
+          "Manager",
+          "Admin"
+        ]
+      }
+    ]
+  },
+  "incidents": {
+    "domain": "COMPLIANCE_SAFETY",
+    "tasks": [
+      {
+        "name": "View incidents Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New incidents Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit incidents Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export incidents Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "insurance": {
+    "domain": "COMPLIANCE_SAFETY",
+    "tasks": [
+      {
+        "name": "View insurance Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New insurance Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit insurance Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export insurance Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "compliance": {
+    "domain": "COMPLIANCE_SAFETY",
+    "tasks": [
+      {
+        "name": "View compliance Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New compliance Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit compliance Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export compliance Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "safety": {
+    "domain": "COMPLIANCE_SAFETY",
+    "tasks": [
+      {
+        "name": "View safety Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New safety Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit safety Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export safety Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "policy-hub": {
+    "domain": "COMPLIANCE_SAFETY",
+    "tasks": [
+      {
+        "name": "View policy-hub Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New policy-hub Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit policy-hub Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export policy-hub Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "policy-violations": {
+    "domain": "COMPLIANCE_SAFETY",
+    "tasks": [
+      {
+        "name": "View policy-violations Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New policy-violations Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit policy-violations Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export policy-violations Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "incident-management": {
+    "domain": "COMPLIANCE_SAFETY",
+    "tasks": [
+      {
+        "name": "View incident-management Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New incident-management Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit incident-management Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export incident-management Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "osha-compliance": {
+    "domain": "COMPLIANCE_SAFETY",
+    "tasks": [
+      {
+        "name": "View osha-compliance Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New osha-compliance Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit osha-compliance Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export osha-compliance Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "policy-templates": {
+    "domain": "COMPLIANCE_SAFETY",
+    "tasks": [
+      {
+        "name": "View policy-templates Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New policy-templates Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit policy-templates Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export policy-templates Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "safety-alerts": {
+    "domain": "COMPLIANCE_SAFETY",
+    "tasks": [
+      {
+        "name": "View safety-alerts Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New safety-alerts Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit safety-alerts Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export safety-alerts Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "safety-incidents": {
+    "domain": "COMPLIANCE_SAFETY",
+    "tasks": [
+      {
+        "name": "View safety-incidents Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New safety-incidents Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit safety-incidents Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export safety-incidents Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "safety-notifications": {
+    "domain": "COMPLIANCE_SAFETY",
+    "tasks": [
+      {
+        "name": "View safety-notifications Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New safety-notifications Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit safety-notifications Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export safety-notifications Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "admin": {
+    "domain": "IT_ADMIN",
+    "tasks": [
+      {
+        "name": "View admin Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New admin Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit admin Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export admin Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "login": {
+    "domain": "IT_ADMIN",
+    "tasks": [
+      {
+        "name": "View login Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New login Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit login Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export login Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "configuration": {
+    "domain": "IT_ADMIN",
+    "tasks": [
+      {
+        "name": "View configuration Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New configuration Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit configuration Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export configuration Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "cta-configuration-hub": {
+    "domain": "IT_ADMIN",
+    "tasks": [
+      {
+        "name": "View cta-configuration-hub Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New cta-configuration-hub Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit cta-configuration-hub Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export cta-configuration-hub Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "admin-jobs": {
+    "domain": "IT_ADMIN",
+    "tasks": [
+      {
+        "name": "View admin-jobs Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New admin-jobs Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit admin-jobs Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export admin-jobs Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "annual-reauthorization": {
+    "domain": "IT_ADMIN",
+    "tasks": [
+      {
+        "name": "View annual-reauthorization Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New annual-reauthorization Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit annual-reauthorization Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export annual-reauthorization Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "auth": {
+    "domain": "IT_ADMIN",
+    "tasks": [
+      {
+        "name": "View auth Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New auth Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit auth Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export auth Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "health-detailed": {
+    "domain": "IT_ADMIN",
+    "tasks": [
+      {
+        "name": "View health-detailed Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New health-detailed Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit health-detailed Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export health-detailed Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "health-microsoft": {
+    "domain": "IT_ADMIN",
+    "tasks": [
+      {
+        "name": "View health-microsoft Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New health-microsoft Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit health-microsoft Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export health-microsoft Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "health-system": {
+    "domain": "IT_ADMIN",
+    "tasks": [
+      {
+        "name": "View health-system Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New health-system Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit health-system Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export health-system Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "health": {
+    "domain": "IT_ADMIN",
+    "tasks": [
+      {
+        "name": "View health Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New health Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit health Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export health Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "microsoft-auth": {
+    "domain": "IT_ADMIN",
+    "tasks": [
+      {
+        "name": "View microsoft-auth Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New microsoft-auth Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit microsoft-auth Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export microsoft-auth Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "monitoring": {
+    "domain": "IT_ADMIN",
+    "tasks": [
+      {
+        "name": "View monitoring Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New monitoring Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit monitoring Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export monitoring Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "permissions": {
+    "domain": "IT_ADMIN",
+    "tasks": [
+      {
+        "name": "View permissions Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New permissions Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit permissions Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export permissions Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "storage-admin": {
+    "domain": "IT_ADMIN",
+    "tasks": [
+      {
+        "name": "View storage-admin Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New storage-admin Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit storage-admin Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export storage-admin Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "telemetry": {
+    "domain": "IT_ADMIN",
+    "tasks": [
+      {
+        "name": "View telemetry Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New telemetry Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit telemetry Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export telemetry Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "users": {
+    "domain": "IT_ADMIN",
+    "tasks": [
+      {
+        "name": "View users Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New users Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit users Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export users Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "dashboard": {
+    "domain": "INTELLIGENCE",
+    "tasks": [
+      {
+        "name": "View dashboard Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New dashboard Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit dashboard Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export dashboard Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Drilldown to Details",
+        "type": "DRILLDOWN",
+        "complexity": "HIGH"
+      }
+    ]
+  },
+  "analytics": {
+    "domain": "INTELLIGENCE",
+    "tasks": [
+      {
+        "name": "View analytics Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New analytics Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit analytics Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export analytics Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Drilldown to Details",
+        "type": "DRILLDOWN",
+        "complexity": "HIGH"
+      }
+    ]
+  },
+  "chat": {
+    "domain": "INTELLIGENCE",
+    "tasks": [
+      {
+        "name": "View chat Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New chat Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit chat Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export chat Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Drilldown to Details",
+        "type": "DRILLDOWN",
+        "complexity": "HIGH"
+      }
+    ]
+  },
+  "ai-chat": {
+    "domain": "INTELLIGENCE",
+    "tasks": [
+      {
+        "name": "View ai-chat Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New ai-chat Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit ai-chat Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export ai-chat Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Drilldown to Details",
+        "type": "DRILLDOWN",
+        "complexity": "HIGH"
+      }
+    ]
+  },
+  "ai-insights": {
+    "domain": "INTELLIGENCE",
+    "tasks": [
+      {
+        "name": "View ai-insights Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New ai-insights Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit ai-insights Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export ai-insights Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Drilldown to Details",
+        "type": "DRILLDOWN",
+        "complexity": "HIGH"
+      }
+    ]
+  },
+  "ai-search": {
+    "domain": "INTELLIGENCE",
+    "tasks": [
+      {
+        "name": "View ai-search Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New ai-search Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit ai-search Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export ai-search Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Drilldown to Details",
+        "type": "DRILLDOWN",
+        "complexity": "HIGH"
+      }
+    ]
+  },
+  "ai-task-prioritization": {
+    "domain": "INTELLIGENCE",
+    "tasks": [
+      {
+        "name": "View ai-task-prioritization Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New ai-task-prioritization Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit ai-task-prioritization Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export ai-task-prioritization Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Drilldown to Details",
+        "type": "DRILLDOWN",
+        "complexity": "HIGH"
+      }
+    ]
+  },
+  "assignment-reporting": {
+    "domain": "INTELLIGENCE",
+    "tasks": [
+      {
+        "name": "View assignment-reporting Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New assignment-reporting Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit assignment-reporting Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export assignment-reporting Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Drilldown to Details",
+        "type": "DRILLDOWN",
+        "complexity": "HIGH"
+      }
+    ]
+  },
+  "custom-reports": {
+    "domain": "INTELLIGENCE",
+    "tasks": [
+      {
+        "name": "View custom-reports Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New custom-reports Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit custom-reports Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export custom-reports Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Drilldown to Details",
+        "type": "DRILLDOWN",
+        "complexity": "HIGH"
+      }
+    ]
+  },
+  "damage-reports": {
+    "domain": "INTELLIGENCE",
+    "tasks": [
+      {
+        "name": "View damage-reports Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New damage-reports Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit damage-reports Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export damage-reports Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Drilldown to Details",
+        "type": "DRILLDOWN",
+        "complexity": "HIGH"
+      }
+    ]
+  },
+  "dashboard-stats.example": {
+    "domain": "INTELLIGENCE",
+    "tasks": [
+      {
+        "name": "View dashboard-stats.example Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New dashboard-stats.example Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit dashboard-stats.example Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export dashboard-stats.example Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Drilldown to Details",
+        "type": "DRILLDOWN",
+        "complexity": "HIGH"
+      }
+    ]
+  },
+  "document-search.example": {
+    "domain": "INTELLIGENCE",
+    "tasks": [
+      {
+        "name": "View document-search.example Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New document-search.example Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit document-search.example Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export document-search.example Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Drilldown to Details",
+        "type": "DRILLDOWN",
+        "complexity": "HIGH"
+      }
+    ]
+  },
+  "executive-dashboard": {
+    "domain": "INTELLIGENCE",
+    "tasks": [
+      {
+        "name": "View executive-dashboard Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New executive-dashboard Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit executive-dashboard Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export executive-dashboard Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Drilldown to Details",
+        "type": "DRILLDOWN",
+        "complexity": "HIGH"
+      }
+    ]
+  },
+  "langchain": {
+    "domain": "INTELLIGENCE",
+    "tasks": [
+      {
+        "name": "View langchain Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New langchain Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit langchain Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export langchain Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Drilldown to Details",
+        "type": "DRILLDOWN",
+        "complexity": "HIGH"
+      }
+    ]
+  },
+  "search": {
+    "domain": "INTELLIGENCE",
+    "tasks": [
+      {
+        "name": "View search Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New search Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit search Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export search Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Drilldown to Details",
+        "type": "DRILLDOWN",
+        "complexity": "HIGH"
+      }
+    ]
+  },
+  "components": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View components Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New components Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit components Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export components Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "evidence": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View evidence Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New evidence Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit evidence Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export evidence Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "contracts": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View contracts Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New contracts Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit contracts Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export contracts Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "api": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View api Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New api Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit api Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export api Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "fleet": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View fleet Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New fleet Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit fleet Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export fleet Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "operations": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View operations Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New operations Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit operations Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export operations Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "communication": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View communication Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New communication Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit communication Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export communication Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "reservations": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View reservations Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New reservations Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit reservations Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export reservations Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "documents": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View documents Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New documents Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit documents Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export documents Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "documents-hub": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View documents-hub Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New documents-hub Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit documents-hub Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export documents-hub Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "unknown": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View unknown Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New unknown Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit unknown Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export unknown Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "alerts": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View alerts Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New alerts Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit alerts Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export alerts Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "arcgis-layers": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View arcgis-layers Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New arcgis-layers Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit arcgis-layers Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export arcgis-layers Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "attachments": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View attachments Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New attachments Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit attachments Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export attachments Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "batch": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View batch Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New batch Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit batch Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export batch Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "break-glass": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View break-glass Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New break-glass Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit break-glass Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export break-glass Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "charging-sessions": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View charging-sessions Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New charging-sessions Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit charging-sessions Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export charging-sessions Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "charging-stations": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View charging-stations Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New charging-stations Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit charging-stations Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export charging-stations Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "communication-logs": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View communication-logs Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New communication-logs Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit communication-logs Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export communication-logs Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "communications": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View communications Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New communications Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit communications Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export communications Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "crash-detection": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View crash-detection Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New crash-detection Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit crash-detection Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export crash-detection Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "damage": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View damage Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New damage Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit damage Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export damage Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "demo": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View demo Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New demo Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit demo Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export demo Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "deployments": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View deployments Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New deployments Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit deployments Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export deployments Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "document-geo": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View document-geo Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New document-geo Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit document-geo Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export document-geo Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "index": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View index Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New index Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit index Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export index Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "drill-through": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View drill-through Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New drill-through Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit drill-through Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export drill-through Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "emulator": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View emulator Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New emulator Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit emulator Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export emulator Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "ev-management": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View ev-management Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New ev-management Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit ev-management Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export ev-management Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "example-di": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View example-di Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New example-di Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit example-di Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export example-di Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "facilities": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View facilities Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New facilities Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit facilities Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export facilities Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "fleet-documents": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View fleet-documents Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New fleet-documents Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit fleet-documents Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export fleet-documents Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "fleet-optimizer": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View fleet-optimizer Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New fleet-optimizer Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit fleet-optimizer Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export fleet-optimizer Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "heavy-equipment": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View heavy-equipment Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New heavy-equipment Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit heavy-equipment Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export heavy-equipment Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "metrics": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View metrics Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New metrics Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit metrics Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export metrics Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "mobile-assignment": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View mobile-assignment Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New mobile-assignment Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit mobile-assignment Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export mobile-assignment Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "mobile-hardware": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View mobile-hardware Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New mobile-hardware Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit mobile-hardware Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export mobile-hardware Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "mobile-integration": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View mobile-integration Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New mobile-integration Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit mobile-integration Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export mobile-integration Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "mobile-messaging": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View mobile-messaging Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New mobile-messaging Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit mobile-messaging Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export mobile-messaging Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "mobile-notifications": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View mobile-notifications Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New mobile-notifications Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit mobile-notifications Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export mobile-notifications Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "mobile-obd2": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View mobile-obd2 Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New mobile-obd2 Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit mobile-obd2 Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export mobile-obd2 Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "mobile-ocr": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View mobile-ocr Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New mobile-ocr Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit mobile-ocr Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export mobile-ocr Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "mobile-photos": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View mobile-photos Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New mobile-photos Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit mobile-photos Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export mobile-photos Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "obd2-emulator": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View obd2-emulator Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New obd2-emulator Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit obd2-emulator Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export obd2-emulator Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "ocr": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View ocr Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New ocr Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit ocr Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export ocr Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "on-call-management": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View on-call-management Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New on-call-management Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit on-call-management Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export on-call-management Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "outlook": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View outlook Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New outlook Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit outlook Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export outlook Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "personal-use-charges": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View personal-use-charges Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New personal-use-charges Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit personal-use-charges Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export personal-use-charges Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "personal-use-policies": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View personal-use-policies Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New personal-use-policies Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit personal-use-policies Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export personal-use-policies Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "policies": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View policies Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New policies Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit policies Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export policies Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "presence": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View presence Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New presence Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit presence Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export presence Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "push-notifications": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View push-notifications Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New push-notifications Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit push-notifications Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export push-notifications Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "quality-gates": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View quality-gates Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New quality-gates Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit quality-gates Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export quality-gates Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "queue": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View queue Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New queue Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit queue Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export queue Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "scheduling-notifications": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View scheduling-notifications Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New scheduling-notifications Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit scheduling-notifications Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export scheduling-notifications Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "scheduling": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View scheduling Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New scheduling Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit scheduling Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export scheduling Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "session-revocation": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View session-revocation Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New session-revocation Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit session-revocation Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export session-revocation Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "smartcar": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View smartcar Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New smartcar Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit smartcar Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export smartcar Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "sync": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View sync Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New sync Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit sync Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export sync Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "connections": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View connections Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New connections Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit connections Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export connections Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "task-management": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View task-management Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New task-management Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit task-management Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export task-management Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "tasks": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View tasks Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New tasks Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit tasks Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export tasks Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "vendors.dal-example": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View vendors.dal-example Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New vendors.dal-example Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit vendors.dal-example Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export vendors.dal-example Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "vendors": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View vendors Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New vendors Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit vendors Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export vendors Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "video-events": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View video-events Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New video-events Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit video-events Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export video-events Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "weather": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View weather Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New weather Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit weather Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export weather Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  },
+  "outlook.webhook": {
+    "domain": "UNCATEGORIZED",
+    "tasks": [
+      {
+        "name": "View outlook.webhook Dashboard",
+        "type": "READ",
+        "complexity": "LOW"
+      },
+      {
+        "name": "Create New outlook.webhook Record",
+        "type": "CREATE",
+        "complexity": "MEDIUM",
+        "steps": [
+          "Fill Form",
+          "Validate Input",
+          "Submit"
+        ]
+      },
+      {
+        "name": "Edit outlook.webhook Details",
+        "type": "UPDATE",
+        "complexity": "MEDIUM"
+      },
+      {
+        "name": "Export outlook.webhook Report",
+        "type": "EXPORT",
+        "complexity": "LOW"
+      }
+    ]
+  }
+}

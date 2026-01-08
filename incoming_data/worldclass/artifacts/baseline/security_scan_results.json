@@ -1,0 +1,489 @@
+{
+  "timestamp": "2026-01-08T19:30:00.000Z",
+  "scan_version": "1.0.0",
+  "project": "Fleet Management System",
+  "scans": {
+    "sca_npm_audit": {
+      "root_package": {
+        "critical": 1,
+        "high": 1,
+        "moderate": 0,
+        "low": 0,
+        "total": 2,
+        "vulnerabilities": [
+          {
+            "name": "jspdf",
+            "severity": "critical",
+            "title": "jsPDF has Local File Inclusion/Path Traversal vulnerability",
+            "url": "https://github.com/advisories/GHSA-f8cm-6447-x5h2",
+            "cwe": ["CWE-35", "CWE-73"],
+            "range": "<=3.0.4",
+            "fix_available": "4.0.0",
+            "is_direct": true,
+            "recommendation": "Upgrade jspdf to version 4.0.0 or later (breaking change)"
+          },
+          {
+            "name": "preact",
+            "severity": "high",
+            "title": "Preact has JSON VNode Injection issue",
+            "url": "https://github.com/advisories/GHSA-36hm-qxxp-pg3m",
+            "cwe": ["CWE-843"],
+            "range": ">=10.28.0 <10.28.2",
+            "fix_available": true,
+            "is_direct": false,
+            "recommendation": "Update preact to version 10.28.2 or later"
+          }
+        ]
+      },
+      "api_package": {
+        "critical": 0,
+        "high": 1,
+        "moderate": 2,
+        "low": 2,
+        "total": 5,
+        "vulnerabilities": [
+          {
+            "name": "@modelcontextprotocol/sdk",
+            "severity": "high",
+            "title": "Anthropic's MCP TypeScript SDK has a ReDoS vulnerability",
+            "url": "https://github.com/advisories/GHSA-8r9q-7v3j-jr4g",
+            "cwe": ["CWE-1333"],
+            "range": "<1.25.2",
+            "fix_available": true,
+            "is_direct": true,
+            "recommendation": "Upgrade @modelcontextprotocol/sdk to version 1.25.2 or later"
+          },
+          {
+            "name": "cookie",
+            "severity": "low",
+            "title": "cookie accepts cookie name, path, and domain with out of bounds characters",
+            "url": "https://github.com/advisories/GHSA-pxg6-pf52-xh8x",
+            "cwe": ["CWE-74"],
+            "range": "<0.7.0",
+            "fix_available": {
+              "name": "csurf",
+              "version": "1.2.2",
+              "note": "Breaking change required"
+            },
+            "is_direct": false,
+            "recommendation": "Update csurf dependency to version 1.2.2 (breaking change)"
+          },
+          {
+            "name": "drizzle-kit",
+            "severity": "moderate",
+            "title": "Transitive dependency vulnerability through esbuild",
+            "range": "Multiple ranges affected",
+            "fix_available": {
+              "name": "drizzle-kit",
+              "version": "0.31.8"
+            },
+            "is_direct": true,
+            "recommendation": "Upgrade drizzle-kit to version 0.31.8 or later (breaking change)"
+          },
+          {
+            "name": "esbuild",
+            "severity": "moderate",
+            "title": "esbuild enables any website to send any requests to the development server and read the response",
+            "url": "https://github.com/advisories/GHSA-67mh-4wv8-2f99",
+            "cwe": ["CWE-346"],
+            "cvss": {
+              "score": 5.3,
+              "vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:N/A:N"
+            },
+            "range": "<=0.24.2",
+            "fix_available": true,
+            "is_direct": false,
+            "recommendation": "Fixed by upgrading drizzle-kit to 0.31.8"
+          }
+        ]
+      },
+      "summary": {
+        "total_critical": 1,
+        "total_high": 2,
+        "total_moderate": 2,
+        "total_low": 2,
+        "total_vulnerabilities": 7,
+        "packages_with_direct_vulnerabilities": [
+          "jspdf",
+          "@modelcontextprotocol/sdk",
+          "drizzle-kit"
+        ]
+      }
+    },
+    "secrets_scan": {
+      "potential_secrets_found": 3,
+      "locations": [
+        {
+          "file": "/Users/andrewmorton/Documents/GitHub/Fleet/elite_fleet_orchestrator.py",
+          "line": 75,
+          "type": "API Key - Grok",
+          "pattern": "GROK_API_KEY fallback value",
+          "severity": "critical",
+          "context": "Hardcoded API key in Python orchestrator script with fallback value",
+          "recommendation": "Remove hardcoded fallback values, require environment variables"
+        },
+        {
+          "file": "/Users/andrewmorton/Documents/GitHub/Fleet/elite_fleet_orchestrator.py",
+          "line": 76,
+          "type": "API Key - Anthropic",
+          "pattern": "ANTHROPIC_API_KEY fallback value",
+          "severity": "critical",
+          "context": "Hardcoded API key in Python orchestrator script with fallback value",
+          "recommendation": "Remove hardcoded fallback values, require environment variables"
+        },
+        {
+          "file": "/Users/andrewmorton/Documents/GitHub/Fleet/elite_fleet_orchestrator.py",
+          "line": 77,
+          "type": "GitHub PAT",
+          "pattern": "ghp_* pattern",
+          "severity": "critical",
+          "context": "Hardcoded GitHub Personal Access Token with fallback value",
+          "recommendation": "Remove hardcoded fallback values, require environment variables, rotate exposed token immediately"
+        }
+      ],
+      "summary": "3 hardcoded secrets found in elite_fleet_orchestrator.py Python file. No secrets found in main TypeScript/JavaScript application code.",
+      "status": "fail",
+      "recommendation": "IMMEDIATE ACTION REQUIRED: Rotate all exposed credentials and remove hardcoded values from elite_fleet_orchestrator.py"
+    },
+    "security_headers": {
+      "status": "pass",
+      "implementation": "Comprehensive security headers middleware implemented",
+      "headers_configured": [
+        "Content-Security-Policy (CSP) with FedRAMP-compliant defaults",
+        "HTTP Strict Transport Security (HSTS) with 1-year max-age",
+        "X-Frame-Options: DENY (clickjacking protection)",
+        "X-Content-Type-Options: nosniff (MIME sniffing protection)",
+        "X-XSS-Protection: 1; mode=block",
+        "Referrer-Policy: strict-origin-when-cross-origin",
+        "Permissions-Policy (restricts browser features)",
+        "Cross-Origin-Embedder-Policy: require-corp",
+        "Cross-Origin-Opener-Policy: same-origin",
+        "Cross-Origin-Resource-Policy: same-origin",
+        "X-DNS-Prefetch-Control: off",
+        "X-Download-Options: noopen",
+        "X-Permitted-Cross-Domain-Policies: none"
+      ],
+      "missing_headers": [],
+      "findings": [
+        {
+          "type": "positive",
+          "description": "Comprehensive OWASP-compliant security headers implemented",
+          "location": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/middleware/security-headers.ts"
+        },
+        {
+          "type": "positive",
+          "description": "CSP configured with restrictive defaults (default-src: 'self', frame-ancestors: 'none', object-src: 'none')"
+        },
+        {
+          "type": "positive",
+          "description": "CORS properly configured with origin whitelist validation"
+        },
+        {
+          "type": "positive",
+          "description": "X-Powered-By header removed to prevent information disclosure"
+        },
+        {
+          "type": "positive",
+          "description": "Configurable security header factory with strict, API, and download presets"
+        }
+      ]
+    },
+    "auth_review": {
+      "status": "pass",
+      "implementation": "Enterprise-grade authentication and authorization",
+      "issues_found": [],
+      "positive_findings": [
+        {
+          "component": "AuthenticationService",
+          "location": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/services/auth/AuthenticationService.ts",
+          "features": [
+            "JWT authentication with RS256 signing algorithm",
+            "Argon2 password hashing (OWASP recommended)",
+            "Multi-factor authentication (TOTP)",
+            "Session management with Redis",
+            "Device fingerprinting",
+            "Brute force protection with account lockout",
+            "Break-glass emergency access",
+            "OWASP ASVS Level 3 compliance",
+            "NIST 800-63B Digital Identity Guidelines compliance",
+            "Zero Trust Architecture (NIST 800-207)"
+          ]
+        },
+        {
+          "component": "AuthMiddleware",
+          "location": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/middleware/auth.middleware.ts",
+          "features": [
+            "JWT token validation with proper error handling",
+            "Token refresh mechanism",
+            "Device fingerprinting middleware",
+            "Optional authentication for public endpoints",
+            "Comprehensive audit logging for authentication events",
+            "Session tracking with UUID and numeric ID",
+            "MFA requirement enforcement for sensitive operations"
+          ]
+        },
+        {
+          "component": "RBAC System",
+          "location": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/middleware/rbac.ts",
+          "features": [
+            "Hierarchical role-based access control",
+            "9 defined roles with clear hierarchy (admin > security-admin > fleet-manager > etc.)",
+            "Permission-based route protection",
+            "Tenant isolation enforcement",
+            "Combined RBAC middleware for complete protection",
+            "Authorization audit logging",
+            "Resource ownership verification",
+            "Granular permissions (resource:action format)"
+          ]
+        },
+        {
+          "component": "Session Revocation",
+          "location": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/routes/session-revocation.ts",
+          "features": [
+            "JWT token blacklist with TTL",
+            "Self-revocation capability",
+            "Admin revocation of any user session",
+            "Token validation to prevent arbitrary revocations",
+            "Automatic cleanup of expired blacklist entries",
+            "Comprehensive audit logging",
+            "Protection against session fixation (CWE-613)"
+          ]
+        }
+      ],
+      "recommendations": [
+        {
+          "priority": "medium",
+          "item": "Migrate JWT blacklist from in-memory Map to Redis for production multi-instance deployments"
+        },
+        {
+          "priority": "low",
+          "item": "Consider implementing refresh token rotation for enhanced security"
+        }
+      ]
+    },
+    "sql_injection_risk": {
+      "status": "warning",
+      "summary": "Application primarily uses parameterized queries with 3 SQL injection vulnerabilities identified",
+      "issues": [
+        {
+          "severity": "high",
+          "location": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/services/TelemetryService.ts",
+          "lines": [854, 855, 856],
+          "description": "SQL injection vulnerability in getLatestTelemetry method - uses string interpolation for vehicleId",
+          "code_sample": "this.db.query(`SELECT * FROM gps_telemetry WHERE vehicle_id = ${numericId} ORDER BY timestamp DESC LIMIT 1`)",
+          "risk": "If extractVehicleId() doesn't properly validate input, numeric injection is possible",
+          "recommendation": "Replace with parameterized query: 'SELECT * FROM gps_telemetry WHERE vehicle_id = $1 ORDER BY timestamp DESC LIMIT 1', [numericId]",
+          "cwe": "CWE-89: SQL Injection"
+        },
+        {
+          "severity": "low",
+          "location": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/middleware/rbac.ts",
+          "line": 472,
+          "description": "Dynamic table name in tenant ownership verification - not user-controlled but lacks validation",
+          "code_sample": "`SELECT COUNT(*) as count FROM ${tableName} WHERE id = $1 AND tenant_id = $2`",
+          "risk": "tableName comes from internal tableMap, not user input - low risk",
+          "recommendation": "Add explicit table name validation or use a whitelist approach",
+          "cwe": "CWE-89: SQL Injection (potential)"
+        },
+        {
+          "severity": "info",
+          "location": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/services/dal/transactions.ts",
+          "lines": [110, 158, 160, 163, 307, 314, 340, 366],
+          "description": "SQL string interpolation for transaction control statements (BEGIN, SAVEPOINT, ROLLBACK)",
+          "code_sample": "`BEGIN ISOLATION LEVEL ${isolationLevel}`",
+          "risk": "Very low - these are controlled values from enums, not user input",
+          "recommendation": "No action required - controlled values only"
+        }
+      ],
+      "positive_findings": [
+        {
+          "description": "99% of database queries use parameterized queries with $1, $2, $3 placeholders",
+          "examples": [
+            "pool.query('SELECT id, email, tenant_id FROM users WHERE id = $1', [user_id])",
+            "pool.query('SELECT COUNT(*) as count FROM ${tableName} WHERE id = $1 AND tenant_id = $2', [resourceId, tenantId])"
+          ]
+        },
+        {
+          "description": "Repositories use proper parameterized query patterns",
+          "locations": [
+            "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/repositories/personalusepolicies.repository.ts",
+            "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/repositories/odometerreadings.repository.ts"
+          ]
+        }
+      ],
+      "blockers": [
+        {
+          "issue": "SQL injection vulnerability in TelemetryService.getLatestTelemetry()",
+          "severity": "high",
+          "action_required": "Fix before production deployment"
+        }
+      ]
+    },
+    "session_management": {
+      "status": "pass",
+      "implementation": "Production-ready session management with Redis",
+      "features": [
+        {
+          "feature": "JWT-based sessions",
+          "description": "Access tokens with RS256 signing, configurable expiry",
+          "location": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/services/auth/AuthenticationService.ts"
+        },
+        {
+          "feature": "Redis session storage",
+          "description": "Sessions stored in Redis with TTL, supports distributed deployment",
+          "location": "Multiple locations (auth.middleware.ts, AuthenticationService.ts)"
+        },
+        {
+          "feature": "Session tracking",
+          "description": "Database persistence for session metadata (device, IP, user agent)",
+          "fields": [
+            "session_id",
+            "session_uuid",
+            "device_id",
+            "device_fingerprint",
+            "ip_address",
+            "user_agent",
+            "last_activity_at",
+            "expires_at"
+          ]
+        },
+        {
+          "feature": "Token refresh",
+          "description": "Refresh token mechanism with separate expiry",
+          "implementation": "refresh endpoint in AuthMiddleware"
+        },
+        {
+          "feature": "Session revocation",
+          "description": "Token blacklist with automatic cleanup",
+          "location": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/routes/session-revocation.ts"
+        },
+        {
+          "feature": "Device fingerprinting",
+          "description": "SHA-256 hash of user agent, accept-language, accept-encoding, and IP",
+          "purpose": "Anomaly detection and session validation"
+        }
+      ],
+      "security_controls": [
+        "Secure session IDs (UUID + numeric ID)",
+        "Session timeout enforcement",
+        "Concurrent session limiting (via Redis)",
+        "Session fixation protection (token revocation)",
+        "Activity tracking for anomaly detection",
+        "Automatic session cleanup"
+      ],
+      "recommendations": [
+        {
+          "priority": "low",
+          "item": "Consider implementing sliding session expiration for improved UX"
+        }
+      ]
+    }
+  },
+  "overall_risk_level": "moderate",
+  "risk_assessment": {
+    "critical_issues": 3,
+    "high_issues": 2,
+    "moderate_issues": 2,
+    "low_issues": 3,
+    "informational": 1,
+    "total_issues": 11
+  },
+  "blockers_for_release": [
+    {
+      "id": "CRIT-1",
+      "severity": "critical",
+      "category": "secrets_exposure",
+      "title": "Hardcoded API Keys and GitHub PAT in elite_fleet_orchestrator.py",
+      "description": "Three hardcoded secrets found with fallback values: GROK_API_KEY, ANTHROPIC_API_KEY, and GITHUB_PAT",
+      "impact": "Exposed credentials could allow unauthorized access to external services and GitHub repositories",
+      "remediation": [
+        "Immediately rotate all exposed credentials (Grok API key, Anthropic API key, GitHub PAT)",
+        "Remove hardcoded fallback values from elite_fleet_orchestrator.py lines 75-77",
+        "Require environment variables without fallback values",
+        "Add secrets scanning to CI/CD pipeline to prevent future commits"
+      ],
+      "cwe": "CWE-798: Use of Hard-coded Credentials",
+      "cvss": "9.8 (Critical)",
+      "estimated_effort": "2-4 hours"
+    },
+    {
+      "id": "HIGH-1",
+      "severity": "high",
+      "category": "sql_injection",
+      "title": "SQL Injection vulnerability in TelemetryService",
+      "description": "String interpolation used for vehicle_id in database queries instead of parameterized queries",
+      "impact": "Potential data breach, unauthorized data access, or database manipulation",
+      "remediation": [
+        "Replace string interpolation with parameterized queries in TelemetryService.ts lines 854-856",
+        "Add input validation for extractVehicleId() method",
+        "Add integration tests to verify parameterized query usage"
+      ],
+      "cwe": "CWE-89: SQL Injection",
+      "cvss": "8.6 (High)",
+      "estimated_effort": "2-3 hours"
+    },
+    {
+      "id": "HIGH-2",
+      "severity": "high",
+      "category": "dependency_vulnerability",
+      "title": "Critical vulnerability in jspdf dependency",
+      "description": "jsPDF has Local File Inclusion/Path Traversal vulnerability (GHSA-f8cm-6447-x5h2)",
+      "impact": "Potential unauthorized file access through PDF generation functionality",
+      "remediation": [
+        "Upgrade jspdf from <=3.0.4 to 4.0.0 or later",
+        "Review and test PDF generation functionality after upgrade",
+        "Note: This is a breaking change, review release notes"
+      ],
+      "cwe": ["CWE-35: Path Traversal", "CWE-73: External Control of File Name or Path"],
+      "estimated_effort": "3-5 hours"
+    }
+  ],
+  "recommendations": {
+    "immediate": [
+      "Rotate all exposed credentials in elite_fleet_orchestrator.py",
+      "Fix SQL injection vulnerability in TelemetryService",
+      "Upgrade jspdf to version 4.0.0"
+    ],
+    "short_term": [
+      "Upgrade @modelcontextprotocol/sdk to 1.25.2 or later",
+      "Update preact to version 10.28.2 or later",
+      "Upgrade drizzle-kit to 0.31.8",
+      "Migrate JWT blacklist to Redis for production"
+    ],
+    "long_term": [
+      "Implement automated secrets scanning in CI/CD pipeline",
+      "Add static analysis security testing (SAST) tool",
+      "Consider implementing refresh token rotation",
+      "Implement dependency scanning automation",
+      "Add SQL query analysis to pre-commit hooks"
+    ]
+  },
+  "compliance": {
+    "owasp_top_10_2021": {
+      "A01_broken_access_control": "Pass - Comprehensive RBAC with tenant isolation",
+      "A02_cryptographic_failures": "Pass - Argon2 password hashing, RS256 JWT signing",
+      "A03_injection": "Warning - 1 SQL injection vulnerability found",
+      "A04_insecure_design": "Pass - Zero Trust architecture, comprehensive security controls",
+      "A05_security_misconfiguration": "Warning - Hardcoded secrets in Python script",
+      "A06_vulnerable_components": "Fail - 7 known vulnerabilities in dependencies",
+      "A07_identification_authentication": "Pass - Enterprise-grade auth with MFA",
+      "A08_software_data_integrity": "Pass - Audit logging, session integrity",
+      "A09_security_logging_monitoring": "Pass - Comprehensive audit logging",
+      "A10_server_side_request_forgery": "Not Applicable"
+    },
+    "fedramp": {
+      "csp_headers": "Pass - FedRAMP-compliant CSP directives",
+      "authentication": "Pass - Meets NIST 800-63B requirements",
+      "authorization": "Pass - Role-based access control",
+      "audit_logging": "Pass - Comprehensive audit trail",
+      "encryption": "Pass - TLS enforced, encrypted credentials"
+    }
+  },
+  "next_steps": [
+    "Address all blockers before production deployment",
+    "Schedule security review meeting to discuss findings",
+    "Create tickets for all identified issues",
+    "Implement automated security scanning in CI/CD",
+    "Schedule follow-up scan after remediation"
+  ]
+}

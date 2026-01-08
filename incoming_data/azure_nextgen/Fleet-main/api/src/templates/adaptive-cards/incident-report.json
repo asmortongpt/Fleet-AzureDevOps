@@ -1,0 +1,227 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "attention",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "Image",
+                  "url": "https://img.icons8.com/fluency/96/car-crash.png",
+                  "size": "medium"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Incident Report",
+                  "weight": "bolder",
+                  "size": "large",
+                  "color": "attention"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "INC-${incidentNumber}",
+                  "weight": "bolder",
+                  "spacing": "none"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${severity}",
+                  "weight": "bolder",
+                  "color": "${severityColor}",
+                  "horizontalAlignment": "right"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "medium",
+      "items": [
+        {
+          "type": "FactSet",
+          "facts": [
+            {
+              "title": "Date & Time:",
+              "value": "${incidentDateTime}"
+            },
+            {
+              "title": "Driver:",
+              "value": "${driverName}"
+            },
+            {
+              "title": "Vehicle:",
+              "value": "${vehicleNumber} - ${vehicleMake} ${vehicleModel}"
+            },
+            {
+              "title": "Location:",
+              "value": "${location}"
+            },
+            {
+              "title": "Type:",
+              "value": "${incidentType}"
+            },
+            {
+              "title": "Injuries:",
+              "value": "${hasInjuries}"
+            },
+            {
+              "title": "Property Damage:",
+              "value": "$${estimatedDamage}"
+            },
+            {
+              "title": "Reported By:",
+              "value": "${reportedBy}"
+            }
+          ]
+        },
+        {
+          "type": "TextBlock",
+          "text": "**Description:**",
+          "weight": "bolder",
+          "spacing": "medium"
+        },
+        {
+          "type": "TextBlock",
+          "text": "${description}",
+          "wrap": true,
+          "spacing": "small"
+        },
+        {
+          "type": "TextBlock",
+          "text": "**Witnesses:**",
+          "weight": "bolder",
+          "spacing": "medium",
+          "isVisible": "${hasWitnesses}"
+        },
+        {
+          "type": "TextBlock",
+          "text": "${witnesses}",
+          "wrap": true,
+          "spacing": "small",
+          "isVisible": "${hasWitnesses}"
+        },
+        {
+          "type": "ImageSet",
+          "images": "${photos}",
+          "imageSize": "medium",
+          "spacing": "medium"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "Review & Approve",
+      "data": {
+        "action": "approve_incident",
+        "incidentId": "${incidentId}"
+      },
+      "style": "positive"
+    },
+    {
+      "type": "Action.Submit",
+      "title": "Request More Info",
+      "data": {
+        "action": "request_info",
+        "incidentId": "${incidentId}"
+      }
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "View Full Report",
+      "url": "${incidentUrl}"
+    },
+    {
+      "type": "Action.ShowCard",
+      "title": "Assign Investigator",
+      "card": {
+        "type": "AdaptiveCard",
+        "body": [
+          {
+            "type": "Input.ChoiceSet",
+            "id": "investigatorId",
+            "label": "Select Investigator",
+            "choices": "${investigators}"
+          },
+          {
+            "type": "Input.Text",
+            "id": "investigationNotes",
+            "placeholder": "Investigation instructions...",
+            "isMultiline": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.Submit",
+            "title": "Assign",
+            "data": {
+              "action": "assign_investigator",
+              "incidentId": "${incidentId}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Action.ShowCard",
+      "title": "Close Incident",
+      "card": {
+        "type": "AdaptiveCard",
+        "body": [
+          {
+            "type": "Input.ChoiceSet",
+            "id": "resolution",
+            "label": "Resolution",
+            "choices": [
+              { "title": "Resolved - No Fault", "value": "no_fault" },
+              { "title": "Resolved - Driver Fault", "value": "driver_fault" },
+              { "title": "Resolved - Third Party Fault", "value": "third_party_fault" },
+              { "title": "Resolved - Shared Fault", "value": "shared_fault" }
+            ]
+          },
+          {
+            "type": "Input.Text",
+            "id": "closureNotes",
+            "placeholder": "Closure notes...",
+            "isMultiline": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.Submit",
+            "title": "Close",
+            "data": {
+              "action": "close_incident",
+              "incidentId": "${incidentId}"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

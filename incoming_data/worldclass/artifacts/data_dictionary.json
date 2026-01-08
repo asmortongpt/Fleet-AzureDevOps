@@ -1,0 +1,122 @@
+[
+  {
+    "tableName": "vehicles",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "drivers",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "fuel_transactions",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "maintenance_records",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "incidents",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "parts",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "vendors",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "facilities",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "vehicle_3d_models",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "users",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "sessions",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "policies",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "policy_versions",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "policy_acknowledgments",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "policy_violations",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "policy_executions",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "sop_documents",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "sop_assignments",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "sop_completions",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "training_modules",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "training_assignments",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "training_completions",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "onboarding_checklists",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "onboarding_progress",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "compliance_checklists",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "compliance_checklist_completions",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "workflow_definitions",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "workflow_instances",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "workflow_approvals",
+    "source": "api/src/db/schema.ts"
+  },
+  {
+    "tableName": "traffic_cameras",
+    "source": "api/src/db/schemas/traffic-cameras.schema.ts"
+  }
+]

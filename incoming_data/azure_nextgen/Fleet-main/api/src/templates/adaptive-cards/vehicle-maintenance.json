@@ -1,0 +1,166 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "warning",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "Image",
+                  "url": "https://img.icons8.com/fluency/96/car-service.png",
+                  "size": "medium"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Vehicle Maintenance Alert",
+                  "weight": "bolder",
+                  "size": "large",
+                  "color": "warning"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "${urgencyLevel}",
+                  "weight": "bolder",
+                  "color": "attention",
+                  "spacing": "none"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "medium",
+      "items": [
+        {
+          "type": "FactSet",
+          "facts": [
+            {
+              "title": "Vehicle:",
+              "value": "${vehicleNumber} - ${vehicleMake} ${vehicleModel}"
+            },
+            {
+              "title": "VIN:",
+              "value": "${vehicleVin}"
+            },
+            {
+              "title": "Current Mileage:",
+              "value": "${currentMileage} miles"
+            },
+            {
+              "title": "Maintenance Type:",
+              "value": "${maintenanceType}"
+            },
+            {
+              "title": "Due Date:",
+              "value": "${dueDate}"
+            },
+            {
+              "title": "Est. Cost:",
+              "value": "$${estimatedCost}"
+            },
+            {
+              "title": "Priority:",
+              "value": "${priority}"
+            }
+          ]
+        },
+        {
+          "type": "TextBlock",
+          "text": "**Description:**",
+          "weight": "bolder",
+          "spacing": "medium"
+        },
+        {
+          "type": "TextBlock",
+          "text": "${description}",
+          "wrap": true,
+          "spacing": "small"
+        },
+        {
+          "type": "TextBlock",
+          "text": "**Recommended Action:**",
+          "weight": "bolder",
+          "spacing": "medium"
+        },
+        {
+          "type": "TextBlock",
+          "text": "${recommendedAction}",
+          "wrap": true,
+          "spacing": "small",
+          "color": "accent"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "View Vehicle",
+      "url": "${vehicleUrl}",
+      "style": "positive"
+    },
+    {
+      "type": "Action.Submit",
+      "title": "Schedule Maintenance",
+      "data": {
+        "action": "schedule_maintenance",
+        "vehicleId": "${vehicleId}",
+        "maintenanceType": "${maintenanceType}"
+      },
+      "style": "positive"
+    },
+    {
+      "type": "Action.Submit",
+      "title": "Acknowledge",
+      "data": {
+        "action": "acknowledge",
+        "vehicleId": "${vehicleId}",
+        "alertId": "${alertId}"
+      }
+    },
+    {
+      "type": "Action.ShowCard",
+      "title": "Add Note",
+      "card": {
+        "type": "AdaptiveCard",
+        "body": [
+          {
+            "type": "Input.Text",
+            "id": "maintenanceNote",
+            "placeholder": "Add notes about this maintenance alert...",
+            "isMultiline": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.Submit",
+            "title": "Submit Note",
+            "data": {
+              "action": "add_note",
+              "vehicleId": "${vehicleId}",
+              "alertId": "${alertId}"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

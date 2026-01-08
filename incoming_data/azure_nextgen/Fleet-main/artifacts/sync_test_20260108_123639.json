@@ -1,0 +1,82 @@
+{
+  "timestamp": "2026-01-08T12:36:39.930730",
+  "tests": {
+    "repository_existence": {
+      "fleet_exists": true,
+      "fleet_is_git": true,
+      "fleetops_exists": true,
+      "fleetops_is_git": true,
+      "passed": true
+    },
+    "remote_configuration": {
+      "fleet_has_github": true,
+      "fleet_has_azure": true,
+      "fleetops_has_github": true,
+      "fleetops_has_azure": true,
+      "fleet_remotes": [
+        "azure\thttps://dev.azure.com/CapitalTechAlliance/FleetManagement/_git/Fleet (fetch)",
+        "azure\thttps://dev.azure.com/CapitalTechAlliance/FleetManagement/_git/Fleet (push)",
+        "origin\thttps://github.com/asmortongpt/Fleet.git (fetch)",
+        "origin\thttps://github.com/asmortongpt/Fleet.git (push)"
+      ],
+      "fleetops_remotes": [
+        "azure\thttps://[REDACTED]@dev.azure.com/CapitalTechAlliance/FleetOps/_git/FleetOps (fetch)",
+        "azure\thttps://[REDACTED]@dev.azure.com/CapitalTechAlliance/FleetOps/_git/FleetOps (push)",
+        "origin\thttps://github.com/asmortongpt/FleetOps.git (fetch)",
+        "origin\thttps://github.com/asmortongpt/FleetOps.git (push)"
+      ],
+      "passed": true
+    },
+    "antigravity_content": {
+      "fleet_antigravity_files": 4,
+      "fleetops_antigravity_files": 1,
+      "phase7_in_fleet": true,
+      "phase7_in_fleetops": false,
+      "fleet_files": [
+        "Phase 7 Security Audit.md",
+        "artifacts/ALL_COMMITS_LOG.txt",
+        "artifacts/PHASE_5_REPORT.md",
+        "artifacts/PHASE_7_STATUS.md"
+      ],
+      "fleetops_files": [
+        "tests/antigravity-visual.spec.ts"
+      ],
+      "passed": true
+    },
+    "commit_history": {
+      "fleet_commit_count": 20,
+      "fleetops_commit_count": 20,
+      "common_commits": 0,
+      "fleet_unique_commits": 20,
+      "fleetops_unique_commits": 20,
+      "sync_percentage": 0.0,
+      "passed": false
+    },
+    "file_differences": {
+      "fleet_file_count": 338254,
+      "fleetops_file_count": 42665,
+      "common_files": 28496,
+      "fleet_unique_files": 309758,
+      "fleetops_unique_files": 14169,
+      "file_overlap_percentage": 8.424438439752375,
+      "passed": true
+    }
+  },
+  "metrics": {
+    "fleet_size_mb": 3361.71,
+    "fleetops_size_mb": 441.1,
+    "fleet_total_commits": 15679,
+    "fleetops_total_commits": 28,
+    "fleet_branches": 444,
+    "fleetops_branches": 3,
+    "size_difference_mb": 2920.61,
+    "passed": true
+  },
+  "recommendations": [
+    "\ud83d\udccb Phase 7 Security Audit is in Fleet but not in FleetOps. Consider syncing this critical security document.",
+    "\u26a0\ufe0f Commit synchronization is only 0.0%. Consider pulling changes from FleetOps into Fleet or vice versa.",
+    "\ud83d\udcc1 File overlap is only 8.4%. The repositories have diverged significantly.",
+    "\ud83d\udd04 FleetOps has 14169 unique files. Review these files to determine if they should be merged into Fleet.",
+    "\ud83c\udf3f Fleet has 444 branches. Consider pruning merged and stale branches to improve repository efficiency."
+  ]
+}

@@ -1,121 +1,75 @@
-# Fleet - Enterprise Fleet Management Platform
+# CTAFleet - Seven Feature Implementation Package
 
-[![Azure DevOps](https://img.shields.io/badge/Azure-DevOps-blue)](https://dev.azure.com)
-[![Docker](https://img.shields.io/badge/Docker-Compose-blue)](https://docs.docker.com/compose/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-18-blue)](https://reactjs.org/)
+This package contains production-ready implementations for all seven features:
 
-Production-ready fleet management platform with 104 AI-powered agents, comprehensive monitoring, and enterprise-grade security.
+1. **Real-Time Telematics Base Layer** - GPS tracking and position history
+2. **Driver Behavior & Safety Scoring** - Event detection and scoring system
+3. **CPM & TCO Analytics** - Cost per mile and total cost of ownership
+4. **Compliance Hub** - Document management and expiration alerts
+5. **Fuel Card Integration & Fraud Detection** - Transaction import and rule engine
+6. **Public REST API v1** - Versioned API endpoints
+7. **Webhooks & Events** - Event bus and webhook delivery system
 
-## 🚀 Quick Start
+## Tech Stack
+- Node.js + Express + TypeScript
+- PostgreSQL with Drizzle ORM
+- Redis for job queues (Bull)
+- node-cron for scheduled jobs
 
-### Local Development
+## Installation
+
+1. Copy files to your project:
 ```bash
-npm install
-npm run dev
-```
-Open http://localhost:5174
-
-### Production Deployment
-```bash
-# See QUICK_DEPLOY.md for complete guide
-./fetch-keyvault-secrets.sh
-./setup-custom-domain.sh
-```
-
-## 📦 Architecture
-
-- **Frontend**: React 18 + Vite + TypeScript
-- **Backend**: Node.js + Express
-- **Database**: PostgreSQL 15
-- **Cache**: Redis 7
-- **Monitoring**: Prometheus + Grafana
-- **Deployment**: Azure Container Instances + Front Door
-
-## 🔐 Security
-
-- Azure Key Vault for secrets
-- JWT authentication
-- CSRF protection
-- Input validation
-- Security headers (Helmet)
-- HTTPS enforced
-
-## 📊 Features
-
-- 50+ lazy-loaded modules
-- Real-time telemetry
-- Multi-level drilldown navigation
-- Comprehensive testing (122+ E2E tests)
-- 104 AI agents (153% of target)
-
-## 📚 Documentation
-
-- [Quick Deploy Guide](./QUICK_DEPLOY.md)
-- [Deployment Status](./DEPLOYMENT_STATUS.md)
-- [Development Guide](./CLAUDE.md)
-
-## 🌐 Production URL
-
-https://fleet.capitaltechalliance.com
-
-## 🛠️ Tech Stack
-
-**Frontend:**
-- React 18 with TypeScript
-- Vite for build tooling
-- TanStack Query for data fetching
-- Tailwind CSS + Shadcn/UI
-- React Router for navigation
-
-**Backend:**
-- Node.js + Express
-- PostgreSQL with connection pooling
-- Redis for caching
-- JWT authentication
-- Application Insights telemetry
-
-**Infrastructure:**
-- Docker Compose
-- Azure Container Registry
-- Azure Container Instances
-- Azure Front Door (CDN + SSL)
-- Azure Key Vault
-
-## 📈 Performance
-
-- Initial bundle: ~272 KB gzipped
-- Lazy-loaded modules: 10-100 KB each
-- 80%+ bundle size reduction
-- CDN-enabled global delivery
-
-## 🧪 Testing
-
-```bash
-npm test                  # All E2E tests
-npm run test:smoke        # Quick smoke tests
-npm run test:security     # Security tests
-npm run test:a11y         # Accessibility tests
+cp -r api/src/* your-project/api/src/
+cp -r api/migrations/* your-project/api/migrations/
 ```
 
-## 🔄 CI/CD Pipeline
+2. Install dependencies:
+```bash
+cd api
+npm install node-cron bullmq ioredis axios crypto-js
+npm install -D @types/node-cron @types/crypto-js
+```
 
-Automated deployment via Azure DevOps:
-- Build Docker images
-- Push to ACR
-- Deploy to staging (auto)
-- Deploy to production (manual approval)
-- Health checks
+3. Add environment variables to `.env`:
+```bash
+# Telematics
+SAMSARA_API_KEY=your_samsara_api_key
+SAMSARA_BASE_URL=https://api.samsara.com
+TELEMATICS_REFRESH_INTERVAL=60
 
-## 📝 License
+# Jobs & Workers
+REDIS_HOST=localhost
+REDIS_PORT=6379
 
-Proprietary - Capital Tech Alliance
+# Webhooks
+WEBHOOK_SECRET_KEY=your_webhook_secret
+```
 
-## 👥 Team
+4. Run migrations:
+```bash
+npm run migrate
+```
 
-Developed by Capital Tech Alliance Engineering Team
+5. Update your DI container (see `api/src/config/container-setup.example.ts`)
 
----
+## File Structure
+```
+api/src/
+├── domain/              # Business entities and rules
+├── application/         # Use cases and DTOs
+├── infrastructure/      # External integrations
+├── api/routes/v1/      # REST API endpoints
+└── db/schema/          # Database schemas
+```
 
-🤖 Generated with Claude Code  
-Co-Authored-By: Claude <noreply@anthropic.com>
+## Testing
+Each feature includes test files in `__tests__` directories.
+
+Run tests:
+```bash
+npm run test
+```
+
+## Documentation
+See individual feature READMEs in each domain folder.

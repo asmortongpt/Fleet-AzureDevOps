@@ -47,11 +47,13 @@ import {
     ResponsiveContainer
 } from 'recharts'
 
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 import { DrillDownChart } from '@/components/features/DrillDownChart'
 import { HubPage } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing } from '@/components/ui/stat-card'
 import { MetricTooltip, TooltipProvider } from '@/components/ui/tooltip'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
+import { logger } from '@/utils/logger'
 
 // Professional muted color palette - NO bright/neon colors
 const CHART_COLORS = {
@@ -1257,7 +1259,7 @@ function PaymentsContent() {
 /**
  * Main FinancialHub Component (10/10 Implementation)
  */
-export default function FinancialHub() {
+function FinancialHub() {
     const tabs = [
         {
             id: 'cost-analysis',
@@ -1313,3 +1315,18 @@ export default function FinancialHub() {
         />
     )
 }
+
+const WrappedFinancialHub = () => (
+    <ErrorBoundary
+        onError={(error, errorInfo) => {
+            logger.error('FinancialHub error', error, {
+                component: 'FinancialHub',
+                errorInfo
+            })
+        }}
+    >
+        <FinancialHub />
+    </ErrorBoundary>
+)
+
+export default WrappedFinancialHub

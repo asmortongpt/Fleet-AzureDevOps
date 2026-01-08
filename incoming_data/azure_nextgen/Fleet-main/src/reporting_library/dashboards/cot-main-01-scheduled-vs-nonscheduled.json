@@ -1,0 +1,162 @@
+{
+  "id": "cot-main-01",
+  "title": "Scheduled vs Non-Scheduled Repairs",
+  "domain": "shop",
+  "category": "city_tallahassee_main",
+  "description": "Hours and percentages by shop with 75/25 Industry Standard benchmark comparison",
+  "datasource": {
+    "type": "sqlView",
+    "view": "vw_scheduled_vs_nonscheduled_repairs",
+    "parameters": {
+      "date_start": "{{dateRange.start}}",
+      "date_end": "{{dateRange.end}}",
+      "shop": "{{shop}}"
+    }
+  },
+  "filters": [
+    {
+      "name": "dateRange",
+      "type": "dateRange",
+      "default": "current_month",
+      "required": true
+    },
+    {
+      "name": "shop",
+      "type": "multiSelect",
+      "values": "dynamic",
+      "default": "All"
+    }
+  ],
+  "visuals": [
+    {
+      "id": "kpis",
+      "type": "kpiTiles",
+      "title": "Summary Metrics",
+      "measures": [
+        {
+          "id": "total_hours",
+          "label": "Total Repair Hours",
+          "format": "decimal",
+          "aggregation": "sum",
+          "field": "repair_hours"
+        },
+        {
+          "id": "scheduled_pct",
+          "label": "Scheduled %",
+          "format": "percent",
+          "expression": "scheduled_hours/total_hours"
+        },
+        {
+          "id": "benchmark_variance",
+          "label": "vs Industry Std",
+          "format": "percent",
+          "expression": "(scheduled_hours/total_hours - 0.75)"
+        }
+      ],
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 2
+      }
+    },
+    {
+      "id": "shop_comparison",
+      "type": "stackedBar",
+      "title": "Scheduled vs Non-Scheduled by Shop",
+      "encoding": {
+        "x": {
+          "field": "shop_name",
+          "type": "nominal"
+        },
+        "y": {
+          "field": "hours",
+          "type": "quantitative",
+          "aggregate": "sum"
+        },
+        "color": {
+          "field": "repair_type",
+          "type": "nominal",
+          "scale": {
+            "domain": ["Scheduled", "Non-Scheduled"],
+            "range": ["#10b981", "#ef4444"]
+          }
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 2,
+        "w": 8,
+        "h": 4
+      },
+      "interactions": {
+        "drilldown": true,
+        "tooltip": ["shop_name", "repair_type", "hours", "percentage"]
+      }
+    },
+    {
+      "id": "benchmark",
+      "type": "gauge",
+      "title": "Industry Standard Compliance",
+      "measure": {
+        "field": "scheduled_hours",
+        "aggregate": "sum",
+        "format": "percent",
+        "target": 0.75,
+        "expression": "scheduled_hours/total_hours"
+      },
+      "ranges": [
+        {"min": 0, "max": 0.60, "color": "#ef4444", "label": "Below"},
+        {"min": 0.60, "max": 0.70, "color": "#f59e0b", "label": "Approaching"},
+        {"min": 0.70, "max": 1.0, "color": "#10b981", "label": "Meeting"}
+      ],
+      "layout": {
+        "x": 8,
+        "y": 2,
+        "w": 4,
+        "h": 4
+      }
+    },
+    {
+      "id": "detail_table",
+      "type": "table",
+      "title": "Detailed Breakdown",
+      "columns": [
+        {"field": "shop_name", "label": "Shop"},
+        {"field": "repair_type", "label": "Type"},
+        {"field": "hours", "label": "Hours", "format": "decimal"},
+        {"field": "percentage", "label": "% of Total", "format": "percent"},
+        {"field": "work_order_count", "label": "Work Orders", "format": "integer"}
+      ],
+      "pagination": {"pageSize": 50},
+      "layout": {
+        "x": 0,
+        "y": 6,
+        "w": 12,
+        "h": 6
+      }
+    }
+  ],
+  "drilldowns": [
+    {
+      "fromVisual": "shop_comparison",
+      "hierarchy": [
+        {"level": "shop", "field": "shop_name"},
+        {"level": "repair_type", "field": "repair_type"},
+        {"level": "work_order", "field": "work_order_number"}
+      ],
+      "targetVisual": "detail_table"
+    }
+  ],
+  "exports": [
+    {"format": "csv", "dataset": "detail_table"},
+    {"format": "xlsx", "dataset": "detail_table"},
+    {"format": "pdf", "layout": "page"}
+  ],
+  "security": {
+    "rowLevel": [
+      {"role": "ShopManager", "rule": "shop_name IN user.shops"},
+      {"role": "Admin", "rule": "TRUE"}
+    ]
+  }
+}
