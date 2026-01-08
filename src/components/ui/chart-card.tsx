@@ -46,8 +46,12 @@ export function ChartCard({
   className,
   ...props
 }: ChartCardProps) {
-  // Filter out drag-related props that conflict with framer-motion
-  const { onDrag, onDragStart, onDragEnd, onDragEnter, onDragLeave, onDragOver, ...cardProps } = props
+  // Filter out HTML event props that conflict with framer-motion
+  const {
+    onDrag, onDragStart, onDragEnd, onDragEnter, onDragLeave, onDragOver,
+    onAnimationStart, onAnimationEnd, onAnimationIteration,
+    ...cardProps
+  } = props
   return (
     <Card className={cn("h-full flex flex-col", className)} {...cardProps}>
       <CardHeader className="pb-4">
