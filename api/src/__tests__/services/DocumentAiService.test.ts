@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
+
 import { DocumentAiService } from '../services/DocumentAiService';
+import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 /**
  * Unit tests for DocumentAiService
@@ -2283,7 +2284,7 @@ describe('DocumentAiService', () => {
 
       // Act & Assert
       expect(() => {
-        service.1(invalidData);
+        service.processDocument(invalidData);
       }).toThrow();
     });
 

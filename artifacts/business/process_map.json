@@ -1,0 +1,247 @@
+{
+  "domains": {
+    "OPERATIONS": {
+      "description": "Real-time fleet movement, dispatching, and monitoring.",
+      "features": [
+        "gps-tracking",
+        "dispatch",
+        "ai-dispatch",
+        "drill-through.routes.enhanced",
+        "geofences",
+        "gps",
+        "mobile-trips",
+        "paginationRoute",
+        "route-emulator",
+        "route-optimization",
+        "routes",
+        "telematics",
+        "test-routes",
+        "traffic-cameras",
+        "trip-marking",
+        "trip-usage",
+        "video-telematics"
+      ],
+      "workstreams": [
+        "Daily Dispatch",
+        "Emergency Response",
+        "Route Optimization",
+        "Real-time Tracking"
+      ]
+    },
+    "MAINTENANCE": {
+      "description": "Vehicle upkeep, repairs, and service scheduling.",
+      "features": [
+        "maintenance",
+        "garage-bays",
+        "inspections.dal-example",
+        "inspections",
+        "maintenance-drilldowns",
+        "maintenance-schedules",
+        "parts",
+        "work-orders"
+      ],
+      "workstreams": [
+        "Preventative Maintenance Schedule",
+        "Unplanned Repair (Breakdown)",
+        "Parts Inventory Management",
+        "Vendor Service integration"
+      ]
+    },
+    "ASSET_MANAGEMENT": {
+      "description": "Lifecycle management of physical assets.",
+      "features": [
+        "vehicles",
+        "procurement",
+        "assets",
+        "ai-task-asset",
+        "asset-analytics",
+        "asset-management",
+        "asset-relationships",
+        "assets-mobile",
+        "vehicle-3d",
+        "vehicle-assignments",
+        "vehicle-history",
+        "vehicle-identification",
+        "vehicle-idling",
+        "vehicles-refactored.example",
+        "vehicles.optimized.example"
+      ],
+      "workstreams": []
+    },
+    "HR_DRIVERS": {
+      "description": "Driver personnel management, safety scores, and HR compliance.",
+      "features": [
+        "drivers",
+        "calendar",
+        "driver-scorecard",
+        "query-performance.enhanced",
+        "query-performance",
+        "performance",
+        "safety-training",
+        "teams",
+        "teams.webhook"
+      ],
+      "workstreams": [
+        "Driver Onboarding",
+        "License Renewal Monitoring",
+        "Safety Coaching"
+      ]
+    },
+    "FINANCIAL": {
+      "description": "Cost tracking, fuel management, and financial reporting.",
+      "features": [
+        "adaptive-cards",
+        "billing-reports",
+        "cost-analysis",
+        "cost-benefit-analysis",
+        "costs",
+        "fuel-purchasing",
+        "fuel-transactions",
+        "invoices",
+        "mileage-reimbursement",
+        "purchase-orders",
+        "reimbursement-requests"
+      ],
+      "workstreams": [
+        "Fuel Card Reconciliation",
+        "Expense Approval",
+        "Asset Depreciation Calculation"
+      ]
+    },
+    "COMPLIANCE_SAFETY": {
+      "description": "Regulatory compliance, accident reporting, and policy enforcement.",
+      "features": [
+        "incidents",
+        "insurance",
+        "compliance",
+        "safety",
+        "policy-hub",
+        "policy-violations",
+        "incident-management",
+        "osha-compliance",
+        "policy-templates",
+        "safety-alerts",
+        "safety-incidents",
+        "safety-notifications"
+      ],
+      "workstreams": []
+    },
+    "IT_ADMIN": {
+      "description": "System administration, RBAC, and configuration.",
+      "features": [
+        "admin",
+        "login",
+        "configuration",
+        "cta-configuration-hub",
+        "admin-jobs",
+        "annual-reauthorization",
+        "auth",
+        "health-detailed",
+        "health-microsoft",
+        "health-system",
+        "health",
+        "microsoft-auth",
+        "monitoring",
+        "permissions",
+        "storage-admin",
+        "telemetry",
+        "users"
+      ],
+      "workstreams": []
+    },
+    "INTELLIGENCE": {
+      "description": "Business intelligence, reporting, and AI capabilities.",
+      "features": [
+        "dashboard",
+        "analytics",
+        "chat",
+        "ai-chat",
+        "ai-insights",
+        "ai-search",
+        "ai-task-prioritization",
+        "assignment-reporting",
+        "custom-reports",
+        "damage-reports",
+        "dashboard-stats.example",
+        "document-search.example",
+        "executive-dashboard",
+        "langchain",
+        "search"
+      ],
+      "workstreams": []
+    },
+    "UNCATEGORIZED": {
+      "description": "Features needing manual review",
+      "features": [
+        "components",
+        "evidence",
+        "contracts",
+        "api",
+        "fleet",
+        "operations",
+        "communication",
+        "reservations",
+        "documents",
+        "documents-hub",
+        "unknown",
+        "alerts",
+        "arcgis-layers",
+        "attachments",
+        "batch",
+        "break-glass",
+        "charging-sessions",
+        "charging-stations",
+        "communication-logs",
+        "communications",
+        "crash-detection",
+        "damage",
+        "demo",
+        "deployments",
+        "document-geo",
+        "index",
+        "drill-through",
+        "emulator",
+        "ev-management",
+        "example-di",
+        "facilities",
+        "fleet-documents",
+        "fleet-optimizer",
+        "heavy-equipment",
+        "metrics",
+        "mobile-assignment",
+        "mobile-hardware",
+        "mobile-integration",
+        "mobile-messaging",
+        "mobile-notifications",
+        "mobile-obd2",
+        "mobile-ocr",
+        "mobile-photos",
+        "obd2-emulator",
+        "ocr",
+        "on-call-management",
+        "outlook",
+        "personal-use-charges",
+        "personal-use-policies",
+        "policies",
+        "presence",
+        "push-notifications",
+        "quality-gates",
+        "queue",
+        "scheduling-notifications",
+        "scheduling",
+        "session-revocation",
+        "smartcar",
+        "sync",
+        "connections",
+        "task-management",
+        "tasks",
+        "vendors.dal-example",
+        "vendors",
+        "video-events",
+        "weather",
+        "outlook.webhook"
+      ],
+      "workstreams": []
+    }
+  }
+}

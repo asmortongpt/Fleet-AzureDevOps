@@ -273,7 +273,7 @@ const FACILITY_TYPE_ICONS: Record<GISFacility["type"], string> = {
  */
 function useSafeEffect(effect: () => void | (() => void), deps: DependencyList): void {
   const isMountedRef = useRef(false)
-  const cleanupRef = useRef<(() => void) | void>()
+  const cleanupRef = useRef<(() => void) | void | undefined>(undefined)
 
   useEffect(() => {
     isMountedRef.current = true

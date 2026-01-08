@@ -11,7 +11,7 @@ interface CommandCenterLayoutProps {
     children: React.ReactNode;
 }
 
-export function CommandCenterLayout({ children }: CommandCenterLayoutProps): JSX.Element {
+export function CommandCenterLayout({ children }: CommandCenterLayoutProps): React.ReactElement {
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
     const [isMobile, setIsMobile] = useState<boolean>(false);
     const [isTablet, setIsTablet] = useState<boolean>(false);

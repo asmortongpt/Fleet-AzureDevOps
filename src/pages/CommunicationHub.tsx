@@ -13,7 +13,7 @@ import {
     Sparkle
 } from '@phosphor-icons/react'
 
-import { HubPage, HubTabItem, HubTab } from '@/components/ui/hub-page'
+import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat, StatusDot } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 

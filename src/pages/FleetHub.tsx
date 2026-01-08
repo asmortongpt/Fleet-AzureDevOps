@@ -23,14 +23,13 @@ import {
     MapPin,
     Warning
 } from '@phosphor-icons/react'
-import React, { Suspense, lazy, Component, ReactNode, ErrorInfo, useState, useCallback, useId, memo } from 'react'
+import React, { Suspense, lazy, Component, ReactNode, ErrorInfo, useState, memo } from 'react'
 
 // VideoPlayer import removed to avoid conflict with local definition
 import { AddVehicleDialog } from '@/components/dialogs/AddVehicleDialog'
 import { Button } from '@/components/ui/button'
-import { HubPage, HubTab, HubTabItem } from '@/components/ui/hub-page'
+import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
 
 // Lazy load heavy components for performance
 const LiveFleetDashboard = lazy(() => import('@/components/dashboard/LiveFleetDashboard').then(m => ({ default: m.LiveFleetDashboard })))

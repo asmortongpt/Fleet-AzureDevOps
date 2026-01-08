@@ -3,11 +3,12 @@
  * Basic server to get started quickly
  */
 
+import fs from 'fs';
+
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { eq, and, SQL, desc } from 'drizzle-orm';
 import express from 'express';
-import fs from 'fs';
 import helmet from 'helmet';
 
 import { db, checkDatabaseConnection } from './db/connection';

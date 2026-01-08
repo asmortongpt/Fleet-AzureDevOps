@@ -133,7 +133,7 @@ async function checkRedis(): Promise<HealthCheck> {
  * Check memory usage
  */
 function checkMemory(): HealthCheck {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const v8 = require('v8')
   const usage = process.memoryUsage()
   const heapStats = v8.getHeapStatistics()

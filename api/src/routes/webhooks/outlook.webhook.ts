@@ -162,7 +162,7 @@ async function handleEmailUpdate(notification: any): Promise<void> {
     const communicationId = result.rows[0].id
 
     // Fetch updated email from Graph API
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { Client } = require('@microsoft/microsoft-graph-client')
     const { TokenCredentialAuthenticationProvider } = require('@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials')
     const { ClientSecretCredential } = require('@azure/identity')
@@ -567,7 +567,7 @@ router.post(
       const communication = result.rows[0]
 
       // Re-categorize using AI
-      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const OpenAI = require('openai')
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
