@@ -17,7 +17,7 @@ import {
     MapTrifold,
     Speedometer,
     Pulse,
-    Cube,
+    Package,
     Video,
     Lightning,
     MapPin,
@@ -162,7 +162,7 @@ function FleetOverviewContent() {
 
     // Calculate fleet metrics
     const totalVehicles = vehicles.length
-    const activeVehicles = vehicles.filter(v => v.status === 'active').length
+    const activeVehicles = vehicles.filter(v => (v.status as string).toLowerCase() === 'active' || (v.status as string).toLowerCase() === 'operational').length
     const maintenanceNeeded = vehicles.filter(v => v.alerts > 0).length
     const avgFuelLevel = vehicles.length > 0
         ? Math.round(vehicles.reduce((sum, v) => sum + v.fuelPct, 0) / vehicles.length)
@@ -775,7 +775,7 @@ export function FleetHub() {
         {
             id: '3d',
             label: '3D Garage',
-            icon: <Cube className="w-4 h-4" aria-hidden="true" />,
+            icon: <Package className="w-4 h-4" aria-hidden="true" />,
             content: (
                 <TabErrorBoundary tabName="3D Garage">
                     <Suspense fallback={<TabLoadingFallback />}>
