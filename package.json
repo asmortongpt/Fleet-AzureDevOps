@@ -200,7 +200,7 @@
     "react-pdf": "^10.3.0",
     "react-redux": "^9.2.0",
     "react-resizable-panels": "^2.1.7",
-    "react-router-dom": "^6.28.0",
+    "react-router-dom": "^7.12.0",
     "react-window": "^2.2.4",
     "recharts": "^2.15.4",
     "redis": "^4.7.1",
