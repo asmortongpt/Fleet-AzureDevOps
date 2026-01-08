@@ -10,7 +10,7 @@
  * Created: 2026-01-08
  */
 
-import { AlertCircle, Cube, Plus, Upload, X } from 'lucide-react'
+import { AlertCircle, Box, Plus, Upload, X } from 'lucide-react'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -361,7 +361,7 @@ export function CreateDamageReport() {
                 {formData.photos.length >= 3 && (
                   <SmartTooltip content="Generate 3D model from uploaded photos using AI-powered TripoSR">
                     <Button type="button" variant="secondary">
-                      <Cube className="h-4 w-4 mr-2" />
+                      <Box className="h-4 w-4 mr-2" />
                       Generate 3D Model
                     </Button>
                   </SmartTooltip>
