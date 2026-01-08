@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 
 interface HSTSConfig {
-  maxAge: number;
+  maxAge?: number;
   includeSubDomains?: boolean;
   preload?: boolean;
 }
@@ -11,7 +11,13 @@ interface CSPDirectives {
 }
 
 interface CSPConfig {
-  directives: CSPDirectives;
+  directives?: CSPDirectives;
+  reportOnly?: boolean;
+  reportUri?: string;
+}
+
+interface PermissionsDirectives {
+  [key: string]: string[];
 }
 
 interface SecurityHeadersConfig {
@@ -21,7 +27,21 @@ interface SecurityHeadersConfig {
   contentTypeOptions?: boolean;
   xssProtection?: boolean;
   referrerPolicy?: string;
+  permissionsPolicy?: string | PermissionsDirectives;
+  customHeaders?: Record<string, string>;
 }
+
+/**
+ * Default CSP directives for FedRAMP-compliant security
+ */
+const DEFAULT_CSP_DIRECTIVES: CSPDirectives = {
+  'default-src': ["'self'"],
+  'base-uri': ["'self'"],
+  'frame-ancestors': ["'none'"],
+  'object-src': ["'none'"],
+  'script-src': ["'self'"],
+  'upgrade-insecure-requests': []
+};
 
 /**
  * Security Headers Middleware Factory
@@ -32,29 +52,47 @@ export function securityHeaders(config: SecurityHeadersConfig = {}) {
     const isProduction = process.env.NODE_ENV === 'production';
 
     // Content Security Policy
-    if (config.csp && config.csp.directives) {
-      const cspDirectives = Object.entries(config.csp.directives)
-        .map(([key, values]) => `${key} ${values.join(' ')}`)
-        .join('; ');
-      res.setHeader('Content-Security-Policy', cspDirectives);
+    const cspConfig = config.csp || {};
+    const cspDirectives = cspConfig.directives
+      ? { ...DEFAULT_CSP_DIRECTIVES, ...cspConfig.directives }
+      : DEFAULT_CSP_DIRECTIVES;
+
+    let cspValue = Object.entries(cspDirectives)
+      .map(([key, values]) => {
+        if (values.length === 0) return key;
+        return `${key} ${values.join(' ')}`;
+      })
+      .join('; ');
+
+    if (cspConfig.reportUri) {
+      cspValue += `; report-uri ${cspConfig.reportUri}`;
     }
 
-    // HTTP Strict Transport Security (only in production or if explicitly configured)
-    if (config.hsts && (isProduction || config.hsts.maxAge)) {
-      let hstsValue = `max-age=${config.hsts.maxAge}`;
-      if (config.hsts.includeSubDomains) {
+    // Use report-only mode if reportUri is provided (unless explicitly set to false)
+    const cspHeaderName = (cspConfig.reportOnly || cspConfig.reportUri)
+      ? 'Content-Security-Policy-Report-Only'
+      : 'Content-Security-Policy';
+    res.setHeader(cspHeaderName, cspValue);
+
+    // HTTP Strict Transport Security (only in production by default)
+    if (isProduction || config.hsts) {
+      const hstsConfig = config.hsts || {};
+      const maxAge = hstsConfig.maxAge ?? 31536000; // 1 year default
+      const includeSubDomains = hstsConfig.includeSubDomains !== false;
+
+      let hstsValue = `max-age=${maxAge}`;
+      if (includeSubDomains) {
         hstsValue += '; includeSubDomains';
       }
-      if (config.hsts.preload) {
+      if (hstsConfig.preload) {
         hstsValue += '; preload';
       }
       res.setHeader('Strict-Transport-Security', hstsValue);
     }
 
     // Prevent clickjacking
-    if (config.frameOptions) {
-      res.setHeader('X-Frame-Options', config.frameOptions);
-    }
+    const frameOptions = config.frameOptions ?? 'DENY';
+    res.setHeader('X-Frame-Options', frameOptions);
 
     // Prevent MIME type sniffing
     if (config.contentTypeOptions !== false) {
@@ -67,27 +105,55 @@ export function securityHeaders(config: SecurityHeadersConfig = {}) {
     }
 
     // Referrer Policy
-    if (config.referrerPolicy) {
-      res.setHeader('Referrer-Policy', config.referrerPolicy);
-    }
+    const referrerPolicy = config.referrerPolicy ?? 'strict-origin-when-cross-origin';
+    res.setHeader('Referrer-Policy', referrerPolicy);
 
     // Permissions Policy (formerly Feature Policy)
-    const permissions = [
-      'geolocation=(self)',
-      'microphone=()',
-      'camera=()',
-      'payment=()',
-      'usb=()',
-      'magnetometer=()',
-      'gyroscope=()',
-      'accelerometer=()'
-    ];
-    res.setHeader('Permissions-Policy', permissions.join(', '));
+    let permissionsPolicy: string;
+    if (typeof config.permissionsPolicy === 'string') {
+      permissionsPolicy = config.permissionsPolicy;
+    } else if (config.permissionsPolicy) {
+      // Object form: { camera: ["'self'"], microphone: ["'self'"] }
+      permissionsPolicy = Object.entries(config.permissionsPolicy)
+        .map(([key, values]) => {
+          if (values.length === 0) return `${key}=()`;
+          return `${key}=(${values.join(' ')})`;
+        })
+        .join(', ');
+    } else {
+      // Default permissions
+      permissionsPolicy = [
+        "geolocation=('self')",
+        'microphone=()',
+        'camera=()',
+        'payment=()',
+        'usb=()',
+        'magnetometer=()',
+        'gyroscope=()',
+        'accelerometer=()'
+      ].join(', ');
+    }
+    res.setHeader('Permissions-Policy', permissionsPolicy);
+
+    // Additional security headers
+    res.setHeader('X-DNS-Prefetch-Control', 'off');
+    res.setHeader('X-Download-Options', 'noopen');
+    res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
 
     // Cross-Origin Policies
     res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
     res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
     res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+
+    // Remove X-Powered-By header (security through obscurity)
+    res.removeHeader('X-Powered-By');
+
+    // Custom headers
+    if (config.customHeaders) {
+      Object.entries(config.customHeaders).forEach(([name, value]) => {
+        res.setHeader(name, value);
+      });
+    }
 
     next();
   };
@@ -162,4 +228,67 @@ export function cacheControl(req: Request, res: Response, next: NextFunction): v
   }
 
   next();
+}
+
+/**
+ * Strict Security Headers
+ * Ultra-restrictive headers for maximum security
+ */
+export function strictSecurityHeaders() {
+  return securityHeaders({
+    csp: {
+      directives: {
+        'default-src': ["'none'"],
+        'script-src': ["'none'"],
+        'style-src': ["'none'"],
+        'frame-ancestors': ["'none'"],
+        'object-src': ["'none'"]
+      }
+    },
+    frameOptions: 'DENY',
+    permissionsPolicy: [
+      'geolocation=()',
+      'microphone=()',
+      'camera=()',
+      'payment=()',
+      'usb=()',
+      'magnetometer=()',
+      'gyroscope=()',
+      'accelerometer=()'
+    ].join(', ')
+  });
+}
+
+/**
+ * API Security Headers
+ * Security headers optimized for API endpoints
+ */
+export function apiSecurityHeaders() {
+  return securityHeaders({
+    csp: {
+      directives: {
+        'default-src': ["'none'"],
+        'frame-ancestors': ["'none'"]
+      }
+    },
+    frameOptions: 'DENY'
+  });
+}
+
+/**
+ * Download Security Headers
+ * Security headers for file downloads
+ */
+export function downloadSecurityHeaders() {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+
+    // Force download if Content-Disposition not already set
+    if (!res.getHeader('Content-Disposition')) {
+      res.setHeader('Content-Disposition', 'attachment');
+    }
+
+    next();
+  };
 }

@@ -218,7 +218,7 @@ export interface WorkOrder {
   serviceType: string
   title?: string // Optional title for display purposes
   priority: "low" | "medium" | "high" | "urgent"
-  status: "pending" | "in-progress" | "completed" | "cancelled"
+  status: "pending" | "in-progress" | "completed" | "cancelled" | "open" | "review" | "waiting_parts"
   assignedTo?: string
   cost?: number
   estimatedCost?: number // Estimated cost for work order

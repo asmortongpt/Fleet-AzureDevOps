@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
+import { useAuth } from "@/hooks/useAuth";
 import { apiClient } from "@/lib/api-client"
 import logger from '@/utils/logger';
 interface Incident {
@@ -94,6 +95,7 @@ interface TimelineEvent {
 }
 
 export function IncidentManagement() {
+  const { hasPermission } = useAuth();
   const [incidents, setIncidents] = useState<Incident[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -321,221 +323,223 @@ export function IncidentManagement() {
           <h2 className="text-2xl font-semibold">Incident Management</h2>
           <p className="text-muted-foreground">Track and investigate fleet incidents and safety events</p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Report Incident
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Report New Incident</DialogTitle>
-              <DialogDescription>
-                Document an incident for investigation and resolution
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="incident-title">Incident Title *</Label>
-                  <Input
-                    id="incident-title"
-                    value={newIncident.incident_title}
-                    onChange={e => setNewIncident({ ...newIncident, incident_title: e.target.value })}
-                    placeholder="Vehicle collision on I-95"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="incident-type">Incident Type *</Label>
-                  <Select
-                    value={newIncident.incident_type}
-                    onValueChange={value => setNewIncident({ ...newIncident, incident_type: value })}
-                  >
-                    <SelectTrigger id="incident-type">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="accident">Vehicle Accident</SelectItem>
-                      <SelectItem value="injury">Employee Injury</SelectItem>
-                      <SelectItem value="property_damage">Property Damage</SelectItem>
-                      <SelectItem value="near_miss">Near Miss</SelectItem>
-                      <SelectItem value="safety_violation">Safety Violation</SelectItem>
-                      <SelectItem value="equipment_failure">Equipment Failure</SelectItem>
-                      <SelectItem value="environmental">Environmental</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="severity">Severity *</Label>
-                  <Select
-                    value={newIncident.severity}
-                    onValueChange={value => setNewIncident({ ...newIncident, severity: value as Incident['severity'] })}
-                  >
-                    <SelectTrigger id="severity">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="critical">Critical</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="incident-date">Incident Date *</Label>
-                  <Input
-                    id="incident-date"
-                    type="date"
-                    value={newIncident.incident_date}
-                    onChange={e => setNewIncident({ ...newIncident, incident_date: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="incident-time">Time</Label>
-                  <Input
-                    id="incident-time"
-                    type="time"
-                    value={newIncident.incident_time}
-                    onChange={e => setNewIncident({ ...newIncident, incident_time: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="location">Location</Label>
-                  <Input
-                    id="location"
-                    value={newIncident.location}
-                    onChange={e => setNewIncident({ ...newIncident, location: e.target.value })}
-                    placeholder="123 Main St, City, State"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={newIncident.description}
-                  onChange={e => setNewIncident({ ...newIncident, description: e.target.value })}
-                  placeholder="Detailed description of what happened..."
-                  rows={4}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="vehicle">Vehicle Involved</Label>
-                  <Select
-                    value={newIncident.vehicle_id}
-                    onValueChange={value => setNewIncident({ ...newIncident, vehicle_id: value })}
-                  >
-                    <SelectTrigger id="vehicle">
-                      <SelectValue placeholder="Select vehicle" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="vehicle-1">Fleet-001</SelectItem>
-                      <SelectItem value="vehicle-2">Fleet-002</SelectItem>
-                      <SelectItem value="vehicle-3">Fleet-003</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="driver">Driver Involved</Label>
-                  <Select
-                    value={newIncident.driver_id}
-                    onValueChange={value => setNewIncident({ ...newIncident, driver_id: value })}
-                  >
-                    <SelectTrigger id="driver">
-                      <SelectValue placeholder="Select driver" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="driver-1">John Doe</SelectItem>
-                      <SelectItem value="driver-2">Jane Smith</SelectItem>
-                      <SelectItem value="driver-3">Bob Johnson</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="weather">Weather Conditions</Label>
-                  <Select
-                    value={newIncident.weather_conditions}
-                    onValueChange={value => setNewIncident({ ...newIncident, weather_conditions: value })}
-                  >
-                    <SelectTrigger id="weather">
-                      <SelectValue placeholder="Select weather" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="clear">Clear</SelectItem>
-                      <SelectItem value="cloudy">Cloudy</SelectItem>
-                      <SelectItem value="rain">Rain</SelectItem>
-                      <SelectItem value="snow">Snow</SelectItem>
-                      <SelectItem value="fog">Fog</SelectItem>
-                      <SelectItem value="ice">Ice</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="road">Road Conditions</Label>
-                  <Select
-                    value={newIncident.road_conditions}
-                    onValueChange={value => setNewIncident({ ...newIncident, road_conditions: value })}
-                  >
-                    <SelectTrigger id="road">
-                      <SelectValue placeholder="Select condition" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="dry">Dry</SelectItem>
-                      <SelectItem value="wet">Wet</SelectItem>
-                      <SelectItem value="snow">Snow</SelectItem>
-                      <SelectItem value="ice">Ice</SelectItem>
-                      <SelectItem value="construction">Construction</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="injuries"
-                    checked={newIncident.injuries_reported}
-                    onChange={e => setNewIncident({ ...newIncident, injuries_reported: e.target.checked })}
-                    className="rounded"
-                  />
-                  <Label htmlFor="injuries">Injuries Reported</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="damage"
-                    checked={newIncident.property_damage}
-                    onChange={e => setNewIncident({ ...newIncident, property_damage: e.target.checked })}
-                    className="rounded"
-                  />
-                  <Label htmlFor="damage">Property Damage</Label>
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Cancel
+        {hasPermission('incident:report') && (
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Report Incident
               </Button>
-              <Button onClick={handleAddIncident}>Report Incident</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Report New Incident</DialogTitle>
+                <DialogDescription>
+                  Document an incident for investigation and resolution
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="incident-title">Incident Title *</Label>
+                    <Input
+                      id="incident-title"
+                      value={newIncident.incident_title}
+                      onChange={e => setNewIncident({ ...newIncident, incident_title: e.target.value })}
+                      placeholder="Vehicle collision on I-95"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="incident-type">Incident Type *</Label>
+                    <Select
+                      value={newIncident.incident_type}
+                      onValueChange={value => setNewIncident({ ...newIncident, incident_type: value })}
+                    >
+                      <SelectTrigger id="incident-type">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="accident">Vehicle Accident</SelectItem>
+                        <SelectItem value="injury">Employee Injury</SelectItem>
+                        <SelectItem value="property_damage">Property Damage</SelectItem>
+                        <SelectItem value="near_miss">Near Miss</SelectItem>
+                        <SelectItem value="safety_violation">Safety Violation</SelectItem>
+                        <SelectItem value="equipment_failure">Equipment Failure</SelectItem>
+                        <SelectItem value="environmental">Environmental</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="severity">Severity *</Label>
+                    <Select
+                      value={newIncident.severity}
+                      onValueChange={value => setNewIncident({ ...newIncident, severity: value as Incident['severity'] })}
+                    >
+                      <SelectTrigger id="severity">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="critical">Critical</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="incident-date">Incident Date *</Label>
+                    <Input
+                      id="incident-date"
+                      type="date"
+                      value={newIncident.incident_date}
+                      onChange={e => setNewIncident({ ...newIncident, incident_date: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="incident-time">Time</Label>
+                    <Input
+                      id="incident-time"
+                      type="time"
+                      value={newIncident.incident_time}
+                      onChange={e => setNewIncident({ ...newIncident, incident_time: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Location</Label>
+                    <Input
+                      id="location"
+                      value={newIncident.location}
+                      onChange={e => setNewIncident({ ...newIncident, location: e.target.value })}
+                      placeholder="123 Main St, City, State"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={newIncident.description}
+                    onChange={e => setNewIncident({ ...newIncident, description: e.target.value })}
+                    placeholder="Detailed description of what happened..."
+                    rows={4}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="vehicle">Vehicle Involved</Label>
+                    <Select
+                      value={newIncident.vehicle_id}
+                      onValueChange={value => setNewIncident({ ...newIncident, vehicle_id: value })}
+                    >
+                      <SelectTrigger id="vehicle">
+                        <SelectValue placeholder="Select vehicle" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="vehicle-1">Fleet-001</SelectItem>
+                        <SelectItem value="vehicle-2">Fleet-002</SelectItem>
+                        <SelectItem value="vehicle-3">Fleet-003</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="driver">Driver Involved</Label>
+                    <Select
+                      value={newIncident.driver_id}
+                      onValueChange={value => setNewIncident({ ...newIncident, driver_id: value })}
+                    >
+                      <SelectTrigger id="driver">
+                        <SelectValue placeholder="Select driver" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="driver-1">John Doe</SelectItem>
+                        <SelectItem value="driver-2">Jane Smith</SelectItem>
+                        <SelectItem value="driver-3">Bob Johnson</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="weather">Weather Conditions</Label>
+                    <Select
+                      value={newIncident.weather_conditions}
+                      onValueChange={value => setNewIncident({ ...newIncident, weather_conditions: value })}
+                    >
+                      <SelectTrigger id="weather">
+                        <SelectValue placeholder="Select weather" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="clear">Clear</SelectItem>
+                        <SelectItem value="cloudy">Cloudy</SelectItem>
+                        <SelectItem value="rain">Rain</SelectItem>
+                        <SelectItem value="snow">Snow</SelectItem>
+                        <SelectItem value="fog">Fog</SelectItem>
+                        <SelectItem value="ice">Ice</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="road">Road Conditions</Label>
+                    <Select
+                      value={newIncident.road_conditions}
+                      onValueChange={value => setNewIncident({ ...newIncident, road_conditions: value })}
+                    >
+                      <SelectTrigger id="road">
+                        <SelectValue placeholder="Select condition" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="dry">Dry</SelectItem>
+                        <SelectItem value="wet">Wet</SelectItem>
+                        <SelectItem value="snow">Snow</SelectItem>
+                        <SelectItem value="ice">Ice</SelectItem>
+                        <SelectItem value="construction">Construction</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="injuries"
+                      checked={newIncident.injuries_reported}
+                      onChange={e => setNewIncident({ ...newIncident, injuries_reported: e.target.checked })}
+                      className="rounded"
+                    />
+                    <Label htmlFor="injuries">Injuries Reported</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="damage"
+                      checked={newIncident.property_damage}
+                      onChange={e => setNewIncident({ ...newIncident, property_damage: e.target.checked })}
+                      className="rounded"
+                    />
+                    <Label htmlFor="damage">Property Damage</Label>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleAddIncident}>Report Incident</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       {/* Statistics Cards */}
@@ -821,7 +825,7 @@ export function IncidentManagement() {
                   </div>
                 </div>
 
-                {selectedIncident.status !== 'closed' && (
+                {selectedIncident.status !== 'closed' && hasPermission('incident:close') && (
                   <div className="pt-4">
                     <Button onClick={() => {
                       setIsCloseDialogOpen(true)

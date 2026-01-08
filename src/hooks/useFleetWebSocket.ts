@@ -5,7 +5,7 @@ import { FleetWebSocketService } from '@/services/realtime/FleetWebSocketService
 export function useFleetWebSocket() {
   const [connected, setConnected] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
-  const wsRef = useRef<FleetWebSocketService>();
+  const wsRef = useRef<FleetWebSocketService | null>(null);
 
   useEffect(() => {
     wsRef.current = new FleetWebSocketService();
