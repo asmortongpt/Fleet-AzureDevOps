@@ -1,10 +1,12 @@
-/**
- * Database module - exports pool for backward compatibility
- */
+import { Pool } from "pg";
 
-import poolInstance from './config/database'
+export const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
-// Export both 'pool' and 'db' as named exports for flexibility
-export const pool = poolInstance
-export const db = poolInstance
-export default poolInstance
+export const db = {
+  async query<T = any>(text: string, params?: any[]) {
+    const res = await pool.query<T>(text, params);
+    return res;
+  },
+};

@@ -22,7 +22,7 @@ import { body, validationResult } from 'express-validator';
 
 import { authenticateJWT } from '../middleware/auth.middleware';
 
-import { multiLLMOrchestrator } from '@/services/multi-llm-orchestrator.service';
+import { multiLLMOrchestrator } from '../services/multi-llm-orchestrator.service';
 
 const router = Router();
 

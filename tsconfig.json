@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": [
@@ -10,132 +9,45 @@
     ],
     "module": "ESNext",
     "skipLibCheck": true,
-    /* CRITICAL: Full Strict Mode Enabled for 100% Compliance */
-    "strict": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "alwaysStrict": true,
-    /* Code Quality Checks - Disabled to focus on critical type errors */
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitReturns": false,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": false,
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
     "isolatedModules": true,
-    "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    /* Error on emit */
-    "noEmitOnError": true,
-    /* Additional Safety */
-    "noUncheckedSideEffectImports": true,
+    "esModuleInterop": true,
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    /* Path mapping */
+    "baseUrl": ".",
     "paths": {
       "@/*": [
-        "./src/*"
+        "src/*"
+      ],
+      "@/components/*": [
+        "src/components/*"
+      ],
+      "@/types/*": [
+        "src/types/*"
+      ],
+      "@/utils/*": [
+        "src/utils/*"
+      ],
+      "@/services/*": [
+        "src/services/*"
       ]
     }
   },
   "include": [
-    "src/App.tsx",
-    "src/main.tsx",
-    "src/vite-env.d.ts",
-    "src/types/**/*.ts",
-    "src/contexts/**/*.tsx",
-    "src/contexts/**/*.ts",
-    "src/hooks/**/*.ts",
-    "src/hooks/**/*.tsx",
-    "src/lib/demo-data.ts",
-    "src/lib/utils.ts",
-    "src/lib/fetcher.ts",
-    "src/components/ui/**/*.tsx",
-    "src/components/DrilldownPanel.tsx",
-    "src/components/DrillThrough/**/*.tsx",
-    "src/pages/AdminHub.tsx",
-    "src/pages/AnalyticsHub.tsx",
-    "src/pages/ComplianceHub.tsx",
-    "src/pages/CommunicationHub.tsx",
-    "src/pages/CTAConfigurationHub.tsx",
-    "src/pages/DataGovernanceHub.tsx",
-    "src/pages/DriversHub.tsx",
-    "src/pages/FleetHub.tsx",
-    "src/pages/MaintenanceHub.tsx",
-    "src/pages/OperationsHub.tsx",
-    "src/pages/PolicyHub.tsx",
-    "src/pages/ProcurementHub.tsx",
-    "src/pages/SafetyComplianceHub.tsx",
-    "src/pages/SafetyHub.tsx",
-    "src/routes.tsx",
-    "src/utils/**/*.ts"
+    "src"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.spec.ts",
-    "**/*.spec.tsx",
-    "src/**/__tests__/**",
-    "tests/**",
-    "server/**",
-    "src/api/**",
-    "src/components/AssetLocationMap.tsx",
-    "src/components/CheckoutAssetModal.tsx",
-    "src/components/ScanAssetModal.tsx",
-    "src/components/common/ScannerModal.tsx",
-    "src/components/common/FileUpload.tsx",
-    "src/components/Vehicle3DViewer.tsx",
-    "src/features/business/**",
-    "src/core/multi-tenant/**",
-    "src/components/DataWorkbench.refactored.tsx",
-    "src/components/UtilizationDashboard.tsx",
-    "src/components/drilldown/AssetHubDrilldowns.tsx",
-    "src/components/drilldown/ScheduleDrilldowns.tsx",
-    "src/components/drilldown/MaintenanceRequestDrilldowns.tsx",
-    "src/components/drilldown/ExcelStyleTable.tsx",
-    "src/features/fleet-3d/**",
-    "src/features/radio-dispatch/**",
-    "src/services/pwa/**",
-    "src/lib/monitoring/**",
-    "src/services/monitoring/**",
-    "src/lib/document-generation/**",
-    "src/lib/ai/**",
-    "src/lib/auth/**",
-    "src/lib/policy-engine/**",
-    "src/components/LeafletMap.tsx",
-    "src/components/DrilldownSystem.tsx",
-    "src/components/hubs/MonitoringDashboard.tsx",
-    "src/components/hubs/telematics/**",
-    "src/components/hubs/safety/**",
-    "src/components/hubs/analytics/**",
-    "src/components/mobile/**",
-    "src/components/modules/**",
-    "src/components/garage/**",
-    "src/container/**",
-    "src/workers/**",
-    "src/services/multi-llm-orchestrator.service.ts",
-    "src/hooks/use-amt-api.ts",
-    "src/pages/ConfigurationHub.tsx",
-    "src/pages/DocumentsHub.tsx",
-    "src/pages/FinancialHubEnhanced.tsx",
-    "src/pages/FinancialHub.tsx",
-    "src/pages/IntegrationsHub.tsx",
-    "src/pages/AssetsHub.tsx",
-    "src/pages/hubs/**",
-    "src/components/fleet/**",
-    "src/components/drilldown/**",
-    "src/components/common/VirtualList.tsx",
-    "src/components/ui/virtualized-table.tsx",
-    "src/components/ui/virtual-table.tsx",
-    "src/components/errors/EnhancedErrorBoundary.tsx",
-    "src/lib/offline-storage.ts",
-    "src/logger.ts"
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
   ]
 }
