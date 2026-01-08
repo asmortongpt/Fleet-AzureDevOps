@@ -27,6 +27,38 @@ import { swrFetcher } from '@/lib/fetcher'
 
 const fetcher = swrFetcher
 
+// Alert data type for SWR responses
+interface AlertData {
+  id: string
+  title: string
+  alert_number: string
+  category: string
+  severity: string
+  status: string
+  triggered_at: string
+  duration_minutes?: number
+  description?: string
+  alert_type?: string
+  priority?: string
+  auto_clear_enabled?: boolean
+  threshold_value?: number
+  threshold_metric?: string
+  current_value?: number
+  vehicle_id?: string
+  vehicle_name?: string
+  driver_id?: string
+  driver_name?: string
+  location?: string
+  coordinates?: { lat: number; lng: number }
+  acknowledged_by?: string
+  acknowledged_at?: string
+  resolved_by?: string
+  resolved_at?: string
+  resolution_notes?: string
+  notifications_sent?: Array<{ recipient: string; method: string; sent_at: string }>
+  activity_log?: Array<{ action: string; user: string; timestamp: string; notes?: string }>
+}
+
 // ============================================
 // Alert Data Interface
 // ============================================
