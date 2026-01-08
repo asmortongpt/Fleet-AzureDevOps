@@ -1,0 +1,34 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo ">ê Running pre-push quality gates..."
+
+# Run unit tests
+echo ">ê Running unit tests..."
+npm run test:unit || {
+  echo "L Unit tests failed. Please fix before pushing."
+  exit 1
+}
+
+# Run coverage check
+echo "=Ê Checking test coverage..."
+npm run test:coverage || {
+  echo "L Coverage threshold not met. Please add more tests."
+  exit 1
+}
+
+# Run linting
+echo "= Running linter..."
+npm run lint || {
+  echo "L Linting errors detected. Please fix before pushing."
+  exit 1
+}
+
+# Run build check
+echo "<× Verifying build..."
+npm run build || {
+  echo "L Build failed. Please fix before pushing."
+  exit 1
+}
+
+echo " All pre-push checks passed!"
