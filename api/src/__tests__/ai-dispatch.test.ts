@@ -156,7 +156,7 @@ describe('AI Dispatch Service - Incident Parsing', () => {
     const result = await aiDispatchService.parseIncident(description)
 
     expect(result.specialInstructions).toBeDefined()
-    expect(result.specialInstructions!.length).toBeGreaterThan(0)
+    expect(result.specialInstructions?.length).toBeGreaterThan(0)
   })
 
   it('should handle vague descriptions gracefully', async () => {

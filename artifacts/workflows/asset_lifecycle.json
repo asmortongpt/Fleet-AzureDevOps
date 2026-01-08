@@ -1,0 +1,55 @@
+{
+  "entity": "Vehicle Asset",
+  "states": [
+    "PROCUREMENT",
+    "ACTIVE",
+    "MAINTENANCE_HOLD",
+    "DECOMMISSIONED",
+    "SOLD"
+  ],
+  "transitions": [
+    {
+      "from": "PROCUREMENT",
+      "to": "ACTIVE",
+      "action": "In-Fleet",
+      "role": [
+        "FLEET_MANAGER"
+      ]
+    },
+    {
+      "from": "ACTIVE",
+      "to": "MAINTENANCE_HOLD",
+      "action": "Flag for Repair",
+      "role": [
+        "DISPATCHER",
+        "MECHANIC",
+        "DRIVER"
+      ]
+    },
+    {
+      "from": "MAINTENANCE_HOLD",
+      "to": "ACTIVE",
+      "action": "Return to Service",
+      "role": [
+        "FLEET_MANAGER"
+      ]
+    },
+    {
+      "from": "ACTIVE",
+      "to": "DECOMMISSIONED",
+      "action": "Retire",
+      "role": [
+        "FLEET_MANAGER"
+      ]
+    },
+    {
+      "from": "DECOMMISSIONED",
+      "to": "SOLD",
+      "action": "Record Sale",
+      "role": [
+        "FLEET_MANAGER",
+        "FINANCIAL_AUDITOR"
+      ]
+    }
+  ]
+}

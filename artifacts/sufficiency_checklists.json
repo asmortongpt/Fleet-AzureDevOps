@@ -1,0 +1,28 @@
+{
+  "GLOBAL_STANDARDS": [
+    "User can view a list of items with pagination/sorting",
+    "User can search/filter the list",
+    "User can click an item to view details (Drilldown)",
+    "User can create a new item (if actionable)",
+    "User can edit an existing item (if actionable)",
+    "User receives feedback (toast/alert) on success/error",
+    "Empty states are handled gracefully"
+  ],
+  "DOMAIN_SPECIFIC": {
+    "FINANCIAL": [
+      "Currency is formatted correctly",
+      "Totals are calculated correctly",
+      "Audit trail exists for all financial changes"
+    ],
+    "COMPLIANCE_SAFETY": [
+      "Sensitive data is masked",
+      "Digital signatures supported where required",
+      "History/Versioning is visible"
+    ],
+    "OPERATIONS": [
+      "Map data loads within 2 seconds",
+      "Real-time updates occur without page refresh",
+      "Mobile responsive for field view"
+    ]
+  }
+}

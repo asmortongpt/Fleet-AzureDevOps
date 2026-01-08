@@ -2,8 +2,8 @@
 // Features: Editable cells, sorting, filtering, export to Excel
 // Library: AG Grid (Excel-like experience)
 
-import { AgGridReact } from 'ag-grid-react';
 import type { ValueFormatterParams, CellValueChangedEvent, ColDef, CellClassParams } from 'ag-grid-community';
+import { AgGridReact } from 'ag-grid-react';
 import { Download, Filter } from 'lucide-react';
 import React, { useState, useCallback } from 'react';
 import 'ag-grid-community/styles/ag-grid.css';

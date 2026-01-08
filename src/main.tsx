@@ -39,9 +39,9 @@ import { ThemeProvider } from "./components/providers/ThemeProvider"
 import { AuthProvider } from "./contexts/AuthContext"
 import { DrilldownProvider } from "./contexts/DrilldownContext"
 import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
-import { Login } from "./pages/Login"
 import { TenantProvider } from "./contexts/TenantContext"
 import { initSentry } from "./lib/sentry"
+import { Login } from "./pages/Login"
 initSentry()
 
 /**

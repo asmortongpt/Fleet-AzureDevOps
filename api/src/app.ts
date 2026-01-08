@@ -156,7 +156,7 @@ export class FleetAPI {
             version: process.env.npm_package_version || '1.0.0'
           }
         });
-      } catch (error) {
+      } catch (_error) {
         res.status(503).json({
           success: false,
           error: {
@@ -200,12 +200,15 @@ export class FleetAPI {
       authzMiddleware.requirePermission('config:write:global'),
       async (req: Request, res: Response, next) => {
         try {
-          const user = (req as any).user;
+          if (!req.user) {
+            res.status(401).json({ success: false, error: 'Unauthorized' });
+            return;
+          }
           const version = await this.configService.set(
             req.params.key,
             req.body.value,
             { scope: req.body.scope || 'global', scopeId: req.body.scopeId },
-            user.userId.toString(),
+            req.user.userId.toString(),
             req.body.comment
           );
           res.json({ success: true, data: version });
@@ -221,9 +224,12 @@ export class FleetAPI {
       authzMiddleware.requirePermission('secrets:read:global'),
       async (req: Request, res: Response, next) => {
         try {
-          const user = (req as any).user;
+          if (!req.user) {
+            res.status(401).json({ success: false, error: 'Unauthorized' });
+            return;
+          }
           const value = await this.secretsService.getSecret(req.params.name, {
-            userId: user.userId.toString(),
+            userId: req.user.userId.toString(),
             ipAddress: req.ip,
             userAgent: req.headers['user-agent']
           });
@@ -239,13 +245,16 @@ export class FleetAPI {
       authzMiddleware.requirePermission('secrets:write:global'),
       async (req: Request, res: Response, next) => {
         try {
-          const user = (req as any).user;
+          if (!req.user) {
+            res.status(401).json({ success: false, error: 'Unauthorized' });
+            return;
+          }
           await this.secretsService.setSecret(
             req.params.name,
             req.body.value,
             req.body.metadata,
             {
-              userId: user.userId.toString(),
+              userId: req.user.userId.toString(),
               ipAddress: req.ip,
               userAgent: req.headers['user-agent']
             }
@@ -297,11 +306,14 @@ export class FleetAPI {
       authzMiddleware.requireRole(['Admin']),
       async (req: Request, res: Response, next) => {
         try {
-          const user = (req as any).user;
+          if (!req.user) {
+            res.status(401).json({ success: false, error: 'Unauthorized' });
+            return;
+          }
           await this.authzService.assignRole(
             req.params.id,
             req.body.roleId,
-            user.userId.toString(),
+            req.user.userId.toString(),
             req.body.expiresAt ? new Date(req.body.expiresAt) : undefined
           );
           res.json({ success: true, message: 'Role assigned successfully' });

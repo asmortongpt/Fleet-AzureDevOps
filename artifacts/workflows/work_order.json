@@ -1,0 +1,84 @@
+{
+  "entity": "Maintenance Work Order",
+  "states": [
+    "DRAFT",
+    "OPEN",
+    "IN_PROGRESS",
+    "WAITING_PARTS",
+    "REVIEW",
+    "COMPLETED",
+    "CANCELLED"
+  ],
+  "transitions": [
+    {
+      "from": "DRAFT",
+      "to": "OPEN",
+      "action": "Submit",
+      "role": [
+        "DISPATCHER",
+        "FLEET_MANAGER"
+      ]
+    },
+    {
+      "from": "OPEN",
+      "to": "IN_PROGRESS",
+      "action": "Start Work",
+      "role": [
+        "MECHANIC"
+      ]
+    },
+    {
+      "from": "IN_PROGRESS",
+      "to": "WAITING_PARTS",
+      "action": "Request Parts",
+      "role": [
+        "MECHANIC"
+      ]
+    },
+    {
+      "from": "WAITING_PARTS",
+      "to": "IN_PROGRESS",
+      "action": "Parts Received",
+      "role": [
+        "MECHANIC",
+        "FLEET_MANAGER"
+      ]
+    },
+    {
+      "from": "IN_PROGRESS",
+      "to": "REVIEW",
+      "action": "Complete Work",
+      "role": [
+        "MECHANIC"
+      ]
+    },
+    {
+      "from": "REVIEW",
+      "to": "COMPLETED",
+      "action": "Approve",
+      "role": [
+        "FLEET_MANAGER"
+      ]
+    },
+    {
+      "from": "REVIEW",
+      "to": "IN_PROGRESS",
+      "action": "Reject/Rework",
+      "role": [
+        "FLEET_MANAGER"
+      ]
+    },
+    {
+      "from": [
+        "DRAFT",
+        "OPEN",
+        "WAITING_PARTS"
+      ],
+      "to": "CANCELLED",
+      "action": "Cancel",
+      "role": [
+        "FLEET_MANAGER"
+      ]
+    }
+  ]
+}

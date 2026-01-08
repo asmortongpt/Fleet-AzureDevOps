@@ -45,7 +45,7 @@ describe('Refresh Token Security Tests (OWASP ASVS 3.0)', () => {
   describe('Login with Refresh Token', () => {
     it('should return access token and set httpOnly refresh token cookie', async () => {
       // Mock bcrypt.compare to return true
-      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const bcrypt = require('bcrypt')
       bcrypt.compare = jest.fn().mockResolvedValue(true)
 

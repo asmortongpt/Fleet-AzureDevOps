@@ -88,7 +88,7 @@ interface ConfigStats {
 // CATEGORY METADATA
 // ============================================================================
 
-const CATEGORY_ICONS: Record<string, React.ElementType> = {
+const CATEGORY_ICONS: Record<string, any> = {
   system: Settings,
   branding: Palette,
   security: Shield,
