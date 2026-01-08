@@ -22,7 +22,7 @@ function StatRow({ label, value, trend, icon: Icon }: {
     label: string;
     value: string | number;
     trend?: 'up' | 'down' | 'neutral';
-    icon?: React.ElementType;
+    icon?: any;
 }) {
     return (
         <div className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">

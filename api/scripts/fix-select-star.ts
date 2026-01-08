@@ -10,8 +10,8 @@
  * 4. Preserves query functionality while improving code quality
  */
 
-import * as fs from 'fs';
 import { execSync } from 'child_process';
+import * as fs from 'fs';
 
 // Auto-generated table schemas - extracted from migrations
 const tableSchemas: Record<string, string[]> = {
