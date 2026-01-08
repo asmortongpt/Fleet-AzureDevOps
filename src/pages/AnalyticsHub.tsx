@@ -14,9 +14,11 @@ import {
     TrendUp
 } from '@phosphor-icons/react'
 
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 import { HubPage, type HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
+import { logger } from '@/utils/logger'
 
 function ExecutiveContent() {
     const { push } = useDrilldown()
@@ -306,4 +308,17 @@ export function AnalyticsHub() {
     )
 }
 
-export default AnalyticsHub
+const WrappedAnalyticsHub = () => (
+    <ErrorBoundary
+        onError={(error, errorInfo) => {
+            logger.error('AnalyticsHub error', error, {
+                component: 'AnalyticsHub',
+                errorInfo
+            })
+        }}
+    >
+        <AnalyticsHub />
+    </ErrorBoundary>
+)
+
+export default WrappedAnalyticsHub
