@@ -78,6 +78,7 @@
     "test:pdca:report": "open test-results/pdca-validation-report.html",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "prepare": "husky",
     "quality-check": "npm run typecheck:all && npm run lint && npm run test:unit",
     "pre-push-check": "npm run quality-check && npm run test:coverage",
     "complexity-check": "npx complexity-report src --threshold 10 || echo 'Complexity report generation skipped'",
@@ -132,8 +133,8 @@
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@react-google-maps/api": "^2.20.3",
-    "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.5.0",
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
     "@react-three/postprocessing": "^2.16.3",
     "@reduxjs/toolkit": "^2.11.0",
     "@sentry/integrations": "^7.114.0",
@@ -168,7 +169,7 @@
     "input-otp": "^1.4.2",
     "jotai": "^2.15.1",
     "js-yaml": "^4.1.0",
-    "jspdf": "^4.0.0",
+    "jspdf": "^3.0.4",
     "jspdf-autotable": "^5.0.2",
     "leaflet": "^1.9.4",
     "leva": "^0.10.1",
@@ -181,11 +182,11 @@
     "next-themes": "^0.4.6",
     "octokit": "^4.1.2",
     "pdfjs-dist": "^5.4.530",
-    "posthog-js": "^1.200.0",
+    "posthog-js": "^1.311.0",
     "puppeteer": "^24.30.0",
-    "react": "^19.2.3",
+    "react": "^18.3.1",
     "react-day-picker": "^9.6.7",
-    "react-dom": "^19.2.3",
+    "react-dom": "^18.3.1",
     "react-dropzone": "^14.3.8",
     "react-error-boundary": "^6.0.0",
     "react-helmet": "^6.1.0",
@@ -244,8 +245,8 @@
     "@types/express": "^5.0.6",
     "@types/jest-axe": "^3.5.9",
     "@types/leaflet": "^1.9.12",
-    "@types/react": "^19.2.7",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "@types/react-helmet": "^6.1.11",
     "@types/react-window": "^1.8.8",
     "@types/uuid": "^10.0.0",
@@ -267,9 +268,11 @@
     "eslint-plugin-unused-imports": "^4.3.0",
     "gh-pages": "^6.3.0",
     "globals": "^16.0.0",
+    "husky": "^9.1.7",
     "jest-axe": "^10.0.0",
     "jsdom": "^27.1.0",
     "lighthouse": "^13.0.1",
+    "lint-staged": "^16.2.7",
     "pa11y": "^9.0.1",
     "pa11y-ci": "^4.0.1",
     "playwright-lighthouse": "^4.0.0",
@@ -299,12 +302,17 @@
     "@azure/ms-rest-js": "^2.7.0",
     "@azure/ms-rest-azure-js": "^1.4.0"
   },
-  "overrides": {
-    "preact": "^10.28.2"
-  },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": [
-      "npm run lint:fix"
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
     ]
   }
 }
