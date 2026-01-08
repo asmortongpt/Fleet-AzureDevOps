@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  relay:
+    build: ./services/relay
+    ports:
+      - "4010:4010"
+    environment:
+      - PORT=4010
+  mock-fleet:
+    build: ./services/mock-fleet
+    ports:
+      - "4020:4020"
+    environment:
+      - PORT=4020
+  emulator-manager:
+    build: ./services/emulator-manager
+    ports:
+      - "4030:4030"
+    environment:
+      - PORT=4030
+      - RELAY_URL=http://relay:4010
+      - MOCK_FLEET_URL=http://mock-fleet:4020
+  demo-console:
+    build: ./apps/demo-console
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_RELAY_HTTP=http://localhost:4010
+      - VITE_RELAY_WS=ws://localhost:4010/ws
+      - VITE_MANAGER_HTTP=http://localhost:4030
+      - VITE_MOCK_FLEET_HTTP=http://localhost:4020
+    depends_on:
+      - relay
+      - emulator-manager
+      - mock-fleet
