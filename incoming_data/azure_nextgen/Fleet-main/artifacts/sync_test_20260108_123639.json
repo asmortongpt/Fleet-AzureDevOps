@@ -20,8 +20,8 @@
         "origin\thttps://github.com/asmortongpt/Fleet.git (push)"
       ],
       "fleetops_remotes": [
-        "azure\thttps://***REMOVED***@dev.azure.com/CapitalTechAlliance/FleetOps/_git/FleetOps (fetch)",
-        "azure\thttps://***REMOVED***@dev.azure.com/CapitalTechAlliance/FleetOps/_git/FleetOps (push)",
+        "azure\thttps://[REDACTED]@dev.azure.com/CapitalTechAlliance/FleetOps/_git/FleetOps (fetch)",
+        "azure\thttps://[REDACTED]@dev.azure.com/CapitalTechAlliance/FleetOps/_git/FleetOps (push)",
         "origin\thttps://github.com/asmortongpt/FleetOps.git (fetch)",
         "origin\thttps://github.com/asmortongpt/FleetOps.git (push)"
       ],
