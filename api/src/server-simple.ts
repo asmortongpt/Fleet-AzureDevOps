@@ -14,6 +14,8 @@ import helmet from 'helmet';
 import { db, checkDatabaseConnection } from './db/connection';
 import authRouter from './routes/auth';
 import obd2EmulatorRouter, { setupOBD2WebSocket } from './routes/obd2-emulator.routes';
+import damageReportsRouter from './routes/damage-reports.routes';
+import geospatialRouter from './routes/geospatial.routes';
 import { schema } from './schemas/production.schema';
 
 // Import OBD2 Emulator Components
@@ -44,6 +46,8 @@ app.use(express.json());
 // Register routers
 app.use('/api/auth', authRouter);
 app.use('/api/obd2-emulator', obd2EmulatorRouter);
+app.use('/api/damage-reports', damageReportsRouter);
+app.use('/api/geospatial', geospatialRouter);
 
 // Basic health check
 app.get('/health', (req, res) => {

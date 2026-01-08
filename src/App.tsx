@@ -1,6 +1,6 @@
 import { withAITracking } from '@microsoft/applicationinsights-react-js'
 import { Shield } from "lucide-react"
-import { useState, useMemo, lazy, Suspense , useEffect } from "react"
+import { useState, useMemo, lazy, Suspense, useEffect } from "react"
 import { Toaster } from 'react-hot-toast'
 
 import { DrilldownManager } from "@/components/DrilldownManager"
@@ -52,7 +52,7 @@ const FuelPurchasing = lazy(() => import("@/components/modules/fuel/FuelPurchasi
 const RouteManagement = lazy(() => import("@/components/modules/operations/RouteManagement").then(m => ({ default: m.RouteManagement })))
 const AdvancedRouteOptimization = lazy(() => import("@/components/modules/operations/AdvancedRouteOptimization").then(m => ({ default: m.AdvancedRouteOptimization })))
 const TaskManagement = lazy(() => import("@/components/modules/operations/TaskManagement").then(m => ({ default: m.TaskManagement })))
-
+const DispatchConsole = lazy(() => import("@/components/modules/operations/DispatchConsole"))
 
 // INTEGRATIONS MODULES
 const GISCommandCenter = lazy(() => import("@/components/modules/integrations/GISCommandCenter").then(m => ({ default: m.GISCommandCenter })))
@@ -259,7 +259,7 @@ function App() {
       case "communication-hub":
         return <CommunicationHub />
       case "dispatch-console":
-        return <CommandCenter />
+        return <DispatchConsole />
       case "fleet-hub": // Assuming 'fleet-hub' was a previous route or will be added
         return <CommandCenter />
 

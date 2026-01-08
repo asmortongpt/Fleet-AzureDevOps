@@ -39,6 +39,13 @@ export default tseslint.config(
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-non-null-assertion': 'warn',
+      '@typescript-eslint/no-extraneous-class': 'warn',
+      '@typescript-eslint/ban-types': 'off',
+      '@typescript-eslint/no-namespace': 'warn',
+      'no-prototype-builtins': 'warn',
+      'no-case-declarations': 'warn',
+      'no-useless-escape': 'warn',
+      '@typescript-eslint/no-require-imports': 'warn',
       '@typescript-eslint/no-unused-vars': 'off',
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': [
