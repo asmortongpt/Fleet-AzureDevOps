@@ -31,6 +31,7 @@ const AnalyticsWorkbench = lazy(() => import("@/pages/AnalyticsWorkbenchPage"));
 
 // ADMIN
 const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
+const EmulatorDashboard = lazy(() => import("@/components/admin/EmulatorDashboard"));
 // const PeopleManagement = lazy(() => import("@/components/modules/admin/PeopleManagement").then(m => ({ default: m.PeopleManagement })));
 const PolicyEngineWorkbench = lazy(() => import("@/components/modules/admin/PolicyEngineWorkbench").then(m => ({ default: m.PolicyEngineWorkbench })));
 const Notifications = lazy(() => import("@/components/modules/admin/Notifications").then(m => ({ default: m.Notifications })));
@@ -112,6 +113,7 @@ const routes = [
   { path: "fleet-hub", element: <FleetHub /> },
   { path: "executive-dashboard", element: <ExecutiveDashboard /> },
   { path: "admin-dashboard", element: <AdminDashboard /> },
+  { path: "emulator-dashboard", element: <EmulatorDashboard /> },
   { path: "dispatch-console", element: <DispatchConsole /> },
   // { path: "people", element: <PeopleManagement /> },
   { path: "garage", element: <GarageService /> },

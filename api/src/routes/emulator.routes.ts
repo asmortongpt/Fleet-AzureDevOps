@@ -11,6 +11,9 @@ import express, { Request, Response } from 'express'
 
 import { EmulatorOrchestrator } from '../emulators/EmulatorOrchestrator'
 import { telemetryService } from '../services/TelemetryService'
+import { getVideoEmulatorService } from '../services/video-emulator.service'
+import { DashCamConfig } from '../emulators/video/DashCamEmulator'
+import { EventTrigger } from '../emulators/video/VideoTelematicsEmulator'
 
 const router = express.Router()
 
@@ -707,6 +710,448 @@ router.get('/scenarios', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: error.message || 'Unknown error'
+    })
+  }
+})
+
+// ============================================================================
+// RBAC MIDDLEWARE FOR VIDEO EMULATORS
+// ============================================================================
+
+/**
+ * Middleware to check if user is CTA Owner
+ * Video emulator controls are restricted to CTA owners only
+ */
+function requireCTAOwner(req: Request, res: Response, next: express.NextFunction): void {
+  const user = (req as any).user
+
+  if (!user) {
+    res.status(401).json({ error: 'Authentication required' })
+    return
+  }
+
+  if (user.role !== 'cta_owner') {
+    res.status(403).json({
+      error: 'Forbidden',
+      message: 'Video emulator controls are restricted to CTA owners only'
+    })
+    return
+  }
+
+  next()
+}
+
+// ============================================================================
+// VIDEO EMULATOR ENDPOINTS (CTA OWNER ONLY)
+// ============================================================================
+
+/**
+ * @openapi
+ * /api/emulator/video/status:
+ *   get:
+ *     tags: [Video Emulator]
+ *     summary: Get video emulator status
+ *     description: Get status of all video emulators (dashcam, telematics, mobile)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Video emulator status
+ *       403:
+ *         description: CTA Owner access required
+ */
+router.get('/video/status', requireCTAOwner, async (req: Request, res: Response) => {
+  try {
+    const service = getVideoEmulatorService()
+    const status = service.getAllStatus()
+
+    res.json({
+      success: true,
+      data: status,
+      timestamp: new Date()
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get video emulator status',
+      message: error.message || 'Unknown error'
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/emulator/video/statistics:
+ *   get:
+ *     tags: [Video Emulator]
+ *     summary: Get video emulator statistics
+ */
+router.get('/video/statistics', requireCTAOwner, async (req: Request, res: Response) => {
+  try {
+    const service = getVideoEmulatorService()
+    const stats = service.getServiceStatistics()
+
+    res.json({
+      success: true,
+      data: stats,
+      timestamp: new Date()
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get video statistics',
+      message: error.message || 'Unknown error'
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/emulator/video/dashcam/{vehicleId}/start:
+ *   post:
+ *     tags: [Video Emulator]
+ *     summary: Start dashcam emulator for vehicle
+ */
+router.post('/video/dashcam/:vehicleId/start', requireCTAOwner, async (req: Request, res: Response) => {
+  try {
+    const { vehicleId } = req.params
+    const customConfig = req.body as Partial<DashCamConfig>
+
+    const service = getVideoEmulatorService()
+    const emulator = await service.startDashCam(vehicleId, customConfig)
+
+    res.json({
+      success: true,
+      message: `Dashcam emulator started for vehicle ${vehicleId}`,
+      data: {
+        vehicleId,
+        config: emulator.getConfig(),
+        status: emulator.getStatus()
+      },
+      timestamp: new Date()
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to start dashcam',
+      message: error.message || 'Unknown error'
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/emulator/video/dashcam/{vehicleId}/stop:
+ *   post:
+ *     tags: [Video Emulator]
+ *     summary: Stop dashcam emulator
+ */
+router.post('/video/dashcam/:vehicleId/stop', requireCTAOwner, async (req: Request, res: Response) => {
+  try {
+    const { vehicleId } = req.params
+    const service = getVideoEmulatorService()
+
+    await service.stopDashCam(vehicleId)
+
+    res.json({
+      success: true,
+      message: `Dashcam stopped for vehicle ${vehicleId}`,
+      timestamp: new Date()
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to stop dashcam',
+      message: error.message || 'Unknown error'
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/emulator/video/dashcam/{vehicleId}/event:
+ *   post:
+ *     tags: [Video Emulator]
+ *     summary: Trigger video event
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               eventType:
+ *                 type: string
+ *                 enum: [harsh_braking, collision, harsh_acceleration, harsh_cornering, distracted_driving, lane_departure, speeding, tailgating, manual]
+ *               eventId:
+ *                 type: string
+ */
+router.post('/video/dashcam/:vehicleId/event', requireCTAOwner, async (req: Request, res: Response) => {
+  try {
+    const { vehicleId } = req.params
+    const { eventType, eventId } = req.body
+
+    if (!eventType) {
+      return res.status(400).json({
+        success: false,
+        error: 'eventType is required'
+      })
+    }
+
+    const service = getVideoEmulatorService()
+    const videoFiles = await service.triggerDashCamEvent(vehicleId, eventType as EventTrigger, eventId)
+
+    res.json({
+      success: true,
+      message: `Event ${eventType} triggered for vehicle ${vehicleId}`,
+      data: {
+        vehicleId,
+        eventType,
+        eventId,
+        videoFiles,
+        count: videoFiles.length
+      },
+      timestamp: new Date()
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to trigger event',
+      message: error.message || 'Unknown error'
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/emulator/video/dashcam/{vehicleId}/videos:
+ *   get:
+ *     tags: [Video Emulator]
+ *     summary: Get dashcam video files
+ */
+router.get('/video/dashcam/:vehicleId/videos', requireCTAOwner, async (req: Request, res: Response) => {
+  try {
+    const { vehicleId } = req.params
+    const { trigger, startDate, endDate, cameraPosition, limit } = req.query
+
+    const service = getVideoEmulatorService()
+    const emulator = service.getDashCamEmulator(vehicleId)
+
+    if (!emulator) {
+      return res.status(404).json({
+        success: false,
+        error: `No dashcam found for vehicle ${vehicleId}`
+      })
+    }
+
+    const filter: any = {}
+    if (trigger) filter.trigger = trigger
+    if (startDate) filter.startDate = new Date(startDate as string)
+    if (endDate) filter.endDate = new Date(endDate as string)
+    if (cameraPosition) filter.cameraPosition = cameraPosition
+    if (limit) filter.limit = parseInt(limit as string)
+
+    const videos = emulator.getVideoFiles(filter)
+
+    res.json({
+      success: true,
+      data: {
+        vehicleId,
+        videos,
+        count: videos.length,
+        filter
+      },
+      timestamp: new Date()
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get videos',
+      message: error.message || 'Unknown error'
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/emulator/video/telematics/start:
+ *   post:
+ *     tags: [Video Emulator]
+ *     summary: Start video telematics emulator
+ */
+router.post('/video/telematics/start', requireCTAOwner, async (req: Request, res: Response) => {
+  try {
+    const service = getVideoEmulatorService()
+    await service.startTelematics()
+
+    res.json({
+      success: true,
+      message: 'Video telematics started',
+      timestamp: new Date()
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to start telematics',
+      message: error.message || 'Unknown error'
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/emulator/video/telematics/stop:
+ *   post:
+ *     tags: [Video Emulator]
+ *     summary: Stop video telematics emulator
+ */
+router.post('/video/telematics/stop', requireCTAOwner, async (req: Request, res: Response) => {
+  try {
+    const service = getVideoEmulatorService()
+    await service.stopTelematics()
+
+    res.json({
+      success: true,
+      message: 'Video telematics stopped',
+      timestamp: new Date()
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to stop telematics',
+      message: error.message || 'Unknown error'
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/emulator/video/mobile-upload:
+ *   post:
+ *     tags: [Video Emulator]
+ *     summary: Simulate mobile app video upload
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - vehicleId
+ *               - driverId
+ *               - fileSize
+ *               - duration
+ *               - category
+ *             properties:
+ *               vehicleId:
+ *                 type: string
+ *               driverId:
+ *                 type: string
+ *               fileSize:
+ *                 type: number
+ *               duration:
+ *                 type: number
+ *               category:
+ *                 type: string
+ *                 enum: [damage_report, incident, inspection, other]
+ *               description:
+ *                 type: string
+ *               location:
+ *                 type: object
+ *                 properties:
+ *                   latitude:
+ *                     type: number
+ *                   longitude:
+ *                     type: number
+ */
+router.post('/video/mobile-upload', requireCTAOwner, async (req: Request, res: Response) => {
+  try {
+    const uploadData = req.body
+
+    const required = ['vehicleId', 'driverId', 'fileSize', 'duration', 'category']
+    const missing = required.filter(field => !uploadData[field])
+
+    if (missing.length > 0) {
+      return res.status(400).json({
+        success: false,
+        error: `Missing required fields: ${missing.join(', ')}`
+      })
+    }
+
+    const service = getVideoEmulatorService()
+    const upload = await service.simulateMobileUpload(uploadData)
+
+    res.json({
+      success: true,
+      message: 'Mobile upload simulated',
+      data: upload,
+      timestamp: new Date()
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to simulate upload',
+      message: error.message || 'Unknown error'
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/emulator/video/mobile-uploads:
+ *   get:
+ *     tags: [Video Emulator]
+ *     summary: Get mobile upload history
+ */
+router.get('/video/mobile-uploads', requireCTAOwner, async (req: Request, res: Response) => {
+  try {
+    const { vehicleId, driverId, category, status, limit } = req.query
+
+    const service = getVideoEmulatorService()
+    let uploads = service.getMobileUploads()
+
+    if (vehicleId) uploads = uploads.filter(u => u.vehicleId === vehicleId)
+    if (driverId) uploads = uploads.filter(u => u.driverId === driverId)
+    if (category) uploads = uploads.filter(u => u.category === category)
+    if (status) uploads = uploads.filter(u => u.status === status)
+    if (limit) uploads = uploads.slice(0, parseInt(limit as string))
+
+    res.json({
+      success: true,
+      data: { uploads, count: uploads.length },
+      timestamp: new Date()
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get uploads',
+      message: error.message || 'Unknown error'
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/emulator/video/stop-all:
+ *   post:
+ *     tags: [Video Emulator]
+ *     summary: Stop all video emulators
+ */
+router.post('/video/stop-all', requireCTAOwner, async (req: Request, res: Response) => {
+  try {
+    const service = getVideoEmulatorService()
+    await service.stopAll()
+
+    res.json({
+      success: true,
+      message: 'All video emulators stopped',
+      timestamp: new Date()
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to stop emulators',
+      message: error.message || 'Unknown error'
     })
   }
 })
