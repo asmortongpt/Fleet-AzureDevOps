@@ -10,6 +10,8 @@ import {
     Bell,
     ShieldCheck
 } from '@phosphor-icons/react'
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
+import { logger } from '@/utils/logger'
 
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat, StatusDot } from '@/components/ui/stat-card'
@@ -106,4 +108,17 @@ export function SafetyHub() {
     )
 }
 
-export default SafetyHub
+const WrappedSafetyHub = () => (
+  <ErrorBoundary
+    onError={(error, errorInfo) => {
+      logger.error('SafetyHub error', error, {
+        component: 'SafetyHub',
+        errorInfo
+      })
+    }}
+  >
+    <SafetyHub />
+  </ErrorBoundary>
+)
+
+export default WrappedSafetyHub
