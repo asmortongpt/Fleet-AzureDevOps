@@ -22,13 +22,13 @@ az vm run-command invoke \
     mkdir -p /home/azureuser/fleet-db-deployment/logs
     mkdir -p /home/azureuser/fleet-complete-deployment/agents
     mkdir -p /home/azureuser/fleet-complete-deployment/logs
-    
+
     # Set proper permissions
     chown -R azureuser:azureuser /home/azureuser/fleet-db-deployment
     chown -R azureuser:azureuser /home/azureuser/fleet-complete-deployment
     chmod -R 755 /home/azureuser/fleet-db-deployment
     chmod -R 755 /home/azureuser/fleet-complete-deployment
-    
+
     echo 'Directories created successfully'
     ls -la /home/azureuser/
   " | jq -r '.value[0].message'
