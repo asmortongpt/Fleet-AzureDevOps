@@ -1,6 +1,6 @@
-
-
 import React, { useState } from "react";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
+import { logger } from "@/utils/logger";
 
 import { ProfessionalFleetMap } from "../components/Maps/ProfessionalFleetMap";
 import { DispatchPanel } from "../components/modules/operations/DispatchPanel";
@@ -119,4 +119,17 @@ const CommandCenter: React.FC = () => {
     );
 };
 
-export default CommandCenter;
+const WrappedCommandCenter = () => (
+  <ErrorBoundary
+    onError={(error, errorInfo) => {
+      logger.error('CommandCenter error', error, {
+        component: 'CommandCenter',
+        errorInfo
+      })
+    }}
+  >
+    <CommandCenter />
+  </ErrorBoundary>
+);
+
+export default WrappedCommandCenter;

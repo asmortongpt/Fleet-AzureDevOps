@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
 
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 import { DocumentPreview } from '@/components/documents/DocumentPreview'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -42,6 +43,7 @@ import {
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/hooks/useToast'
+import { logger } from '@/utils/logger'
 
 // Types
 interface Document {
@@ -98,7 +100,7 @@ const ACCESS_LEVELS = [
   { value: 'private', label: 'Private', color: 'bg-red-500' }
 ]
 
-export function DocumentsHub() {
+function DocumentsHub() {
   const { addToast } = useToast()
 
   // State
@@ -746,4 +748,17 @@ export function DocumentsHub() {
   )
 }
 
-export default DocumentsHub
+const WrappedDocumentsHub = () => (
+  <ErrorBoundary
+    onError={(error, errorInfo) => {
+      logger.error('DocumentsHub error', error, {
+        component: 'DocumentsHub',
+        errorInfo
+      })
+    }}
+  >
+    <DocumentsHub />
+  </ErrorBoundary>
+)
+
+export default WrappedDocumentsHub

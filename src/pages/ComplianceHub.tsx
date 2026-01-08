@@ -14,9 +14,11 @@ import {
     Warning
 } from '@phosphor-icons/react'
 
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
+import { logger } from '@/utils/logger'
 
 function DashboardContent() {
     const { push } = useDrilldown()
@@ -138,4 +140,17 @@ export function ComplianceHub() {
     )
 }
 
-export default ComplianceHub
+const WrappedComplianceHub = () => (
+    <ErrorBoundary
+        onError={(error, errorInfo) => {
+            logger.error('ComplianceHub error', error, {
+                component: 'ComplianceHub',
+                errorInfo
+            })
+        }}
+    >
+        <ComplianceHub />
+    </ErrorBoundary>
+)
+
+export default WrappedComplianceHub

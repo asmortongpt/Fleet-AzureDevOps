@@ -29,8 +29,6 @@ import { OBD2Emulator } from './obd2/OBD2Emulator'
 import { RealisticOBD2Emulator } from './obd2/RealisticOBD2Emulator'
 import { RadioEmulator } from './radio/RadioEmulator'
 import { RouteEmulator } from './route/RouteEmulator'
-import { SamsaraEmulator } from './samsara/SamsaraEmulator'
-import { TeltonikaEmulator } from './teltonika/TeltonikaEmulator'
 import {
   EmulatorConfig,
   EmulatorState,
@@ -71,8 +69,6 @@ export class EmulatorOrchestrator extends EventEmitter {
   private radioEmulators: Map<string, RadioEmulator> = new Map()
   private dispatchEmulator: DispatchEmulator | null = null
   private inventoryEmulator: InventoryEmulator | null = null
-  private samsaraEmulators: Map<string, SamsaraEmulator> = new Map()
-  private teltonikaEmulators: Map<string, TeltonikaEmulator> = new Map()
 
   // State management
   private states: Map<string, EmulatorState> = new Map()
@@ -389,11 +385,9 @@ export class EmulatorOrchestrator extends EventEmitter {
    */
   private setupEventListeners(): void {
     const eventTypes = [
-      'gps', 'obd2', 'fuel', 'maintenance',
+      `gps`, 'obd2', 'fuel', 'maintenance',
       'driver', 'route', 'cost', 'iot', 'radio', 'dispatch', 'dispatch-emergency',
-      'inventory', 'inventory-low-stock-alert',
-      'samsara:location', 'samsara:safety', 'samsara:diagnostics', 'samsara:hos', 'samsara:video', 'samsara:temperature',
-      'teltonika:location', 'teltonika:io', 'teltonika:rfid', 'teltonika:starter_disabled', 'teltonika:starter_enabled', 'teltonika:panic'
+      'inventory', 'inventory-low-stock-alert'
     ]
 
     eventTypes.forEach(type => {
@@ -465,75 +459,6 @@ export class EmulatorOrchestrator extends EventEmitter {
 
         case 'iot':
           await telemetryService.saveIoTSensorData(event.data as IoTSensorData)
-          break
-
-        // Samsara events - route to vehicle_telemetry and driver_safety_events tables
-        case 'samsara:location':
-          // TODO: Save to vehicle_telemetry table
-          // await telemetryService.saveSamsaraLocation(event.vehicleId, event.data)
-          console.log(`[Samsara] Location event for vehicle ${event.vehicleId}:`, event.data)
-          break
-
-        case 'samsara:safety':
-          // TODO: Save to driver_safety_events table (vehicle_safety_events)
-          // await telemetryService.saveSamsaraSafetyEvent(event.vehicleId, event.data)
-          console.log(`[Samsara] Safety event for vehicle ${event.vehicleId}:`, event.data)
-          break
-
-        case 'samsara:diagnostics':
-          // TODO: Save diagnostics to vehicle_telemetry table
-          // await telemetryService.saveSamsaraDiagnostics(event.vehicleId, event.data)
-          console.log(`[Samsara] Diagnostics event for vehicle ${event.vehicleId}:`, event.data)
-          break
-
-        case 'samsara:hos':
-          // TODO: Save to driver_hos_logs table
-          // await telemetryService.saveSamsaraHOSLog(event.data)
-          console.log(`[Samsara] HOS log event:`, event.data)
-          break
-
-        case 'samsara:video':
-          // TODO: Save video clip reference to appropriate table
-          // await telemetryService.saveSamsaraVideoClip(event.vehicleId, event.data)
-          console.log(`[Samsara] Video clip event for vehicle ${event.vehicleId}:`, event.data)
-          break
-
-        case 'samsara:temperature':
-          // TODO: Save temperature alert to vehicle_telemetry
-          // await telemetryService.saveSamsaraTemperatureAlert(event.vehicleId, event.data)
-          console.log(`[Samsara] Temperature alert for vehicle ${event.vehicleId}:`, event.data)
-          break
-
-        // Teltonika events - route to teltonika_locations and teltonika_rfid_events tables
-        case 'teltonika:location':
-          // TODO: Save to teltonika_locations table
-          // await telemetryService.saveTeltonikaLocation(event.data)
-          console.log(`[Teltonika] Location event:`, event.data)
-          break
-
-        case 'teltonika:io':
-          // TODO: Save to teltonika_io_data table
-          // await telemetryService.saveTeltonikaIOData(event.data)
-          console.log(`[Teltonika] IO data event:`, event.data)
-          break
-
-        case 'teltonika:rfid':
-          // TODO: Save to teltonika_rfid_events table
-          // await telemetryService.saveTeltonikaRFIDAuth(event.vehicleId, event.data)
-          console.log(`[Teltonika] RFID auth event for vehicle ${event.vehicleId}:`, event.data)
-          break
-
-        case 'teltonika:starter_disabled':
-        case 'teltonika:starter_enabled':
-          // TODO: Save to teltonika_starter_events table
-          // await telemetryService.saveTeltonikaStarterEvent(event.vehicleId, event.data)
-          console.log(`[Teltonika] Starter event for vehicle ${event.vehicleId}:`, event.data)
-          break
-
-        case 'teltonika:panic':
-          // TODO: Save panic button event to safety events or teltonika_rfid_events
-          // await telemetryService.saveTeltonikaPanicEvent(event.vehicleId, event.data)
-          console.log(`[Teltonika] Panic event for vehicle ${event.vehicleId}:`, event.data)
           break
 
         // Other event types can be added here as needed
@@ -863,120 +788,6 @@ export class EmulatorOrchestrator extends EventEmitter {
       await radioEmulator.start()
     }
 
-    // Samsara Telematics Emulator
-    if (vehicle.features.includes('samsara')) {
-      const samsaraEmulator = new SamsaraEmulator({
-        vehicleId,
-        vehicleName: `${vehicle.make} ${vehicle.model}`,
-        vin: vehicle.vin,
-        licensePlate: vehicle.licensePlate,
-        updateFrequency: this.config.emulators?.gps?.updateIntervalMs || 5000,
-        enableSafetyEvents: true,
-        enableHOS: true,
-        enableTemperature: vehicle.features.includes('temperature'),
-        enableVideo: vehicle.features.includes('video') || vehicle.features.includes('dashcam'),
-        startLocation: {
-          latitude: vehicle.startingLocation.lat,
-          longitude: vehicle.startingLocation.lng
-        }
-      })
-
-      // Listen to Samsara events
-      samsaraEmulator.on('location', (data) => this.emit('samsara:location', {
-        type: 'samsara:location',
-        vehicleId,
-        timestamp: new Date(),
-        data
-      }))
-      samsaraEmulator.on('safety:event', (data) => this.emit('samsara:safety', {
-        type: 'samsara:safety',
-        vehicleId,
-        timestamp: new Date(),
-        data
-      }))
-      samsaraEmulator.on('diagnostics', (data) => this.emit('samsara:diagnostics', {
-        type: 'samsara:diagnostics',
-        vehicleId,
-        timestamp: new Date(),
-        data
-      }))
-      samsaraEmulator.on('hos:log', (data) => this.emit('samsara:hos', {
-        type: 'samsara:hos',
-        vehicleId,
-        timestamp: new Date(),
-        data
-      }))
-      samsaraEmulator.on('video:clip', (data) => this.emit('samsara:video', {
-        type: 'samsara:video',
-        vehicleId,
-        timestamp: new Date(),
-        data
-      }))
-      samsaraEmulator.on('temperature:alert', (data) => this.emit('samsara:temperature', {
-        type: 'samsara:temperature',
-        vehicleId,
-        timestamp: new Date(),
-        data
-      }))
-
-      this.samsaraEmulators.set(vehicleId, samsaraEmulator)
-      await samsaraEmulator.start()
-    }
-
-    // Teltonika GPS Tracker Emulator
-    if (vehicle.features.includes('teltonika')) {
-      const teltonikaEmulator = new TeltonikaEmulator({
-        imei: this.generateIMEI(),
-        model: 'FM4200',
-        updateFrequency: this.config.emulators?.gps?.updateIntervalMs || 5000,
-        enableRFID: true,
-        enableCANBus: true,
-        startLocation: { latitude: vehicle.startingLocation.lat, longitude: vehicle.startingLocation.lng },
-        starterEnabled: true
-      })
-
-      // Listen to Teltonika events
-      teltonikaEmulator.on('location', (data) => this.emit('teltonika:location', {
-        type: 'teltonika:location',
-        vehicleId,
-        timestamp: new Date(),
-        data
-      }))
-      teltonikaEmulator.on('io:data', (data) => this.emit('teltonika:io', {
-        type: 'teltonika:io',
-        vehicleId,
-        timestamp: new Date(),
-        data
-      }))
-      teltonikaEmulator.on('rfid:auth', (data) => this.emit('teltonika:rfid', {
-        type: 'teltonika:rfid',
-        vehicleId,
-        timestamp: new Date(),
-        data
-      }))
-      teltonikaEmulator.on('starter:disabled', (data) => this.emit('teltonika:starter_disabled', {
-        type: 'teltonika:starter_disabled',
-        vehicleId,
-        timestamp: new Date(),
-        data
-      }))
-      teltonikaEmulator.on('starter:enabled', (data) => this.emit('teltonika:starter_enabled', {
-        type: 'teltonika:starter_enabled',
-        vehicleId,
-        timestamp: new Date(),
-        data
-      }))
-      teltonikaEmulator.on('panic:triggered', (data) => this.emit('teltonika:panic', {
-        type: 'teltonika:panic',
-        vehicleId,
-        timestamp: new Date(),
-        data
-      }))
-
-      this.teltonikaEmulators.set(vehicleId, teltonikaEmulator)
-      await teltonikaEmulator.start()
-    }
-
     this.stats.activeVehicles++
 
     // Create state entry
@@ -1094,18 +905,6 @@ export class EmulatorOrchestrator extends EventEmitter {
       await emulator.stop()
     }
     this.radioEmulators.clear()
-
-    // Stop Samsara emulators
-    for (const emulator of this.samsaraEmulators.values()) {
-      await emulator.stop()
-    }
-    this.samsaraEmulators.clear()
-
-    // Stop Teltonika emulators
-    for (const emulator of this.teltonikaEmulators.values()) {
-      await emulator.stop()
-    }
-    this.teltonikaEmulators.clear()
 
     this.states.clear()
   }
@@ -1272,9 +1071,7 @@ export class EmulatorOrchestrator extends EventEmitter {
         route: this.routeEmulators.size,
         cost: this.costEmulators.size,
         iot: this.iotEmulators.size,
-        radio: this.radioEmulators.size,
-        samsara: this.samsaraEmulators.size,
-        teltonika: this.teltonikaEmulators.size
+        radio: this.radioEmulators.size
       }
     }
   }
@@ -1336,39 +1133,6 @@ export class EmulatorOrchestrator extends EventEmitter {
     }
 
     return this.inventoryEmulator.getItemsBySKU(sku)
-  }
-
-  /**
-   * Generate IMEI for Teltonika devices
-   */
-  private generateIMEI(): string {
-    let imei = '35';
-    for (let i = 0; i < 13; i++) {
-      imei += Math.floor(Math.random() * 10);
-    }
-    return imei;
-  }
-
-  /**
-   * Get specific emulator for a vehicle
-   */
-  public getVehicleEmulator(vehicleId: string, type: 'gps' | 'obd2' | 'samsara' | 'teltonika' | 'radio' | 'video'): any | null {
-    switch (type) {
-      case 'gps':
-        return this.gpsEmulators.get(vehicleId) || null;
-      case 'obd2':
-        return this.obd2Emulators.get(vehicleId) || null;
-      case 'samsara':
-        return this.samsaraEmulators.get(vehicleId) || null;
-      case 'teltonika':
-        return this.teltonikaEmulators.get(vehicleId) || null;
-      case 'radio':
-        return this.radioEmulators.get(vehicleId) || null;
-      case 'video':
-        return this.videoTelematicsEmulators.get(vehicleId) || null;
-      default:
-        return null;
-    }
   }
 
   /**
