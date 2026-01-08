@@ -1558,6 +1558,69 @@ async function startServer() {
   }
 }
 
+// ============================================================================
+// CSRF Token Endpoint
+// ============================================================================
+app.get('/api/csrf', (req, res) => {
+  // Generate a simple CSRF token for development
+  const crypto = require('crypto');
+  const csrfToken = crypto.randomBytes(64).toString('hex');
+  res.json({ csrfToken });
+});
+
+app.get('/api/v1/csrf-token', (req, res) => {
+  // Alternative CSRF endpoint
+  const crypto = require('crypto');
+  const csrfToken = crypto.randomBytes(64).toString('hex');
+  res.json({ csrfToken });
+});
+
+// ============================================================================
+// Policies Endpoint
+// ============================================================================
+app.get('/api/policies', async (req, res) => {
+  try {
+    const { status } = req.query;
+
+    // Return empty array for now - policies not in simple server
+    // This prevents frontend errors
+    res.json([]);
+  } catch (error) {
+    console.error('Error fetching policies:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ============================================================================
+// Alerts & Notifications Endpoints
+// ============================================================================
+app.get('/api/alerts/notifications', async (req, res) => {
+  try {
+    const { limit = 10 } = req.query;
+
+    // Return empty array for now - notifications not in simple server
+    // This prevents frontend errors
+    res.json([]);
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ============================================================================
+// Traffic Cameras Endpoints
+// ============================================================================
+app.get('/api/traffic-cameras/sources', async (req, res) => {
+  try {
+    // Return empty array for now - traffic cameras not in simple server
+    // This prevents frontend errors
+    res.json([]);
+  } catch (error) {
+    console.error('Error fetching traffic camera sources:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Handle graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully...');

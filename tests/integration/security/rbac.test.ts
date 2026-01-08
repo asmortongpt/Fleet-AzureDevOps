@@ -16,12 +16,14 @@
 
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 
-import type { Role, Permission ,
+import {
   ROLE_DEFINITIONS,
   hasPermission,
   getRolePermissions,
   canAccessDatasetSize,
   logPermissionCheck,
+  type Role,
+  type Permission,
   type UserAttributes
 } from '@/lib/security/rbac';
 
