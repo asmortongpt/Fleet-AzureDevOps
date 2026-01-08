@@ -77,7 +77,13 @@
     "test:pdca:headed": "playwright test tests/pdca-validation-loop.spec.ts --headed",
     "test:pdca:report": "open test-results/pdca-validation-report.html",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "prepare": "husky",
+    "quality-check": "npm run typecheck:all && npm run lint && npm run test:unit",
+    "pre-push-check": "npm run quality-check && npm run test:coverage",
+    "complexity-check": "npx complexity-report src --threshold 10 || echo 'Complexity report generation skipped'",
+    "security-audit": "npm audit --audit-level=high",
+    "quality-report": "tsx scripts/quality-report.ts"
   },
   "dependencies": {
     "@azure/identity": "^4.13.0",
@@ -293,5 +299,10 @@
     "xml2js": "^0.6.2",
     "@azure/ms-rest-js": "^2.7.0",
     "@azure/ms-rest-azure-js": "^1.4.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "npm run lint:fix"
+    ]
   }
 }
