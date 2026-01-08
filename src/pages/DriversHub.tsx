@@ -11,7 +11,6 @@
  * - Real-time data with loading states
  */
 
-import { memo, useCallback, useId, Suspense, lazy, useState, useEffect, useRef } from 'react'
 import {
     Users as DriversIcon,
     Users,
@@ -23,18 +22,11 @@ import {
     Medal,
     Star,
     MagnifyingGlass,
-    Plus,
-    ArrowUp,
-    ArrowDown,
-    CaretDown,
-    X,
-    Spinner,
-    Check,
-    Warning,
-    Info
+    Plus
 } from '@phosphor-icons/react'
+import { memo, useCallback, useId, useState, useEffect, useRef } from 'react'
 
-import { HubPage, HubTabItem, HubTab } from '@/components/ui/hub-page'
+import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'

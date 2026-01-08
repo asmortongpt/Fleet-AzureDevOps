@@ -177,8 +177,8 @@ export function Login() {
               <div className="absolute inset-0 flex items-center">
                 <Separator className="w-full" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white dark:bg-slate-900 px-3 text-slate-500 dark:text-slate-400 font-medium">
+              <div className="relative flex justify-center text-xs uppercase z-10">
+                <span className="bg-white dark:bg-slate-900 px-3 text-slate-500 dark:text-slate-400 font-medium" data-testid="login-separator-text">
                   Or continue with email
                 </span>
               </div>
@@ -235,7 +235,7 @@ export function Login() {
               </Button>
             </form>
 
-            <p className="text-center text-sm text-slate-500 dark:text-slate-400 pt-2">
+            <p className="text-center text-sm text-slate-500 dark:text-slate-400 pt-2" data-testid="login-help-text">
               Need help? Contact your system administrator for credentials.
             </p>
           </CardContent>

@@ -24,6 +24,9 @@
  *   }
  */
 
+import * as fs from 'fs';
+import * as path from 'path';
+
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -32,8 +35,6 @@ import {
     ListToolsRequestSchema,
     ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import * as fs from 'fs';
-import * as path from 'path';
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 

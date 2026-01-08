@@ -92,7 +92,7 @@ function StatCard({
   warning,
   className
 }: {
-  icon: React.ElementType
+  icon: any
   label: string
   value: string | number
   unit?: string
@@ -147,7 +147,7 @@ function CircularGauge({
   max: number
   label: string
   unit: string
-  icon: React.ElementType
+  icon: any
   warning?: boolean
 }) {
   const percentage = Math.min(100, (value / max) * 100)

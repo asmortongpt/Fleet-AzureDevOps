@@ -20,8 +20,8 @@
 import { Request, Response, NextFunction } from 'express'
 import rateLimit, { RateLimitRequestHandler } from 'express-rate-limit'
 
-import { sanitizeForLog } from '../utils/logSanitizer'
 import logger from '../config/logger'
+import { sanitizeForLog } from '../utils/logSanitizer'
 
 /**
  * Extend Express Request type to include rate limit information
