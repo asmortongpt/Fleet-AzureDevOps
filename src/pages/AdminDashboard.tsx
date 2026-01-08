@@ -5,7 +5,9 @@ import { useNavigate } from 'react-router-dom';
 
 import MonitoringDashboard from '../components/admin/MonitoringDashboard';
 import { UserManagement } from '../components/admin/UserManagement';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { useAuth } from '../hooks/useAuth';
+import { logger } from '@/utils/logger';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -264,4 +266,17 @@ const AdminDashboard: React.FC = () => {
   );
 };
 
-export default AdminDashboard;
+const WrappedAdminDashboard = () => (
+  <ErrorBoundary
+    onError={(error, errorInfo) => {
+      logger.error('AdminDashboard error', error, {
+        component: 'AdminDashboard',
+        errorInfo
+      })
+    }}
+  >
+    <AdminDashboard />
+  </ErrorBoundary>
+)
+
+export default WrappedAdminDashboard;
