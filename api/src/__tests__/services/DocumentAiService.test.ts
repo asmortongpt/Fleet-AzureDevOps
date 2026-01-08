@@ -2269,7 +2269,8 @@ describe('DocumentAiService', () => {
       };
 
       // Act
-      const result = service.1(testData);
+      // TODO: Replace with actual service method call
+      const result = await service.processDocument(testData);
 
       // Assert
       expect(result).toBeDefined();
