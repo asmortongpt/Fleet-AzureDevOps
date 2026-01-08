@@ -24,12 +24,14 @@ Thank you for your interest in contributing to Fleet! This document provides gui
 ### Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/asmortongpt/Fleet.git
    cd Fleet
    ```
 
 2. **Install Git LFS** (if not already installed)
+
    ```bash
    # macOS
    brew install git-lfs
@@ -45,6 +47,7 @@ Thank you for your interest in contributing to Fleet! This document provides gui
    ```
 
 3. **Install dependencies**
+
    ```bash
    npm install
    ```
@@ -61,6 +64,7 @@ This repository uses **Git LFS** for large binary files to prevent repository bl
 ### For Large Files (>5MB)
 
 **Always use Git LFS for:**
+
 - 3D models (`.glb`, `.gltf`, `.obj`, `.fbx`)
 - Videos (`.mp4`, `.webm`)
 - Large images
@@ -97,6 +101,7 @@ The repository has pre-commit hooks that will **automatically reject**:
 ### Best Practices
 
 ✅ **DO:**
+
 - Use Git LFS for binary files >5MB
 - Keep build artifacts in `.gitignore`
 - Use environment variables for secrets
@@ -104,6 +109,7 @@ The repository has pre-commit hooks that will **automatically reject**:
 - Clean up unused files and branches
 
 ❌ **DON'T:**
+
 - Commit `node_modules/`, `dist/`, `build/`
 - Commit `.env` files with real secrets
 - Commit large media files without LFS
@@ -155,6 +161,7 @@ perf: Optimize fleet dashboard rendering
 ```
 
 **Format:**
+
 ```
 <type>(<scope>): <subject>
 
@@ -164,6 +171,7 @@ perf: Optimize fleet dashboard rendering
 ```
 
 **Examples:**
+
 ```bash
 # Simple commit
 git commit -m "feat: Add real-time telemetry dashboard"
@@ -204,16 +212,18 @@ function getVehicle(id) {
 ### Component Patterns
 
 **Lazy Loading (Required for modules):**
+
 ```typescript
 // App.tsx
 const VehicleManagement = lazy(() =>
-  import("@/components/modules/vehicle-management").then(m => ({
-    default: m.VehicleManagement
+  import('@/components/modules/vehicle-management').then(m => ({
+    default: m.VehicleManagement,
   }))
 )
 ```
 
 **Data Fetching:**
+
 ```typescript
 import { useVehicles } from '@/hooks/use-api'
 
@@ -234,6 +244,73 @@ function Component() {
 - Types: `PascalCase.ts` (e.g., `Vehicle.ts`)
 - Tests: `*.spec.ts` or `*.test.ts`
 
+## Quality Gates & CI/CD Pipeline
+
+### Automated Quality Checks
+
+This project has automated quality gates that run on every commit and push:
+
+**Pre-commit Hooks (Automatic):**
+
+- Lint-staged (auto-format code)
+- TypeScript type checking (frontend & API)
+- ESLint validation
+
+**Pre-push Hooks (Automatic):**
+
+- Unit tests
+- Coverage checks (60% minimum)
+- ESLint full validation
+- Build verification
+
+**CI/CD Pipeline (GitHub Actions):**
+
+- TypeScript validation
+- ESLint code quality
+- Unit tests
+- Coverage reporting (with Codacy integration)
+- Security audit
+- Build verification
+- E2E smoke tests
+- Complexity analysis
+
+### Quality Check Commands
+
+```bash
+# Run all quality checks locally
+npm run quality-check
+
+# Run pre-push checks
+npm run pre-push-check
+
+# Generate quality report
+npm run quality-report
+
+# Check code complexity
+npm run complexity-check
+
+# Security audit
+npm run security-audit
+```
+
+### Quality Report Dashboard
+
+Generate a visual quality dashboard:
+
+```bash
+npm run quality-report
+```
+
+This creates `quality-report.html` with:
+
+- TypeScript error count
+- ESLint issues
+- Test coverage metrics
+- Build status
+- Code complexity analysis
+
+Open the report in your browser for a comprehensive overview.
+
 ## Testing Requirements
 
 ### Running Tests
@@ -241,6 +318,12 @@ function Component() {
 ```bash
 # All E2E tests
 npm test
+
+# Unit tests
+npm run test:unit
+
+# Unit tests with coverage
+npm run test:coverage
 
 # Smoke tests (quick validation)
 npm run test:smoke
@@ -256,6 +339,13 @@ npm run test:ui
 # Headed mode (see browser)
 npm run test:headed
 ```
+
+### Test Coverage Requirements
+
+- Minimum 60% line coverage
+- All new features must include unit tests
+- Critical paths must have E2E tests
+- Coverage reports uploaded to Codacy automatically
 
 ### Writing Tests
 
@@ -286,6 +376,7 @@ test.describe('Vehicle Management', () => {
 ### Before Creating a PR
 
 1. **Ensure all tests pass**
+
    ```bash
    npm test
    npm run lint
@@ -310,20 +401,24 @@ test.describe('Vehicle Management', () => {
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] All tests pass
 - [ ] New tests added for new features
 - [ ] Manual testing completed
 
 ## Checklist
+
 - [ ] Code follows project standards
 - [ ] No hardcoded secrets
 - [ ] Large files use Git LFS
@@ -334,6 +429,11 @@ Brief description of changes
 ### Review Process
 
 1. **Automated Checks** (must pass):
+   - TypeScript type checking (0 errors)
+   - ESLint validation (0 errors)
+   - Unit tests (100% passing)
+   - Coverage threshold (≥60%)
+   - Build verification (successful)
    - Repository size check
    - Large file detection
    - Security scan
@@ -344,15 +444,32 @@ Brief description of changes
    - At least 1 approval required
    - Code owners automatically notified
    - Address all review comments
+   - All CI/CD checks must be green
 
 3. **Merge**:
    - Use "Squash and merge" for feature branches
    - Use "Merge commit" for important historical context
    - Never "Force push" to main
 
+### Branch Protection Rules
+
+The `main` branch has the following protections:
+
+- **Required Status Checks**: All CI/CD checks must pass
+- **Required Reviews**: At least 1 approval from code owners
+- **No Force Push**: Force pushing is disabled
+- **No Deletion**: Branch cannot be deleted
+- **Quality Gates**:
+  - 0 TypeScript errors
+  - 0 ESLint errors
+  - 60% minimum test coverage
+  - Successful build
+  - All unit tests passing
+
 ### PR Best Practices
 
 ✅ **Good PR:**
+
 - Focused on single feature/fix
 - <500 lines changed
 - Clear description
@@ -360,6 +477,7 @@ Brief description of changes
 - Updates documentation
 
 ❌ **Bad PR:**
+
 - Multiple unrelated changes
 - Thousands of lines changed
 - No description
@@ -371,13 +489,15 @@ Brief description of changes
 ### Never Commit Secrets
 
 ❌ **Never commit:**
+
 ```typescript
 // Bad - hardcoded secret
-const apiKey = "sk-abc123xyz456..."
-const password = "mypassword123"
+const apiKey = 'sk-abc123xyz456...'
+const password = 'mypassword123'
 ```
 
 ✅ **Always use:**
+
 ```typescript
 // Good - environment variable
 const apiKey = process.env.API_KEY
