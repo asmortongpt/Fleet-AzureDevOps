@@ -62,9 +62,9 @@ CREATE INDEX IF NOT EXISTS idx_vehicles_tenant_created ON vehicles(tenant_id, cr
 -- Foreign key indexes
 CREATE INDEX IF NOT EXISTS idx_work_orders_tenant_id ON work_orders(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_work_orders_vehicle_id ON work_orders(vehicle_id);
--- CREATE INDEX IF NOT EXISTS idx_work_orders_facility_id ON work_orders(facility_id) WHERE facility_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_work_orders_facility_id ON work_orders(facility_id) WHERE facility_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_work_orders_assigned_to_id ON work_orders(assigned_to_id) WHERE assigned_to_id IS NOT NULL;
--- CREATE INDEX IF NOT EXISTS idx_work_orders_created_by ON work_orders(created_by) WHERE created_by IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_work_orders_created_by ON work_orders(created_by) WHERE created_by IS NOT NULL;
 
 -- Filter indexes
 CREATE INDEX IF NOT EXISTS idx_work_orders_status ON work_orders(status);
@@ -88,8 +88,8 @@ CREATE INDEX IF NOT EXISTS idx_work_orders_number ON work_orders(number);
 -- ============================================================================
 
 -- Foreign key indexes
--- CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_tenant_id ON maintenance_schedules(tenant_id);
--- CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_vehicle_id ON maintenance_schedules(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_tenant_id ON maintenance_schedules(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_vehicle_id ON maintenance_schedules(vehicle_id);
 
 -- Filter indexes
 -- CREATE INDEX IF NOT EXISTS idx_skipped_status);
