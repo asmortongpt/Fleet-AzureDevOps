@@ -1,0 +1,88 @@
+---
+# Codacy Quality Configuration for Fleet Management System
+
+engines:
+  # Enable ESLint engine for JavaScript/TypeScript
+  eslint:
+    enabled: true
+    exclude_paths:
+      - "node_modules/**"
+      - "dist/**"
+      - "build/**"
+      - "coverage/**"
+      - "**/*.min.js"
+      - "**/*.bundle.js"
+
+  # Enable TypeScript checking
+  typescript:
+    enabled: true
+    exclude_paths:
+      - "node_modules/**"
+      - "dist/**"
+
+  # Enable security scanning
+  security:
+    enabled: true
+
+# Coverage settings
+coverage:
+  enabled: true
+  min: 60  # Minimum coverage threshold of 60%
+  exclude_paths:
+    - "**/*.test.ts"
+    - "**/*.test.tsx"
+    - "**/*.spec.ts"
+    - "**/*.spec.tsx"
+    - "**/tests/**"
+    - "**/e2e/**"
+    - "**/benchmarks/**"
+    - "**/*.d.ts"
+    - "**/*.config.ts"
+    - "**/*.config.js"
+
+# Code duplication detection
+duplication:
+  enabled: true
+  min_tokens: 50  # Minimum tokens to flag duplication
+  max: 7  # Maximum acceptable duplication percentage
+  exclude_paths:
+    - "**/*.test.ts"
+    - "**/*.test.tsx"
+    - "**/*.spec.ts"
+    - "**/*.spec.tsx"
+
+# Cyclomatic complexity thresholds
+complexity:
+  enabled: true
+  max: 10  # Maximum cyclomatic complexity per function
+  exclude_paths:
+    - "**/*.test.ts"
+    - "**/*.test.tsx"
+
+# Files and directories to exclude from all analysis
+exclude_paths:
+  - "node_modules/**"
+  - "dist/**"
+  - "build/**"
+  - "coverage/**"
+  - "public/**"
+  - ".husky/**"
+  - ".github/**"
+  - "**/*.min.js"
+  - "**/*.bundle.js"
+  - "playwright-report/**"
+  - "test-results/**"
+  - ".storybook/**"
+  - "storybook-static/**"
+  - "**/.next/**"
+  - "**/vendor/**"
+
+# Patterns to identify as tests
+test_patterns:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/tests/**"
+  - "**/e2e/**"
+  - "**/benchmarks/**"
