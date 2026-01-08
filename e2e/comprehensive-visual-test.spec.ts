@@ -807,9 +807,9 @@ test.describe.skip('Comprehensive Visual Testing Suite', () => {
     console.log('='.repeat(80) + '\n')
 
     // Write summary to file
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const fs = require('fs')
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const path = require('path')
     const summaryPath = path.join('test-results', 'visual-test-summary.json')
 

@@ -23,7 +23,7 @@ import {
     Engine
 } from '@phosphor-icons/react'
 
-import { HubPage, HubTab, HubTabItem } from '@/components/ui/hub-page'
+import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 
