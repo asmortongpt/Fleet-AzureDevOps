@@ -210,6 +210,9 @@ export const RoleSwitcher: React.FC = () => {
         animate={{ scale: 1 }}
         transition={{ type: 'spring', delay: 0.5 }}
       >
+        {/* Demo Mode Badge */}
+        <div className="demo-badge">DEMO MODE</div>
+
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="role-fab-button"
@@ -220,9 +223,6 @@ export const RoleSwitcher: React.FC = () => {
           <span className="role-label">{currentRoleConfig.name}</span>
           <span className="expand-icon">{isOpen ? '×' : '↕'}</span>
         </button>
-
-        {/* Demo Mode Badge */}
-        <div className="demo-badge">DEMO MODE</div>
       </motion.div>
 
       {/* Role Selection Panel */}
