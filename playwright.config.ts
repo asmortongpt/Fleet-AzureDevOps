@@ -7,6 +7,8 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 1,
   workers: process.env.CI ? 1 : 4,
   timeout: 60000, // Increase timeout to 60 seconds per test
+  globalSetup: './tests/global-setup.ts',
+  globalTeardown: './tests/global-teardown.ts',
   reporter: [
     ['html'],
     ['json', { outputFile: 'test-results/results.json' }],

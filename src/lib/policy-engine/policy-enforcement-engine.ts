@@ -457,7 +457,8 @@ export class PolicyEnforcementEngine {
   }
 
   /**
-   * Evaluate custom JavaScript logic
+   * Evaluate custom JavaScript logic using json-logic-js
+   * This provides a safe, sandboxed environment for policy rule evaluation
    */
   private evaluateCustomLogic(
     logic: string,
@@ -465,6 +466,10 @@ export class PolicyEnforcementEngine {
     actualValue: any
   ): boolean {
     try {
+      // Import json-logic-js for safe rule evaluation
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const jsonLogic = require('json-logic-js')
+
       // Create safe evaluation context
       const evalContext = {
         value: actualValue,
@@ -472,9 +477,37 @@ export class PolicyEnforcementEngine {
         user: context.user,
       }
 
-      // Use Function constructor for safe evaluation (better than eval)
-      const fn = new Function('data', `with(data) { return ${logic} }`)
-      return fn(evalContext)
+      // Parse logic as JSON-Logic format
+      // If logic is a plain string, try to parse it as JSON
+      let jsonLogicRule: any
+
+      try {
+        jsonLogicRule = JSON.parse(logic)
+      } catch {
+        // If not valid JSON, assume it's a simple comparison
+        // Convert simple expressions to JSON-Logic format
+        // Example: "value > 100" becomes {">":[{"var":"value"},100]}
+        console.warn('Custom logic must be in JSON-Logic format. Attempting basic conversion...')
+
+        // For backward compatibility, support simple comparisons
+        if (logic.includes('>')) {
+          const [left, right] = logic.split('>').map(s => s.trim())
+          jsonLogicRule = { '>': [{ var: left }, Number(right)] }
+        } else if (logic.includes('<')) {
+          const [left, right] = logic.split('<').map(s => s.trim())
+          jsonLogicRule = { '<': [{ var: left }, Number(right)] }
+        } else if (logic.includes('===')) {
+          const [left, right] = logic.split('===').map(s => s.trim())
+          jsonLogicRule = { '===': [{ var: left }, right.replace(/['"]/g, '')] }
+        } else {
+          // Fallback: treat as simple variable reference
+          jsonLogicRule = { var: logic }
+        }
+      }
+
+      // Apply the JSON-Logic rule to the context
+      const result = jsonLogic.apply(jsonLogicRule, evalContext)
+      return Boolean(result)
     } catch (error) {
       console.error('Error evaluating custom logic:', error)
       return false
