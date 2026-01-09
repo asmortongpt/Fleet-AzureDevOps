@@ -380,7 +380,7 @@ export class DamageAssessmentEngine extends EventEmitter {
     const model = this.models.get('severity-classification')
     if (!model) {
       // Fallback to rule-based classification
-      return this.ruleBa sedSeverityClassification(detections)
+      return this.ruleBasedSeverityClassification(detections)
     }
 
     // Prepare features for model
@@ -396,7 +396,7 @@ export class DamageAssessmentEngine extends EventEmitter {
     prediction.dispose()
 
     const severityClasses = ['cosmetic', 'minor', 'moderate', 'major', 'critical', 'total_loss']
-    const maxIndex = scores[.indexOf(Math.max(...scores[0]))
+    const maxIndex = scores[0].indexOf(Math.max(...scores[0]))
 
     return {
       score: scores[0][maxIndex],
@@ -759,7 +759,7 @@ export class DamageAssessmentEngine extends EventEmitter {
     return { primary, secondary, confidence }
   }
 
-  private ruleBbasedSeverityClassification(detections: any[]): any {
+  private ruleBasedSeverityClassification(detections: any[]): any {
     // Fallback severity classification
     const totalArea = this.calculateTotalDamageArea(detections)
     let severityClass = 'minor'

@@ -8,7 +8,7 @@ import { AnalyticsHub } from '@/components/hubs/analytics/AnalyticsHub';
 import { FleetHub } from '@/components/hubs/fleet/FleetHub';
 import { ReservationsHub } from '@/components/hubs/reservations/ReservationsHub';
 import { ConfigurationHub } from '@/pages/ConfigurationHub';
-import { DocumentsHub } from '@/pages/DocumentsHub';
+import DocumentsHub from '@/pages/DocumentsHub';
 import { PolicyHub } from '@/pages/PolicyHub';
 
 export const AppRoutes: React.FC = () => {
