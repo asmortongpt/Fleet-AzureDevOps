@@ -85,10 +85,41 @@ const msalConfig: Configuration = {
 // Initialize MSAL Instance
 const msalInstance = new PublicClientApplication(msalConfig)
 
+// DEVELOPMENT AUTH BYPASS
+const SKIP_AUTH = true; // import.meta.env.VITE_SKIP_AUTH === 'true';
+
+// Mock Data for Bypass
+const MOCK_ACCOUNT: AccountInfo = {
+  homeAccountId: 'demo-home-id',
+  localAccountId: '34c5e071-2d8c-44d0-8f1f-90b58672dceb',
+  environment: 'login.microsoftonline.com',
+  tenantId: 'ee1e7320-b232-402e-b4f8-288998b5bff7',
+  username: 'toby.deckow@capitaltechalliance.com',
+  name: 'Toby Deckow',
+  idTokenClaims: {
+    roles: ['SuperAdmin']
+  }
+};
+
+const MOCK_TOKEN_PAYLOAD = JSON.stringify({
+  payload: {
+    id: MOCK_ACCOUNT.localAccountId,
+    email: MOCK_ACCOUNT.username,
+    tenantId: MOCK_ACCOUNT.tenantId
+  }
+});
+const MOCK_ACCESS_TOKEN = btoa(MOCK_TOKEN_PAYLOAD);
+
 // Initialize MSAL - must be called before any authentication operations
 let msalInitialized = false
 
 export const initializeMsal = async (): Promise<void> => {
+  if (SKIP_AUTH) {
+    msalInitialized = true;
+    logger.info('[Auth] Skipping MSAL initialization (Development Bypass)');
+    return;
+  }
+
   if (msalInitialized) {
     return
   }
@@ -128,6 +159,11 @@ const loginScopes = {
  * Redirects user to Azure AD login page with MFA enforcement
  */
 export const loginWithRedirect = async (): Promise<void> => {
+  if (SKIP_AUTH) {
+    logger.info('[Auth] Login redirect skipped (Development Bypass)');
+    return;
+  }
+
   if (!msalInitialized) {
     await initializeMsal()
   }
@@ -159,6 +195,25 @@ export const loginWithRedirect = async (): Promise<void> => {
  * Opens Azure AD login in popup window
  */
 export const loginWithPopup = async (): Promise<AuthenticationResult> => {
+  if (SKIP_AUTH) {
+    logger.info('[Auth] Login popup skipped (Development Bypass)');
+    return {
+      uniqueId: MOCK_ACCOUNT.localAccountId,
+      tenantId: MOCK_ACCOUNT.tenantId,
+      scopes: loginScopes.scopes,
+      account: MOCK_ACCOUNT,
+      idToken: 'mock-id-token',
+      idTokenClaims: {},
+      accessToken: MOCK_ACCESS_TOKEN,
+      fromCache: false,
+      expiresOn: new Date(Date.now() + 86400000),
+      tokenType: 'Bearer',
+      correlationId: 'mock-correlation-id',
+      extExpiresOn: new Date(Date.now() + 86400000),
+      state: ''
+    };
+  }
+
   if (!msalInitialized) {
     await initializeMsal()
   }
@@ -192,6 +247,11 @@ export const loginWithPopup = async (): Promise<AuthenticationResult> => {
  * Clears all tokens and redirects to logout page
  */
 export const logout = async (): Promise<void> => {
+  if (SKIP_AUTH) {
+    logger.info('[Auth] Logout skipped (Development Bypass)');
+    return;
+  }
+
   if (!msalInitialized) {
     await initializeMsal()
   }
@@ -215,6 +275,10 @@ export const logout = async (): Promise<void> => {
  * Returns the active Azure AD account
  */
 export const getAccount = (): AccountInfo | null => {
+  if (SKIP_AUTH) {
+    return MOCK_ACCOUNT;
+  }
+
   if (!msalInitialized) {
     logger.warn('MSAL not initialized')
     return null
@@ -238,6 +302,10 @@ export const getAccount = (): AccountInfo | null => {
  * @returns Access token
  */
 export const getAccessToken = async (scopes?: string[]): Promise<string> => {
+  if (SKIP_AUTH) {
+    return MOCK_ACCESS_TOKEN;
+  }
+
   if (!msalInitialized) {
     await initializeMsal()
   }
@@ -282,6 +350,8 @@ export const getAccessToken = async (scopes?: string[]): Promise<string> => {
  * Returns true if token is valid and MFA was used
  */
 export const validateToken = async (token: string): Promise<boolean> => {
+  if (SKIP_AUTH) return true;
+
   try {
     // Decode JWT without verification (verification happens on backend)
     const payload = JSON.parse(atob(token.split('.')[1]))
@@ -295,9 +365,9 @@ export const validateToken = async (token: string): Promise<boolean> => {
 
     // Check MFA claim (amr = authentication methods reference)
     const mfaUsed = payload.amr?.includes('mfa') ||
-                    payload.amr?.includes('totp') ||
-                    payload.amr?.includes('sms') ||
-                    payload.amr?.includes('oath')
+      payload.amr?.includes('totp') ||
+      payload.amr?.includes('sms') ||
+      payload.amr?.includes('oath')
 
     if (!mfaUsed) {
       logger.warn('MFA not used for authentication')
@@ -321,6 +391,8 @@ export const validateToken = async (token: string): Promise<boolean> => {
  * Check if user is authenticated
  */
 export const isAuthenticated = (): boolean => {
+  if (SKIP_AUTH) return true;
+
   if (!msalInitialized) {
     return false
   }
@@ -338,6 +410,15 @@ export const getUserProfile = (): {
   name: string
   roles?: string[]
 } | null => {
+  if (SKIP_AUTH) {
+    return {
+      id: MOCK_ACCOUNT.localAccountId,
+      email: MOCK_ACCOUNT.username,
+      name: MOCK_ACCOUNT.name || 'Demo User',
+      roles: (MOCK_ACCOUNT.idTokenClaims as { roles?: string[] })?.roles
+    };
+  }
+
   const account = getAccount()
   if (!account) {
     return null
@@ -356,6 +437,8 @@ export const getUserProfile = (): {
  * Forces a new token to be acquired
  */
 export const refreshAccessToken = async (): Promise<string> => {
+  if (SKIP_AUTH) return MOCK_ACCESS_TOKEN;
+
   if (!msalInitialized) {
     await initializeMsal()
   }
