@@ -664,13 +664,27 @@ ${document.extractedText?.substring(0, 6000) || ''}`
   }
 
   private evaluateCondition(condition: string, document: Document): boolean {
-    // Simple condition evaluation (in production, use a proper expression evaluator)
+    // Safe condition evaluation using expr-eval
     try {
       const amount = document.metadata?.extracted?.['total-amount'] || 0
       const severity = document.metadata?.analysis?.severity || 'low'
 
-      return eval(condition.replace(/amount/g, amount.toString()).replace(/severity/g, `"${severity}"`))
-    } catch {
+      // Import expr-eval for safe expression parsing
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { Parser } = require('expr-eval')
+      const parser = new Parser()
+
+      // Create safe evaluation context
+      const context = {
+        amount,
+        severity,
+      }
+
+      // Parse and evaluate the expression safely
+      const expr = parser.parse(condition)
+      return expr.evaluate(context)
+    } catch (error) {
+      console.warn(`Failed to evaluate condition: ${condition}`, error)
       return false
     }
   }
