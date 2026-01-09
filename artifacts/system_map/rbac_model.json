@@ -1,0 +1,345 @@
+{
+  "generated_at": "2026-01-08T20:46:00Z",
+  "source": "static_analysis",
+  "rbac_system": "Permission-based RBAC with role hierarchy",
+  "roles": [
+    {
+      "id": "SuperAdmin",
+      "name": "Super Administrator",
+      "description": "Full system access across all tenants",
+      "level": 10,
+      "is_global": true,
+      "inherits_from": [],
+      "typical_users": ["System administrators", "Platform engineers"]
+    },
+    {
+      "id": "Admin",
+      "name": "Administrator",
+      "description": "Full tenant-level administrative access",
+      "level": 9,
+      "is_global": false,
+      "inherits_from": ["Manager"],
+      "typical_users": ["Fleet directors", "IT administrators"]
+    },
+    {
+      "id": "Manager",
+      "name": "Fleet Manager",
+      "description": "Manage fleet operations, reports, and personnel",
+      "level": 7,
+      "is_global": false,
+      "inherits_from": ["Supervisor"],
+      "typical_users": ["Fleet managers", "Operations managers"]
+    },
+    {
+      "id": "Supervisor",
+      "name": "Supervisor",
+      "description": "Supervise drivers and daily operations",
+      "level": 5,
+      "is_global": false,
+      "inherits_from": ["Dispatcher"],
+      "typical_users": ["Shift supervisors", "Team leads"]
+    },
+    {
+      "id": "Dispatcher",
+      "name": "Dispatcher",
+      "description": "Dispatch vehicles and manage routes",
+      "level": 4,
+      "is_global": false,
+      "inherits_from": ["Viewer"],
+      "typical_users": ["Dispatch operators", "Route planners"]
+    },
+    {
+      "id": "Mechanic",
+      "name": "Mechanic",
+      "description": "Manage maintenance and repairs",
+      "level": 4,
+      "is_global": false,
+      "inherits_from": ["Viewer"],
+      "typical_users": ["Fleet mechanics", "Maintenance technicians"]
+    },
+    {
+      "id": "Driver",
+      "name": "Driver",
+      "description": "Access own assignments and vehicle information",
+      "level": 2,
+      "is_global": false,
+      "inherits_from": [],
+      "typical_users": ["Vehicle drivers", "Operators"]
+    },
+    {
+      "id": "Viewer",
+      "name": "Viewer",
+      "description": "Read-only access to fleet data",
+      "level": 1,
+      "is_global": false,
+      "inherits_from": [],
+      "typical_users": ["Auditors", "Analysts", "Contractors"]
+    }
+  ],
+  "permissions": [
+    {
+      "id": "vehicle:view:fleet",
+      "resource": "vehicle",
+      "action": "view",
+      "scope": "fleet",
+      "description": "View all vehicles in the fleet",
+      "granted_to_roles": ["Admin", "Manager", "Supervisor", "Dispatcher", "Viewer"]
+    },
+    {
+      "id": "vehicle:view:own",
+      "resource": "vehicle",
+      "action": "view",
+      "scope": "own",
+      "description": "View only assigned vehicle",
+      "granted_to_roles": ["Driver"]
+    },
+    {
+      "id": "vehicle:create:fleet",
+      "resource": "vehicle",
+      "action": "create",
+      "scope": "fleet",
+      "description": "Add new vehicles to fleet",
+      "granted_to_roles": ["Admin", "Manager"]
+    },
+    {
+      "id": "vehicle:update:fleet",
+      "resource": "vehicle",
+      "action": "update",
+      "scope": "fleet",
+      "description": "Update vehicle information",
+      "granted_to_roles": ["Admin", "Manager", "Mechanic"]
+    },
+    {
+      "id": "vehicle:delete:fleet",
+      "resource": "vehicle",
+      "action": "delete",
+      "scope": "fleet",
+      "description": "Remove vehicles from fleet",
+      "granted_to_roles": ["Admin"]
+    },
+    {
+      "id": "route:view:fleet",
+      "resource": "route",
+      "action": "view",
+      "scope": "fleet",
+      "description": "View all routes",
+      "granted_to_roles": ["Admin", "Manager", "Supervisor", "Dispatcher", "Viewer"]
+    },
+    {
+      "id": "route:view:own",
+      "resource": "route",
+      "action": "view",
+      "scope": "own",
+      "description": "View only assigned routes",
+      "granted_to_roles": ["Driver"]
+    },
+    {
+      "id": "route:create:fleet",
+      "resource": "route",
+      "action": "create",
+      "scope": "fleet",
+      "description": "Create new routes",
+      "granted_to_roles": ["Admin", "Manager", "Dispatcher"]
+    },
+    {
+      "id": "route:update:fleet",
+      "resource": "route",
+      "action": "update",
+      "scope": "fleet",
+      "description": "Modify routes",
+      "granted_to_roles": ["Admin", "Manager", "Dispatcher"]
+    },
+    {
+      "id": "route:delete:fleet",
+      "resource": "route",
+      "action": "delete",
+      "scope": "fleet",
+      "description": "Delete routes",
+      "granted_to_roles": ["Admin", "Manager"]
+    },
+    {
+      "id": "driver:view:fleet",
+      "resource": "driver",
+      "action": "view",
+      "scope": "fleet",
+      "description": "View all drivers",
+      "granted_to_roles": ["Admin", "Manager", "Supervisor", "Dispatcher", "Viewer"]
+    },
+    {
+      "id": "driver:create:fleet",
+      "resource": "driver",
+      "action": "create",
+      "scope": "fleet",
+      "description": "Add new drivers",
+      "granted_to_roles": ["Admin", "Manager"]
+    },
+    {
+      "id": "driver:update:fleet",
+      "resource": "driver",
+      "action": "update",
+      "scope": "fleet",
+      "description": "Update driver information",
+      "granted_to_roles": ["Admin", "Manager", "Supervisor"]
+    },
+    {
+      "id": "maintenance:view:fleet",
+      "resource": "maintenance",
+      "action": "view",
+      "scope": "fleet",
+      "description": "View all maintenance records",
+      "granted_to_roles": ["Admin", "Manager", "Supervisor", "Mechanic", "Viewer"]
+    },
+    {
+      "id": "maintenance:create:fleet",
+      "resource": "maintenance",
+      "action": "create",
+      "scope": "fleet",
+      "description": "Create maintenance records",
+      "granted_to_roles": ["Admin", "Manager", "Mechanic"]
+    },
+    {
+      "id": "dispatch:manage:fleet",
+      "resource": "dispatch",
+      "action": "manage",
+      "scope": "fleet",
+      "description": "Full dispatch console access",
+      "granted_to_roles": ["Admin", "Manager", "Dispatcher"]
+    },
+    {
+      "id": "fuel:view:fleet",
+      "resource": "fuel",
+      "action": "view",
+      "scope": "fleet",
+      "description": "View fuel transactions",
+      "granted_to_roles": ["Admin", "Manager", "Viewer"]
+    },
+    {
+      "id": "reports:generate:fleet",
+      "resource": "reports",
+      "action": "generate",
+      "scope": "fleet",
+      "description": "Generate fleet reports",
+      "granted_to_roles": ["Admin", "Manager", "Viewer"]
+    },
+    {
+      "id": "executive_dashboard:view",
+      "resource": "executive_dashboard",
+      "action": "view",
+      "scope": "tenant",
+      "description": "Access executive dashboard",
+      "granted_to_roles": ["Admin", "Manager"]
+    },
+    {
+      "id": "policy:manage:fleet",
+      "resource": "policy",
+      "action": "manage",
+      "scope": "fleet",
+      "description": "Manage fleet policies",
+      "granted_to_roles": ["Admin"]
+    },
+    {
+      "id": "audit:view:fleet",
+      "resource": "audit",
+      "action": "view",
+      "scope": "fleet",
+      "description": "View audit logs",
+      "granted_to_roles": ["Admin", "Viewer"]
+    }
+  ],
+  "permission_scopes": [
+    {
+      "scope": "own",
+      "description": "User can only access their own resources",
+      "implementation": "Row-level filtering by user_id or driver_id"
+    },
+    {
+      "scope": "team",
+      "description": "User can access resources for their team",
+      "implementation": "Row-level filtering by team_id"
+    },
+    {
+      "scope": "fleet",
+      "description": "User can access all resources in their tenant",
+      "implementation": "Row-level filtering by tenant_id only"
+    },
+    {
+      "scope": "tenant",
+      "description": "Full tenant-level access",
+      "implementation": "No additional filtering beyond tenant_id"
+    },
+    {
+      "scope": "global",
+      "description": "Cross-tenant access (SuperAdmin only)",
+      "implementation": "No tenant_id filtering"
+    }
+  ],
+  "middleware": {
+    "authenticateJWT": {
+      "file": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/middleware/auth.ts",
+      "description": "Validates JWT token and extracts user/tenant context",
+      "sets": ["req.user", "req.user.tenant_id", "req.user.role"]
+    },
+    "requirePermission": {
+      "file": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/middleware/permissions.ts",
+      "description": "Checks if user has required permission",
+      "supports_custom_checks": true,
+      "example_usage": "requirePermission('vehicle:update:fleet', { customCheck: async (req) => {...} })"
+    },
+    "auditLog": {
+      "file": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/middleware/audit.ts",
+      "description": "Logs all API operations to audit_logs table",
+      "captures": ["action", "resource", "changes", "ip_address", "user_agent"]
+    }
+  ],
+  "frontend_guards": {
+    "ProtectedRoute": {
+      "file": "/Users/andrewmorton/Documents/GitHub/Fleet/src/components/auth/ProtectedRoute.tsx",
+      "description": "Route-level authentication guard",
+      "redirects_to": "/login"
+    },
+    "RouteGuard": {
+      "file": "/Users/andrewmorton/Documents/GitHub/Fleet/src/components/guards/RouteGuard.tsx",
+      "description": "Permission-based route guard",
+      "checks": ["roles", "permissions"]
+    },
+    "canAccess": {
+      "context": "AuthContext",
+      "description": "Hook to check if user has access to resources",
+      "usage": "const { canAccess } = useAuth(); if (canAccess(['Admin'], ['vehicle:create:fleet'])) {...}"
+    }
+  },
+  "custom_authorization_logic": {
+    "driver_route_access": {
+      "description": "Drivers can only view their own assigned routes",
+      "implementation": "Custom check in requirePermission middleware validates driver_id matches route assignment"
+    },
+    "completed_route_modification": {
+      "description": "Completed routes cannot be modified",
+      "implementation": "Custom check validates route status before allowing updates"
+    },
+    "tenant_isolation": {
+      "description": "All data access is scoped to user's tenant",
+      "implementation": "tenant_id from JWT is automatically added to all queries"
+    },
+    "idor_protection": {
+      "description": "Foreign key validation prevents unauthorized cross-resource access",
+      "implementation": "Before updating route with vehicle_id, verify vehicle belongs to tenant"
+    }
+  },
+  "stats": {
+    "total_roles": 8,
+    "total_permissions": 20,
+    "permission_scopes": 5,
+    "middleware_count": 3,
+    "frontend_guards": 3
+  },
+  "notes": [
+    "RBAC is enforced at both API layer (middleware) and database layer (RLS)",
+    "Permission format: resource:action:scope",
+    "Role hierarchy allows permission inheritance",
+    "Custom authorization logic extends beyond simple permission checks",
+    "All operations are audited via audit_logs table",
+    "Multi-tenant isolation is automatic via JWT tenant_id",
+    "Frontend uses AuthContext and navigation guards for UI-level access control"
+  ]
+}
