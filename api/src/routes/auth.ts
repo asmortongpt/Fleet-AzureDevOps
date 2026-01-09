@@ -296,11 +296,18 @@ router.post('/login', ...loginMiddleware, async (req: Request, res: Response) =>
     )
 
     // SECURITY: Set httpOnly cookie for session persistence (CRIT-F-001)
-    logger.info('Setting auth cookie', { secure: process.env.NODE_ENV === 'production', nodeEnv: process.env.NODE_ENV });
+    // FIX: Configure cookie for localhost development with proper domain setting
+    const isDevelopment = process.env.NODE_ENV === 'development'
+    logger.info('Setting auth cookie', {
+      secure: !isDevelopment,
+      nodeEnv: process.env.NODE_ENV,
+      domain: isDevelopment ? 'localhost' : undefined
+    });
     res.cookie('auth_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // MUST be false for localhost (http://)
       sameSite: 'lax',
+      domain: isDevelopment ? 'localhost' : undefined, // Explicit localhost domain for development
       maxAge: 15 * 60 * 1000 // 15 minutes matching token expiry
     })
 

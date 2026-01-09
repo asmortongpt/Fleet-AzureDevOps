@@ -68,11 +68,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
+        // DEVELOPMENT AUTH BYPASS: Skip authentication for testing
+        // IMPORTANT: Only use in development, remove after testing!
+        const SKIP_AUTH = import.meta.env.VITE_SKIP_AUTH === 'true';
+
         // DEMO MODE: Only enabled if explicitly set - SSO-first in production
         const DEMO_MODE = import.meta.env.VITE_USE_MOCK_DATA === 'true' ||
           localStorage.getItem('demo_mode') === 'true';
 
-        if (DEMO_MODE) {
+        if (SKIP_AUTH || DEMO_MODE) {
           const demoUser: User = {
             id: 'demo-user-1',
             email: 'demo@fleet.com',
@@ -85,6 +89,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           };
           setUserState(demoUser);
           setIsLoading(false);
+          logger.info('[Auth] Development auth bypass enabled - using demo user');
           return;
         }
 
