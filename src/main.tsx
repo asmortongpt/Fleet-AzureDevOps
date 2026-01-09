@@ -63,12 +63,19 @@ import { NavigationProvider } from "./contexts/NavigationContext"
 import { BrandingProvider } from "./shared/branding/BrandingProvider"
 
 // Professional theme with high contrast colors - fixes green-on-green readability
-import "./styles/professional-theme-fix.css"
+// DISABLED: Conflicts with Deep Midnight Dark Theme
+// import "./styles/professional-theme-fix.css"
+
+// Core Tailwind v4 + Enterprise Design System
 import "./index.css"
+
+// Responsive Utilities
 import "./styles/design-tokens-responsive.css"
 import "./styles/responsive-utilities.css"
 import "./styles/dark-mode-enhancements.css"
-import "./styles/fleet-theme.css"
+
+// Legacy fleet theme - DISABLED to prevent conflicts
+// import "./styles/fleet-theme.css"
 
 // Create a client
 const queryClient = new QueryClient({
@@ -204,48 +211,48 @@ validateStartupConfiguration().then(() => {
   console.log('[Fleet] Starting application...');
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="system" storageKey="ctafleet-theme">
-        <SentryErrorBoundary level="page">
-          <BrandingProvider>
-            <AuthProvider>
-              <TenantProvider>
-                <FeatureFlagProvider>
-                  <DrilldownProvider>
-                    <InspectProvider>
-                      <BrowserRouter>
-                        {/* <GlobalCommandPalette /> */}
-                        <SentryRoutes>
-                          {/* Public Login Route */}
-                          <Route path="/login" element={<Login />} />
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider defaultTheme="system" storageKey="ctafleet-theme">
+          <SentryErrorBoundary level="page">
+            <BrandingProvider>
+              <AuthProvider>
+                <TenantProvider>
+                  <FeatureFlagProvider>
+                    <DrilldownProvider>
+                      <InspectProvider>
+                        <BrowserRouter>
+                          {/* <GlobalCommandPalette /> */}
+                          <SentryRoutes>
+                            {/* Public Login Route */}
+                            <Route path="/login" element={<Login />} />
 
-                          {/* Protected Application Routes - Require SSO Authentication */}
-                          <Route
-                            path="/*"
-                            element={
-                              <ProtectedRoute requireAuth={true}>
-                                <SentryErrorBoundary level="section">
-                                  <NavigationProvider>
-                                    <App />
-                                  </NavigationProvider>
-                                </SentryErrorBoundary>
-                              </ProtectedRoute>
-                            }
-                          />
-                        </SentryRoutes>
-                      </BrowserRouter>
-                    </InspectProvider>
-                  </DrilldownProvider>
-                </FeatureFlagProvider>
-              </TenantProvider>
-            </AuthProvider>
-          </BrandingProvider>
-        </SentryErrorBoundary>
-      </ThemeProvider>
-    </QueryClientProvider>
-  </React.StrictMode>
-)
+                            {/* Protected Application Routes - Require SSO Authentication */}
+                            <Route
+                              path="/*"
+                              element={
+                                <ProtectedRoute requireAuth={true}>
+                                  <SentryErrorBoundary level="section">
+                                    <NavigationProvider>
+                                      <App />
+                                    </NavigationProvider>
+                                  </SentryErrorBoundary>
+                                </ProtectedRoute>
+                              }
+                            />
+                          </SentryRoutes>
+                        </BrowserRouter>
+                      </InspectProvider>
+                    </DrilldownProvider>
+                  </FeatureFlagProvider>
+                </TenantProvider>
+              </AuthProvider>
+            </BrandingProvider>
+          </SentryErrorBoundary>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </React.StrictMode>
+  )
 
   // Register service worker for PWA functionality
   const updateSW = registerSW({
