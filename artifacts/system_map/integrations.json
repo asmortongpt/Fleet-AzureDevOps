@@ -1,0 +1,290 @@
+{
+  "generated_at": "2026-01-08T20:48:00Z",
+  "source": "static_analysis",
+  "integrations": [
+    {
+      "id": "microsoft-teams",
+      "name": "Microsoft Teams",
+      "type": "communication",
+      "status": "active",
+      "description": "Send notifications and alerts to Teams channels",
+      "endpoints": [
+        {
+          "path": "/api/teams/send-notification",
+          "method": "POST",
+          "file": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/routes/teams.routes.ts"
+        }
+      ],
+      "config_required": ["MICROSOFT_GRAPH_CLIENT_ID", "MICROSOFT_GRAPH_CLIENT_SECRET", "MICROSOFT_GRAPH_TENANT_ID"],
+      "features": ["Adaptive cards", "Notifications", "Bot integration"],
+      "authentication": "OAuth 2.0 with Microsoft Graph API"
+    },
+    {
+      "id": "microsoft-outlook",
+      "name": "Microsoft Outlook",
+      "type": "email",
+      "status": "active",
+      "description": "Email notifications and calendar integration",
+      "endpoints": [
+        {
+          "path": "/api/outlook/send-email",
+          "method": "POST",
+          "file": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/routes/outlook.routes.ts"
+        }
+      ],
+      "config_required": ["MICROSOFT_GRAPH_CLIENT_ID", "MICROSOFT_GRAPH_CLIENT_SECRET", "MICROSOFT_GRAPH_TENANT_ID"],
+      "features": ["Send emails", "Calendar events", "Contact sync"],
+      "authentication": "OAuth 2.0 with Microsoft Graph API"
+    },
+    {
+      "id": "microsoft-graph",
+      "name": "Microsoft Graph API",
+      "type": "platform",
+      "status": "active",
+      "description": "Unified API for Microsoft 365 services",
+      "endpoints": [],
+      "config_required": ["MICROSOFT_GRAPH_CLIENT_ID", "MICROSOFT_GRAPH_CLIENT_SECRET", "MICROSOFT_GRAPH_TENANT_ID"],
+      "features": ["User management", "Calendar", "Email", "Teams", "OneDrive"],
+      "authentication": "OAuth 2.0",
+      "scopes": ["User.Read", "Mail.Send", "Calendars.ReadWrite", "Team.ReadBasic.All"]
+    },
+    {
+      "id": "smartcar",
+      "name": "Smartcar",
+      "type": "vehicle-telematics",
+      "status": "active",
+      "description": "Connect to vehicle telematics via OEM APIs",
+      "endpoints": [
+        {
+          "path": "/api/smartcar/connect",
+          "method": "POST",
+          "file": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/routes/smartcar.routes.ts"
+        },
+        {
+          "path": "/api/smartcar/vehicle/:id/location",
+          "method": "GET"
+        },
+        {
+          "path": "/api/smartcar/vehicle/:id/odometer",
+          "method": "GET"
+        },
+        {
+          "path": "/api/smartcar/vehicle/:id/fuel",
+          "method": "GET"
+        }
+      ],
+      "config_required": ["SMARTCAR_CLIENT_ID", "SMARTCAR_CLIENT_SECRET"],
+      "features": ["Real-time location", "Odometer", "Fuel level", "Battery status (EV)", "Lock/unlock", "Start/stop engine"],
+      "authentication": "OAuth 2.0",
+      "supported_makes": ["Tesla", "Ford", "GM", "Toyota", "Honda", "BMW", "Mercedes", "Nissan", "Volkswagen", "30+ others"]
+    },
+    {
+      "id": "google-maps",
+      "name": "Google Maps Platform",
+      "type": "mapping",
+      "status": "active",
+      "description": "Mapping, geocoding, and route optimization",
+      "endpoints": [
+        {
+          "path": "/api/maps/geocode",
+          "method": "GET"
+        },
+        {
+          "path": "/api/maps/directions",
+          "method": "GET"
+        }
+      ],
+      "config_required": ["GOOGLE_MAPS_API_KEY"],
+      "features": ["Maps JavaScript API", "Geocoding API", "Directions API", "Places API"],
+      "frontend_integration": true,
+      "components": ["/Users/andrewmorton/Documents/GitHub/Fleet/src/components/GoogleMap.tsx"]
+    },
+    {
+      "id": "arcgis",
+      "name": "ArcGIS",
+      "type": "gis",
+      "status": "active",
+      "description": "Advanced GIS and spatial analysis",
+      "endpoints": [
+        {
+          "path": "/api/arcgis/layers",
+          "method": "GET",
+          "file": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/routes/arcgis-layers.ts"
+        }
+      ],
+      "config_required": ["ARCGIS_API_KEY"],
+      "features": ["Custom map layers", "Spatial analysis", "Geofencing", "Heat maps"],
+      "components": ["/Users/andrewmorton/Documents/GitHub/Fleet/src/components/modules/integrations/ArcGISIntegration.tsx"]
+    },
+    {
+      "id": "openai",
+      "name": "OpenAI GPT",
+      "type": "ai",
+      "status": "active",
+      "description": "AI-powered insights and chatbot",
+      "endpoints": [
+        {
+          "path": "/api/ai/chat",
+          "method": "POST",
+          "file": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/routes/ai/chat.ts"
+        },
+        {
+          "path": "/api/ai-insights/analyze",
+          "method": "POST",
+          "file": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/routes/ai-insights.routes.ts"
+        }
+      ],
+      "config_required": ["OPENAI_API_KEY"],
+      "features": ["Fleet assistant chatbot", "Predictive maintenance", "Anomaly detection", "Natural language queries"],
+      "models_used": ["gpt-4", "gpt-3.5-turbo"],
+      "components": ["/Users/andrewmorton/Documents/GitHub/Fleet/src/components/ai/AIAssistantChat.tsx"]
+    },
+    {
+      "id": "langchain",
+      "name": "LangChain",
+      "type": "ai-framework",
+      "status": "active",
+      "description": "LLM orchestration for RAG and document analysis",
+      "endpoints": [
+        {
+          "path": "/api/langchain/query",
+          "method": "POST",
+          "file": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/routes/langchain.routes.ts"
+        }
+      ],
+      "config_required": ["OPENAI_API_KEY"],
+      "features": ["Document Q&A", "Policy search", "RAG (Retrieval-Augmented Generation)", "Vector embeddings"],
+      "vector_store": "PostgreSQL with pgvector extension"
+    },
+    {
+      "id": "azure-application-insights",
+      "name": "Azure Application Insights",
+      "type": "monitoring",
+      "status": "active",
+      "description": "Application performance monitoring and telemetry",
+      "endpoints": [],
+      "config_required": ["APPLICATIONINSIGHTS_CONNECTION_STRING"],
+      "features": ["Performance tracking", "Error logging", "User analytics", "Custom events"],
+      "telemetry_files": ["/Users/andrewmorton/Documents/GitHub/Fleet/src/lib/telemetry.ts"]
+    },
+    {
+      "id": "sentry",
+      "name": "Sentry",
+      "type": "error-tracking",
+      "status": "active",
+      "description": "Error tracking and performance monitoring",
+      "endpoints": [],
+      "config_required": ["SENTRY_DSN"],
+      "features": ["Error tracking", "Performance monitoring", "Release tracking", "Source maps"],
+      "initialization": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/monitoring/sentry.ts"
+    },
+    {
+      "id": "twilio",
+      "name": "Twilio",
+      "type": "sms",
+      "status": "available",
+      "description": "SMS notifications for drivers and alerts",
+      "endpoints": [],
+      "config_required": ["TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_PHONE_NUMBER"],
+      "features": ["SMS notifications", "Two-factor authentication", "Emergency alerts"]
+    },
+    {
+      "id": "stripe",
+      "name": "Stripe",
+      "type": "payment",
+      "status": "planned",
+      "description": "Payment processing for fuel cards and billing",
+      "endpoints": [],
+      "config_required": ["STRIPE_API_KEY", "STRIPE_WEBHOOK_SECRET"],
+      "features": ["Fuel card payments", "Invoice processing", "Subscription billing"]
+    },
+    {
+      "id": "fuelmaster",
+      "name": "FuelMaster Emulator",
+      "type": "fuel-management",
+      "status": "emulator",
+      "description": "Emulated fuel management system for development/testing",
+      "endpoints": [
+        {
+          "path": "/api/emulator/fuelmaster/*",
+          "method": "ALL",
+          "file": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/emulators/fuelmaster/FuelMasterEmulator.ts"
+        }
+      ],
+      "config_required": [],
+      "features": ["Fuel transaction sync", "Card validation", "Station data"]
+    },
+    {
+      "id": "peoplesoft",
+      "name": "PeopleSoft Emulator",
+      "type": "erp",
+      "status": "emulator",
+      "description": "Emulated PeopleSoft ERP for development/testing",
+      "endpoints": [
+        {
+          "path": "/api/emulator/peoplesoft/*",
+          "method": "ALL",
+          "file": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/emulators/peoplesoft/PeopleSoftEmulator.ts"
+        }
+      ],
+      "config_required": [],
+      "features": ["Employee data sync", "Cost center allocation", "Budget tracking"]
+    },
+    {
+      "id": "obd2-emulator",
+      "name": "OBD-II Emulator",
+      "type": "vehicle-diagnostics",
+      "status": "emulator",
+      "description": "Simulated OBD-II data for development/testing",
+      "endpoints": [
+        {
+          "path": "/api/obd2-emulator/telemetry",
+          "method": "POST",
+          "file": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/routes/obd2-emulator.routes.ts"
+        }
+      ],
+      "config_required": [],
+      "features": ["Simulated sensor data", "DTC code generation", "Real-time telemetry"]
+    }
+  ],
+  "webhooks": {
+    "outlook": {
+      "path": "/api/webhooks/outlook",
+      "file": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/routes/webhooks/outlook.webhook.ts",
+      "description": "Receive Outlook calendar event updates",
+      "events": ["calendar.created", "calendar.updated", "calendar.deleted"]
+    },
+    "teams": {
+      "path": "/api/webhooks/teams",
+      "file": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/routes/webhooks/teams.webhook.ts",
+      "description": "Receive Teams bot messages and events",
+      "events": ["message.received", "card.action"]
+    }
+  },
+  "real_time": {
+    "websocket": {
+      "enabled": true,
+      "path": "/ws",
+      "file": "/Users/andrewmorton/Documents/GitHub/Fleet/api/src/websocket/",
+      "channels": ["gps-updates", "notifications", "dispatch-updates", "telemetry"],
+      "authentication": "JWT token in connection params"
+    }
+  },
+  "stats": {
+    "total_integrations": 15,
+    "active_integrations": 10,
+    "emulators": 3,
+    "planned_integrations": 1,
+    "webhook_endpoints": 2,
+    "real_time_channels": 4
+  },
+  "notes": [
+    "Microsoft Graph API provides unified access to Teams, Outlook, and Office 365",
+    "Smartcar enables direct vehicle connectivity for supported makes/models",
+    "AI integrations use OpenAI GPT-4 with LangChain for RAG capabilities",
+    "Emulators (FuelMaster, PeopleSoft, OBD-II) simulate external systems for development",
+    "WebSocket support for real-time GPS, telemetry, and notifications",
+    "All integrations use secure OAuth 2.0 or API key authentication",
+    "Monitoring via Azure Application Insights and Sentry"
+  ]
+}

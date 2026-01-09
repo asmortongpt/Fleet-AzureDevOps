@@ -1,0 +1,312 @@
+{
+  "generated_at": "2026-01-08T20:47:00Z",
+  "source": "static_analysis",
+  "ui_framework": "React 18 + TypeScript",
+  "component_library": "shadcn/ui (Radix UI primitives)",
+  "styling": "Tailwind CSS",
+  "interactive_elements": [
+    {
+      "id": "nav-sidebar",
+      "type": "navigation",
+      "component": "Sidebar",
+      "file_path": "/Users/andrewmorton/Documents/GitHub/Fleet/src/components/layout/CommandCenterLayout.tsx",
+      "description": "Main navigation sidebar with module icons",
+      "interactions": ["click", "hover"],
+      "test_id": "main-sidebar",
+      "role": "navigation"
+    },
+    {
+      "id": "module-switcher",
+      "type": "navigation",
+      "component": "ModuleSwitcher",
+      "description": "Switch between fleet management modules",
+      "interactions": ["click"],
+      "triggers": "setActiveModule(moduleId)"
+    },
+    {
+      "id": "vehicle-list-table",
+      "type": "table",
+      "component": "DataTable",
+      "description": "Sortable, filterable vehicle list",
+      "interactions": ["sort", "filter", "paginate", "row-click"],
+      "test_id": "vehicle-table",
+      "role": "table",
+      "supports": ["multi-select", "inline-edit"]
+    },
+    {
+      "id": "route-map",
+      "type": "map",
+      "component": "UniversalMap",
+      "file_path": "/Users/andrewmorton/Documents/GitHub/Fleet/src/components/UniversalMap.tsx",
+      "description": "Interactive map showing routes and vehicle locations",
+      "interactions": ["pan", "zoom", "marker-click", "draw-route"],
+      "map_provider": "Google Maps / Leaflet / Mapbox",
+      "test_id": "route-map"
+    },
+    {
+      "id": "vehicle-detail-panel",
+      "type": "panel",
+      "component": "VehicleDetailPanel",
+      "file_path": "/Users/andrewmorton/Documents/GitHub/Fleet/src/components/drilldown/VehicleDetailPanel.tsx",
+      "description": "Slide-out panel showing vehicle details",
+      "interactions": ["open", "close", "tab-switch"],
+      "test_id": "vehicle-detail-panel",
+      "role": "dialog"
+    },
+    {
+      "id": "create-route-button",
+      "type": "button",
+      "component": "Button",
+      "description": "Primary action to create new route",
+      "interactions": ["click"],
+      "test_id": "create-route-btn",
+      "role": "button",
+      "variant": "primary"
+    },
+    {
+      "id": "route-form",
+      "type": "form",
+      "component": "RouteForm",
+      "description": "Multi-step route creation form",
+      "interactions": ["input", "select", "submit", "validate"],
+      "fields": ["vehicle", "driver", "stops", "start_time"],
+      "test_id": "route-form",
+      "role": "form",
+      "validation": "zod schema"
+    },
+    {
+      "id": "filter-dropdown",
+      "type": "dropdown",
+      "component": "Select",
+      "description": "Filter vehicles by status/type",
+      "interactions": ["click", "select", "search"],
+      "test_id": "vehicle-filter",
+      "role": "combobox"
+    },
+    {
+      "id": "date-range-picker",
+      "type": "date-picker",
+      "component": "DateRangePicker",
+      "description": "Select date range for reports",
+      "interactions": ["click", "select-date"],
+      "test_id": "date-range-picker",
+      "role": "dialog"
+    },
+    {
+      "id": "search-bar",
+      "type": "search",
+      "component": "UniversalSearch",
+      "file_path": "/Users/andrewmorton/Documents/GitHub/Fleet/src/components/UniversalSearch.tsx",
+      "description": "Global search across all entities",
+      "interactions": ["input", "select-result"],
+      "test_id": "global-search",
+      "role": "searchbox",
+      "supports": ["autocomplete", "fuzzy-search"]
+    },
+    {
+      "id": "notification-bell",
+      "type": "button",
+      "component": "NotificationBell",
+      "description": "Show unread notifications",
+      "interactions": ["click", "hover"],
+      "test_id": "notification-bell",
+      "role": "button",
+      "badge": "unread count"
+    },
+    {
+      "id": "notification-dropdown",
+      "type": "dropdown",
+      "component": "NotificationDropdown",
+      "description": "List of recent notifications",
+      "interactions": ["click", "mark-read", "scroll"],
+      "test_id": "notification-dropdown",
+      "role": "menu"
+    },
+    {
+      "id": "user-menu",
+      "type": "dropdown",
+      "component": "UserMenu",
+      "description": "User profile and settings menu",
+      "interactions": ["click", "navigate"],
+      "test_id": "user-menu",
+      "role": "menu",
+      "items": ["Profile", "Settings", "Logout"]
+    },
+    {
+      "id": "dashboard-stats-card",
+      "type": "card",
+      "component": "StatCard",
+      "description": "Summary statistics card",
+      "interactions": ["click"],
+      "test_id": "stat-card",
+      "clickable": true,
+      "drilldown": "Opens detailed view"
+    },
+    {
+      "id": "chart-interactive",
+      "type": "chart",
+      "component": "Chart",
+      "library": "Recharts",
+      "description": "Interactive data visualization",
+      "interactions": ["hover", "click", "zoom"],
+      "test_id": "fleet-chart",
+      "chart_types": ["line", "bar", "pie", "area"]
+    },
+    {
+      "id": "modal-confirm-delete",
+      "type": "modal",
+      "component": "ConfirmDialog",
+      "description": "Confirmation modal for delete operations",
+      "interactions": ["confirm", "cancel"],
+      "test_id": "confirm-delete-modal",
+      "role": "alertdialog"
+    },
+    {
+      "id": "toast-notification",
+      "type": "toast",
+      "component": "Toast",
+      "library": "react-hot-toast",
+      "description": "Temporary notification message",
+      "interactions": ["dismiss"],
+      "test_id": "toast-message",
+      "role": "status",
+      "variants": ["success", "error", "warning", "info"]
+    },
+    {
+      "id": "tabs-vehicle-detail",
+      "type": "tabs",
+      "component": "Tabs",
+      "description": "Tabbed interface for vehicle details",
+      "interactions": ["click-tab"],
+      "test_id": "vehicle-tabs",
+      "role": "tablist",
+      "tabs": ["Overview", "Maintenance", "Trips", "Documents"]
+    },
+    {
+      "id": "drilldown-breadcrumb",
+      "type": "breadcrumb",
+      "component": "Breadcrumb",
+      "description": "Navigation breadcrumb for drilldowns",
+      "interactions": ["click"],
+      "test_id": "breadcrumb",
+      "role": "navigation"
+    },
+    {
+      "id": "ai-assistant-chat",
+      "type": "chat",
+      "component": "AIAssistantChat",
+      "file_path": "/Users/andrewmorton/Documents/GitHub/Fleet/src/components/ai/AIAssistantChat.tsx",
+      "description": "AI-powered fleet assistant",
+      "interactions": ["input", "submit", "voice"],
+      "test_id": "ai-chat",
+      "role": "dialog"
+    },
+    {
+      "id": "3d-vehicle-viewer",
+      "type": "3d-canvas",
+      "component": "VirtualGarage",
+      "file_path": "/Users/andrewmorton/Documents/GitHub/Fleet/src/components/modules/fleet/VirtualGarage.tsx",
+      "description": "3D vehicle visualization",
+      "interactions": ["rotate", "zoom", "inspect"],
+      "test_id": "3d-garage",
+      "library": "Three.js / React Three Fiber"
+    },
+    {
+      "id": "file-upload-dropzone",
+      "type": "file-upload",
+      "component": "FileUpload",
+      "description": "Drag-and-drop file upload",
+      "interactions": ["drag", "drop", "select"],
+      "test_id": "file-upload",
+      "role": "button",
+      "accepts": ["images", "pdf", "documents"]
+    },
+    {
+      "id": "role-switcher-fab",
+      "type": "fab",
+      "component": "RoleSwitcher",
+      "file_path": "/Users/andrewmorton/Documents/GitHub/Fleet/src/components/demo/RoleSwitcher.tsx",
+      "description": "Demo: Switch user role for testing",
+      "interactions": ["click", "select"],
+      "test_id": "role-switcher",
+      "role": "button",
+      "demo_only": true
+    },
+    {
+      "id": "data-grid-editable",
+      "type": "data-grid",
+      "component": "EditableDataGrid",
+      "description": "Inline-editable data grid",
+      "interactions": ["edit", "save", "cancel"],
+      "test_id": "editable-grid",
+      "role": "grid"
+    },
+    {
+      "id": "calendar-schedule",
+      "type": "calendar",
+      "component": "Calendar",
+      "description": "Maintenance scheduling calendar",
+      "interactions": ["select-date", "create-event", "drag-event"],
+      "test_id": "maintenance-calendar",
+      "role": "application"
+    }
+  ],
+  "interaction_patterns": {
+    "drilldown": {
+      "description": "Click on summary stat or table row to open detailed panel",
+      "components_using": ["StatCard", "DataTable", "VehicleDetailPanel"],
+      "context_provider": "DrilldownManager"
+    },
+    "command_palette": {
+      "description": "Keyboard shortcut to open universal search",
+      "shortcut": "Cmd+K / Ctrl+K",
+      "component": "UniversalSearch"
+    },
+    "inline_edit": {
+      "description": "Double-click table cell to edit in place",
+      "components_using": ["EditableDataGrid", "DataTable"]
+    },
+    "multi_select": {
+      "description": "Checkbox selection for bulk operations",
+      "components_using": ["DataTable", "VehicleList"]
+    },
+    "drag_drop": {
+      "description": "Drag items to reorder or assign",
+      "components_using": ["FileUpload", "Calendar", "TaskBoard"]
+    }
+  },
+  "accessibility": {
+    "aria_labels": "All interactive elements have aria-labels",
+    "keyboard_navigation": "Full keyboard support (Tab, Enter, Escape)",
+    "screen_reader": "WCAG 2.1 AA compliant",
+    "focus_indicators": "Visible focus states on all focusable elements",
+    "skip_links": "Skip to main content link available"
+  },
+  "testing": {
+    "strategy": "data-testid attributes on all interactive elements",
+    "framework": "Playwright for E2E tests",
+    "test_files": "/Users/andrewmorton/Documents/GitHub/Fleet/e2e/",
+    "example_selector": "await page.getByTestId('create-route-btn').click()"
+  },
+  "stats": {
+    "total_interactive_elements": 25,
+    "buttons": 5,
+    "forms": 2,
+    "tables": 2,
+    "maps": 1,
+    "charts": 1,
+    "modals": 1,
+    "dropdowns": 3,
+    "panels": 1,
+    "other": 9
+  },
+  "notes": [
+    "UI components use shadcn/ui (Radix UI primitives) for accessibility",
+    "All elements have data-testid attributes for E2E testing",
+    "Responsive design supports mobile, tablet, and desktop",
+    "Real-time updates via WebSocket for GPS and notifications",
+    "AI assistant provides contextual help and insights",
+    "3D visualization for virtual garage inspection",
+    "Command palette (Cmd+K) for quick navigation"
+  ]
+}
