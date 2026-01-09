@@ -68,11 +68,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        // SECURITY: Auth bypass restricted to test environment only
-        // DANGER: SKIP_AUTH completely bypasses all authentication
-        // This MUST NEVER be enabled in production or any non-test environment
-        // Only enabled when NODE_ENV='test' AND VITE_SKIP_AUTH='true'
-        const SKIP_AUTH = process.env.NODE_ENV === 'test' && import.meta.env.VITE_SKIP_AUTH === 'true';
+        // Only enabled when (NODE_ENV='test' OR MODE='development') AND VITE_SKIP_AUTH='true'
+        const SKIP_AUTH = (process.env.NODE_ENV === 'test' || import.meta.env.MODE === 'development') && import.meta.env.VITE_SKIP_AUTH === 'true';
 
         // Log security warning if bypass is enabled in non-test environment
         if (SKIP_AUTH && process.env.NODE_ENV !== 'test') {
