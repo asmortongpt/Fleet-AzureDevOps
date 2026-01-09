@@ -154,3 +154,6 @@ qa-framework/*.cjs
 !BUSINESS_REQUIREMENTS_FEATURES.md
 !docs/**/*.md
 artifacts/sync_test_*.json
+.gitignore updated
+azure-test-agents/
+incoming_data/
