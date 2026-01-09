@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Management System - Technical Reference</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; max-width: 1400px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+        h1 { color: #1a1a1a; border-bottom: 3px solid #0066cc; padding-bottom: 10px; }
+        h2 { color: #0066cc; margin-top: 40px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px; }
+        h3 { color: #333; margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        th { background: #0066cc; color: white; padding: 12px; text-align: left; font-weight: 600; }
+        td { padding: 10px 12px; border-bottom: 1px solid #e0e0e0; }
+        tr:hover { background: #f8f8f8; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; color: #d63384; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .meta { background: white; padding: 20px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .badge { display: inline-block; padding: 4px 8px; background: #e3f2fd; color: #1976d2; border-radius: 4px; font-size: 0.9em; margin: 2px; }
+    </style>
+</head>
+<body>
+
+<h1>Fleet Management System - Technical Reference</h1>
+
+<div class="meta">
+    <strong>Document Type:</strong> Technical Architecture & Database Schema Reference<br>
+    <strong>Last Updated:</strong> January 8, 2026<br>
+    <strong>Database Tables:</strong> 29 tables<br>
+    <strong>API Routes:</strong> 100+ route files<br>
+    <strong>ORM:</strong> Drizzle ORM with PostgreSQL
+</div>
+
+<h2>1. System Architecture</h2>
+
+<h3>1.1 Technology Stack</h3>
+<table>
+    <tr><th>Layer</th><th>Technology</th><th>Version/Details</th></tr>
+    <tr><td>Frontend</td><td>React</td><td>18.3.1 with TypeScript 5.2.2</td></tr>
+    <tr><td>Frontend Build</td><td>Vite</td><td>5.0.8</td></tr>
+    <tr><td>Frontend UI</td><td>TailwindCSS</td><td>4.1.18 + shadcn/ui + Radix UI</td></tr>
+    <tr><td>3D Rendering</td><td>Three.js</td><td>0.160.0 + React Three Fiber 8.15.0</td></tr>
+    <tr><td>State Management</td><td>Zustand</td><td>4.4.7</td></tr>
+    <tr><td>Data Fetching</td><td>TanStack Query</td><td>5.90.16</td></tr>
+    <tr><td>Backend</td><td>Express.js</td><td>5.2.1 with Node.js</td></tr>
+    <tr><td>Database</td><td>PostgreSQL</td><td>16+ with Drizzle ORM 0.44.7</td></tr>
+    <tr><td>Cache</td><td>Redis</td><td>5.10.0</td></tr>
+    <tr><td>Authentication</td><td>Azure AD OAuth 2.0</td><td>JWT with RS256</td></tr>
+    <tr><td>Cloud</td><td>Microsoft Azure</td><td>Static Web Apps, App Service, AKS</td></tr>
+    <tr><td>Container Orchestration</td><td>Kubernetes</td><td>Azure Kubernetes Service (AKS)</td></tr>
+</table>
+
+<h3>1.2 Architecture Pattern</h3>
+<p><strong>3-Tier Architecture:</strong></p>
+<ul>
+    <li><strong>Presentation Layer:</strong> React SPA served from Azure Static Web Apps</li>
+    <li><strong>Application Layer:</strong> Express.js REST API with 100+ route files</li>
+    <li><strong>Data Layer:</strong> PostgreSQL with 29 tables</li>
+</ul>
+
+<h2>2. Database Schema (29 Tables)</h2>
+
+<p><strong>ORM:</strong> Drizzle ORM<br>
+<strong>Schema Location:</strong> <code>api/src/db/schema.ts</code> (608 lines)</p>
+
+<h3>2.1 Core Fleet Tables</h3>
+
+<h4>vehicles</h4>
+<table>
+    <tr><th>Column</th><th>Type</th><th>Constraints</th></tr>
+    <tr><td>id</td><td>serial</td><td>PRIMARY KEY</td></tr>
+    <tr><td>vehicleNumber</td><td>varchar(50)</td><td>NOT NULL, UNIQUE</td></tr>
+    <tr><td>make</td><td>varchar(100)</td><td>NOT NULL</td></tr>
+    <tr><td>model</td><td>varchar(100)</td><td>NOT NULL</td></tr>
+    <tr><td>year</td><td>integer</td><td>NOT NULL</td></tr>
+    <tr><td>vin</td><td>varchar(17)</td><td>NOT NULL, UNIQUE</td></tr>
+    <tr><td>licensePlate</td><td>varchar(20)</td><td>NOT NULL</td></tr>
+    <tr><td>status</td><td>varchar(20)</td><td>NOT NULL, DEFAULT 'active'</td></tr>
+    <tr><td>mileage</td><td>integer</td><td>NOT NULL, DEFAULT 0</td></tr>
+    <tr><td>fuelType</td><td>varchar(50)</td><td>NOT NULL</td></tr>
+    <tr><td>location</td><td>varchar(255)</td><td></td></tr>
+    <tr><td>assignedDriverId</td><td>integer</td><td>FK to drivers</td></tr>
+    <tr><td>facilityId</td><td>integer</td><td>FK to facilities</td></tr>
+    <tr><td>model3dId</td><td>integer</td><td>FK to vehicle_3d_models</td></tr>
+    <tr><td>lastServiceDate</td><td>timestamp</td><td></td></tr>
+    <tr><td>nextServiceDate</td><td>timestamp</td><td></td></tr>
+    <tr><td>purchaseDate</td><td>timestamp</td><td></td></tr>
+    <tr><td>purchasePrice</td><td>decimal(10,2)</td><td></td></tr>
+    <tr><td>currentValue</td><td>decimal(10,2)</td><td></td></tr>
+    <tr><td>insurancePolicyNumber</td><td>varchar(100)</td><td></td></tr>
+    <tr><td>registrationExpiry</td><td>timestamp</td><td></td></tr>
+    <tr><td>inspectionDue</td><td>timestamp</td><td></td></tr>
+    <tr><td>specifications</td><td>jsonb</td><td>Flexible vehicle specs</td></tr>
+    <tr><td>createdAt</td><td>timestamp</td><td>DEFAULT NOW()</td></tr>
+    <tr><td>updatedAt</td><td>timestamp</td><td>DEFAULT NOW()</td></tr>
+</table>
+
+<h4>drivers</h4>
+<table>
+    <tr><th>Column</th><th>Type</th><th>Constraints</th></tr>
+    <tr><td>id</td><td>serial</td><td>PRIMARY KEY</td></tr>
+    <tr><td>employeeId</td><td>varchar(50)</td><td>UNIQUE</td></tr>
+    <tr><td>name</td><td>varchar(255)</td><td>NOT NULL</td></tr>
+    <tr><td>email</td><td>varchar(255)</td><td>NOT NULL, UNIQUE</td></tr>
+    <tr><td>phone</td><td>varchar(20)</td><td></td></tr>
+    <tr><td>licenseNumber</td><td>varchar(50)</td><td>NOT NULL, UNIQUE</td></tr>
+    <tr><td>licenseExpiry</td><td>timestamp</td><td>NOT NULL</td></tr>
+    <tr><td>licenseClass</td><td>varchar(10)</td><td></td></tr>
+    <tr><td>status</td><td>varchar(20)</td><td>NOT NULL, DEFAULT 'active'</td></tr>
+    <tr><td>photoUrl</td><td>varchar(500)</td><td></td></tr>
+    <tr><td>azureAdId</td><td>varchar(255)</td><td>Azure AD integration</td></tr>
+    <tr><td>assignedVehicleId</td><td>integer</td><td>FK to vehicles</td></tr>
+    <tr><td>rating</td><td>decimal(3,2)</td><td>DEFAULT 5.00</td></tr>
+    <tr><td>totalTrips</td><td>integer</td><td>DEFAULT 0</td></tr>
+    <tr><td>totalMiles</td><td>integer</td><td>DEFAULT 0</td></tr>
+    <tr><td>safetyScore</td><td>integer</td><td>DEFAULT 100</td></tr>
+    <tr><td>hireDate</td><td>timestamp</td><td></td></tr>
+    <tr><td>certifications</td><td>jsonb</td><td>Driver certifications</td></tr>
+    <tr><td>emergencyContact</td><td>jsonb</td><td>Emergency contact info</td></tr>
+    <tr><td>createdAt</td><td>timestamp</td><td>DEFAULT NOW()</td></tr>
+    <tr><td>updatedAt</td><td>timestamp</td><td>DEFAULT NOW()</td></tr>
+</table>
+
+<h3>2.2 Operational Tables</h3>
+
+<h4>fuelTransactions</h4>
+<table>
+    <tr><th>Column</th><th>Type</th><th>Constraints</th></tr>
+    <tr><td>id</td><td>serial</td><td>PRIMARY KEY</td></tr>
+    <tr><td>vehicleId</td><td>integer</td><td>NOT NULL, FK to vehicles</td></tr>
+    <tr><td>driverId</td><td>integer</td><td>FK to drivers</td></tr>
+    <tr><td>vehicleNumber</td><td>varchar(50)</td><td>NOT NULL</td></tr>
+    <tr><td>date</td><td>timestamp</td><td>NOT NULL, DEFAULT NOW()</td></tr>
+    <tr><td>station</td><td>varchar(255)</td><td>NOT NULL</td></tr>
+    <tr><td>gallons</td><td>decimal(6,2)</td><td>NOT NULL</td></tr>
+    <tr><td>pricePerGallon</td><td>decimal(5,3)</td><td>NOT NULL</td></tr>
+    <tr><td>totalCost</td><td>decimal(8,2)</td><td>NOT NULL</td></tr>
+    <tr><td>mpg</td><td>decimal(5,2)</td><td></td></tr>
+    <tr><td>odometerReading</td><td>integer</td><td></td></tr>
+    <tr><td>paymentMethod</td><td>varchar(50)</td><td></td></tr>
+    <tr><td>receiptUrl</td><td>varchar(500)</td><td></td></tr>
+    <tr><td>notes</td><td>text</td><td></td></tr>
+    <tr><td>createdAt</td><td>timestamp</td><td>DEFAULT NOW()</td></tr>
+</table>
+
+<h4>maintenanceRecords</h4>
+<table>
+    <tr><th>Column</th><th>Type</th><th>Constraints</th></tr>
+    <tr><td>id</td><td>serial</td><td>PRIMARY KEY</td></tr>
+    <tr><td>vehicleId</td><td>integer</td><td>NOT NULL, FK to vehicles</td></tr>
+    <tr><td>vehicleNumber</td><td>varchar(50)</td><td>NOT NULL</td></tr>
+    <tr><td>serviceType</td><td>varchar(100)</td><td>NOT NULL</td></tr>
+    <tr><td>serviceDate</td><td>timestamp</td><td>NOT NULL</td></tr>
+    <tr><td>nextDue</td><td>timestamp</td><td></td></tr>
+    <tr><td>mileageAtService</td><td>integer</td><td></td></tr>
+    <tr><td>nextDueMileage</td><td>integer</td><td></td></tr>
+    <tr><td>priority</td><td>varchar(20)</td><td>DEFAULT 'medium'</td></tr>
+    <tr><td>status</td><td>varchar(20)</td><td>DEFAULT 'scheduled'</td></tr>
+    <tr><td>estimatedCost</td><td>decimal(8,2)</td><td></td></tr>
+    <tr><td>actualCost</td><td>decimal(8,2)</td><td></td></tr>
+    <tr><td>vendor</td><td>varchar(255)</td><td></td></tr>
+    <tr><td>technicianName</td><td>varchar(255)</td><td></td></tr>
+    <tr><td>partsReplaced</td><td>jsonb</td><td>Parts details</td></tr>
+    <tr><td>workPerformed</td><td>text</td><td></td></tr>
+    <tr><td>notes</td><td>text</td><td></td></tr>
+    <tr><td>invoiceUrl</td><td>varchar(500)</td><td></td></tr>
+    <tr><td>createdAt</td><td>timestamp</td><td>DEFAULT NOW()</td></tr>
+    <tr><td>updatedAt</td><td>timestamp</td><td>DEFAULT NOW()</td></tr>
+</table>
+
+<h4>incidents</h4>
+<table>
+    <tr><th>Column</th><th>Type</th><th>Constraints</th></tr>
+    <tr><td>id</td><td>serial</td><td>PRIMARY KEY</td></tr>
+    <tr><td>vehicleId</td><td>integer</td><td>NOT NULL, FK to vehicles</td></tr>
+    <tr><td>driverId</td><td>integer</td><td>FK to drivers</td></tr>
+    <tr><td>incidentDate</td><td>timestamp</td><td>NOT NULL</td></tr>
+    <tr><td>type</td><td>varchar(50)</td><td>NOT NULL</td></tr>
+    <tr><td>severity</td><td>varchar(20)</td><td>NOT NULL</td></tr>
+    <tr><td>description</td><td>text</td><td>NOT NULL</td></tr>
+    <tr><td>location</td><td>varchar(255)</td><td></td></tr>
+    <tr><td>damageEstimate</td><td>decimal(10,2)</td><td></td></tr>
+    <tr><td>status</td><td>varchar(20)</td><td>DEFAULT 'open'</td></tr>
+    <tr><td>reportedBy</td><td>varchar(255)</td><td></td></tr>
+    <tr><td>photos</td><td>jsonb</td><td>Photo URLs</td></tr>
+    <tr><td>witnesses</td><td>jsonb</td><td>Witness info</td></tr>
+    <tr><td>policeReportNumber</td><td>varchar(100)</td><td></td></tr>
+    <tr><td>insuranceClaimNumber</td><td>varchar(100)</td><td></td></tr>
+    <tr><td>createdAt</td><td>timestamp</td><td>DEFAULT NOW()</td></tr>
+</table>
+
+<h3>2.3 Inventory & Vendor Tables</h3>
+
+<h4>parts</h4>
+<table>
+    <tr><th>Column</th><th>Type</th><th>Constraints</th></tr>
+    <tr><td>id</td><td>serial</td><td>PRIMARY KEY</td></tr>
+    <tr><td>partNumber</td><td>varchar(100)</td><td>NOT NULL, UNIQUE</td></tr>
+    <tr><td>name</td><td>varchar(255)</td><td>NOT NULL</td></tr>
+    <tr><td>description</td><td>text</td><td></td></tr>
+    <tr><td>category</td><td>varchar(100)</td><td></td></tr>
+    <tr><td>manufacturer</td><td>varchar(255)</td><td></td></tr>
+    <tr><td>quantityInStock</td><td>integer</td><td>NOT NULL, DEFAULT 0</td></tr>
+    <tr><td>minimumStock</td><td>integer</td><td>DEFAULT 10</td></tr>
+    <tr><td>unitCost</td><td>decimal(10,2)</td><td>NOT NULL</td></tr>
+    <tr><td>vendorId</td><td>integer</td><td>FK to vendors</td></tr>
+    <tr><td>location</td><td>varchar(255)</td><td></td></tr>
+    <tr><td>createdAt</td><td>timestamp</td><td>DEFAULT NOW()</td></tr>
+</table>
+
+<h4>vendors</h4>
+<table>
+    <tr><th>Column</th><th>Type</th><th>Constraints</th></tr>
+    <tr><td>id</td><td>serial</td><td>PRIMARY KEY</td></tr>
+    <tr><td>name</td><td>varchar(255)</td><td>NOT NULL</td></tr>
+    <tr><td>type</td><td>varchar(100)</td><td>NOT NULL</td></tr>
+    <tr><td>contactName</td><td>varchar(255)</td><td></td></tr>
+    <tr><td>email</td><td>varchar(255)</td><td></td></tr>
+    <tr><td>phone</td><td>varchar(20)</td><td></td></tr>
+    <tr><td>address</td><td>text</td><td></td></tr>
+    <tr><td>rating</td><td>decimal(3,2)</td><td></td></tr>
+    <tr><td>contractNumber</td><td>varchar(100)</td><td></td></tr>
+    <tr><td>contractExpiry</td><td>timestamp</td><td></td></tr>
+    <tr><td>status</td><td>varchar(20)</td><td>DEFAULT 'active'</td></tr>
+    <tr><td>createdAt</td><td>timestamp</td><td>DEFAULT NOW()</td></tr>
+</table>
+
+<h4>facilities</h4>
+<table>
+    <tr><th>Column</th><th>Type</th><th>Constraints</th></tr>
+    <tr><td>id</td><td>serial</td><td>PRIMARY KEY</td></tr>
+    <tr><td>name</td><td>varchar(255)</td><td>NOT NULL</td></tr>
+    <tr><td>type</td><td>varchar(100)</td><td></td></tr>
+    <tr><td>address</td><td>text</td><td></td></tr>
+    <tr><td>city</td><td>varchar(100)</td><td></td></tr>
+    <tr><td>state</td><td>varchar(50)</td><td></td></tr>
+    <tr><td>zipCode</td><td>varchar(20)</td><td></td></tr>
+    <tr><td>phone</td><td>varchar(20)</td><td></td></tr>
+    <tr><td>email</td><td>varchar(255)</td><td></td></tr>
+    <tr><td>capacity</td><td>integer</td><td></td></tr>
+    <tr><td>status</td><td>varchar(20)</td><td>DEFAULT 'active'</td></tr>
+    <tr><td>coordinates</td><td>jsonb</td><td>Lat/long coords</td></tr>
+    <tr><td>createdAt</td><td>timestamp</td><td>DEFAULT NOW()</td></tr>
+    <tr><td>updatedAt</td><td>timestamp</td><td>DEFAULT NOW()</td></tr>
+</table>
+
+
+<h3>3D Models & Authentication Tables</h3>
+<table>
+  <tr><th>Table</th><th>Column</th><th>Type</th><th>Constraints</th></tr>
+  <tr><td rowspan="22">vehicle_3d_models</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>name</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>description</td><td>TEXT</td><td></td></tr>
+  <tr><td>vehicle_type</td><td>VARCHAR(100)</td><td></td></tr>
+  <tr><td>make</td><td>VARCHAR(100)</td><td></td></tr>
+  <tr><td>model</td><td>VARCHAR(100)</td><td></td></tr>
+  <tr><td>year</td><td>INTEGER</td><td></td></tr>
+  <tr><td>file_url</td><td>VARCHAR(500)</td><td>NOT NULL</td></tr>
+  <tr><td>file_format</td><td>VARCHAR(20)</td><td></td></tr>
+  <tr><td>file_size_mb</td><td>DECIMAL(8,2)</td><td></td></tr>
+  <tr><td>poly_count</td><td>INTEGER</td><td></td></tr>
+  <tr><td>source</td><td>VARCHAR(50)</td><td></td></tr>
+  <tr><td>source_id</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>license</td><td>VARCHAR(100)</td><td></td></tr>
+  <tr><td>license_url</td><td>VARCHAR(500)</td><td></td></tr>
+  <tr><td>author</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>author_url</td><td>VARCHAR(500)</td><td></td></tr>
+  <tr><td>thumbnail_url</td><td>VARCHAR(500)</td><td></td></tr>
+  <tr><td>preview_images</td><td>JSONB</td><td></td></tr>
+  <tr><td>quality_tier</td><td>VARCHAR(20)</td><td></td></tr>
+  <tr><td>has_interior</td><td>BOOLEAN</td><td>DEFAULT false</td></tr>
+  <tr><td>has_pbr_materials</td><td>BOOLEAN</td><td>DEFAULT false</td></tr>
+  <tr><td>view_count</td><td>INTEGER</td><td>DEFAULT 0</td></tr>
+  <tr><td>download_count</td><td>INTEGER</td><td>DEFAULT 0</td></tr>
+  <tr><td>is_featured</td><td>BOOLEAN</td><td>DEFAULT false</td></tr>
+  <tr><td>is_active</td><td>BOOLEAN</td><td>DEFAULT true</td></tr>
+  <tr><td>tags</td><td>JSONB</td><td></td></tr>
+  <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>updated_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+
+  <tr><td rowspan="9">users</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>email</td><td>VARCHAR(255)</td><td>NOT NULL, UNIQUE</td></tr>
+  <tr><td>microsoft_id</td><td>VARCHAR(255)</td><td>UNIQUE</td></tr>
+  <tr><td>display_name</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>role</td><td>VARCHAR(50)</td><td>DEFAULT 'user'</td></tr>
+  <tr><td>auth_provider</td><td>VARCHAR(50)</td><td>DEFAULT 'microsoft'</td></tr>
+  <tr><td>is_active</td><td>BOOLEAN</td><td>DEFAULT true</td></tr>
+  <tr><td>last_login_at</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>updated_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+
+  <tr><td rowspan="4">sessions</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>user_id</td><td>INTEGER</td><td>NOT NULL</td></tr>
+  <tr><td>token</td><td>VARCHAR(500)</td><td>NOT NULL, UNIQUE</td></tr>
+  <tr><td>expires_at</td><td>TIMESTAMP</td><td>NOT NULL</td></tr>
+  <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+</table>
+
+<h3>Policy Management System (7 Tables)</h3>
+<table>
+  <tr><th>Table</th><th>Column</th><th>Type</th><th>Constraints</th></tr>
+  <tr><td rowspan="29">policies</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>tenant_id</td><td>VARCHAR(100)</td><td></td></tr>
+  <tr><td>name</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>description</td><td>TEXT</td><td>NOT NULL</td></tr>
+  <tr><td>type</td><td>VARCHAR(50)</td><td>NOT NULL</td></tr>
+  <tr><td>version</td><td>VARCHAR(20)</td><td>NOT NULL, DEFAULT '1.0'</td></tr>
+  <tr><td>status</td><td>VARCHAR(20)</td><td>NOT NULL, DEFAULT 'draft'</td></tr>
+  <tr><td>mode</td><td>VARCHAR(20)</td><td>NOT NULL, DEFAULT 'monitor'</td></tr>
+  <tr><td>conditions</td><td>JSONB</td><td>NOT NULL, DEFAULT '[]'</td></tr>
+  <tr><td>actions</td><td>JSONB</td><td>NOT NULL, DEFAULT '[]'</td></tr>
+  <tr><td>scope</td><td>JSONB</td><td>DEFAULT '{}'</td></tr>
+  <tr><td>confidence_score</td><td>DECIMAL(3,2)</td><td>DEFAULT 0.85</td></tr>
+  <tr><td>requires_dual_control</td><td>BOOLEAN</td><td>DEFAULT false</td></tr>
+  <tr><td>requires_mfa_for_execution</td><td>BOOLEAN</td><td>DEFAULT false</td></tr>
+  <tr><td>created_by</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>last_modified_by</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>last_modified_at</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>tags</td><td>JSONB</td><td>DEFAULT '[]'</td></tr>
+  <tr><td>related_policies</td><td>JSONB</td><td>DEFAULT '[]'</td></tr>
+  <tr><td>execution_count</td><td>INTEGER</td><td>DEFAULT 0</td></tr>
+  <tr><td>violation_count</td><td>INTEGER</td><td>DEFAULT 0</td></tr>
+  <tr><td>category</td><td>VARCHAR(100)</td><td></td></tr>
+  <tr><td>effective_date</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>expiry_date</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>approved_by</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>approved_at</td><td>TIMESTAMP</td><td></td></tr>
+
+  <tr><td rowspan="6">policy_versions</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>policy_id</td><td>INTEGER</td><td>NOT NULL</td></tr>
+  <tr><td>version</td><td>VARCHAR(20)</td><td>NOT NULL</td></tr>
+  <tr><td>policy_data</td><td>JSONB</td><td>NOT NULL</td></tr>
+  <tr><td>change_description</td><td>TEXT</td><td></td></tr>
+  <tr><td>changed_by</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>changed_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>is_primary</td><td>BOOLEAN</td><td>DEFAULT false</td></tr>
+
+  <tr><td rowspan="10">policy_acknowledgments</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>policy_id</td><td>INTEGER</td><td>NOT NULL</td></tr>
+  <tr><td>policy_version</td><td>VARCHAR(20)</td><td>NOT NULL</td></tr>
+  <tr><td>user_id</td><td>INTEGER</td><td></td></tr>
+  <tr><td>driver_id</td><td>INTEGER</td><td></td></tr>
+  <tr><td>acknowledged_by</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>acknowledged_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>signature_data</td><td>TEXT</td><td></td></tr>
+  <tr><td>ip_address</td><td>VARCHAR(50)</td><td></td></tr>
+  <tr><td>user_agent</td><td>TEXT</td><td></td></tr>
+  <tr><td>is_required</td><td>BOOLEAN</td><td>DEFAULT true</td></tr>
+  <tr><td>expiry_date</td><td>TIMESTAMP</td><td></td></tr>
+
+  <tr><td rowspan="13">policy_violations</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>policy_id</td><td>INTEGER</td><td>NOT NULL</td></tr>
+  <tr><td>violation_type</td><td>VARCHAR(100)</td><td>NOT NULL</td></tr>
+  <tr><td>severity</td><td>VARCHAR(20)</td><td>NOT NULL, DEFAULT 'medium'</td></tr>
+  <tr><td>description</td><td>TEXT</td><td>NOT NULL</td></tr>
+  <tr><td>violated_by</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>driver_id</td><td>INTEGER</td><td></td></tr>
+  <tr><td>vehicle_id</td><td>INTEGER</td><td></td></tr>
+  <tr><td>detected_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>detection_method</td><td>VARCHAR(100)</td><td></td></tr>
+  <tr><td>context_data</td><td>JSONB</td><td></td></tr>
+  <tr><td>status</td><td>VARCHAR(20)</td><td>DEFAULT 'open'</td></tr>
+  <tr><td>assigned_to</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>resolution_notes</td><td>TEXT</td><td></td></tr>
+  <tr><td>resolved_at</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>resolved_by</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>corrective_actions</td><td>JSONB</td><td></td></tr>
+
+  <tr><td rowspan="9">policy_executions</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>policy_id</td><td>INTEGER</td><td>NOT NULL</td></tr>
+  <tr><td>executed_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>execution_mode</td><td>VARCHAR(20)</td><td>NOT NULL</td></tr>
+  <tr><td>evaluation_context</td><td>JSONB</td><td>NOT NULL</td></tr>
+  <tr><td>condition_results</td><td>JSONB</td><td></td></tr>
+  <tr><td>actions_taken</td><td>JSONB</td><td></td></tr>
+  <tr><td>execution_status</td><td>VARCHAR(20)</td><td>NOT NULL</td></tr>
+  <tr><td>executed_by</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>error_details</td><td>TEXT</td><td></td></tr>
+  <tr><td>execution_duration_ms</td><td>INTEGER</td><td></td></tr>
+</table>
+
+<h3>Standard Operating Procedures (3 Tables)</h3>
+<table>
+  <tr><th>Table</th><th>Column</th><th>Type</th><th>Constraints</th></tr>
+  <tr><td rowspan="27">sop_documents</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>sop_number</td><td>VARCHAR(50)</td><td>NOT NULL, UNIQUE</td></tr>
+  <tr><td>title</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>category</td><td>VARCHAR(100)</td><td>NOT NULL</td></tr>
+  <tr><td>description</td><td>TEXT</td><td></td></tr>
+  <tr><td>purpose</td><td>TEXT</td><td>NOT NULL</td></tr>
+  <tr><td>scope</td><td>TEXT</td><td>NOT NULL</td></tr>
+  <tr><td>definitions</td><td>JSONB</td><td></td></tr>
+  <tr><td>procedure</td><td>TEXT</td><td>NOT NULL</td></tr>
+  <tr><td>safety_controls</td><td>TEXT</td><td></td></tr>
+  <tr><td>required_forms</td><td>JSONB</td><td></td></tr>
+  <tr><td>related_policies</td><td>JSONB</td><td></td></tr>
+  <tr><td>related_sops</td><td>JSONB</td><td></td></tr>
+  <tr><td>kpis</td><td>JSONB</td><td></td></tr>
+  <tr><td>version</td><td>VARCHAR(20)</td><td>NOT NULL, DEFAULT '1.0'</td></tr>
+  <tr><td>status</td><td>VARCHAR(20)</td><td>NOT NULL, DEFAULT 'draft'</td></tr>
+  <tr><td>owner</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>approver</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>review_cycle_months</td><td>INTEGER</td><td>DEFAULT 12</td></tr>
+  <tr><td>last_reviewed_at</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>next_review_due</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>effective_date</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>created_by</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>updated_by</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>updated_at</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>document_url</td><td>VARCHAR(500)</td><td></td></tr>
+  <tr><td>attachments</td><td>JSONB</td><td></td></tr>
+  <tr><td>tags</td><td>JSONB</td><td></td></tr>
+
+  <tr><td rowspan="9">sop_assignments</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>sop_id</td><td>INTEGER</td><td>NOT NULL</td></tr>
+  <tr><td>assigned_to</td><td>VARCHAR(100)</td><td>NOT NULL</td></tr>
+  <tr><td>assignment_type</td><td>VARCHAR(50)</td><td>NOT NULL</td></tr>
+  <tr><td>assigned_by</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>assigned_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>due_date</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>is_required</td><td>BOOLEAN</td><td>DEFAULT true</td></tr>
+  <tr><td>requires_acknowledgment</td><td>BOOLEAN</td><td>DEFAULT true</td></tr>
+  <tr><td>requires_test</td><td>BOOLEAN</td><td>DEFAULT false</td></tr>
+  <tr><td>status</td><td>VARCHAR(20)</td><td>DEFAULT 'assigned'</td></tr>
+
+  <tr><td rowspan="10">sop_completions</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>sop_assignment_id</td><td>INTEGER</td><td>NOT NULL</td></tr>
+  <tr><td>sop_id</td><td>INTEGER</td><td>NOT NULL</td></tr>
+  <tr><td>user_id</td><td>INTEGER</td><td></td></tr>
+  <tr><td>driver_id</td><td>INTEGER</td><td></td></tr>
+  <tr><td>completed_by</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>completed_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>time_spent_minutes</td><td>INTEGER</td><td></td></tr>
+  <tr><td>test_score</td><td>DECIMAL(5,2)</td><td></td></tr>
+  <tr><td>test_passed</td><td>BOOLEAN</td><td></td></tr>
+  <tr><td>acknowledgment_data</td><td>TEXT</td><td></td></tr>
+  <tr><td>notes</td><td>TEXT</td><td></td></tr>
+</table>
+
+<h3>Training & Certification (3 Tables)</h3>
+<table>
+  <tr><th>Table</th><th>Column</th><th>Type</th><th>Constraints</th></tr>
+  <tr><td rowspan="21">training_modules</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>module_number</td><td>VARCHAR(50)</td><td>UNIQUE</td></tr>
+  <tr><td>title</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>description</td><td>TEXT</td><td></td></tr>
+  <tr><td>category</td><td>VARCHAR(100)</td><td>NOT NULL</td></tr>
+  <tr><td>type</td><td>VARCHAR(50)</td><td>NOT NULL</td></tr>
+  <tr><td>duration_minutes</td><td>INTEGER</td><td></td></tr>
+  <tr><td>content_url</td><td>VARCHAR(500)</td><td></td></tr>
+  <tr><td>content</td><td>TEXT</td><td></td></tr>
+  <tr><td>learning_objectives</td><td>JSONB</td><td></td></tr>
+  <tr><td>prerequisites</td><td>JSONB</td><td></td></tr>
+  <tr><td>passing_score</td><td>DECIMAL(5,2)</td><td>DEFAULT 80.00</td></tr>
+  <tr><td>has_certification</td><td>BOOLEAN</td><td>DEFAULT false</td></tr>
+  <tr><td>certification_valid_months</td><td>INTEGER</td><td></td></tr>
+  <tr><td>related_policies</td><td>JSONB</td><td></td></tr>
+  <tr><td>related_sops</td><td>JSONB</td><td></td></tr>
+  <tr><td>status</td><td>VARCHAR(20)</td><td>DEFAULT 'active'</td></tr>
+  <tr><td>version</td><td>VARCHAR(20)</td><td>DEFAULT '1.0'</td></tr>
+  <tr><td>created_by</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>updated_by</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>updated_at</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>tags</td><td>JSONB</td><td></td></tr>
+
+  <tr><td rowspan="9">training_assignments</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>module_id</td><td>INTEGER</td><td>NOT NULL</td></tr>
+  <tr><td>assigned_to</td><td>VARCHAR(100)</td><td>NOT NULL</td></tr>
+  <tr><td>assignment_type</td><td>VARCHAR(50)</td><td>NOT NULL</td></tr>
+  <tr><td>assigned_by</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>assigned_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>due_date</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>is_required</td><td>BOOLEAN</td><td>DEFAULT true</td></tr>
+  <tr><td>priority</td><td>VARCHAR(20)</td><td>DEFAULT 'medium'</td></tr>
+  <tr><td>status</td><td>VARCHAR(20)</td><td>DEFAULT 'assigned'</td></tr>
+  <tr><td>reminder_sent_at</td><td>TIMESTAMP</td><td></td></tr>
+
+  <tr><td rowspan="13">training_completions</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>assignment_id</td><td>INTEGER</td><td>NOT NULL</td></tr>
+  <tr><td>module_id</td><td>INTEGER</td><td>NOT NULL</td></tr>
+  <tr><td>user_id</td><td>INTEGER</td><td></td></tr>
+  <tr><td>driver_id</td><td>INTEGER</td><td></td></tr>
+  <tr><td>completed_by</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>completed_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>score</td><td>DECIMAL(5,2)</td><td></td></tr>
+  <tr><td>passed</td><td>BOOLEAN</td><td>NOT NULL</td></tr>
+  <tr><td>attempts</td><td>INTEGER</td><td>DEFAULT 1</td></tr>
+  <tr><td>time_spent_minutes</td><td>INTEGER</td><td></td></tr>
+  <tr><td>certificate_issued</td><td>BOOLEAN</td><td>DEFAULT false</td></tr>
+  <tr><td>certificate_number</td><td>VARCHAR(100)</td><td></td></tr>
+  <tr><td>certificate_expiry_date</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>instructor_name</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>location</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>notes</td><td>TEXT</td><td></td></tr>
+</table>
+
+<h3>Onboarding System (2 Tables)</h3>
+<table>
+  <tr><th>Table</th><th>Column</th><th>Type</th><th>Constraints</th></tr>
+  <tr><td rowspan="11">onboarding_checklists</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>checklist_number</td><td>VARCHAR(50)</td><td>UNIQUE</td></tr>
+  <tr><td>name</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>description</td><td>TEXT</td><td></td></tr>
+  <tr><td>checklist_type</td><td>VARCHAR(50)</td><td>NOT NULL</td></tr>
+  <tr><td>department</td><td>VARCHAR(100)</td><td></td></tr>
+  <tr><td>items</td><td>JSONB</td><td>NOT NULL</td></tr>
+  <tr><td>estimated_days</td><td>INTEGER</td><td></td></tr>
+  <tr><td>is_template</td><td>BOOLEAN</td><td>DEFAULT true</td></tr>
+  <tr><td>status</td><td>VARCHAR(20)</td><td>DEFAULT 'active'</td></tr>
+  <tr><td>created_by</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>updated_by</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>updated_at</td><td>TIMESTAMP</td><td></td></tr>
+
+  <tr><td rowspan="13">onboarding_progress</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>checklist_id</td><td>INTEGER</td><td>NOT NULL</td></tr>
+  <tr><td>user_id</td><td>INTEGER</td><td></td></tr>
+  <tr><td>driver_id</td><td>INTEGER</td><td></td></tr>
+  <tr><td>employee_name</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>employee_id</td><td>VARCHAR(100)</td><td></td></tr>
+  <tr><td>start_date</td><td>TIMESTAMP</td><td>NOT NULL</td></tr>
+  <tr><td>target_completion_date</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>actual_completion_date</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>status</td><td>VARCHAR(20)</td><td>DEFAULT 'in-progress'</td></tr>
+  <tr><td>overall_progress</td><td>DECIMAL(5,2)</td><td>DEFAULT 0.00</td></tr>
+  <tr><td>current_step</td><td>INTEGER</td><td>DEFAULT 1</td></tr>
+  <tr><td>items_completed</td><td>JSONB</td><td></td></tr>
+  <tr><td>assigned_to</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>notes</td><td>TEXT</td><td></td></tr>
+</table>
+
+<h3>Compliance Management (2 Tables)</h3>
+<table>
+  <tr><th>Table</th><th>Column</th><th>Type</th><th>Constraints</th></tr>
+  <tr><td rowspan="13">compliance_checklists</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>checklist_number</td><td>VARCHAR(50)</td><td>UNIQUE</td></tr>
+  <tr><td>name</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>description</td><td>TEXT</td><td></td></tr>
+  <tr><td>compliance_type</td><td>VARCHAR(100)</td><td>NOT NULL</td></tr>
+  <tr><td>frequency</td><td>VARCHAR(50)</td><td>NOT NULL</td></tr>
+  <tr><td>items</td><td>JSONB</td><td>NOT NULL</td></tr>
+  <tr><td>owner</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>regulatory_authority</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>regulatory_reference</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>penalty_for_noncompliance</td><td>TEXT</td><td></td></tr>
+  <tr><td>status</td><td>VARCHAR(20)</td><td>DEFAULT 'active'</td></tr>
+  <tr><td>created_by</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>updated_by</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>updated_at</td><td>TIMESTAMP</td><td></td></tr>
+
+  <tr><td rowspan="11">compliance_checklist_completions</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>checklist_id</td><td>INTEGER</td><td>NOT NULL</td></tr>
+  <tr><td>completion_date</td><td>TIMESTAMP</td><td>NOT NULL</td></tr>
+  <tr><td>completed_by</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>items_completed</td><td>JSONB</td><td>NOT NULL</td></tr>
+  <tr><td>overall_compliance</td><td>DECIMAL(5,2)</td><td></td></tr>
+  <tr><td>non_compliant_items</td><td>JSONB</td><td></td></tr>
+  <tr><td>corrective_actions</td><td>JSONB</td><td></td></tr>
+  <tr><td>follow_up_required</td><td>BOOLEAN</td><td>DEFAULT false</td></tr>
+  <tr><td>follow_up_date</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>reviewed_by</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>reviewed_at</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>notes</td><td>TEXT</td><td></td></tr>
+  <tr><td>attachments</td><td>JSONB</td><td></td></tr>
+</table>
+
+<h3>Workflow Automation (3 Tables)</h3>
+<table>
+  <tr><th>Table</th><th>Column</th><th>Type</th><th>Constraints</th></tr>
+  <tr><td rowspan="16">workflow_definitions</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>workflow_number</td><td>VARCHAR(50)</td><td>UNIQUE</td></tr>
+  <tr><td>name</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>description</td><td>TEXT</td><td></td></tr>
+  <tr><td>category</td><td>VARCHAR(100)</td><td>NOT NULL</td></tr>
+  <tr><td>trigger_type</td><td>VARCHAR(50)</td><td>NOT NULL</td></tr>
+  <tr><td>trigger_conditions</td><td>JSONB</td><td></td></tr>
+  <tr><td>steps</td><td>JSONB</td><td>NOT NULL</td></tr>
+  <tr><td>approvers</td><td>JSONB</td><td></td></tr>
+  <tr><td>escalation_rules</td><td>JSONB</td><td></td></tr>
+  <tr><td>sla_hours</td><td>INTEGER</td><td></td></tr>
+  <tr><td>notification_settings</td><td>JSONB</td><td></td></tr>
+  <tr><td>is_template</td><td>BOOLEAN</td><td>DEFAULT true</td></tr>
+  <tr><td>status</td><td>VARCHAR(20)</td><td>DEFAULT 'active'</td></tr>
+  <tr><td>created_by</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>updated_by</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>updated_at</td><td>TIMESTAMP</td><td></td></tr>
+
+  <tr><td rowspan="13">workflow_instances</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>workflow_definition_id</td><td>INTEGER</td><td>NOT NULL</td></tr>
+  <tr><td>instance_number</td><td>VARCHAR(100)</td><td>UNIQUE</td></tr>
+  <tr><td>title</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>description</td><td>TEXT</td><td></td></tr>
+  <tr><td>initiated_by</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>initiated_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>context_data</td><td>JSONB</td><td></td></tr>
+  <tr><td>current_step</td><td>INTEGER</td><td>DEFAULT 1</td></tr>
+  <tr><td>status</td><td>VARCHAR(20)</td><td>DEFAULT 'in-progress'</td></tr>
+  <tr><td>priority</td><td>VARCHAR(20)</td><td>DEFAULT 'medium'</td></tr>
+  <tr><td>due_date</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>completed_at</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>completion_notes</td><td>TEXT</td><td></td></tr>
+  <tr><td>attachments</td><td>JSONB</td><td></td></tr>
+
+  <tr><td rowspan="13">workflow_approvals</td><td>id</td><td>SERIAL</td><td>PRIMARY KEY</td></tr>
+  <tr><td>workflow_instance_id</td><td>INTEGER</td><td>NOT NULL</td></tr>
+  <tr><td>step_number</td><td>INTEGER</td><td>NOT NULL</td></tr>
+  <tr><td>step_name</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>approver_role</td><td>VARCHAR(100)</td><td></td></tr>
+  <tr><td>approver_name</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr>
+  <tr><td>assigned_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+  <tr><td>due_date</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>actioned_at</td><td>TIMESTAMP</td><td></td></tr>
+  <tr><td>action</td><td>VARCHAR(50)</td><td></td></tr>
+  <tr><td>comments</td><td>TEXT</td><td></td></tr>
+  <tr><td>attachments</td><td>JSONB</td><td></td></tr>
+  <tr><td>delegated_to</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>escalated_to</td><td>VARCHAR(255)</td><td></td></tr>
+  <tr><td>reminders_sent</td><td>INTEGER</td><td>DEFAULT 0</td></tr>
+  <tr><td>last_reminder_at</td><td>TIMESTAMP</td><td></td></tr>
+</table>
+
+</body>
+</html>
