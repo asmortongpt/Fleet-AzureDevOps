@@ -476,3 +476,12 @@ export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
+
+// ============================================================================
+// Database Table Types from Migrations 005-015
+// ============================================================================
+
+// Export all new database table types
+export * from './database-tables';
+export * from './database-tables-part2';
+export * from './database-tables-part3';
