@@ -78,14 +78,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         if (SKIP_AUTH || DEMO_MODE) {
           const demoUser: User = {
-            id: 'demo-user-1',
-            email: 'demo@fleet.com',
-            firstName: 'Demo',
-            lastName: 'User',
-            role: 'Admin',
-            permissions: ['*'], // Full permissions in demo
-            tenantId: 'demo-tenant-1',
-            tenantName: 'Demo Organization'
+            id: '34c5e071-2d8c-44d0-8f1f-90b58672dceb', // Real Seeded User ID
+            email: 'toby.deckow@capitaltechalliance.com', // Real Seeded Email
+            firstName: 'Toby',
+            lastName: 'Deckow',
+            role: 'SuperAdmin', // Promoted to SuperAdmin for full access
+            permissions: ['*'], // Full permissions
+            tenantId: 'ee1e7320-b232-402e-b4f8-288998b5bff7', // Real Seeded Tenant ID
+            tenantName: 'Capital Tech Alliance'
           };
           setUserState(demoUser);
           setIsLoading(false);
