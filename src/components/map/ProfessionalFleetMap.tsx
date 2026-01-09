@@ -36,10 +36,16 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
     }
 
     if (!isLoading) {
+      let vehicleArray: Vehicle[] = [];
       if (Array.isArray(data)) {
-        setVehicles(data as unknown as Vehicle[]);
+        vehicleArray = data as unknown as Vehicle[];
+      } else if (data && typeof data === 'object' && 'data' in data && Array.isArray((data as any).data)) {
+        vehicleArray = (data as any).data as Vehicle[];
       }
-      // REMOVE: Removed automatic fallback to demo data to comply with "no mock data" policy
+
+      if (vehicleArray.length > 0) {
+        setVehicles(vehicleArray);
+      }
     }
   }, [data, isLoading, error]);
 
