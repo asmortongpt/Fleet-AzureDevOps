@@ -69,13 +69,17 @@ export class BaseFactory {
     };
     const wmi = wmiMap[make] || '1XX';
 
-    // Vehicle Descriptor Section (VDS) - 6 chars
-    const vds = this.faker.string.alphanumeric(6).toUpperCase();
+    // Vehicle Descriptor Section (VDS) - 6 chars (only uppercase alphanumeric, no I,O,Q per VIN standard)
+    const validChars = 'ABCDEFGHJKLMNPRSTUVWXYZ0123456789'; // Excludes I, O, Q
+    let vds = '';
+    for (let i = 0; i < 6; i++) {
+      vds += validChars[this.faker.number.int({ min: 0, max: validChars.length - 1 })];
+    }
 
-    // Vehicle Identifier Section (VIS) - 8 chars
-    const year = String(this.faker.date.past({ years: 10 }).getFullYear()).slice(-2);
-    const plant = this.faker.string.alpha(1).toUpperCase();
-    const serial = String(index).padStart(6, '0');
+    // Vehicle Identifier Section (VIS) - 8 chars (year code + plant + serial)
+    const year = String(this.faker.date.past({ years: 10 }).getFullYear()).slice(-1); // 1 digit
+    const plant = validChars[this.faker.number.int({ min: 0, max: validChars.length - 1 })]; // 1 char
+    const serial = String(index).padStart(6, '0'); // 6 digits = 8 total
 
     return `${wmi}${vds}${year}${plant}${serial}`;
   }
@@ -119,7 +123,10 @@ export class BaseFactory {
    * Generate US phone number
    */
   protected generatePhoneNumber(): string {
-    return this.faker.phone.number('###-###-####');
+    const areaCode = this.faker.string.numeric(3);
+    const prefix = this.faker.string.numeric(3);
+    const lineNumber = this.faker.string.numeric(4);
+    return `${areaCode}-${prefix}-${lineNumber}`;
   }
 
   /**

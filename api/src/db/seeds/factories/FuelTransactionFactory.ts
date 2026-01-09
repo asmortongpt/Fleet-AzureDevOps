@@ -75,11 +75,8 @@ export class FuelTransactionFactory extends BaseFactory {
       fractionDigits: 3,
     });
 
-    const totalCost = this.faker.number.float({
-      min: gallons * costPerGallon,
-      max: gallons * costPerGallon,
-      fractionDigits: 2,
-    });
+    // Calculate total cost directly (no need for faker here)
+    const totalCost = parseFloat((gallons * costPerGallon).toFixed(2));
 
     const transactionDate = this.randomPastDate(90);
     const odometer = this.faker.number.int({ min: 5000, max: 150000 });
