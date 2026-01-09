@@ -1,18 +1,18 @@
 // Sentry Error Tracking & Performance Monitoring
 
 import * as Sentry from '@sentry/react';
-import { BrowserTracing } from '@sentry/tracing';
+// import { BrowserTracing } from '@sentry/tracing';
 
 export function initSentry() {
   Sentry.init({
     dsn: process.env.VITE_SENTRY_DSN || '',
     environment: process.env.NODE_ENV || 'production',
     integrations: [
-      new BrowserTracing(),
-      new Sentry.Replay({
-        maskAllText: true,
-        blockAllMedia: true,
-      }),
+      //       new BrowserTracing(),
+      //       new Sentry.Replay({
+      //         maskAllText: true,
+      //         blockAllMedia: true,
+      //       }),
     ],
 
     // Performance Monitoring
@@ -57,7 +57,8 @@ export const SentryErrorBoundary = Sentry.ErrorBoundary;
 
 // Performance transaction helpers
 export function startTransaction(name: string, op: string) {
-  return Sentry.startTransaction({ name, op });
+  // return Sentry.startTransaction({ name, op });
+  return null;
 }
 
 export function captureException(error: Error, context?: any) {

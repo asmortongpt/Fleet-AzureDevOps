@@ -203,8 +203,8 @@ export function trackWebVitals(callback: (vital: WebVital) => void): () => void 
 
     return () => observer.disconnect();
   } catch (error) {
-    logger.warn('Web Vitals tracking not available:', error);
-    return () => {};
+    logger.warn('Web Vitals tracking not available:', { error: error instanceof Error ? error.message : String(error) });
+    return () => { };
   }
 }
 

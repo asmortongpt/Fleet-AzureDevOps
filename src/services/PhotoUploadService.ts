@@ -42,6 +42,8 @@ class PhotoUploadService {
     window.addEventListener('offline', () => {
       this.isOnline = false;
     });
+
+    this.loadQueueFromStorage();
   }
 
   /**
@@ -52,8 +54,8 @@ class PhotoUploadService {
 
     // Initialize progress tracking
     photos.forEach(photo => {
-      this.progressMap.set(photo.id, {
-        photoId: photo.id,
+      this.progressMap.set(String(photo.id), {
+        photoId: String(photo.id),
         progress: 0,
         status: 'pending',
       });
@@ -91,7 +93,7 @@ class PhotoUploadService {
   private async uploadSinglePhoto(
     assetId: string,
     photo: CapturedPhoto,
-    chunkSize: number,
+    _chunkSize: number,
     maxRetries: number,
     onProgress?: (progress: Map<string, UploadProgress>) => void
   ): Promise<void> {
@@ -100,8 +102,8 @@ class PhotoUploadService {
     while (retries < maxRetries) {
       try {
         // Update status
-        this.progressMap.set(photo.id, {
-          photoId: photo.id,
+        this.progressMap.set(String(photo.id), {
+          photoId: String(photo.id),
           progress: 0,
           status: 'uploading',
         });
@@ -125,8 +127,8 @@ class PhotoUploadService {
           `/api/assets/${assetId}/photos`,
           formData,
           (progress) => {
-            this.progressMap.set(photo.id, {
-              photoId: photo.id,
+            this.progressMap.set(String(photo.id), {
+              photoId: String(photo.id),
               progress,
               status: 'uploading',
             });
@@ -139,8 +141,8 @@ class PhotoUploadService {
         }
 
         // Mark as completed
-        this.progressMap.set(photo.id, {
-          photoId: photo.id,
+        this.progressMap.set(String(photo.id), {
+          photoId: String(photo.id),
           progress: 100,
           status: 'completed',
         });
@@ -151,8 +153,8 @@ class PhotoUploadService {
         retries++;
 
         if (retries >= maxRetries) {
-          this.progressMap.set(photo.id, {
-            photoId: photo.id,
+          this.progressMap.set(String(photo.id), {
+            photoId: String(photo.id),
             progress: 0,
             status: 'failed',
             error: error instanceof Error ? error.message : 'Upload failed',

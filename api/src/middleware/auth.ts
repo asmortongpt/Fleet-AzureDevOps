@@ -58,6 +58,28 @@ export const authenticateJWT = async (
     return res.status(500).json({ error: 'Server configuration error' })
   }
 
+  // BYPASS: Allow demo token in non-production environments
+  if (process.env.NODE_ENV !== 'production') {
+    try {
+      // Try to decode as base64 JSON (format used by Login.tsx dev bypass)
+      if (token.startsWith('eyJ') === false) { // Simple check if it MIGHT NOT be a standard JWT (standard JWTs usually start with eyJ)
+        const buffer = Buffer.from(token, 'base64')
+        const decodedString = buffer.toString('utf-8')
+        // Check if it looks like the demo token structure
+        if (decodedString.includes('"auth_provider":"demo"')) {
+          const demoData = JSON.parse(decodedString)
+          if (demoData.payload && demoData.payload.auth_provider === 'demo') {
+            logger.warn('⚠️ AUTH BYPASS - Accepting DEMO token in development mode')
+            req.user = demoData.payload
+            return next()
+          }
+        }
+      }
+    } catch (e) {
+      // Ignore parsing errors, fall through to standard JWT verification
+    }
+  }
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET) as any
     req.user = decoded

@@ -137,8 +137,8 @@ function processFleetData(vehicles: Vehicle[]): Vehicle[] {
       ? vehicle.fuelLevel < 20
         ? 'critical'
         : vehicle.fuelLevel < 40
-        ? 'low'
-        : 'normal'
+          ? 'low'
+          : 'normal'
       : 'unknown';
 
     return {
@@ -334,13 +334,13 @@ function aggregateMetrics(data: { metrics: any[]; groupBy: string }): any[] {
     return acc;
   }, {} as Record<string, any[]>);
 
-  return Object.entries(grouped).map(([key, values]) => ({
+  return (Object.entries(grouped) as [string, any[]][]).map(([key, values]) => ({
     [groupBy]: key,
     count: values.length,
-    sum: values.reduce((sum, v) => sum + (v.value || 0), 0),
-    avg: values.reduce((sum, v) => sum + (v.value || 0), 0) / values.length,
-    min: Math.min(...values.map((v) => v.value || 0)),
-    max: Math.max(...values.map((v) => v.value || 0)),
+    sum: values.reduce((sum: number, v: any) => sum + (v.value || 0), 0),
+    avg: values.reduce((sum: number, v: any) => sum + (v.value || 0), 0) / values.length,
+    min: Math.min(...values.map((v: any) => v.value || 0)),
+    max: Math.max(...values.map((v: any) => v.value || 0)),
   }));
 }
 
@@ -559,9 +559,9 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(toRadians(lat1)) *
-      Math.cos(toRadians(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    Math.cos(toRadians(lat2)) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;

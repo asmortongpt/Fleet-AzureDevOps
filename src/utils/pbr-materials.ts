@@ -133,7 +133,7 @@ export class VehicleMaterialFactory {
     normalMap?: THREE.Texture;
     roughnessMap?: THREE.Texture;
   }): THREE.MeshPhysicalMaterial {
-    const preset = VEHICLE_MATERIALS[`${config.type || 'glossy'}Paint`];
+    const preset = VEHICLE_MATERIALS[`${config.type || 'glossy'}Paint` as keyof typeof VEHICLE_MATERIALS] as PBRMaterialConfig;
 
     const material = new THREE.MeshPhysicalMaterial({
       color: config.color,
@@ -158,7 +158,8 @@ export class VehicleMaterialFactory {
     type?: 'chrome' | 'brushed';
     normalMap?: THREE.Texture;
   }): THREE.MeshStandardMaterial {
-    const preset = VEHICLE_MATERIALS[config.type || 'chrome'];
+    const key = config.type === 'brushed' ? 'brushedMetal' : (config.type || 'chrome');
+    const preset = VEHICLE_MATERIALS[key as keyof typeof VEHICLE_MATERIALS] as PBRMaterialConfig;
 
     return new THREE.MeshStandardMaterial({
       color: config.color || 0xffffff,
@@ -324,7 +325,7 @@ export async function loadHDREnvironment(
   const texture = await loader.loadAsync(url);
 
   texture.mapping = THREE.EquirectangularReflectionMapping;
-  texture.encoding = THREE.sRGBEncoding;
+  texture.colorSpace = THREE.SRGBColorSpace;
 
   return texture;
 }
@@ -335,7 +336,7 @@ export async function loadHDREnvironment(
 export function createProceduralEnvironment(): THREE.CubeTexture {
   const size = 512;
   const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(size, {
-    format: THREE.RGBFormat,
+    format: THREE.RGBAFormat,
     generateMipmaps: true,
     minFilter: THREE.LinearMipmapLinearFilter,
   });
@@ -419,7 +420,7 @@ export function applyRenderQuality(
 
   renderer.toneMapping = settings.toneMapping;
   renderer.toneMappingExposure = settings.toneMappingExposure;
-  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
 }
 
 export default {

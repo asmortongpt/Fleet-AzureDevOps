@@ -14,7 +14,7 @@ export const store = configureStore({
     filters: filterReducer,
     form: formReducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware(),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false }),
   devTools: process.env.NODE_ENV !== 'production',
 });
 

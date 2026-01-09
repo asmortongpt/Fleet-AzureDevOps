@@ -10,7 +10,8 @@ interface QueuedMessage {
   attempts: number;
 }
 
-interface WebSocketMessage {
+// WebSocketMessage interface (keeping for future use)
+interface _WebSocketMessage {
   type: string;
   payload: any;
   timestamp: string;
