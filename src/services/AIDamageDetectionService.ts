@@ -82,18 +82,18 @@ export class AIDamageDetectionService {
    */
   async analyzePhoto(photo: CapturedPhoto): Promise<DamageDetectionResult> {
     // Check if already processing
-    if (this.processingQueue.has(photo.id)) {
-      return this.processingQueue.get(photo.id)!;
+    if (this.processingQueue.has(String(photo.id))) {
+      return this.processingQueue.get(String(photo.id))!;
     }
 
     const analysisPromise = this.performAnalysis(photo);
-    this.processingQueue.set(photo.id, analysisPromise);
+    this.processingQueue.set(String(photo.id), analysisPromise);
 
     try {
       const result = await analysisPromise;
       return result;
     } finally {
-      this.processingQueue.delete(photo.id);
+      this.processingQueue.delete(String(photo.id));
     }
   }
 
@@ -342,7 +342,7 @@ export class AIDamageDetectionService {
 
       chunkResults.forEach(item => {
         if (item) {
-          results.set(item.photoId, item.result);
+          results.set(String(item.photoId), item.result);
         }
       });
     }

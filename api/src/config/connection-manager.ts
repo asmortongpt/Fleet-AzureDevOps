@@ -173,7 +173,7 @@ export class ConnectionManager {
       ...baseConfig,
       user: process.env.DB_WEBAPP_USER || process.env.DB_USER || 'fleetadmin',
       password: process.env.DB_WEBAPP_PASSWORD || process.env.DB_PASSWORD || '',
-      max: parseInt(process.env.DB_WEBAPP_POOL_SIZE || '20'),
+      max: parseInt(process.env.DB_WEBAPP_POOL_SIZE || '10'),
       idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT_MS || '30000'),
       connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT_MS || '2000')
     })

@@ -48,14 +48,14 @@ export function handlePreflightRequest(
   requestHeaders: string[] = []
 ): Record<string, string> | null {
   if (!isOriginAllowed(origin)) {
-    logger.warn('CORS: Origin not allowed:', origin);
+    logger.warn('CORS: Origin not allowed:', { origin });
     return null;
   }
 
   // Allowed methods
   const allowedMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'];
   if (!allowedMethods.includes(requestMethod.toUpperCase())) {
-    logger.warn('CORS: Method not allowed:', requestMethod);
+    logger.warn('CORS: Method not allowed:', { requestMethod });
     return null;
   }
 

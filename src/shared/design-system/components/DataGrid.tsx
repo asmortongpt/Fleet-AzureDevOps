@@ -63,7 +63,7 @@ export function DataGrid<T extends Record<string, any>>({
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null)
   const [filters, setFilters] = useState<Record<string, string>>({})
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set())
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
+  const [_expandedGroups, _setExpandedGroups] = useState<Set<string>>(new Set())
   const [editingCell, setEditingCell] = useState<{ row: number; col: string } | null>(null)
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -127,7 +127,7 @@ export function DataGrid<T extends Record<string, any>>({
   }, [filteredData, sortColumn, sortDirection, columns])
 
   // Group data
-  const groupedData = useMemo(() => {
+  const _groupedData = useMemo(() => {
     if (!groupBy) return sortedData
 
     const groups = new Map<string, T[]>()
@@ -180,9 +180,9 @@ export function DataGrid<T extends Record<string, any>>({
   const visibleStart = virtualized ? Math.floor(scrollTop / rowHeight) : 0
   const visibleEnd = virtualized
     ? Math.min(
-        sortedData.length,
-        Math.ceil((scrollTop + containerHeight) / rowHeight)
-      )
+      sortedData.length,
+      Math.ceil((scrollTop + containerHeight) / rowHeight)
+    )
     : sortedData.length
 
   const startIndex = Math.max(0, visibleStart - OVERSCAN)
@@ -396,8 +396,8 @@ export function DataGrid<T extends Record<string, any>>({
                   backgroundColor: isSelected
                     ? colors.focus.background
                     : absoluteIndex % 2 === 1
-                    ? colors.background.subtle
-                    : colors.white,
+                      ? colors.background.subtle
+                      : colors.white,
                   borderBottom: `1px solid ${colors.border.light}`,
                 }}
               >
@@ -513,8 +513,8 @@ export function DataGrid<T extends Record<string, any>>({
               {aggregations[col.key] != null
                 ? typeof aggregations[col.key] === 'number'
                   ? aggregations[col.key].toLocaleString(undefined, {
-                      maximumFractionDigits: 2,
-                    })
+                    maximumFractionDigits: 2,
+                  })
                   : aggregations[col.key]
                 : ''}
             </div>

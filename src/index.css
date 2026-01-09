@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "tw-animate-css";
+@plugin "tailwindcss-animate";
 @import "./styles/enterprise-design-system.css";
 
 @layer base {
@@ -55,48 +55,7 @@
   High-contrast, vibrant, and glassmorphic aesthetic
 */
 :root {
-  /* LIGHT THEME (Default) - Professional Enterprise Standard */
-  --background: #ffffff;
-  --foreground: #0f172a;
-
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-
-  --primary: #2563eb;
-  /* Blue 600 */
-  --primary-foreground: #ffffff;
-
-  --secondary: #f1f5f9;
-  /* Slate 100 */
-  --secondary-foreground: #0f172a;
-
-  --muted: #f8fafc;
-  /* Slate 50 */
-  --muted-foreground: #64748b;
-  /* Slate 500 */
-
-  --accent: #f1f5f9;
-  --accent-foreground: #0f172a;
-
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-
-  --success: #10b981;
-  --warning: #f59e0b;
-
-  --border: #e2e8f0;
-  /* Slate 200 */
-  --input: #e2e8f0;
-  --ring: #2563eb;
-
-  --radius: 0.75rem;
-}
-
-.dark {
-  /* DARK THEME - Deep Midnight */
+  /* FORCED DARK THEME - Deep Midnight (Default) */
   --background: #0F1419;
   --foreground: #F9FAFB;
 
@@ -128,6 +87,42 @@
   --border: rgba(75, 85, 99, 0.3);
   --input: #242B3D;
   --ring: #3b82f6;
+
+  --radius: 0.75rem;
+}
+
+.light {
+  /* LIGHT THEME (Optional/Legacy) */
+  --background: #ffffff;
+  --foreground: #0f172a;
+
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --success: #10b981;
+  --warning: #f59e0b;
+
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #2563eb;
 }
 
 /* REMOVE LIGHT MODE - Commit to single dark theme for consistency */

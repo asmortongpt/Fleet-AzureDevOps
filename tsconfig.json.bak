@@ -22,8 +22,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     /* Path mapping */
     "baseUrl": ".",
     "paths": {
@@ -45,8 +43,7 @@
     }
   },
   "include": [
-    "src",
-    "api"
+    "src"
   ],
   "references": [
     {

@@ -250,12 +250,12 @@ export function validateFileType(file: File, allowedTypes: string[]): boolean {
 /**
  * Format validation error messages
  */
-export function formatValidationErrors(errors: z.ZodError): Record<string, string> {
+export function formatValidationErrors(error: z.ZodError): Record<string, string> {
   const formattedErrors: Record<string, string> = {};
 
-  errors.errors.forEach((error) => {
-    const path = error.path.join('.');
-    formattedErrors[path] = error.message;
+  error.errors.forEach((err) => {
+    const path = err.path.join('.');
+    formattedErrors[path] = err.message;
   });
 
   return formattedErrors;

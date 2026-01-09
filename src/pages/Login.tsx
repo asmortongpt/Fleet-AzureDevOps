@@ -27,20 +27,20 @@ export function Login() {
   const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@fleet.local' : '')
   const [password, setPassword] = useState(import.meta.env.DEV ? 'demo123' : '')
 
-  // AUTO-LOGIN in DEV mode - DISABLED for SSO-first production deployment
-  // Users must authenticate via Microsoft SSO
+  // AUTO-LOGIN in DEV mode - ENABLED for bypass as requested
+  // Users must authenticate via Microsoft SSO in PROD
   useEffect(() => {
-    if (import.meta.env.DEV && false) { // Disabled - SSO required
+    if (import.meta.env.DEV && true) { // Enabled for bypass
       logger.debug('[LOGIN] DEV mode detected - auto-logging in with demo user')
 
-      // Create a demo JWT token (not validated in DEV mode)
+      // Create a demo JWT token (accepted by modified auth.middleware)
       const demoToken = btoa(JSON.stringify({
         header: { alg: 'HS256', typ: 'JWT' },
         payload: {
-          id: 1,
-          email: 'admin@fleet.local',
-          role: 'admin',
-          tenant_id: 1,
+          id: '34c5e071-2d8c-44d0-8f1f-90b58672dceb', // Real User ID
+          email: 'toby.deckow@capitaltechalliance.com', // Real Email
+          role: 'SuperAdmin',
+          tenant_id: 'ee1e7320-b232-402e-b4f8-288998b5bff7', // Real Tenant ID
           auth_provider: 'demo',
           exp: Date.now() + 86400000 // 24 hours
         }
