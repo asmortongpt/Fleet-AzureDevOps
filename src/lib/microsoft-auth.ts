@@ -110,8 +110,8 @@ export function isAuthenticated(): boolean {
 
   // Detect Playwright/test automation
   const isPlaywright = (window as any).playwright !== undefined ||
-                       (navigator as any).webdriver === true ||
-                       (window as any).__playwright !== undefined
+    (navigator as any).webdriver === true ||
+    (window as any).__playwright !== undefined
 
   logger.info('[AUTH] Playwright detected:', { isPlaywright })
 
@@ -180,7 +180,8 @@ export function getAuthToken(): string | null {
  * @deprecated Backend sets httpOnly cookie automatically
  */
 export function setAuthToken(token: string): void {
-  logger.warn('[AUTH] setAuthToken() is deprecated - backend sets httpOnly cookie')
-  // No-op: Tokens are set by backend as httpOnly cookies
-  // This function exists for backward compatibility only
+  logger.warn('[AUTH] setAuthToken() called - Manually setting cookie for DEV/Bypass')
+  // For DEV/Bypass mode, we must manually set the cookie since we aren't getting a Set-Cookie header from backend
+  document.cookie = `auth_token=${token}; path=/; max-age=86400; SameSite=Lax`
+  logger.info('[AUTH] auth_token cookie set manually')
 }
