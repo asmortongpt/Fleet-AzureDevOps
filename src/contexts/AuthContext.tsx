@@ -68,9 +68,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        // DEVELOPMENT AUTH BYPASS: Skip authentication for testing
-        // IMPORTANT: Only use in development, remove after testing!
-        const SKIP_AUTH = import.meta.env.VITE_SKIP_AUTH === 'true';
+        // SECURITY: Auth bypass restricted to test environment only
+        // DANGER: SKIP_AUTH completely bypasses all authentication
+        // This MUST NEVER be enabled in production or any non-test environment
+        // Only enabled when NODE_ENV='test' AND VITE_SKIP_AUTH='true'
+        const SKIP_AUTH = process.env.NODE_ENV === 'test' && import.meta.env.VITE_SKIP_AUTH === 'true';
+
+        // Log security warning if bypass is enabled in non-test environment
+        if (SKIP_AUTH && process.env.NODE_ENV !== 'test') {
+          logger.warn('[Security] CRITICAL: Authentication bypass is enabled in non-test environment!', {
+            nodeEnv: process.env.NODE_ENV,
+            skipAuth: SKIP_AUTH
+          });
+        }
 
         // DEMO MODE: Only enabled if explicitly set - SSO-first in production
         const DEMO_MODE = import.meta.env.VITE_USE_MOCK_DATA === 'true' ||
