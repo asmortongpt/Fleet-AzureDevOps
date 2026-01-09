@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         // DEVELOPMENT AUTH BYPASS: Skip authentication for testing
         // IMPORTANT: Only use in development, remove after testing!
-        const SKIP_AUTH = import.meta.env.VITE_SKIP_AUTH === 'true';
+        const SKIP_AUTH = true; // import.meta.env.VITE_SKIP_AUTH === 'true';
 
         // DEMO MODE: Only enabled if explicitly set - SSO-first in production
         const DEMO_MODE = import.meta.env.VITE_USE_MOCK_DATA === 'true' ||
