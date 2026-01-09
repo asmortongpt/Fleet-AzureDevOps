@@ -146,7 +146,7 @@ export class VehicleFactory extends BaseFactory {
       metadata: {
         color: this.faker.vehicle.color(),
         purchaseDate: this.faker.date.past({ years: vehicleAge }),
-        warrantyExpiry: this.faker.date.future({ years: 5 - vehicleAge }),
+        warrantyExpiry: this.faker.date.future({ years: Math.max(1, 5 - vehicleAge) }),
         insurancePolicy: `POL-${this.faker.string.alphanumeric(10).toUpperCase()}`,
         registrationExpiry: this.randomFutureDate(365),
         homeLocation: location.name,
