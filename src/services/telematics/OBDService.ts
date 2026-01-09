@@ -7,11 +7,11 @@ interface OBDConfig {
   port?: number;
 }
 
-interface OBDData {
+interface _OBDData {
   rpm: number;
   speed: number;
   engineLoad: number;
-  coolantTemp: number;
+  temp: number;
   fuelLevel: number;
   odometer: number;
   dtcCodes: string[];

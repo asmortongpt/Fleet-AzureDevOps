@@ -1,5 +1,6 @@
 // Service Worker for PWA Offline Support
 // Provides offline caching, background sync, push notifications
+/// <reference lib="webworker" />
 
 import { BackgroundSyncPlugin } from 'workbox-background-sync';
 import { ExpirationPlugin } from 'workbox-expiration';
@@ -10,11 +11,11 @@ import { CacheFirst, NetworkFirst, StaleWhileRevalidate } from 'workbox-strategi
 declare const self: ServiceWorkerGlobalScope;
 
 // Precache all build assets
-precacheAndRoute(self.__WB_MANIFEST);
+precacheAndRoute((self as any).__WB_MANIFEST);
 
 // Cache API responses with Network First strategy
 registerRoute(
-  ({ url }) => url.pathname.startsWith('/api/v1/'),
+  ({ url }: any) => url.pathname.startsWith('/api/v1/'),
   new NetworkFirst({
     cacheName: 'api-cache',
     plugins: [
@@ -28,7 +29,7 @@ registerRoute(
 
 // Cache images with Cache First strategy
 registerRoute(
-  ({ request }) => request.destination === 'image',
+  ({ request }: any) => request.destination === 'image',
   new CacheFirst({
     cacheName: 'images-cache',
     plugins: [
@@ -42,7 +43,7 @@ registerRoute(
 
 // Cache static assets with Stale While Revalidate
 registerRoute(
-  ({ request }) =>
+  ({ request }: any) =>
     request.destination === 'script' ||
     request.destination === 'style' ||
     request.destination === 'font',
@@ -57,7 +58,7 @@ const bgSyncPlugin = new BackgroundSyncPlugin('fleet-mutations', {
 });
 
 registerRoute(
-  ({ url, request }) =>
+  ({ url, request }: any) =>
     url.pathname.startsWith('/api/v1/') &&
     (request.method === 'POST' ||
       request.method === 'PATCH' ||
@@ -118,13 +119,13 @@ async function syncVehicleLocations() {
 }
 
 // Install event
-self.addEventListener('install', (event) => {
+self.addEventListener('install', (_event: any) => {
   console.log('Service Worker installing...');
   self.skipWaiting();
 });
 
 // Activate event
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', (event: any) => {
   console.log('Service Worker activating...');
   event.waitUntil(self.clients.claim());
 });

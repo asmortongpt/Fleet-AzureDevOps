@@ -36,7 +36,7 @@ export const VehicleResponseSchema = z.object({
   heading: z.number().nullable().optional(),
   assigned_driver_id: z.string().uuid().nullable().optional(),
   assigned_facility_id: z.string().uuid().nullable().optional(),
-  telematics_data: z.record(z.any()).nullable().optional(),
+  telematics_data: z.record(z.string(), z.any()).nullable().optional(),
   photos: z.array(z.string()).nullable().optional(),
   notes: z.string().nullable().optional(),
   created_at: z.string(),
@@ -202,7 +202,7 @@ export const AssetResponseSchema = z.object({
   warranty_expiration: z.string().nullable().optional(), // Database field name
   last_maintenance: z.string().nullable().optional(),
   qr_code_data: z.string().nullable().optional(), // Database field name
-  specifications: z.record(z.any()).nullable().optional(),
+  specifications: z.record(z.string(), z.any()).nullable().optional(),
   photo_url: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
   created_at: z.string(),

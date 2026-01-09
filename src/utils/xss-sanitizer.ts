@@ -60,13 +60,13 @@ export function sanitizeUrl(url: string): string {
 
   // Block javascript: and data: URIs
   if (trimmed.startsWith('javascript:') || trimmed.startsWith('data:')) {
-    logger.warn('Blocked potentially malicious URL:', url);
+    logger.warn('Blocked potentially malicious URL:', { url });
     return '';
   }
 
   // Only allow http, https, and relative URLs
   if (!trimmed.match(/^(https?:\/\/|\/)/)) {
-    logger.warn('Blocked non-HTTP URL:', url);
+    logger.warn('Blocked non-HTTP URL:', { url });
     return '';
   }
 
@@ -105,7 +105,7 @@ export function sanitizeJson(jsonString: string): string | null {
     const parsed = JSON.parse(jsonString);
     return JSON.stringify(parsed);
   } catch (error) {
-    logger.error('Invalid JSON:', error);
+    logger.error('Invalid JSON:', { error: error instanceof Error ? error.message : String(error) });
     return null;
   }
 }
