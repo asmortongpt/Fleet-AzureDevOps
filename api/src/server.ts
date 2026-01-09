@@ -1,3 +1,5 @@
+// Initialize environment variables FIRST
+import 'dotenv/config'
 // Initialize monitoring services FIRST (before other imports)
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
