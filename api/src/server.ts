@@ -78,6 +78,7 @@ import costsRouter from './routes/costs'
 // AI & Automation Routes
 // DISABLED: import langchainRouter from './routes/langchain.routes'
 // DISABLED: import fleetOptimizerRouter from './routes/fleet-optimizer.routes'
+import aiDamageDetectionRouter from './routes/ai-damage-detection.routes'
 
 // Task & Schedule Management Routes
 
@@ -90,6 +91,7 @@ import costsRouter from './routes/costs'
 // DISABLED: import vehicleIdentificationRouter from './routes/vehicle-identification.routes'
 import damageRouter from './routes/damage'
 import damageReportsRouter from './routes/damage-reports'
+import lidarRouter from './routes/lidar.routes'
 
 // Trip & Route Management Routes
 
@@ -398,6 +400,8 @@ app.use('/api/vehicle-history', vehicleHistoryRouter)
 app.use('/api/vehicle-3d', vehicle3dRouter)
 app.use('/api/damage', damageRouter)
 app.use('/api/damage-reports', damageReportsRouter)
+app.use('/api/ai/damage-detection', aiDamageDetectionRouter)
+app.use('/api/lidar', lidarRouter)
 
 // Trip & Route Management Routes
 app.use('/api/routes', routesRouter)

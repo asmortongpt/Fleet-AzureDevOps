@@ -3,6 +3,15 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
 
+// Initialize i18n BEFORE React renders - this is critical for SSR and proper language detection
+import './i18n/config'
+
+// Initialize axe-core accessibility testing in development
+import { initializeAxe } from './lib/accessibility/axe-init'
+if (import.meta.env.DEV) {
+  initializeAxe()
+}
+
 /**
  * P0-2 SECURITY FIX: Remove demo_mode localStorage bypass
  * CRITICAL: Production builds must NEVER allow authentication bypass
@@ -73,6 +82,9 @@ import "./index.css"
 import "./styles/design-tokens-responsive.css"
 import "./styles/responsive-utilities.css"
 import "./styles/dark-mode-enhancements.css"
+
+// WCAG 2.1 AA Accessibility Styles
+import "./styles/accessibility.css"
 
 // Legacy fleet theme - DISABLED to prevent conflicts
 // import "./styles/fleet-theme.css"

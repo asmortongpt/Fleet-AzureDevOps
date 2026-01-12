@@ -1,0 +1,401 @@
+/**
+ * AR Mode Export - USDZ Generation and AR Viewing
+ *
+ * Features:
+ * - USDZ export for iOS AR Quick Look
+ * - Scene Viewer export for Android
+ * - QR code generation for easy mobile access
+ * - Share functionality
+ * - AR placement preview
+ */
+
+import { useState, useCallback } from 'react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Camera,
+  Smartphone,
+  Share2,
+  Download,
+  QrCode,
+  CheckCircle2,
+  AlertCircle,
+  Loader2
+} from 'lucide-react';
+
+export interface ARModeExportProps {
+  vehicleId?: number;
+  vehicleData?: {
+    make: string;
+    model: string;
+    year: number;
+    exteriorColor?: string;
+  };
+  modelUrl?: string;
+  usdzUrl?: string;
+  glbUrl?: string;
+  onExport?: (format: 'usdz' | 'glb') => Promise<string>;
+}
+
+/**
+ * AR Mode Export Component
+ */
+export default function ARModeExport({
+  vehicleId,
+  vehicleData,
+  modelUrl,
+  usdzUrl,
+  glbUrl,
+  onExport,
+}: ARModeExportProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Detect device type
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  const isMobile = isIOS || isAndroid;
+
+  /**
+   * Generate USDZ file for iOS AR Quick Look
+   */
+  const generateUSDZ = useCallback(async () => {
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      // If we have a pre-generated USDZ URL, use it
+      if (usdzUrl) {
+        setGeneratedUrl(usdzUrl);
+        generateQRCode(usdzUrl);
+        return;
+      }
+
+      // Otherwise, call the export handler
+      if (onExport) {
+        const url = await onExport('usdz');
+        setGeneratedUrl(url);
+        generateQRCode(url);
+      } else {
+        throw new Error('No USDZ export handler provided');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to generate USDZ file');
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [usdzUrl, onExport]);
+
+  /**
+   * Generate GLB file for Android Scene Viewer
+   */
+  const generateGLB = useCallback(async () => {
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      // If we have a pre-generated GLB URL, use it
+      if (glbUrl) {
+        setGeneratedUrl(glbUrl);
+        generateQRCode(glbUrl);
+        return;
+      }
+
+      // Otherwise, use model URL or call export handler
+      if (modelUrl) {
+        setGeneratedUrl(modelUrl);
+        generateQRCode(modelUrl);
+      } else if (onExport) {
+        const url = await onExport('glb');
+        setGeneratedUrl(url);
+        generateQRCode(url);
+      } else {
+        throw new Error('No GLB export handler provided');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to generate GLB file');
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [glbUrl, modelUrl, onExport]);
+
+  /**
+   * Generate QR code for easy mobile access
+   */
+  const generateQRCode = useCallback((url: string) => {
+    // Use a QR code generation service
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}`;
+    setQrCodeUrl(qrUrl);
+  }, []);
+
+  /**
+   * Open AR view on mobile
+   */
+  const openARView = useCallback(() => {
+    if (!generatedUrl) return;
+
+    if (isIOS) {
+      // iOS AR Quick Look
+      const arUrl = generatedUrl.startsWith('http') ? generatedUrl : `${window.location.origin}${generatedUrl}`;
+      window.location.href = arUrl;
+    } else if (isAndroid) {
+      // Android Scene Viewer
+      const intent = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(generatedUrl)}&mode=ar_only#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=https://developers.google.com/ar;end;`;
+      window.location.href = intent;
+    }
+  }, [generatedUrl, isIOS, isAndroid]);
+
+  /**
+   * Share AR link
+   */
+  const shareARLink = useCallback(async () => {
+    if (!generatedUrl) return;
+
+    const shareData = {
+      title: `${vehicleData?.year} ${vehicleData?.make} ${vehicleData?.model} - AR View`,
+      text: 'View this vehicle in augmented reality!',
+      url: generatedUrl,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(generatedUrl);
+        alert('AR link copied to clipboard!');
+      }
+    } catch (err) {
+      console.error('Error sharing:', err);
+    }
+  }, [generatedUrl, vehicleData]);
+
+  /**
+   * Download AR file
+   */
+  const downloadARFile = useCallback(() => {
+    if (!generatedUrl) return;
+
+    const link = document.createElement('a');
+    link.href = generatedUrl;
+    link.download = `vehicle-${vehicleId || 'model'}-ar.${isIOS ? 'usdz' : 'glb'}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }, [generatedUrl, vehicleId, isIOS]);
+
+  return (
+    <>
+      <Button
+        onClick={() => setIsOpen(true)}
+        variant="default"
+        className="gap-2"
+      >
+        <Camera className="w-4 h-4" />
+        View in AR
+      </Button>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Camera className="w-5 h-5" />
+              Augmented Reality View
+            </DialogTitle>
+            <DialogDescription>
+              View this vehicle in your space using AR on your mobile device
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Vehicle Info */}
+            <div className="bg-muted p-4 rounded-lg">
+              <h3 className="font-semibold mb-1">
+                {vehicleData?.year} {vehicleData?.make} {vehicleData?.model}
+              </h3>
+              {vehicleData?.exteriorColor && (
+                <p className="text-sm text-muted-foreground">
+                  Color: {vehicleData.exteriorColor}
+                </p>
+              )}
+            </div>
+
+            {/* Platform Detection */}
+            <div className="flex items-center gap-2">
+              <Smartphone className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm">
+                {isIOS && <Badge variant="secondary">iOS AR Quick Look</Badge>}
+                {isAndroid && <Badge variant="secondary">Android Scene Viewer</Badge>}
+                {!isMobile && <Badge variant="outline">Desktop - Use QR Code</Badge>}
+              </span>
+            </div>
+
+            {/* Error Alert */}
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {/* Generate AR File */}
+            {!generatedUrl && !isGenerating && (
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Generate an AR-ready 3D model to view this vehicle in your space
+                </p>
+                <div className="flex gap-2">
+                  {(isIOS || !isMobile) && (
+                    <Button onClick={generateUSDZ} className="flex-1">
+                      <Camera className="w-4 h-4 mr-2" />
+                      Generate for iOS
+                    </Button>
+                  )}
+                  {(isAndroid || !isMobile) && (
+                    <Button onClick={generateGLB} variant="secondary" className="flex-1">
+                      <Camera className="w-4 h-4 mr-2" />
+                      Generate for Android
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Generating State */}
+            {isGenerating && (
+              <div className="flex items-center justify-center py-8">
+                <div className="text-center space-y-3">
+                  <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
+                  <p className="text-sm text-muted-foreground">
+                    Generating AR model...
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Generated - Show Actions */}
+            {generatedUrl && !isGenerating && (
+              <div className="space-y-4">
+                <Alert>
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <AlertDescription>
+                    AR model ready! Use the buttons below to view or share.
+                  </AlertDescription>
+                </Alert>
+
+                {/* QR Code for Desktop */}
+                {!isMobile && qrCodeUrl && (
+                  <div className="bg-white p-4 rounded-lg flex flex-col items-center gap-2">
+                    <QrCode className="w-5 h-5 text-muted-foreground" />
+                    <img
+                      src={qrCodeUrl}
+                      alt="AR QR Code"
+                      className="w-48 h-48 rounded"
+                    />
+                    <p className="text-xs text-muted-foreground text-center">
+                      Scan with your mobile device to view in AR
+                    </p>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="grid grid-cols-2 gap-2">
+                  {isMobile && (
+                    <Button onClick={openARView} className="col-span-2">
+                      <Camera className="w-4 h-4 mr-2" />
+                      Open in AR
+                    </Button>
+                  )}
+                  <Button onClick={shareARLink} variant="secondary">
+                    <Share2 className="w-4 h-4 mr-2" />
+                    Share
+                  </Button>
+                  <Button onClick={downloadARFile} variant="secondary">
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
+                </div>
+
+                {/* Instructions */}
+                <div className="bg-muted p-3 rounded-lg space-y-2">
+                  <h4 className="font-semibold text-sm">How to use:</h4>
+                  <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+                    {isIOS && (
+                      <>
+                        <li>Tap "Open in AR" to launch AR Quick Look</li>
+                        <li>Point your device at a flat surface</li>
+                        <li>Tap to place the vehicle</li>
+                        <li>Walk around to view from all angles</li>
+                      </>
+                    )}
+                    {isAndroid && (
+                      <>
+                        <li>Tap "Open in AR" to launch Scene Viewer</li>
+                        <li>Point your device at a flat surface</li>
+                        <li>Tap "Place" to position the vehicle</li>
+                        <li>Pinch to scale and drag to rotate</li>
+                      </>
+                    )}
+                    {!isMobile && (
+                      <>
+                        <li>Scan the QR code with your mobile device</li>
+                        <li>Follow the on-screen instructions</li>
+                        <li>Place the vehicle in your space</li>
+                      </>
+                    )}
+                  </ol>
+                </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+/**
+ * Quick AR Button - Simplified AR view trigger
+ */
+export function QuickARButton({
+  usdzUrl,
+  glbUrl,
+  vehicleName,
+}: {
+  usdzUrl?: string;
+  glbUrl?: string;
+  vehicleName?: string;
+}) {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+
+  const handleClick = () => {
+    if (isIOS && usdzUrl) {
+      window.location.href = usdzUrl;
+    } else if (isAndroid && glbUrl) {
+      const intent = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(glbUrl)}&mode=ar_only#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=https://developers.google.com/ar;end;`;
+      window.location.href = intent;
+    }
+  };
+
+  if (!usdzUrl && !glbUrl) {
+    return null;
+  }
+
+  return (
+    <Button
+      onClick={handleClick}
+      variant="outline"
+      size="sm"
+      className="gap-2"
+    >
+      <Camera className="w-3 h-3" />
+      View in AR
+    </Button>
+  );
+}
