@@ -1,0 +1,415 @@
+/**
+ * WCAG 2.1 AA Accessibility Styles
+ *
+ * Comprehensive accessibility styles including:
+ * - Screen reader utilities
+ * - Focus indicators
+ * - High contrast support
+ * - Reduced motion support
+ * - Keyboard navigation styles
+ * - Skip links
+ */
+
+/* ============================================================================
+   Screen Reader Only Content (sr-only)
+   ============================================================================ */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Make sr-only content visible when focused (for skip links) */
+.sr-only-focusable:focus,
+.sr-only-focusable:active {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* ============================================================================
+   Focus Indicators - WCAG 2.1 Success Criterion 2.4.7 (Level AA)
+   ============================================================================ */
+
+/* Enhanced focus indicator for all interactive elements */
+*:focus-visible {
+  outline: 3px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove outline for mouse/touch users (but keep for keyboard) */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* High contrast focus for buttons */
+button:focus-visible,
+a:focus-visible,
+[role='button']:focus-visible {
+  outline: 3px solid hsl(var(--primary));
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px hsla(var(--primary) / 0.2);
+}
+
+/* Focus indicators for form inputs */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 0;
+  border-color: hsl(var(--primary));
+}
+
+/* ============================================================================
+   Skip Navigation Links - WCAG 2.1 Success Criterion 2.4.1 (Level A)
+   ============================================================================ */
+
+.skip-link {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  z-index: 9999;
+  padding: 1rem 1.5rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 0 0 0.5rem 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+}
+
+.skip-link:focus {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  outline: 3px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   Keyboard Navigation Indicators
+   ============================================================================ */
+
+/* Highlight for keyboard-navigable items in lists */
+[role='listbox'] [role='option']:focus,
+[role='menu'] [role='menuitem']:focus,
+[role='grid'] [role='gridcell']:focus {
+  background-color: hsl(var(--accent));
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: -2px;
+}
+
+/* Tab navigation indicators */
+[role='tablist'] [role='tab']:focus {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  z-index: 1;
+}
+
+/* ============================================================================
+   High Contrast Mode Support
+   ============================================================================ */
+
+@media (prefers-contrast: high) {
+  /* Increase all border widths */
+  * {
+    border-width: 2px !important;
+  }
+
+  /* Enhance focus indicators */
+  *:focus-visible {
+    outline-width: 4px !important;
+    outline-offset: 3px !important;
+  }
+
+  /* Increase text contrast */
+  body {
+    color: #000;
+    background: #fff;
+  }
+
+  /* Ensure buttons have visible borders */
+  button,
+  [role='button'] {
+    border: 2px solid currentColor !important;
+  }
+}
+
+/* ============================================================================
+   Reduced Motion Support - WCAG 2.1 Success Criterion 2.3.3 (Level AAA)
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable parallax effects */
+  [data-parallax] {
+    transform: none !important;
+  }
+
+  /* Disable auto-playing videos */
+  video {
+    animation: none !important;
+  }
+}
+
+/* ============================================================================
+   Text Spacing - WCAG 2.1 Success Criterion 1.4.12 (Level AA)
+   ============================================================================ */
+
+/* Allow user text spacing overrides */
+.text-spacing-override {
+  line-height: 1.5 !important;
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.16em !important;
+}
+
+.text-spacing-override p {
+  margin-bottom: 2em !important;
+}
+
+/* ============================================================================
+   Target Size - WCAG 2.1 Success Criterion 2.5.5 (Level AAA)
+   ============================================================================ */
+
+/* Minimum touch target size of 44x44px */
+button,
+a,
+input[type='checkbox'],
+input[type='radio'],
+[role='button'],
+[role='link'] {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Exception for inline text links */
+a:not([role='button']) {
+  min-height: auto;
+  min-width: auto;
+}
+
+/* ============================================================================
+   Color Contrast - WCAG 2.1 Success Criterion 1.4.3 (Level AA)
+   ============================================================================ */
+
+/* Ensure disabled elements have sufficient contrast */
+:disabled,
+[aria-disabled='true'] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Error states must have sufficient contrast */
+[aria-invalid='true'],
+.error {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+/* Success states */
+[aria-invalid='false'],
+.success {
+  border-color: #16a34a;
+  color: #16a34a;
+}
+
+/* ============================================================================
+   Live Regions for Dynamic Content
+   ============================================================================ */
+
+[role='status'],
+[role='alert'],
+[aria-live] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ============================================================================
+   Focus Management for Modals and Dialogs
+   ============================================================================ */
+
+/* Prevent body scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+}
+
+/* Dialog focus trap */
+[role='dialog'],
+[role='alertdialog'] {
+  position: fixed;
+  z-index: 50;
+}
+
+[role='dialog']:focus,
+[role='alertdialog']:focus {
+  outline: none;
+}
+
+/* ============================================================================
+   Responsive Text Resizing - WCAG 2.1 Success Criterion 1.4.4 (Level AA)
+   ============================================================================ */
+
+/* Support text resizing up to 200% without loss of content */
+html {
+  font-size: 100%;
+}
+
+@media screen and (min-width: 768px) {
+  html {
+    font-size: clamp(100%, 1vw + 0.5rem, 200%);
+  }
+}
+
+/* ============================================================================
+   Print Accessibility
+   ============================================================================ */
+
+@media print {
+  /* Ensure links are visible in print */
+  a[href]::after {
+    content: ' (' attr(href) ')';
+  }
+
+  /* Hide non-essential elements */
+  nav,
+  aside,
+  .no-print {
+    display: none;
+  }
+
+  /* Ensure good contrast */
+  * {
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* ============================================================================
+   Custom Scrollbar Accessibility
+   ============================================================================ */
+
+/* Ensure scrollbars have sufficient contrast */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground));
+  border-radius: 6px;
+  border: 2px solid hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--foreground));
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground)) hsl(var(--muted));
+}
+
+/* ============================================================================
+   Aria Hidden Content
+   ============================================================================ */
+
+[aria-hidden='true'] {
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ============================================================================
+   Loading States
+   ============================================================================ */
+
+[aria-busy='true'] {
+  cursor: wait;
+  pointer-events: none;
+}
+
+/* ============================================================================
+   Language Direction Support (RTL/LTR)
+   ============================================================================ */
+
+[dir='rtl'] {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir='ltr'] {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Mirror elements in RTL */
+[dir='rtl'] .flip-rtl {
+  transform: scaleX(-1);
+}
+
+/* ============================================================================
+   Utility Classes
+   ============================================================================ */
+
+/* Show only for keyboard users */
+.keyboard-only {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.keyboard-only:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Increase tap targets on mobile */
+@media (pointer: coarse) {
+  button,
+  a,
+  [role='button'] {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
