@@ -8,7 +8,12 @@
  * - Reduced motion support
  * - Keyboard navigation styles
  * - Skip links
+ * - RTL (Right-to-Left) language support
+ *
+ * NOTE: RTL styles are in rtl.css
  */
+
+@import './rtl.css';
 
 /* ============================================================================
    Screen Reader Only Content (sr-only)
