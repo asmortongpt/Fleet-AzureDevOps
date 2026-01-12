@@ -111,24 +111,27 @@ export function LanguageSwitcher({
           size={size}
           className={cn('gap-2', className)}
           disabled={isChanging}
+          aria-label={`Change language. Current language: ${currentLanguage?.nativeName || 'Language'}`}
+          aria-haspopup="menu"
+          aria-expanded={false}
         >
-          <Globe className="h-4 w-4" />
+          <Globe className="h-4 w-4" aria-hidden="true" />
           {showLabel && (
             <span className="hidden sm:inline-block">
               {currentLanguage?.nativeName || 'Language'}
             </span>
           )}
           {showLabel && (
-            <span className="sm:hidden">{currentLanguage?.flag}</span>
+            <span className="sm:hidden" aria-hidden="true">{currentLanguage?.flag}</span>
           )}
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="text-xs text-muted-foreground">
+      <DropdownMenuContent align="end" className="w-56" role="menu" aria-label="Language selection menu">
+        <DropdownMenuLabel className="text-xs text-muted-foreground" id="language-menu-label">
           Select Language
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator role="separator" />
 
         {Object.entries(languages).map(([code, lang]) => {
           const isActive = currentLang === code;
@@ -144,9 +147,12 @@ export function LanguageSwitcher({
                 isRTL && 'flex-row-reverse justify-end'
               )}
               disabled={isChanging}
+              role="menuitemradio"
+              aria-checked={isActive}
+              aria-label={`${lang.nativeName} (${lang.name})${isActive ? ' - Currently selected' : ''}`}
             >
               <div className="flex items-center gap-2 flex-1">
-                <span className="text-lg">{lang.flag}</span>
+                <span className="text-lg" role="img" aria-label={`${lang.name} flag`}>{lang.flag}</span>
                 <div className={cn('flex flex-col', isRTL && 'items-end')}>
                   <span className="font-medium">{lang.nativeName}</span>
                   <span className="text-xs text-muted-foreground">
@@ -155,7 +161,7 @@ export function LanguageSwitcher({
                 </div>
               </div>
               {isActive && (
-                <Check className="h-4 w-4 text-primary" aria-label="Selected" />
+                <Check className="h-4 w-4 text-primary" aria-hidden="true" />
               )}
             </DropdownMenuItem>
           );

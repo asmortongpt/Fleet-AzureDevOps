@@ -108,6 +108,9 @@ const CostAnalyticsPage = lazy(() => import("@/pages/CostAnalyticsPage"));
 // HUB PAGES
 const FleetHub = lazy(() => import("@/pages/FleetHub"));
 
+// 3D VISUALIZATION
+const VehicleShowroom3D = lazy(() => import("@/pages/VehicleShowroom3D"));
+
 const routes = [
   { path: "dashboard", element: <FleetDashboard /> },
   { path: "fleet-hub", element: <FleetHub /> },
@@ -118,6 +121,7 @@ const routes = [
   // { path: "people", element: <PeopleManagement /> },
   { path: "garage", element: <GarageService /> },
   { path: "virtual-garage", element: <VirtualGarage /> },
+  { path: "vehicle-showroom-3d", element: <VehicleShowroom3D /> },
   { path: "predictive", element: <PredictiveMaintenance /> },
   { path: "fuel", element: <FuelManagement /> },
   { path: "gps-tracking", element: <GPSTracking vehicles={[]} facilities={[]} /> },
