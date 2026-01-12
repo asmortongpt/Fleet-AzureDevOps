@@ -16,7 +16,7 @@ import { requirePermission } from '../middleware/permissions';
 import { lidar3DScanningService } from '../services/lidar-3d-scanning.service';
 import {
   CalculateVolumeRequest,
-  CompareSc ansRequest,
+  CompareScansRequest,
   DamageAnnotationSchema,
   MeshGenerationOptionsSchema,
   Model3DGenerationRequestSchema,
@@ -265,7 +265,7 @@ router.post(
         generateVisualization: z.boolean().default(false),
       });
 
-      const request: CompareSc ansRequest = schema.parse(req.body);
+      const request: CompareScansRequest = schema.parse(req.body);
 
       const result = await lidar3DScanningService.compareScans(req.user!.tenant_id, request);
 

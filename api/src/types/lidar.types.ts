@@ -436,7 +436,7 @@ export interface CalculateVolumeRequest {
   damageAnnotations?: string[]; // annotation IDs to calculate volume for
 }
 
-export interface CompareSc ansRequest {
+export interface CompareScansRequest {
   baseScanId: string;
   compareScanId: string;
   tolerance?: number; // meters
