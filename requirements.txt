@@ -1,0 +1,24 @@
+# Fleet Management - Python Dependencies
+# Security: Updated torch to 2.8.0 to fix CVE-2025-32434 (Critical RCE)
+# Last updated: 2026-01-11
+
+# Core ML/AI Libraries - SECURITY PATCHED
+torch==2.8.0  # Fixed: CVE-2025-32434 (Critical RCE), AIKIDO-2025-10060 (High), CVE-2024-31583 (High UAF), CVE-2024-31580 (High buffer overflow)
+torchvision==0.20.0  # Compatible with torch 2.8.0
+
+# 3D Model Generation
+trimesh==4.5.3
+rembg==2.0.59
+pillow==11.0.0  # Security: Updated for CVE fixes
+
+# AI/ML Transformers
+transformers==4.47.1
+diffusers==0.32.2
+accelerate==1.2.1
+
+# Image Processing
+numpy==2.2.1
+opencv-python==4.10.0.84
+
+# Utilities
+requests==2.32.3  # Security: patched version
