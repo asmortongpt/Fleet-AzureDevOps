@@ -21,7 +21,7 @@ import { pool } from '../db/connection';
 import {
   ARKitModelData,
   CalculateVolumeRequest,
-  CompareSc ansRequest,
+  CompareScansRequest,
   DamageAnnotation,
   Generated3DModel,
   GetScanResponse,
@@ -309,7 +309,7 @@ export class LiDAR3DScanningService {
    */
   async compareScans(
     tenantId: string,
-    request: CompareSc ansRequest
+    request: CompareScansRequest
   ): Promise<LiDARComparisonResult> {
     const { baseScanId, compareScanId, tolerance = 0.001, generateVisualization } = request;
 

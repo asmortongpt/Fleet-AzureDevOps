@@ -11,7 +11,7 @@ import {
   LiDARPoint,
   ProcessLiDARScanRequest,
   CalculateVolumeRequest,
-  CompareSc ansRequest,
+  CompareScansRequest,
 } from '../types/lidar.types';
 
 describe('LiDAR 3D Scanning Service', () => {
