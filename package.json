@@ -8,7 +8,13 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:a11y": "vitest --run src/tests/accessibility.test.tsx",
+    "test:a11y:watch": "vitest --watch src/tests/accessibility.test.tsx"
   },
   "dependencies": {
     "@googlemaps/markerclusterer": "^2.6.2",
@@ -103,6 +109,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/dompurify": "^3.0.5",
     "@types/express": "^5.0.6",
+    "@types/jest-axe": "^3.5.9",
     "@types/pg": "^8.16.0",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
@@ -117,6 +124,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "idb": "^8.0.3",
+    "jest-axe": "^10.0.0",
     "pg": "^8.16.3",
     "postcss": "^8.4.32",
     "rollup-plugin-visualizer": "^6.0.5",
