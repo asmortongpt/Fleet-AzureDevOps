@@ -114,8 +114,8 @@ class DriverSafetyAIService {
             boundingBox: obj.rectangle
           });
 
-          // Phone detection
-          if ((objName.includes('phone') || objName.includes('cell')) && confidence > 0.75) {
+          // 1. Phone detection (hands-free violation)
+          if ((objName.includes('phone') || objName.includes('cell') || objName.includes('mobile')) && confidence > 0.75) {
             detectedBehaviors.push({
               behavior: 'phone_use',
               confidence,
@@ -124,8 +124,8 @@ class DriverSafetyAIService {
             });
           }
 
-          // Smoking detection
-          if ((objName.includes('cigarette') || objName.includes('smoking')) && confidence > 0.70) {
+          // 2. Smoking detection
+          if ((objName.includes('cigarette') || objName.includes('smoking') || objName.includes('vape')) && confidence > 0.70) {
             detectedBehaviors.push({
               behavior: 'smoking',
               confidence,
@@ -134,13 +134,53 @@ class DriverSafetyAIService {
             });
           }
 
-          // Food/drink detection
-          if ((objName.includes('food') || objName.includes('drink') || objName.includes('cup')) && confidence > 0.70) {
+          // 3. Food/drink detection (eating while driving)
+          if ((objName.includes('food') || objName.includes('drink') || objName.includes('cup') || objName.includes('bottle') || objName.includes('can')) && confidence > 0.70) {
             detectedBehaviors.push({
               behavior: 'eating_drinking',
               confidence,
               timestamp: Date.now(),
               severity: 'minor'
+            });
+          }
+
+          // 4. Headphones/earbuds detection
+          if ((objName.includes('headphone') || objName.includes('earbud') || objName.includes('earphone')) && confidence > 0.70) {
+            detectedBehaviors.push({
+              behavior: 'wearing_headphones',
+              confidence,
+              timestamp: Date.now(),
+              severity: 'moderate'
+            });
+          }
+
+          // 5. Pet/animal in cabin
+          if ((objName.includes('dog') || objName.includes('cat') || objName.includes('pet') || objName.includes('animal')) && confidence > 0.80) {
+            detectedBehaviors.push({
+              behavior: 'pet_distraction',
+              confidence,
+              timestamp: Date.now(),
+              severity: 'moderate'
+            });
+          }
+
+          // 6. Reading materials
+          if ((objName.includes('book') || objName.includes('paper') || objName.includes('magazine') || objName.includes('document')) && confidence > 0.75) {
+            detectedBehaviors.push({
+              behavior: 'reading_while_driving',
+              confidence,
+              timestamp: Date.now(),
+              severity: 'severe'
+            });
+          }
+
+          // 7. Laptop/tablet use
+          if ((objName.includes('laptop') || objName.includes('tablet') || objName.includes('computer')) && confidence > 0.80) {
+            detectedBehaviors.push({
+              behavior: 'device_use',
+              confidence,
+              timestamp: Date.now(),
+              severity: 'critical'
             });
           }
         }
@@ -150,6 +190,7 @@ class DriverSafetyAIService {
       faceAnalysis = await this.analyzeFace(imageUrl);
 
       if (faceAnalysis) {
+        // 8. Drowsiness detection (eyes closed)
         if (faceAnalysis.eyesClosed && faceAnalysis.drowsinessScore > 0.7) {
           detectedBehaviors.push({
             behavior: 'drowsiness',
@@ -159,6 +200,7 @@ class DriverSafetyAIService {
           });
         }
 
+        // 9. Yawning detection
         if (faceAnalysis.yawning) {
           detectedBehaviors.push({
             behavior: 'yawning',
@@ -168,6 +210,7 @@ class DriverSafetyAIService {
           });
         }
 
+        // 10. Distracted driving (looking away from road)
         if (faceAnalysis.lookingAway && faceAnalysis.distractionScore > 0.75) {
           detectedBehaviors.push({
             behavior: 'distracted_driving',
@@ -177,6 +220,20 @@ class DriverSafetyAIService {
           });
         }
       }
+
+      // 11. Seatbelt detection
+      const seatbeltDetection = await this.detectSeatbelt(objectDetections);
+      if (seatbeltDetection.notWearing) {
+        detectedBehaviors.push({
+          behavior: 'no_seatbelt',
+          confidence: seatbeltDetection.confidence,
+          timestamp: Date.now(),
+          severity: 'critical'
+        });
+      }
+
+      // 12-15. Additional behavior checks from object analysis
+      await this.detectAdditionalBehaviors(objectAnalysis, detectedBehaviors);
 
       // Calculate overall risk score
       const overallRiskScore = this.calculateRiskScore(detectedBehaviors);
@@ -198,6 +255,157 @@ class DriverSafetyAIService {
     } catch (error: any) {
       logger.error(`AI analysis failed:`, error.message);
       throw error;
+    }
+  }
+
+  /**
+   * Detect seatbelt usage from object detections
+   */
+  private async detectSeatbelt(objectDetections: ObjectDetection[]): Promise<{ notWearing: boolean; confidence: number }> {
+    try {
+      // Look for seatbelt indicators
+      const seatbeltObjects = objectDetections.filter(obj =>
+        obj.object.toLowerCase().includes('seatbelt') ||
+        obj.object.toLowerCase().includes('belt') ||
+        obj.object.toLowerCase().includes('strap')
+      );
+
+      // If no seatbelt detected, likely not wearing
+      if (seatbeltObjects.length === 0) {
+        // Additional heuristic: check for driver position indicators
+        const driverPresent = objectDetections.some(obj =>
+          obj.object.toLowerCase().includes('person') ||
+          obj.object.toLowerCase().includes('face')
+        );
+
+        if (driverPresent) {
+          return { notWearing: true, confidence: 0.75 };
+        }
+      }
+
+      // Seatbelt detected with good confidence
+      const bestSeatbelt = seatbeltObjects.reduce((max, obj) =>
+        obj.confidence > max.confidence ? obj : max,
+        { confidence: 0 } as ObjectDetection
+      );
+
+      if (bestSeatbelt.confidence > 0.70) {
+        return { notWearing: false, confidence: bestSeatbelt.confidence };
+      }
+
+      // Uncertain - default to not detected
+      return { notWearing: true, confidence: 0.60 };
+    } catch (error: any) {
+      logger.error('Seatbelt detection failed:', error.message);
+      return { notWearing: false, confidence: 0 };
+    }
+  }
+
+  /**
+   * Detect additional safety behaviors
+   */
+  private async detectAdditionalBehaviors(objectAnalysis: any, detectedBehaviors: DetectedBehavior[]): Promise<void> {
+    try {
+      const objects = objectAnalysis.objects || [];
+
+      // 12. Grooming activities (mirror usage, makeup, etc.)
+      const groomingObjects = objects.filter((obj: any) => {
+        const name = obj.object.toLowerCase();
+        return name.includes('mirror') || name.includes('comb') || name.includes('brush') ||
+               name.includes('makeup') || name.includes('cosmetic');
+      });
+
+      if (groomingObjects.length > 0) {
+        const maxConfidence = Math.max(...groomingObjects.map((o: any) => o.confidence || 0));
+        if (maxConfidence > 0.70) {
+          detectedBehaviors.push({
+            behavior: 'grooming_while_driving',
+            confidence: maxConfidence,
+            timestamp: Date.now(),
+            severity: 'moderate'
+          });
+        }
+      }
+
+      // 13. Camera/recording device usage (secondary camera)
+      const cameraObjects = objects.filter((obj: any) => {
+        const name = obj.object.toLowerCase();
+        return name.includes('camera') && !name.includes('dashcam');
+      });
+
+      if (cameraObjects.length > 0) {
+        const maxConfidence = Math.max(...cameraObjects.map((o: any) => o.confidence || 0));
+        if (maxConfidence > 0.75) {
+          detectedBehaviors.push({
+            behavior: 'camera_use',
+            confidence: maxConfidence,
+            timestamp: Date.now(),
+            severity: 'moderate'
+          });
+        }
+      }
+
+      // 14. Hand not on steering wheel (hands detection)
+      const handObjects = objects.filter((obj: any) => {
+        const name = obj.object.toLowerCase();
+        return name.includes('hand');
+      });
+
+      // Check if hands are in typical steering wheel position
+      const wheelArea = { x: 400, y: 400, width: 400, height: 300 }; // Typical steering wheel area
+      const handsOnWheel = handObjects.some((obj: any) => {
+        if (!obj.rectangle) return false;
+        const rect = obj.rectangle;
+        return rect.x >= wheelArea.x && rect.x <= wheelArea.x + wheelArea.width &&
+               rect.y >= wheelArea.y && rect.y <= wheelArea.y + wheelArea.height;
+      });
+
+      if (handObjects.length > 0 && !handsOnWheel) {
+        detectedBehaviors.push({
+          behavior: 'hands_off_wheel',
+          confidence: 0.80,
+          timestamp: Date.now(),
+          severity: 'severe'
+        });
+      }
+
+      // 15. Passenger distraction (multiple people detected, driver looking at passenger)
+      const peopleObjects = objects.filter((obj: any) => {
+        const name = obj.object.toLowerCase();
+        return name.includes('person') || name.includes('face');
+      });
+
+      if (peopleObjects.length > 1) {
+        // Multiple people detected - potential passenger distraction
+        detectedBehaviors.push({
+          behavior: 'passenger_distraction',
+          confidence: 0.70,
+          timestamp: Date.now(),
+          severity: 'minor'
+        });
+      }
+
+      // 16. Obscured windshield/obstructed view
+      if (objectAnalysis.adult && objectAnalysis.adult.isAdultContent) {
+        // Check for objects blocking view
+        const obstructionObjects = objects.filter((obj: any) => {
+          const name = obj.object.toLowerCase();
+          const rect = obj.rectangle;
+          // Check if object is in windshield area (upper portion of image)
+          return rect && rect.y < 300 && (name.includes('sticker') || name.includes('object'));
+        });
+
+        if (obstructionObjects.length > 0) {
+          detectedBehaviors.push({
+            behavior: 'obstructed_view',
+            confidence: 0.75,
+            timestamp: Date.now(),
+            severity: 'moderate'
+          });
+        }
+      }
+    } catch (error: any) {
+      logger.error('Additional behavior detection failed:', error.message);
     }
   }
 
