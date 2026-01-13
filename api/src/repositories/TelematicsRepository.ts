@@ -213,6 +213,33 @@ constructor(pool: Pool) {
     return result.rows[0] || null
   }
 
+  /**
+   * Get active telematics providers (alias for getAllProviders with active filter)
+   */
+  async getActiveProviders(): Promise<TelematicsProvider[]> {
+    const result = await this.pool.query<TelematicsProvider>(
+      `SELECT id, name, display_name, supports_webhooks, supports_video,
+              supports_temperature, supports_hos, created_at
+       FROM telematics_providers
+       WHERE active = true
+       ORDER BY display_name`
+    )
+    return result.rows
+  }
+
+  /**
+   * Get provider by ID (system table, no tenant filter)
+   */
+  async getProviderById(id: number): Promise<TelematicsProvider | null> {
+    const result = await this.pool.query<TelematicsProvider>(
+      `SELECT id, name, display_name, supports_webhooks, supports_video,
+              supports_temperature, supports_hos, created_at
+       FROM telematics_providers WHERE id = $1`,
+      [id]
+    )
+    return result.rows[0] || null
+  }
+
   // ==========================================================================
   // Connections
   // ==========================================================================
