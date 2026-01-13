@@ -59,7 +59,7 @@ interface ServiceBaySchedule {
  * Check for scheduling conflicts for a vehicle
  */
 
-export class SchedulingService {
+class SchedulingService {
   private calendarService: CalendarService
   private googleCalendarService: GoogleCalendarService
 
