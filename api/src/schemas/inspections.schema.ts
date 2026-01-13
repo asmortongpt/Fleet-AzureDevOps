@@ -134,9 +134,7 @@ export const inspectionCreateSchema = z.object({
 
   inspection_form_id: z.string().uuid('Invalid inspection form ID').optional(),
 
-  inspection_date: z.coerce.date({
-    invalid_type_error: 'Invalid inspection date format'
-  }),
+  inspection_date: z.coerce.date(),
 
   // Vehicle state at inspection
   odometer_reading: commonSchemas.nonNegativeNumber

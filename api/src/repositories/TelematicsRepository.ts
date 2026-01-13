@@ -325,6 +325,47 @@ constructor(pool: Pool) {
     return result.rows[0] || null
   }
 
+  /**
+   * Get devices/connections by provider
+   */
+  async getDevicesByProvider(providerId: number, tenantId: number): Promise<VehicleTelematicsConnection[]> {
+    const result = await this.pool.query<VehicleTelematicsConnection>(
+      `SELECT vtc.*
+       FROM vehicle_telematics_connections vtc
+       WHERE vtc.provider_id = $1
+       AND vtc.tenant_id = $2
+       AND vtc.sync_status = 'active'`,
+      [providerId, tenantId]
+    )
+    return result.rows
+  }
+
+  /**
+   * Get device/connection by ID
+   */
+  async getDeviceById(deviceId: number, tenantId: number): Promise<VehicleTelematicsConnection | null> {
+    const result = await this.pool.query<VehicleTelematicsConnection>(
+      `SELECT * FROM vehicle_telematics_connections
+       WHERE id = $1 AND tenant_id = $2`,
+      [deviceId, tenantId]
+    )
+    return result.rows[0] || null
+  }
+
+  /**
+   * Update devices sync time
+   */
+  async updateDevicesSyncTime(deviceIds: number[], tenantId: number): Promise<void> {
+    if (deviceIds.length === 0) return
+
+    await this.pool.query(
+      `UPDATE vehicle_telematics_connections
+       SET last_sync_at = NOW(), updated_at = NOW()
+       WHERE id = ANY($1) AND tenant_id = $2`,
+      [deviceIds, tenantId]
+    )
+  }
+
   // ==========================================================================
   // Telemetry
   // ==========================================================================
@@ -371,6 +412,68 @@ constructor(pool: Pool) {
       [vehicleId, tenantId]
     )
     return result.rows[0] || null
+  }
+
+  /**
+   * Insert position events (bulk insert telemetry data)
+   */
+  async insertPositionEvents(events: Partial<VehicleTelemetry>[], tenantId: number): Promise<void> {
+    if (events.length === 0) return
+
+    const values = events.map((e, idx) => {
+      const baseIdx = idx * 15
+      return `($${baseIdx+1}, $${baseIdx+2}, $${baseIdx+3}, $${baseIdx+4}, $${baseIdx+5}, $${baseIdx+6}, $${baseIdx+7}, $${baseIdx+8}, $${baseIdx+9}, $${baseIdx+10}, $${baseIdx+11}, $${baseIdx+12}, $${baseIdx+13}, $${baseIdx+14}, $${baseIdx+15})`
+    }).join(',')
+
+    const params = events.flatMap(e => [
+      e.vehicle_id,
+      e.provider_id,
+      e.timestamp,
+      e.latitude,
+      e.longitude,
+      e.heading,
+      e.speed_mph,
+      e.address,
+      e.odometer_miles,
+      e.fuel_percent,
+      e.engine_rpm,
+      e.engine_state,
+      e.battery_percent,
+      e.temperature_f,
+      tenantId
+    ])
+
+    await this.pool.query(
+      `INSERT INTO vehicle_telemetry
+       (vehicle_id, provider_id, timestamp, latitude, longitude, heading, speed_mph, address,
+        odometer_miles, fuel_percent, engine_rpm, engine_state, battery_percent, temperature_f, tenant_id)
+       VALUES ${values}
+       ON CONFLICT (vehicle_id, timestamp, tenant_id) DO NOTHING`,
+      params
+    )
+  }
+
+  /**
+   * Upsert asset locations (update vehicle locations from telemetry)
+   */
+  async upsertAssetLocations(vehicleIds: number[], tenantId: number): Promise<void> {
+    if (vehicleIds.length === 0) return
+
+    await this.pool.query(
+      `UPDATE vehicles v
+       SET last_location_lat = vt.latitude,
+           last_location_lng = vt.longitude,
+           last_location_time = vt.timestamp,
+           updated_at = NOW()
+       FROM (
+         SELECT DISTINCT ON (vehicle_id) vehicle_id, latitude, longitude, timestamp
+         FROM vehicle_telemetry
+         WHERE vehicle_id = ANY($1) AND tenant_id = $2
+         ORDER BY vehicle_id, timestamp DESC
+       ) vt
+       WHERE v.id = vt.vehicle_id AND v.tenant_id = $2`,
+      [vehicleIds, tenantId]
+    )
   }
 
   /**

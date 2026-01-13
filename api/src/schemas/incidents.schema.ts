@@ -104,9 +104,7 @@ export const incidentCreateSchema = z.object({
   // Basic information (REQUIRED)
   incident_type: incidentTypeEnum,
 
-  incident_date: z.coerce.date({
-    invalid_type_error: 'Invalid incident date format'
-  }),
+  incident_date: z.coerce.date(),
 
   incident_time: z.string()
     .regex(/^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/, 'Time must be in HH:MM or HH:MM:SS format')

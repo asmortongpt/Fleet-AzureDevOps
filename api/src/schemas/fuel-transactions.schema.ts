@@ -75,9 +75,7 @@ export const createFuelTransactionSchema = z.object({
   driver_id: z.string().uuid('Invalid driver ID format').optional(),
 
   // Transaction timestamp (REQUIRED)
-  transaction_date: z.coerce.date({
-    invalid_type_error: 'Invalid transaction date format'
-  }),
+  transaction_date: z.coerce.date(),
 
   // Fuel details (REQUIRED)
   fuel_type: fuelTypeEnum,
