@@ -221,8 +221,8 @@ return
    */
   trackEvent(name: string, properties?: any): void {
     if (!this.isInitialized) {
-return
-}
+      return
+    }
 
     this.client?.defaultClient.trackEvent({
       name,
@@ -239,8 +239,8 @@ return
    */
   trackDependency(name: string, data: string, duration: number, success: boolean, resultCode?: number): void {
     if (!this.isInitialized) {
-return
-}
+      return
+    }
 
     this.client?.defaultClient.trackDependency({
       target: name,
@@ -258,16 +258,14 @@ return
    */
   trackPageView(name: string, url: string, properties?: any): void {
     if (!this.isInitialized) {
-return
-}
+      return
+    }
 
     this.client?.defaultClient.trackPageView({
       name,
       url,
       properties,
-      duration: 0,
-      timestamp: new Date().toISOString() as any
-      }
+      duration: 0
     })
   }
 
@@ -276,8 +274,8 @@ return
    */
   async flush(): Promise<void> {
     if (!this.isInitialized) {
-return
-}
+      return
+    }
 
     return new Promise((resolve) => {
       this.client?.defaultClient.flush()

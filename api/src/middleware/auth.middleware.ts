@@ -292,3 +292,10 @@ export class AuthMiddleware {
 export function createAuthMiddleware(pool: Pool, redis: Redis, auditService: AuditService): AuthMiddleware {
   return new AuthMiddleware(pool, redis, auditService);
 }
+
+// Export authenticateJWT for backward compatibility
+// This is a factory function that creates the middleware
+export const authenticateJWT = (pool: Pool, redis: Redis, auditService: AuditService) => {
+  const authMiddleware = new AuthMiddleware(pool, redis, auditService);
+  return authMiddleware.authenticate;
+};

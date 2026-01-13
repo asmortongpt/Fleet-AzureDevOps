@@ -1,7 +1,7 @@
 import { ITelematicsProviderAdapter } from '../../../domain/telematics/interfaces/ITelematicsProviderAdapter';
 import { TelematicsDevice } from '../../../domain/telematics/entities/TelematicsDevice';
 import { AssetLocation } from '../../../domain/telematics/entities/AssetLocation';
-import { TelematicsRepository } from '../../../infrastructure/telematics/repositories/TelematicsRepository';
+import { TelematicsRepository } from '../../../repositories/TelematicsRepository';
 import { Logger } from 'winston';
 
 export interface ITelematicsIngestionService {

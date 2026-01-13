@@ -2,10 +2,10 @@ import { asFunction, asClass, createContainer } from 'awilix';
 import { TelematicsIngestionService } from '../application/telematics/services/TelematicsIngestionService';
 import { SamsaraTelematicsAdapter } from '../infrastructure/telematics/adapters/SamsaraTelematicsAdapter';
 import { TelematicsIngestionWorker } from '../infrastructure/telematics/jobs/TelematicsIngestionWorker';
-import { DriverSafetyScoreService } from '../application/safety/services/DriverSafetyScoreService';
-import { DriverBehaviorEventService } from '../application/safety/services/DriverBehaviorEventService';
-import { DriverSafetyScoreAggregationJob } from '../infrastructure/safety/jobs/DriverSafetyScoreAggregationJob';
-import { CostAnalyticsService } from '../application/analytics/services/CostAnalyticsService';
+// import { DriverSafetyScoreService } from '../application/safety/services/DriverSafetyScoreService';
+// import { DriverBehaviorEventService } from '../application/safety/services/DriverBehaviorEventService';
+// import { DriverSafetyScoreAggregationJob } from '../infrastructure/safety/jobs/DriverSafetyScoreAggregationJob';
+// import { CostAnalyticsService } from '../application/analytics/services/CostAnalyticsService';
 import { WebhookDeliveryWorker } from '../infrastructure/webhooks/WebhookDeliveryWorker';
 
 export function setupContainer() {
@@ -33,12 +33,12 @@ export function setupContainer() {
     }).singleton(),
 
     // Safety
-    driverBehaviorEventService: asClass(DriverBehaviorEventService).singleton(),
-    driverSafetyScoreService: asClass(DriverSafetyScoreService).singleton(),
-    driverSafetyScoreAggregationJob: asClass(DriverSafetyScoreAggregationJob).singleton(),
+    // driverBehaviorEventService: asClass(DriverBehaviorEventService).singleton(),
+    // driverSafetyScoreService: asClass(DriverSafetyScoreService).singleton(),
+    // driverSafetyScoreAggregationJob: asClass(DriverSafetyScoreAggregationJob).singleton(),
 
     // Analytics
-    costAnalyticsService: asClass(CostAnalyticsService).singleton(),
+    // costAnalyticsService: asClass(CostAnalyticsService).singleton(),
 
     // Webhooks
     webhookDeliveryWorker: asClass(WebhookDeliveryWorker).singleton()
@@ -52,8 +52,8 @@ export function startBackgroundJobs(container: any) {
     const telematicsWorker = container.resolve('telematicsIngestionWorker');
     telematicsWorker.start();
 
-    const safetyScoreJob = container.resolve('driverSafetyScoreAggregationJob');
-    safetyScoreJob.start();
+    // const safetyScoreJob = container.resolve('driverSafetyScoreAggregationJob');
+    // safetyScoreJob.start();
 
     console.log('✅ Background jobs started');
   }
