@@ -4,16 +4,9 @@ import { pool } from '../config/database' // Changed to valid pool import
 import { container } from '../container'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 
-import { BaseRepository } from './base/BaseRepository';
+import { BaseRepository, PaginationParams } from './base/BaseRepository';
 
 import { CacheService, CacheKeys } from '../services/cache.service'
-
-export interface PaginationParams {
-  page?: number
-  limit?: number
-  sortBy?: string
-  sortOrder?: 'asc' | 'desc'
-}
 
 export interface Vehicle {
   id: number
