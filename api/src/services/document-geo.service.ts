@@ -116,7 +116,7 @@ export class DocumentGeoService {
   private geocodingApiKey?: string
   private geocodeCache: Map<string, GeocodingResult>
 
-  constructor(private db: Pool, private logger: typeof logger) {
+  constructor(private db: Pool, private logger: any) {
     // Default to free Nominatim provider (no API key required)
     this.geocodingProvider = (process.env.GEOCODING_PROVIDER as any) || 'nominatim'
     this.geocodingApiKey = process.env.GEOCODING_API_KEY
