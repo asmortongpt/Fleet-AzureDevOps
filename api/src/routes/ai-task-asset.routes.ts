@@ -6,6 +6,7 @@
 import { Router } from 'express'
 
 import logger from '../config/logger'; // Wave 23: Add Winston logger
+import { pool } from '../db'
 import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
@@ -245,7 +246,7 @@ router.get('/mcp/servers', async (req: AuthRequest, res) => {
 router.get('/config/workflows', async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
-    const configManager = new TaskAssetConfigManager(tenantId!)
+    const configManager = new TaskAssetConfigManager(tenantId!, pool)
 
     const workflows = await configManager.getWorkflowTemplates()
 
@@ -266,7 +267,7 @@ router.get('/config/workflows', async (req: AuthRequest, res) => {
 router.post('/config/workflows',csrfProtection, async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
-    const configManager = new TaskAssetConfigManager(tenantId!)
+    const configManager = new TaskAssetConfigManager(tenantId!, pool)
 
     const workflow = await configManager.saveWorkflowTemplate(req.body)
 
@@ -288,7 +289,7 @@ router.get('/config/business-rules', async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
     const { entity } = req.query
-    const configManager = new TaskAssetConfigManager(tenantId!)
+    const configManager = new TaskAssetConfigManager(tenantId!, pool)
 
     const rules = await configManager.getBusinessRules(entity as any)
 
@@ -309,7 +310,7 @@ router.get('/config/business-rules', async (req: AuthRequest, res) => {
 router.post('/config/business-rules',csrfProtection, async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
-    const configManager = new TaskAssetConfigManager(tenantId!)
+    const configManager = new TaskAssetConfigManager(tenantId!, pool)
 
     const rule = await configManager.saveBusinessRule(req.body)
 
@@ -331,7 +332,7 @@ router.post('/config/evaluate-rules',csrfProtection, async (req: AuthRequest, re
   try {
     const tenantId = req.user?.tenant_id
     const { entity, triggerEvent, data } = req.body
-    const configManager = new TaskAssetConfigManager(tenantId!)
+    const configManager = new TaskAssetConfigManager(tenantId!, pool)
 
     const actions = await configManager.evaluateRules(entity, triggerEvent, data)
 
