@@ -44,7 +44,7 @@ router.get('/drivers/:driverId/behavior-events', async (req: Request, res: Respo
     const events = await service.getDriverEvents(driverId, startDate, endDate);
 
     res.json({
-      data: events.map(e => ({
+      data: events.map((e: any) => ({
         id: e.id,
         eventType: e.eventType,
         severity: e.severity,

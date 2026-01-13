@@ -111,7 +111,7 @@ export async function processNotificationJob(job: Job): Promise<any> {
     }
 
     // Prepare notification message
-    const message: admin.messaging.MulticastMessage = {
+    const message: any = {
       tokens,
       notification: {
         title,
@@ -155,7 +155,7 @@ export async function processNotificationJob(job: Job): Promise<any> {
     }
 
     // Send notification to all devices
-    const response = await admin.messaging().sendEachForMulticast(message)
+    const response = await admin.messaging().sendMulticast(message)
 
     logger.info(`Notification sent: ${response.successCount}/${tokens.length} delivered`, {
       jobId: job.id,
@@ -166,7 +166,7 @@ export async function processNotificationJob(job: Job): Promise<any> {
     // Handle failed tokens (e.g., remove invalid tokens)
     if (response.failureCount > 0) {
       const failedTokens: string[] = []
-      response.responses.forEach((resp, idx) => {
+      response.responses.forEach((resp: any, idx: number) => {
         if (!resp.success) {
           failedTokens.push(tokens[idx])
           logger.warn(`Failed to send to token ${tokens[idx]}:`, resp.error?.message)
@@ -212,7 +212,7 @@ export async function sendTopicNotification(topic: string, title: string, body: 
     throw new Error('Firebase not initialized')
   }
 
-  const message: admin.messaging.Message = {
+  const message: any = {
     topic,
     notification: {
       title,

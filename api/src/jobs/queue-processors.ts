@@ -124,13 +124,13 @@ export async function processOutlookOutbound(job: any): Promise<any> {
           contentType: payload.bodyType || 'html',
           content: payload.body
         },
-        toRecipients: payload.to.map(email => ({
+        toRecipients: payload.to.map((email: any) => ({
           emailAddress: { address: email }
         })),
-        ccRecipients: payload.cc?.map(email => ({
+        ccRecipients: payload.cc?.map((email: any) => ({
           emailAddress: { address: email }
         })) || [],
-        bccRecipients: payload.bcc?.map(email => ({
+        bccRecipients: payload.bcc?.map((email: any) => ({
           emailAddress: { address: email }
         })) || [],
         importance: payload.importance || 'normal',
