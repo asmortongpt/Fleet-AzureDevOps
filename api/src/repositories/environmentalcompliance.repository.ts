@@ -39,7 +39,7 @@ class EnvironmentalComplianceRepository extends BaseRepository<EnvironmentalComp
       data.notes,
     ];
     const result = await this.query(query, values);
-    return result.rows[0].id;
+    return result[0].id;
   }
 
   async getEnvironmentalComplianceById(id: number, tenant_id: string): Promise<any> {
@@ -49,7 +49,7 @@ class EnvironmentalComplianceRepository extends BaseRepository<EnvironmentalComp
     `;
     const values = [id, tenant_id];
     const result = await this.query(query, values);
-    return result.rows[0];
+    return result[0];
   }
 
   async getAllEnvironmentalCompliances(tenant_id: string): Promise<any[]> {
@@ -59,7 +59,7 @@ class EnvironmentalComplianceRepository extends BaseRepository<EnvironmentalComp
     `;
     const values = [tenant_id];
     const result = await this.query(query, values);
-    return result.rows;
+    return result;
   }
 
   async updateEnvironmentalCompliance(id: number, data: {
