@@ -69,7 +69,7 @@ export interface EmergencyAlert {
   description?: string
 }
 
-export default class DispatchService {
+class DispatchService {
   private wss: WebSocketServer | null = null
   private activeConnections: Map<string, WebSocket> = new Map()
   private channelListeners: Map<number, Set<string>> = new Map()
