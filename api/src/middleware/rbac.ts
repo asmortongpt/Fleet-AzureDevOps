@@ -589,6 +589,9 @@ export function clearUserRBACCache(userId: string): void {
   logger.info('Cleared RBAC cache for user', { userId })
 }
 
+// Alias authorize to requirePermission for backward compatibility
+export const authorize = requirePermission
+
 export default {
   Role,
   PERMISSIONS,
@@ -598,5 +601,6 @@ export default {
   requireRBAC,
   hasRole,
   getUserEffectiveRole,
-  clearUserRBACCache
+  clearUserRBACCache,
+  authorize
 }

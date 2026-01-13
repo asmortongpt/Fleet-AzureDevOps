@@ -18,6 +18,7 @@ import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { NotFoundError, ValidationError } from '../utils/errors'
 
 const router = Router()
 

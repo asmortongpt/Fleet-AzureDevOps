@@ -7,6 +7,7 @@
 import { Pool } from 'pg'
 
 import driverScoringModel, { DriverMetrics } from '../ml-models/driver-scoring.model'
+import { getTableColumns } from '../utils/column-resolver'
 
 export interface DriverScorecard {
   driverId: string

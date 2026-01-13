@@ -13,6 +13,7 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import * as routeOptimizationService from '../services/route-optimization.service'
 import { getErrorMessage } from '../utils/error-handler'
+import { NotFoundError } from '../utils/errors'
 
 const router = express.Router()
 router.use(authenticateJWT)

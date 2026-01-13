@@ -261,7 +261,7 @@ router.post('/:id/ar-session',csrfProtection, optionalAuth, async (req: AuthRequ
 
     const sessionId = await vehicleModelsService.trackARSession({
       vehicleId,
-      userId: req.user?.id,
+      userId: req.user?.id ? parseInt(req.user.id) : undefined,
       ...sessionData,
     })
 

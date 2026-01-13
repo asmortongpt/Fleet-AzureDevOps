@@ -432,7 +432,7 @@ router.post(
 
       const lockerId = await videoService.createEvidenceLocker({
         ...data,
-        createdBy: req.user!.id
+        createdBy: parseInt(req.user!.id)
       });
 
       res.status(201).json({
@@ -529,7 +529,7 @@ router.post(
 
       const sessionId = await videoService.createCoachingSession({
         ...data,
-        coachId: req.user!.id
+        coachId: parseInt(req.user!.id)
       });
 
       res.status(201).json({
