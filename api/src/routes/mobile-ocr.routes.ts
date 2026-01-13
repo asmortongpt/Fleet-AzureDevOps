@@ -63,7 +63,7 @@ const FuelReceiptOCRSchema = z.object({
       location: z.string().optional(),
       paymentMethod: z.string().optional(),
       notes: z.string().optional(),
-      confidenceScores: z.record(z.number().optional()),
+      confidenceScores: z.record(z.string(), z.number()).optional(),
     })
     .optional(),
 });
