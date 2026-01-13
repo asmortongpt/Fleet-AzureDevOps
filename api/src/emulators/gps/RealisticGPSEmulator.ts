@@ -274,7 +274,7 @@ export class RealisticGPSEmulator extends EventEmitter {
     ]
 
     let prevPoint = center
-    const roadTypes: string[] = []
+    const roadTypes: ('city' | 'highway' | 'residential')[] = []
 
     for (let i = 0; i < destinations.length; i++) {
       const dest = destinations[i]

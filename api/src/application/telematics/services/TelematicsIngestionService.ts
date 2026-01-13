@@ -79,7 +79,7 @@ export class TelematicsIngestionService implements ITelematicsIngestionService {
     const device = await this.repository.getDeviceById(deviceId);
     if (!device) throw new Error(`Device not found: ${deviceId}`);
 
-    const provider = await this.repository.getProviderById(device.providerId);
+    const provider = await this.repository.getProviderById(device.provider_id);
     if (!provider) throw new Error(`Provider not found for device: ${deviceId}`);
 
     const adapter = this.adapters.get(provider.providerType);

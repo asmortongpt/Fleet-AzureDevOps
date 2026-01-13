@@ -62,6 +62,15 @@ export class IncidentResponderService extends BaseService {
   }
 
   /**
+   * Validate data (required by BaseService)
+   */
+  async validate(data: any): Promise<void> {
+    if (!data) {
+      throw new Error('Validation data is required');
+    }
+  }
+
+  /**
    * Initiate comprehensive incident response workflow
    * @param incidentId - ID of incident to respond to
    * @param tenantId - Tenant ID for data isolation

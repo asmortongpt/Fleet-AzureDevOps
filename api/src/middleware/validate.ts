@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { AnyZodObject, ZodError, ZodSchema } from 'zod';
+import { ZodError, ZodSchema, ZodObject } from 'zod';
+
+// Type alias for any Zod object schema
+type AnyZodObject = ZodObject<any>;
 
 /**
  * Enhanced validation middleware for CRIT-B-003

@@ -59,6 +59,15 @@ export interface VulnerabilityAssessment {
 @injectable()
 export class RemediationService extends BaseService {
   /**
+   * Validate data (required by BaseService)
+   */
+  async validate(data: any): Promise<void> {
+    if (!data) {
+      throw new Error('Validation data is required');
+    }
+  }
+
+  /**
    * Create remediation plan for incident
    * @param incident - Incident requiring remediation
    * @returns Remediation plan with steps

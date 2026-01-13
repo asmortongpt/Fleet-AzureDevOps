@@ -10,7 +10,7 @@
  * - Secure key storage in Azure Key Vault
  */
 
-import crypto, { createCipheriv, createDecipheriv } from 'crypto'
+import crypto, { createCipheriv, createDecipheriv, CipherGCM, DecipherGCM } from 'crypto'
 
 export interface EncryptedLog {
   encrypted: string
@@ -77,7 +77,7 @@ export class LogEncryption {
     )
 
     // Create cipher
-    const cipher = createCipheriv(this.config.algorithm, encryptionKey, iv)
+    const cipher = createCipheriv(this.config.algorithm, encryptionKey, iv) as CipherGCM
 
     // Add additional authenticated data (context)
     const aad = Buffer.from(`version:${this.VERSION}`, 'utf8')
@@ -125,7 +125,7 @@ export class LogEncryption {
       )
 
       // Create decipher
-      const decipher = createDecipheriv(this.config.algorithm, decryptionKey, iv)
+      const decipher = createDecipheriv(this.config.algorithm, decryptionKey, iv) as DecipherGCM
 
       // Set authentication tag and AAD
       decipher.setAuthTag(authTag)

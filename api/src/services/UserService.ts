@@ -17,3 +17,6 @@ export class UserService {
     return user;
   }
 }
+
+// Singleton instance for backwards compatibility
+export const userService = new UserService(new UserRepository());

@@ -92,26 +92,25 @@ class SentryService implements SentryConfig {
         tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
         profilesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
 
-        // Integrations
+        // Integrations - using modern Sentry v8+ API
         integrations: [
           // HTTP integration for automatic request/response tracking
-          new Sentry.Integrations.Http({ tracing: true }),
+          Sentry.httpIntegration({ tracing: true }),
           // Express integration for automatic Express error tracking
-          new Sentry.Integrations.Express({
+          Sentry.expressIntegration({
             app: true,
             router: true,
-            errorHandler: true
           }),
           // Postgres integration for database query tracking
-          new Sentry.Integrations.Postgres(),
+          Sentry.postgresIntegration(),
           // Profiling for performance monitoring
           nodeProfilingIntegration(),
           // Console integration to capture console errors
-          new Sentry.Integrations.Console(),
+          Sentry.consoleIntegration(),
           // Context lines for better error context
-          new Sentry.Integrations.ContextLines(),
+          Sentry.contextLinesIntegration(),
           // Linked errors to track error causes
-          new Sentry.Integrations.LinkedErrors({ key: 'cause', limit: 10 })
+          Sentry.linkedErrorsIntegration({ key: 'cause', limit: 10 })
         ],
 
         // Breadcrumb configuration

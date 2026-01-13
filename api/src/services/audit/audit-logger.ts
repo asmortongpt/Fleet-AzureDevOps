@@ -12,7 +12,7 @@
  * - Performance metrics logging
  */
 
-import crypto, { createCipheriv, createDecipheriv } from 'crypto'
+import crypto, { createCipheriv, createDecipheriv, CipherGCM, DecipherGCM } from 'crypto'
 
 import { Pool } from 'pg'
 import { v4 as uuidv4 } from 'uuid'
@@ -521,7 +521,7 @@ export class AuditLogger {
 
   private encryptLogEntry(entry: any): { encrypted: string; iv: string; authTag: string } {
     const iv = crypto.randomBytes(16)
-    const cipher = createCipheriv(this.encryptionAlgorithm, this.encryptionKey, iv)
+    const cipher = createCipheriv(this.encryptionAlgorithm, this.encryptionKey, iv) as CipherGCM
 
     let encrypted = cipher.update(JSON.stringify(entry), 'utf8', 'hex')
     encrypted += cipher.final('hex')
@@ -542,7 +542,7 @@ export class AuditLogger {
       const authTag = Buffer.from(encryptedData.authTag, 'hex')
       const encrypted = encryptedData.encrypted
 
-      const decipher = createDecipheriv(this.encryptionAlgorithm, this.encryptionKey, iv)
+      const decipher = createDecipheriv(this.encryptionAlgorithm, this.encryptionKey, iv) as DecipherGCM
       decipher.setAuthTag(authTag)
 
       let decrypted = decipher.update(encrypted, 'hex', 'utf8')

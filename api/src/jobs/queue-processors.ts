@@ -117,6 +117,10 @@ export async function processOutlookOutbound(job: any): Promise<any> {
 
   try {
     // Construct email message
+    const toArray = Array.isArray(payload.to) ? payload.to : [payload.to];
+    const ccArray = payload.cc ? (Array.isArray(payload.cc) ? payload.cc : [payload.cc]) : [];
+    const bccArray = payload.bcc ? (Array.isArray(payload.bcc) ? payload.bcc : [payload.bcc]) : [];
+
     const emailMessage = {
       message: {
         subject: payload.subject,
@@ -124,15 +128,15 @@ export async function processOutlookOutbound(job: any): Promise<any> {
           contentType: payload.bodyType || 'html',
           content: payload.body
         },
-        toRecipients: payload.to.map((email: any) => ({
+        toRecipients: toArray.map((email: any) => ({
           emailAddress: { address: email }
         })),
-        ccRecipients: payload.cc?.map((email: any) => ({
+        ccRecipients: ccArray.map((email: any) => ({
           emailAddress: { address: email }
-        })) || [],
-        bccRecipients: payload.bcc?.map((email: any) => ({
+        })),
+        bccRecipients: bccArray.map((email: any) => ({
           emailAddress: { address: email }
-        })) || [],
+        })),
         importance: payload.importance || 'normal',
         isDeliveryReceiptRequested: payload.isDeliveryReceiptRequested || false,
         isReadReceiptRequested: payload.isReadReceiptRequested || false,
@@ -264,7 +268,7 @@ export async function processOutlookInbound(job: any): Promise<any> {
         payload.subject,
         `received`,
         JSON.stringify({
-          from: payload.to[0], // Simplified
+          from: Array.isArray(payload.to) ? payload.to[0] : payload.to, // Simplified
           subject: payload.subject,
           hasAttachments: (payload.attachments?.length || 0) > 0,
           ...data.metadata
@@ -399,7 +403,7 @@ async function handleAttachmentScan(payload: AttachmentPayload): Promise<any> {
     scannedAt: new Date(),
     results: {
       malwareDetected: false,
-      ocrText: payload.contentType.includes(`pdf`) ? `Sample OCR text...` : null,
+      ocrText: payload.contentType?.includes(`pdf`) ? `Sample OCR text...` : null,
       fileType: payload.contentType,
       safe: true
     }

@@ -100,5 +100,5 @@ container.bind(TYPES.FuelTransactionService).to(FueltransactionService);
 // Cache Service
 container.bind(TYPES.CacheService).to(CacheService);
 
-export { container };
+export { container, TYPES };
 container.bind(TYPES.PushNotificationRepository).to(PushNotificationRepository);

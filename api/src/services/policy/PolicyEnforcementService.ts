@@ -22,7 +22,7 @@ import { performance } from 'perf_hooks'
 import Redis from 'ioredis'
 import type { Pool } from 'pg'
 import { Counter, Histogram, Gauge } from 'prom-client'
-// import { VM } from 'vm2'
+import { VM } from 'vm2'
 
 import logger from '../../config/logger'
 import AuditService from '../auditService'
@@ -192,12 +192,12 @@ export class PolicyEnforcementService {
       }
 
       // Audit log
-      await this.auditService.log({
-        userId: context.user?.id || 'system',
+      await this.auditService.logPermissionCheck({
+        user_id: context.user?.id || 'system',
         action: 'policy:evaluate',
-        category: 'policy' as any,
-        severity: decision === PolicyDecision.DENY ? ('warning' as any) : ('info' as any),
-        metadata: {
+        allowed: decision !== PolicyDecision.DENY,
+        reason: `Policy ${policy.name}: ${decision}`,
+        context: {
           policyId,
           policyName: policy.name,
           decision,
@@ -218,12 +218,12 @@ export class PolicyEnforcementService {
       })
 
       // Audit error
-      await this.auditService.log({
-        userId: context.user?.id || 'system',
+      await this.auditService.logPermissionCheck({
+        user_id: context.user?.id || 'system',
         action: 'policy:evaluate:error',
-        category: 'policy' as any,
-        severity: 'error' as any,
-        metadata: {
+        allowed: false,
+        reason: `Policy evaluation error: ${error.message}`,
+        context: {
           policyId,
           error: error.message
         },
@@ -465,12 +465,12 @@ export class PolicyEnforcementService {
     const policyId = result.rows[0].id
 
     // Audit log
-    await this.auditService.log({
-      userId: createdBy,
+    await this.auditService.logPermissionCheck({
+      user_id: createdBy,
       action: 'policy:create',
-      category: 'policy' as any,
-      severity: 'info' as any,
-      metadata: {
+      allowed: true,
+      reason: `Created policy: ${name}`,
+      context: {
         policyId,
         name,
         type
