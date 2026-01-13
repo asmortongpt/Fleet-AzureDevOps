@@ -900,11 +900,12 @@ export class AuthenticationService {
        SET failed_login_attempts = failed_login_attempts + 1,
            last_failed_login_at = NOW()
        WHERE id = $1
-       RETURNING failed_login_attempts`,
+       RETURNING failed_login_attempts, email`,
       [userId]
     );
 
     const failedAttempts = result.rows[0].failed_login_attempts;
+    const email = result.rows[0].email;
 
     if (failedAttempts >= this.config.maxFailedAttempts) {
       // Lock account
@@ -924,6 +925,7 @@ export class AuthenticationService {
     }
 
     await this.logLoginAttempt({
+      email,
       userId,
       success: false,
       failureReason: 'invalid_password',

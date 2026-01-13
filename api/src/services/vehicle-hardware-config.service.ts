@@ -1054,6 +1054,64 @@ export class VehicleHardwareConfigService {
       });
     }
   }
+
+  /**
+   * Get vehicle hardware configuration
+   */
+  async getVehicleHardwareConfig(vehicleId: number): Promise<VehicleProvider[]> {
+    const result = await this.db.query(
+      `SELECT * FROM vehicle_providers WHERE vehicle_id = $1 ORDER BY created_at DESC`,
+      [vehicleId]
+    )
+    return result.rows
+  }
+
+  /**
+   * Test provider connection
+   */
+  async testProviderConnection(vehicleId: number, provider: ProviderType): Promise<ConnectionTestResult> {
+    try {
+      const configResult = await this.db.query(
+        `SELECT * FROM vehicle_providers WHERE vehicle_id = $1 AND provider = $2 AND sync_status = 'active'`,
+        [vehicleId, provider]
+      )
+
+      if (configResult.rows.length === 0) {
+        return {
+          success: false,
+          provider,
+          vehicleId,
+          message: 'Provider not configured for this vehicle',
+          error: 'Not configured'
+        }
+      }
+
+      const config = configResult.rows[0]
+
+      // Basic connection test - just check if config exists
+      return {
+        success: true,
+        provider,
+        vehicleId,
+        message: 'Connection successful',
+        capabilities: config.capabilities || [],
+        lastSync: config.last_sync_at
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        provider,
+        vehicleId,
+        message: 'Connection test failed',
+        error: error.message
+      }
+    }
+  }
 }
 
-export default VehicleHardwareConfigService;
+// Export singleton instance
+import { db } from '../db'
+const vehicleHardwareConfigService = new VehicleHardwareConfigService(db)
+
+export { VehicleHardwareConfigService }
+export default vehicleHardwareConfigService

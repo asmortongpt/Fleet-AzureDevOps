@@ -707,4 +707,9 @@ trend = 'stable'
   }
 }
 
-export default MLDecisionEngineService
+// Export singleton instance
+import { pool } from '../db'
+import logger from '../config/logger'
+const mlDecisionEngineService = new MLDecisionEngineService(pool, logger)
+
+export default mlDecisionEngineService

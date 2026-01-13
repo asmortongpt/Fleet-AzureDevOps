@@ -1114,7 +1114,7 @@ export class AuthorizationService {
       const cached = await this.redisClient.get(cacheKey);
 
       if (cached) {
-        return JSON.parse(cached, (key, value) => {
+        return JSON.parse(typeof cached === 'string' ? cached : cached.toString(), (key, value) => {
           // Revive Date objects
           if (key === 'timestamp' || key.endsWith('At')) {
             return new Date(value);

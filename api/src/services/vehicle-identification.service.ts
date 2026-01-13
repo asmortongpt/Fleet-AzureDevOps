@@ -384,4 +384,8 @@ export function getVehicleIdentificationService(): VehicleIdentificationService 
   return serviceInstance
 }
 
-export default getVehicleIdentificationService
+// Also export singleton instance directly for easier imports
+export const vehicleIdentificationService = getVehicleIdentificationService()
+
+export { VehicleIdentificationService }
+export default vehicleIdentificationService

@@ -155,7 +155,7 @@ router.get('/:vehicleId', (req: Request, res: Response) => {
       })
     }
 
-    const position = gpsEmulator.getVehiclePosition(vehicleId)
+    const position = gpsEmulator.getVehiclePosition(String(vehicleId))
 
     if (!position) {
       return res.status(404).json({
@@ -192,7 +192,7 @@ router.get('/:vehicleId/history', (req: Request, res: Response) => {
       })
     }
 
-    const history = gpsEmulator.getVehicleHistory(vehicleId)
+    const history = gpsEmulator.getVehicleHistory(String(vehicleId))
 
     res.json({
       success: true,
