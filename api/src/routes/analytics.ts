@@ -229,13 +229,13 @@ router.get('/kpis', cacheMiddleware('analytics:kpis'), async (req: Request, res:
 
         // Query for KPIs
         const [vehiclesResult, costResult, efficiencyResult] = await Promise.all([
-            query(`
+            db.query(`
                 SELECT
                     COUNT(*) as total_vehicles,
                     COUNT(*) FILTER (WHERE status = 'active') as active_vehicles
                 FROM vehicles
             `),
-            query(
+            db.query(
                 `
                 SELECT
                     SUM(amount) as total_cost,
@@ -245,7 +245,7 @@ router.get('/kpis', cacheMiddleware('analytics:kpis'), async (req: Request, res:
                 `,
                 params
             ),
-            query(
+            db.query(
                 `
                 SELECT
                     AVG(mpg) as avg_mpg,
