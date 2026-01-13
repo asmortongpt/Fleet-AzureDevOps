@@ -188,7 +188,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
     results.services.sync = {
       status: 'up',
       message: 'Sync service is operational',
-      details: syncState.rows
+      details: syncState.rows as any
     };
   } catch (error: unknown) {
     results.services.sync = {
