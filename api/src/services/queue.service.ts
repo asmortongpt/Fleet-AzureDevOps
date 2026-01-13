@@ -807,6 +807,68 @@ return 'attachments';
   }
 
   /**
+   * Check health of queue service
+   */
+  async checkHealth(): Promise<QueueHealth> {
+    try {
+      const queues = Object.values(QueueName)
+      const queueStats: QueueHealth['queues'] = {}
+
+      for (const queueName of queues) {
+        try {
+          const stats = await this.getQueueStats(queueName)
+          queueStats[queueName] = {
+            waiting: stats.waiting,
+            active: stats.active,
+            completed: stats.completed,
+            failed: stats.failed,
+            delayed: stats.delayed,
+            paused: stats.paused,
+            backlog: stats.pending,
+            failureRate: stats.failed / (stats.completed + stats.failed || 1),
+            avgProcessingTime: stats.avgProcessingTimeMs,
+            isRunning: this.isInitialized
+          }
+        } catch (error) {
+          // Queue might not exist yet
+          queueStats[queueName] = {
+            waiting: 0,
+            active: 0,
+            completed: 0,
+            failed: 0,
+            delayed: 0,
+            paused: false,
+            isRunning: false
+          }
+        }
+      }
+
+      // Determine overall health
+      const totalFailed = Object.values(queueStats).reduce((sum, q) => sum + q.failed, 0)
+      const totalBacklog = Object.values(queueStats).reduce((sum, q) => sum + (q.backlog || 0), 0)
+
+      let status: 'healthy' | 'degraded' | 'unhealthy' = 'healthy'
+      if (totalFailed > 100 || totalBacklog > 1000) {
+        status = 'unhealthy'
+      } else if (totalFailed > 10 || totalBacklog > 100) {
+        status = 'degraded'
+      }
+
+      return {
+        status,
+        queues: queueStats,
+        timestamp: new Date().toISOString()
+      }
+    } catch (error) {
+      return {
+        status: 'unhealthy',
+        queues: {},
+        timestamp: new Date().toISOString()
+      }
+    }
+  }
+
+  /**
    * Graceful shutdown
    */
   async shutdown(): Promise<void> {

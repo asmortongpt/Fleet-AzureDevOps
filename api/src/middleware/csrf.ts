@@ -11,12 +11,11 @@ const csrfMethods = doubleCsrf({
   },
   size: 64, // The size of the generated tokens in bits
   ignoredMethods: ["GET", "HEAD", "OPTIONS"], // A list of request methods that will not be checked.
-  getCsrfTokenFromRequest: (req: Request) => req.headers["x-csrf-token"], // A function that returns the token from the request
   getSessionIdentifier: (req: Request) => (req as any).session?.id || "", // Optional: session identifier
 });
 
 // Export individual methods
-export const generateToken = csrfMethods.generateCsrfToken;
+export const generateToken = csrfMethods.generateToken;
 export const validateRequest = csrfMethods.doubleCsrfProtection; // Fixed: validateRequest is actually doubleCsrfProtection middleware
 export const doubleCsrfProtection = csrfMethods.doubleCsrfProtection;
 
@@ -29,6 +28,6 @@ export const csrfProtection = doubleCsrfProtection;
 // CSRF Token endpoint handler
 export const getCsrfToken = (req: any, res: any) => {
   // Use the correct function name from the package
-  const token = csrfMethods.generateCsrfToken(req, res);
+  const token = csrfMethods.generateToken(req, res);
   res.json({ csrfToken: token });
 };
