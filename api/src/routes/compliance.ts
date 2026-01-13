@@ -21,7 +21,7 @@ import {
   getControlsByFamily,
   getControlsByStatus,
   getComplianceSummary
-} from '../../src/lib/policy-engine/nist-800-53-controls'
+} from '../lib/policy-engine/nist-800-53-controls'
 import logger from '../config/logger'
 
 const router = express.Router()

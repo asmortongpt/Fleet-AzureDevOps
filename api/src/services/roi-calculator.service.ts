@@ -63,4 +63,25 @@ export class ROICalculatorService {
   async calculateDepreciation(purchasePrice: number, years: number): Promise<number> {
     return purchasePrice / years;
   }
+
+  /**
+   * Calculate ROI (Return on Investment)
+   * @param data - The data required for ROI calculation
+   * @returns The ROI percentage
+   */
+  async calculateROI(data: ROIData): Promise<number> {
+    const { purchasePrice, annualRevenue, annualCosts } = roiSchema.parse(data);
+    const totalCost = purchasePrice;
+    const netProfit = annualRevenue - annualCosts;
+    return totalCost > 0 ? (netProfit / totalCost) * 100 : 0;
+  }
+
+  /**
+   * Get cost per mile (alias for calculateCostPerMile)
+   * @param data - The data required for cost per mile calculation
+   * @returns The cost per mile
+   */
+  async getCostPerMile(data: ROIData): Promise<number> {
+    return this.calculateCostPerMile(data);
+  }
 }

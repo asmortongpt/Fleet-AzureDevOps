@@ -109,4 +109,42 @@ export class UtilizationCalcService {
       throw new Error('Failed to calculate heatmap data.');
     }
   }
+
+  /**
+   * Get daily utilization (alias for calculateDailyUtilization)
+   */
+  async getDailyUtilization(input: AssetUtilizationInput): Promise<AssetUtilizationResult> {
+    return this.calculateDailyUtilization(input);
+  }
+
+  /**
+   * Get idle assets (assets with low utilization)
+   */
+  async getIdleAssets(tenantId: string, threshold: number = 20): Promise<any[]> {
+    try {
+      const query = `
+        SELECT
+          a.id,
+          a.name,
+          a.asset_number,
+          AVG(au.active_hours::float / 24) * 100 AS utilization_percentage,
+          MAX(au.usage_date) AS last_usage_date
+        FROM assets a
+        LEFT JOIN asset_usage au ON a.id = au.asset_id
+        WHERE a.tenant_id = $1
+        AND au.usage_date >= CURRENT_DATE - INTERVAL '30 days'
+        GROUP BY a.id, a.name, a.asset_number
+        HAVING AVG(au.active_hours::float / 24) * 100 < $2
+        ORDER BY utilization_percentage ASC;
+      `;
+      const client = await this.db.connect();
+      const result = await client.query(query, [tenantId, threshold]);
+      client.release();
+
+      return result.rows;
+    } catch (error) {
+      console.error('Error getting idle assets:', error);
+      throw new Error('Failed to get idle assets.');
+    }
+  }
 }

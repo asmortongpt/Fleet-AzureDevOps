@@ -51,7 +51,7 @@ class AIAgentSupervisorService {
 
   constructor(
     private db: Pool,
-    private logger: typeof logger
+    private logger: any
   ) {
     // Initialize supervisor model
     this.supervisorModel = new ChatOpenAI({
@@ -608,6 +608,7 @@ Keep the response concise but thorough.`
 
 // Export singleton instance
 import { pool } from '../db'
+import logger from '../config/logger'
 const aiAgentSupervisorService = new AIAgentSupervisorService(pool, logger)
 
 export default aiAgentSupervisorService
