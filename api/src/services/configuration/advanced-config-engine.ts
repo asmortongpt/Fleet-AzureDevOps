@@ -153,7 +153,7 @@ export class AdvancedConfigEngine {
         reason: 'Update intervals below 5 seconds can overload servers. 10 seconds provides good balance.',
         category: 'performance',
         impact: 'medium',
-        source: 'best-practice'
+        source: 'industry-standard' as any
       })
     }
 
@@ -236,7 +236,7 @@ export class AdvancedConfigEngine {
         reason: 'Batching notifications every 30 minutes reduces email costs by 50% without impacting operations',
         category: 'cost',
         impact: 'low',
-        source: 'best-practice'
+        source: 'industry-standard' as any
       })
     }
 
