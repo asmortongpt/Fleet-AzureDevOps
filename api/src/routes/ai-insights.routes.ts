@@ -531,7 +531,7 @@ const IndexDocumentSchema = z.object({
   document_title: z.string(),
   document_source: z.string().optional(),
   content: z.string().min(10),
-  metadata: z.record(z.any().optional())
+  metadata: z.record(z.string(), z.any()).optional()
 })
 
 /**

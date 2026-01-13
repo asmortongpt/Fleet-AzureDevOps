@@ -261,7 +261,7 @@ export class ReservationsRepository extends BaseRepository<Reservation> {
       );
       return result.rows[0] || null;
     } catch (error) {
-      throw new DatabaseError('Failed to check vehicle exists', { vehicleId, error });
+      throw new DatabaseError('Failed to check vehicle exists', 'vehicleExists', undefined, { vehicleId, error });
     }
   }
 
@@ -288,7 +288,7 @@ export class ReservationsRepository extends BaseRepository<Reservation> {
       const result = await pool.query(query, params);
       return result.rows[0]?.has_conflict || false;
     } catch (error) {
-      throw new DatabaseError('Failed to check reservation conflict', { vehicleId, error });
+      throw new DatabaseError('Failed to check reservation conflict', 'checkConflict', undefined, { vehicleId, error });
     }
   }
 
@@ -363,7 +363,7 @@ export class ReservationsRepository extends BaseRepository<Reservation> {
       const result = await pool.query(query, params);
       return result.rows[0];
     } catch (error) {
-      throw new DatabaseError('Failed to create reservation', { data, error });
+      throw new DatabaseError('Failed to create reservation', 'create', undefined, { data, error });
     }
   }
 
@@ -417,7 +417,7 @@ export class ReservationsRepository extends BaseRepository<Reservation> {
 
       return result.rows[0];
     } catch (error) {
-      throw new DatabaseError('Failed to update reservation', { id, data, error });
+      throw new DatabaseError('Failed to update reservation', 'update', undefined, { id, data, error });
     }
   }
 
@@ -436,7 +436,7 @@ export class ReservationsRepository extends BaseRepository<Reservation> {
         [eventId, id]
       );
     } catch (error) {
-      throw new DatabaseError('Failed to update calendar event ID', { id, eventId, error });
+      throw new DatabaseError('Failed to update calendar event ID', 'updateCalendarEventId', undefined, { id, eventId, error });
     }
   }
 
@@ -451,7 +451,7 @@ export class ReservationsRepository extends BaseRepository<Reservation> {
         [id, context.tenantId]
       );
     } catch (error) {
-      throw new DatabaseError('Failed to cancel reservation', { id, error });
+      throw new DatabaseError('Failed to cancel reservation', 'cancel', undefined, { id, error });
     }
   }
 
@@ -490,7 +490,7 @@ export class ReservationsRepository extends BaseRepository<Reservation> {
 
       return result.rows[0];
     } catch (error) {
-      throw new DatabaseError('Failed to approve/reject reservation', { id, error });
+      throw new DatabaseError('Failed to approve/reject reservation', 'approveReject', undefined, { id, error });
     }
   }
 
@@ -509,7 +509,7 @@ export class ReservationsRepository extends BaseRepository<Reservation> {
       const result = await pool.query(query, [vehicleId, startDate, endDate]);
       return result.rows;
     } catch (error) {
-      throw new DatabaseError('Failed to get vehicle availability', { vehicleId, error });
+      throw new DatabaseError('Failed to get vehicle availability', 'getVehicleAvailability', undefined, { vehicleId, error });
     }
   }
 
@@ -557,7 +557,7 @@ export class ReservationsRepository extends BaseRepository<Reservation> {
       const result = await pool.query(query, params);
       return result.rows;
     } catch (error) {
-      throw new DatabaseError('Failed to get vehicle reservations', { vehicleId, error });
+      throw new DatabaseError('Failed to get vehicle reservations', 'getVehicleReservations', undefined, { vehicleId, error });
     }
   }
 
@@ -571,7 +571,7 @@ export class ReservationsRepository extends BaseRepository<Reservation> {
       const result = await pool.query(query, [context.tenantId]);
       return result.rows;
     } catch (error) {
-      throw new DatabaseError('Failed to get pending approvals', { error });
+      throw new DatabaseError('Failed to get pending approvals', 'getPendingApprovals', undefined, { error });
     }
   }
 }
