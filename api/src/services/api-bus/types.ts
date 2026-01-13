@@ -27,6 +27,12 @@ export interface AICompletionResponse {
   provider: AIProvider
   model: string
   content: string
+  choices?: Array<{
+    message?: {
+      content?: string
+    }
+    text?: string
+  }>
   usage: {
     promptTokens: number
     completionTokens: number
