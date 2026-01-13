@@ -426,9 +426,10 @@ router.post(
           if (validatedData.data.confidenceScores) {
             Object.entries(validatedData.data.confidenceScores).forEach(
               ([field, score]) => {
-                if (score < 0.8) {
+                const scoreNum = typeof score === 'number' ? score : 0;
+                if (scoreNum < 0.8) {
                   validationResult.warnings.push(
-                    `Low confidence (${(score * 100).toFixed(0)}%) for field: ${field}`
+                    `Low confidence (${(scoreNum * 100).toFixed(0)}%) for field: ${field}`
                   );
                 }
               }
