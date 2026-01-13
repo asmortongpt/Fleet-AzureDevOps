@@ -197,7 +197,7 @@ router.get(
       // REPOSITORY USED HERE (Query 2 eliminated)
       const attachment = await attachmentRepo.getDownloadMetadata(
         parseInt(blobId),
-        req.user!.tenant_id
+        Number(req.user!.tenant_id)
       )
 
       if (!attachment) {
@@ -247,7 +247,7 @@ router.get(
       // REPOSITORY USED HERE (Query 4 eliminated)
       const blobUrl = await attachmentRepo.getBlobUrl(
         parseInt(blobId),
-        req.user!.tenant_id
+        Number(req.user!.tenant_id)
       )
 
       if (!blobUrl) {
@@ -294,7 +294,7 @@ router.delete(
       // REPOSITORY USED HERE (Query 5 eliminated)
       const blobUrl = await attachmentRepo.getBlobUrl(
         parseInt(blobId),
-        req.user!.tenant_id
+        Number(req.user!.tenant_id)
       )
 
       if (!blobUrl) {
@@ -305,7 +305,7 @@ router.delete(
       await attachmentService.deleteFromAzure(blobUrl)
 
       // REPOSITORY USED HERE (Query 6 eliminated)
-      await attachmentRepo.deleteAttachment(parseInt(blobId), req.user!.tenant_id)
+      await attachmentRepo.deleteAttachment(parseInt(blobId), Number(req.user!.tenant_id))
 
       res.json({ message: 'Attachment deleted successfully' })
     } catch (error: unknown) {
@@ -562,7 +562,7 @@ router.get(
 
       // REPOSITORY USED HERE (Query 7 eliminated)
       const attachments = await attachmentRepo.findWithFilters(
-        req.user!.tenant_id,
+        Number(req.user!.tenant_id),
         {
           communicationId,
           scanStatus: scanStatus as string,
@@ -572,7 +572,7 @@ router.get(
       )
 
       // REPOSITORY USED HERE (Query 8 eliminated)
-      const totalCount = await attachmentRepo.getTotalCount(req.user!.tenant_id)
+      const totalCount = await attachmentRepo.getTotalCount(Number(req.user!.tenant_id))
 
       res.json({
         data: attachments,
@@ -613,7 +613,7 @@ router.get(
       // REPOSITORY USED HERE (Query 9 eliminated)
       const attachment = await attachmentRepo.findByIdWithCommunication(
         parseInt(id),
-        req.user!.tenant_id
+        Number(req.user!.tenant_id)
       )
 
       if (!attachment) {

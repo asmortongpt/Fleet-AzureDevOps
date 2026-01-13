@@ -10,6 +10,8 @@ export interface AuthRequest extends Request {
     email: string
     role?: string
     tenant_id?: string
+    scope_level?: string
+    team_driver_ids?: string[]
   }
 }
 

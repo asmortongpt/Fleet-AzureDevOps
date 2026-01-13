@@ -571,4 +571,8 @@ return null
   }
 }
 
-export default FuelPurchasingService
+// Export singleton instance
+import { pool } from '../db'
+const fuelPurchasingService = new FuelPurchasingService(pool)
+
+export default fuelPurchasingService

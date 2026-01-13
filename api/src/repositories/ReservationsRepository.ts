@@ -1,16 +1,18 @@
 /**
  * Reservations Repository
- * 
+ *
  * Handles all database operations for vehicle reservations
  * with proper security, tenant isolation, and transaction support.
- * 
+ *
  * Security: CWE-89 (SQL Injection) - All queries use parameterization
  */
 
+import { Pool } from 'pg';
 
 import { NotFoundError, DatabaseError } from '../middleware/errorHandler';
 
 import { BaseRepository, QueryContext, PaginatedResult, PaginationOptions } from './base/BaseRepository';
+import pool from '../config/database';
 
 export interface Reservation {
   id: string;
@@ -83,6 +85,14 @@ export interface ApprovalData {
 export class ReservationsRepository extends BaseRepository<Reservation> {
   protected tableName = 'vehicle_reservations';
   protected idColumn = 'id';
+
+  constructor() {
+    super(pool, 'vehicle_reservations', 'id');
+  }
+
+  protected getPool(context?: QueryContext): Pool {
+    return super.getPool();
+  }
 
   /**
    * Find reservations with filters and pagination
@@ -181,7 +191,7 @@ export class ReservationsRepository extends BaseRepository<Reservation> {
         },
       };
     } catch (error) {
-      throw new DatabaseError('Failed to find reservations with filters', { filters, error });
+      throw new DatabaseError('Failed to find reservations with filters', 'findWithFilters', undefined, { filters, error });
     }
   }
 
@@ -229,7 +239,7 @@ export class ReservationsRepository extends BaseRepository<Reservation> {
       const result = await pool.query(query, params);
       return result.rows[0] || null;
     } catch (error) {
-      throw new DatabaseError('Failed to find reservation by ID with details', { id, error });
+      throw new DatabaseError('Failed to find reservation by ID with details', 'findByIdWithDetails', undefined, { id, error });
     }
   }
 

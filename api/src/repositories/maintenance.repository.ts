@@ -297,4 +297,4 @@ export class MaintenanceRepository extends BaseRepository<any> {
 
 }
 
-export const maintenanceRepository = new MaintenanceRepository()
+export const maintenanceRepository = new MaintenanceRepository(pool)

@@ -140,7 +140,19 @@ export const PERMISSIONS = {
   FACILITY_CREATE: 'facility:create',
   FACILITY_READ: 'facility:read',
   FACILITY_UPDATE: 'facility:update',
-  FACILITY_DELETE: 'facility:delete'
+  FACILITY_DELETE: 'facility:delete',
+
+  // Incident permissions
+  INCIDENT_CREATE: 'incident:create',
+  INCIDENT_READ: 'incident:read',
+  INCIDENT_UPDATE: 'incident:update',
+  INCIDENT_DELETE: 'incident:delete',
+
+  // Inspection permissions
+  INSPECTION_CREATE: 'inspection:create',
+  INSPECTION_READ: 'inspection:read',
+  INSPECTION_UPDATE: 'inspection:update',
+  INSPECTION_DELETE: 'inspection:delete'
 } as const
 
 // ============================================================================

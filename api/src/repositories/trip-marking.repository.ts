@@ -448,4 +448,4 @@ export class TripMarkingRepository extends BaseRepository<any> {
   }
 }
 
-export const tripMarkingRepository = new TripMarkingRepository()
+export const tripMarkingRepository = new TripMarkingRepository(pool)

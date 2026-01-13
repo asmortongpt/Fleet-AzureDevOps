@@ -476,4 +476,9 @@ break
   }
 }
 
-export default DocumentRAGService
+// Create and export singleton instance
+import { pool } from '../config/database'
+import logger from '../config/logger'
+
+const documentRAGService = new DocumentRAGService(pool, logger)
+export default documentRAGService

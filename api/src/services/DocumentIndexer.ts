@@ -14,6 +14,8 @@
 
 import { Pool } from 'pg'
 
+import { pool } from '../db/connection'
+import logger from '../config/logger'
 import SearchIndexService from './SearchIndexService'
 
 export interface IndexingJob {
@@ -633,4 +635,9 @@ export class DocumentIndexer {
   }
 }
 
-export default DocumentIndexer
+// Create singleton instance
+const documentIndexerInstance = new DocumentIndexer(pool, logger)
+
+// Export both class and instance
+export default documentIndexerInstance
+export { DocumentIndexer }

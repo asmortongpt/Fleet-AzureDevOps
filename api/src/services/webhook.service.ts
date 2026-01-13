@@ -60,6 +60,11 @@ export default class WebhookService {
   async deleteSubscription(subscriptionId: string): Promise<void> {
     console.log('Stub: deleteSubscription', subscriptionId);
   }
+
+  async listSubscriptions(filters?: any): Promise<any[]> {
+    console.log('Stub: listSubscriptions', filters);
+    return [];
+  }
 }
 
 // Import pool for singleton instance

@@ -461,4 +461,4 @@ export class TaskManagementRepository extends BaseRepository<any> {
   }
 }
 
-export const taskManagementRepository = new TaskManagementRepository()
+export const taskManagementRepository = new TaskManagementRepository(pool)

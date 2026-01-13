@@ -436,4 +436,4 @@ return 100
   }
 }
 
-export const inspectionsRepository = new InspectionsRepository()
+export const inspectionsRepository = new InspectionsRepository(pool)

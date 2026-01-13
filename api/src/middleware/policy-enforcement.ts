@@ -174,8 +174,8 @@ export function policyEnforcement(
 
       // Build context from request
       const context = {
-        user_id: req.user?.id,
-        tenant_id: req.user?.tenant_id,
+        user_id: req.user?.id ? Number(req.user.id) : undefined,
+        tenant_id: req.user?.tenant_id ? Number(req.user.tenant_id) : undefined,
         resource_type: req.baseUrl.split('/').pop(),
         operation: req.method,
         data: req.body

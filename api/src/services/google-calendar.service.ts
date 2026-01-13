@@ -7,6 +7,7 @@ import { OAuth2Client } from 'google-auth-library'
 import { google } from 'googleapis'
 import { Pool } from 'pg'
 
+import { pool } from '../db/connection'
 import { safePost } from '../utils/ssrf-protection'
 
 // Allowed domains for Google Calendar OAuth requests
@@ -762,4 +763,9 @@ break
 
 }
 
-export default GoogleCalendarService
+// Create singleton instance
+const googleCalendarServiceInstance = new GoogleCalendarService(pool)
+
+// Export both class and instance
+export default googleCalendarServiceInstance
+export { GoogleCalendarService }

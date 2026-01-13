@@ -1048,4 +1048,9 @@ return result
   }
 }
 
-export default DocumentGeoService
+// Create and export singleton instance
+import { pool } from '../config/database'
+import logger from '../config/logger'
+
+const documentGeoService = new DocumentGeoService(pool, logger)
+export default documentGeoService

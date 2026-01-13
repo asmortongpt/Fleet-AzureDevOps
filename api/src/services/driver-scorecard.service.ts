@@ -438,4 +438,8 @@ export class DriverScorecardService {
   }
 }
 
-export default DriverScorecardService
+// Create and export singleton instance
+import { pool } from '../config/database'
+
+const driverScorecardService = new DriverScorecardService(pool)
+export default driverScorecardService
