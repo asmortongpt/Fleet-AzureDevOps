@@ -72,7 +72,7 @@ export class DocumentAiService {
   private model = 'gpt-4-turbo-preview'
   private visionModel = 'gpt-4-vision-preview'
 
-  constructor(private db: Pool, private logger: typeof logger) {
+  constructor(private db: Pool, private logger: any) {
     if (process.env.OPENAI_API_KEY) {
       this.openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,

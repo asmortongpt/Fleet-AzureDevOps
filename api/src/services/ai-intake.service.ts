@@ -81,7 +81,7 @@ class AIIntakeService {
 
   constructor(
     private db: Pool,
-    private logger: typeof logger
+    private logger: any
   ) {
     this.validationService = new AIValidationService(db, logger)
     this.controlsService = new AIControlsService(db, logger)

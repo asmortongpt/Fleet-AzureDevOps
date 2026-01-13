@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 
-import { MicrosoftHealthRepository } from '../repositories/microsoft-health.repository';
+// import { MicrosoftHealthRepository } from '../repositories/microsoft-health.repository';
 import { microsoftGraphService } from '../services/microsoft-graph.service';
 import { queueService } from '../services/queue.service';
 import { getErrorMessage } from '../utils/error-handler';

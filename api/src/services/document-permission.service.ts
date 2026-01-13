@@ -15,7 +15,7 @@ import {
 import documentAuditService from './document-audit.service'
 
 export class DocumentPermissionService {
-  constructor(private db: Pool, private logger: typeof logger) {}
+  constructor(private db: Pool, private logger: any) {}
 
   /**
    * Grant permission to a user for a document or folder

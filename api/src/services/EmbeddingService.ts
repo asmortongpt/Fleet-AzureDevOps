@@ -90,7 +90,7 @@ export class EmbeddingService {
 
   constructor(
     private db: Pool,
-    private logger: typeof logger
+    private logger: any
   ) {
     // Don't call async initialization in constructor
   }

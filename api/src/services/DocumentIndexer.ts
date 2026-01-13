@@ -49,7 +49,7 @@ class DocumentIndexer {
   private batchSize: number = 100
   private jobCheckInterval: NodeJS.Timeout | null = null
 
-  constructor(private db: Pool, private logger: typeof logger) {
+  constructor(private db: Pool, private logger: any) {
     // Start background job processor
     this.startJobProcessor()
   }

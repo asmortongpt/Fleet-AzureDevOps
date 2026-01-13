@@ -19,7 +19,7 @@ import { validateFolderName } from '../utils/document-utils'
 import documentAuditService from './document-audit.service'
 
 export class DocumentFolderService {
-  constructor(private db: Pool, private logger: typeof logger) {}
+  constructor(private db: Pool, private logger: any) {}
 
   /**
    * Create a new folder

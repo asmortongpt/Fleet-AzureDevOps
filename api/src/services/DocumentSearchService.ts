@@ -108,7 +108,7 @@ class DocumentSearchService {
   private searchIndexService: typeof SearchIndexService
   private ragService: typeof DocumentRAGService
 
-  constructor(private db: Pool, private logger: typeof logger) {
+  constructor(private db: Pool, private logger: any) {
     this.searchIndexService = SearchIndexService
     this.ragService = DocumentRAGService
   }

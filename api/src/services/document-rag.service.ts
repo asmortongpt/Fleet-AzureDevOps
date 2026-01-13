@@ -50,7 +50,7 @@ export class DocumentRAGService {
   private chunkSize = 1000 // characters
   private chunkOverlap = 200 // characters
 
-  constructor(private db: Pool, private logger: typeof logger) {
+  constructor(private db: Pool, private logger: any) {
     // Initialize OpenAI if API key is available
     if (process.env.OPENAI_API_KEY) {
       this.openai = new OpenAI({

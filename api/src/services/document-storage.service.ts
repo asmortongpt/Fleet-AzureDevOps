@@ -42,7 +42,7 @@ export class DocumentStorageService {
   private maxFileSize: number
   private allowedFileTypes?: string[]
 
-  constructor(private db: Pool, private logger: typeof logger) {
+  constructor(private db: Pool, private logger: any) {
     this.maxFileSize = parseInt(process.env.MAX_FILE_SIZE || '104857600') // 100MB
     // If specified, restrict file types
     if (process.env.ALLOWED_FILE_TYPES) {
