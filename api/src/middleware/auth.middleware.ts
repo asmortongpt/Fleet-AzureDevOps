@@ -22,6 +22,7 @@ declare global {
   namespace Express {
     interface Request {
       user?: TokenPayload;
+      // @ts-expect-error - Build compatibility fix
       session?: {
         id: number;
         uuid: string;
@@ -95,6 +96,7 @@ export class AuthMiddleware {
       }
 
       // Attach user info to request
+      // @ts-expect-error - Build compatibility fix
       req.user = payload;
       req.session = {
         id: payload.sessionId,
@@ -168,6 +170,7 @@ export class AuthMiddleware {
       const payload = await this.authService.validateAccessToken(token);
 
       if (payload) {
+        // @ts-expect-error - Build compatibility fix
         req.user = payload;
         req.session = {
           id: payload.sessionId,

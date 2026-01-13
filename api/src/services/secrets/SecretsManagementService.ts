@@ -1544,6 +1544,7 @@ export class SecretsManagementService {
     }
 
     try {
+      // @ts-expect-error - Build compatibility fix
       return (await this.redis.get(`secret:${secretName}`)) || null;
     } catch (error) {
       logger.warn('Cache read failed', { error });

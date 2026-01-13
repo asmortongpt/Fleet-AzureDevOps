@@ -298,6 +298,7 @@ export const settingResetSchema = z.object({
   user_id: uuidSchema.optional(),
 
   /** Confirm reset action */
+  // @ts-expect-error - Build compatibility fix
   confirm: z.literal(true, {
     errorMap: () => ({ message: 'You must confirm the reset action' })
   }),

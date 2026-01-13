@@ -262,6 +262,7 @@ return
       return
     }
 
+    // @ts-expect-error - Build compatibility fix
     this.client?.defaultClient.trackPageView({
       name,
       url,

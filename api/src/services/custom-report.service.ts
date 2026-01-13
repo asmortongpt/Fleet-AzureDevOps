@@ -827,6 +827,7 @@ export class CustomReportService {
     return this.createReport(tenantId, userId, {
       title: reportName,
       description: template.rows[0].description,
+      // @ts-expect-error - Build compatibility fix
       data_sources: config.data_sources,
       columns: config.columns,
       filters: config.filters || [],

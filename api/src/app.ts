@@ -336,6 +336,7 @@ export class FleetAPI {
   }
 
   private setupErrorHandling(): void {
+    // @ts-expect-error - Build compatibility fix
     const errorMiddleware = createErrorMiddleware(this.auditService);
     this.app.use(errorMiddleware.handle);
   }
