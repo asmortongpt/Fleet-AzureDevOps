@@ -607,8 +607,7 @@ Keep the response concise but thorough.`
 }
 
 // Export singleton instance
-import { db } from '../db'
-const aiAgentSupervisorService = new AIAgentSupervisorService(db)
+import { pool } from '../db'
+const aiAgentSupervisorService = new AIAgentSupervisorService(pool, logger)
 
-export { AIAgentSupervisorService }
 export default aiAgentSupervisorService
