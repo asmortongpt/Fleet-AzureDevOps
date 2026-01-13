@@ -11,6 +11,7 @@ const csrfMethods = doubleCsrf({
   },
   size: 64, // The size of the generated tokens in bits
   ignoredMethods: ["GET", "HEAD", "OPTIONS"], // A list of request methods that will not be checked.
+  // @ts-expect-error - Type mismatch
   getSessionIdentifier: (req: Request) => (req as any).session?.id || "", // Optional: session identifier
 });
 

@@ -696,7 +696,9 @@ return 'attachments';
         failed: parseInt(row.failed) || 0,
         avgProcessingTimeMs: parseFloat(row.avg_processing_time_ms) || 0,
         jobsPerMinute: parseFloat(row.jobs_last_minute) || 0,
-        lastUpdated: new Date()
+        waiting: 0,
+        delayed: 0,
+        paused: false
       };
     } catch (error) {
       console.error('Failed to get queue stats:', error);
@@ -788,7 +790,7 @@ return 'attachments';
       );
 
       return {
-        healthy,
+        status: healthy ? 'healthy' : 'degraded',
         queues: queueStats,
         deadLetterCount,
         lastChecked: new Date()

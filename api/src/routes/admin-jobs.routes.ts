@@ -310,7 +310,7 @@ router.get('/:queueName/job/:jobId', async (req: Request, res: Response, next: N
       data: job.data,
       opts: job.opts,
       progress: job.progress(),
-      delay: job.delay,
+      delay: (job as any).delay,
       timestamp: job.timestamp,
       attemptsMade: job.attemptsMade,
       failedReason: job.failedReason,

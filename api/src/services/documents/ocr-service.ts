@@ -180,7 +180,7 @@ export class OCRService {
 
     try {
       const result = await worker.detect(imagePath)
-      return result.data.languages[0]?.code || 'eng'
+      return (result.data as any).languages?.[0]?.code || 'eng'
     } finally {
       this.releaseWorker(workerId)
     }

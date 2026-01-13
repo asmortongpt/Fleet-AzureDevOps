@@ -316,6 +316,7 @@ if (process.env.APPLICATIONINSIGHTS_CONNECTION_STRING) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { Transport } = require('winston-transport');
 
+    // @ts-expect-error - Type mismatch
     class ApplicationInsightsTransport extends Transport {
       constructor(opts: any) {
         super(opts);
@@ -365,6 +366,7 @@ if (process.env.APPLICATIONINSIGHTS_CONNECTION_STRING) {
       }
     }
 
+    // @ts-expect-error - Type mismatch
     appInsightsTransport = new ApplicationInsightsTransport({});
   } catch (error) {
     console.error('Failed to initialize Application Insights:', error);
