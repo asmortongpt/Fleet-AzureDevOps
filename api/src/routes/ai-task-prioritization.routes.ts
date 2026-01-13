@@ -64,7 +64,7 @@ const PrioritizeTaskSchema = z.object({
   vehicle_id: z.string().uuid().optional(),
   assigned_to: z.string().uuid().optional(),
   parent_task_id: z.string().uuid().optional(),
-  metadata: z.record(z.any()).optional()
+  metadata: z.record(z.string(), z.any()).optional()
 })
 
 const AssignTaskSchema = z.object({
