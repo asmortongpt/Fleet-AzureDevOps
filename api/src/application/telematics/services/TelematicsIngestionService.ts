@@ -11,6 +11,7 @@ export interface ITelematicsIngestionService {
 
 export class TelematicsIngestionService implements ITelematicsIngestionService {
   private readonly adapters: Map<string, ITelematicsProviderAdapter> = new Map();
+  private tenantId: number = 1; // TODO: Get from context or provider
 
   constructor(
     private readonly repository: TelematicsRepository,
@@ -33,7 +34,7 @@ export class TelematicsIngestionService implements ITelematicsIngestionService {
           continue;
         }
 
-        const devices = await this.repository.getDevicesByProvider(provider.id);
+        const devices = await this.repository.getDevicesByProvider(provider.id, this.tenantId);
         if (devices.length === 0) {
           continue;
         }
@@ -43,7 +44,7 @@ export class TelematicsIngestionService implements ITelematicsIngestionService {
         try {
           const positions = await adapter.getLatestPositions(devices);
 
-          await this.repository.insertPositionEvents(positions);
+          await this.repository.insertPositionEvents(positions, this.tenantId);
 
           const locationUpdates = positions.map(pos => 
             AssetLocation.fromPositionData(
@@ -61,8 +62,8 @@ export class TelematicsIngestionService implements ITelematicsIngestionService {
             )
           );
 
-          await this.repository.upsertAssetLocations(locationUpdates);
-          await this.repository.updateDevicesSyncTime(devices.map((d: any) => d.id), new Date());
+          await this.repository.upsertAssetLocations(devices.map((d: any) => d.vehicle_id), this.tenantId);
+          await this.repository.updateDevicesSyncTime(devices.map((d: any) => d.id), this.tenantId);
 
           this.logger.info(`Successfully ingested ${positions.length} positions from ${provider.name}`);
         } catch (error) {
@@ -76,7 +77,7 @@ export class TelematicsIngestionService implements ITelematicsIngestionService {
   }
 
   async ingestDeviceHistory(deviceId: string, startDate: Date, endDate: Date): Promise<void> {
-    const device = await this.repository.getDeviceById(deviceId);
+    const device = await this.repository.getDeviceById(Number(deviceId), this.tenantId);
     if (!device) throw new Error(`Device not found: ${deviceId}`);
 
     const provider = await this.repository.getProviderById(device.provider_id);
@@ -87,7 +88,7 @@ export class TelematicsIngestionService implements ITelematicsIngestionService {
 
     this.logger.info(`Fetching history for device ${deviceId} from ${startDate} to ${endDate}`);
     const positions = await adapter.getPositionHistory(device.externalDeviceId, startDate, endDate);
-    await this.repository.insertPositionEvents(positions);
+    await this.repository.insertPositionEvents(positions, this.tenantId);
     this.logger.info(`Ingested ${positions.length} historical positions for device ${deviceId}`);
   }
 }
