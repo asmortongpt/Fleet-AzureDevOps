@@ -134,7 +134,13 @@ export const PERMISSIONS = {
   // Document permissions
   DOCUMENT_UPLOAD: 'document:upload',
   DOCUMENT_READ: 'document:read',
-  DOCUMENT_DELETE: 'document:delete'
+  DOCUMENT_DELETE: 'document:delete',
+
+  // Facility permissions
+  FACILITY_CREATE: 'facility:create',
+  FACILITY_READ: 'facility:read',
+  FACILITY_UPDATE: 'facility:update',
+  FACILITY_DELETE: 'facility:delete'
 } as const
 
 // ============================================================================

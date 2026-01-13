@@ -122,7 +122,8 @@ export function validate(
           received: (err as any).received
         }))
 
-        next(new ValidationError('Validation failed', formattedErrors))
+        const validationError = new ValidationError(`Validation failed: ${formattedErrors.map(e => e.field).join(', ')}`)
+        next(validationError)
       } else {
         next(error)
       }
@@ -161,7 +162,8 @@ export function validateAll(schemas: {
           message: err.message
         }))
 
-        next(new ValidationError('Validation failed', formattedErrors))
+        const validationError = new ValidationError(`Validation failed: ${formattedErrors.map(e => e.field).join(', ')}`)
+        next(validationError)
       } else {
         next(error)
       }

@@ -66,7 +66,7 @@ router.get(
     try {
       const { page = 1, limit = 50, orderBy } = req.query
 
-      const result = await inspectionRepo.getPaginatedInspections(req.user!.tenant_id, {
+      const result = await inspectionRepo.getPaginatedInspections(Number(req.user!.tenant_id), {
         page: Number(page),
         limit: Number(limit),
         orderBy: orderBy as string
@@ -90,7 +90,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const stats = await inspectionRepo.getInspectionStats(req.user!.tenant_id)
+      const stats = await inspectionRepo.getInspectionStats(Number(req.user!.tenant_id))
       res.json(stats)
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
@@ -109,7 +109,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const inspections = await inspectionRepo.findPending(req.user!.tenant_id)
+      const inspections = await inspectionRepo.findPending(Number(req.user!.tenant_id))
       res.json({ data: inspections })
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
@@ -128,7 +128,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const inspections = await inspectionRepo.findOverdue(req.user!.tenant_id)
+      const inspections = await inspectionRepo.findOverdue(Number(req.user!.tenant_id))
       res.json({ data: inspections })
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
@@ -148,7 +148,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const { days = 7 } = req.query
-      const inspections = await inspectionRepo.findDueSoon(req.user!.tenant_id, Number(days))
+      const inspections = await inspectionRepo.findDueSoon(Number(req.user!.tenant_id), Number(days))
       res.json({ data: inspections })
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
@@ -168,8 +168,8 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const inspections = await inspectionRepo.findByVehicle(
-        req.user!.tenant_id,
-        req.params.vehicleId
+        Number(req.user!.tenant_id),
+        Number(req.params.vehicleId)
       )
       res.json({ data: inspections })
     } catch (error) {
@@ -192,8 +192,8 @@ router.get(
       const { limit = 10 } = req.query
 
       const inspections = await inspectionRepo.getRecentByVehicle(
-        req.user!.tenant_id,
-        req.params.vehicleId,
+        Number(req.user!.tenant_id),
+        Number(req.params.vehicleId),
         Number(limit)
       )
       res.json({ data: inspections })
@@ -215,7 +215,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const inspections = await inspectionRepo.findByDriver(
-        req.user!.tenant_id,
+        Number(req.user!.tenant_id),
         req.params.driverId
       )
       res.json({ data: inspections })
@@ -243,7 +243,7 @@ router.get(
       }
 
       const inspections = await inspectionRepo.findByDateRange(
-        req.user!.tenant_id,
+        Number(req.user!.tenant_id),
         new Date(startDate as string),
         new Date(endDate as string)
       )
@@ -266,8 +266,8 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const inspection = await inspectionRepo.findByIdAndTenant(
-        req.params.id,
-        req.user!.tenant_id
+        Number(req.params.id),
+        Number(req.user!.tenant_id)
       )
 
       if (!inspection) {
@@ -297,7 +297,7 @@ router.post(
 
       // Create inspection
       const inspection = await inspectionRepo.createInspection(
-        req.user!.tenant_id,
+        Number(req.user!.tenant_id),
         validatedData
       )
 
@@ -328,8 +328,8 @@ router.put(
 
       // Update inspection
       const inspection = await inspectionRepo.updateInspection(
-        req.params.id,
-        req.user!.tenant_id,
+        Number(req.params.id),
+        Number(req.user!.tenant_id),
         validatedData
       )
 
@@ -366,8 +366,8 @@ router.post(
         async (client) => {
           // Complete the inspection
           const completedInspection = await inspectionRepo.completeInspection(
-            req.params.id,
-            req.user!.tenant_id,
+            Number(req.params.id),
+            Number(req.user!.tenant_id),
             validatedData,
             client
           )
@@ -416,7 +416,7 @@ router.delete(
   auditLog({ action: 'DELETE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const deleted = await inspectionRepo.deleteInspection(req.params.id, req.user!.tenant_id)
+      const deleted = await inspectionRepo.deleteInspection(Number(req.params.id), Number(req.user!.tenant_id))
 
       if (!deleted) {
         throw new NotFoundError('Inspection not found')
@@ -460,7 +460,7 @@ router.post(
 
           for (const vehicleId of vehicle_ids) {
             const inspection = await inspectionRepo.createInspection(
-              req.user!.tenant_id,
+              Number(req.user!.tenant_id),
               {
                 vehicle_id: vehicleId,
                 inspection_type,

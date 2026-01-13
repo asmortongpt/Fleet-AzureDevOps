@@ -25,7 +25,7 @@ export interface WitnessCreateData {
 @injectable()
 export class IncidentWitnessRepository extends BaseRepository<any> {
   constructor(pool: Pool) {
-    super(pool, 'LIncident_LWitness_LRepository extends _LBases');
+    super('incident_witnesses');
   }
 
   /**

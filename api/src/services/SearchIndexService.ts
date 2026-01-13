@@ -16,6 +16,7 @@
 
 import { Pool } from 'pg'
 
+import { pool } from '../db/connection'
 import { cache } from '../utils/cache'
 
 export interface SearchQuery {
@@ -819,4 +820,9 @@ return b.score - a.score
   }
 }
 
-export default SearchIndexService;
+// Create singleton instance
+const searchIndexServiceInstance = new SearchIndexService(pool)
+
+// Export both class and instance
+export default searchIndexServiceInstance
+export { SearchIndexService }
