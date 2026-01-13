@@ -60,57 +60,40 @@ const extractErrorDetails = (error: any) => {
 /**
  * Format validation errors for better readability
  */
-const formatValidationErrors = (errors: ValidationError[]): string => {
+const formatValidationErrors = (errors: any[]): string => {
   return errors
-    .map(err => `${err.type} in ${err.location}: ${err.msg}`)
+    .map(err => `${err.type || err.param} in ${err.path || 'unknown'}: ${err.msg}`)
     .join(', ');
 };
 
 /**
  * Sentry request handler - should be the first middleware
+ * Note: Sentry v10+ no longer has Handlers - using instrumentation instead
  */
 export const sentryRequestHandler = () => {
-  // Check if Sentry is properly initialized
-  if (!Sentry.Handlers || !Sentry.Handlers.requestHandler) {
-    // Return a no-op middleware if Sentry is not available
-    return (req: Request, res: Response, next: NextFunction) => next();
-  }
-
-  return Sentry.Handlers.requestHandler({
-    include: {
-      data: true,
-      query_string: true,
-      cookies: false, // Don't include cookies for privacy
-      headers: true,
-      local_variables: false,
-      user: true
-    },
-    timeout: 0,
-    parseUser: (req: Request) => {
-      // Extract user from JWT or session
-      if ((req as any).user) {
-        return {
-          id: (req as any).user.id,
-          email: (req as any).user.email,
-          username: (req as any).user.username
-        };
-      }
-      return null;
+  // Sentry v10+ automatically instruments requests
+  // Return a no-op middleware for compatibility
+  return (req: Request, res: Response, next: NextFunction) => {
+    // Set user context if available
+    if ((req as any).user) {
+      Sentry.setUser({
+        id: (req as any).user.id,
+        email: (req as any).user.email,
+        username: (req as any).user.username
+      });
     }
-  });
+    next();
+  };
 };
 
 /**
  * Sentry tracing handler - for performance monitoring
+ * Note: Sentry v10+ uses automatic instrumentation
  */
 export const sentryTracingHandler = () => {
-  // Check if Sentry is properly initialized
-  if (!Sentry.Handlers || !Sentry.Handlers.tracingHandler) {
-    // Return a no-op middleware if Sentry is not available
-    return (req: Request, res: Response, next: NextFunction) => next();
-  }
-
-  return Sentry.Handlers.tracingHandler();
+  // Sentry v10+ automatically handles tracing
+  // Return a no-op middleware for compatibility
+  return (req: Request, res: Response, next: NextFunction) => next();
 };
 
 /**
