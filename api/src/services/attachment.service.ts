@@ -817,4 +817,8 @@ export class AttachmentService {
   }
 }
 
-export default AttachmentService
+// Export singleton instance
+import { pool } from '../db'
+const attachmentService = new AttachmentService(pool)
+
+export default attachmentService
