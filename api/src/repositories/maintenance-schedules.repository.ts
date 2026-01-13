@@ -86,7 +86,7 @@ export class MaintenanceSchedulesRepository extends BaseRepository<MaintenanceSc
     query += ` ORDER BY next_due ASC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
     params.push(pagination.limit, pagination.offset);
 
-    const result = await this.query(query, params);
+    const result = await this.pool.query(query, params);
     return result.rows;
   }
 
@@ -105,7 +105,7 @@ export class MaintenanceSchedulesRepository extends BaseRepository<MaintenanceSc
       WHERE ms.tenant_id = $1 AND ms.deleted_at IS NULL
       ORDER BY ms.next_due ASC
     `;
-    const result = await this.query(query, [tenantId]);
+    const result = await this.pool.query(query, [tenantId]);
     return result.rows;
   }
 }

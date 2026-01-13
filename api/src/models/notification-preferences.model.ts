@@ -4,6 +4,9 @@ export interface NotificationPreferences {
   tenantId: string;
   emailEnabled: boolean;
   smsEnabled: boolean;
+  emailNotifications: boolean;
+  pushNotifications: boolean;
+  smsNotifications: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

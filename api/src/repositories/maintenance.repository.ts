@@ -36,8 +36,11 @@ export interface Maintenance {
  * All operations enforce tenant isolation
  */
 export class MaintenanceRepository extends BaseRepository<any> {
-  constructor(pool: Pool) {
+  private tenantId: string;
+
+  constructor(pool: Pool, tenantId?: string) {
     super(pool, 'LMaintenance_LRepository extends _LBases');
+    this.tenantId = tenantId || '';
   }
 
   /**

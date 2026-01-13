@@ -4,9 +4,11 @@ import { BaseRepository } from './base/BaseRepository';
 
 
 export class PushNotificationRepository extends BaseRepository<any> {
+  private tenantId: string;
 
-  constructor(pool: Pool) {
+  constructor(pool: Pool, tenantId?: string) {
     super(pool, 'push_notifications');
+    this.tenantId = tenantId || '';
   }
 
   async createPushNotification(

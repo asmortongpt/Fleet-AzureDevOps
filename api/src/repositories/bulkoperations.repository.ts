@@ -13,8 +13,11 @@ export interface Entity {
 }
 
 export class BulkOperationsRepository extends BaseRepository<any> {
-  constructor(pool: Pool) {
+  private tenantId: number;
+
+  constructor(pool: Pool, tenantId?: number) {
     super(pool, 'the');
+    this.tenantId = tenantId || 0;
   }
 
   /**
