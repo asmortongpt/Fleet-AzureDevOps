@@ -25,7 +25,7 @@ export interface TimelineCreateData {
 @injectable()
 export class IncidentTimelineRepository extends BaseRepository<any> {
   constructor(pool: Pool) {
-    super(pool, 'LIncident_LTimeline_LRepository extends _LBases');
+    super('incident_timeline');
   }
 
   /**
