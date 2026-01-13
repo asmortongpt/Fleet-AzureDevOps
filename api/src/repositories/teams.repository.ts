@@ -27,8 +27,11 @@ export interface Team {
 }
 
 export class TeamsRepository extends BaseRepository<any> {
-  constructor(pool: Pool) {
+  private tenantId: string;
+
+  constructor(pool: Pool, tenantId?: string) {
     super(pool, 'tenant_teams_config');
+    this.tenantId = tenantId || '';
   }
 
   /**
