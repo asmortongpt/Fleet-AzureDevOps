@@ -39,7 +39,7 @@ export class InsurancePoliciesRepository extends BaseRepository<any> {
     `;
     const values = [
       tenantId,
-      policy.policy_number,
+      policy.policyNumber, // Fixed: use camelCase policyNumber
       policy.coverage_amount,
       policy.start_date,
       policy.end_date,
@@ -57,7 +57,7 @@ export class InsurancePoliciesRepository extends BaseRepository<any> {
       RETURNING *
     `;
     const values = [
-      policy.policy_number,
+      policy.policyNumber, // Fixed: use camelCase policyNumber
       policy.coverage_amount,
       policy.start_date,
       policy.end_date,

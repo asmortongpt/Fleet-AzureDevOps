@@ -76,7 +76,7 @@ export const createFuelTransactionSchema = z.object({
 
   // Transaction timestamp (REQUIRED)
   transaction_date: z.coerce.date({
-    errorMap: () => ({ message: 'Invalid transaction date format' })
+    invalid_type_error: 'Invalid transaction date format'
   }),
 
   // Fuel details (REQUIRED)
