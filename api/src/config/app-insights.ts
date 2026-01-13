@@ -45,6 +45,13 @@ class ApplicationInsightsService {
   }
 
   /**
+   * Check if Application Insights is active
+   */
+  isActive(): boolean {
+    return this.isConfigured && this.client !== null
+  }
+
+  /**
    * Track custom events for personal use features
    */
   trackTripSubmission(userId: string, usageType: string, miles: number, properties?: CustomProperties) {
