@@ -24,11 +24,7 @@ export class TeamsServiceWithQueue {
           chatId,
           content: message,
           contentType: 'text',
-          importance: urgent ? 'urgent' : 'normal',
-          metadata: {
-            source: 'teams-service',
-            userId: 'current-user-id'
-          }
+          importance: urgent ? 'urgent' : 'normal'
         },
         urgent ? JobPriority.HIGH : JobPriority.NORMAL
       );
@@ -70,11 +66,7 @@ export class TeamsServiceWithQueue {
     const jobId = await queueService.enqueueTeamsMessage({
       chatId,
       content: message,
-      mentions: mentions.map(m => ({
-        id: m.userId,
-        mentionText: `@${m.displayName}`,
-        userId: m.userId
-      }))
+      mentions: mentions.map(m => m.userId)
     });
 
     return { jobId };
@@ -95,11 +87,7 @@ export class EmailServiceWithQueue {
         subject,
         body,
         bodyType: 'html',
-        importance: priority,
-        metadata: {
-          source: 'email-service',
-          timestamp: new Date()
-        }
+        importance: priority
       },
       priority === 'high' ? JobPriority.HIGH : JobPriority.NORMAL
     );
@@ -169,9 +157,7 @@ export class WebhookHandlerWithQueue {
       webhookId,
       source: webhookData.source || 'graph',
       eventType: webhookData.changeType || 'unknown',
-      data: webhookData,
-      receivedAt: new Date(),
-      subscriptionId: webhookData.subscriptionId
+      data: webhookData
     });
 
     return {
@@ -200,8 +186,7 @@ export class FileUploadServiceWithQueue {
         fileSize: file.size,
         contentType: file.type,
         operation: 'upload',
-        source: 'manual',
-        metadata: { userId }
+        source: 'manual'
       },
       { userId }
     );
@@ -238,8 +223,7 @@ export class SyncServiceWithQueue {
       resourceType: 'messages',
       teamId,
       channelId,
-      userId,
-      fullSync: false
+      userId
     });
 
     return { jobId };

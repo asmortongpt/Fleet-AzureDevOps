@@ -1,8 +1,8 @@
-import cron from 'node-cron';
+import cron, { ScheduledTask } from 'node-cron';
 import { Logger } from 'winston';
 
 export class DriverSafetyScoreAggregationJob {
-  private job: cron.ScheduledTask | null = null;
+  private job: ScheduledTask | null = null;
 
   constructor(
     private readonly scoreService: any,

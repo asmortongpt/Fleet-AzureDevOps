@@ -13,7 +13,8 @@
 import { Router, Request, Response } from 'express'
 
 import logger from '../config/logger';
-import { DIContainer } from '../container'
+import { container } from '../container'
+import { Container } from 'inversify';
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 
@@ -24,7 +25,7 @@ const router = Router()
  * This is set by the containerMiddleware in server.ts
  */
 interface RequestWithContainer extends Request {
-  container: DIContainer
+  container: Container
   user?: any
 }
 

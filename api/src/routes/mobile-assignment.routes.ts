@@ -16,8 +16,8 @@ import express, { Response } from 'express';
 import { Pool } from 'pg';
 import { z } from 'zod';
 
-import logger from '../config/logger'; // Wave 31: Add Winston logger
-import { pool } from '../db/connection';
+import logger from '../config/logger'
+import { pool as dbPool } from '../db/connection'
 import { NotFoundError } from '../errors/app-error'
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf'
@@ -28,12 +28,12 @@ import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 
-let pool: Pool;
-let notificationService: AssignmentNotificationService;
+let pool: Pool = dbPool;
+let notificationService: AssignmentNotificationService = new AssignmentNotificationService(dbPool);
 
-export function setDatabasePool(dbPool: Pool) {
-  pool = dbPool;
-  notificationService = new AssignmentNotificationService(dbPool);
+export function setDatabasePool(newPool: Pool) {
+  pool = newPool;
+  notificationService = new AssignmentNotificationService(newPool);
 }
 
 // =====================================================

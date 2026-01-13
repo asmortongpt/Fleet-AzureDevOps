@@ -22,8 +22,12 @@ import logger from '../config/logger';
 import { getKeyVaultService } from '../config/key-vault.service';
 import SmartcarService from './smartcar.service';
 import SamsaraService from './samsara.service';
-// import TeltonikaService from './teltonika.service';
 import { OBD2Emulator } from '../emulators/obd2/OBD2Emulator';
+
+// Placeholder TeltonikaService class
+class TeltonikaService {
+  constructor(db: Pool) {}
+}
 
 // ============================================================================
 // Types and Interfaces

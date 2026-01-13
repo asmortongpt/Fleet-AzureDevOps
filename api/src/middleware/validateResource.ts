@@ -1,7 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { AnyZodObject, ZodError } from 'zod';
+import { ZodError, ZodObject } from 'zod';
 
 import { ValidationError } from '../services/dal/errors'; // Reusing existing error class
+
+// Type alias for any Zod object schema
+type AnyZodObject = ZodObject<any>;
 
 export const validateResource = (schema: AnyZodObject) => (
     req: Request,

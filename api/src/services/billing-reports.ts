@@ -321,4 +321,7 @@ export class BillingReportsService {
   }
 }
 
+// Singleton instance for backwards compatibility
+export const billingReportsService = new BillingReportsService();
+
 export default BillingReportsService

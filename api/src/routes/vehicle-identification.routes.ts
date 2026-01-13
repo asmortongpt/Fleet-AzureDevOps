@@ -10,7 +10,6 @@
 
 import { Router } from 'express'
 
-import logger from '../config/logger'; // Wave 30: Add Winston logger
 import logger from '../config/logger'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import type { AuthRequest } from '../middleware/auth'
