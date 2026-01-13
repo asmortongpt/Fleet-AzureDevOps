@@ -32,7 +32,7 @@ class AIValidationService {
 
   constructor(
     private db: Pool,
-    private logger: typeof logger
+    private logger: any
   ) { }
 
   // Patterns for potential injection attacks

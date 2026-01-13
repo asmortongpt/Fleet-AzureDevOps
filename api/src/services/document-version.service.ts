@@ -18,7 +18,7 @@ import { StorageAdapter } from './storage/storage-adapter.base'
 import { StorageFactory } from './storage/storage-factory'
 
 export class DocumentVersionService {
-  constructor(private db: Pool, private logger: typeof logger) {}
+  constructor(private db: Pool, private logger: any) {}
 
   private storageAdapter?: StorageAdapter
 

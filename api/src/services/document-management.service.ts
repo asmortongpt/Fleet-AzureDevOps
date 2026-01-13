@@ -74,7 +74,7 @@ export class DocumentManagementService {
   private ragService: DocumentRAGService
   private uploadDir: string
 
-  constructor(private db: Pool, private logger: typeof logger) {
+  constructor(private db: Pool, private logger: any) {
     this.ragService = new DocumentRAGService(db, logger)
     // Configure upload directory (can be overridden with S3)
     this.uploadDir = process.env.DOCUMENT_UPLOAD_DIR || path.join(process.cwd(), 'uploads', 'documents')

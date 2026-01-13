@@ -69,7 +69,7 @@ export interface SearchResult {
 }
 
 export class DocumentSearchService {
-  constructor(private db: Pool, private logger: typeof logger) {}
+  constructor(private db: Pool, private logger: any) {}
 
   /**
    * Search documents using PostgreSQL full-text search
