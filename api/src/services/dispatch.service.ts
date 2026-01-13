@@ -709,5 +709,9 @@ return
   }
 }
 
-// Note: Service is now registered in DI container (container.ts)
-// Use: container.resolve('dispatchService') or req.container.resolve('dispatchService')
+// Export singleton instance
+import { db } from '../db'
+const dispatchService = new DispatchService(db)
+
+export { DispatchService }
+export default dispatchService

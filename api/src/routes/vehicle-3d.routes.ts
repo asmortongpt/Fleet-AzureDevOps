@@ -221,7 +221,7 @@ router.post(
 
       const damageMarkers = schema.parse(req.body)
 
-      await vehicleModelsService.updateDamageMarkers(vehicleId, damageMarkers)
+      await vehicleModelsService.updateDamageMarkers(vehicleId, damageMarkers as any)
 
       res.json({
         message: 'Damage markers updated successfully',

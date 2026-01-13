@@ -347,7 +347,7 @@ router.post(
           importance: validated.importance,
         },
         req.user!.id ? parseInt(req.user!.id) : undefined,
-        validated.entityLinks
+        validated.entityLinks as any
       );
 
       res.json({

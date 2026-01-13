@@ -709,4 +709,9 @@ return severityDiff
   }
 }
 
-export default ExecutiveDashboardService
+// Export singleton instance
+import { db } from '../db'
+const executiveDashboardService = new ExecutiveDashboardService(db)
+
+export { ExecutiveDashboardService }
+export default executiveDashboardService

@@ -15,6 +15,8 @@ export interface AuthRequest extends Request {
     // Aliases for compatibility
     userId?: string
     tenantId?: string
+    name?: string
+    org_id?: string
   }
 }
 

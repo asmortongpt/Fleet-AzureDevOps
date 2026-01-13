@@ -152,7 +152,13 @@ export const PERMISSIONS = {
   INSPECTION_CREATE: 'inspection:create',
   INSPECTION_READ: 'inspection:read',
   INSPECTION_UPDATE: 'inspection:update',
-  INSPECTION_DELETE: 'inspection:delete'
+  INSPECTION_DELETE: 'inspection:delete',
+
+  // Safety alert permissions
+  SAFETY_ALERT_CREATE: 'safety_alert:create',
+  SAFETY_ALERT_READ: 'safety_alert:read',
+  SAFETY_ALERT_UPDATE: 'safety_alert:update',
+  SAFETY_ALERT_DELETE: 'safety_alert:delete'
 } as const
 
 // ============================================================================
