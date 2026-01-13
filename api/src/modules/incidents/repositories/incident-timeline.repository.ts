@@ -1,3 +1,5 @@
+import { Pool } from 'pg'
+
 
 import { injectable } from 'inversify';
 
