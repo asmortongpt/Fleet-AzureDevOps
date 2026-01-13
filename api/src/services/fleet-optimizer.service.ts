@@ -464,4 +464,9 @@ export class FleetOptimizerService {
   }
 }
 
-export default FleetOptimizerService
+// Export singleton instance
+import { db } from '../db'
+const fleetOptimizerService = new FleetOptimizerService(db)
+
+export { FleetOptimizerService }
+export default fleetOptimizerService
