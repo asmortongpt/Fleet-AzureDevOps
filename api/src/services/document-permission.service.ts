@@ -9,7 +9,8 @@ import {
   DocumentPermission,
   GrantPermissionOptions,
   PermissionType,
-  PermissionSummary
+  PermissionSummary,
+  EntityType
 } from '../types/document-storage.types'
 
 import documentAuditService from './document-audit.service'
