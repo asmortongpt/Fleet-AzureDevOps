@@ -210,7 +210,7 @@ function sanitizeString(value: string, config: SanitizationConfig, fieldName?: s
 
   // Log if modified
   if (modified && config.logSanitization) {
-    securityLogger.incident('xss_attempt', {
+    securityLogger.warn('xss_attempt', {
       details: {
         field: fieldName,
         original: value.substring(0, 100),
@@ -304,7 +304,7 @@ export function sanitizeRequest(config: SanitizationConfig = {}) {
 
       next()
     } catch (error) {
-      securityLogger.incident('suspicious_activity', {
+      securityLogger.warn('suspicious_activity', {
         ip: req.ip,
         userAgent: req.get('user-agent'),
         details: {

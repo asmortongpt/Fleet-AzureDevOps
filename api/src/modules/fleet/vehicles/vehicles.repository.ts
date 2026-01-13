@@ -18,11 +18,11 @@ export interface Vehicle {
 @injectable()
 export class VehiclesRepository extends BaseRepository<Vehicle> {
   constructor(pool: any) {
-    this.pool = pool;
+    super('vehicles', pool);
   }
 
   async findByStatus(status: string, tenantId: string): Promise<Vehicle[]> {
-    const result = await this.pool.query(
+    const result = await this._pool!.query(
       'SELECT id, tenant_id, created_at, updated_at FROM vehicles WHERE status = $1 AND tenant_id = $2',
       [status, tenantId]
     );
@@ -30,7 +30,7 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
   }
 
   async findByVin(vin: string, tenantId: string): Promise<Vehicle | null> {
-    const result = await this.pool.query(
+    const result = await this._pool!.query(
       'SELECT id, tenant_id, created_at, updated_at FROM vehicles WHERE vin = $1 AND tenant_id = $2',
       [vin, tenantId]
     );

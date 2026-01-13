@@ -175,7 +175,7 @@ export function rateLimit(config: RateLimitConfig) {
         res.setHeader('Retry-After', retryAfter.toString())
 
         // Log rate limit incident
-        securityLogger.incident('rate_limit', {
+        securityLogger.warn('rate_limit', {
           ip: req.ip,
           userAgent: req.get('user-agent'),
           userId: (req as any).user?.id,
@@ -352,7 +352,7 @@ export class BruteForceProtection {
     if (record.count >= this.maxAttempts) {
       record.lockedUntil = now + this.lockoutDuration
 
-      securityLogger.incident('brute_force', {
+      securityLogger.warn('brute_force', {
         details: { identifier, attempts: record.count },
         severity: 'high'
       })
@@ -409,7 +409,7 @@ export function checkBruteForce(identifierField: string = 'email') {
     const identifier = req.body[identifierField] || req.ip
 
     if (bruteForce.isLocked(identifier)) {
-      securityLogger.incident('brute_force', {
+      securityLogger.warn('brute_force', {
         ip: req.ip,
         details: { identifier, action: 'blocked' },
         severity: 'high'
@@ -485,7 +485,7 @@ export class RedisRateLimiter {
 
       return { count, resetAt }
     } catch (error) {
-      securityLogger.incident('rate_limit_redis_error', {
+      securityLogger.warn('rate_limit_redis_error', {
         details: {
           error: error instanceof Error ? error.message : String(error),
           key
@@ -621,7 +621,7 @@ export function distributedRateLimit(
         res.setHeader('Retry-After', retryAfter.toString())
 
         // Log rate limit incident
-        securityLogger.incident('rate_limit', {
+        securityLogger.warn('rate_limit', {
           ip: req.ip,
           userAgent: req.get('user-agent'),
           userId: (req as any).user?.id,
