@@ -642,12 +642,12 @@ export class DocumentFolderService {
 
       if (options?.limit) {
         query += ` LIMIT $3`
-        params.push(options.limit)
+        params.push(String(options.limit))
       }
 
       if (options?.offset) {
         query += ` OFFSET $${params.length + 1}`
-        params.push(options.offset)
+        params.push(String(options.offset))
       }
 
       const result = await this.db.query(query, params)
