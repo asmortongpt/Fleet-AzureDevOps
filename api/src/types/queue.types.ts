@@ -1,3 +1,36 @@
+// Queue Type Definitions
+
+export enum QueueName {
+  EMAIL = 'email',
+  NOTIFICATION = 'notification',
+  REPORT = 'report',
+  DATA_SYNC = 'data_sync',
+  MAINTENANCE = 'maintenance',
+  TELEMETRY = 'telemetry',
+  AUDIT = 'audit',
+  DEAD_LETTER = 'dead_letter',
+}
+
+export interface QueueHealth {
+  status: 'healthy' | 'degraded' | 'unhealthy';
+  queues: {
+    [key: string]: {
+      waiting: number;
+      active: number;
+      completed: number;
+      failed: number;
+      delayed: number;
+      paused: boolean;
+      backlog?: number;
+      failureRate?: number;
+      avgProcessingTime?: number;
+      isRunning?: boolean;
+    };
+  };
+  deadLetterCount?: number;
+  timestamp: string;
+}
+
 export interface QueueJob<T = any> {
   id: string;
   data: T;
