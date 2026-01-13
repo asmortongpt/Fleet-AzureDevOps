@@ -203,7 +203,6 @@ export class PolicyEnforcementService {
           decision,
           executionTime: `${executionTime.toFixed(2)}ms`
         },
-        result: 'success',
         retentionYears: 7
       })
 
