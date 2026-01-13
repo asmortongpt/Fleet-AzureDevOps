@@ -7,11 +7,11 @@ const router = express.Router();
 router.get('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { tenant_id } = req.user;
+    const { tenant_id } = (req as any).user;
 
     const data = await userService.getUserDetails(
       parseInt(id),
-      tenant_id
+      Number(tenant_id)
     );
 
     res.json(data);
