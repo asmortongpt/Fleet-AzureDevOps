@@ -3,9 +3,16 @@
  * Centralized service for logging permission checks and security events
  */
 
+import { Pool } from 'pg';
 import { AuditLogEntry } from '../permissions/types';
 
 export class AuditService {
+  private db: Pool;
+
+  constructor(db: Pool) {
+    this.db = db;
+  }
+
   /**
    * Log a permission check
    */
@@ -216,5 +223,7 @@ export class AuditService {
   }
 }
 
-// Singleton removed - use DI
+// Singleton instance for backwards compatibility
+export const auditService = new AuditService();
+
 export default AuditService;

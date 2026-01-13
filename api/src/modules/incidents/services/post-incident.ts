@@ -117,6 +117,15 @@ export class PostIncidentService extends BaseService {
   }
 
   /**
+   * Validate data (required by BaseService)
+   */
+  async validate(data: any): Promise<void> {
+    if (!data) {
+      throw new Error('Validation data is required');
+    }
+  }
+
+  /**
    * Generate comprehensive post-incident report
    * @param incident - Incident to analyze
    * @param tenantId - Tenant ID for data isolation

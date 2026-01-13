@@ -2,7 +2,6 @@ import express, { Response } from 'express'
 import { z } from 'zod'
 
 import { appInsightsService } from '../config/app-insights'
-import logger from '../config/logger'; // Wave 19: Add Winston logger
 import logger from '../config/logger'
 import { pool } from '../db/connection';
 import { NotFoundError, ValidationError } from '../errors/app-error'

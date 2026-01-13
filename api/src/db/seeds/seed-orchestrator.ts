@@ -19,7 +19,7 @@ import type { SeedConfig } from './types';
 export class SeedOrchestrator {
   private pool: Pool;
   private config: SeedConfig;
-  private seed: string;
+  private seedValue: string;
 
   // Factories
   private tenantFactory: TenantFactory;
@@ -35,7 +35,7 @@ export class SeedOrchestrator {
 
   constructor(pool: Pool, config: Partial<SeedConfig> = {}, seed: string = 'fleet-test-2026') {
     this.pool = pool;
-    this.seed = seed;
+    this.seedValue = seed;
 
     // Default configuration
     this.config = {

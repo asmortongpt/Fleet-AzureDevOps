@@ -45,6 +45,15 @@ export interface TriageResult {
  */
 @injectable()
 export class IncidentTriageService extends BaseService {
+  /**
+   * Validate data (required by BaseService)
+   */
+  async validate(data: any): Promise<void> {
+    if (!data) {
+      throw new Error('Validation data is required');
+    }
+  }
+
   private readonly CRITICAL_KEYWORDS = [
     'security',
     'breach',

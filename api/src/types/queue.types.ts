@@ -9,6 +9,11 @@ export enum QueueName {
   TELEMETRY = 'telemetry',
   AUDIT = 'audit',
   DEAD_LETTER = 'dead_letter',
+  TEAMS_OUTBOUND = 'teams_outbound',
+  OUTLOOK_OUTBOUND = 'outlook_outbound',
+  ATTACHMENTS = 'attachments',
+  WEBHOOKS = 'webhooks',
+  SYNC = 'sync'
 }
 
 export interface QueueHealth {
@@ -84,10 +89,14 @@ export enum JobStatus {
   COMPLETED = 'completed',
   FAILED = 'failed',
   DELAYED = 'delayed',
-  PAUSED = 'paused'
+  PAUSED = 'paused',
+  PENDING = 'pending',
+  DEAD_LETTER = 'dead_letter'
 }
 
 export interface JobData {
+  payload?: any
+  metadata?: Record<string, any>
   [key: string]: any
 }
 
@@ -101,6 +110,14 @@ export interface JobOptions {
   }
   removeOnComplete?: boolean
   removeOnFail?: boolean
+  retryLimit?: number
+  retryDelay?: number
+  retryBackoff?: boolean
+  expireInSeconds?: number
+  retentionSeconds?: number
+  startAfter?: Date | string
+  singletonKey?: string
+  onComplete?: boolean
 }
 
 export interface QueueStats {
@@ -110,6 +127,10 @@ export interface QueueStats {
   failed: number
   delayed: number
   paused: boolean
+  pending: number
+  avgProcessingTimeMs: number
+  queueName?: string
+  jobsPerMinute?: number
 }
 
 export enum ErrorType {
@@ -118,19 +139,29 @@ export enum ErrorType {
   TIMEOUT_ERROR = 'TIMEOUT_ERROR',
   AUTHENTICATION_ERROR = 'AUTHENTICATION_ERROR',
   RATE_LIMIT_ERROR = 'RATE_LIMIT_ERROR',
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR'
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
+  NETWORK = 'NETWORK',
+  VALIDATION = 'VALIDATION',
+  TIMEOUT = 'TIMEOUT',
+  AUTHENTICATION = 'AUTHENTICATION',
+  RATE_LIMIT = 'RATE_LIMIT',
+  UNKNOWN = 'UNKNOWN'
 }
 
 export interface RetryDecision {
   retry: boolean
+  shouldRetry?: boolean
   delay?: number
   errorType?: ErrorType
 }
 
 export interface TeamsMessagePayload {
-  teamId: string
-  channelId: string
-  message: string
+  teamId?: string
+  channelId?: string
+  chatId?: string
+  message?: string
+  content?: string
+  contentType?: 'text' | 'html'
   importance?: 'normal' | 'high' | 'urgent'
   mentions?: string[]
   attachments?: any[]
@@ -140,35 +171,52 @@ export interface OutlookEmailPayload {
   to: string | string[]
   subject: string
   body: string
+  bodyType?: 'text' | 'html'
   from?: string
-  cc?: string[]
-  bcc?: string[]
+  cc?: string | string[]
+  bcc?: string | string[]
   attachments?: any[]
   importance?: 'low' | 'normal' | 'high'
+  isDeliveryReceiptRequested?: boolean
+  isReadReceiptRequested?: boolean
 }
 
 export interface AttachmentPayload {
-  documentId: string
-  tenantId: string
-  userId: string
-  fileUrl: string
+  documentId?: string
+  tenantId?: string
+  userId?: string
+  fileId?: string
+  fileUrl?: string
   fileName: string
-  mimeType: string
-  source: 'teams' | 'outlook' | 'manual'
+  fileSize?: number
+  mimeType?: string
+  contentType?: string
+  operation?: 'upload' | 'download' | 'delete' | 'scan'
+  destinationPath?: string
+  source?: 'teams' | 'outlook' | 'manual'
 }
 
 export interface WebhookPayload {
-  url: string
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+  webhookId: string
+  url?: string
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   headers?: Record<string, string>
   body?: any
+  data?: any
   retries?: number
+  eventType?: string
+  source?: string
 }
 
 export interface SyncPayload {
-  entityType: 'vehicle' | 'driver' | 'maintenance' | 'trip' | 'fuel'
-  entityId: string
-  tenantId: string
-  action: 'create' | 'update' | 'delete'
+  entityType?: 'vehicle' | 'driver' | 'maintenance' | 'trip' | 'fuel'
+  resourceType: 'messages' | 'emails' | 'calendar' | 'contacts' | 'files'
+  entityId?: string
+  tenantId?: string
+  userId: string
+  teamId?: string
+  channelId?: string
+  deltaToken?: string
+  action?: 'create' | 'update' | 'delete'
   data?: any
 }
