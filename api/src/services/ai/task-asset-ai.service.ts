@@ -505,4 +505,15 @@ Provide a clear, concise answer based only on the information in the context. If
   }
 }
 
+// Create singleton instance
+const taskAssetAIServiceInstance = new TaskAssetAIService()
+
+// Export individual methods for backward compatibility
+export const analyzeTaskAndSuggest = taskAssetAIServiceInstance.analyzeTaskAndSuggest.bind(taskAssetAIServiceInstance)
+export const suggestTaskAssignee = taskAssetAIServiceInstance.suggestTaskAssignee.bind(taskAssetAIServiceInstance)
+export const predictAssetMaintenance = taskAssetAIServiceInstance.predictAssetMaintenance.bind(taskAssetAIServiceInstance)
+export const suggestWorkflow = taskAssetAIServiceInstance.suggestWorkflow.bind(taskAssetAIServiceInstance)
+export const parseNaturalLanguageTask = taskAssetAIServiceInstance.parseNaturalLanguageTask.bind(taskAssetAIServiceInstance)
+export const answerQuestionAboutAssetOrTask = taskAssetAIServiceInstance.answerQuestionAboutAssetOrTask.bind(taskAssetAIServiceInstance)
+
 export default TaskAssetAIService

@@ -564,7 +564,7 @@ router.get(
       const attachments = await attachmentRepo.findWithFilters(
         Number(req.user!.tenant_id),
         {
-          communicationId,
+          communicationId: communicationId ? String(communicationId) : undefined,
           scanStatus: scanStatus as string,
           limit: Number(limit),
           offset

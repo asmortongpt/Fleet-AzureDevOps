@@ -606,4 +606,10 @@ class SMSService {
   }
 }
 
+// Create singleton instance
+const smsServiceInstance = new SMSService()
+
+// Export singleton instance
+export const smsService = smsServiceInstance
+
 export default SMSService;

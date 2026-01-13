@@ -101,8 +101,8 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction) =
   };
 
   if (req.body) req.body = sanitize(req.body);
-  if (req.query) req.query = sanitize(req.query);
-  if (req.params) req.params = sanitize(req.params);
+  if (req.query) req.query = sanitize(req.query) as any;
+  if (req.params) req.params = sanitize(req.params) as any;
 
   next();
 };
