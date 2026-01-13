@@ -97,10 +97,7 @@ class SentryService implements SentryConfig {
           // HTTP integration for automatic request/response tracking
           Sentry.httpIntegration(),
           // Express integration for automatic Express error tracking
-          Sentry.expressIntegration({
-            app: true,
-            router: true,
-          }),
+          Sentry.expressIntegration(),
           // Postgres integration for database query tracking
           Sentry.postgresIntegration(),
           // Profiling for performance monitoring
@@ -296,7 +293,7 @@ return;
 return null;
 }
 
-    return Sentry.startTransaction({
+    return (Sentry as any).startTransaction({
       op,
       name,
       trimEnd: true
