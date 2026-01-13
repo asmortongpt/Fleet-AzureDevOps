@@ -83,7 +83,7 @@ router.get(
       const vehicleId = parseInt(req.params.id, 10);
       const tenantId = req.user!.tenant_id!;
 
-      const config = await hardwareService.getVehicleHardwareConfig(vehicleId, tenantId);
+      const config = await hardwareService.getVehicleHardwareConfig(vehicleId);
 
       if (!config) {
         throw new NotFoundError('Vehicle not found or access denied');
@@ -160,7 +160,8 @@ router.post(
       }
 
       // Add provider to vehicle
-      const result = await hardwareService.addProvider(vehicleId, provider, config || {}, tenantId);
+      const providerConfig = { provider, ...(config || {}) };
+      const result = await hardwareService.addProvider(vehicleId, providerConfig, req.user!.id);
 
       logger.info('Provider added to vehicle', {
         vehicleId,
@@ -290,7 +291,7 @@ router.post(
       const provider = req.params.provider as SupportedProvider;
       const tenantId = req.user!.tenant_id!;
 
-      const testResult = await hardwareService.testProviderConnection(vehicleId, provider, tenantId);
+      const testResult = await hardwareService.testProviderConnection(vehicleId, provider);
 
       logger.info('Provider connection tested', {
         vehicleId,
@@ -417,7 +418,7 @@ router.get(
       const vehicleId = parseInt(req.params.id, 10);
       const tenantId = req.user!.tenant_id!;
 
-      const telemetry = await hardwareService.getUnifiedTelemetry(vehicleId, tenantId);
+      const telemetry = await hardwareService.getUnifiedTelemetry(vehicleId);
 
       if (!telemetry) {
         throw new NotFoundError('Vehicle not found or no telemetry data available');

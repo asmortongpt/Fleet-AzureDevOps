@@ -52,7 +52,7 @@ router.get(
   applyFieldMasking('vehicle'),
   cacheMiddleware(600), // ADD THIS LINE - Cache individual vehicle for 10 minutes
   auditLog({ action: 'READ', resourceType: 'vehicles' }),
-  validate([{ field: 'id', required: true, type: 'uuid' }], 'params'),
+  validate([{ field: 'id', required: true, type: 'uuid' }] as any, 'params'),
   async (req: AuthRequest, res: Response) => {
     // Existing route handler code stays the same
   }
