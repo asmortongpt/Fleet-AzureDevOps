@@ -95,7 +95,7 @@ class SentryService implements SentryConfig {
         // Integrations - using modern Sentry v8+ API
         integrations: [
           // HTTP integration for automatic request/response tracking
-          Sentry.httpIntegration({ tracing: true }),
+          Sentry.httpIntegration(),
           // Express integration for automatic Express error tracking
           Sentry.expressIntegration({
             app: true,

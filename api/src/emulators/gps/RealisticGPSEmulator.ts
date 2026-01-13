@@ -317,7 +317,7 @@ export class RealisticGPSEmulator extends EventEmitter {
         type: 'waypoint',
         stopDuration: 0
       })
-      roadTypes.push(wp.roadType || 'city')
+      roadTypes.push((wp.roadType as 'city' | 'highway' | 'residential') || 'city')
     }
     waypoints.push({ ...center, name: 'Return to Depot', type: 'depot', stopDuration: 0 })
     roadTypes.push('city')
