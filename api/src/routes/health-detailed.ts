@@ -267,9 +267,10 @@ async function checkCache(): Promise<ComponentHealth> {
     const info = await client.info();
     const latency = Date.now() - startTime;
 
-    // Parse Redis info
-    const usedMemory = info.match(/used_memory_human:([^\r\n]+)/)?.[1] || 'unknown';
-    const connectedClients = info.match(/connected_clients:(\d+)/)?.[1] || 'unknown';
+    // Parse Redis info - convert to string if Buffer
+    const infoStr = typeof info === 'string' ? info : info.toString();
+    const usedMemory = infoStr.match(/used_memory_human:([^\r\n]+)/)?.[1] || 'unknown';
+    const connectedClients = infoStr.match(/connected_clients:(\d+)/)?.[1] || 'unknown';
 
     await client.quit();
 

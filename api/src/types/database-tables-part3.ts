@@ -1356,27 +1356,27 @@ export type DatabaseTable =
   | FuelCard
   | FuelCardTransaction
   | PaymentMethod
-  | WorkOrderTemplate
-  | WorkOrderTask
-  | ServiceBay
-  | ServiceBaySchedule
-  | Technician
-  | RecurringMaintenanceSchedule
-  | Notification
-  | NotificationPreference
-  | Message
-  | TeamsIntegrationMessage
-  | OutlookEmail
-  | AlertRule
-  | AlertHistory
-  | AccidentReport
-  | SafetyInspection
-  | DriverViolation
-  | ComplianceDocument
-  | HoursOfServiceLog
-  | DriverTrainingRecord
-  | SafetyMeeting
-  | InsurancePolicy
+  //   | WorkOrderTemplate
+  //   | WorkOrderTask
+  //   | ServiceBay
+  //   | ServiceBaySchedule
+  //   | Technician
+  //   | RecurringMaintenanceSchedule
+  //   | Notification
+  //   | NotificationPreference
+  //   | Message
+  //   | TeamsIntegrationMessage
+  //   | OutlookEmail
+  //   | AlertRule
+  //   | AlertHistory
+  //   | AccidentReport
+  //   | SafetyInspection
+  //   | DriverViolation
+  //   | ComplianceDocument
+  //   | HoursOfServiceLog
+  //   | DriverTrainingRecord
+  //   | SafetyMeeting
+  //   | InsurancePolicy
   | AssetTag
   | AssetTransfer
   | TurboSquidModel

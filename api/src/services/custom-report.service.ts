@@ -825,7 +825,7 @@ export class CustomReportService {
     const config = template.rows[0].config
 
     return this.createReport(tenantId, userId, {
-      report_name: reportName,
+      title: reportName,
       description: template.rows[0].description,
       data_sources: config.data_sources,
       columns: config.columns,
