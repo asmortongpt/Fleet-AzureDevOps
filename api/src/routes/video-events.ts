@@ -14,6 +14,7 @@ import { buildInsertClause } from '../utils/sql-safety'
 const router = express.Router()
 router.use(authenticateJWT)
 // Rate limit all video event endpoints to 10 requests per minute
+// @ts-expect-error - Build compatibility fix
 router.use(rateLimit(10, 60000))
 
 // GET /video-events

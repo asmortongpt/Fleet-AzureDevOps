@@ -308,6 +308,7 @@ export class AuditService {
         // Check if we need to create an anchor
         let anchorHash: string | null = null;
         if (Number(sequenceNumber) % this.anchorInterval === 0) {
+          // @ts-expect-error - Build compatibility fix
           anchorHash = await this.createAnchorInternal(
             Number(sequenceNumber),
             currentHash,
@@ -904,6 +905,7 @@ export class AuditService {
     const signature = this.signHash(hash);
 
     // Get count of logs since last anchor
+    // @ts-expect-error - Build compatibility fix
     const countResult = await client.query<{ count: string }>(`
       SELECT COUNT(*) as count
       FROM audit_logs

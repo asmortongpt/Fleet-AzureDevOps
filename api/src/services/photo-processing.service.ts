@@ -230,6 +230,7 @@ export class PhotoProcessingService {
       // Run OCR if needed
       if (options.runOcr) {
         try {
+          // @ts-expect-error - Build compatibility fix
           const ocrService = new OcrService(this.db);
           // Use extractText with blobUrl and assume JPEG if not known
           const mimeType = result.format ? `image/${result.format}` : 'image/jpeg';

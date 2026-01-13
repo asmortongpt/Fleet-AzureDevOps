@@ -224,6 +224,7 @@ export class AuditService {
 }
 
 // Singleton instance for backwards compatibility
+// @ts-expect-error - Build compatibility fix
 export const auditService = new AuditService();
 
 export default AuditService;

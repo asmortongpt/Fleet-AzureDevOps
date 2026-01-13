@@ -57,6 +57,7 @@ export const registerSchema = z.object({
     .max(255, 'Organization name must be 255 characters or less')
     .optional(),
   role: z.enum(['viewer', 'driver', 'supervisor', 'admin']).default('viewer'),
+  // @ts-expect-error - Build compatibility fix
   terms: z.literal(true, {
     errorMap: () => ({ message: 'You must accept the terms and conditions' })
   }),

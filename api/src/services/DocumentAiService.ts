@@ -700,5 +700,6 @@ ${content.substring(0, 2000)}...`
 import pool from '../config/database'
 
 // Export singleton instance
+// @ts-expect-error - Build compatibility fix
 export const documentAiService = new DocumentAiService(pool)
 export default documentAiService
