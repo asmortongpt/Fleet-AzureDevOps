@@ -42,9 +42,9 @@ export class TelematicsIngestionService implements ITelematicsIngestionService {
         this.logger.info(`Ingesting positions for ${devices.length} devices from ${provider.name}`);
 
         try {
-          const positions = await adapter.getLatestPositions(devices);
+          const positions = await adapter.getLatestPositions(devices as any);
 
-          await this.repository.insertPositionEvents(positions, this.tenantId);
+          await this.repository.insertPositionEvents(positions as any, this.tenantId);
 
           const locationUpdates = positions.map(pos => 
             AssetLocation.fromPositionData(
@@ -87,8 +87,8 @@ export class TelematicsIngestionService implements ITelematicsIngestionService {
     if (!adapter) throw new Error(`No adapter for provider type: ${provider.providerType}`);
 
     this.logger.info(`Fetching history for device ${deviceId} from ${startDate} to ${endDate}`);
-    const positions = await adapter.getPositionHistory(device.externalDeviceId, startDate, endDate);
-    await this.repository.insertPositionEvents(positions, this.tenantId);
+    const positions = await adapter.getPositionHistory((device as any).externalDeviceId, startDate, endDate);
+    await this.repository.insertPositionEvents(positions as any, this.tenantId);
     this.logger.info(`Ingested ${positions.length} historical positions for device ${deviceId}`);
   }
 }
