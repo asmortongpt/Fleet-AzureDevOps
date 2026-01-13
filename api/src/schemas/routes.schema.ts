@@ -70,13 +70,9 @@ export const routeCreateSchema = z.object({
   end_longitude: commonSchemas.longitude.optional(),
 
   // Timing (REQUIRED)
-  planned_start_time: z.coerce.date({
-    invalid_type_error: 'Invalid planned start time format'
-  }),
+  planned_start_time: z.coerce.date(),
 
-  planned_end_time: z.coerce.date({
-    invalid_type_error: 'Invalid planned end time format'
-  }),
+  planned_end_time: z.coerce.date(),
 
   actual_start_time: z.coerce.date().optional(),
   actual_end_time: z.coerce.date().optional(),
