@@ -7,6 +7,7 @@
 import { Pool } from 'pg'
 
 import costForecastingModel from '../ml-models/cost-forecasting.model'
+import { getTableColumns } from '../utils/column-resolver'
 
 export interface CostEntry {
   id?: string

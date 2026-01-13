@@ -145,11 +145,11 @@ export function validateAll(schemas: {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (schemas.params) {
-        req.params = await schemas.params.parseAsync(req.params)
+        req.params = await schemas.params.parseAsync(req.params) as any
       }
 
       if (schemas.query) {
-        req.query = await schemas.query.parseAsync(req.query)
+        req.query = await schemas.query.parseAsync(req.query) as any
       }
 
       if (schemas.body) {

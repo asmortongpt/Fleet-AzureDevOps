@@ -352,4 +352,10 @@ export class OcrService {
 import { pool } from '../db'
 const ocrService = new OcrService(pool)
 
+// Export individual methods for backward compatibility
+export const extractText = ocrService.extractText.bind(ocrService)
+export const batchProcessDocuments = ocrService.batchProcessDocuments.bind(ocrService)
+export const isOcrConfigured = ocrService.isOcrConfigured.bind(ocrService)
+export const getOcrStatus = ocrService.getOcrStatus.bind(ocrService)
+
 export default ocrService
