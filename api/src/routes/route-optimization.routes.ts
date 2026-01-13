@@ -290,7 +290,7 @@ router.get(
     try {
       const job = await routeOptimizationService.getOptimizationJob(
         parseInt(req.params.id),
-        req.user!.tenant_id
+        Number(req.user!.tenant_id)
       )
 
       if (!job) {
@@ -300,7 +300,7 @@ router.get(
       // Get routes
       const routes = await routeOptimizationService.getRoutesForJob(
         parseInt(req.params.id),
-        req.user!.tenant_id
+        Number(req.user!.tenant_id)
       )
 
       // Get stops
