@@ -616,4 +616,9 @@ return baseUrl
   }
 }
 
-export default AlertEngineService
+// Import pool for singleton instance
+import pool from '../config/database'
+
+// Export singleton instance
+export const alertEngineService = new AlertEngineService(pool)
+export default alertEngineService

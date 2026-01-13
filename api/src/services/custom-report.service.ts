@@ -929,4 +929,9 @@ export class CustomReportService {
   }
 }
 
-export default CustomReportService
+// Import pool for singleton instance
+import pool from '../config/database'
+
+// Export singleton instance
+export const customReportService = new CustomReportService(pool)
+export default customReportService

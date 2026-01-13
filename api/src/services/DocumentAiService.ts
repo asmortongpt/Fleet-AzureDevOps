@@ -696,4 +696,9 @@ ${content.substring(0, 2000)}...`
   }
 }
 
-export default DocumentAiService
+// Import pool for singleton instance
+import pool from '../config/database'
+
+// Export singleton instance
+export const documentAiService = new DocumentAiService(pool)
+export default documentAiService
