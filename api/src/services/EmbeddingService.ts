@@ -116,7 +116,7 @@ return
         // Dynamic import to avoid dependency if not needed
         const { CohereClient } = await import('cohere-ai')
         this.cohere = new CohereClient({
-          token: process.env.COHERE_API_KEY,
+          apiKey: process.env.COHERE_API_KEY,
         }) as any
         console.log('✓ Cohere embedding provider initialized')
       } catch (error) {
