@@ -14,4 +14,4 @@ export class AttachmentService {
 
 }
 
-export default class src/services/AttachmentService.ts;
+export default AttachmentService;

@@ -259,7 +259,7 @@ export class TaskAssetConfigManager {
   ): Promise<RuleAction[]> {
     const rules = await this.getBusinessRules(entity)
     const applicableRules = rules.filter(
-      r => r.is_active && r.trigger_event === triggerEvent
+      r => r.isActive && r.triggerEvent === triggerEvent
     )
 
     const actionsToExecute: RuleAction[] = []

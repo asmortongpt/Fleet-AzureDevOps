@@ -21,4 +21,4 @@ export class MLTrainingService {
 
 }
 
-export default class src/services/MLTrainingService.ts;
+export default MLTrainingService;

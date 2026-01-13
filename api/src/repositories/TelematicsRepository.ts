@@ -20,6 +20,7 @@ import { Pool } from 'pg'
 export interface TelematicsProvider {
   id: number
   name: string
+  providerType?: string
   display_name: string
   api_endpoint?: string
   supports_webhooks: boolean
@@ -34,6 +35,7 @@ export interface VehicleTelematicsConnection {
   vehicle_id: number
   provider_id: number
   external_vehicle_id: string
+  externalDeviceId?: string
   access_token?: string
   refresh_token?: string
   token_expires_at?: Date
