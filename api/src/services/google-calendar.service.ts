@@ -46,7 +46,7 @@ interface TokenInfo {
   expiry_date?: number
 }
 
-export class GoogleCalendarService {
+class GoogleCalendarService {
   constructor(private db: Pool) {}
 
   /**
