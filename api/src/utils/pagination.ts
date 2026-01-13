@@ -70,3 +70,7 @@ export class Pagination {
   }
 }
 
+// Helper function for backwards compatibility
+export function getPaginationParams(query: any): PaginationParams {
+  return Pagination.parseParams(query);
+}
