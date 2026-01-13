@@ -309,12 +309,14 @@ router.post(
 
       res.json({
         success: testResult.success,
-        status: testResult.status,
+        provider: testResult.provider,
+        vehicleId: testResult.vehicleId,
         capabilities: testResult.capabilities,
+        lastSync: testResult.lastSync,
         error: testResult.error,
-        message: testResult.success
+        message: testResult.message || (testResult.success
           ? `Provider '${provider}' connection successful`
-          : `Provider '${provider}' connection failed`
+          : `Provider '${provider}' connection failed`)
       });
     } catch (error: any) {
       logger.error('Test provider error:', {
