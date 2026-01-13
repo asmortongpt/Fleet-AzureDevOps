@@ -83,7 +83,7 @@ export interface SpellingSuggestion {
   frequency: number
 }
 
-export class SearchIndexService {
+class SearchIndexService {
   private cacheEnabled: boolean
   private cacheTTL: number = 300 // 5 minutes
 

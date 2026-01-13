@@ -27,7 +27,7 @@ export class ViolationNotificationsService {
    */
   static initializeEmailTransporter() {
     if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-      this.emailTransporter = nodemailer.createTransporter({
+      this.emailTransporter = nodemailer.createTransport({ // Fixed: createTransport not createTransporter
         host: process.env.EMAIL_HOST,
         port: Number(process.env.EMAIL_PORT) || 587,
         secure: false, // TLS

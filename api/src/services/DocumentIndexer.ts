@@ -43,7 +43,7 @@ export interface IndexStats {
   avg_indexing_time_ms: number
 }
 
-export class DocumentIndexer {
+class DocumentIndexer {
   private isRunning: boolean = false
   private currentJob: IndexingJob | null = null
   private batchSize: number = 100

@@ -105,7 +105,7 @@ export const incidentCreateSchema = z.object({
   incident_type: incidentTypeEnum,
 
   incident_date: z.coerce.date({
-    errorMap: () => ({ message: 'Invalid incident date format' })
+    invalid_type_error: 'Invalid incident date format'
   }),
 
   incident_time: z.string()

@@ -4,6 +4,9 @@ import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../errors/AppError';
 import { logError, sanitizeError } from '../utils/error-handler';
 
+// Re-export AppError as ApiError for backward compatibility
+export { AppError as ApiError };
+
 /**
  * Global error handling middleware for Express.
  * @param err - The error object thrown in the application.

@@ -146,7 +146,7 @@ export const createCommunicationSchema = z.object({
 
   // Timestamp (REQUIRED)
   communication_datetime: z.coerce.date({
-    errorMap: () => ({ message: 'Invalid datetime format' })
+    invalid_type_error: 'Invalid datetime format'
   }),
 
   // Sender information (OPTIONAL - can be system-generated)

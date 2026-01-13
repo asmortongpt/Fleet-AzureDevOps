@@ -85,11 +85,12 @@ export function corsErrorHandler(err: Error, req: Request, res: Response, next: 
       timestamp: new Date().toISOString()
     });
 
-    return res.status(403).json({
+    res.status(403).json({
       error: 'CORS Policy Violation',
       message: 'This origin is not allowed to access this resource',
       statusCode: 403
     });
+    return;
   }
 
   // Not a CORS error, pass to next error handler

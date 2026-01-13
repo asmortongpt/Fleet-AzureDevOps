@@ -30,7 +30,7 @@ export const createTelemetrySchema = z.object({
 
   // Timestamp (REQUIRED)
   timestamp: z.coerce.date({
-    errorMap: () => ({ message: 'Invalid timestamp format' })
+    invalid_type_error: 'Invalid timestamp format'
   }),
 
   // GPS Location (REQUIRED)

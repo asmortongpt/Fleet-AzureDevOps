@@ -75,7 +75,7 @@ export interface ARNavigationData {
   include_geofences?: boolean
 }
 
-export class MobileIntegrationService {
+class MobileIntegrationService {
   private db: Pool
   private offlineStorage = OfflineStorageService
 

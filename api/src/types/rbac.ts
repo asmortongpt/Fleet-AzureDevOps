@@ -154,7 +154,7 @@ export enum Permission {
  * Role-to-Permission Mapping
  * Each role has a specific set of permissions
  */
-export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
+const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   // Super Admin: All permissions
   [Role.SUPER_ADMIN]: Object.values(Permission),
 

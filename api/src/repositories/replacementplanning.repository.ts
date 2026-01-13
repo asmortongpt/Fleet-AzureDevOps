@@ -14,13 +14,13 @@ export class ReplacementPlanningRepository extends BaseRepository<any> {
   async getAll(tenantId: string): Promise<ReplacementPlanning[]> {
     const query = 'SELECT id, created_at, updated_at FROM replacement_planning WHERE tenant_id = $1';
     const result = await this.pool.query(query, [tenantId]);
-    return result.rows.map(row => new ReplacementPlanning(row));
+    return result.rows as ReplacementPlanning[];
   }
 
   async getById(id: string, tenantId: string): Promise<ReplacementPlanning | null> {
     const query = 'SELECT id, created_at, updated_at FROM replacement_planning WHERE id = $1 AND tenant_id = $2';
     const result = await this.pool.query(query, [id, tenantId]);
-    return result.rows.length > 0 ? new ReplacementPlanning(result.rows[0]) : null;
+    return result.rows.length > 0 ? (result.rows[0] as ReplacementPlanning) : null;
   }
 
   async create(replacementPlanning: ReplacementPlanning): Promise<ReplacementPlanning> {
@@ -37,7 +37,7 @@ export class ReplacementPlanningRepository extends BaseRepository<any> {
       replacementPlanning.tenantId
     ];
     const result = await this.pool.query(query, values);
-    return new ReplacementPlanning(result.rows[0]);
+    return result.rows[0] as ReplacementPlanning;
   }
 
   async update(id: string, replacementPlanning: ReplacementPlanning): Promise<ReplacementPlanning | null> {
@@ -56,7 +56,7 @@ export class ReplacementPlanningRepository extends BaseRepository<any> {
       replacementPlanning.tenantId
     ];
     const result = await this.pool.query(query, values);
-    return result.rows.length > 0 ? new ReplacementPlanning(result.rows[0]) : null;
+    return result.rows.length > 0 ? (result.rows[0] as ReplacementPlanning) : null;
   }
 
   async delete(id: string, tenantId: string): Promise<boolean> {

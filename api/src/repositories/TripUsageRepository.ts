@@ -1,4 +1,4 @@
-import { buildUpdateClause, validateColumnNames } from '../../utils/sql-safety'
+import { buildUpdateClause, validateColumnNames } from '../utils/sql-safety'
 import { connectionManager } from '../config/connection-manager'
 import { BaseRepository } from '../services/dal/BaseRepository'
 

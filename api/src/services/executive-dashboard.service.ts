@@ -89,7 +89,7 @@ interface CostAnalysis {
   trends: TrendData[]
 }
 
-export class ExecutiveDashboardService {
+class ExecutiveDashboardService {
   constructor(private db: Pool) {}
 
   /**

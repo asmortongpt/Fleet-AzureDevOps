@@ -4,7 +4,7 @@
 
 import { Pool } from 'pg';
 
-export default class WebhookService {
+class WebhookService {
   constructor(private db: Pool) { }
 
   async cleanupExpiredSubscriptions(): Promise<void> {
@@ -39,12 +39,18 @@ export default class WebhookService {
     console.log('Stub: handleWebhookNotification');
   }
 
-  async subscribeToTeamsMessages(teamId: string, channelId?: string): Promise<any> {
+  async subscribeToTeamsMessages(params: any): Promise<any> {
+    // Support both object and string parameter formats
+    const teamId = typeof params === 'string' ? params : params.teamId;
+    const channelId = typeof params === 'string' ? arguments[1] : params.channelId;
     console.log('Stub: subscribeToTeamsMessages', teamId, channelId);
     return { subscriptionId: 'stub-teams-subscription' };
   }
 
-  async subscribeToOutlookEmails(userId: string, folderIds?: string[]): Promise<any> {
+  async subscribeToOutlookEmails(params: any): Promise<any> {
+    // Support both object and string parameter formats
+    const userId = typeof params === 'string' ? params : params.userEmail;
+    const folderIds = typeof params === 'string' ? arguments[1] : params.folderId ? [params.folderId] : undefined;
     console.log('Stub: subscribeToOutlookEmails', userId, folderIds);
     return { subscriptionId: 'stub-outlook-subscription' };
   }
@@ -72,4 +78,4 @@ import pool from '../config/database'
 
 // Export singleton instance
 export const webhookService = new WebhookService(pool)
-export { webhookService as default }
+export default webhookService

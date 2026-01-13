@@ -90,7 +90,8 @@ export function errorHandler(
     });
 
     // Send error response
-    return res.status(err.statusCode).json(err.toJSON());
+    res.status(err.statusCode).json(err.toJSON());
+    return;
   }
 
   // Handle unexpected errors (not ApplicationError)

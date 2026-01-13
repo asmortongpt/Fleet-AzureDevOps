@@ -210,7 +210,7 @@ export interface OcrOptions {
 }
 
 
-export class OcrService {
+class OcrService {
   private googleVisionClient: any = null;
 
   private textractClient: any = null;

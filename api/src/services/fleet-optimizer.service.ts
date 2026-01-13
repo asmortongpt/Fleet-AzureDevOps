@@ -38,7 +38,7 @@ export interface OptimizationRecommendation {
   status?: string
 }
 
-export class FleetOptimizerService {
+class FleetOptimizerService {
   private db = pool
   vehicleId?: string
   vehicleNumber?: string
