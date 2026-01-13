@@ -333,7 +333,7 @@ export class FuelRepository extends BaseRepository<any> {
   /**
    * Count fuel transactions
    */
-  async count(tenantId: string): Promise<number> {
+  async count(filters: Record<string, unknown> = {}, tenantId: string | number): Promise<number> {
     const result = await pool.query(
       'SELECT COUNT(*) FROM fuel_transactions WHERE tenant_id = $1',
       [tenantId]

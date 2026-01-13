@@ -553,6 +553,30 @@ Keep the response concise but thorough.`
   }
 
   /**
+   * Determine which agent(s) to use for a query
+   */
+  private async determineAgentStrategy(query: string): Promise<{
+    primaryAgent: string;
+    supportingAgents: string[];
+  }> {
+    // Simple keyword-based routing (can be enhanced with ML)
+    const lowerQuery = query.toLowerCase();
+
+    if (lowerQuery.includes('vehicle') || lowerQuery.includes('fleet')) {
+      return { primaryAgent: 'vehicle-expert', supportingAgents: [] };
+    } else if (lowerQuery.includes('maintenance') || lowerQuery.includes('repair')) {
+      return { primaryAgent: 'maintenance-expert', supportingAgents: [] };
+    } else if (lowerQuery.includes('driver') || lowerQuery.includes('safety')) {
+      return { primaryAgent: 'driver-safety-expert', supportingAgents: [] };
+    } else if (lowerQuery.includes('report') || lowerQuery.includes('analytics')) {
+      return { primaryAgent: 'analytics-expert', supportingAgents: [] };
+    }
+
+    // Default to general agent
+    return { primaryAgent: 'general-assistant', supportingAgents: [] };
+  }
+
+  /**
    * Process a query through the AI supervisor
    */
   async processQuery(

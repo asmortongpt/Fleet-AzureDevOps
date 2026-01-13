@@ -634,6 +634,22 @@ return 0
       cacheSize: this.cache.size,
     }
   }
+
+  /**
+   * Static method: Generate embedding for a single text
+   */
+  static async embed(text: string): Promise<number[]> {
+    const result = await embeddingService.generateEmbedding(text)
+    return result.embedding
+  }
+
+  /**
+   * Static method: Generate embeddings for multiple texts
+   */
+  static async embedBatch(texts: string[]): Promise<number[][]> {
+    const results = await embeddingService.generateEmbeddingsBatch(texts)
+    return results.map(r => r.embedding)
+  }
 }
 
 // Import dependencies for singleton instance

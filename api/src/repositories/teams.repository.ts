@@ -182,7 +182,7 @@ export class TeamsRepository extends BaseRepository<any> {
   /**
    * Count teams for a tenant
    */
-  async count(tenantId: string): Promise<number> {
+  async count(filters: Record<string, unknown> = {}, tenantId: string | number): Promise<number> {
     const result = await this.pool.query(
       'SELECT COUNT(*) as count FROM tenant_teams_config WHERE tenant_id = $1',
       [tenantId]
