@@ -2,7 +2,7 @@
 import { injectable } from 'inversify';
 
 import { pool } from '../../../db';
-import { BaseRepository } from '../../repositories/BaseRepository';
+import { BaseRepository } from '../../../repositories/base.repository';
 
 export interface IncidentWitness {
   id?: number;
