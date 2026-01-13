@@ -732,6 +732,10 @@ return 'qdrant'
   }
 }
 
-// Export the class instead of an instance to avoid module-level database access
-// Initialize in server.ts after database connection is established
-export default VectorSearchService
+// Import dependencies for singleton instance
+import pool from '../config/database'
+import logger from '../config/logger'
+
+// Export singleton instance
+export const vectorSearchService = new VectorSearchService(pool, logger)
+export default vectorSearchService

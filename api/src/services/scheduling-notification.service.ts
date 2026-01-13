@@ -929,4 +929,9 @@ export class SchedulingNotificationService {
   }
 }
 
-export default SchedulingNotificationService
+// Import pool for singleton instance
+import pool from '../config/database'
+
+// Export singleton instance
+export const schedulingNotificationService = new SchedulingNotificationService(pool)
+export default schedulingNotificationService

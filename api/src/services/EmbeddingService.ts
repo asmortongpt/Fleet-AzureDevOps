@@ -636,5 +636,10 @@ return 0
   }
 }
 
-// Export class for DI container registration
-export default EmbeddingService
+// Import dependencies for singleton instance
+import pool from '../config/database'
+import logger from '../config/logger'
+
+// Export singleton instance
+export const embeddingService = new EmbeddingService(pool, logger)
+export default embeddingService
