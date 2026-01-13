@@ -41,4 +41,17 @@ export class VehiclesService {
   async deleteVehicle(id: string, tenantId: string) {
     return await this.vehiclesRepository.delete(id, tenantId);
   }
+
+  async getStatus(vehicleId: string, tenantId: string) {
+    const vehicle = await this.vehiclesRepository.findById(vehicleId, tenantId);
+    if (!vehicle) {
+      throw new Error('Vehicle not found');
+    }
+    return {
+      vehicleId: vehicle.id,
+      status: vehicle.status,
+      mileage: vehicle.mileage,
+      lastUpdated: vehicle.updatedAt
+    };
+  }
 }
