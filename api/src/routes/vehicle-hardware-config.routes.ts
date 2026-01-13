@@ -20,6 +20,7 @@ import { body, param, validationResult } from 'express-validator';
 import rateLimit from 'express-rate-limit';
 
 import logger from '../config/logger';
+import { pool } from '../db';
 import { NotFoundError, ValidationError } from '../errors/app-error';
 import { auditLog } from '../middleware/audit';
 import { AuthRequest, authenticateJWT } from '../middleware/auth';
@@ -28,6 +29,7 @@ import { requirePermission } from '../middleware/permissions';
 import { VehicleHardwareConfigService } from '../services/vehicle-hardware-config.service';
 
 const router = express.Router();
+const hardwareService = new VehicleHardwareConfigService(pool);
 
 // Apply authentication to all routes
 router.use(authenticateJWT);
@@ -81,8 +83,7 @@ router.get(
       const vehicleId = parseInt(req.params.id, 10);
       const tenantId = req.user!.tenant_id!;
 
-      const service = new VehicleHardwareConfigService();
-      const config = await service.getVehicleHardwareConfig(vehicleId, tenantId);
+      const config = await hardwareService.getVehicleHardwareConfig(vehicleId, tenantId);
 
       if (!config) {
         throw new NotFoundError('Vehicle not found or access denied');
@@ -158,10 +159,8 @@ router.post(
         throw new ValidationError(`Provider not supported: ${provider}`);
       }
 
-      const service = new VehicleHardwareConfigService();
-
       // Add provider to vehicle
-      const result = await service.addProvider(vehicleId, provider, config || {}, tenantId);
+      const result = await hardwareService.addProvider(vehicleId, provider, config || {}, tenantId);
 
       logger.info('Provider added to vehicle', {
         vehicleId,
