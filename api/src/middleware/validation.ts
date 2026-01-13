@@ -102,7 +102,7 @@ export function validate(
     } catch (error) {
       if (error instanceof ZodError) {
         // Log validation failure for security monitoring
-        securityLogger.incident('xss_attempt', {
+        securityLogger.warn('xss_attempt', {
           ip: req.ip,
           userAgent: req.get('user-agent'),
           details: {
