@@ -13,6 +13,8 @@
 
 import { Pool } from 'pg'
 
+import { pool } from '../../db'
+
 export type FieldType =
   | 'text'
   | 'textarea'
@@ -551,6 +553,6 @@ return null
 }
 
 // Global instance
-export const customFieldsService = new CustomFieldsService()
+export const customFieldsService = new CustomFieldsService(pool)
 
 export default customFieldsService

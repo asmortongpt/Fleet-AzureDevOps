@@ -568,12 +568,12 @@ Keep the response concise but thorough.`
 
     // Execute primary agent
     const results: AgentResult[] = []
-    const primaryResult = await this.executeAgent(decision.primaryAgent, query, tenantId, userId)
+    const primaryResult = await this.executeAgent(decision.primaryAgent, query, { tenantId, userId } as any, 'primary')
     results.push(primaryResult)
 
     // Execute supporting agents if any
     for (const agentId of decision.supportingAgents) {
-      const result = await this.executeAgent(agentId, query, tenantId, userId)
+      const result = await this.executeAgent(agentId, query, { tenantId, userId } as any, 'supporting')
       results.push(result)
     }
 

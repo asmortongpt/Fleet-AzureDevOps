@@ -778,7 +778,7 @@ conflicts.push(conflict)
 
 // Export singleton instance
 import { db } from '../db'
-const mobileIntegrationService = new MobileIntegrationService(db)
+const mobileIntegrationService = new MobileIntegrationService(db as any)
 
 export { MobileIntegrationService }
 export default mobileIntegrationService
