@@ -35,4 +35,4 @@ export class RAGEngineService {
 
 }
 
-export default class src/services/RAGEngineService.ts;
+export default RAGEngineService;

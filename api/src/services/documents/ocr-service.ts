@@ -34,9 +34,7 @@ export class OCRService {
 
     for (let i = 0; i < this.maxWorkers; i++) {
       try {
-        const worker = await createWorker()
-        await worker.loadLanguage('eng')
-        await worker.initialize('eng')
+        const worker = await createWorker('eng')
 
         const workerId = `worker-${i}`
         this.workers.set(workerId, worker)
@@ -94,8 +92,15 @@ export class OCRService {
           ? config.language.join('+')
           : config.language
 
-        await worker.loadLanguage(languages)
-        await worker.initialize(languages)
+        // Note: With Tesseract.js v4+, createWorker handles language loading
+        // If we need a different language, we should terminate and create a new worker
+        await worker.terminate()
+        const newWorker = await createWorker(languages)
+        this.workers.set(workerId, newWorker)
+        // Use the new worker instead
+        await newWorker.recognize(imagePath, {
+          rectangle: config.rectangles?.[0]
+        })
       }
 
       // Perform OCR

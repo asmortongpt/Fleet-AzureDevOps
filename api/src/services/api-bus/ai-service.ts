@@ -230,3 +230,8 @@ export const aiService = new AIService({
   enableCaching: true,
   cacheExpiration: 3600, // 1 hour
 })
+
+// Helper function for backwards compatibility
+export function getAIService(): AIService {
+  return aiService;
+}
