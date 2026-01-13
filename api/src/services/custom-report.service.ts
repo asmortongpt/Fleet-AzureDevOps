@@ -512,13 +512,13 @@ export class CustomReportService {
     try {
       // Build and execute query
       const config: ReportConfig = {
-        data_sources: report.data_sources,
-        columns: report.columns,
-        filters: report.filters,
-        grouping: report.grouping,
-        sorting: report.sorting,
-        joins: report.joins,
-        aggregations: report.aggregations
+        data_sources: report.definition.data_sources,
+        columns: report.definition.columns,
+        filters: report.definition.filters,
+        grouping: report.definition.grouping,
+        sorting: report.definition.sorting,
+        joins: report.definition.joins,
+        aggregations: report.definition.aggregations
       }
 
       const { query, params } = this.buildQuery(config, tenantId)
@@ -529,8 +529,8 @@ export class CustomReportService {
 
       // Export to file
       const exportOptions: ExportOptions = {
-        title: report.report_name,
-        columns: report.columns.map(col => ({
+        title: report.title,
+        columns: report.definition.columns.map(col => ({
           field: col.field,
           label: col.label,
           type: col.type

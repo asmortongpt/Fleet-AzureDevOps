@@ -1111,7 +1111,7 @@ export class VehicleHardwareConfigService {
 
 // Export singleton instance
 import { db } from '../db'
-const vehicleHardwareConfigService = new VehicleHardwareConfigService(db)
+const vehicleHardwareConfigService = new VehicleHardwareConfigService(db as any)
 
 export { VehicleHardwareConfigService }
 export default vehicleHardwareConfigService

@@ -7,6 +7,7 @@
 import { Pool } from 'pg'
 
 import logger from '../config/logger'
+import { pool } from '../db'
 
 import mcpServerService, { MCPToolResponse } from './mcp-server.service'
 
@@ -586,5 +587,5 @@ class MCPServerRegistryService {
   }
 }
 
-export const mcpServerRegistryService = new MCPServerRegistryService()
+export const mcpServerRegistryService = new MCPServerRegistryService(pool)
 export default mcpServerRegistryService

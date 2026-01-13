@@ -161,7 +161,7 @@ router.post(
 
       // Add provider to vehicle
       const providerConfig = { provider, ...(config || {}) };
-      const result = await hardwareService.addProvider(vehicleId, providerConfig, req.user!.id);
+      const result = await hardwareService.addProvider(vehicleId, providerConfig, Number(req.user!.id));
 
       logger.info('Provider added to vehicle', {
         vehicleId,

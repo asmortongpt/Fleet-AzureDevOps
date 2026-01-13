@@ -1162,7 +1162,7 @@ export class OcrService {
 
 // Export singleton instance
 import { db } from '../db'
-const ocrService = new OcrService(db)
+const ocrService = new OcrService(db as any)
 
 export { OcrService }
 export default ocrService
