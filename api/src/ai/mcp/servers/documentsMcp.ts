@@ -1,6 +1,5 @@
 import { MCPServer } from "../types";
-import { db } from "../../../db"; // adjust
-import { sql } from "drizzle-orm";
+import { pool } from "../../../db"; // adjust
 
 export const documentsMcpServer: MCPServer = {
   namespace: "docs",
@@ -13,27 +12,27 @@ export const documentsMcpServer: MCPServer = {
       const q = String(args.query ?? "").trim();
       if (!q) return { ok: true, result: { matches: [] } };
 
-      const rows = await db.execute(sql`
-        SELECT id, title, source, doc_type, version
-        FROM ai_documents
-        WHERE org_id = ${orgId} AND is_active = true AND title ILIKE ${"%" + q + "%"}
-        ORDER BY updated_at DESC
-        LIMIT 10
-      `);
-      const r = (rows as any).rows ?? rows ?? [];
-      return { ok: true, result: { matches: r } };
+      const rows = await pool.query(
+        `SELECT id, title, source, doc_type, version
+         FROM ai_documents
+         WHERE org_id = $1 AND is_active = true AND title ILIKE $2
+         ORDER BY updated_at DESC
+         LIMIT 10`,
+        [orgId, "%" + q + "%"]
+      );
+      return { ok: true, result: { matches: rows.rows } };
     }
 
     if (toolName === "getDocument") {
       const id = String(args.id ?? "");
-      const rows = await db.execute(sql`
-        SELECT *
-        FROM ai_documents
-        WHERE org_id = ${orgId} AND id = ${id}
-        LIMIT 1
-      `);
-      const r = (rows as any).rows ?? rows ?? [];
-      return { ok: true, result: r[0] ?? null };
+      const rows = await pool.query(
+        `SELECT *
+         FROM ai_documents
+         WHERE org_id = $1 AND id = $2
+         LIMIT 1`,
+        [orgId, id]
+      );
+      return { ok: true, result: rows.rows[0] ?? null };
     }
 
     return { ok: false, error: `Unknown tool: ${toolName}` };

@@ -62,7 +62,7 @@ export class TelematicsIngestionService implements ITelematicsIngestionService {
           );
 
           await this.repository.upsertAssetLocations(locationUpdates);
-          await this.repository.updateDevicesSyncTime(devices.map(d => d.id), new Date());
+          await this.repository.updateDevicesSyncTime(devices.map((d: any) => d.id), new Date());
 
           this.logger.info(`Successfully ingested ${positions.length} positions from ${provider.name}`);
         } catch (error) {

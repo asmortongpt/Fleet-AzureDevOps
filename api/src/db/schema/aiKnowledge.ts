@@ -1,5 +1,12 @@
-import { pgTable, text, timestamp, uuid, jsonb, integer, boolean } from "drizzle-orm/pg-core";
-import { vector } from "pgvector/drizzle-orm";
+import { pgTable, text, timestamp, uuid, jsonb, integer, boolean, customType } from "drizzle-orm/pg-core";
+
+// Custom vector type for pgvector
+const vector = (name: string, config?: { dimensions?: number }) =>
+  customType<{ data: number[]; driverData: string }>({
+    dataType() {
+      return config?.dimensions ? `vector(${config.dimensions})` : 'vector';
+    },
+  })(name);
 
 export const documents = pgTable("ai_documents", {
   id: uuid("id").defaultRandom().primaryKey(),

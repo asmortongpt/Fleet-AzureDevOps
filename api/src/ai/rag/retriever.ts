@@ -1,5 +1,4 @@
-import { sql } from "drizzle-orm";
-import { db } from "../../db"; // adjust import to your db init
+import { pool } from "../../db"; // adjust import to your db init
 import { UserContext } from "../gateway/policy";
 
 /**
@@ -27,30 +26,30 @@ export async function retrieveChunks(params: {
   const roles = user.roles ?? [];
   const embeddingLiteral = `[${queryEmbedding.join(",")}]`;
 
-  const rows = await db.execute(sql`
-    SELECT
+  const rows = await pool.query(
+    `SELECT
       c.id as chunk_id,
       c.content as content,
       d.source as source,
       d.id as document_id,
-      (1 - (c.embedding <=> ${embeddingLiteral}::vector)) as score
+      (1 - (c.embedding <=> $1::vector)) as score
     FROM ai_document_chunks c
     JOIN ai_documents d ON d.id = c.document_id
     LEFT JOIN ai_document_acl acl ON acl.document_id = d.id
     WHERE
-      d.org_id = ${user.orgId}
+      d.org_id = $2
       AND d.is_active = true
       AND (
         acl.id IS NULL
-        OR acl.allow_user_id = ${user.userId}
-        OR acl.allow_role = ANY(${roles}::text[])
+        OR acl.allow_user_id = $3
+        OR acl.allow_role = ANY($4::text[])
       )
-    ORDER BY c.embedding <=> ${embeddingLiteral}::vector ASC
-    LIMIT ${topK};
-  `);
+    ORDER BY c.embedding <=> $1::vector ASC
+    LIMIT $5`,
+    [embeddingLiteral, user.orgId, user.userId, roles, topK]
+  );
 
-  const resultRows: any[] = (rows as any).rows ?? (rows as any) ?? [];
-  return resultRows.map((r) => ({
+  return rows.rows.map((r) => ({
     id: r.chunk_id,
     text: r.content,
     source: r.source,

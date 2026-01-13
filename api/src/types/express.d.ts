@@ -4,6 +4,7 @@
 
 import 'express'
 import 'express-rate-limit'
+import { Logger } from 'pino'
 
 declare global {
   namespace Express {
@@ -56,6 +57,12 @@ declare global {
 
       // Raw body for webhooks
       rawBody?: Buffer
+
+      // Dependency injection container
+      container?: any
+
+      // Logger instance
+      log?: Logger
     }
 
     interface Response {
@@ -94,5 +101,7 @@ declare module 'express-serve-static-core' {
     id?: string
     requestId?: string
     rawBody?: Buffer
+    container?: any
+    log?: import('pino').Logger
   }
 }
