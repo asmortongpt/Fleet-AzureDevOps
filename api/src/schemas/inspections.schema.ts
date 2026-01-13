@@ -66,7 +66,7 @@ export const inspectionFormFieldSchema = z.object({
   ]),
   required: z.boolean().default(false),
   options: z.array(z.string()).optional(),
-  validation_rules: z.record(z.any()).optional(),
+  validation_rules: z.record(z.string(), z.any()).optional(),
   order: z.number().int().nonnegative().optional(),
   section: z.string().max(100).optional()
 }).strict();

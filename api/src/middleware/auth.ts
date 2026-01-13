@@ -12,6 +12,9 @@ export interface AuthRequest extends Request {
     tenant_id?: string
     scope_level?: string
     team_driver_ids?: string[]
+    // Aliases for compatibility
+    userId?: string
+    tenantId?: string
   }
 }
 
