@@ -762,7 +762,7 @@ export class LiDAR3DScanningService {
         scanId,
         format,
         fileUrl,
-        fileSize: modelData.byteLength || Buffer.byteLength(modelData),
+        fileSize: Buffer.isBuffer(modelData) ? modelData.byteLength : Buffer.byteLength(modelData),
         polygonCount: mesh.faceCount || 0,
         vertexCount: mesh.vertexCount || pointCloud.length,
         generatedAt: new Date(),
