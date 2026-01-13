@@ -152,7 +152,7 @@ export const inspectionCreateSchema = z.object({
   status: inspectionStatusEnum,
 
   // Form data - responses to inspection form fields
-  form_data: z.record(z.any())
+  form_data: z.record(z.string(), z.any())
     .refine(val => Object.keys(val).length > 0, {
       message: 'Form data cannot be empty'
     }),
@@ -225,7 +225,7 @@ export const inspectionCreateSchema = z.object({
 export const inspectionUpdateSchema = z.object({
   status: inspectionStatusEnum.optional(),
 
-  form_data: z.record(z.any()).optional(),
+  form_data: z.record(z.string(), z.any()).optional(),
 
   inspection_score: z.number()
     .min(0)

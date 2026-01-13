@@ -105,7 +105,7 @@ const TaskDataSchema = z.object({
   tenant_id: z.string().uuid(),
   assigned_to: z.string().uuid().optional(),
   parent_task_id: z.string().uuid().optional(),
-  metadata: z.record(z.any()).optional()
+  metadata: z.record(z.string(), z.any()).optional()
 })
 
 const DriverSkillsSchema = z.object({

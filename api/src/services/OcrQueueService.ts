@@ -754,4 +754,8 @@ export class OcrQueueService {
   }
 }
 
-export default OcrQueueService;
+// Export singleton instance
+import { pool } from '../db'
+const ocrQueueService = new OcrQueueService(pool)
+
+export default ocrQueueService

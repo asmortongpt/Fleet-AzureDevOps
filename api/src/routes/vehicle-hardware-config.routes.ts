@@ -229,7 +229,7 @@ router.delete(
       const tenantId = req.user!.tenant_id!;
 
       const service = new VehicleHardwareConfigService();
-      await service.removeProvider(vehicleId, provider, tenantId);
+      await service.removeProvider(vehicleId, provider, Number(tenantId));
 
       logger.info('Provider removed from vehicle', {
         vehicleId,
@@ -368,7 +368,7 @@ router.patch(
       const tenantId = req.user!.tenant_id!;
 
       const service = new VehicleHardwareConfigService();
-      await service.updateProviderConfig(vehicleId, provider, config, tenantId);
+      await service.updateProviderConfig(vehicleId, provider, config, Number(tenantId));
 
       logger.info('Provider config updated', {
         vehicleId,
