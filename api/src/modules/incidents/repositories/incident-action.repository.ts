@@ -41,7 +41,7 @@ export interface ActionUpdateData {
 @injectable()
 export class IncidentActionRepository extends BaseRepository<any> {
   constructor(pool: Pool) {
-    super(pool, 'LIncident_LAction_LRepository extends _LBases');
+    super('incident_actions');
   }
 
   /**

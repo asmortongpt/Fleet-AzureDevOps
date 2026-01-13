@@ -280,9 +280,9 @@ return
 }
 
     return new Promise((resolve) => {
-      this.client?.defaultClient.flush({
-        callback: () => resolve()
-      })
+      this.client?.defaultClient.flush()
+      // Small delay to allow flush to complete
+      setTimeout(resolve, 100)
     })
   }
 
