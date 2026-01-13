@@ -1019,7 +1019,32 @@ Generate prioritized recommendations with:
   getActiveSessions(): string[] {
     return Array.from(this.sessions.keys())
   }
+
+  /**
+   * Chat method for conversational AI
+   */
+  async chat(context: WorkflowContext, message: string): Promise<any> {
+    const memory = this.getOrCreateMemory(context.sessionId)
+
+    // Add user message to memory
+    await memory.chatHistory.addMessage(new HumanMessage(message))
+
+    // Get AI response
+    const response = await this.model.invoke([new HumanMessage(message)])
+
+    // Add AI response to memory
+    await memory.chatHistory.addMessage(new AIMessage(response.content))
+
+    return {
+      response: response.content,
+      sessionId: context.sessionId
+    }
+  }
 }
 
+// Export singleton instance
+import { db } from '../db'
+const langChainOrchestratorService = new LangChainOrchestratorService(db)
 
-export default LangChainOrchestratorService
+export { LangChainOrchestratorService }
+export default langChainOrchestratorService

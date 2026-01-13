@@ -460,4 +460,9 @@ export class DocumentSearchService {
   }
 }
 
-export default DocumentSearchService
+// Create and export singleton instance
+import { pool } from '../config/database'
+import logger from '../config/logger'
+
+const documentSearchService = new DocumentSearchService(pool, logger)
+export default documentSearchService

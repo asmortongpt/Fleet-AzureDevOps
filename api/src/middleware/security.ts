@@ -65,7 +65,7 @@ export const strictRateLimit = rateLimit({
 
 // Initialize DOMPurify with JSDOM
 const window = new JSDOM('').window;
-const purify = DOMPurify(window as unknown as Window);
+const purify = DOMPurify(window as any);
 
 // Type for values that can be sanitized
 type SanitizableValue = string | number | boolean | null | undefined | SanitizableObject | SanitizableValue[];

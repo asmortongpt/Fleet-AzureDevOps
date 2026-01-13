@@ -6,6 +6,7 @@
 
 import { Pool  } from 'pg'
 
+import { pool } from '../db/connection'
 import { CalendarService } from './calendar.service'
 import { GoogleCalendarService } from './google-calendar.service'
 
@@ -872,4 +873,9 @@ return
 
 }
 
-export default SchedulingService
+// Create singleton instance
+const schedulingServiceInstance = new SchedulingService(pool)
+
+// Export both class and instance
+export default schedulingServiceInstance
+export { SchedulingService }

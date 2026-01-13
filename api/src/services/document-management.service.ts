@@ -652,4 +652,9 @@ export class DocumentManagementService {
   }
 }
 
-export default DocumentManagementService
+// Create and export singleton instance
+import { pool } from '../config/database'
+import logger from '../config/logger'
+
+const documentManagementService = new DocumentManagementService(pool, logger)
+export default documentManagementService
