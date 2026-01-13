@@ -88,6 +88,15 @@ export class PlaybooksService extends BaseService {
   }
 
   /**
+   * Validate data (required by BaseService)
+   */
+  async validate(data: any): Promise<void> {
+    if (!data) {
+      throw new Error('Validation data is required');
+    }
+  }
+
+  /**
    * Initialize standard playbooks for common incident types
    */
   private initializePlaybooks(): void {

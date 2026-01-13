@@ -49,6 +49,15 @@ export interface ContainmentPlan {
 @injectable()
 export class ContainmentService extends BaseService {
   /**
+   * Validate data (required by BaseService)
+   */
+  async validate(data: any): Promise<void> {
+    if (!data) {
+      throw new Error('Validation data is required');
+    }
+  }
+
+  /**
    * Create and execute containment plan for incident
    * @param incident - Incident requiring containment
    * @returns Containment plan with executed actions

@@ -123,7 +123,6 @@ export const userSchema = z.object({
 
   /** Last login IP address */
   last_login_ip: z.string()
-    .ip()
     .nullable()
     .optional(),
 

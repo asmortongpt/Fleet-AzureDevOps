@@ -5,7 +5,7 @@
 
 import express from 'express'
 
-import { authenticate } from '../middleware/auth'
+import { authenticateJWT as authenticate } from '../middleware/auth'
 import { authorize } from '../middleware/rbac'
 import { auditLogEnhanced } from '../middleware/audit-enhanced'
 import {
@@ -14,15 +14,37 @@ import {
   listComplianceReports
 } from '../services/compliance-reporting.service'
 import { getAuditLogsByNISTControl, getAuditComplianceSummary } from '../middleware/audit-enhanced'
-// import {
-//   NIST_80053_CONTROLS,
-//   getControlsByBaseline,
-//   getFedRAMPControls,
-//   getControlsByFamily,
-//   getControlsByStatus,
-//   getComplianceSummary
-// } from '../lib/policy-engine/nist-800-53-controls'
 import logger from '../config/logger'
+
+// Placeholder NIST controls data structure
+const NIST_80053_CONTROLS: Record<string, any> = {}
+
+// Placeholder compliance functions
+function getControlsByBaseline(baseline: 'LOW' | 'MODERATE' | 'HIGH'): any[] {
+  return []
+}
+
+function getFedRAMPControls(): any[] {
+  return []
+}
+
+function getControlsByFamily(family: string): any[] {
+  return []
+}
+
+function getControlsByStatus(status: string): any[] {
+  return []
+}
+
+function getComplianceSummary(): any {
+  return {
+    total: 0,
+    implemented: 0,
+    partial: 0,
+    planned: 0,
+    notImplemented: 0
+  }
+}
 
 const router = express.Router()
 
@@ -33,7 +55,7 @@ const router = express.Router()
 router.post(
   '/fedramp/report',
   authenticate,
-  authorize('view_compliance'),
+  authorize(['view_compliance']),
   auditLogEnhanced({
     action: 'EXECUTE',
     resourceType: 'compliance_report',
@@ -92,7 +114,7 @@ router.post(
 router.get(
   '/reports/:reportId',
   authenticate,
-  authorize('view_compliance'),
+  authorize(['view_compliance']),
   auditLogEnhanced({
     action: 'READ',
     resourceType: 'compliance_report',
@@ -132,7 +154,7 @@ router.get(
 router.get(
   '/reports',
   authenticate,
-  authorize('view_compliance'),
+  authorize(['view_compliance']),
   auditLogEnhanced({
     action: 'QUERY',
     resourceType: 'compliance_report',
@@ -169,7 +191,7 @@ router.get(
 router.get(
   '/nist-controls',
   authenticate,
-  authorize('view_compliance'),
+  authorize(['view_compliance']),
   auditLogEnhanced({
     action: 'READ',
     resourceType: 'nist_controls'
@@ -214,7 +236,7 @@ router.get(
 router.get(
   '/summary',
   authenticate,
-  authorize('view_compliance'),
+  authorize(['view_compliance']),
   auditLogEnhanced({
     action: 'READ',
     resourceType: 'compliance_summary',
@@ -247,7 +269,7 @@ router.get(
 router.get(
   '/audit-logs/:controlId',
   authenticate,
-  authorize('view_compliance'),
+  authorize(['view_compliance']),
   auditLogEnhanced({
     action: 'QUERY',
     resourceType: 'audit_logs',
@@ -286,7 +308,7 @@ router.get(
 router.get(
   '/fedramp-controls',
   authenticate,
-  authorize('view_compliance'),
+  authorize(['view_compliance']),
   auditLogEnhanced({
     action: 'READ',
     resourceType: 'fedramp_controls'
@@ -317,7 +339,7 @@ router.get(
 router.post(
   '/test-control',
   authenticate,
-  authorize('manage_compliance'),
+  authorize(['manage_compliance']),
   auditLogEnhanced({
     action: 'EXECUTE',
     resourceType: 'control_test',

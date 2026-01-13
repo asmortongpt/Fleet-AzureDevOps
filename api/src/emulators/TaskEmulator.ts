@@ -688,7 +688,7 @@ return
         if (randomTask.completionPercentage === 100) {
           randomTask.status = 'COMPLETED'
           randomTask.completedDate = new Date()
-          randomTask.actualHours = randomTask.estimatedHours + faker.number.float({ min: -1, max: 2, precision: 0.25 })
+          randomTask.actualHours = randomTask.estimatedHours + faker.number.float({ min: -1, max: 2, fractionDigits: 2 })
         }
 
         this.tasks.set(randomTask.id, randomTask)

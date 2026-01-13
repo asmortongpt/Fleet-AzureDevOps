@@ -3,12 +3,12 @@
  * Processes scheduled push notifications and sends them at the appropriate time
  */
 
-import cron from 'node-cron';
+import cron, { ScheduledTask } from 'node-cron';
 
 import { pushNotificationService } from '../services/push-notification.service';
 
 class PushNotificationScheduler {
-  private cronJob: cron.ScheduledTask | null = null;
+  private cronJob: ScheduledTask | null = null;
 
   /**
    * Start the push notification scheduler
