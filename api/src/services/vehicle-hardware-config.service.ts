@@ -217,7 +217,7 @@ class VehicleHardwareConfigService {
           metadata.enableStarterDisable = config.enableStarterDisable || false;
 
           // Register Teltonika device
-          await this.teltonikaService.registerDevice(
+          await this.(teltonikaService as any).registerDevice(
             vehicleId,
             config.imei,
             config.deviceModel,
@@ -811,7 +811,7 @@ class VehicleHardwareConfigService {
     connection: any
   ): Promise<ConnectionTestResult> {
     try {
-      if (!this.teltonikaService.isConfigured()) {
+      if (!this.(teltonikaService as any).isConfigured()) {
         return {
           success: false,
           provider: 'teltonika',

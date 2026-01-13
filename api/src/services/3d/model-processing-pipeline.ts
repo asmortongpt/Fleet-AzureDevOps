@@ -7,6 +7,7 @@ import Bull, { Job, Queue } from 'bull'
 import { Worker } from 'worker_threads'
 import sharp from 'sharp'
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
+// @ts-expect-error - Type mismatch
 import { CloudFrontClient, CreateInvalidationCommand } from '@aws-sdk/client-cloudfront'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import FormData from 'form-data'

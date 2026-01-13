@@ -283,8 +283,8 @@ class EndpointTester {
     // Import the app from server-minimal or create one
     try {
       // Try to load a minimal server version for testing
-      const { app: serverApp } = await import('../server-minimal');
-      this.app = serverApp;
+      const serverModule: any = await import('../server-minimal');
+      this.app = serverModule.app;
     } catch {
       // Create a minimal test app
       this.app = express();

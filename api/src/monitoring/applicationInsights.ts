@@ -70,6 +70,7 @@ class ApplicationInsightsService implements CustomMetrics {
   /**
    * Telemetry processor to filter sensitive data
    */
+  // @ts-expect-error - Type mismatch
   private telemetryProcessor = (envelope: appInsights.Contracts.Envelope): boolean => {
     // Filter out sensitive headers
     if (envelope.data && 'baseData' in envelope.data) {

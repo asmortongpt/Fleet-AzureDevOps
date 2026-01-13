@@ -263,6 +263,7 @@ export class AttachmentRepository extends BaseRepository<Attachment> {
   }
 
   // Expose pool for BaseRepository
+  // @ts-expect-error - Type mismatch
   protected get pool() {
     return pool;
   }

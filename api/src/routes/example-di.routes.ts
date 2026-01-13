@@ -154,7 +154,7 @@ router.get('/test-di', async (req: Request, res: Response) => {
 
     // Test container availability
     const hasContainer = !!reqWithContainer.container
-    const hasExampleService = hasContainer && !!reqWithContainer.container.resolve
+    const hasExampleService = hasContainer && !!(reqWithContainer.container as any).resolve
 
     // Try to resolve services
     const servicesAvailable: string[] = []

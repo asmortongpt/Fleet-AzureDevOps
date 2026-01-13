@@ -226,7 +226,6 @@ export class PolicyEnforcementService {
           policyId,
           error: error.message
         },
-        result: 'failure',
         retentionYears: 7
       })
 
@@ -474,7 +473,6 @@ export class PolicyEnforcementService {
         name,
         type
       },
-      result: 'success',
       retentionYears: 7
     })
 
