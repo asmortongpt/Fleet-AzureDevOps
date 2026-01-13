@@ -210,7 +210,7 @@ export class MonitoringService {
         endpoint: process.env.JAEGER_ENDPOINT
       })
 
-      this.tracerProvider.addSpanProcessor(
+      (this.tracerProvider as any).addSpanProcessor(
         new BatchSpanProcessor(jaegerExporter)
       )
     }

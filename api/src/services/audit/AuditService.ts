@@ -899,7 +899,7 @@ export class AuditService {
     sequenceNumber: number,
     hash: string,
     client: any
-  ): Promise<string> {
+  ): Promise<AnchorHash> {
     // Sign the hash with private key
     const signature = this.signHash(hash);
 
@@ -914,16 +914,24 @@ export class AuditService {
     const logsInChain = Number(countResult.rows[0].count);
 
     // Insert anchor
-    await client.query(`
+    const result = await client.query(`
       INSERT INTO audit_anchors (
         sequence_number,
         hash,
         signature,
         logs_in_chain
       ) VALUES ($1, $2, $3, $4)
+      RETURNING id, created_at
     `, [sequenceNumber, hash, signature, logsInChain]);
 
-    return signature;
+    return {
+      id: result.rows[0].id,
+      sequenceNumber,
+      hash,
+      signature,
+      timestamp: result.rows[0].created_at,
+      logsInChain
+    };
   }
 
   /**

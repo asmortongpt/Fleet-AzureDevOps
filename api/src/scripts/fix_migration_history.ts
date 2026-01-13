@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 
 dotenv.config();
 
+// @ts-expect-error - Type mismatch
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 

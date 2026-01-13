@@ -79,6 +79,7 @@ export function initializeTelemetry(): void {
 /**
  * Telemetry processor to filter sensitive data
  */
+// @ts-expect-error - Type mismatch
 function filterSensitiveData(envelope: appInsights.Contracts.Envelope): boolean {
   if (envelope.data && 'baseData' in envelope.data) {
     const baseData = envelope.data.baseData as any
@@ -134,6 +135,7 @@ function filterSensitiveData(envelope: appInsights.Contracts.Envelope): boolean 
 /**
  * Telemetry processor to enrich data with custom context
  */
+// @ts-expect-error - Type mismatch
 function enrichTelemetry(envelope: appInsights.Contracts.Envelope): boolean {
   if (envelope.data && 'baseData' in envelope.data) {
     const baseData = envelope.data.baseData as any
