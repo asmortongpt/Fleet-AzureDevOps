@@ -11,7 +11,7 @@ import {
   WebhookPayload,
   SyncPayload,
   JobData
-} from `../types/queue.types`;
+} from '../types/queue.types';
 
 /**
  * Process outbound Teams message

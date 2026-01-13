@@ -1,11 +1,15 @@
-import logger from '../config/logger'
+import { Request, Response } from 'express';
 
+import logger from '../config/logger';
+import { VehiclesService } from '../modules/fleet/vehicles/vehicles.service';
+
+const vehicleService = new VehiclesService();
 
 // Wrap all endpoint handlers in try-catch
-export async function getVehicleStatus(req, res) {
+export async function getVehicleStatus(req: Request, res: Response): Promise<void> {
   try {
     const { vehicleId } = req.params;
-    const status = await vehicleService.getStatus(vehicleId, req.user.tenant_id);
+    const status = await vehicleService.getStatus(vehicleId, (req as any).user.tenant_id);
     res.json({ success: true, data: status });
   } catch (error) {
     logger.error('Error fetching vehicle status', {

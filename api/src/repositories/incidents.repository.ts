@@ -1,3 +1,4 @@
+import { Pool } from 'pg'
 
 import { pool } from '../db'
 import { NotFoundError, ValidationError } from '../lib/errors'

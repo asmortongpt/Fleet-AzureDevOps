@@ -1,9 +1,9 @@
 import { injectable, inject } from 'inversify';
 
 import { TYPES } from '../../../container';
-import { PaginationParams } from '../../../repositories/BaseRepository';
+import { PaginationParams } from '../../../repositories/base/BaseRepository';
 
-import { VehiclesRepository, Vehicle } from './vehicles.repository';
+import { VehiclesRepository, Vehicle } from '../../../repositories/vehicles.repository';
 
 @injectable()
 export class VehiclesService {
