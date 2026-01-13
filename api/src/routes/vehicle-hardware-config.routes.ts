@@ -227,8 +227,7 @@ router.delete(
       const provider = req.params.provider as SupportedProvider;
       const tenantId = req.user!.tenant_id!;
 
-      const service = new VehicleHardwareConfigService();
-      await service.removeProvider(vehicleId, provider, Number(tenantId));
+      await hardwareService.removeProvider(vehicleId, provider, Number(tenantId));
 
       logger.info('Provider removed from vehicle', {
         vehicleId,
@@ -291,8 +290,7 @@ router.post(
       const provider = req.params.provider as SupportedProvider;
       const tenantId = req.user!.tenant_id!;
 
-      const service = new VehicleHardwareConfigService();
-      const testResult = await service.testProviderConnection(vehicleId, provider, tenantId);
+      const testResult = await hardwareService.testProviderConnection(vehicleId, provider, tenantId);
 
       logger.info('Provider connection tested', {
         vehicleId,
@@ -366,8 +364,7 @@ router.patch(
       const { config } = req.body;
       const tenantId = req.user!.tenant_id!;
 
-      const service = new VehicleHardwareConfigService();
-      await service.updateProviderConfig(vehicleId, provider, config, Number(tenantId));
+      await hardwareService.updateProviderConfig(vehicleId, provider, config, Number(tenantId));
 
       logger.info('Provider config updated', {
         vehicleId,
@@ -420,8 +417,7 @@ router.get(
       const vehicleId = parseInt(req.params.id, 10);
       const tenantId = req.user!.tenant_id!;
 
-      const service = new VehicleHardwareConfigService();
-      const telemetry = await service.getUnifiedTelemetry(vehicleId, tenantId);
+      const telemetry = await hardwareService.getUnifiedTelemetry(vehicleId, tenantId);
 
       if (!telemetry) {
         throw new NotFoundError('Vehicle not found or no telemetry data available');
@@ -432,11 +428,11 @@ router.get(
         data: {
           vehicleId: telemetry.vehicleId,
           timestamp: telemetry.timestamp,
-          location: telemetry.location,
-          fuel: telemetry.fuel,
-          diagnostics: telemetry.diagnostics,
-          safety: telemetry.safety,
-          temperature: telemetry.temperature,
+          location: telemetry.aggregated.location,
+          fuel: telemetry.aggregated.fuelPercent,
+          diagnostics: telemetry.aggregated,
+          safety: telemetry.aggregated,
+          temperature: telemetry.aggregated.temperature,
           providers: telemetry.providers
         }
       });

@@ -339,7 +339,7 @@ router.patch(
       );
 
       if (falsePositive) {
-        await aiService.markFalsePositive(Number(req.params.id), req.user!.id, reviewNotes);
+        await aiService.markFalsePositive(Number(req.params.id), Number(req.user!.id), reviewNotes);
       }
 
       res.json({ message: `Video event reviewed successfully` });
@@ -465,7 +465,7 @@ router.post(
       await videoService.addToEvidenceLocker(
         eventId,
         Number(req.params.id),
-        req.user!.id
+        Number(req.user!.id)
       );
 
       res.json({ message: 'Video event added to evidence locker' });

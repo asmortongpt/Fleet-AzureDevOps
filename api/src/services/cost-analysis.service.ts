@@ -560,4 +560,8 @@ export class CostAnalysisService {
   }
 }
 
-export default CostAnalysisService
+// Export singleton instance
+import { pool } from '../db'
+const costAnalysisService = new CostAnalysisService(pool)
+
+export default costAnalysisService

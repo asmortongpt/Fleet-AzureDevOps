@@ -746,5 +746,8 @@ class FleetCognitionService {
   }
 }
 
+// Export singleton instance
+import { pool } from '../db'
+const fleetCognitionService = new FleetCognitionService(pool, logger)
 
-export default FleetCognitionService
+export default fleetCognitionService
