@@ -78,7 +78,7 @@ export class VehiclesRepository extends BaseRepository<any> {
     // Whitelist sortBy to prevent SQL injection
     const allowedSortColumns = ['id', 'vin', 'make', 'model', 'year', 'created_at', 'updated_at', 'status']
     const safeSortBy = allowedSortColumns.includes(sortBy) ? sortBy : 'created_at'
-    const safeSortOrder = sortOrder === 'asc' ? 'ASC' : 'DESC'
+    const safeSortOrder = sortOrder?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC'
 
     const result = await this.pool.query(
       `SELECT id, vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id, created_at, updated_at FROM vehicles 
@@ -309,7 +309,7 @@ export class VehiclesRepository extends BaseRepository<any> {
 
     const allowedSortColumns = ['id', 'vin', 'make', 'model', 'year', 'created_at', 'updated_at', 'status']
     const safeSortBy = allowedSortColumns.includes(sortBy) ? `v.${sortBy}` : 'v.created_at'
-    const safeSortOrder = sortOrder === 'asc' ? 'ASC' : 'DESC'
+    const safeSortOrder = (sortOrder?.toUpperCase() === 'ASC' || sortOrder?.toLowerCase() === 'asc') ? 'ASC' : 'DESC'
 
     const result = await this.pool.query(
       `SELECT
