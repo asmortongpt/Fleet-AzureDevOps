@@ -50,7 +50,7 @@ router.get('/assets/:assetId/position-history', async (req: Request, res: Respon
     const result = await repository.getPositionHistory(assetId, startDate, endDate, query.page, query.limit);
 
     res.json({
-      data: result.events.map(e => ({
+      data: result.events.map((e: any) => ({
         id: e.id,
         assetId: e.assetId,
         latitude: Number(e.latitude),
