@@ -16,10 +16,12 @@ const csrfMethods = doubleCsrf({
 });
 
 // Export individual methods
-export const invalidCsrfTokenError = csrfMethods.invalidCsrfTokenError;
 export const generateToken = csrfMethods.generateCsrfToken;
 export const validateRequest = csrfMethods.doubleCsrfProtection; // Fixed: validateRequest is actually doubleCsrfProtection middleware
 export const doubleCsrfProtection = csrfMethods.doubleCsrfProtection;
+
+// Create a custom error for invalid CSRF token
+export const invalidCsrfTokenError = new Error('Invalid CSRF token');
 
 // ALIASES for backward compatibility with existing routes
 export const csrfProtection = doubleCsrfProtection;

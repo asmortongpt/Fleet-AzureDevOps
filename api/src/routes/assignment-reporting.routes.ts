@@ -13,8 +13,8 @@
 import express, { Response } from 'express';
 import { Pool } from 'pg';
 
-import logger from '../config/logger'; // Wave 30: Add Winston logger
-import { pool } from '../db/connection';
+import logger from '../config/logger'
+import { pool as dbPool } from '../db/connection'
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions';
@@ -23,9 +23,9 @@ import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 
-let pool: Pool;
-export function setDatabasePool(dbPool: Pool) {
-  pool = dbPool;
+let pool: Pool = dbPool;
+export function setDatabasePool(newPool: Pool) {
+  pool = newPool;
 }
 
 // =====================================================

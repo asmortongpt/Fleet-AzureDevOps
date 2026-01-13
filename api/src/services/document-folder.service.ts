@@ -661,6 +661,19 @@ export class DocumentFolderService {
       throw error
     }
   }
+
+  /**
+   * Static method for backwards compatibility
+   */
+  static async getFolderById(folderId: string, tenantId: string): Promise<any> {
+    // Return singleton instance method
+    return documentFolderService.getFolderById(folderId, tenantId)
+  }
 }
 
-export default DocumentFolderService
+// Export singleton instance
+import pool from '../config/database'
+import logger from '../config/logger'
+
+export const documentFolderService = new DocumentFolderService(pool, logger)
+export default documentFolderService
