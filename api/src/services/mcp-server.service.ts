@@ -7,6 +7,7 @@ import axios, { AxiosInstance } from 'axios'
 import { Pool } from 'pg'
 
 import logger from '../config/logger'
+import { pool } from '../db'
 
 export interface MCPServer {
   id: string
@@ -380,5 +381,5 @@ class MCPServerService {
   }
 }
 
-export const mcpServerService = new MCPServerService()
+export const mcpServerService = new MCPServerService(pool)
 export default mcpServerService
