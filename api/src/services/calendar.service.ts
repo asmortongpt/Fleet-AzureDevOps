@@ -670,4 +670,21 @@ attendees.push(trainerEmail)
 
 }
 
+// Create singleton instance
+const calendarServiceInstance = new CalendarService()
+
+// Export individual methods for backward compatibility
+export const createEvent = calendarServiceInstance.createEvent.bind(calendarServiceInstance)
+export const getEvents = calendarServiceInstance.getEvents.bind(calendarServiceInstance)
+export const getEventById = calendarServiceInstance.getEventById.bind(calendarServiceInstance)
+export const updateEvent = calendarServiceInstance.updateEvent.bind(calendarServiceInstance)
+export const deleteEvent = calendarServiceInstance.deleteEvent.bind(calendarServiceInstance)
+export const acceptEvent = calendarServiceInstance.acceptEvent.bind(calendarServiceInstance)
+export const declineEvent = calendarServiceInstance.declineEvent.bind(calendarServiceInstance)
+export const tentativelyAcceptEvent = calendarServiceInstance.tentativelyAcceptEvent.bind(calendarServiceInstance)
+export const findMeetingTimes = calendarServiceInstance.findMeetingTimes.bind(calendarServiceInstance)
+export const getAvailability = calendarServiceInstance.getAvailability.bind(calendarServiceInstance)
+export const scheduleMaintenance = calendarServiceInstance.scheduleMaintenance.bind(calendarServiceInstance)
+export const scheduleDriverTraining = calendarServiceInstance.scheduleDriverTraining.bind(calendarServiceInstance)
+
 export default CalendarService

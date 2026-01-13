@@ -419,7 +419,7 @@ router.get(
 router.post(
   '/index/document/:id',
   csrfProtection, authorize('admin', 'fleet_manager'),
-  auditLog({ action: 'INDEX', resourceType: 'documents' }),
+  auditLog({ action: 'CREATE' as any, resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const { priority = 'normal' } = req.body
@@ -451,7 +451,7 @@ router.post(
 router.post(
   '/index/reindex',
   csrfProtection, authorize('admin'),
-  auditLog({ action: 'REINDEX', resourceType: 'documents' }),
+  auditLog({ action: 'UPDATE' as any, resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const schema = z.object({
@@ -529,7 +529,7 @@ router.get(
 router.post(
   '/index/optimize',
   csrfProtection, authorize('admin'),
-  auditLog({ action: 'OPTIMIZE_INDEX', resourceType: 'search_index' }),
+  auditLog({ action: 'UPDATE' as any, resourceType: 'search_index' }),
   async (req: AuthRequest, res: Response) => {
     try {
       await DocumentIndexer.optimizeIndexes(req.user!.tenant_id)
@@ -580,7 +580,7 @@ router.get(
 router.post(
   '/cache/clear',
   csrfProtection, authorize('admin'),
-  auditLog({ action: 'CLEAR_CACHE', resourceType: 'search_cache' }),
+  auditLog({ action: 'DELETE' as any, resourceType: 'search_cache' }),
   async (req: AuthRequest, res: Response) => {
     try {
       await SearchIndexService.clearCache()
