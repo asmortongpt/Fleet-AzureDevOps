@@ -18,7 +18,7 @@ export interface Vehicle {
 @injectable()
 export class VehiclesRepository extends BaseRepository<Vehicle> {
   constructor(pool: any) {
-    super(pool, 'vehicles');
+    this.pool = pool;
   }
 
   async findByStatus(status: string, tenantId: string): Promise<Vehicle[]> {
