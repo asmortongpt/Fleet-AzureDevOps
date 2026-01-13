@@ -382,7 +382,7 @@ export class UsersRepository extends BaseRepository<any> {
   /**
    * Count users for a tenant
    */
-  async count(tenantId: string): Promise<number> {
+  async count(filters: Record<string, unknown> = {}, tenantId: string | number): Promise<number> {
     const result = await this.pool.query(
       'SELECT COUNT(*) FROM users WHERE tenant_id = $1',
       [tenantId]
