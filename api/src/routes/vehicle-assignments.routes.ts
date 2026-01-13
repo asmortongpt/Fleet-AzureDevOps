@@ -47,7 +47,7 @@ const createAssignmentSchema = z.object({
   authorized_use: z.string().optional(),
   commuting_authorized: z.boolean().default(false),
   on_call_only: z.boolean().default(false),
-  geographic_constraints: z.record(z.any()).optional(),
+  geographic_constraints: z.record(z.string(), z.any()).optional(),
   requires_secured_parking: z.boolean().default(false),
   secured_parking_location_id: z.string().uuid().optional(),
   recommendation_notes: z.string().optional(),

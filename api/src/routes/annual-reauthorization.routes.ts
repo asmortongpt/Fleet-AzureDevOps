@@ -46,7 +46,7 @@ const createReauthDecisionSchema = z.object({
   modification_notes: z.string().optional(),
   new_vehicle_id: z.string().uuid().optional(),
   new_driver_id: z.string().uuid().optional(),
-  parameter_changes: z.record(z.any()).optional(),
+  parameter_changes: z.record(z.string(), z.any()).optional(),
   termination_reason: z.string().optional(),
   termination_effective_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   director_notes: z.string().optional(),

@@ -84,7 +84,7 @@ const OdometerOCRSchema = z.object({
 
 const ValidationSchema = z.object({
   type: z.enum(['fuel-receipt', 'odometer']),
-  data: z.record(z.any()),
+  data: z.record(z.string(), z.any()),
 });
 
 /**

@@ -27,7 +27,7 @@ const createInspectionSchema = z.object({
   status: z.enum(['scheduled', 'in_progress', 'completed', 'failed']).default('scheduled'),
   passed: z.boolean().optional(),
   failed_items: z.array(z.string()).optional(),
-  checklist_data: z.record(z.any()).optional(),
+  checklist_data: z.record(z.string(), z.any()).optional(),
   odometer_reading: z.number().optional(),
   inspector_notes: z.string().optional(),
   signature_url: z.string().optional(),
