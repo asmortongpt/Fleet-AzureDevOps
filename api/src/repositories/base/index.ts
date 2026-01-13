@@ -4,4 +4,6 @@
  */
 export { IRepository } from './IRepository'
 export { BaseRepository } from './BaseRepository'
+export { GenericRepository } from './GenericRepository'
 export { TransactionManager, withTransaction } from './TransactionManager'
+export * from './types'

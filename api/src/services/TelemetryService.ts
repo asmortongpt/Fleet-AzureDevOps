@@ -710,7 +710,7 @@ export class TelemetryService extends EventEmitter {
         ${item.isMoving}
       )`).join(',')
 
-      await this.db.execute(`
+      await this.db.query(`
         INSERT INTO gps_telemetry
         (vehicle_id, vehicle_number, timestamp, latitude, longitude, altitude, speed, heading, odometer, accuracy, satellite_count, is_moving)
         VALUES ${values}
@@ -729,7 +729,7 @@ export class TelemetryService extends EventEmitter {
     try {
       // Batch insert OBD2 data
       for (const item of items) {
-        await this.db.execute(`
+        await this.db.query(`
           INSERT INTO obd2_telemetry
           (vehicle_id, vehicle_number, timestamp, rpm, speed, engine_load, throttle_position, coolant_temp, fuel_level, battery_voltage, maf, o2_sensor_bank1, dtc_codes, check_engine_light, mil)
           VALUES (${item.vehicleId}, '${item.vehicleNumber}', '${item.timestamp.toISOString()}', ${item.rpm}, ${item.speed}, ${item.engineLoad}, ${item.throttlePosition}, ${item.coolantTemp}, ${item.fuelLevel}, ${item.batteryVoltage}, ${item.maf}, ${item.o2SensorBank1}, '${JSON.stringify(item.dtcCodes)}', ${item.checkEngineLight}, ${item.mil})

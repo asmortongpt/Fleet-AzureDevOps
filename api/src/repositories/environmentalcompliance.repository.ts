@@ -1,7 +1,19 @@
 
 import { Pool } from 'pg';
+import { BaseRepository } from './base/BaseRepository';
 
-class EnvironmentalComplianceRepository {
+interface EnvironmentalCompliance {
+  id?: number;
+  tenant_id: string;
+  facility_id: string;
+  compliance_status: string;
+  compliance_date: Date;
+  notes: string;
+  created_at?: Date;
+  updated_at?: Date;
+}
+
+class EnvironmentalComplianceRepository extends BaseRepository<EnvironmentalCompliance> {
 
   constructor(pool: Pool) {
     super(pool, 'environmental_compliance');
