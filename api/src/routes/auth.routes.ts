@@ -129,7 +129,7 @@ export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditSe
     try {
       const user = (req as any).user;
       if (!user || !user.sessionUuid) {
-        throw new ApiError(401, 'Not authenticated');
+        throw new ApiError('Not authenticated', 401, 'UNAUTHORIZED');
       }
 
       await authService.revokeSession(user.sessionUuid);
@@ -164,7 +164,7 @@ export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditSe
     try {
       const { refreshToken } = req.body;
       if (!refreshToken) {
-        throw new ApiError(400, 'Refresh token required');
+        throw new ApiError('Refresh token required', 400, 'VALIDATION_ERROR');
       }
 
       const result = await authService.refreshAccessToken(refreshToken);
@@ -186,7 +186,7 @@ export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditSe
     try {
       const user = (req as any).user;
       if (!user) {
-        throw new ApiError(401, 'Not authenticated');
+        throw new ApiError('Not authenticated', 401, 'UNAUTHORIZED');
       }
 
       const result = await authService.setupMFA(user.userId);
@@ -212,7 +212,7 @@ export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditSe
     try {
       const user = (req as any).user;
       if (!user) {
-        throw new ApiError(401, 'Not authenticated');
+        throw new ApiError('Not authenticated', 401, 'UNAUTHORIZED');
       }
 
       const { code } = mfaVerifySchema.parse(req.body);
@@ -247,7 +247,7 @@ export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditSe
     try {
       const user = (req as any).user;
       if (!user) {
-        throw new ApiError(401, 'Not authenticated');
+        throw new ApiError('Not authenticated', 401, 'UNAUTHORIZED');
       }
 
       res.json({
