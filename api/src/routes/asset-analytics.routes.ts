@@ -1,6 +1,7 @@
 import express from 'express'
 import { z } from 'zod'
 
+import { pool } from '../db'
 import { checkJwt, authorize } from '../middleware/auth'
 import { asyncHandler } from '../middleware/errorHandler'
 import { ROICalculatorService } from '../services/roi-calculator.service'
@@ -10,8 +11,8 @@ import { UtilizationCalcService } from '../services/utilization-calc.service'
 
 
 const router = express.Router()
-const utilizationCalcService = new UtilizationCalcService()
-const roiCalculatorService = new ROICalculatorService()
+const utilizationCalcService = new UtilizationCalcService(pool)
+const roiCalculatorService = new ROICalculatorService(pool)
 
 const dateRangeSchema = z.object({
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),

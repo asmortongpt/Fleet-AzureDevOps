@@ -1160,4 +1160,9 @@ export class OcrService {
 
 }
 
-export default OcrService;
+// Export singleton instance
+import { db } from '../db'
+const ocrService = new OcrService(db)
+
+export { OcrService }
+export default ocrService
