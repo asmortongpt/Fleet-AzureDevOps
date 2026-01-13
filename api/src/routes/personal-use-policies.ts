@@ -228,7 +228,8 @@ router.get(
         policy: {
           allow_personal_use: policy?.allow_personal_use ?? false,
           require_approval: policy?.require_approval ?? true,
-          charge_personal_use: policy?.charge_personal_use ?? false
+          charge_personal_use: policy?.charge_personal_use ?? false,
+          payment_method: (policy?.payment_method as any) || 'payroll_deduction'
         }
       };
 

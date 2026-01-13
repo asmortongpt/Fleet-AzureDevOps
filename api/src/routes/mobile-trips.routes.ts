@@ -720,8 +720,7 @@ router.patch('/:id/classify', csrfProtection, requirePermission('route:update:ow
           validated.business_purpose || null,
           validated.business_percentage || (validated.usage_type === 'personal' ? 0 : 100),
           tripData.distance_miles || 0,
-          validated.usage_type === 'business' ? tripData.distance_miles :
-            (validated.business_percentage ? tripData.distance_miles * validated.business_percentage / 100 : 0),
+          validated.usage_type !== 'personal' ? (validated.business_percentage ? tripData.distance_miles * validated.business_percentage / 100 : tripData.distance_miles) : 0,
           validated.usage_type === 'personal' ? tripData.distance_miles :
             (validated.business_percentage ? tripData.distance_miles * (100 - validated.business_percentage) / 100 : 0),
           tripData.start_time,
