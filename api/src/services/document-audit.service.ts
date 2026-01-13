@@ -13,7 +13,7 @@ import {
 } from '../types/document-storage.types'
 
 export class DocumentAuditService {
-  constructor(private db: Pool, private logger: typeof logger) {}
+  constructor(private db: Pool, private logger: any) {}
   /**
    * Log an audit event
    */
