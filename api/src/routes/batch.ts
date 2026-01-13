@@ -31,7 +31,7 @@ const batchRequestSchema = z.object({
       method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']),
       url: z.string().regex(/^\/api\//), // Must start with /api/
       body: z.any().optional(),
-      headers: z.record(z.string()).optional()
+      headers: z.record(z.string(), z.string()).optional()
     })
   ).min(1).max(50) // Limit to prevent abuse
 });

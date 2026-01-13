@@ -124,7 +124,7 @@ export type SecretPermission = 'get' | 'set' | 'delete' | 'rotate' | 'list' | 'a
 const SecretMetadataSchema = z.object({
   description: z.string().optional(),
   expiresAt: z.date().optional(),
-  tags: z.record(z.string()).optional(),
+  tags: z.record(z.string(), z.string()).optional(),
   rotationPolicy: z.object({
     enabled: z.boolean(),
     intervalDays: z.number().int().min(1).max(3650),

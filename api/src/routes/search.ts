@@ -62,7 +62,7 @@ router.post(
         limit: z.number().int().min(1).max(100).optional(),
         sortBy: z.enum(['relevance', 'date', 'popularity']).optional(),
         sortOrder: z.enum(['asc', 'desc']).optional(),
-        boost: z.record(z.number().optional()),
+        boost: z.record(z.string(), z.number()).optional(),
         minScore: z.number().optional()
       })
 
@@ -276,7 +276,7 @@ router.post(
       const schema = z.object({
         name: z.string().min(1).max(100),
         query: z.string().min(1),
-        filters: z.record(z.any().optional()),
+        filters: z.record(z.string(), z.any()).optional(),
         notificationEnabled: z.boolean().optional()
       })
 
