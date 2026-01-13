@@ -28,7 +28,7 @@ const CrashReportSchema = z.object({
   longitude: z.number().optional(),
   maxAcceleration: z.number(),
   userCanceled: z.boolean(),
-  telemetry: z.record(z.any()).optional()
+  telemetry: z.record(z.string(), z.any()).optional()
 })
 
 /**

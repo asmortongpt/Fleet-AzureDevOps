@@ -43,7 +43,7 @@ const arcgisLayerSchema = z.object({
     labelSize: z.number().optional(),
     labelColor: z.string().optional()
   }).optional(),
-  metadata: z.record(z.any()).optional()
+  metadata: z.record(z.string(), z.any()).optional()
 })
 
 /**
