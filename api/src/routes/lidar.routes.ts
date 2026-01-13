@@ -98,7 +98,7 @@ router.post(
         detectDamage: z.boolean().default(true),
       });
 
-      const request: ProcessLiDARScanRequest = schema.parse(req.body);
+      const request = schema.parse(req.body) as ProcessLiDARScanRequest;
 
       const result = await lidar3DScanningService.processScan(
         req.user!.tenant_id,
@@ -511,7 +511,7 @@ router.get(
         totalScans: result.total,
         totalModels: result.scans.reduce((sum, scan) => sum + scan.modelCount, 0),
         totalDamageAnnotations: result.scans.reduce((sum, scan) => sum + scan.damageCount, 0),
-        scansBy Scanner: result.scans.reduce((acc: any, scan: any) => {
+        scansByScanner: result.scans.reduce((acc: any, scan: any) => {
           acc[scan.scannerType] = (acc[scan.scannerType] || 0) + 1;
           return acc;
         }, {}),

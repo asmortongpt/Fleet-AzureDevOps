@@ -88,7 +88,12 @@ export class IncidentResponderService extends BaseService {
       priority: PriorityLevel.LOW,
       startTime: new Date(),
       timeline: [],
-      summary: ''
+      summary: '',
+      triage: null,
+      playbook: null,
+      containment: null,
+      remediation: null,
+      postIncident: null
     };
 
     try {

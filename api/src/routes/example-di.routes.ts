@@ -61,7 +61,7 @@ router.get('/vehicle-count', authenticateJWT, async (req: Request, res: Response
 
     // Resolve the service from the container
     // This gives us a fresh instance for this request (SCOPED lifetime)
-    const exampleService = reqWithContainer.container.resolve('exampleDIService')
+    const exampleService = reqWithContainer.container.get('exampleDIService')
 
     // Use the service
     const count = await exampleService.getVehicleCount()
@@ -117,7 +117,7 @@ router.post('/vehicle-action/:vehicleId', csrfProtection, authenticateJWT, async
     }
 
     // Resolve service from container
-    const exampleService = reqWithContainer.container.resolve('exampleDIService')
+    const exampleService = reqWithContainer.container.get('exampleDIService')
 
     // Perform action
     const result = await exampleService.performAction(vehicleId)
@@ -160,21 +160,21 @@ router.get('/test-di', async (req: Request, res: Response) => {
     const servicesAvailable: string[] = []
     if (hasContainer) {
       try {
-        reqWithContainer.container.resolve('exampleDIService')
+        reqWithContainer.container.get('exampleDIService')
         servicesAvailable.push('exampleDIService')
       } catch (e) {
         // Service not available
       }
 
       try {
-        reqWithContainer.container.resolve('dispatchService')
+        reqWithContainer.container.get('dispatchService')
         servicesAvailable.push('dispatchService')
       } catch (e) {
         // Service not available
       }
 
       try {
-        reqWithContainer.container.resolve('documentService')
+        reqWithContainer.container.get('documentService')
         servicesAvailable.push('documentService')
       } catch (e) {
         // Service not available
@@ -211,10 +211,10 @@ router.post('/complex-operation/:vehicleId', csrfProtection, authenticateJWT, as
     const vehicleId = parseInt(req.params.vehicleId, 10)
 
     // Resolve multiple services
-    const exampleService = reqWithContainer.container.resolve('exampleDIService')
-    const documentService = reqWithContainer.container.resolve('documentService')
+    const exampleService = reqWithContainer.container.get('exampleDIService')
+    const documentService = reqWithContainer.container.get('documentService')
     // logger is imported independently, but could also be resolved if bound to container
-    // const logger = reqWithContainer.container.resolve('logger') 
+    // const logger = reqWithContainer.container.get('logger') 
 
     logger.info(`Starting complex operation for vehicle ${vehicleId}`)
 

@@ -570,7 +570,7 @@ Return ONLY valid JSON array:
     try {
       // Build dependency graph
       const graphs = await Promise.all(
-        taskIds.map(id => analyzeDependencies(id, tenantId))
+        taskIds.map(id => this.analyzeDependencies(id, tenantId))
       )
 
       // Topological sort to find execution order
@@ -652,13 +652,13 @@ queue.push(taskId)
       )
 
       // Get execution order
-      const executionOrder = await getOptimalExecutionOrder(taskIds, tenantId)
+      const executionOrder = await this.getOptimalExecutionOrder(taskIds, tenantId)
 
       // For each task, get recommended assignments
       const optimizations: ResourceOptimization[] = []
 
       for (const task of tasksQuery.rows) {
-        const assignments = await recommendTaskAssignment({
+        const assignments = await this.recommendTaskAssignment({
           ...task,
           tenant_id: tenantId
         }, true)
@@ -701,10 +701,10 @@ queue.push(taskId)
     point2: { latitude: number; longitude: number }
   ): number {
     const R = 3959 // Earth's radius in miles
-    const dLat = toRad(point2.latitude - point1.latitude)
-    const dLon = toRad(point2.longitude - point1.longitude)
-    const lat1 = toRad(point1.latitude)
-    const lat2 = toRad(point2.latitude)
+    const dLat = this.toRad(point2.latitude - point1.latitude)
+    const dLon = this.toRad(point2.longitude - point1.longitude)
+    const lat1 = this.toRad(point1.latitude)
+    const lat2 = this.toRad(point2.latitude)
 
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
