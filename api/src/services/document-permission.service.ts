@@ -100,7 +100,7 @@ export class DocumentPermissionService {
           folderId: options.folderId,
           userId: options.grantedBy,
           action: 'grant_permission',
-          entityType: options.documentId ? 'document' : 'folder',
+          entityType: options.documentId ? EntityType.DOCUMENT : EntityType.FOLDER,
           newValues: {
             user_id: options.userId,
             permission_type: options.permissionType
@@ -171,7 +171,7 @@ export class DocumentPermissionService {
           folderId: permission.folder_id,
           userId: revokedBy,
           action: 'revoke_permission',
-          entityType: permission.document_id ? 'document' : 'folder',
+          entityType: permission.document_id ? EntityType.DOCUMENT : EntityType.FOLDER,
           oldValues: {
             user_id: permission.user_id,
             permission_type: permission.permission_type
