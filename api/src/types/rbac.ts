@@ -14,11 +14,15 @@
  */
 export enum Role {
   SUPER_ADMIN = 'super_admin',
+  ADMIN = 'admin',
   TENANT_ADMIN = 'tenant_admin',
   FLEET_MANAGER = 'fleet_manager',
+  MANAGER = 'manager',
   MAINTENANCE_MANAGER = 'maintenance_manager',
   DRIVER = 'driver',
+  USER = 'user',
   VIEWER = 'viewer',
+  GUEST = 'guest',
 }
 
 /**
@@ -472,7 +476,22 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     // Documents
     Permission.DOCUMENTS_VIEW,
   ],
+
+  // Alias mappings (added for compatibility)
+  [Role.ADMIN]: [] as Permission[],
+  [Role.MANAGER]: [] as Permission[],
+  [Role.USER]: [] as Permission[],
+  [Role.GUEST]: [] as Permission[],
 };
+
+// Populate alias permissions
+ROLE_PERMISSIONS[Role.ADMIN] = ROLE_PERMISSIONS[Role.SUPER_ADMIN];
+ROLE_PERMISSIONS[Role.MANAGER] = ROLE_PERMISSIONS[Role.FLEET_MANAGER];
+ROLE_PERMISSIONS[Role.USER] = ROLE_PERMISSIONS[Role.DRIVER];
+ROLE_PERMISSIONS[Role.GUEST] = ROLE_PERMISSIONS[Role.VIEWER];
+
+// Remove const assertion to allow assignment
+export { ROLE_PERMISSIONS };
 
 /**
  * Helper function to check if a role has a specific permission
