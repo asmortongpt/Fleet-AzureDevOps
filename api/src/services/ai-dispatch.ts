@@ -16,7 +16,7 @@
 import { OpenAIClient, AzureKeyCredential } from '@azure/openai'
 
 import logger from '../config/logger'
-import { pool } from '../database'
+import { pool } from '../config/database'
 
 // ============================================================================
 // Types and Interfaces

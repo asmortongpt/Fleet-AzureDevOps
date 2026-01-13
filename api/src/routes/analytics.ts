@@ -6,7 +6,7 @@
 import { Router, type Request, type Response } from 'express'
 import { createClient } from 'redis'
 
-import { query } from '../db'
+import { db } from '../db'
 
 const router = Router()
 
@@ -92,7 +92,7 @@ router.get('/cost', cacheMiddleware('analytics:cost'), async (req: Request, res:
         }
 
         // Query for cost data
-        const result = await query(
+        const result = await db.query(
             `
             SELECT
                 date_trunc('day', date) as date,
@@ -164,7 +164,7 @@ router.get('/efficiency', cacheMiddleware('analytics:efficiency'), async (req: R
             whereClause += ` AND vehicle_id = ANY($${params.length})`
         }
 
-        const result = await query(
+        const result = await db.query(
             `
             SELECT
                 date_trunc('day', date) as date,
