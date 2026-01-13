@@ -13,6 +13,7 @@ import {
   getTelemetryQuerySchema
 } from '../schemas/telemetry.schema'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+import { getTableColumns } from '../utils/column-resolver'
 
 const router = express.Router()
 router.use(authenticateJWT)
