@@ -86,15 +86,15 @@ export class VideoEmulatorService extends EventEmitter {
 
     // Initialize video telematics emulator
     this.telematicsEmulator = new VideoTelematicsEmulator({
-      updateIntervalMs: this.config.telematicsConfig.updateIntervalMs,
-      eventProbability: this.config.telematicsConfig.eventProbability,
+      updateIntervalMs: this.config.telemeticsConfig.updateIntervalMs,
+      eventProbability: this.config.telemeticsConfig.eventProbability,
       severityDistribution: {
         low: 0.60,
         medium: 0.30,
         high: 0.08,
         critical: 0.02
       },
-      enableAIAnalysis: this.config.telematicsConfig.enableAIAnalysis,
+      enableAIAnalysis: this.config.telemeticsConfig.enableAIAnalysis,
       cameraViews: ['forward', 'driver', 'rear']
     });
 

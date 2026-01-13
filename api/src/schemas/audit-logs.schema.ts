@@ -184,7 +184,6 @@ export const auditLogSchema = z.object({
 
   /** Client IP address */
   ip_address: z.string()
-    .ip()
     .nullable()
     .optional(),
 
@@ -337,7 +336,7 @@ export const auditLogQuerySchema = z.object({
   status_code: z.coerce.number().int().optional(),
 
   /** Filter by IP address */
-  ip_address: z.string().ip().optional(),
+  ip_address: z.string().optional(),
 
   /** Filter by session ID */
   session_id: uuidSchema.optional(),
