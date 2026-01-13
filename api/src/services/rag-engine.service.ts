@@ -442,4 +442,10 @@ ${contextText}`
   }
 }
 
-export default RAGEngineService
+// Import dependencies for singleton instance
+import pool from '../config/database'
+import logger from '../config/logger'
+
+// Export singleton instance
+export const ragEngineService = new RAGEngineService(pool, logger)
+export default ragEngineService
