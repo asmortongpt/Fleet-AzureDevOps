@@ -605,4 +605,8 @@ export class OBD2ServiceBackend {
   }
 }
 
-export default OBD2ServiceBackend
+// Export singleton instance
+import { pool } from '../db'
+const obd2ServiceBackend = new OBD2ServiceBackend(pool)
+
+export default obd2ServiceBackend

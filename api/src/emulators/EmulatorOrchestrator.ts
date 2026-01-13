@@ -1153,4 +1153,16 @@ export class EmulatorOrchestrator extends EventEmitter {
 
     console.log('EmulatorOrchestrator shutdown complete')
   }
+
+  /**
+   * Get singleton instance
+   */
+  private static instance: EmulatorOrchestrator | null = null
+
+  public static getInstance(configPath?: string): EmulatorOrchestrator {
+    if (!EmulatorOrchestrator.instance) {
+      EmulatorOrchestrator.instance = new EmulatorOrchestrator(configPath)
+    }
+    return EmulatorOrchestrator.instance
+  }
 }

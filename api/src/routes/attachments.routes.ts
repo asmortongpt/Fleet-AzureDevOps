@@ -102,7 +102,7 @@ router.post(
       // Perform virus scan asynchronously - REPOSITORY USED HERE (Query 1 eliminated)
       attachmentService.scanFileForVirus(req.file).then(async (scanResult) => {
         await attachmentRepo.updateVirusScanStatus(
-          result.id,
+          Number(result.id),
           scanResult === 'clean' ? 'Clean' : 'Threat Detected',
           scanResult
         )

@@ -25,7 +25,7 @@ export const AIRequestSchema = z.object({
     'cost_analysis'
   ]),
   prompt: z.string().min(1).max(10000),
-  context: z.record(z.any()).optional(),
+  context: z.record(z.string(), z.any()).optional(),
   attachments: z
     .array(
       z.object({

@@ -41,8 +41,8 @@ router.get('/:entityType', async (req: Request, res: Response) => {
 
     const { page = '1', pageSize = '50', filters = '{}' } = req.query;
 
-    const pageNum = parseInt(page, 10);
-    const pageSizeNum = parseInt(pageSize, 10);
+    const pageNum = parseInt(String(page), 10);
+    const pageSizeNum = parseInt(String(pageSize), 10);
     const offset = (pageNum - 1) * pageSizeNum;
 
     const filtersSchema = z.object({}).passthrough();

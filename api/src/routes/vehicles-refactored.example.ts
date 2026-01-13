@@ -17,7 +17,7 @@ router.get('/', async (req: Request, res: Response) => {
   const tenantId = req.user?.tenantId
   const { page, limit } = req.query
 
-  const result = await vehicleService.getAllVehicles(tenantId, {
+  const result = await vehicleService.getAllVehicles(Number(tenantId), {
     page: parseInt(page as string) || 1,
     limit: parseInt(limit as string) || 20,
   })
@@ -28,7 +28,7 @@ router.get('/', async (req: Request, res: Response) => {
 // POST /vehicles - Create with validation
 router.post('/',csrfProtection, validate(vehicleCreateSchema), async (req: Request, res: Response) => {
   const tenantId = req.user?.tenantId
-  const vehicle = await vehicleService.createVehicle(req.body, tenantId)
+  const vehicle = await vehicleService.createVehicle(req.body, Number(tenantId))
   res.status(201).json({ success: true, data: vehicle })
 })
 
@@ -37,7 +37,7 @@ router.put('/:id',csrfProtection, validate(vehicleUpdateSchema), async (req: Req
   const { id } = req.params
   const tenantId = req.user?.tenantId
 
-  const vehicle = await vehicleService.updateVehicle(parseInt(id), req.body, tenantId)
+  const vehicle = await vehicleService.updateVehicle(parseInt(id), req.body, Number(tenantId))
   res.json({ success: true, data: vehicle })
 })
 
@@ -46,7 +46,7 @@ router.delete('/:id',csrfProtection, async (req: Request, res: Response) => {
   const { id } = req.params
   const tenantId = req.user?.tenantId
 
-  await vehicleService.deleteVehicle(parseInt(id), tenantId)
+  await vehicleService.deleteVehicle(parseInt(id), Number(tenantId))
   res.json({ success: true, message: 'Vehicle deleted' })
 })
 

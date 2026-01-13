@@ -720,6 +720,31 @@ missing.push('MICROSOFT_TENANT_ID or AZURE_AD_TENANT_ID')
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms))
   }
+
+  /**
+   * Check configuration health
+   */
+  public checkConfiguration(): { healthy: boolean; clientId: string; tenantId: string; error?: string } {
+    try {
+      const hasClientId = !!this.config.clientId && this.config.clientId.length > 0
+      const hasTenantId = !!this.config.tenantId && this.config.tenantId.length > 0
+      const hasClientSecret = !!this.config.clientSecret && this.config.clientSecret.length > 0
+
+      return {
+        healthy: hasClientId && hasTenantId && hasClientSecret,
+        clientId: this.config.clientId?.substring(0, 8) + '...',
+        tenantId: this.config.tenantId?.substring(0, 8) + '...',
+        error: !hasClientId ? 'Missing clientId' : !hasTenantId ? 'Missing tenantId' : !hasClientSecret ? 'Missing clientSecret' : undefined
+      }
+    } catch (error: any) {
+      return {
+        healthy: false,
+        clientId: 'unknown',
+        tenantId: 'unknown',
+        error: error.message
+      }
+    }
+  }
 }
 
 // Export singleton instance

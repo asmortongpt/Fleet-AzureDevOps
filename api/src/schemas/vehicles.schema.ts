@@ -137,7 +137,7 @@ export const vehicleCreateSchema = z.object({
 
   inspectionDue: z.coerce.date().optional(),
 
-  specifications: z.record(z.any()).optional(),
+  specifications: z.record(z.string(), z.any()).optional(),
 
   // Multi-asset fields
   assetCategory: assetCategoryEnum.optional(),
@@ -267,7 +267,7 @@ export const vehicleUpdateSchema = z.object({
 
   inspectionDue: z.coerce.date().nullable().optional(),
 
-  specifications: z.record(z.any()).nullable().optional(),
+  specifications: z.record(z.string(), z.any()).nullable().optional(),
 
   // Multi-asset fields
   assetCategory: assetCategoryEnum.optional(),
