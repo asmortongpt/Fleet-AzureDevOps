@@ -1,3 +1,5 @@
+import { Pool } from 'pg'
+
 
 import { pool } from '../db'
 import { ValidationError } from '../lib/errors'
