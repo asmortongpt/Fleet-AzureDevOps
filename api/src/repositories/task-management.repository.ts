@@ -430,7 +430,12 @@ export class TaskManagementRepository extends BaseRepository<any> {
    * Count total tasks
    * Utility method for pagination
    */
-  async count(tenantId: string, filters: TaskFilters = {}): Promise<number> {
+  async count(filters: Record<string, unknown> = {}, tenantId: string | number): Promise<number> {
+    const taskFilters = filters as unknown as TaskFilters;
+    return this.countTasks(String(tenantId), taskFilters);
+  }
+
+  private async countTasks(tenantId: string, filters: TaskFilters = {}): Promise<number> {
     let query = `SELECT COUNT(*) FROM tasks WHERE tenant_id = $1`
     const params: any[] = [tenantId]
     let paramCount = 1

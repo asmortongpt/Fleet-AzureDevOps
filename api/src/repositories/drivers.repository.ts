@@ -206,7 +206,7 @@ export class DriversRepository extends BaseRepository<any> {
     return (result.rowCount ?? 0) > 0
   }
 
-  async count(tenantId: number): Promise<number> {
+  async count(filters: Record<string, unknown> = {}, tenantId: number): Promise<number> {
     const result = await this.pool.query(
       'SELECT COUNT(*) FROM drivers WHERE tenant_id = $1',
       [tenantId]

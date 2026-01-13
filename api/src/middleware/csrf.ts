@@ -17,7 +17,7 @@ const csrfMethods = doubleCsrf({
 
 // Export individual methods
 export const invalidCsrfTokenError = csrfMethods.invalidCsrfTokenError;
-export const generateToken = csrfMethods.generateToken; // Fixed: use generateToken not generateCsrfToken
+export const generateToken = csrfMethods.generateCsrfToken; // Fixed: use generateCsrfToken from the package
 export const validateRequest = csrfMethods.doubleCsrfProtection; // Fixed: validateRequest is actually doubleCsrfProtection middleware
 export const doubleCsrfProtection = csrfMethods.doubleCsrfProtection;
 
@@ -27,6 +27,6 @@ export const csrfProtection = doubleCsrfProtection;
 // CSRF Token endpoint handler
 export const getCsrfToken = (req: any, res: any) => {
   // Use the correct function name from the package
-  const token = csrfMethods.generateToken(req, res); // Fixed: use generateToken
+  const token = csrfMethods.generateCsrfToken(req, res); // Fixed: use generateCsrfToken
   res.json({ csrfToken: token });
 };

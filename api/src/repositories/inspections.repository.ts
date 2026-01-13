@@ -386,7 +386,7 @@ export class InspectionsRepository extends BaseRepository<any> {
   /**
    * Count inspections
    */
-  async count(tenantId: string): Promise<number> {
+  async count(filters: Record<string, unknown> = {}, tenantId: string | number): Promise<number> {
     const result = await pool.query(
       'SELECT COUNT(*) FROM inspections WHERE tenant_id = $1',
       [tenantId]

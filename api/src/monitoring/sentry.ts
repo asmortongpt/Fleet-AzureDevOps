@@ -165,9 +165,6 @@ class SentryService implements SentryConfig {
           /^Request aborted/
         ],
 
-        // Auto session tracking
-        autoSessionTracking: true,
-
         // Sample rate for errors (1.0 = 100%)
         sampleRate: process.env.NODE_ENV === 'production' ? 0.9 : 1.0,
 
