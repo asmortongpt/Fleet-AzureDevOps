@@ -1,9 +1,11 @@
 import { Request, Response } from 'express';
 
 import logger from '../config/logger';
+import { container } from '../container';
+import { TYPES } from '../types';
 import { VehiclesService } from '../modules/fleet/vehicles/vehicles.service';
 
-const vehicleService = new VehiclesService();
+const vehicleService = container.get<VehiclesService>(TYPES.VehiclesService);
 
 // Wrap all endpoint handlers in try-catch
 export async function getVehicleStatus(req: Request, res: Response): Promise<void> {
