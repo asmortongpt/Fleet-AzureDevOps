@@ -15,6 +15,8 @@
 
 import { Pool } from 'pg'
 
+import { pool } from '../db/connection'
+import logger from '../config/logger'
 import SearchIndexService, { SearchQuery, SearchResult, SearchStats } from './SearchIndexService'
 import DocumentRAGService, { SearchResult as RAGSearchResult } from './document-rag.service'
 
@@ -712,4 +714,9 @@ export class DocumentSearchService {
   }
 }
 
-export default DocumentSearchService
+// Create singleton instance
+const documentSearchServiceInstance = new DocumentSearchService(pool, logger)
+
+// Export both class and instance
+export default documentSearchServiceInstance
+export { DocumentSearchService }

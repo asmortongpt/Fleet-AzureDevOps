@@ -214,12 +214,10 @@ return
 }
 
   return new Promise((resolve) => {
-    appInsights.defaultClient.flush({
-      callback: () => {
-        console.log('📊 Telemetry data flushed')
-        resolve()
-      }
-    })
+    appInsights.defaultClient.flush()
+    console.log('📊 Telemetry data flushed')
+    // Small delay to allow flush to complete
+    setTimeout(resolve, 100)
   })
 }
 
