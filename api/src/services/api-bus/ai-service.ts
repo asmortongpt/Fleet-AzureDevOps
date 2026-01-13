@@ -151,6 +151,13 @@ export class AIService {
   }
 
   /**
+   * Chat method - alias for complete() for backward compatibility
+   */
+  async chat(request: AICompletionRequest): Promise<AICompletionResponse> {
+    return this.complete(request);
+  }
+
+  /**
    * Get provider statistics
    */
   getProviderStats(): {

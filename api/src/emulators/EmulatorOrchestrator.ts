@@ -695,7 +695,9 @@ export class EmulatorOrchestrator extends EventEmitter {
         id: vehicleId,
         currentSpeed: 0,
         speedLimit: 55,
-        location: vehicle.startingLocation || { latitude: 0, longitude: 0 },
+        location: vehicle.startingLocation
+          ? { latitude: vehicle.startingLocation.lat, longitude: vehicle.startingLocation.lng }
+          : { latitude: 0, longitude: 0 },
         driverId: '' // Driver ID not stored in vehicle, must be assigned separately
       })
       videoTelematicsEmulator.on('video-event-detected', (data) => this.emit('video-telematics', {
