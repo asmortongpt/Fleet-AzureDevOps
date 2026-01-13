@@ -13,6 +13,8 @@
 
 import { Pool } from 'pg'
 
+import { pool } from '../../db'
+
 export interface TaskAnalytics {
   overview: {
     total: number
@@ -547,6 +549,6 @@ return ''
 }
 
 // Global instance
-export const analyticsService = new AnalyticsService()
+export const analyticsService = new AnalyticsService(pool)
 
 export default analyticsService
