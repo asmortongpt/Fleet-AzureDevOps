@@ -135,11 +135,11 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
   // 6. Check Queue System
   try {
-    const queueStatus = await queueService.checkHealth();
+    const queueStatus: any = await (queueService as any).checkHealth?.();
     results.services.queue = {
-      status: queueStatus.healthy ? 'up' : 'down',
-      message: queueStatus.healthy ? 'Queue system is operational' : 'Queue system is not responding',
-      details: queueStatus.details
+      status: queueStatus?.healthy ? 'up' : 'down',
+      message: queueStatus?.healthy ? 'Queue system is operational' : 'Queue system is not responding',
+      details: queueStatus?.details
     };
   } catch (error: unknown) {
     results.services.queue = {
@@ -150,8 +150,8 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
   // 7. Check Sync Service
   try {
-    const syncService = await import('../services/sync.service');
-    const syncStatus = await syncService.syncService.checkHealth();
+    const syncService: any = await import('../services/sync.service');
+    const syncStatus = await syncService.syncService?.checkHealth?.();
     results.services.sync = {
       status: syncStatus.healthy ? 'up' : 'down',
       message: syncStatus.healthy ? 'Sync service is operational' : 'Sync service is not responding',

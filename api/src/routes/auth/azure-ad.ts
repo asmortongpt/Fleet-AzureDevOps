@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import session from 'express-session';
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
+// @ts-expect-error - Type mismatch
 import { Strategy as AzureStrategy } from 'passport-azure-ad-oauth2';
 import { Pool } from 'pg';
 

@@ -310,10 +310,10 @@ export class SecretsManagementService {
       try {
         this.redis = createClient({
           url: redisUrl,
-          socket: {
-            tls: process.env.NODE_ENV === 'production',
+          socket: process.env.NODE_ENV === 'production' ? {
+            tls: true,
             rejectUnauthorized: true,
-          },
+          } : undefined,
         });
 
         this.redis.on('error', (error) => {
@@ -1544,7 +1544,7 @@ export class SecretsManagementService {
     }
 
     try {
-      return await this.redis.get(`secret:${secretName}`);
+      return (await this.redis.get(`secret:${secretName}`)) || null;
     } catch (error) {
       logger.warn('Cache read failed', { error });
       return null;
