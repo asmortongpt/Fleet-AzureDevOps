@@ -33,7 +33,7 @@ const SemanticSearchSchema = z.object({
   query: z.string().min(1).max(1000),
   limit: z.number().min(1).max(100).optional().default(10),
   minScore: z.number().min(0).max(1).optional().default(0.7),
-  filter: z.record(z.any()).optional(),
+  filter: z.record(z.string(), z.any()).optional(),
   includeMetadata: z.boolean().optional().default(true),
 })
 
@@ -128,7 +128,7 @@ const HybridSearchSchema = z.object({
   minScore: z.number().min(0).max(1).optional().default(0.5),
   keywordWeight: z.number().min(0).max(1).optional().default(0.3),
   vectorWeight: z.number().min(0).max(1).optional().default(0.7),
-  filter: z.record(z.any()).optional(),
+  filter: z.record(z.string(), z.any()).optional(),
 })
 
 /**
@@ -328,7 +328,7 @@ router.post(
 const IndexDocumentSchema = z.object({
   documentId: z.string(),
   content: z.string().min(10),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
   chunkStrategy: z.enum(['semantic', 'fixed', 'sentence', 'paragraph']).optional().default('semantic'),
   chunkSize: z.number().min(100).max(4096).optional().default(512),
   chunkOverlap: z.number().min(0).max(512).optional().default(50),
@@ -414,7 +414,7 @@ const BatchIndexSchema = z.object({
     z.object({
       documentId: z.string(),
       content: z.string().min(10),
-      metadata: z.record(z.any()).optional(),
+      metadata: z.record(z.string(), z.any()).optional(),
     })
   ).min(1).max(100),
 })
