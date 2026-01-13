@@ -10,9 +10,9 @@ import logger from '../config/logger'
 import { pool } from '../db/connection';
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import { csrfProtection } from '../middleware/csrf'
-import * as googleCalendar from '../services/google-calendar.service'
+import googleCalendarService from '../services/google-calendar.service'
 import schedulingNotificationService from '../services/scheduling-notification.service'
-import * as schedulingService from '../services/scheduling.service'
+import schedulingService from '../services/scheduling.service'
 
 const router = express.Router()
 
@@ -734,7 +734,7 @@ router.get('/calendar/google/authorize', async (req: Request, res: Response) => 
   try {
     const { userId } = req.user as any
 
-    const authUrl = googleCalendar.getAuthorizationUrl(userId)
+    const authUrl = googleCalendarService.getAuthorizationUrl(userId)
 
     res.json({
       success: true,
@@ -760,10 +760,10 @@ router.post('/calendar/google/callback', csrfProtection, csrfProtection, async (
     }
 
     // Exchange code for tokens
-    const tokens = await googleCalendar.exchangeCodeForTokens(code)
+    const tokens = await googleCalendarService.exchangeCodeForTokens(code)
 
     // Store integration
-    const integration = await googleCalendar.storeCalendarIntegration(
+    const integration = await googleCalendarService.storeCalendarIntegration(
       tenantId,
       userId,
       tokens,
@@ -804,7 +804,7 @@ router.delete('/calendar/integrations/:id', csrfProtection, csrfProtection, asyn
     const provider = result.rows[0].provider
 
     if (provider === `google`) {
-      await googleCalendar.revokeIntegration(userId, id)
+      await googleCalendarService.revokeIntegration(userId, id)
     } else {
       // For Microsoft, just delete from database
       await pool.query(`DELETE FROM calendar_integrations WHERE id = $1`, [id])
@@ -863,7 +863,7 @@ router.post('/calendar/sync', csrfProtection, csrfProtection, async (req: Reques
     const integration = result.rows[0]
 
     if (integration.provider === 'google') {
-      const syncResult = await googleCalendar.syncEventsToDatabase(
+      const syncResult = await googleCalendarService.syncEventsToDatabase(
         userId,
         startDate ? new Date(startDate) : undefined,
         endDate ? new Date(endDate) : undefined
