@@ -71,11 +71,11 @@ export const routeCreateSchema = z.object({
 
   // Timing (REQUIRED)
   planned_start_time: z.coerce.date({
-    errorMap: () => ({ message: 'Invalid planned start time format' })
+    invalid_type_error: 'Invalid planned start time format'
   }),
 
   planned_end_time: z.coerce.date({
-    errorMap: () => ({ message: 'Invalid planned end time format' })
+    invalid_type_error: 'Invalid planned end time format'
   }),
 
   actual_start_time: z.coerce.date().optional(),

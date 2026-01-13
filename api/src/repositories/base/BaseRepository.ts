@@ -19,6 +19,8 @@ export interface PaginationOptions {
   sortOrder?: 'ASC' | 'DESC';
 }
 
+export type PaginationParams = PaginationOptions
+
 export interface PaginatedResult<T> {
   data: T[];
   pagination: {

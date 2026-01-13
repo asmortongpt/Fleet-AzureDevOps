@@ -25,7 +25,7 @@ export interface VehicleIdentification {
   qrCode?: string
 }
 
-export class VehicleIdentificationService {
+class VehicleIdentificationService {
   constructor(private db: Pool) { }
 
   /**

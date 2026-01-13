@@ -99,7 +99,7 @@ export interface ProviderTelemetry {
 // Vehicle Hardware Configuration Service
 // ============================================================================
 
-export class VehicleHardwareConfigService {
+class VehicleHardwareConfigService {
   private db: Pool;
   private smartcarService: SmartcarService;
   private samsaraService: SamsaraService;

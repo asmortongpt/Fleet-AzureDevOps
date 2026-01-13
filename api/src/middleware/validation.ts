@@ -84,7 +84,10 @@ export function validate(
       // Modify schema if partial validation is requested
       let validationSchema = schema
       if (options.partial) {
-        validationSchema = schema.partial()
+        // Check if schema is ZodObject which has partial() method
+        if ('partial' in schema && typeof (schema as any).partial === 'function') {
+          validationSchema = (schema as any).partial()
+        }
       }
 
       // Validate data

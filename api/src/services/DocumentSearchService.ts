@@ -104,7 +104,7 @@ export interface SearchHistory {
   created_at: Date
 }
 
-export class DocumentSearchService {
+class DocumentSearchService {
   private searchIndexService: typeof SearchIndexService
   private ragService: typeof DocumentRAGService
 

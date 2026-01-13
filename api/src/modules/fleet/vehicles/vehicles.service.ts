@@ -26,7 +26,7 @@ export class VehiclesService {
   async createVehicle(data: Partial<Vehicle>, tenantId: string) {
     // Business logic validation
     if (data.vin) {
-      const existing = await this.vehiclesRepository.findByVin(data.vin, tenantId);
+      const existing = await this.vehiclesRepository.findByVIN(data.vin, tenantId); // Fixed: findByVIN not findByVin
       if (existing) {
         throw new Error('Vehicle with this VIN already exists');
       }

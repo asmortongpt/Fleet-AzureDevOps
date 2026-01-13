@@ -92,7 +92,7 @@ function getUserContext(req: AuthRequest): UserContext {
     id: user.id,
     name: user.name || user.email,
     email: user.email,
-    roles: user.roles || [],
+    roles: user.role ? [user.role] : [], // Fixed: role not roles (convert to array)
     tenant_id: user.tenant_id || '',
     org_id: user.org_id,
   };

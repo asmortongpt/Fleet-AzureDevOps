@@ -25,14 +25,14 @@ export class PartsInventoryRepository extends BaseRepository<any> {
 
   async create(part: PartsInventory): Promise<PartsInventory> {
     const query = 'INSERT INTO parts_inventory (name, description, quantity, tenant_id) VALUES ($1, $2, $3, $4) RETURNING *';
-    const values = [part.name, part.description, part.quantity, part.tenant_id];
+    const values = [part.name, part.description, part.quantity, part.tenantId]; // Fixed: tenantId not tenant_id
     const result = await this.pool.query(query, values);
     return result.rows[0];
   }
 
   async update(id: string, part: PartsInventory): Promise<PartsInventory | null> {
     const query = 'UPDATE parts_inventory SET name = $1, description = $2, quantity = $3 WHERE id = $4 AND tenant_id = $5 RETURNING *';
-    const values = [part.name, part.description, part.quantity, id, part.tenant_id];
+    const values = [part.name, part.description, part.quantity, id, part.tenantId]; // Fixed: tenantId not tenant_id
     const result = await this.pool.query(query, values);
     return result.rows[0] || null;
   }

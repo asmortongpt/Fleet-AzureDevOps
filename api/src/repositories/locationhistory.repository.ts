@@ -17,7 +17,7 @@ export class LocationHistoryRepository extends BaseRepository<any> {
       VALUES ($1, $2, $3, $4, $5)
       RETURNING id, user_id, latitude, longitude, timestamp, tenant_id
     `;
-    const values = [locationHistory.user_id, locationHistory.latitude, locationHistory.longitude, locationHistory.timestamp, locationHistory.tenant_id];
+    const values = [locationHistory.user_id, locationHistory.latitude, locationHistory.longitude, locationHistory.timestamp, locationHistory.tenantId]; // Fixed: tenantId not tenant_id
     const result = await this.pool.query(query, values);
     return result.rows[0];
   }
