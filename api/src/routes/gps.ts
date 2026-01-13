@@ -14,11 +14,11 @@ const router = Router()
 // TODO: GPS Emulator service needs to be implemented
 // Placeholder implementation until gps-emulator service is created
 const gpsEmulator = {
-  getAllPositions: () => ({ positions: [], total: 0 }),
-  getFacilities: () => [],
-  getGeofenceAlerts: () => [],
-  getVehiclePosition: () => null,
-  getVehicleHistory: () => [],
+  getAllPositions: (filters?: any) => ({ positions: [], total: 0 }),
+  getFacilities: (facilityId?: string) => [],
+  getGeofenceAlerts: (filters?: any) => [],
+  getVehiclePosition: (vehicleId: string) => null,
+  getVehicleHistory: (vehicleId: string, filters?: any) => [],
   start: () => {},
   stop: () => {}
 }

@@ -34,7 +34,7 @@ const cacheMiddleware = (keyPrefix: string) => {
             const cached = await redisClient.get(cacheKey)
 
             if (cached) {
-                const data = JSON.parse(cached)
+                const data = JSON.parse(typeof cached === 'string' ? cached : cached.toString())
                 return res.json({
                     ...data,
                     metadata: {

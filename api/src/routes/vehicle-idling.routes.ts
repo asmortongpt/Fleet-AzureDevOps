@@ -17,6 +17,7 @@ import { Router, Request, Response } from 'express'
 import { body, param, query } from 'express-validator'
 
 import logger from '../config/logger'; // Wave 22: Add Winston logger
+import { pool } from '../db'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { validateRequest } from '../middleware/validate-request'
@@ -24,7 +25,7 @@ import { VehicleIdlingService } from '../services/vehicle-idling.service'
 
 
 const router = Router()
-const idlingService = new VehicleIdlingService()
+const idlingService = new VehicleIdlingService(pool)
 
 // ============================================================================
 // Active Idling Events

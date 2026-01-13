@@ -1043,8 +1043,7 @@ Generate prioritized recommendations with:
 }
 
 // Export singleton instance
-import { db } from '../db'
-const langChainOrchestratorService = new LangChainOrchestratorService(db)
+import { pool } from '../db'
+const langChainOrchestratorService = new LangChainOrchestratorService(pool)
 
-export { LangChainOrchestratorService }
 export default langChainOrchestratorService
