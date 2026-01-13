@@ -572,6 +572,18 @@ export class DocumentVersionService {
       throw error
     }
   }
+
+  /**
+   * Static initialize method for backwards compatibility
+   */
+  static async initialize(): Promise<void> {
+    // No-op for static calls, instances should call their own initialize
+  }
 }
 
-export default DocumentVersionService
+// Export singleton instance
+import pool from '../config/database'
+import logger from '../config/logger'
+
+export const documentVersionService = new DocumentVersionService(pool, logger)
+export default documentVersionService

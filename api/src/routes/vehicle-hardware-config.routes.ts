@@ -83,22 +83,28 @@ router.get(
       const vehicleId = parseInt(req.params.id, 10);
       const tenantId = req.user!.tenant_id!;
 
-      const config = await hardwareService.getVehicleHardwareConfig(vehicleId);
+      const providers = await hardwareService.getVehicleHardwareConfig(vehicleId);
 
-      if (!config) {
-        throw new NotFoundError('Vehicle not found or access denied');
+      if (!providers || providers.length === 0) {
+        return res.json({
+          success: true,
+          data: {
+            vehicleId,
+            providers: []
+          }
+        });
       }
 
       res.json({
         success: true,
         data: {
-          vehicleId: config.vehicleId,
-          providers: config.providers.map(p => ({
+          vehicleId: providers[0]?.vehicleId || vehicleId,
+          providers: providers.map(p => ({
             provider: p.provider,
-            status: p.status,
+            status: p.syncStatus,
             capabilities: p.capabilities,
-            config: p.config,
-            lastSync: p.lastSync,
+            config: p.metadata,
+            lastSync: p.lastSyncAt,
             syncStatus: p.syncStatus
           }))
         }
