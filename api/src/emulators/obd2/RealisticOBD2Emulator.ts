@@ -441,7 +441,8 @@ export class RealisticOBD2Emulator extends EventEmitter {
       this.state.throttlePosition = 0
     } else {
       // Calculate gear based on speed
-      const gearRatios = this.vehicle.type === 'excavator' || this.vehicle.type === 'dump_truck'
+      const vehicleType = this.vehicle.type as string;
+      const gearRatios = vehicleType === 'excavator' || vehicleType === 'dump_truck'
         ? GEAR_RATIOS.heavy
         : GEAR_RATIOS.automatic
 
