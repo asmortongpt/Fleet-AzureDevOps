@@ -24,7 +24,7 @@ import { requirePermission } from '../middleware/permissions'
 const createAlertRuleSchema = z.object({
   rule_name: z.string().min(1).max(200),
   rule_type: z.enum(['maintenance_due', 'fuel_threshold', 'geofence_violation', 'speed_violation', 'idle_time', 'custom']),
-  conditions: z.record(z.any()),
+  conditions: z.record(z.string(), z.any()),
   severity: z.enum(['info', 'warning', 'critical', 'emergency']),
   channels: z.array(z.enum(['in_app', 'email', 'sms', 'push'])).optional(),
   recipients: z.array(z.string().uuid()).optional(),
