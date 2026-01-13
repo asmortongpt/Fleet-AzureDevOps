@@ -172,8 +172,8 @@ router.post(
 
       // Run optimization
       const result = await routeOptimizationService.optimizeRoutes(
-        req.user!.tenant_id,
-        req.user!.id,
+        Number(req.user!.tenant_id),
+        Number(req.user!.id),
         validatedData.stops,
         vehicles,
         drivers,

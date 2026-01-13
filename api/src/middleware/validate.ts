@@ -185,7 +185,7 @@ export const validateAll = (
       if (schemas.body) {
         const data = sanitize ? sanitizeInput(req.body) : req.body;
         const validated = await schemas.body.parseAsync(data);
-        req.body = stripUnknown ? validated : { ...req.body, ...validated };
+        req.body = stripUnknown ? validated : (typeof validated === 'object' && validated !== null ? { ...req.body, ...validated } : validated);
       }
 
       next();

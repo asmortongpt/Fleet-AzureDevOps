@@ -98,7 +98,7 @@ export function validate(
         req[target] = validated
       } else {
         // Merge validated data back
-        req[target] = { ...req[target], ...validated }
+        req[target] = (typeof validated === 'object' && validated !== null ? { ...req[target], ...validated } : validated)
       }
 
       next()
