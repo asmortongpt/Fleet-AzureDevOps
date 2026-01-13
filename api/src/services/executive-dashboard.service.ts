@@ -711,7 +711,7 @@ return severityDiff
 
 // Export singleton instance
 import { db } from '../db'
-const executiveDashboardService = new ExecutiveDashboardService(db)
+const executiveDashboardService = new ExecutiveDashboardService(db as any)
 
 export { ExecutiveDashboardService }
 export default executiveDashboardService
