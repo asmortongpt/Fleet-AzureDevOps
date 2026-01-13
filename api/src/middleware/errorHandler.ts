@@ -13,6 +13,22 @@ import {
 import telemetryService from '../monitoring/applicationInsights';
 import { sanitizeForLog, sanitizeRequestForLog } from '../utils/logSanitizer';
 
+// Re-export error classes for convenience
+export {
+  BaseError,
+  ValidationError,
+  UnauthorizedError,
+  ForbiddenError,
+  NotFoundError,
+  ConflictError,
+  InternalServerError as ServerError,
+  DatabaseError,
+  ExternalServiceError,
+  RateLimitError,
+  TimeoutError,
+} from '../errors/custom-errors';
+
+
 /**
  * Extended request interface with telemetry tracking
  */

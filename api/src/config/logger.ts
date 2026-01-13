@@ -47,3 +47,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 export default logger;
 
+
+
+// Security-specific logger
+export const securityLogger = logger.child({ category: 'security' });

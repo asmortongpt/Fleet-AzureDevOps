@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "dotenv -e .env -- tsx watch --tsconfig tsconfig.json src/server-simple.ts",
     "dev:full": "dotenv -e .env -- tsx watch --tsconfig tsconfig.json src/server.ts",
-    "build": "tsc",
+    "build": "tsc --project tsconfig.build.json",
+    "build:strict": "tsc",
     "start": "node dist/server-simple.js",
     "test": "vitest",
     "test:watch": "vitest --watch",
