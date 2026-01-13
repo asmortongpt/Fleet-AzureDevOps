@@ -551,6 +551,64 @@ Keep the response concise but thorough.`
   private estimateTokens(text: string): number {
     return Math.ceil(text.length / 4)
   }
+
+  /**
+   * Process a query through the AI supervisor
+   */
+  async processQuery(
+    query: string,
+    tenantId: string,
+    userId: string,
+    sessionId?: string
+  ): Promise<any> {
+    const actualSessionId = sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+
+    // Determine which agent(s) to use
+    const decision = await this.determineAgentStrategy(query)
+
+    // Execute primary agent
+    const results: AgentResult[] = []
+    const primaryResult = await this.executeAgent(decision.primaryAgent, query, tenantId, userId)
+    results.push(primaryResult)
+
+    // Execute supporting agents if any
+    for (const agentId of decision.supportingAgents) {
+      const result = await this.executeAgent(agentId, query, tenantId, userId)
+      results.push(result)
+    }
+
+    // Synthesize results
+    const synthesis = await this.synthesizeResults(query, results)
+
+    // Calculate total tokens
+    const totalTokens = results.reduce((sum, r) => sum + r.tokensUsed, 0)
+
+    // Log execution
+    await this.logSupervisorExecution(
+      tenantId,
+      userId,
+      actualSessionId,
+      query,
+      decision,
+      results,
+      synthesis,
+      totalTokens
+    )
+
+    return {
+      query,
+      sessionId: actualSessionId,
+      decision,
+      results,
+      synthesis,
+      totalTokens
+    }
+  }
 }
 
-export default AIAgentSupervisorService
+// Export singleton instance
+import { db } from '../db'
+const aiAgentSupervisorService = new AIAgentSupervisorService(db)
+
+export { AIAgentSupervisorService }
+export default aiAgentSupervisorService

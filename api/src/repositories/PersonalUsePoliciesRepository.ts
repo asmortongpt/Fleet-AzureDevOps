@@ -11,10 +11,12 @@
  */
 
 import { injectable } from 'inversify';
+import { Pool } from 'pg';
 
 import { ApprovalWorkflow } from '../types/trip-usage';
 
 import { BaseRepository, QueryContext } from './base/BaseRepository';
+import pool from '../config/database';
 
 
 export interface PersonalUsePolicy {
@@ -80,7 +82,11 @@ export class PersonalUsePoliciesRepository extends BaseRepository<PersonalUsePol
   protected idColumn = 'id';
 
   constructor() {
-    super();
+    super(pool, 'personal_use_policies', 'id');
+  }
+
+  protected getPool(context?: QueryContext): Pool {
+    return super.getPool();
   }
 
   async getPolicyByTenant(context: QueryContext): Promise<PersonalUsePolicy | null> {

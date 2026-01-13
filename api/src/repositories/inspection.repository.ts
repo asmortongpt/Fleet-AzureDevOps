@@ -8,14 +8,14 @@ export class InspectionRepository extends Repository<any> {
   }
 
   async findByVehicle(vehicleId: string) {
-    return await prisma.inspection.findMany({
+    return await this.model.findMany({
       where: { vehicleId },
       orderBy: { inspectionDate: 'desc' }
     });
   }
 
   async findFailedInspections() {
-    return await prisma.inspection.findMany({
+    return await this.model.findMany({
       where: { passedInspection: false },
       orderBy: { inspectionDate: 'desc' }
     });

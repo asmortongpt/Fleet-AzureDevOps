@@ -261,7 +261,7 @@ export class ReimbursementRequestsRepository extends BaseRepository<any> {
 
     if (userRole !== 'admin' && userRole !== 'fleet_manager') {
       countQuery += ' AND driver_id = $2';
-      countParams.push(userId!);
+      countParams.push(Number(userId!));
     }
 
     const countResult = await this.pool.query(countQuery, countParams);

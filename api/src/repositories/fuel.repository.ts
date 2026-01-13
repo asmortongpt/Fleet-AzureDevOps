@@ -342,4 +342,4 @@ export class FuelRepository extends BaseRepository<any> {
   }
 }
 
-export const fuelRepository = new FuelRepository()
+export const fuelRepository = new FuelRepository(pool)

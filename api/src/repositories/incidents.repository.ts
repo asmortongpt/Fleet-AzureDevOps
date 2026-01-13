@@ -436,4 +436,4 @@ export class IncidentsRepository extends BaseRepository<any> {
   }
 }
 
-export const incidentsRepository = new IncidentsRepository()
+export const incidentsRepository = new IncidentsRepository(pool)

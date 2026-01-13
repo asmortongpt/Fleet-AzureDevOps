@@ -540,8 +540,8 @@ export class AssetManagementRepository extends BaseRepository<Asset> {
    * Calculate asset depreciation
    */
   calculateDepreciation(asset: Asset): DepreciationCalculation {
-    const purchasePrice = parseFloat(asset.purchase_price) || 0
-    const depreciationRate = parseFloat(asset.depreciation_rate) || 0
+    const purchasePrice = parseFloat(String(asset.purchase_price)) || 0
+    const depreciationRate = parseFloat(String(asset.depreciation_rate)) || 0
     const purchaseDate = new Date(asset.purchase_date)
     const currentDate = new Date()
 

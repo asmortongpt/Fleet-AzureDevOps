@@ -16,7 +16,7 @@ export class VehiclesService {
   }
 
   async getVehicleById(id: string, tenantId: string) {
-    const vehicle = await this.vehiclesRepository.findById(id, tenantId);
+    const vehicle = await this.vehiclesRepository.findById(Number(id), tenantId);
     if (!vehicle) {
       throw new Error('Vehicle not found');
     }
@@ -35,15 +35,15 @@ export class VehiclesService {
   }
 
   async updateVehicle(id: string, data: Partial<Vehicle>, tenantId: string) {
-    return await this.vehiclesRepository.update(id, data, tenantId);
+    return await this.vehiclesRepository.update(Number(id), data, tenantId);
   }
 
   async deleteVehicle(id: string, tenantId: string) {
-    return await this.vehiclesRepository.delete(id, tenantId);
+    return await this.vehiclesRepository.delete(Number(id), tenantId);
   }
 
   async getStatus(vehicleId: string, tenantId: string) {
-    const vehicle = await this.vehiclesRepository.findById(vehicleId, tenantId);
+    const vehicle = await this.vehiclesRepository.findById(Number(vehicleId), tenantId);
     if (!vehicle) {
       throw new Error('Vehicle not found');
     }

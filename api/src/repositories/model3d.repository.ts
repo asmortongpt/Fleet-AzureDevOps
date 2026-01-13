@@ -45,7 +45,7 @@ export class Model3DRepository extends BaseRepository<any> {
   async updateModel(id: number, model: Partial<Omit<Model3D, 'id' | 'created_at' | 'updated_at' | 'tenant_id'>>, tenantId: number): Promise<Model3D | null> {
     const setClause = Object.keys(model).map((key, index) => `${key} = $${index + 2}`).join(', ');
     const values = Object.values(model);
-    values.unshift(id, tenantId);
+    values.unshift(String(id), String(tenantId));
 
     const query = `
       UPDATE model3ds
