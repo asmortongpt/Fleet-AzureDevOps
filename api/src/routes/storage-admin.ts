@@ -96,7 +96,7 @@ router.post('/upload', csrfProtection, upload.single('file'), async (req: Reques
         mimeType: req.file.mimetype,
         size: req.file.size,
         uploadedBy: (req as any).user?.id || 'anonymous'
-      },
+      } as any,
       contentType: req.file.mimetype,
       overwrite: req.body.overwrite === 'true'
     });
@@ -553,7 +553,7 @@ router.post('/batch/upload', csrfProtection, upload.array('files', 10), async (r
             mimeType: file.mimetype,
             size: file.size,
             uploadedBy: (req as any).user?.id || 'anonymous'
-          },
+          } as any,
           contentType: file.mimetype
         });
         results.push(result);
