@@ -51,7 +51,7 @@ class AIControlsService {
 
   constructor(
     private db: Pool,
-    private logger: typeof logger
+    private logger: any
   ) {
     this.initializeRedis()
   }
