@@ -21,7 +21,7 @@
  * @module MonitoringService
  */
 
-import { JaegerExporter } from '@opentelemetry/exporter-jaeger'
+// import { JaegerExporter } from '@opentelemetry/exporter-jaeger'
 import { Resource } from '@opentelemetry/resources'
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base'
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'

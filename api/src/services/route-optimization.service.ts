@@ -119,4 +119,21 @@ export class RouteOptimizationService {
   }
 }
 
+// Create singleton instance
+import { pool } from '../config/database'
+const instance = new RouteOptimizationService(pool)
+
+// Export instance methods as functions for backward compatibility
+export async function optimizeRoutes(...args: Parameters<RouteOptimizationService['optimizeRoutes']>) {
+  return instance.optimizeRoutes(...args)
+}
+
+export async function getOptimizationJob(...args: Parameters<RouteOptimizationService['getOptimizationJob']>) {
+  return instance.getOptimizationJob(...args)
+}
+
+export async function getRoutesForJob(...args: Parameters<RouteOptimizationService['getRoutesForJob']>) {
+  return instance.getRoutesForJob(...args)
+}
+
 export default RouteOptimizationService

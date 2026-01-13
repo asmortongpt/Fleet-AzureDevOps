@@ -4,7 +4,7 @@
  */
 
 import * as tf from '@tensorflow/tfjs-node'
-import * as cv from '@techstark/opencv-js'
+// import * as cv from '@techstark/opencv-js'
 import { OpenAI } from 'openai'
 import { ComputerVisionClient } from '@azure/cognitiveservices-computervision'
 import { ApiKeyCredentials } from '@azure/ms-rest-js'
