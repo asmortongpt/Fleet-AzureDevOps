@@ -1,4 +1,4 @@
-import { PoolClient } from 'pg'
+import { Pool, PoolClient } from 'pg'
 
 import { pool } from '../db'
 import { NotFoundError, ValidationError } from '../lib/errors'
