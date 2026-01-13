@@ -466,4 +466,10 @@ export class DocumentAuditService {
   }
 }
 
-export default DocumentAuditService
+// Import dependencies for singleton instance
+import pool from '../config/database'
+import logger from '../config/logger'
+
+// Export singleton instance
+export const documentAuditService = new DocumentAuditService(pool, logger)
+export default documentAuditService
