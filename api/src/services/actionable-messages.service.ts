@@ -702,4 +702,10 @@ return
   }
 }
 
+// Create singleton instance
+const actionableMessagesServiceInstance = new ActionableMessagesService()
+
+// Export handleCardAction method for backward compatibility
+export const handleCardAction = actionableMessagesServiceInstance.handleCardAction.bind(actionableMessagesServiceInstance)
+
 export default ActionableMessagesService
