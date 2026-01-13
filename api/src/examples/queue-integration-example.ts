@@ -235,8 +235,7 @@ export class SyncServiceWithQueue {
   async fullSyncMessages(userId: string) {
     const jobId = await queueService.enqueueSync({
       resourceType: 'messages',
-      userId,
-      fullSync: true
+      userId
     });
 
     return { jobId };
@@ -248,8 +247,7 @@ export class SyncServiceWithQueue {
   async syncCalendar(userId: string) {
     const jobId = await queueService.enqueueSync({
       resourceType: 'calendar',
-      userId,
-      fullSync: false
+      userId
     });
 
     return { jobId };

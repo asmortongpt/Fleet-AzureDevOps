@@ -173,7 +173,7 @@ router.post(
       res.status(201).json({
         success: true,
         data: {
-          providerId: result.providerId,
+          providerId: result.provider,
           message: `Provider '${provider}' added successfully`
         }
       });
