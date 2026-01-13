@@ -22,7 +22,7 @@ import { performance } from 'perf_hooks'
 import Redis from 'ioredis'
 import type { Pool } from 'pg'
 import { Counter, Histogram, Gauge } from 'prom-client'
-import { VM } from 'vm2'
+// import { VM } from 'vm2'
 
 import logger from '../../config/logger'
 import AuditService from '../auditService'
