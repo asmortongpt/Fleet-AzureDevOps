@@ -26,7 +26,7 @@ export class FuelTransactionsRepository extends BaseRepository<any> {
       WHERE ft.id = $1 AND ft.tenant_id = $2 AND ft.deleted_at IS NULL
     `;
     const result = await this.query(query, [id, tenantId]);
-    return result.rows[0] || null;
+    return result[0] || null;
   }
 
   /**
@@ -45,7 +45,7 @@ export class FuelTransactionsRepository extends BaseRepository<any> {
       ORDER BY ft.date DESC
     `;
     const result = await this.query(query, [tenantId]);
-    return result.rows;
+    return result;
   }
 }
 
