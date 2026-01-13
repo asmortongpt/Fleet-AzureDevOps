@@ -52,7 +52,7 @@ router.get(
       if (!queryValidation.success) {
         return res.status(400).json({
           error: 'Invalid query parameters',
-          details: queryValidation.error.errors,
+          details: queryValidation.error.issues,
         })
       }
 
@@ -275,7 +275,7 @@ router.get(
       if (!queryValidation.success) {
         return res.status(400).json({
           error: 'Invalid query parameters',
-          details: queryValidation.error.errors,
+          details: queryValidation.error.issues,
         })
       }
 
