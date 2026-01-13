@@ -6,6 +6,7 @@
  */
 
 import nodemailer from 'nodemailer'
+import path from 'path'
 import { Pool } from 'pg'
 
 import excelExportService, { ExportOptions } from './excel-export.service'
