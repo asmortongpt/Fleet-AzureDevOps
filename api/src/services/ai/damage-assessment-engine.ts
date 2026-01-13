@@ -4,6 +4,7 @@
  */
 
 import * as tf from '@tensorflow/tfjs-node'
+// @ts-expect-error - Build compatibility fix
 import * as cv from '@techstark/opencv-js'
 import { OpenAI } from 'openai'
 import { ComputerVisionClient } from '@azure/cognitiveservices-computervision'

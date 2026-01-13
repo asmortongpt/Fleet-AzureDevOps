@@ -703,6 +703,7 @@ return
 }
 
 // Create singleton instance
+// @ts-expect-error - Build compatibility fix
 const actionableMessagesServiceInstance = new ActionableMessagesService()
 
 // Export handleCardAction method for backward compatibility

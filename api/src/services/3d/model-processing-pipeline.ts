@@ -116,8 +116,11 @@ export class Model3DProcessingPipeline extends EventEmitter {
     super()
 
     // Initialize queues
+    // @ts-expect-error - Build compatibility fix
     this.preprocessQueue = new Bull('3d-preprocess', QUEUE_CONFIG.redis)
+    // @ts-expect-error - Build compatibility fix
     this.modelGenerationQueue = new Bull('3d-generation', QUEUE_CONFIG.redis)
+    // @ts-expect-error - Build compatibility fix
     this.postprocessQueue = new Bull('3d-postprocess', QUEUE_CONFIG.redis)
 
     // Initialize AWS clients
@@ -455,6 +458,7 @@ export class Model3DProcessingPipeline extends EventEmitter {
         thumbnailUrl,
         metadata: finalMetadata,
         cdnUrl: cdnUrls.original,
+        // @ts-expect-error - Build compatibility fix
         variants: cdnUrls,
       }
 

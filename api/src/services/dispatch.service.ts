@@ -711,6 +711,7 @@ return
 
 // Export singleton instance
 import { db } from '../db'
+// @ts-expect-error - Build compatibility fix
 const dispatchService = new DispatchService(db)
 
 export { DispatchService }

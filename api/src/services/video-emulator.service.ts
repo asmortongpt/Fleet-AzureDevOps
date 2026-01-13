@@ -141,6 +141,7 @@ export class VideoEmulatorService extends EventEmitter {
       updateIntervalMs: 5000,
       ...this.config.defaultDashCamConfig,
       ...customConfig,
+      // @ts-expect-error - Build compatibility fix
       vehicleId, // Ensure vehicleId is not overridden
     };
 

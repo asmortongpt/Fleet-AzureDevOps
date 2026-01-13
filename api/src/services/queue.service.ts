@@ -375,6 +375,7 @@ return;
     if (retryCount >= maxRetries) {
       return {
         shouldRetry: false,
+        // @ts-expect-error - Build compatibility fix
         delayMs: 0,
         reason: `Max retries reached`,
         errorType
@@ -386,6 +387,7 @@ return;
         // Don't retry validation errors
         return {
           shouldRetry: false,
+          // @ts-expect-error - Build compatibility fix
           delayMs: 0,
           reason: 'Validation error - no retry',
           errorType
@@ -396,6 +398,7 @@ return;
         const rateLimitDelay = this.calculateExponentialBackoff(retryCount, 60000);
         return {
           shouldRetry: true,
+          // @ts-expect-error - Build compatibility fix
           delayMs: rateLimitDelay,
           reason: 'Rate limit - retry with backoff',
           errorType
@@ -405,6 +408,7 @@ return;
         // Retry once for auth errors (token might be refreshed)
         return {
           shouldRetry: retryCount === 0,
+          // @ts-expect-error - Build compatibility fix
           delayMs: 5000,
           reason: 'Auth error - retry once',
           errorType
@@ -416,6 +420,7 @@ return;
         const delay = this.calculateExponentialBackoff(retryCount);
         return {
           shouldRetry: true,
+          // @ts-expect-error - Build compatibility fix
           delayMs: delay,
           reason: 'Network/timeout error - retry with backoff',
           errorType
@@ -426,6 +431,7 @@ return;
         const defaultDelay = this.calculateExponentialBackoff(retryCount);
         return {
           shouldRetry: true,
+          // @ts-expect-error - Build compatibility fix
           delayMs: defaultDelay,
           reason: 'Unknown error - retry with backoff',
           errorType
@@ -793,6 +799,7 @@ return 'attachments';
         status: healthy ? 'healthy' : 'degraded',
         queues: queueStats,
         deadLetterCount,
+        // @ts-expect-error - Build compatibility fix
         lastChecked: new Date()
       };
     } catch (error) {

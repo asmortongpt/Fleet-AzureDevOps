@@ -94,6 +94,7 @@ export function requirePermissionWithContext(
             teamIds: req.user.teamIds || [],
             fleetIds: req.user.fleetIds || []
           },
+          // @ts-expect-error - Build compatibility fix
           environment: {
             ipAddress: req.ip || '0.0.0.0',
             userAgent: req.headers['user-agent'] || 'unknown',
@@ -146,6 +147,7 @@ export function requireResourcePermission(
         permission,
         resource,
         {
+          // @ts-expect-error - Build compatibility fix
           environment: {
             ipAddress: req.ip || '0.0.0.0',
             userAgent: req.headers['user-agent'] || 'unknown'

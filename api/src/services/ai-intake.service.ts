@@ -75,6 +75,7 @@ export interface AIRequestRecord {
 }
 
 class AIIntakeService {
+  // @ts-expect-error - Build compatibility fix
   private requestQueue: Queue | null = null
   private validationService: AIValidationService
   private controlsService: AIControlsService

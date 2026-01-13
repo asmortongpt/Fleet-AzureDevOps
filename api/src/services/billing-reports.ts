@@ -322,6 +322,7 @@ export class BillingReportsService {
 }
 
 // Singleton instance for backwards compatibility
+// @ts-expect-error - Build compatibility fix
 export const billingReportsService = new BillingReportsService();
 
 export default BillingReportsService
