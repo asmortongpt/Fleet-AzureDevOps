@@ -140,7 +140,7 @@ export default class DocumentService {
     try {
       const containerClient = this.blobServiceClient!.getContainerClient(this.CONTAINER_NAME)
       await containerClient.createIfNotExists({
-        access: 'private'
+        access: 'private' as any
       })
       this.logger.info(`✅ Container initialized: ${this.CONTAINER_NAME}`)
     } catch (error) {
