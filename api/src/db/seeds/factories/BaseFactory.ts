@@ -157,13 +157,13 @@ export class BaseFactory {
    * Get random past date
    */
   protected randomPastDate(days: number): Date {
-    return this.faker.date.past({ days });
+    return this.faker.date.past({ years: days / 365 });
   }
 
   /**
    * Get random future date
    */
   protected randomFutureDate(days: number): Date {
-    return this.faker.date.future({ days });
+    return this.faker.date.future({ years: days / 365 });
   }
 }
