@@ -216,7 +216,7 @@ router.get(
     try {
       const inspections = await inspectionRepo.findByDriver(
         Number(req.user!.tenant_id),
-        req.params.driverId
+        Number(req.params.driverId)
       )
       res.json({ data: inspections })
     } catch (error) {
@@ -298,7 +298,7 @@ router.post(
       // Create inspection
       const inspection = await inspectionRepo.createInspection(
         Number(req.user!.tenant_id),
-        validatedData
+        validatedData as any
       )
 
       res.status(201).json(inspection)
@@ -330,7 +330,7 @@ router.put(
       const inspection = await inspectionRepo.updateInspection(
         Number(req.params.id),
         Number(req.user!.tenant_id),
-        validatedData
+        validatedData as any
       )
 
       res.json(inspection)
@@ -466,7 +466,7 @@ router.post(
                 inspection_type,
                 scheduled_date,
                 status: 'pending'
-              }
+              } as any
             )
             results.push(inspection)
           }

@@ -687,4 +687,8 @@ export class HeavyEquipmentService {
   }
 }
 
-export default HeavyEquipmentService
+// Export singleton instance
+import { pool } from '../db'
+const heavyEquipmentService = new HeavyEquipmentService(pool)
+
+export default heavyEquipmentService

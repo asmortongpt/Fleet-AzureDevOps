@@ -521,4 +521,8 @@ return 0
   }
 }
 
-export default FuelOptimizationService
+// Export singleton instance
+import { pool } from '../db'
+const fuelOptimizationService = new FuelOptimizationService(pool)
+
+export default fuelOptimizationService

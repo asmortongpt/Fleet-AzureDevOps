@@ -513,4 +513,4 @@ export class TripUsageRepository extends BaseRepository<any> {
 }
 
 // Export singleton instance
-export const tripUsageRepository = new TripUsageRepository()
+export const tripUsageRepository = new TripUsageRepository(pool)

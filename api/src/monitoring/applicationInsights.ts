@@ -264,9 +264,9 @@ return
     this.client?.defaultClient.trackPageView({
       name,
       url,
-      properties: {
-        ...properties,
-        timestamp: new Date().toISOString()
+      properties,
+      duration: 0,
+      timestamp: new Date().toISOString() as any
       }
     })
   }

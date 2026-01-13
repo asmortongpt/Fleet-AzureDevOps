@@ -324,12 +324,12 @@ countParams.push(status)
       ${driver_id ? `AND vsi.driver_id = $${vehicle_id ? '3' : '2'}` : ''}
       ${status ? `AND vsi.overall_status = $${[vehicle_id, driver_id].filter(Boolean).length + 2}` : ''}
     `
-    const countParams = [tenantId]
+    const countParams: any[] = [tenantId]
     if (vehicle_id) {
-countParams.push(vehicle_id)
+countParams.push(String(vehicle_id))
 }
     if (driver_id) {
-countParams.push(driver_id)
+countParams.push(String(driver_id))
 }
     if (status) {
 countParams.push(status)
@@ -414,9 +414,9 @@ countParams.push(status)
       ${employee_id ? `AND str.employee_id = $2` : ''}
       ${training_type ? `AND str.training_type = $${employee_id ? '3' : '2'}` : ''}
     `
-    const countParams = [tenantId]
+    const countParams: any[] = [tenantId]
     if (employee_id) {
-countParams.push(employee_id)
+countParams.push(String(employee_id))
 }
     if (training_type) {
 countParams.push(training_type)
@@ -599,4 +599,4 @@ countParams.push(severity)
   }
 }
 
-export default new OSHAComplianceRepository()
+export default new OSHAComplianceRepository(pool)

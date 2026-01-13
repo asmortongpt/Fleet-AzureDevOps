@@ -445,7 +445,7 @@ export class SeedOrchestrator {
           tenantId,
           vehicle.id,
           vehicle.assigned_driver_id,
-          vehicle.fuel_type,
+          vehicle.fuel_type as any,
           this.config.fuelTransactionsPerVehicle
         );
 
