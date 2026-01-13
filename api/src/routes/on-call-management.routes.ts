@@ -44,7 +44,7 @@ const createOnCallPeriodSchema = z.object({
   schedule_notes: z.string().optional(),
   on_call_vehicle_assignment_id: z.string().uuid().optional(),
   geographic_region: z.string().optional(),
-  commuting_constraints: z.record(z.any().optional()),
+  commuting_constraints: z.record(z.string(), z.any()).optional(),
 })
 
 const updateOnCallPeriodSchema = createOnCallPeriodSchema.partial()
