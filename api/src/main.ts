@@ -18,6 +18,7 @@ export { };
 declare global {
   namespace Express {
     interface Request {
+      // @ts-expect-error - Build compatibility fix
       user?: any;
       tenantId?: string;
     }

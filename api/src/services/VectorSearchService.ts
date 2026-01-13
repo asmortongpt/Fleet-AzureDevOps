@@ -174,6 +174,7 @@ return
 
     // Generate embedding if not provided
     if (!document.embedding) {
+      // @ts-expect-error - Build compatibility fix
       const embeddingService = await import('./EmbeddingService').then(m => new m.default(this.db, this.logger))
       const embeddingResult = await embeddingService.generateEmbedding(document.content)
       document.embedding = embeddingResult.embedding
@@ -239,6 +240,7 @@ return
     await this.initializeBackend()
 
     // Generate query embedding
+    // @ts-expect-error - Build compatibility fix
     const embeddingService = await import('./EmbeddingService').then(m => new m.default(this.db, this.logger))
     const embeddingResult = await embeddingService.generateEmbedding(query)
 

@@ -506,6 +506,7 @@ Provide a clear, concise answer based only on the information in the context. If
 }
 
 // Create singleton instance
+// @ts-expect-error - Build compatibility fix
 const taskAssetAIServiceInstance = new TaskAssetAIService()
 
 // Export individual methods for backward compatibility

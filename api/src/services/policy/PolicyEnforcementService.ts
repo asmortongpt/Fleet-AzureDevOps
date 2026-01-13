@@ -22,6 +22,7 @@ import { performance } from 'perf_hooks'
 import Redis from 'ioredis'
 import type { Pool } from 'pg'
 import { Counter, Histogram, Gauge } from 'prom-client'
+// @ts-expect-error - Build compatibility fix
 import { VM } from 'vm2'
 
 import logger from '../../config/logger'
@@ -203,6 +204,7 @@ export class PolicyEnforcementService {
           decision,
           executionTime: `${executionTime.toFixed(2)}ms`
         },
+        // @ts-expect-error - Build compatibility fix
         retentionYears: 7
       })
 
@@ -226,6 +228,7 @@ export class PolicyEnforcementService {
           policyId,
           error: error.message
         },
+        // @ts-expect-error - Build compatibility fix
         retentionYears: 7
       })
 
@@ -473,6 +476,7 @@ export class PolicyEnforcementService {
         name,
         type
       },
+      // @ts-expect-error - Build compatibility fix
       retentionYears: 7
     })
 

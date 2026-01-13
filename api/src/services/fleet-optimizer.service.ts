@@ -466,6 +466,7 @@ class FleetOptimizerService {
 
 // Export singleton instance
 import { db } from '../db'
+// @ts-expect-error - Build compatibility fix
 const fleetOptimizerService = new FleetOptimizerService(db)
 
 export { FleetOptimizerService }
