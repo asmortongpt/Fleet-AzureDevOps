@@ -29,9 +29,7 @@ export const createTelemetrySchema = z.object({
   vehicle_id: z.string().uuid('Invalid vehicle ID format'),
 
   // Timestamp (REQUIRED)
-  timestamp: z.coerce.date({
-    invalid_type_error: 'Invalid timestamp format'
-  }),
+  timestamp: z.coerce.date(),
 
   // GPS Location (REQUIRED)
   latitude: commonSchemas.latitude,
