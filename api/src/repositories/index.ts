@@ -25,7 +25,7 @@ export * from './teams.repository'
 export * from './fuel-transactions.repository'
 
 // Re-export commonly used types
-export type { PaginationParams } from './vehicles.repository'
+export type { PaginationParams } from './base/BaseRepository'
 
 // Asset Management Repository
 export * from './asset-management.repository'
