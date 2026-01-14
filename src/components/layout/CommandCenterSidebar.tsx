@@ -44,8 +44,8 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 variant="ghost"
                 onClick={handleClick}
                 className={cn(
-                    "w-full justify-start h-7 md:h-8 rounded-lg transition-all duration-200 group/navbtn relative overflow-hidden",
-                    isSidebarOpen ? "px-1 md:px-2 gap-1 md:gap-2" : "px-0 justify-center",
+                    "w-full justify-start h-8 rounded-lg transition-all duration-200 group/navbtn relative overflow-hidden",
+                    isSidebarOpen ? "px-2 gap-2" : "px-0 justify-center",
                     isActive
                         ? "bg-primary/10 text-primary shadow-sm"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
@@ -68,7 +68,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 </div>
                 {isSidebarOpen && (
                     <>
-                        <span className="font-medium text-xs truncate flex-1 text-left">{item.label}</span>
+                        <span className="font-medium text-[0.75rem] truncate flex-1 text-left">{item.label}</span>
                         <ChevronRight className={cn(
                             "w-3 h-3 opacity-0 -translate-x-2 transition-all duration-200",
                             "group-hover/navbtn:opacity-50 group-hover/navbtn:translate-x-0",
@@ -124,30 +124,30 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
             <aside
                 className={cn(
                     "z-20 flex flex-col h-full glass-panel border-r border-border/50 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                    isSidebarOpen ? "w-56" : "w-[60px]"
+                    isSidebarOpen ? "w-[200px]" : "w-[60px]"
                 )}
             >
                 {/* Logo Area - Ultra Compact */}
-                <div className="h-10 md:h-12 flex items-center justify-between px-2 md:px-3 border-b border-border/50 shrink-0">
-                    <div className="flex items-center gap-3 min-w-0">
+                <div className="h-12 flex items-center justify-between px-2 border-b border-border/50 shrink-0">
+                    <div className="flex items-center gap-2 min-w-0">
                         {isSidebarOpen ? (
                             <img
                                 src="/logos/logo-horizontal.svg"
                                 alt="Fleet Management"
-                                className="h-8 w-auto object-contain"
+                                className="h-6 w-auto object-contain"
                             />
                         ) : (
                             <img
                                 src="/logos/logo-horizontal.svg"
                                 alt="Fleet Management"
-                                className="h-9 w-9 object-contain"
+                                className="h-7 w-7 object-contain"
                             />
                         )}
                     </div>
                 </div>
 
                 {/* Nav Links */}
-                <nav className="flex-1 py-1 px-1 space-y-2 overflow-y-auto no-scrollbar" aria-label="Main navigation">
+                <nav className="flex-1 py-1 px-1 space-y-1 overflow-y-auto no-scrollbar" aria-label="Main navigation">
                     <NavSection title="Hubs" items={groupedItems.hubs} accentColor="primary" />
                     <NavSection title="Command Center" items={groupedItems.main} />
                     <NavSection title="Management" items={groupedItems.management} />
