@@ -708,6 +708,39 @@
   .touch-spacing {
     @apply p-3 sm:p-2;
   }
+
+  /* ULTRA COMPACT UTILITIES - For maximum space efficiency */
+  .ultra-compact-card {
+    @apply p-1 space-y-1;
+  }
+
+  .ultra-compact-text {
+    @apply text-xs leading-tight;
+  }
+
+  .ultra-compact-heading {
+    @apply text-sm font-semibold leading-tight;
+  }
+
+  .ultra-compact-button {
+    @apply px-2 py-1 text-xs;
+  }
+
+  .ultra-compact-section {
+    @apply mb-2 space-y-1;
+  }
+
+  .ultra-compact-gap {
+    @apply gap-1;
+  }
+
+  .ultra-compact-padding {
+    @apply p-1;
+  }
+
+  .ultra-compact-margin {
+    @apply m-1;
+  }
 }
 
 /* Card and panel hover states */

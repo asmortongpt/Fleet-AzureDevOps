@@ -44,8 +44,8 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 variant="ghost"
                 onClick={handleClick}
                 className={cn(
-                    "w-full justify-start h-9 md:h-10 rounded-lg md:rounded-xl transition-all duration-200 group/navbtn relative overflow-hidden",
-                    isSidebarOpen ? "px-2 md:px-3 gap-2 md:gap-3" : "px-0 justify-center",
+                    "w-full justify-start h-7 md:h-8 rounded-lg transition-all duration-200 group/navbtn relative overflow-hidden",
+                    isSidebarOpen ? "px-1 md:px-2 gap-1 md:gap-2" : "px-0 justify-center",
                     isActive
                         ? "bg-primary/10 text-primary shadow-sm"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
@@ -56,21 +56,21 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
             >
                 {/* Active indicator */}
                 <div className={cn(
-                    "absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-primary transition-all duration-200 shadow-[0_0_10px_rgba(59,130,246,0.6)]",
+                    "absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r-full bg-primary transition-all duration-200 shadow-[0_0_10px_rgba(59,130,246,0.6)]",
                     isActive ? "opacity-100" : "opacity-0"
                 )} />
 
                 <div className={cn(
-                    "w-5 h-5 flex items-center justify-center shrink-0 transition-colors duration-200",
+                    "w-4 h-4 flex items-center justify-center shrink-0 transition-colors duration-200",
                     isActive ? "text-primary" : "text-muted-foreground group-hover/navbtn:text-foreground"
                 )}>
                     {item.icon}
                 </div>
                 {isSidebarOpen && (
                     <>
-                        <span className="font-medium text-sm truncate flex-1 text-left">{item.label}</span>
+                        <span className="font-medium text-xs truncate flex-1 text-left">{item.label}</span>
                         <ChevronRight className={cn(
-                            "w-4 h-4 opacity-0 -translate-x-2 transition-all duration-200",
+                            "w-3 h-3 opacity-0 -translate-x-2 transition-all duration-200",
                             "group-hover/navbtn:opacity-50 group-hover/navbtn:translate-x-0",
                             isActive && "opacity-30"
                         )} />
@@ -103,16 +103,16 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
         if (items.length === 0) return null;
 
         return (
-            <div className="space-y-1">
+            <div className="space-y-0.5">
                 {isSidebarOpen && (
                     <div className={cn(
-                        "px-3 py-2 text-xs font-semibold uppercase tracking-wider",
+                        "px-2 py-1 text-[10px] font-semibold uppercase tracking-wider",
                         accentColor === "primary" ? "text-primary/70" : "text-muted-foreground/70"
                     )}>
                         {title}
                     </div>
                 )}
-                <ul className="space-y-0.5">
+                <ul className="space-y-0">
                     {items.map((item, index) => <NavButton key={item.id} item={item} index={index} />)}
                 </ul>
             </div>
@@ -124,11 +124,11 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
             <aside
                 className={cn(
                     "z-20 flex flex-col h-full glass-panel border-r border-border/50 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                    isSidebarOpen ? "w-64" : "w-[72px]"
+                    isSidebarOpen ? "w-56" : "w-[60px]"
                 )}
             >
-                {/* Logo Area - Compact */}
-                <div className="h-12 md:h-14 flex items-center justify-between px-3 md:px-4 border-b border-border/50 shrink-0">
+                {/* Logo Area - Ultra Compact */}
+                <div className="h-10 md:h-12 flex items-center justify-between px-2 md:px-3 border-b border-border/50 shrink-0">
                     <div className="flex items-center gap-3 min-w-0">
                         {isSidebarOpen ? (
                             <img
@@ -147,7 +147,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 </div>
 
                 {/* Nav Links */}
-                <nav className="flex-1 py-3 px-2 space-y-4 overflow-y-auto no-scrollbar" aria-label="Main navigation">
+                <nav className="flex-1 py-1 px-1 space-y-2 overflow-y-auto no-scrollbar" aria-label="Main navigation">
                     <NavSection title="Hubs" items={groupedItems.hubs} accentColor="primary" />
                     <NavSection title="Command Center" items={groupedItems.main} />
                     <NavSection title="Management" items={groupedItems.management} />
@@ -155,7 +155,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 </nav>
 
                 {/* Bottom Actions */}
-                <div className="p-2 border-t border-border/50 shrink-0 space-y-1">
+                <div className="p-1 border-t border-border/50 shrink-0 space-y-0.5">
                     {/* Settings Button */}
                     {!isSidebarOpen ? (
                         <Tooltip delayDuration={0}>
@@ -166,10 +166,10 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                         navigate('/settings');
                                         onNavigate?.();
                                     }}
-                                    className="w-full justify-center h-11 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/70"
+                                    className="w-full justify-center h-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/70"
                                     aria-label="Settings"
                                 >
-                                    <Settings className="w-5 h-5" />
+                                    <Settings className="w-4 h-4" />
                                 </Button>
                             </TooltipTrigger>
                             <TooltipContent side="right" sideOffset={8}>
@@ -183,11 +183,11 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                 navigate('/settings');
                                 onNavigate?.();
                             }}
-                            className="w-full justify-start h-11 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/70 px-3 gap-3"
+                            className="w-full justify-start h-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/70 px-2 gap-2"
                             aria-label="Settings"
                         >
-                            <Settings className="w-5 h-5 shrink-0" />
-                            <span className="font-medium text-sm">Settings</span>
+                            <Settings className="w-4 h-4 shrink-0" />
+                            <span className="font-medium text-xs">Settings</span>
                         </Button>
                     )}
 
@@ -200,18 +200,18 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                     size="sm"
                                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                                     className={cn(
-                                        "w-full h-9 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200",
-                                        isSidebarOpen ? "justify-start px-3 gap-2" : "justify-center"
+                                        "w-full h-7 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200",
+                                        isSidebarOpen ? "justify-start px-2 gap-1" : "justify-center"
                                     )}
                                     aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
                                 >
                                     {isSidebarOpen ? (
                                         <>
-                                            <PanelLeftClose className="w-4 h-4 shrink-0" />
-                                            <span className="text-xs">Collapse</span>
+                                            <PanelLeftClose className="w-3 h-3 shrink-0" />
+                                            <span className="text-[10px]">Collapse</span>
                                         </>
                                     ) : (
-                                        <PanelLeft className="w-4 h-4" />
+                                        <PanelLeft className="w-3 h-3" />
                                     )}
                                 </Button>
                             </TooltipTrigger>

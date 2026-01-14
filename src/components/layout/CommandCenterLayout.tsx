@@ -151,9 +151,9 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): Rea
                     <CommandCenterHeader isMobile={isMobile || isTablet} />
                 </div>
 
-                {/* Content Wrapper - Compact design */}
+                {/* Content Wrapper - Ultra Compact design */}
                 <div
-                    className="flex-1 overflow-auto relative p-2 sm:p-3 md:p-4 lg:p-5"
+                    className="flex-1 overflow-auto relative p-1 sm:p-1 md:p-2"
                     tabIndex={0}
                     role="region"
                     aria-label="Main content area"
