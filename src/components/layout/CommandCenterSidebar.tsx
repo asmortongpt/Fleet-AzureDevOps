@@ -44,8 +44,8 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 variant="ghost"
                 onClick={handleClick}
                 className={cn(
-                    "w-full justify-start h-11 rounded-xl transition-all duration-200 group/navbtn relative overflow-hidden",
-                    isSidebarOpen ? "px-3 gap-3" : "px-0 justify-center",
+                    "w-full justify-start h-9 md:h-10 rounded-lg md:rounded-xl transition-all duration-200 group/navbtn relative overflow-hidden",
+                    isSidebarOpen ? "px-2 md:px-3 gap-2 md:gap-3" : "px-0 justify-center",
                     isActive
                         ? "bg-primary/10 text-primary shadow-sm"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
@@ -127,8 +127,8 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                     isSidebarOpen ? "w-64" : "w-[72px]"
                 )}
             >
-                {/* Logo Area */}
-                <div className="h-16 flex items-center justify-between px-4 border-b border-border/50 shrink-0">
+                {/* Logo Area - Compact */}
+                <div className="h-12 md:h-14 flex items-center justify-between px-3 md:px-4 border-b border-border/50 shrink-0">
                     <div className="flex items-center gap-3 min-w-0">
                         {isSidebarOpen ? (
                             <img
