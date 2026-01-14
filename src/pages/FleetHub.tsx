@@ -180,12 +180,12 @@ function FleetOverviewContent() {
         : 0
 
     return (
-        <div className="p-2 md:p-4 lg:p-6 bg-[#030712] min-h-screen">
-            {/* Header - Compact & Responsive */}
-            <div className="mb-3 md:mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+        <div className="p-1 md:p-2 bg-[#030712] min-h-screen">
+            {/* Header - Ultra Compact */}
+            <div className="mb-1 md:mb-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1">
                 <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-slate-50 leading-tight">
+                    <div className="flex items-center gap-1 flex-wrap">
+                        <h2 className="text-sm md:text-base font-bold text-slate-50 leading-tight">
                             Fleet Overview
                         </h2>
                         <InfoPopover
@@ -193,18 +193,18 @@ function FleetOverviewContent() {
                             content="Real-time view of all fleet vehicles with expandable telemetry drilldowns. Click any row to see detailed vehicle health metrics and maintenance records."
                             type="info"
                         />
-                        {/* Live Indicator - Compact */}
-                        <div className="flex items-center gap-1.5 px-2 md:px-3 py-1 rounded-lg bg-green-500/10 border border-green-500/30">
-                            <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-500 animate-pulse" />
-                            <span className="text-[10px] md:text-xs font-semibold text-green-500 uppercase tracking-wider">
+                        {/* Live Indicator - Ultra Compact */}
+                        <div className="flex items-center gap-1 px-1 md:px-2 py-0.5 rounded bg-green-500/10 border border-green-500/30">
+                            <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                            <span className="text-[9px] font-semibold text-green-500 uppercase tracking-wider">
                                 LIVE
                             </span>
-                            <span className="text-[9px] md:text-[10px] text-slate-400 ml-1 hidden sm:inline">
+                            <span className="text-[8px] text-slate-400 ml-0.5 hidden sm:inline">
                                 {lastUpdate.toLocaleTimeString()}
                             </span>
                         </div>
                     </div>
-                    <p className="text-xs md:text-sm text-slate-400 mt-1">
+                    <p className="text-[10px] text-slate-400 mt-0.5">
                         Auto-refreshes every 10s • Click rows to expand
                     </p>
                 </div>
@@ -214,8 +214,8 @@ function FleetOverviewContent() {
                 </div>
             </div>
 
-            {/* Fleet Metrics Grid - Responsive & Compact */}
-            <MetricGrid columns={4} className="mb-3 md:mb-4 gap-2 md:gap-3">
+            {/* Fleet Metrics Grid - Ultra Compact */}
+            <MetricGrid columns={4} className="mb-1 md:mb-2 gap-1 md:gap-2">
                 <InteractiveMetric
                     title="Total Vehicles"
                     value={totalVehicles}
@@ -265,12 +265,12 @@ function FleetOverviewContent() {
                 />
             </MetricGrid>
 
-            {/* Vehicle Table - Compact & Responsive Design */}
-            <div className="border border-slate-700/50 rounded-lg md:rounded-xl overflow-hidden bg-gradient-to-br from-slate-800/50 to-slate-900/50 shadow-xl">
+            {/* Vehicle Table - Ultra Compact Design */}
+            <div className="border border-slate-700/50 rounded-lg overflow-hidden bg-gradient-to-br from-slate-800/50 to-slate-900/50 shadow-xl">
                 {isLoading ? (
-                    <div className="p-6 md:p-8 lg:p-12 text-center text-slate-500 flex flex-col items-center justify-center gap-3">
-                        <div className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-slate-600 border-t-blue-500 animate-spin" />
-                        <p className="text-sm md:text-base">Loading fleet data...</p>
+                    <div className="p-2 md:p-4 text-center text-slate-500 flex flex-col items-center justify-center gap-1">
+                        <div className="w-4 h-4 rounded-full border-2 border-slate-600 border-t-blue-500 animate-spin" />
+                        <p className="text-xs">Loading fleet data...</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
@@ -280,13 +280,13 @@ function FleetOverviewContent() {
                         >
                             <thead>
                                 <tr className="bg-blue-500/8 border-b border-blue-500/20">
-                                    <th scope="col" className="px-2 md:px-4 py-2 md:py-3 text-[10px] md:text-xs text-blue-300 text-left uppercase tracking-wider font-semibold">Vehicle</th>
-                                    <th scope="col" className="hidden sm:table-cell px-2 md:px-4 py-2 md:py-3 text-[10px] md:text-xs text-blue-300 text-left uppercase tracking-wider font-semibold">Type</th>
-                                    <th scope="col" className="hidden md:table-cell px-2 md:px-4 py-2 md:py-3 text-[10px] md:text-xs text-blue-300 text-left uppercase tracking-wider font-semibold">Odometer</th>
-                                    <th scope="col" className="hidden lg:table-cell px-2 md:px-4 py-2 md:py-3 text-[10px] md:text-xs text-blue-300 text-left uppercase tracking-wider font-semibold">Fuel</th>
-                                    <th scope="col" className="px-2 md:px-4 py-2 md:py-3 text-[10px] md:text-xs text-blue-300 text-left uppercase tracking-wider font-semibold">Status</th>
-                                    <th scope="col" className="hidden xl:table-cell px-2 md:px-4 py-2 md:py-3 text-[10px] md:text-xs text-blue-300 text-left uppercase tracking-wider font-semibold">Updated</th>
-                                    <th scope="col" className="px-2 md:px-4 py-2 md:py-3 text-[10px] md:text-xs text-blue-300 text-left uppercase tracking-wider font-semibold"><span className="sr-only">Actions</span></th>
+                                    <th scope="col" className="px-1 md:px-2 py-1 text-[9px] text-blue-300 text-left uppercase tracking-wider font-semibold">Vehicle</th>
+                                    <th scope="col" className="hidden sm:table-cell px-1 md:px-2 py-1 text-[9px] text-blue-300 text-left uppercase tracking-wider font-semibold">Type</th>
+                                    <th scope="col" className="hidden md:table-cell px-1 md:px-2 py-1 text-[9px] text-blue-300 text-left uppercase tracking-wider font-semibold">Odometer</th>
+                                    <th scope="col" className="hidden lg:table-cell px-1 md:px-2 py-1 text-[9px] text-blue-300 text-left uppercase tracking-wider font-semibold">Fuel</th>
+                                    <th scope="col" className="px-1 md:px-2 py-1 text-[9px] text-blue-300 text-left uppercase tracking-wider font-semibold">Status</th>
+                                    <th scope="col" className="hidden xl:table-cell px-1 md:px-2 py-1 text-[9px] text-blue-300 text-left uppercase tracking-wider font-semibold">Updated</th>
+                                    <th scope="col" className="px-1 md:px-2 py-1 text-[9px] text-blue-300 text-left uppercase tracking-wider font-semibold"><span className="sr-only">Actions</span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -298,28 +298,28 @@ function FleetOverviewContent() {
                                         )}
                                             onClick={() => setExpandedRow(expandedRow === vehicle.id ? null : vehicle.id)}
                                         >
-                                            <td className="p-2 md:p-4">
-                                                <div className="flex items-center gap-2 md:gap-3">
-                                                    <EntityAvatar entity={vehicle} size={32} className="hidden sm:block" />
+                                            <td className="p-1 md:p-2">
+                                                <div className="flex items-center gap-1">
+                                                    <EntityAvatar entity={vehicle} size={24} className="hidden sm:block" />
                                                     <div className="min-w-0">
-                                                        <div className="text-xs md:text-sm font-semibold text-slate-50 truncate">
+                                                        <div className="text-[10px] font-semibold text-slate-50 truncate">
                                                             {vehicle.displayName}
                                                         </div>
-                                                        <div className="text-[10px] md:text-xs text-slate-400 truncate">
+                                                        <div className="text-[8px] text-slate-400 truncate">
                                                             {vehicle.id}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="hidden sm:table-cell p-2 md:p-4 text-xs md:text-sm text-slate-300">
+                                            <td className="hidden sm:table-cell p-1 md:p-2 text-[10px] text-slate-300">
                                                 {vehicle.kind}
                                             </td>
-                                            <td className="hidden md:table-cell p-2 md:p-4 text-xs md:text-sm text-slate-300">
+                                            <td className="hidden md:table-cell p-1 md:p-2 text-[10px] text-slate-300">
                                                 {vehicle.odometer.toLocaleString()} mi
                                             </td>
-                                            <td className="hidden lg:table-cell p-2 md:p-4">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-12 md:w-16 h-1.5 md:h-2 rounded-full bg-slate-700/50 overflow-hidden">
+                                            <td className="hidden lg:table-cell p-1 md:p-2">
+                                                <div className="flex items-center gap-1">
+                                                    <div className="w-8 md:w-12 h-1 rounded-full bg-slate-700/50 overflow-hidden">
                                                         <div className={cn(
                                                             "h-full transition-all duration-300",
                                                             vehicle.fuelPct < 25 ? "bg-red-500" : vehicle.fuelPct < 50 ? "bg-amber-500" : "bg-green-500"
@@ -327,22 +327,22 @@ function FleetOverviewContent() {
                                                             style={{ width: `${vehicle.fuelPct}%` }}
                                                         />
                                                     </div>
-                                                    <span className="text-[10px] md:text-xs text-slate-400">
+                                                    <span className="text-[9px] text-slate-400">
                                                         {vehicle.fuelPct}%
                                                     </span>
                                                 </div>
                                             </td>
-                                            <td className="p-2 md:p-4">
+                                            <td className="p-1 md:p-2">
                                                 {vehicle.alerts > 0 ? (
                                                     <StatusChip status={vehicle.status} label={`${vehicle.alerts}`} />
                                                 ) : (
                                                     <StatusChip status="good" label="OK" />
                                                 )}
                                             </td>
-                                            <td className="hidden xl:table-cell p-2 md:p-4 text-[10px] md:text-xs text-slate-400">
+                                            <td className="hidden xl:table-cell p-1 md:p-2 text-[9px] text-slate-400">
                                                 {vehicle.updatedAgo}
                                             </td>
-                                            <td className="p-2 md:p-4">
+                                            <td className="p-1 md:p-2">
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation()
@@ -353,7 +353,7 @@ function FleetOverviewContent() {
                                                             data: vehicle
                                                         })
                                                     }}
-                                                    className="px-2 md:px-4 py-1 md:py-2 rounded-lg border border-blue-500/30 bg-blue-500/12 text-blue-300 hover:bg-blue-500/20 hover:border-blue-500/50 text-[10px] md:text-xs font-semibold transition-all duration-200"
+                                                    className="px-1 md:px-2 py-0.5 md:py-1 rounded border border-blue-500/30 bg-blue-500/12 text-blue-300 hover:bg-blue-500/20 hover:border-blue-500/50 text-[9px] font-semibold transition-all duration-200"
                                                 >
                                                     View
                                                 </button>
@@ -361,7 +361,7 @@ function FleetOverviewContent() {
                                         </tr>
                                         {expandedRow === vehicle.id && (
                                             <tr>
-                                                <td colSpan={7} className="p-2 md:p-4 bg-black/12">
+                                                <td colSpan={7} className="p-1 md:p-2 bg-black/12">
                                                     <RowExpandPanel
                                                         anomalies={[
                                                             { status: 'good', label: 'Engine Temp: Normal' },
@@ -390,7 +390,7 @@ function FleetOverviewContent() {
                 )}
             </div>
 
-            <p className="mt-3 md:mt-4 text-[10px] md:text-xs text-slate-500 text-center">
+            <p className="mt-1 text-[9px] text-slate-500 text-center">
                 Click rows to expand telemetry • Tap "View" for details
             </p>
         </div >
@@ -501,19 +501,19 @@ function VideoContent() {
     const storageUsedTB = 2.4
 
     return (
-        <div className="p-2 md:p-4 lg:p-6 bg-[#030712] min-h-screen">
-            {/* Header - Compact */}
-            <div className="mb-3 md:mb-4">
-                <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-slate-50 mb-1">
+        <div className="p-1 md:p-2 bg-[#030712] min-h-screen">
+            {/* Header - Ultra Compact */}
+            <div className="mb-1 md:mb-2">
+                <h2 className="text-sm md:text-base font-bold text-slate-50 mb-0.5">
                     Video Telematics
                 </h2>
-                <p className="text-xs md:text-sm text-slate-400">
+                <p className="text-[10px] text-slate-400">
                     Camera feeds • Table-first navigation
                 </p>
             </div>
 
-            {/* Summary Stats Row - Compact & Responsive */}
-            <MetricGrid columns={3} className="mb-3 md:mb-4 gap-2 md:gap-3">
+            {/* Summary Stats Row - Ultra Compact */}
+            <MetricGrid columns={3} className="mb-1 md:mb-2 gap-1 md:gap-2">
                 <InteractiveMetric
                     title="Active Cameras"
                     value={recordingCameras}
