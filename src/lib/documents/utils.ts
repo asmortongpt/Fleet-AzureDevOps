@@ -128,10 +128,10 @@ export function getDocumentIcon(type: DocumentType): string {
 export function getDocumentColor(type: DocumentType): string {
   const colors: Record<DocumentType, string> = {
     'pdf': 'text-red-500',
-    'image': 'text-blue-500',
+    'image': 'text-blue-800',
     'video': 'text-purple-500',
     'audio': 'text-pink-500',
-    'document': 'text-blue-600',
+    'document': 'text-blue-800',
     'spreadsheet': 'text-green-600',
     'presentation': 'text-orange-500',
     'code': 'text-gray-700 dark:text-gray-300',

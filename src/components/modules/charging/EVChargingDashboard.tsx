@@ -216,7 +216,7 @@ const EVChargingDashboard: React.FC = () => {
       case 'Available':
         return <CheckCircleIcon className="w-5 h-5 text-green-500" />;
       case 'Charging':
-        return <BoltIcon className="w-5 h-5 text-blue-500 animate-pulse" />;
+        return <BoltIcon className="w-5 h-5 text-blue-800 animate-pulse" />;
       case 'Faulted':
         return <XCircleIcon className="w-5 h-5 text-red-500" />;
       default:
@@ -295,8 +295,8 @@ const EVChargingDashboard: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <BoltIcon className="w-16 h-16 mx-auto text-blue-500 animate-spin" />
-          <p className="mt-4 text-lg text-gray-600">Loading charging dashboard...</p>
+          <BoltIcon className="w-16 h-16 mx-auto text-blue-800 animate-spin" />
+          <p className="mt-4 text-lg text-slate-700">Loading charging dashboard...</p>
         </div>
       </div>
     );
@@ -312,7 +312,7 @@ const EVChargingDashboard: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">EV Charging Dashboard</h1>
-          <p className="text-gray-600 mt-1">Manage charging stations and monitor active sessions</p>
+          <p className="text-slate-700 mt-1">Manage charging stations and monitor active sessions</p>
         </div>
         <Button onClick={handleRefresh} variant="outline" disabled={isLoading}>
           <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -325,7 +325,7 @@ const EVChargingDashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Online Stations</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-700">Online Stations</CardTitle>
             <CheckCircleIcon className="w-5 h-5 text-green-500" />
           </CardHeader>
           <CardContent>
@@ -338,8 +338,8 @@ const EVChargingDashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Active Sessions</CardTitle>
-            <BoltIcon className="w-5 h-5 text-blue-500" />
+            <CardTitle className="text-sm font-medium text-slate-700">Active Sessions</CardTitle>
+            <BoltIcon className="w-5 h-5 text-blue-800" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{totalSessions}</div>
@@ -351,7 +351,7 @@ const EVChargingDashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Energy Delivered</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-700">Energy Delivered</CardTitle>
             <Battery0Icon className="w-5 h-5 text-yellow-500" />
           </CardHeader>
           <CardContent>
@@ -364,7 +364,7 @@ const EVChargingDashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Avg Utilization</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-700">Avg Utilization</CardTitle>
             <ChartBarIcon className="w-5 h-5 text-purple-500" />
           </CardHeader>
           <CardContent>

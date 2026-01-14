@@ -51,7 +51,7 @@ const STATUS_COLORS = {
   pending: 'bg-yellow-100 text-yellow-800 border-yellow-300',
   confirmed: 'bg-blue-100 text-blue-800 border-blue-300',
   active: 'bg-green-100 text-green-800 border-green-300',
-  completed: 'bg-gray-100 text-gray-600 border-gray-300',
+  completed: 'bg-gray-100 text-slate-700 border-gray-300',
   cancelled: 'bg-red-100 text-red-800 border-red-300',
   // Maintenance
   scheduled: 'bg-purple-100 text-purple-800 border-purple-300',
@@ -228,7 +228,7 @@ export function ScheduleView({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <Truck className="h-4 w-4 text-blue-600" />
+              <Truck className="h-4 w-4 text-blue-800" />
               <h4 className="font-semibold">
                 {reservation.make} {reservation.model}
               </h4>

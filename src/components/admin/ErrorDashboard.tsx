@@ -157,9 +157,9 @@ export function ErrorDashboard() {
       case 'medium':
         return 'text-yellow-600 bg-yellow-100 border-yellow-300';
       case 'low':
-        return 'text-blue-600 bg-blue-100 border-blue-300';
+        return 'text-blue-800 bg-blue-100 border-blue-300';
       default:
-        return 'text-gray-600 bg-gray-100 border-gray-300';
+        return 'text-slate-700 bg-gray-100 border-gray-300';
     }
   }
 

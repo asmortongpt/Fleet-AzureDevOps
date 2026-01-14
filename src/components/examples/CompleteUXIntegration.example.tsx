@@ -154,7 +154,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Vehicle Management</h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-slate-700">
             Manage your fleet vehicles and view detailed information
           </p>
         </div>

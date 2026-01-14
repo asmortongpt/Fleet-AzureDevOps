@@ -191,7 +191,7 @@ const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }: { workOrders: WorkOr
       case 'completed':
         return <CheckCircle2 className="h-4 w-4 text-green-500" />
       case 'in_progress':
-        return <Clock className="h-4 w-4 text-blue-500" />
+        return <Clock className="h-4 w-4 text-blue-800" />
       case 'pending':
         return <AlertCircle className="h-4 w-4 text-yellow-500" />
       default:

@@ -77,8 +77,8 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-        <span className="ml-2 text-gray-600">Loading vehicle data...</span>
+        <Loader2 className="h-8 w-8 animate-spin text-blue-800" />
+        <span className="ml-2 text-slate-700">Loading vehicle data...</span>
       </div>
     );
   }
@@ -111,7 +111,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
               {vehicle.name}
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-slate-700 dark:text-gray-400">
               {vehicle.year} {vehicle.make} {vehicle.model} • {vehicle.licensePlate}
             </p>
           </div>
@@ -138,15 +138,15 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
               <h3 className="text-lg font-semibold mb-4">Vehicle Information</h3>
               <dl className="space-y-2">
                 <div className="flex justify-between">
-                  <dt className="text-gray-600">VIN</dt>
+                  <dt className="text-slate-700">VIN</dt>
                   <dd className="font-mono text-sm">{vehicle.vin}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-600">License Plate</dt>
+                  <dt className="text-slate-700">License Plate</dt>
                   <dd className="font-medium">{vehicle.licensePlate}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-600">Make/Model</dt>
+                  <dt className="text-slate-700">Make/Model</dt>
                   <dd>{vehicle.year} {vehicle.make} {vehicle.model}</dd>
                 </div>
               </dl>
@@ -156,20 +156,20 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
               <h3 className="text-lg font-semibold mb-4">Current Status</h3>
               <dl className="space-y-2">
                 <div className="flex justify-between">
-                  <dt className="text-gray-600">Odometer</dt>
+                  <dt className="text-slate-700">Odometer</dt>
                   <dd className="font-medium">{vehicle.odometer.toLocaleString()} miles</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-600">Fuel Level</dt>
+                  <dt className="text-slate-700">Fuel Level</dt>
                   <dd className="font-medium">{vehicle.fuelLevel}%</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-600">Last Seen</dt>
+                  <dt className="text-slate-700">Last Seen</dt>
                   <dd className="text-sm">{new Date(vehicle.lastSeen).toLocaleString()}</dd>
                 </div>
                 {vehicle.driver && (
                   <div className="flex justify-between">
-                    <dt className="text-gray-600">Current Driver</dt>
+                    <dt className="text-slate-700">Current Driver</dt>
                     <dd className="font-medium">{vehicle.driver.name}</dd>
                   </div>
                 )}
@@ -186,17 +186,17 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-gray-600">Latitude</p>
+                    <p className="text-sm text-slate-700">Latitude</p>
                     <p className="font-mono">{vehicle.location.latitude.toFixed(6)}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Longitude</p>
+                    <p className="text-sm text-slate-700">Longitude</p>
                     <p className="font-mono">{vehicle.location.longitude.toFixed(6)}</p>
                   </div>
                 </div>
                 {vehicle.location.address && (
                   <div>
-                    <p className="text-sm text-gray-600">Address</p>
+                    <p className="text-sm text-slate-700">Address</p>
                     <p className="font-medium">{vehicle.location.address}</p>
                   </div>
                 )}
@@ -214,7 +214,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
         <TabsContent value="telemetry" className="p-4">
           <Card className="p-4">
             <h3 className="text-lg font-semibold mb-4">OBD2 Diagnostics</h3>
-            <div className="text-gray-600 mb-4">
+            <div className="text-slate-700 mb-4">
               Vehicle ID: {vehicle.id}
             </div>
             <OBD2Dashboard />
@@ -228,17 +228,17 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
             <div className="space-y-4">
               <div className="border-l-4 border-blue-500 pl-4 py-2">
                 <p className="font-medium">Oil Change</p>
-                <p className="text-sm text-gray-600">Last performed at {(vehicle.odometer - 3000).toLocaleString()} miles</p>
+                <p className="text-sm text-slate-700">Last performed at {(vehicle.odometer - 3000).toLocaleString()} miles</p>
                 <p className="text-sm text-gray-500">Next due at {(vehicle.odometer + 2000).toLocaleString()} miles</p>
               </div>
               <div className="border-l-4 border-green-500 pl-4 py-2">
                 <p className="font-medium">Tire Rotation</p>
-                <p className="text-sm text-gray-600">Last performed at {(vehicle.odometer - 5000).toLocaleString()} miles</p>
+                <p className="text-sm text-slate-700">Last performed at {(vehicle.odometer - 5000).toLocaleString()} miles</p>
                 <p className="text-sm text-gray-500">Next due at {(vehicle.odometer + 1000).toLocaleString()} miles</p>
               </div>
               <div className="border-l-4 border-yellow-500 pl-4 py-2">
                 <p className="font-medium">Inspection Due</p>
-                <p className="text-sm text-gray-600">Annual inspection required</p>
+                <p className="text-sm text-slate-700">Annual inspection required</p>
                 <p className="text-sm text-gray-500">Due in 45 days</p>
               </div>
             </div>
@@ -257,7 +257,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
                 </div>
                 <div className="flex-1 pb-4">
                   <p className="font-medium">Vehicle started</p>
-                  <p className="text-sm text-gray-600">2 hours ago</p>
+                  <p className="text-sm text-slate-700">2 hours ago</p>
                 </div>
               </div>
               <div className="flex gap-4">
@@ -267,7 +267,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
                 </div>
                 <div className="flex-1 pb-4">
                   <p className="font-medium">Trip completed</p>
-                  <p className="text-sm text-gray-600">5 hours ago • 45.2 miles</p>
+                  <p className="text-sm text-slate-700">5 hours ago • 45.2 miles</p>
                 </div>
               </div>
               <div className="flex gap-4">
@@ -277,7 +277,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
                 </div>
                 <div className="flex-1 pb-4">
                   <p className="font-medium">Refueled</p>
-                  <p className="text-sm text-gray-600">Yesterday • 14.5 gallons</p>
+                  <p className="text-sm text-slate-700">Yesterday • 14.5 gallons</p>
                 </div>
               </div>
             </div>

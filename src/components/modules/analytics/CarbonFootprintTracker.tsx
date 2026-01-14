@@ -293,7 +293,7 @@ const CarbonFootprintTracker: React.FC = () => {
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <CloudIcon className="w-16 h-16 mx-auto text-green-500 animate-pulse" />
-          <p className="mt-4 text-lg text-gray-600">Loading carbon data...</p>
+          <p className="mt-4 text-lg text-slate-700">Loading carbon data...</p>
         </div>
       </div>
     );
@@ -310,7 +310,7 @@ const CarbonFootprintTracker: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Carbon Footprint Tracker</h1>
-          <p className="text-gray-600 mt-1">Monitor environmental impact and ESG performance</p>
+          <p className="text-slate-700 mt-1">Monitor environmental impact and ESG performance</p>
         </div>
         <div className="flex gap-2">
           <select
@@ -334,7 +334,7 @@ const CarbonFootprintTracker: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">CO₂ Emissions</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-700">CO₂ Emissions</CardTitle>
             <CloudIcon className="w-5 h-5 text-gray-500" />
           </CardHeader>
           <CardContent>
@@ -349,7 +349,7 @@ const CarbonFootprintTracker: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">CO₂ Saved</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-700">CO₂ Saved</CardTitle>
             <ArrowTrendingDownIcon className="w-5 h-5 text-green-500" />
           </CardHeader>
           <CardContent>
@@ -364,11 +364,11 @@ const CarbonFootprintTracker: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Reduction</CardTitle>
-            <SparklesIcon className="w-5 h-5 text-blue-500" />
+            <CardTitle className="text-sm font-medium text-slate-700">Reduction</CardTitle>
+            <SparklesIcon className="w-5 h-5 text-blue-800" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-600">
+            <div className="text-3xl font-bold text-blue-800">
               {formatNumber(summary?.avg_reduction_percent || 0, 1)}%
             </div>
             <p className="text-xs text-gray-500 mt-1">
@@ -379,7 +379,7 @@ const CarbonFootprintTracker: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Trees Equivalent</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-700">Trees Equivalent</CardTitle>
             <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
@@ -402,7 +402,7 @@ const CarbonFootprintTracker: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-xl">ESG Performance Score</CardTitle>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-slate-700 mt-1">
                   {esgReport.report_period} - {new Date(esgReport.report_year, (esgReport.report_month || 1) - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                 </p>
               </div>
@@ -414,14 +414,14 @@ const CarbonFootprintTracker: React.FC = () => {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Environmental Score</p>
+                <p className="text-sm text-slate-700 mb-1">Environmental Score</p>
                 <p className={`text-4xl font-bold ${getESGColor(esgReport.environmental_score)}`}>
                   {formatNumber(esgReport.environmental_score, 0)}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">EV Adoption</p>
-                <p className="text-4xl font-bold text-blue-600">
+                <p className="text-sm text-slate-700 mb-1">EV Adoption</p>
+                <p className="text-4xl font-bold text-blue-800">
                   {formatNumber(esgReport.ev_adoption_percent, 1)}%
                 </p>
               </div>

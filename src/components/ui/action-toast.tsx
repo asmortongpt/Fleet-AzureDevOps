@@ -67,7 +67,7 @@ const VARIANT_STYLES = {
   },
   info: {
     icon: Info,
-    iconColor: 'text-blue-500',
+    iconColor: 'text-blue-800',
     bgColor: 'bg-blue-50 dark:bg-blue-950',
     borderColor: 'border-blue-200 dark:border-blue-800',
   },

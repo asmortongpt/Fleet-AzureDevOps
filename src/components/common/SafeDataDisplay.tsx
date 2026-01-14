@@ -128,17 +128,17 @@ const statusColors: Record<string, string> = {
   active: 'bg-success/10 text-success border-success/20',
   inactive: 'bg-muted text-muted-foreground',
   available: 'bg-success/10 text-success border-success/20',
-  in_use: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+  in_use: 'bg-blue-500/10 text-blue-800 border-blue-500/20',
   maintenance: 'bg-orange-500/10 text-orange-500 border-orange-500/20',
   out_of_service: 'bg-red-500/10 text-red-500 border-red-500/20',
   pending: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
   completed: 'bg-success/10 text-success border-success/20',
   cancelled: 'bg-red-500/10 text-red-500 border-red-500/20',
-  open: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+  open: 'bg-blue-500/10 text-blue-800 border-blue-500/20',
   closed: 'bg-muted text-muted-foreground',
   critical: 'bg-red-500/10 text-red-500 border-red-500/20',
   warning: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-  info: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+  info: 'bg-blue-500/10 text-blue-800 border-blue-500/20',
 }
 
 export function SafeStatusBadge({ status, fallback = 'unknown', className }: SafeStatusBadgeProps) {

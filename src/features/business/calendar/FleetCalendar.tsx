@@ -328,7 +328,7 @@ const FleetCalendar: React.FC = () => {
         <button
           onClick={() => onView('month')}
           className={`px-3 py-2 rounded-lg transition-colors ${
-            view === 'month' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100'
+            view === 'month' ? 'bg-blue-100 text-blue-800' : 'hover:bg-gray-100'
           }`}
         >
           Month
@@ -336,7 +336,7 @@ const FleetCalendar: React.FC = () => {
         <button
           onClick={() => onView('week')}
           className={`px-3 py-2 rounded-lg transition-colors ${
-            view === 'week' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100'
+            view === 'week' ? 'bg-blue-100 text-blue-800' : 'hover:bg-gray-100'
           }`}
         >
           Week
@@ -344,7 +344,7 @@ const FleetCalendar: React.FC = () => {
         <button
           onClick={() => onView('day')}
           className={`px-3 py-2 rounded-lg transition-colors ${
-            view === 'day' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100'
+            view === 'day' ? 'bg-blue-100 text-blue-800' : 'hover:bg-gray-100'
           }`}
         >
           Day
@@ -352,7 +352,7 @@ const FleetCalendar: React.FC = () => {
         <button
           onClick={() => onView('agenda')}
           className={`px-3 py-2 rounded-lg transition-colors ${
-            view === 'agenda' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100'
+            view === 'agenda' ? 'bg-blue-100 text-blue-800' : 'hover:bg-gray-100'
           }`}
         >
           Agenda
@@ -372,7 +372,7 @@ const FleetCalendar: React.FC = () => {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <CalendarDays className="w-8 h-8 text-blue-600" />
+            <CalendarDays className="w-8 h-8 text-blue-800" />
             <h1 className="text-3xl font-bold text-gray-800">Fleet Calendar</h1>
           </div>
 
@@ -382,7 +382,7 @@ const FleetCalendar: React.FC = () => {
               {isSignedIn ? (
                 <>
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-sm text-gray-600">Connected to Outlook</span>
+                  <span className="text-sm text-slate-700">Connected to Outlook</span>
                   <span className="text-sm font-medium">{userProfile?.displayName}</span>
                   <button
                     onClick={handleSignOut}
@@ -394,7 +394,7 @@ const FleetCalendar: React.FC = () => {
               ) : (
                 <>
                   <div className="w-2 h-2 bg-gray-400 rounded-full" />
-                  <span className="text-sm text-gray-600">Not connected</span>
+                  <span className="text-sm text-slate-700">Not connected</span>
                   <button
                     onClick={handleSignIn}
                     disabled={loading}
@@ -434,7 +434,7 @@ const FleetCalendar: React.FC = () => {
               key={type}
               onClick={() => setFilters({ ...filters, [type]: !enabled })}
               className={`flex items-center space-x-1 px-3 py-1 rounded-lg transition-colors ${
-                enabled ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'
+                enabled ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-400'
               }`}
             >
               {type === 'maintenance' && <Wrench className="w-4 h-4" />}
@@ -485,20 +485,20 @@ const FleetCalendar: React.FC = () => {
             </div>
 
             <div className="space-y-3">
-              <div className="flex items-center space-x-2 text-gray-600">
+              <div className="flex items-center space-x-2 text-slate-700">
                 <Clock className="w-4 h-4" />
                 <span>{format(selectedEvent.start, 'PPP p')} - {format(selectedEvent.end, 'p')}</span>
               </div>
 
               {selectedEvent.resource?.vehicleId && (
-                <div className="flex items-center space-x-2 text-gray-600">
+                <div className="flex items-center space-x-2 text-slate-700">
                   <Truck className="w-4 h-4" />
                   <span>Vehicle: {selectedEvent.resource.vehicleId}</span>
                 </div>
               )}
 
               {selectedEvent.resource?.location && (
-                <div className="flex items-center space-x-2 text-gray-600">
+                <div className="flex items-center space-x-2 text-slate-700">
                   <MapPin className="w-4 h-4" />
                   <span>{selectedEvent.resource.location}</span>
                 </div>

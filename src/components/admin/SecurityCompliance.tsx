@@ -308,7 +308,7 @@ export function SecurityCompliance() {
                   <AlertTriangle className={`h-5 w-5 mt-0.5 ${
                     alert.severity === 'critical' ? 'text-red-500' :
                     alert.severity === 'high' ? 'text-orange-500' :
-                    alert.severity === 'medium' ? 'text-yellow-500' : 'text-blue-500'
+                    alert.severity === 'medium' ? 'text-yellow-500' : 'text-blue-800'
                   }`} />
                   <div className="flex-1">
                     <div className="flex items-center justify-between">

@@ -564,7 +564,7 @@ export const Login: React.FC = () => {
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Florida DCF Fleet Management
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
+        <p className="mt-2 text-center text-sm text-slate-700">
           Sign in with your state credentials
         </p>
       </div>
@@ -623,7 +623,7 @@ export const LoginCallbackComponent: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
-      <p className="text-gray-600">Completing authentication...</p>
+      <p className="text-slate-700">Completing authentication...</p>
     </div>
   );
 };
@@ -704,7 +704,7 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
           <span className="text-red-600 text-2xl">🚫</span>
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
-        <p className="text-gray-600 mb-4">
+        <p className="text-slate-700 mb-4">
           You don't have the required permissions to access this resource.
         </p>
 

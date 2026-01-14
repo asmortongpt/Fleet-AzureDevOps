@@ -373,7 +373,7 @@ export function PolicyWorkbench() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
-              <Brain className="w-8 h-8 text-blue-600" />
+              <Brain className="w-8 h-8 text-blue-800" />
               Policy Implementation Workbench
             </h1>
             <p className="text-slate-600 mt-1">
@@ -434,7 +434,7 @@ export function PolicyWorkbench() {
                       {step.status === 'completed' ? (
                         <CheckCircle2 className="w-6 h-6 text-green-600" />
                       ) : step.status === 'in-progress' ? (
-                        <Circle className="w-6 h-6 text-blue-600 animate-pulse" />
+                        <Circle className="w-6 h-6 text-blue-800 animate-pulse" />
                       ) : (
                         <Circle className="w-6 h-6 text-slate-300" />
                       )}
@@ -476,7 +476,7 @@ export function PolicyWorkbench() {
               <div className="mb-8">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="p-3 bg-blue-100 rounded-xl">
-                    <currentStep.icon className="w-8 h-8 text-blue-600" />
+                    <currentStep.icon className="w-8 h-8 text-blue-800" />
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-slate-900">{currentStep.title}</h2>
@@ -635,7 +635,7 @@ function AIInsightCard({
       bg: 'bg-blue-100',
       border: 'border-blue-300',
       icon: Info,
-      iconColor: 'text-blue-600',
+      iconColor: 'text-blue-800',
     },
     tip: {
       bg: 'bg-purple-100',

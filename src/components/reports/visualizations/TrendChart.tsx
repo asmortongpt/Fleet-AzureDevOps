@@ -82,7 +82,7 @@ export function TrendChart({
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-gray-600">{entry.name}:</span>
+            <span className="text-slate-700">{entry.name}:</span>
             <span className="font-medium text-gray-900">
               {typeof entry.value === 'number'
                 ? new Intl.NumberFormat('en-US', {

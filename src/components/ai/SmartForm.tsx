@@ -153,11 +153,11 @@ export function SmartForm({
 
   const getSeverityColor = (severity: string) => {
     const colors = {
-      info: 'text-blue-600',
+      info: 'text-blue-800',
       warning: 'text-yellow-600',
       error: 'text-red-600'
     }
-    return colors[severity as keyof typeof colors] || 'text-gray-600'
+    return colors[severity as keyof typeof colors] || 'text-slate-700'
   }
 
   const getSeverityBgColor = (severity: string) => {
@@ -276,7 +276,7 @@ export function SmartForm({
                 {/* Smart Suggestion */}
                 {suggestion && !warning && (
                   <div className="flex items-start gap-2 p-2 rounded border bg-blue-50 border-blue-200">
-                    <Lightbulb className="w-4 h-4 mt-0.5 text-blue-600" />
+                    <Lightbulb className="w-4 h-4 mt-0.5 text-blue-800" />
                     <div className="flex-1 text-sm">
                       <p className="text-blue-900">
                         Suggestion: <strong>{String(suggestion.value)}</strong>
@@ -286,7 +286,7 @@ export function SmartForm({
                         type="button"
                         variant="link"
                         size="sm"
-                        className="p-0 h-auto text-xs text-blue-600"
+                        className="p-0 h-auto text-xs text-blue-800"
                         onClick={() => handleSuggestionApply(field.name, suggestion.value)}
                       >
                         Apply suggestion ({Math.round(suggestion.confidence * 100)}% confidence)

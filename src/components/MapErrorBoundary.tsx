@@ -522,7 +522,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
                 </div>
                 <div className="ml-4">
                   {isRetrying ? (
-                    <div className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
+                    <div className="flex items-center gap-2 text-sm text-blue-800 dark:text-blue-400">
                       <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
                       Retrying...
                     </div>
@@ -554,7 +554,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
               {/* Technical Details (Development Only) */}
               {process.env.NODE_ENV === 'development' && (
                 <details className="text-sm">
-                  <summary className="cursor-pointer text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+                  <summary className="cursor-pointer text-slate-700 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
                     Technical Details
                   </summary>
                   <pre className="mt-2 p-3 bg-gray-100 dark:bg-gray-800 rounded text-xs overflow-auto">

@@ -232,7 +232,7 @@ export const OBD2Dashboard: React.FC = () => {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
           OBD2 Vehicle Diagnostics
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
+        <p className="text-slate-700 dark:text-gray-400 mt-2">
           Real-time vehicle data streaming from OBD2 devices
         </p>
       </div>
@@ -587,7 +587,7 @@ const GaugeCard: React.FC<GaugeCardProps> = ({ label, value, unit, max, color })
 
   return (
     <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-      <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">{label}</div>
+      <div className="text-sm text-slate-700 dark:text-gray-400 mb-1">{label}</div>
       <div className="text-2xl font-bold text-gray-900 dark:text-white">
         {typeof value === 'number' ? value.toLocaleString() : value}
         <span className="text-sm font-normal text-gray-500 ml-1">{unit}</span>
@@ -617,7 +617,7 @@ const DataCard: React.FC<DataCardProps> = ({ label, value, unit, warning }) => {
         ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
         : 'bg-gray-50 dark:bg-gray-700'
     }`}>
-      <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">{label}</div>
+      <div className="text-sm text-slate-700 dark:text-gray-400 mb-1">{label}</div>
       <div className={`text-xl font-bold ${warning ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
         {value}
         {unit && <span className="text-sm font-normal text-gray-500 ml-1">{unit}</span>}

@@ -34,7 +34,7 @@ export function Forbidden403Page() {
             Access Denied
           </h2>
 
-          <p className="text-gray-600 mb-6">
+          <p className="text-slate-700 mb-6">
             You don't have permission to access this resource.
             {user && (
               <span className="block mt-2 text-sm">

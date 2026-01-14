@@ -168,7 +168,7 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Vehicle:</span>
-                    <Button variant="link" size="sm" className="h-auto p-0 text-blue-600">
+                    <Button variant="link" size="sm" className="h-auto p-0 text-blue-800">
                       {workOrder.vehicleId || 'N/A'}
                     </Button>
                   </div>

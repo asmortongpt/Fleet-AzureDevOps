@@ -233,7 +233,7 @@ const ComplianceScorecard: React.FC = () => {
 
   const getScoreColor = (score: number) => {
     if (score >= 95) return 'text-green-600'
-    if (score >= 85) return 'text-blue-600'
+    if (score >= 85) return 'text-blue-800'
     if (score >= 75) return 'text-yellow-600'
     return 'text-red-600'
   }
@@ -325,7 +325,7 @@ const AlertPanel: React.FC = () => {
       case 'critical': return <XCircle className="h-5 w-5 text-red-600" />
       case 'high': return <AlertTriangle className="h-5 w-5 text-orange-600" />
       case 'medium': return <AlertCircle className="h-5 w-5 text-yellow-600" />
-      case 'low': return <Bell className="h-5 w-5 text-blue-600" />
+      case 'low': return <Bell className="h-5 w-5 text-blue-800" />
       default: return <Bell className="h-5 w-5" />
     }
   }
@@ -429,8 +429,8 @@ const TimelineView: React.FC = () => {
       case 'completed': return 'text-green-600'
       case 'pending': return 'text-yellow-600'
       case 'failed': return 'text-red-600'
-      case 'expired': return 'text-gray-600'
-      default: return 'text-gray-600'
+      case 'expired': return 'text-slate-700'
+      default: return 'text-slate-700'
     }
   }
 

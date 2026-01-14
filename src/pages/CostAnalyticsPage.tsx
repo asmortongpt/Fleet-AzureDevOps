@@ -283,7 +283,7 @@ export default function CostAnalyticsPage() {
       success: 'text-green-600 bg-green-50 border-green-200',
       warning: 'text-yellow-600 bg-yellow-50 border-yellow-200',
       danger: 'text-red-600 bg-red-50 border-red-200',
-      info: 'text-blue-600 bg-blue-50 border-blue-200'
+      info: 'text-blue-800 bg-blue-50 border-blue-200'
     }
     return colors[variant]
   }
@@ -441,12 +441,12 @@ export default function CostAnalyticsPage() {
                 <div className="space-y-6">
                   <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
                     <div className="flex items-start gap-3">
-                      <AlertTriangle className="w-5 h-5 text-blue-600 mt-0.5" />
+                      <AlertTriangle className="w-5 h-5 text-blue-800 mt-0.5" />
                       <div>
                         <p className="font-semibold text-blue-900 dark:text-blue-100">
                           2024 IRS Standard Mileage Rate
                         </p>
-                        <p className="text-2xl font-bold text-blue-600 mt-1">
+                        <p className="text-2xl font-bold text-blue-800 mt-1">
                           ${CURRENT_IRS_RATE} per mile
                         </p>
                         <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">

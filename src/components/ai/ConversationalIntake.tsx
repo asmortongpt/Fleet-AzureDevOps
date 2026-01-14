@@ -214,7 +214,7 @@ export function ConversationalIntake({
             {suggestions.map((suggestion, index) => (
               <div key={index} className="text-xs text-blue-800">
                 <span className="font-medium">{suggestion.field}:</span> {String(suggestion.value)}
-                <span className="text-blue-600 ml-2">({suggestion.reason})</span>
+                <span className="text-blue-800 ml-2">({suggestion.reason})</span>
               </div>
             ))}
           </div>

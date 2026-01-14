@@ -183,7 +183,7 @@ export function MaintenanceHubMap({
   const getWorkOrderIcon = (type: WorkOrder['type']) => {
     switch (type) {
       case 'urgent': return <Warning className="w-4 h-4 text-red-500" />;
-      case 'active': return <Wrench className="w-4 h-4 text-blue-500" />;
+      case 'active': return <Wrench className="w-4 h-4 text-blue-800" />;
       case 'scheduled': return <Clock className="w-4 h-4 text-amber-500" />;
       case 'completed': return <CheckCircle className="w-4 h-4 text-green-500" />;
       default: return <Wrench className="w-4 h-4" />;
@@ -270,7 +270,7 @@ export function MaintenanceHubMap({
 
                 <div>
                   <p className="text-sm font-medium">{selectedWorkOrder.vehicleUnit}</p>
-                  <p className="text-xs text-gray-600 mt-1">{selectedWorkOrder.description}</p>
+                  <p className="text-xs text-slate-700 mt-1">{selectedWorkOrder.description}</p>
                 </div>
 
                 <div className="flex items-center gap-1 text-xs text-gray-500">
@@ -319,7 +319,7 @@ export function MaintenanceHubMap({
                 </div>
 
                 {selectedLocation.phone && (
-                  <p className="text-xs text-gray-600">📞 {selectedLocation.phone}</p>
+                  <p className="text-xs text-slate-700">📞 {selectedLocation.phone}</p>
                 )}
 
                 <div className="mt-2">

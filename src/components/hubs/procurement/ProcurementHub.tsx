@@ -122,7 +122,7 @@ const PurchaseOrdersPanel = ({ orders, onOrderSelect }: { orders: any[]; onOrder
   const getStatusIcon = (status: string) => {
     switch(status) {
       case 'delivered': return <CheckCircle2 className="h-4 w-4 text-green-500" />
-      case 'in_transit': return <Truck className="h-4 w-4 text-blue-500" />
+      case 'in_transit': return <Truck className="h-4 w-4 text-blue-800" />
       case 'processing': return <Clock className="h-4 w-4 text-yellow-500" />
       default: return <AlertCircle className="h-4 w-4 text-gray-500" />
     }

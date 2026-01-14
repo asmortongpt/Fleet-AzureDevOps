@@ -217,7 +217,7 @@ export function AIChatbot() {
       {/* Example queries (show when no user messages) */}
       {messages.filter((m) => m.role === 'user').length === 0 && (
         <div className="px-4 py-2 bg-white border-t border-gray-200">
-          <p className="text-xs text-gray-600 mb-2">Try asking:</p>
+          <p className="text-xs text-slate-700 mb-2">Try asking:</p>
           <div className="space-y-1">
             {exampleQueries.slice(0, 3).map((query, index) => (
               <button

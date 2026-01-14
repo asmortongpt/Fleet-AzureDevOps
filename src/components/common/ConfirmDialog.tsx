@@ -102,7 +102,7 @@ const VARIANT_CONFIG: Record<
   },
   info: {
     icon: <Info className="w-6 h-6" />,
-    iconColor: "text-blue-600",
+    iconColor: "text-blue-800",
     confirmButtonVariant: "default"
   },
   success: {

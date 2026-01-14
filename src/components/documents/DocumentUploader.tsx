@@ -285,7 +285,7 @@ function UploadItem({ item, onRemove }: UploadItemProps) {
     const ext = fileName.split('.').pop()?.toLowerCase() || '';
 
     if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) {
-      return <ImageIcon className="h-5 w-5 text-blue-500" />;
+      return <ImageIcon className="h-5 w-5 text-blue-800" />;
     }
     if (['mp4', 'webm', 'mov', 'avi'].includes(ext)) {
       return <Video className="h-5 w-5 text-purple-500" />;

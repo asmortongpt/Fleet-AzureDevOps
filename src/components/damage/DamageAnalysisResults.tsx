@@ -225,7 +225,7 @@ export function DamageAnalysisResults({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Detected Damage ({analysis.damages.length})</h3>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-slate-700">
             Click to select/deselect damage items
           </div>
         </div>
@@ -332,7 +332,7 @@ export function DamageAnalysisResults({
                     </div>
                     <div>
                       <p className="text-gray-500">Total</p>
-                      <p className="font-bold text-blue-600">
+                      <p className="font-bold text-blue-800">
                         ${(costBreakdown.laborCost + costBreakdown.partsCost).toFixed(2)}
                       </p>
                     </div>

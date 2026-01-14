@@ -115,7 +115,7 @@ const EventCreateModal: React.FC<EventCreateModalProps> = ({ isOpen, onClose,
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-            <CalendarIcon className="w-6 h-6 text-blue-600" />
+            <CalendarIcon className="w-6 h-6 text-blue-800" />
             Create Fleet Event
           </h3>
           <button
@@ -290,7 +290,7 @@ const EventCreateModal: React.FC<EventCreateModalProps> = ({ isOpen, onClose,
         <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            className="px-4 py-2 text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
           >
             Cancel
           </button>

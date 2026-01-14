@@ -102,7 +102,7 @@ export function APIStatusIndicator({ className, showLabel = false }: APIStatusIn
       case 'checking':
         return {
           icon: RefreshCw,
-          color: 'text-blue-500 animate-spin',
+          color: 'text-blue-800 animate-spin',
           label: 'Checking',
           description: 'Checking API status...'
         }

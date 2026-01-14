@@ -78,7 +78,7 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
         return 'text-red-600 bg-red-50';
       case 'flat':
       default:
-        return 'text-gray-600 bg-gray-50';
+        return 'text-slate-700 bg-gray-50';
     }
   };
 
@@ -107,7 +107,7 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
           >
             {/* Label and trend */}
             <div className="flex items-start justify-between mb-3">
-              <h3 className="text-sm font-medium text-gray-600 uppercase tracking-wide">
+              <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide">
                 {measure.label}
               </h3>
               {measure.trend && (
@@ -136,7 +136,7 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
             {/* Target progress */}
             {measure.target && progress !== null && (
               <div className="space-y-1">
-                <div className="flex items-center justify-between text-xs text-gray-600">
+                <div className="flex items-center justify-between text-xs text-slate-700">
                   <span>Target: {formatValue(measure.target, measure.format)}</span>
                   <span className="font-medium">{progress.toFixed(0)}%</span>
                 </div>

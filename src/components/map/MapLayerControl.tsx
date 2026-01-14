@@ -43,7 +43,7 @@ export function MapLayerControl({ layers }: MapLayerControlProps) {
                             {layers.map((layer) => (
                                 <div key={layer.id} className="flex items-center justify-between group">
                                     <div className="flex items-center gap-3">
-                                        <div className={`p-2 rounded-lg transition-colors ${layer.active ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-500 group-hover:bg-slate-100'}`}>
+                                        <div className={`p-2 rounded-lg transition-colors ${layer.active ? 'bg-blue-50 text-blue-800' : 'bg-slate-50 text-slate-500 group-hover:bg-slate-100'}`}>
                                             {layer.icon}
                                         </div>
                                         <div className="flex flex-col">

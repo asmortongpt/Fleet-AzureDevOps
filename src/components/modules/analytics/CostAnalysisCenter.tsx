@@ -177,7 +177,7 @@ export function CostAnalysisCenter() {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading cost analysis...</p>
+          <p className="text-slate-700">Loading cost analysis...</p>
         </div>
       </div>
     )
@@ -191,7 +191,7 @@ export function CostAnalysisCenter() {
             <CurrencyDollar className="h-8 w-8 text-green-600" weight="fill" />
             Cost Analysis Command Center
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-slate-700 mt-2">
             Real-time cost tracking, forecasting, and anomaly detection
           </p>
         </div>
@@ -217,7 +217,7 @@ export function CostAnalysisCenter() {
               <div className="text-2xl font-bold">
                 ${costSummary.totalCost.toLocaleString()}
               </div>
-              <div className="text-xs text-gray-600 mt-1">Current period</div>
+              <div className="text-xs text-slate-700 mt-1">Current period</div>
             </CardContent>
           </Card>
 
@@ -232,7 +232,7 @@ export function CostAnalysisCenter() {
               <div className="text-2xl font-bold">
                 {costSummary.categoryBreakdown.length}
               </div>
-              <div className="text-xs text-gray-600 mt-1">Active cost categories</div>
+              <div className="text-xs text-slate-700 mt-1">Active cost categories</div>
             </CardContent>
           </Card>
 
@@ -247,7 +247,7 @@ export function CostAnalysisCenter() {
               <div className="text-2xl font-bold text-red-600">
                 {costSummary.anomalies.length}
               </div>
-              <div className="text-xs text-gray-600 mt-1">Unusual spending detected</div>
+              <div className="text-xs text-slate-700 mt-1">Unusual spending detected</div>
             </CardContent>
           </Card>
 
@@ -259,10 +259,10 @@ export function CostAnalysisCenter() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold text-blue-800">
                 {budgetStatus.filter(b => !b.isOverBudget).length}/{budgetStatus.length}
               </div>
-              <div className="text-xs text-gray-600 mt-1">On track</div>
+              <div className="text-xs text-slate-700 mt-1">On track</div>
             </CardContent>
           </Card>
         </div>
@@ -298,7 +298,7 @@ export function CostAnalysisCenter() {
                           </div>
                           <div className="text-right">
                             <div className="font-bold">${category.amount.toLocaleString()}</div>
-                            <div className="text-sm text-gray-600">{category.percentage.toFixed(1)}%</div>
+                            <div className="text-sm text-slate-700">{category.percentage.toFixed(1)}%</div>
                           </div>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
@@ -443,7 +443,7 @@ export function CostAnalysisCenter() {
                             style={{ width: `${Math.min(status.percentageUsed, 100)}%` }}
                           />
                         </div>
-                        <div className="text-xs text-gray-600 mt-1">{status.percentageUsed.toFixed(1)}%</div>
+                        <div className="text-xs text-slate-700 mt-1">{status.percentageUsed.toFixed(1)}%</div>
                       </TableCell>
                       <TableCell>${status.forecastedSpend.toLocaleString()}</TableCell>
                     </TableRow>

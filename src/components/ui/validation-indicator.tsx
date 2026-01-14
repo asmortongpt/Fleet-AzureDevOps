@@ -38,8 +38,8 @@ const STATE_STYLES = {
   },
   validating: {
     icon: Loader2,
-    iconColor: 'text-blue-500 animate-spin',
-    textColor: 'text-blue-600 dark:text-blue-400',
+    iconColor: 'text-blue-800 animate-spin',
+    textColor: 'text-blue-800 dark:text-blue-400',
   },
   success: {
     icon: Check,

@@ -247,7 +247,7 @@ function DataIssueItem({
           <span>Assigned to: {assignedTo}</span>
         </div>
       </div>
-      <button className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors">
+      <button className="px-3 py-1 text-sm text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors">
         View
       </button>
     </div>
@@ -300,7 +300,7 @@ function MasterDataContent() {
       {/* MDM Principles */}
       <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800 p-6">
         <div className="flex items-start gap-3">
-          <Info className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+          <Info className="w-6 h-6 text-blue-800 flex-shrink-0 mt-0.5" />
           <div>
             <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">Master Data Management Principles</h3>
             <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
@@ -424,7 +424,7 @@ function MasterDataRow({
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
-          <button className="p-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors">
+          <button className="p-1 text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors">
             <Eye className="w-4 h-4" />
           </button>
           <button className="p-1 text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded transition-colors">
@@ -637,7 +637,7 @@ function DataLineageContent() {
 
       <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800 p-6">
         <div className="flex items-start gap-3">
-          <Info className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+          <Info className="w-6 h-6 text-blue-800 flex-shrink-0 mt-0.5" />
           <div>
             <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">Data Lineage Capabilities</h3>
             <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
@@ -807,7 +807,7 @@ function ReferenceTableCard({
           <h3 className="font-semibold text-slate-900 dark:text-white mb-1">{name}</h3>
           <p className="text-sm text-slate-600 dark:text-slate-400">{description}</p>
         </div>
-        <Table className="w-6 h-6 text-blue-600" />
+        <Table className="w-6 h-6 text-blue-800" />
       </div>
       <div className="flex items-center justify-between text-sm">
         <span className="text-slate-600 dark:text-slate-400">{records} records</span>
@@ -1096,7 +1096,7 @@ function CatalogItem({
             ))}
           </div>
         </div>
-        <button className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors">
+        <button className="px-3 py-1 text-sm text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors">
           View Details
         </button>
       </div>

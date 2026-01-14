@@ -297,10 +297,10 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link className="w-6 h-6 text-blue-600" />
+          <Link className="w-6 h-6 text-blue-800" />
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Attached Assets</h2>
-            <p className="text-sm text-gray-600">Manage trailers, attachments, and equipment</p>
+            <p className="text-sm text-slate-700">Manage trailers, attachments, and equipment</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -361,7 +361,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                     <div className="text-lg font-medium text-gray-900">
                       {combo.child_asset_name}
                     </div>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-4 mt-2 text-sm text-slate-700">
                       <div className="flex items-center gap-1">
                         <CalendarBlank className="w-4 h-4" />
                         <span>Attached: {new Date(combo.effective_from).toLocaleDateString()}</span>

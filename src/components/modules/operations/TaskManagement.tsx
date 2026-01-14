@@ -434,7 +434,7 @@ export function TaskManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">In Progress</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{inProgressTasks}</div>
+            <div className="text-2xl font-bold text-blue-800">{inProgressTasks}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Clock className="w-3 h-3" />
               Active work

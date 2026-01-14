@@ -141,7 +141,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
       label: 'Offline',
       count: statusMetrics.offline,
       color: 'bg-gray-300',
-      textColor: 'text-gray-600',
+      textColor: 'text-slate-700',
       bgColor: 'bg-gray-50'
     }
   ]

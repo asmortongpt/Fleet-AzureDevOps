@@ -212,7 +212,7 @@ export function DocumentManagement() {
 
   const getFileIcon = (fileType: string) => {
     if (fileType.includes('pdf')) return <FilePdf className="w-8 h-8 text-red-500" />
-    if (fileType.includes('word') || fileType.includes('document')) return <FileDoc className="w-8 h-8 text-blue-500" />
+    if (fileType.includes('word') || fileType.includes('document')) return <FileDoc className="w-8 h-8 text-blue-800" />
     if (fileType.includes('image')) return <FileImage className="w-8 h-8 text-green-500" />
     return <File className="w-8 h-8 text-gray-500" />
   }

@@ -277,7 +277,7 @@ export const DriverToolbox: React.FC = () => {
           </div>
           <div className="bg-white rounded-xl p-4 shadow-sm">
             <p className="text-gray-500 text-sm">Pending Inspections</p>
-            <p className="text-2xl font-bold text-blue-600">{stats.pendingInspections}</p>
+            <p className="text-2xl font-bold text-blue-800">{stats.pendingInspections}</p>
           </div>
           <div className="bg-white rounded-xl p-4 shadow-sm">
             <p className="text-gray-500 text-sm">Pending Sync</p>

@@ -217,10 +217,10 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link className="w-6 h-6 text-blue-600" />
+          <Link className="w-6 h-6 text-blue-800" />
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Asset Combinations</h2>
-            <p className="text-sm text-gray-600">Manage tractor-trailer combos and equipment attachments</p>
+            <p className="text-sm text-slate-700">Manage tractor-trailer combos and equipment attachments</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -286,7 +286,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                       <span className="text-gray-400">→</span>
                       <span>{combo.child_asset_name}</span>
                     </div>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-4 mt-2 text-sm text-slate-700">
                       <div className="flex items-center gap-1">
                         <CalendarBlank className="w-4 h-4" />
                         <span>Effective from: {new Date(combo.effective_from).toLocaleDateString()}</span>
@@ -347,7 +347,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                       <div className="text-sm text-gray-900 mb-1">
                         <strong>{entry.parent_asset_name}</strong> → <strong>{entry.child_asset_name}</strong>
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-gray-600">
+                      <div className="flex items-center gap-4 text-xs text-slate-700">
                         <span>From: {new Date(entry.effective_from).toLocaleDateString()}</span>
                         {entry.effective_to && (
                           <span>To: {new Date(entry.effective_to).toLocaleDateString()}</span>
@@ -358,7 +358,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                         </div>
                       </div>
                       {entry.notes && (
-                        <p className="mt-2 text-sm text-gray-600 italic">{entry.notes}</p>
+                        <p className="mt-2 text-sm text-slate-700 italic">{entry.notes}</p>
                       )}
                     </div>
                   </div>
@@ -380,7 +380,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                   setShowCreateDialog(false)
                   setError(null)
                 }}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-slate-700"
               >
                 <X className="w-5 h-5" />
               </button>

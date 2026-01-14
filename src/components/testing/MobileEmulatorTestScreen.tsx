@@ -120,7 +120,7 @@ export function MobileEmulatorTestScreen() {
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Mobile Emulator Test Screen</h1>
-          <p className="text-gray-600">Test the Fleet Management app with various mobile devices and emulators</p>
+          <p className="text-slate-700">Test the Fleet Management app with various mobile devices and emulators</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -252,7 +252,7 @@ export function MobileEmulatorTestScreen() {
                     {dimensions.width} × {dimensions.height} • {orientation}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className="flex items-center gap-2 text-sm text-slate-700">
                   <Bug size={16} />
                   <span>DEV Mode</span>
                 </div>
@@ -290,15 +290,15 @@ export function MobileEmulatorTestScreen() {
                 <h3 className="font-semibold mb-2 text-sm">Device Information</h3>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <span className="text-gray-600">Platform:</span>
+                    <span className="text-slate-700">Platform:</span>
                     <span className="ml-2 font-medium">{selectedDevice.platform.toUpperCase()}</span>
                   </div>
                   <div>
-                    <span className="text-gray-600">Viewport:</span>
+                    <span className="text-slate-700">Viewport:</span>
                     <span className="ml-2 font-medium">{dimensions.width}×{dimensions.height}</span>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-gray-600">User Agent:</span>
+                    <span className="text-slate-700">User Agent:</span>
                     <div className="mt-1 text-xs text-gray-500 break-all">
                       {selectedDevice.userAgent}
                     </div>

@@ -67,8 +67,8 @@ export function getPriorityColor(priority: string): string {
     critical: 'text-red-600 bg-red-50',
     high: 'text-orange-600 bg-orange-50',
     medium: 'text-yellow-600 bg-yellow-50',
-    low: 'text-blue-600 bg-blue-50',
+    low: 'text-blue-800 bg-blue-50',
   };
 
-  return priorityColors[priority.toLowerCase()] || 'text-gray-600 bg-gray-50';
+  return priorityColors[priority.toLowerCase()] || 'text-slate-700 bg-gray-50';
 }

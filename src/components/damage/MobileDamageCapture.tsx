@@ -229,14 +229,14 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
             onClick={() => setCaptureMode('photo')}
           >
             <CardHeader>
-              <Camera className="h-8 w-8 mb-2 text-blue-500" />
+              <Camera className="h-8 w-8 mb-2 text-blue-800" />
               <CardTitle>Photo Analysis</CardTitle>
               <CardDescription>
                 Capture multiple photos from different angles. Best for detailed damage assessment.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="text-sm space-y-1 text-gray-600">
+              <ul className="text-sm space-y-1 text-slate-700">
                 <li>• 5-10 photos recommended</li>
                 <li>• Front, rear, sides, and closeups</li>
                 {deviceCapabilities.hasDepth && <li>• Includes depth data</li>}
@@ -256,7 +256,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="text-sm space-y-1 text-gray-600">
+              <ul className="text-sm space-y-1 text-slate-700">
                 <li>• 30-60 seconds recommended</li>
                 <li>• Walk around entire vehicle</li>
                 <li>• Hold steady for best results</li>
@@ -281,7 +281,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
             </CardHeader>
             <CardContent>
               {deviceCapabilities.hasLiDAR ? (
-                <ul className="text-sm space-y-1 text-gray-600">
+                <ul className="text-sm space-y-1 text-slate-700">
                   <li>• Millimeter-level accuracy</li>
                   <li>• 3D depth map included</li>
                   <li>• Best for insurance claims</li>
@@ -465,7 +465,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
           <CardContent className="space-y-4">
             <Progress value={analysisProgress} className="w-full" />
             <div className="flex justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+              <Loader2 className="h-8 w-8 animate-spin text-blue-800" />
             </div>
             <Alert>
               <AlertCircle className="h-4 w-4" />

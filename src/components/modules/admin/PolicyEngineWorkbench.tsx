@@ -519,7 +519,7 @@ export function PolicyEngineWorkbench() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{totalExecutions}</div>
+            <div className="text-2xl font-bold text-blue-800">{totalExecutions}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Brain className="w-3 h-3" />
               All time

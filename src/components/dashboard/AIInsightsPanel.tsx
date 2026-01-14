@@ -71,7 +71,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
       case 'prediction':
         return 'text-purple-600 dark:text-purple-400'
       case 'recommendation':
-        return 'text-blue-600 dark:text-blue-400'
+        return 'text-blue-800 dark:text-blue-400'
       case 'alert':
         return 'text-red-600 dark:text-red-400'
       case 'optimization':

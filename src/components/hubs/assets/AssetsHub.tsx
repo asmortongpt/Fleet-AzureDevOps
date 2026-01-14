@@ -298,7 +298,7 @@ const getStatusColor = (status: OperationalStatus): string => {
 
 const getUtilizationColor = (rate: number): string => {
   if (rate >= 80) return "text-green-500"
-  if (rate >= 60) return "text-blue-500"
+  if (rate >= 60) return "text-blue-800"
   if (rate >= 40) return "text-yellow-500"
   return "text-red-500"
 }
@@ -353,7 +353,7 @@ export function AssetsHub() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Barcode className="w-6 h-6 text-blue-500" />
+              <Barcode className="w-6 h-6 text-blue-800" />
               Assets Hub
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
@@ -402,7 +402,7 @@ export function AssetsHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-500">
+              <div className="text-3xl font-bold text-blue-800">
                 {demoAssetMetrics.utilizationRate}%
               </div>
               <Progress value={demoAssetMetrics.utilizationRate} className="mt-2" />

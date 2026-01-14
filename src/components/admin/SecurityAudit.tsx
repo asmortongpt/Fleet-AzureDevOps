@@ -360,7 +360,7 @@ export function SecurityAudit() {
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <Shield className="h-8 w-8 text-blue-600" />
+            <Shield className="h-8 w-8 text-blue-800" />
             <div>
               <h2 className="text-2xl font-bold">Security Audit</h2>
               <p className="text-sm text-muted-foreground">

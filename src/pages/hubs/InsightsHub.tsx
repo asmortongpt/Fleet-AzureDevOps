@@ -380,7 +380,7 @@ const InsightsHub: React.FC = () => {
               <Card className="hover:bg-accent/5 cursor-pointer transition-colors">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <ChartLine className="w-5 h-5 text-blue-500" />
+                    <ChartLine className="w-5 h-5 text-blue-800" />
                     Total Analytics
                   </CardTitle>
                 </CardHeader>
@@ -487,7 +487,7 @@ const InsightsHub: React.FC = () => {
                           {insight.type === "cost" && <CurrencyDollar className="w-4 h-4 text-orange-500" />}
                           {insight.type === "maintenance" && <Warning className="w-4 h-4 text-yellow-500" />}
                           {insight.type === "performance" && <TrendUp className="w-4 h-4 text-green-500" />}
-                          {insight.type === "report" && <FileText className="w-4 h-4 text-blue-500" />}
+                          {insight.type === "report" && <FileText className="w-4 h-4 text-blue-800" />}
                           {insight.type === "ai" && <Brain className="w-4 h-4 text-purple-500" />}
                         </div>
                         <div className="flex-1">

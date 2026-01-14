@@ -123,7 +123,7 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                             <h4 className="font-semibold text-blue-800 text-sm mb-1 flex items-center gap-2">
                                 <TrendUp className="w-4 h-4" /> Optimization Insight
                             </h4>
-                            <p className="text-xs text-blue-600">
+                            <p className="text-xs text-blue-800">
                                 Average fuel price at "Shell Station 42" is $0.15 higher than regional average. Consider redirecting units to "Chevron West".
                             </p>
                         </div>

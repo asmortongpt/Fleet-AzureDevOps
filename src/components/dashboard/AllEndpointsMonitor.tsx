@@ -195,7 +195,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
       {/* Summary Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
         <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 border border-border/50">
-          <Circle className="w-2 h-2 fill-blue-500 text-blue-500" weight="fill" />
+          <Circle className="w-2 h-2 fill-blue-500 text-blue-800" weight="fill" />
           <div>
             <p className="text-[10px] text-muted-foreground">Total</p>
             <p className="text-sm font-semibold">{summary.totalEndpoints}</p>

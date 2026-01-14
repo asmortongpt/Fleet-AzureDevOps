@@ -266,7 +266,7 @@ const demoScheduledReports: ScheduledReport[] = [
 
 const getCategoryColor = (category: ReportCategory): string => {
   switch (category) {
-    case "fleet": return "bg-blue-500/10 text-blue-500"
+    case "fleet": return "bg-blue-500/10 text-blue-800"
     case "maintenance": return "bg-orange-500/10 text-orange-500"
     case "safety": return "bg-red-500/10 text-red-500"
     case "compliance": return "bg-purple-500/10 text-purple-500"
@@ -279,7 +279,7 @@ const getCategoryColor = (category: ReportCategory): string => {
 const getStatusColor = (status: ReportStatus): string => {
   switch (status) {
     case "ready": return "bg-green-500/10 text-green-500"
-    case "generating": return "bg-blue-500/10 text-blue-500"
+    case "generating": return "bg-blue-500/10 text-blue-800"
     case "scheduled": return "bg-yellow-500/10 text-yellow-500"
     case "failed": return "bg-red-500/10 text-red-500"
     default: return "bg-gray-500/10 text-gray-500"
@@ -367,7 +367,7 @@ export function ReportsHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-500">{stats.scheduledActive}</div>
+              <div className="text-3xl font-bold text-blue-800">{stats.scheduledActive}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 of {stats.scheduledTotal} scheduled
               </p>

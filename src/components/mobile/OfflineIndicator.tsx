@@ -98,7 +98,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
     }
 
     if (syncStatus?.status === 'syncing') {
-      return <RefreshCw className="text-blue-500 animate-spin" size={20} />;
+      return <RefreshCw className="text-blue-800 animate-spin" size={20} />;
     }
 
     if (syncStatus?.status === 'error') {
@@ -187,7 +187,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
             <div>
               <p className="text-sm font-medium text-gray-800">{getStatusText()}</p>
               {syncStatus?.message && (
-                <p className="text-xs text-gray-600">{syncStatus.message}</p>
+                <p className="text-xs text-slate-700">{syncStatus.message}</p>
               )}
             </div>
           </div>
@@ -208,14 +208,14 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
                 className="bg-white hover:bg-gray-50 p-2 rounded-full transition-colors"
                 title="Sync now"
               >
-                <RefreshCw size={16} className="text-gray-600" />
+                <RefreshCw size={16} className="text-slate-700" />
               </button>
             )}
 
             {!compact && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="text-xs font-medium text-gray-600 hover:text-gray-800 transition-colors"
+                className="text-xs font-medium text-slate-700 hover:text-gray-800 transition-colors"
               >
                 {isExpanded ? 'Hide' : 'Details'}
               </button>

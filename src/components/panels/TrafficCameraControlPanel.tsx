@@ -63,7 +63,7 @@ export function TrafficCameraControlPanel({
                 <div>
                     <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800">
                         <div className="p-1.5 bg-blue-500/10 rounded-md border border-blue-500/20">
-                            <VideoCamera weight="fill" className="text-blue-600 w-4 h-4" />
+                            <VideoCamera weight="fill" className="text-blue-800 w-4 h-4" />
                         </div>
                         Traffic Feed
                     </CardTitle>

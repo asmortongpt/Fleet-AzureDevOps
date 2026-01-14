@@ -123,8 +123,8 @@ const MessagePanel = ({ messages, onMessageSelect }: { messages: Message[]; onMe
   const getPriorityColor = (priority: string) => {
     switch(priority) {
       case 'high': return 'text-red-600'
-      case 'low': return 'text-blue-600'
-      default: return 'text-gray-600'
+      case 'low': return 'text-blue-800'
+      default: return 'text-slate-700'
     }
   }
 
@@ -132,7 +132,7 @@ const MessagePanel = ({ messages, onMessageSelect }: { messages: Message[]; onMe
     switch(type) {
       case 'broadcast': return <Radio className="h-4 w-4 text-purple-500" />
       case 'notification': return <Bell className="h-4 w-4 text-yellow-500" />
-      default: return <MessageSquare className="h-4 w-4 text-blue-500" />
+      default: return <MessageSquare className="h-4 w-4 text-blue-800" />
     }
   }
 
@@ -314,7 +314,7 @@ const BroadcastPanel = ({ zones }: { zones: BroadcastZone[] }) => {
                     "h-4 w-4 mt-0.5",
                     alert.severity === 'critical' && "text-red-600",
                     alert.severity === 'warning' && "text-yellow-600",
-                    alert.severity === 'info' && "text-blue-600"
+                    alert.severity === 'info' && "text-blue-800"
                   )} />
                   <div className="flex-1">
                     <div className="font-medium text-sm">{alert.message}</div>
@@ -352,8 +352,8 @@ const MessageThreadPanel = ({ message }: { message: Message | null }) => {
             <h3 className="text-lg font-semibold">{message.subject}</h3>
             <Badge variant="outline" className={
               message.priority === 'high' ? 'text-red-600' :
-              message.priority === 'low' ? 'text-blue-600' :
-              'text-gray-600'
+              message.priority === 'low' ? 'text-blue-800' :
+              'text-slate-700'
             }>
               {message.priority}
             </Badge>

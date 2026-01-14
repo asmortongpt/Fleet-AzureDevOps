@@ -350,7 +350,7 @@ export default function ReportsHub() {
               </div>
               <div>
                 <div className="text-2xl font-bold text-gray-900">{filteredReports.length}</div>
-                <div className="text-sm text-gray-600">Available Reports</div>
+                <div className="text-sm text-slate-700">Available Reports</div>
               </div>
             </div>
           </div>
@@ -361,7 +361,7 @@ export default function ReportsHub() {
               </div>
               <div>
                 <div className="text-2xl font-bold text-gray-900">0</div>
-                <div className="text-sm text-gray-600">Recently Viewed</div>
+                <div className="text-sm text-slate-700">Recently Viewed</div>
               </div>
             </div>
           </div>
@@ -372,7 +372,7 @@ export default function ReportsHub() {
               </div>
               <div>
                 <div className="text-2xl font-bold text-gray-900">0</div>
-                <div className="text-sm text-gray-600">Custom Reports</div>
+                <div className="text-sm text-slate-700">Custom Reports</div>
               </div>
             </div>
           </div>
@@ -383,7 +383,7 @@ export default function ReportsHub() {
               </div>
               <div>
                 <div className="text-2xl font-bold text-gray-900">0</div>
-                <div className="text-sm text-gray-600">Exports Today</div>
+                <div className="text-sm text-slate-700">Exports Today</div>
               </div>
             </div>
           </div>
@@ -404,7 +404,7 @@ export default function ReportsHub() {
                     <span className="text-2xl mr-2">{meta.icon}</span>
                     <span className="font-bold text-lg">{meta.label}</span>
                   </div>
-                  <p className="text-sm text-gray-600">{meta.description}</p>
+                  <p className="text-sm text-slate-700">{meta.description}</p>
                   <span className="ml-auto text-sm font-medium text-gray-500">
                     {reports.length} {reports.length === 1 ? 'report' : 'reports'}
                   </span>
@@ -427,7 +427,7 @@ export default function ReportsHub() {
             <div className="text-center py-12">
               <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No reports found</h3>
-              <p className="text-gray-600">
+              <p className="text-slate-700">
                 Try adjusting your search or filters
               </p>
             </div>

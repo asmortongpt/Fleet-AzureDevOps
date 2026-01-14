@@ -87,7 +87,7 @@ interface Route {
 // ============================================================================
 
 const SEARCH_CATEGORIES: SearchCategory[] = [
-  { type: 'vehicle', label: 'Vehicles', icon: Car, color: 'text-blue-500' },
+  { type: 'vehicle', label: 'Vehicles', icon: Car, color: 'text-blue-800' },
   { type: 'driver', label: 'Drivers', icon: User, color: 'text-green-500' },
   { type: 'work-order', label: 'Work Orders', icon: Wrench, color: 'text-orange-500' },
   { type: 'part', label: 'Parts', icon: Package, color: 'text-cyan-500' },

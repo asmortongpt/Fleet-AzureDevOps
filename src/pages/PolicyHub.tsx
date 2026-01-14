@@ -134,7 +134,7 @@ function DashboardContent() {
                         className="flex items-center gap-3 p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
                         onClick={() => push({ type: 'create-policy', data: { title: 'Create Policy' } } as Omit<DrilldownLevel, "timestamp">)}
                     >
-                        <Lightbulb className="w-5 h-5 text-blue-600" />
+                        <Lightbulb className="w-5 h-5 text-blue-800" />
                         <span className="font-medium text-slate-700 dark:text-slate-300">Create Policy</span>
                     </button>
                     <button
@@ -224,7 +224,7 @@ function SOPsContent() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {[
                         { name: 'Safety Procedures', count: 8, icon: <ShieldCheck className="w-5 h-5" />, color: 'text-green-600' },
-                        { name: 'Maintenance', count: 6, icon: <FlowArrow className="w-5 h-5" />, color: 'text-blue-600' },
+                        { name: 'Maintenance', count: 6, icon: <FlowArrow className="w-5 h-5" />, color: 'text-blue-800' },
                         { name: 'Dispatch', count: 4, icon: <ChartBar className="w-5 h-5" />, color: 'text-purple-600' },
                         { name: 'Compliance', count: 3, icon: <CheckCircle className="w-5 h-5" />, color: 'text-orange-600' },
                         { name: 'Emergency Response', count: 2, icon: <Warning className="w-5 h-5" />, color: 'text-red-600' },
@@ -247,7 +247,7 @@ function SOPsContent() {
 
             <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-xl border border-blue-500/20 p-6">
                 <div className="flex items-start gap-4">
-                    <Robot className="w-8 h-8 text-blue-600 flex-shrink-0" />
+                    <Robot className="w-8 h-8 text-blue-800 flex-shrink-0" />
                     <div>
                         <h3 className="text-lg font-semibold text-white mb-2">AI SOP Generation</h3>
                         <p className="text-slate-300 mb-4">
@@ -561,7 +561,7 @@ function WorkflowsContent() {
                 <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Workflow Templates</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {[
-                        { name: 'Purchase Order Approval', steps: 4, users: 8, icon: <Receipt className="w-5 h-5" />, color: 'text-blue-600' },
+                        { name: 'Purchase Order Approval', steps: 4, users: 8, icon: <Receipt className="w-5 h-5" />, color: 'text-blue-800' },
                         { name: 'Policy Review & Approval', steps: 5, users: 12, icon: <ShieldCheck className="w-5 h-5" />, color: 'text-green-600' },
                         { name: 'Incident Investigation', steps: 6, users: 5, icon: <Warning className="w-5 h-5" />, color: 'text-red-600' },
                         { name: 'Training Certification', steps: 3, users: 20, icon: <GraduationCap className="w-5 h-5" />, color: 'text-purple-600' },

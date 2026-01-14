@@ -423,9 +423,9 @@ export function CreateDamageReport() {
             {/* Helpful Notice */}
             {formData.photos.length > 0 && formData.photos.length < 3 && (
               <div className="flex items-start gap-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                <AlertCircle className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
+                <AlertCircle className="h-5 w-5 text-blue-800 shrink-0 mt-0.5" />
                 <div className="text-sm">
-                  <p className="font-medium text-blue-500">
+                  <p className="font-medium text-blue-800">
                     Upload more photos for 3D model generation
                   </p>
                   <p className="text-muted-foreground mt-1">

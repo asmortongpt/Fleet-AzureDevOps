@@ -111,7 +111,7 @@ export const ProtectedRoute = ({
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Verifying authentication...</p>
+          <p className="text-slate-700">Verifying authentication...</p>
         </div>
       </div>
     )
@@ -142,7 +142,7 @@ export const ProtectedRoute = ({
             />
           </svg>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-slate-700 mb-6">
             You don't have permission to access this page.
           </p>
           {requiredRole && (

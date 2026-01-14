@@ -92,7 +92,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
       case 'end':
         return <Flag className="w-4 h-4 text-red-600" />;
       case 'delivery':
-        return <MapPin className="w-4 h-4 text-blue-600" />;
+        return <MapPin className="w-4 h-4 text-blue-800" />;
       case 'fuel':
         return <Fuel className="w-4 h-4 text-orange-600" />;
       case 'service':

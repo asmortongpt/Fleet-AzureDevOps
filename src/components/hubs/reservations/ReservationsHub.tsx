@@ -50,7 +50,7 @@ export const ReservationsHub: React.FC = () => {
               <p className="text-sm text-muted-foreground">Available Vehicles</p>
               <p className="text-2xl font-bold">37</p>
             </div>
-            <Calendar className="w-8 h-8 text-blue-500" />
+            <Calendar className="w-8 h-8 text-blue-800" />
           </div>
         </div>
 

@@ -94,10 +94,10 @@ export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
       {/* Route Info Overlay */}
       <div className="absolute bottom-4 left-4 z-10 bg-white/90 backdrop-blur rounded-lg shadow-lg p-4 max-w-xs">
         <div className="flex items-center gap-2 mb-2">
-          <MapPin className="w-5 h-5 text-blue-600" />
+          <MapPin className="w-5 h-5 text-blue-800" />
           <h3 className="font-semibold text-gray-900">Active Routes</h3>
         </div>
-        <div className="space-y-1 text-sm text-gray-600">
+        <div className="space-y-1 text-sm text-slate-700">
           <div>Active Vehicles: {activeVehicles.length}</div>
           <div>Total Routes: {showRoutes ? SAMPLE_ROUTES.length : 0}</div>
           <div className="mt-2 pt-2 border-t border-gray-200">

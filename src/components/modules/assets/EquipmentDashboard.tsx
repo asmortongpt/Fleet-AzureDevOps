@@ -187,7 +187,7 @@ export function EquipmentDashboard() {
             <CardTitle className="text-sm font-medium text-muted-foreground">In Use</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{inUseEquipment}</div>
+            <div className="text-2xl font-bold text-blue-800">{inUseEquipment}</div>
             <div className="text-xs text-muted-foreground mt-1">
               {totalEquipment > 0 ? Math.round((inUseEquipment / totalEquipment) * 100) : 0}% utilization
             </div>

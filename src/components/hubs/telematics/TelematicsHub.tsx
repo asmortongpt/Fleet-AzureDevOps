@@ -132,7 +132,7 @@ export const TelematicsHub: React.FC = () => {
                 km/h
               </p>
             </div>
-            <Zap className="w-8 h-8 text-blue-500" />
+            <Zap className="w-8 h-8 text-blue-800" />
           </div>
         </div>
 

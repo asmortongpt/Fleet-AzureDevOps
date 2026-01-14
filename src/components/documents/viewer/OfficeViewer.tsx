@@ -30,7 +30,7 @@ export function OfficeViewer({ document }: OfficeViewerProps) {
       case 'document':
         return {
           icon: 'Word',
-          color: 'text-blue-600',
+          color: 'text-blue-800',
           bgColor: 'bg-blue-100',
           description: 'Word Document'
         };
@@ -51,7 +51,7 @@ export function OfficeViewer({ document }: OfficeViewerProps) {
       default:
         return {
           icon: 'Document',
-          color: 'text-gray-600',
+          color: 'text-slate-700',
           bgColor: 'bg-gray-100',
           description: 'Office Document'
         };

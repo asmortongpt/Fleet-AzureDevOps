@@ -86,7 +86,7 @@ export function ReactiveMetricCard({
   const trendColors: Record<string, string> = {
     up: 'text-green-600 dark:text-green-400',
     down: 'text-red-600 dark:text-red-400',
-    neutral: 'text-gray-600 dark:text-gray-400',
+    neutral: 'text-slate-700 dark:text-gray-400',
   }
 
   return (

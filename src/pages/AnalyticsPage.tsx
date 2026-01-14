@@ -234,7 +234,7 @@ export function AnalyticsPage() {
         <div className="text-center space-y-4">
           <div className="relative">
             <div className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto" />
-            <Activity className="w-6 h-6 text-blue-500 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+            <Activity className="w-6 h-6 text-blue-800 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
           </div>
           <div>
             <p className="text-lg font-medium text-white">Loading Analytics Dashboard</p>
@@ -272,7 +272,7 @@ export function AnalyticsPage() {
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <BarChart3 className="w-8 h-8 text-blue-500" />
+              <BarChart3 className="w-8 h-8 text-blue-800" />
               <h1 className="text-3xl font-bold text-white">Analytics Dashboard</h1>
               <InfoPopover
                 title="Analytics Dashboard"

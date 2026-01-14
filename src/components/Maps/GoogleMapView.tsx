@@ -299,7 +299,7 @@ const RoutePolyline: React.FC<RoutePolylineProps> = ({ map, path, color = '#3b82
 const LoadingComponent: React.FC = () => (
   <div className="flex items-center justify-center w-full h-full bg-slate-900">
     <div className="text-center">
-      <Spinner className="w-8 h-8 text-blue-500 mb-4" />
+      <Spinner className="w-8 h-8 text-blue-800 mb-4" />
       <p className="text-slate-400">Loading Google Maps...</p>
     </div>
   </div>
@@ -395,12 +395,12 @@ export const GoogleMapView: React.FC<GoogleMapViewProps> = ({
       {/* Map Controls Overlay */}
       <div className="absolute top-4 left-4 bg-white/90 backdrop-blur rounded-lg shadow-lg p-3 space-y-2">
         <div className="flex items-center gap-2">
-          <Navigation className="w-4 h-4 text-blue-600" />
+          <Navigation className="w-4 h-4 text-blue-800" />
           <span className="text-sm font-medium text-gray-900">
             {vehicles.length} Vehicle{vehicles.length !== 1 ? 's' : ''}
           </span>
         </div>
-        <div className="space-y-1 text-xs text-gray-600">
+        <div className="space-y-1 text-xs text-slate-700">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-green-500" />
             <span>Active ({vehicles.filter(v => v.status === 'active').length})</span>
