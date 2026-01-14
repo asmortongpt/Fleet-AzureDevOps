@@ -54,6 +54,14 @@ import { AddVehicleDialog } from '@/components/dialogs/AddVehicleDialog'
 import { Button } from '@/components/ui/button'
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useAuth } from '@/contexts/AuthContext'
+
+// Role-specific dashboards
+import { FleetManagerDashboard } from '@/components/dashboards/roles/FleetManagerDashboard'
+import { DriverDashboard } from '@/components/dashboards/roles/DriverDashboard'
+import { DispatcherDashboard } from '@/components/dashboards/roles/DispatcherDashboard'
+import { MaintenanceManagerDashboard } from '@/components/dashboards/roles/MaintenanceManagerDashboard'
+import { AdminDashboard } from '@/components/dashboards/roles/AdminDashboard'
 
 // ============================================================================
 // TAB ERROR BOUNDARY - Graceful error handling per tab
@@ -1086,9 +1094,52 @@ function VideoContent() {
 }
 
 // ============================================================================
-// MAIN FLEET HUB COMPONENT
+// MAIN FLEET HUB COMPONENT - Role-Based View Switching
 // ============================================================================
 export function FleetHub() {
+    const { user } = useAuth();
+
+    // Role detection - normalize role string for comparison
+    const normalizeRole = (role: string): string => {
+        return role.toLowerCase().replace(/-/g, '_').replace(/\s+/g, '_');
+    };
+
+    const userRole = user?.role ? normalizeRole(user.role) : '';
+
+    // Determine if user should see role-specific dashboard or full tabbed interface
+    // Admins get full tabbed interface, other roles get workflow-optimized dashboards
+    const shouldShowRoleDashboard = () => {
+        const adminRoles = ['super_admin', 'superadmin', 'admin', 'tenant_admin'];
+        return !adminRoles.includes(userRole);
+    };
+
+    // Render role-specific dashboard
+    if (shouldShowRoleDashboard() && user) {
+        switch (userRole) {
+            case 'fleet_manager':
+            case 'manager':
+            case 'fleetmanager':
+                return <FleetManagerDashboard />;
+
+            case 'driver':
+            case 'user':
+                return <DriverDashboard />;
+
+            case 'dispatcher':
+                return <DispatcherDashboard />;
+
+            case 'maintenance_manager':
+            case 'mechanic':
+            case 'technician':
+                return <MaintenanceManagerDashboard />;
+
+            default:
+                // For unknown roles, show FleetManagerDashboard as default
+                return <FleetManagerDashboard />;
+        }
+    }
+
+    // Admin users see full tabbed interface
     const tabs: HubTab[] = [
         {
             id: 'overview',

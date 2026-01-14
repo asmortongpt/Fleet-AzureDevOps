@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { navigationItems, NavigationItem } from '@/lib/navigation';
+import { getNavigationItemsForRole } from '@/config/role-navigation';
 
 interface NavigationContextType {
     activeModule: string;
@@ -38,28 +39,17 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
         setActiveModuleState(moduleId);
     }, [location.pathname, location.search]);
 
-    // Filter navigation items based on user role/permissions
+    // Filter navigation items based on user role using workflow-optimized role-navigation config
     const visibleNavItems = useMemo(() => {
-        // If no user is logged in, show nothing or public items (if any existed)
+        // If no user is logged in, show nothing
         if (!user) return [];
 
-        return navigationItems.filter(item => {
-            // 1. Role Check
-            if (item.roles && item.roles.length > 0) {
-                // If the user is SuperAdmin, they see everything regardless of specific role restrictions
-                // otherwise, check if their role is in the allowed list
-                if (isSuperAdmin()) return true;
+        // Get accessible navigation item IDs for this role from workflow analysis
+        const accessibleItemIds = getNavigationItemsForRole(user.role);
 
-                // Cast string[] to UserRole[] for comparison safely
-                const allowedRoles = item.roles as UserRole[];
-                if (!allowedRoles.includes(user.role)) return false;
-            }
-
-            // 2. Permission Check can be added here in the future
-
-            return true;
-        });
-    }, [user, isSuperAdmin]);
+        // Filter navigationItems to only include items accessible to this role
+        return navigationItems.filter(item => accessibleItemIds.includes(item.id));
+    }, [user]);
 
     const getNavItemsBySection = useCallback((section: string) => {
         return visibleNavItems.filter(item => item.section === section);

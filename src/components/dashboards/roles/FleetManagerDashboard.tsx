@@ -10,6 +10,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Warning,
   Wrench,
@@ -56,6 +57,8 @@ interface CostSummary {
 }
 
 export function FleetManagerDashboard() {
+  const navigate = useNavigate();
+
   const [overdueCount, setOverdueCount] = useState(5);
   const [upcomingCount, setUpcomingCount] = useState(12);
   const [openWorkOrders, setOpenWorkOrders] = useState(8);
@@ -74,30 +77,102 @@ export function FleetManagerDashboard() {
     target_cost_per_mile: 2.10
   });
 
-  // Quick actions
+  // Load data on mount (API integration pattern)
+  useEffect(() => {
+    // Example: Fetch real data from API
+    /*
+    const fetchDashboardData = async () => {
+      try {
+        const [maintenanceRes, fleetRes, costRes] = await Promise.all([
+          fetch('/api/maintenance/alerts'),
+          fetch('/api/fleet/stats'),
+          fetch('/api/costs/summary?period=monthly')
+        ]);
+
+        const maintenanceData = await maintenanceRes.json();
+        const fleetData = await fleetRes.json();
+        const costData = await costRes.json();
+
+        setOverdueCount(maintenanceData.overdue_count);
+        setUpcomingCount(maintenanceData.upcoming_count);
+        setOpenWorkOrders(maintenanceData.open_work_orders);
+        setFleetStats(fleetData);
+        setCostSummary(costData);
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+        toast.error('Failed to load dashboard data');
+      }
+    };
+
+    fetchDashboardData();
+    */
+  }, []);
+
+  // Quick actions - Now with proper navigation
   const handleAssignDriver = () => {
-    toast.success('Opening driver assignment dialog...');
-    // TODO: Open dialog
+    // Navigate to drivers hub with assignment mode
+    navigate('/drivers-hub-consolidated', {
+      state: { action: 'assign-driver' }
+    });
+    toast.info('Opening driver assignment...');
   };
 
   const handleCreateWorkOrder = () => {
-    toast.success('Opening work order form...');
-    // TODO: Navigate to work order creation
+    // Navigate to maintenance hub with create work order action
+    navigate('/maintenance-hub-consolidated', {
+      state: { action: 'create-work-order' }
+    });
+    toast.info('Opening work order form...');
   };
 
-  const handleExportReport = () => {
-    toast.success('Generating daily report...');
-    // TODO: Export functionality
+  const handleExportReport = async () => {
+    // Example: Export functionality with API call
+    toast.loading('Generating daily report...');
+
+    try {
+      // Uncomment when API is ready:
+      /*
+      const response = await fetch('/api/reports/daily', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: new Date().toISOString() })
+      });
+
+      if (!response.ok) throw new Error('Export failed');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `fleet-report-${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      */
+
+      // Mock delay for demo
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast.success('Report generated successfully!');
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast.error('Failed to generate report');
+    }
   };
 
   const handleViewOverdue = () => {
-    toast.info('Navigating to overdue maintenance queue...');
-    // TODO: Navigate to maintenance page with overdue filter
+    // Navigate to maintenance hub with overdue filter pre-applied
+    navigate('/maintenance-hub-consolidated', {
+      state: { filter: 'overdue' }
+    });
+    toast.info('Loading overdue maintenance queue...');
   };
 
   const handleScheduleMaintenance = () => {
+    // Navigate to maintenance hub with scheduler view
+    navigate('/maintenance-hub-consolidated', {
+      state: { view: 'schedule', filter: 'upcoming' }
+    });
     toast.info('Opening maintenance scheduler...');
-    // TODO: Open scheduler
   };
 
   return (

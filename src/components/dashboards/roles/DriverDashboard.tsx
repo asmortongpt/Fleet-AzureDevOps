@@ -10,6 +10,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Car,
   MapPin,
@@ -58,6 +59,7 @@ interface InspectionItem {
 }
 
 export function DriverDashboard() {
+  const navigate = useNavigate();
   const [driverName] = useState('John Smith');
   const [assignedVehicle, setAssignedVehicle] = useState<AssignedVehicle>({
     id: 1042,
@@ -100,35 +102,105 @@ export function DriverDashboard() {
     { id: 'emergency_equipment', label: 'Emergency Equipment', completed: false }
   ]);
 
-  // Quick actions
+  // Load driver data on mount (API integration pattern)
+  useEffect(() => {
+    // Example: Fetch driver-specific data from API
+    /*
+    const fetchDriverData = async () => {
+      try {
+        const [vehicleRes, tripsRes] = await Promise.all([
+          fetch('/api/drivers/me/vehicle'),
+          fetch('/api/drivers/me/trips/today')
+        ]);
+
+        const vehicleData = await vehicleRes.json();
+        const tripsData = await tripsRes.json();
+
+        setAssignedVehicle(vehicleData);
+        setTodaysTrips(tripsData);
+      } catch (error) {
+        console.error('Failed to load driver data:', error);
+        toast.error('Failed to load your data');
+      }
+    };
+
+    fetchDriverData();
+    */
+  }, []);
+
+  // Quick actions - Now with proper navigation
   const handleStartTrip = (tripId: number) => {
-    toast.success(`Starting Trip #${tripId}...`);
-    // TODO: Navigate to trip start flow
+    // Navigate to operations hub with trip start flow
+    navigate('/operations-hub-consolidated', {
+      state: { action: 'start-trip', tripId }
+    });
+    toast.info(`Starting Trip #${tripId}...`);
   };
 
   const handleLogFuel = () => {
-    toast.success('Opening fuel log form...');
-    // TODO: Open fuel entry dialog
+    // Navigate to fleet hub with fuel logging view
+    navigate('/fleet-hub-consolidated', {
+      state: { action: 'log-fuel', vehicleId: assignedVehicle.id }
+    });
+    toast.info('Opening fuel log form...');
   };
 
   const handleReportIssue = () => {
-    toast.success('Opening incident report form...');
-    // TODO: Open incident reporting
+    // Navigate to maintenance hub with incident report form
+    navigate('/maintenance-hub-consolidated', {
+      state: { action: 'report-issue', vehicleId: assignedVehicle.id }
+    });
+    toast.info('Opening incident report...');
   };
 
-  const handleCompleteInspection = () => {
+  const handleCompleteInspection = async () => {
     const allCompleted = inspectionItems.every(item => item.completed);
     if (!allCompleted) {
       toast.error('Please complete all inspection items');
       return;
     }
-    toast.success('Pre-trip inspection completed!');
-    // TODO: Submit inspection to backend
+
+    toast.loading('Submitting inspection...');
+
+    try {
+      // Uncomment when API is ready:
+      /*
+      const response = await fetch('/api/inspections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vehicle_id: assignedVehicle.id,
+          inspection_items: inspectionItems.map(item => ({
+            item: item.id,
+            status: item.completed ? 'pass' : 'fail'
+          })),
+          timestamp: new Date().toISOString()
+        })
+      });
+
+      if (!response.ok) throw new Error('Inspection submission failed');
+      */
+
+      // Mock delay for demo
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast.success('Pre-trip inspection completed!');
+
+      // Reset checklist after successful submission
+      setInspectionItems(prev =>
+        prev.map(item => ({ ...item, completed: false }))
+      );
+    } catch (error) {
+      console.error('Inspection submission failed:', error);
+      toast.error('Failed to submit inspection');
+    }
   };
 
   const handleViewRoute = (tripId: number) => {
+    // Navigate to operations hub with route map view
+    navigate('/operations-hub-consolidated', {
+      state: { action: 'view-route', tripId }
+    });
     toast.info(`Loading route map for Trip #${tripId}...`);
-    // TODO: Navigate to route view
   };
 
   const toggleInspectionItem = (itemId: string) => {
