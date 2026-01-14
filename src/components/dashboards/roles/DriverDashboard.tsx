@@ -9,8 +9,9 @@
  * - Quick access to common driver tasks
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import {
   Car,
   MapPin,
@@ -22,35 +23,17 @@ import {
   Clock,
   Route,
   Gauge,
-  Calendar
+  Calendar,
+  AlertCircle
 } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
-
-interface AssignedVehicle {
-  id: number;
-  name: string;
-  year: number;
-  make: string;
-  model: string;
-  fuel_level: number;
-  mileage: number;
-  status: string;
-  last_inspection: string;
-}
-
-interface Trip {
-  id: number;
-  route_name: string;
-  origin: string;
-  destination: string;
-  scheduled_start: string;
-  scheduled_end: string;
-  status: string;
-}
+import { dashboardApi, dashboardQueryKeys } from '@/services/dashboardApi';
+import type { DriverVehicle, DriverTrip } from '@/services/dashboardApi';
 
 interface InspectionItem {
   id: string;
@@ -61,38 +44,34 @@ interface InspectionItem {
 export function DriverDashboard() {
   const navigate = useNavigate();
   const [driverName] = useState('John Smith');
-  const [assignedVehicle, setAssignedVehicle] = useState<AssignedVehicle>({
-    id: 1042,
-    name: 'Vehicle #1042',
-    year: 2022,
-    make: 'Ford',
-    model: 'F-150',
-    fuel_level: 80,
-    mileage: 45230,
-    status: 'ready',
-    last_inspection: '2026-01-10'
+
+  // React Query hooks for real-time data fetching
+  const { data: vehicleData, isLoading: vehicleLoading, error: vehicleError } = useQuery({
+    queryKey: dashboardQueryKeys.driverVehicle,
+    queryFn: dashboardApi.getDriverVehicle,
+    refetchInterval: 30000, // Refetch every 30 seconds
   });
 
-  const [todaysTrips, setTodaysTrips] = useState<Trip[]>([
-    {
-      id: 4523,
-      route_name: 'Downtown Delivery',
-      origin: '123 Main St',
-      destination: '456 Oak Ave',
-      scheduled_start: '09:00 AM',
-      scheduled_end: '11:30 AM',
-      status: 'pending'
-    },
-    {
-      id: 4524,
-      route_name: 'Supply Run',
-      origin: 'Warehouse',
-      destination: '789 Pine Rd',
-      scheduled_start: '02:00 PM',
-      scheduled_end: '04:00 PM',
-      status: 'scheduled'
-    }
-  ]);
+  const { data: tripsData, isLoading: tripsLoading } = useQuery({
+    queryKey: dashboardQueryKeys.driverTrips(new Date().toISOString().split('T')[0]),
+    queryFn: () => dashboardApi.getDriverTrips(),
+    refetchInterval: 60000, // Refetch every minute
+  });
+
+  // Extract values with fallbacks for loading states
+  const assignedVehicle: DriverVehicle = vehicleData ?? {
+    id: 0,
+    name: 'No vehicle assigned',
+    year: 0,
+    make: '',
+    model: '',
+    fuel_level: 0,
+    mileage: 0,
+    status: 'unavailable',
+    last_inspection: 'N/A'
+  };
+
+  const todaysTrips: DriverTrip[] = tripsData ?? [];
 
   const [inspectionItems, setInspectionItems] = useState<InspectionItem[]>([
     { id: 'tire_pressure', label: 'Tire Pressure', completed: false },
@@ -101,32 +80,6 @@ export function DriverDashboard() {
     { id: 'brakes', label: 'Brakes', completed: false },
     { id: 'emergency_equipment', label: 'Emergency Equipment', completed: false }
   ]);
-
-  // Load driver data on mount (API integration pattern)
-  useEffect(() => {
-    // Example: Fetch driver-specific data from API
-    /*
-    const fetchDriverData = async () => {
-      try {
-        const [vehicleRes, tripsRes] = await Promise.all([
-          fetch('/api/drivers/me/vehicle'),
-          fetch('/api/drivers/me/trips/today')
-        ]);
-
-        const vehicleData = await vehicleRes.json();
-        const tripsData = await tripsRes.json();
-
-        setAssignedVehicle(vehicleData);
-        setTodaysTrips(tripsData);
-      } catch (error) {
-        console.error('Failed to load driver data:', error);
-        toast.error('Failed to load your data');
-      }
-    };
-
-    fetchDriverData();
-    */
-  }, []);
 
   // Quick actions - Now with proper navigation
   const handleStartTrip = (tripId: number) => {
@@ -212,6 +165,47 @@ export function DriverDashboard() {
   };
 
   const allInspectionsDone = inspectionItems.every(item => item.completed);
+
+  // Helper function to format ISO datetime to time string
+  const formatTime = (isoString: string) => {
+    try {
+      const date = new Date(isoString);
+      return date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    } catch {
+      return isoString; // Return original if parsing fails
+    }
+  };
+
+  // Loading state - show spinner while fetching initial data
+  if (vehicleLoading || tripsLoading) {
+    return (
+      <div className="min-h-screen bg-slate-900 p-2 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto mb-2"></div>
+          <p className="text-sm text-slate-300">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state - show error if vehicle data fails to load
+  if (vehicleError) {
+    return (
+      <div className="min-h-screen bg-slate-900 p-2">
+        <Alert variant="destructive" className="bg-red-950/50 border-red-500/50">
+          <AlertCircle className="h-4 w-4 text-red-400" />
+          <AlertTitle className="text-red-400">Error Loading Data</AlertTitle>
+          <AlertDescription className="text-red-300">
+            {vehicleError instanceof Error ? vehicleError.message : 'Failed to load your dashboard data'}
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-900 p-2">
@@ -331,7 +325,7 @@ export function DriverDashboard() {
               <div className="flex items-center gap-2 text-slate-400 text-sm mb-3">
                 <Clock className="w-4 h-4" />
                 <span>
-                  Scheduled: {trip.scheduled_start} - {trip.scheduled_end}
+                  Scheduled: {formatTime(trip.scheduled_start)} - {formatTime(trip.scheduled_end)}
                 </span>
               </div>
 
