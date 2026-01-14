@@ -12,6 +12,7 @@ import frFR from './locales/fr-FR.json';
 import heIL from './locales/he-IL.json';
 
 export const languages = {
+  'en': { name: 'English', nativeName: 'English', dir: 'ltr', flag: '🇺🇸' },
   'en-US': { name: 'English (US)', nativeName: 'English', dir: 'ltr', flag: '🇺🇸' },
   'es-ES': { name: 'Spanish', nativeName: 'Español', dir: 'ltr', flag: '🇪🇸' },
   'fr-FR': { name: 'French', nativeName: 'Français', dir: 'ltr', flag: '🇫🇷' },
@@ -32,6 +33,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
+      'en': { translation: enUS },
       'en-US': { translation: enUS },
       'es-ES': { translation: esES },
       'fr-FR': { translation: frFR },
@@ -41,6 +43,7 @@ i18n
     },
     fallbackLng: 'en-US',
     supportedLngs: Object.keys(languages),
+    nonExplicitSupportedLngs: true,
 
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag', 'path', 'subdomain'],
