@@ -51,7 +51,7 @@ export function SystemStatusPanel({
       case 'error':
         return 'text-red-600 dark:text-red-400'
       default:
-        return 'text-gray-600 dark:text-gray-400'
+        return 'text-slate-700 dark:text-gray-400'
     }
   }
 

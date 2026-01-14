@@ -364,10 +364,10 @@ const PushNotificationAdmin: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <Bell className="text-blue-600" size={32} />
+                <Bell className="text-blue-800" size={32} />
                 Push Notification Admin
               </h1>
-              <p className="text-gray-600 mt-2">
+              <p className="text-slate-700 mt-2">
                 Send and manage mobile push notifications for iOS and Android
               </p>
             </div>
@@ -388,16 +388,16 @@ const PushNotificationAdmin: React.FC = () => {
             <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total Sent</p>
+                  <p className="text-sm text-slate-700">Total Sent</p>
                   <p className="text-2xl font-bold text-gray-900">{statsQuery.data?.totalSent}</p>
                 </div>
-                <Send className="text-blue-600" size={32} />
+                <Send className="text-blue-800" size={32} />
               </div>
             </div>
             <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Delivery Rate</p>
+                  <p className="text-sm text-slate-700">Delivery Rate</p>
                   <p className="text-2xl font-bold text-green-600">{statsQuery.data?.deliveryRate.toFixed(1)}%</p>
                 </div>
                 <CheckCircle className="text-green-600" size={32} />
@@ -406,16 +406,16 @@ const PushNotificationAdmin: React.FC = () => {
             <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Open Rate</p>
-                  <p className="text-2xl font-bold text-blue-600">{statsQuery.data?.openRate.toFixed(1)}%</p>
+                  <p className="text-sm text-slate-700">Open Rate</p>
+                  <p className="text-2xl font-bold text-blue-800">{statsQuery.data?.openRate.toFixed(1)}%</p>
                 </div>
-                <Eye className="text-blue-600" size={32} />
+                <Eye className="text-blue-800" size={32} />
               </div>
             </div>
             <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Click Rate</p>
+                  <p className="text-sm text-slate-700">Click Rate</p>
                   <p className="text-2xl font-bold text-purple-600">{statsQuery.data?.clickRate.toFixed(1)}%</p>
                 </div>
                 <TrendingUp className="text-purple-600" size={32} />
@@ -432,8 +432,8 @@ const PushNotificationAdmin: React.FC = () => {
                 onClick={() => setActiveTab('send')}
                 className={`px-6 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
                   activeTab === 'send'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                    ? 'border-blue-600 text-blue-800'
+                    : 'border-transparent text-slate-700 hover:text-gray-900 hover:border-gray-300'
                 }`}
               >
                 <Send size={18} />
@@ -443,8 +443,8 @@ const PushNotificationAdmin: React.FC = () => {
                 onClick={() => setActiveTab('templates')}
                 className={`px-6 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
                   activeTab === 'templates'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                    ? 'border-blue-600 text-blue-800'
+                    : 'border-transparent text-slate-700 hover:text-gray-900 hover:border-gray-300'
                 }`}
               >
                 <FileText size={18} />
@@ -454,8 +454,8 @@ const PushNotificationAdmin: React.FC = () => {
                 onClick={() => setActiveTab('history')}
                 className={`px-6 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
                   activeTab === 'history'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                    ? 'border-blue-600 text-blue-800'
+                    : 'border-transparent text-slate-700 hover:text-gray-900 hover:border-gray-300'
                 }`}
               >
                 <Clock size={18} />
@@ -465,8 +465,8 @@ const PushNotificationAdmin: React.FC = () => {
                 onClick={() => setActiveTab('stats')}
                 className={`px-6 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
                   activeTab === 'stats'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                    ? 'border-blue-600 text-blue-800'
+                    : 'border-transparent text-slate-700 hover:text-gray-900 hover:border-gray-300'
                 }`}
               >
                 <BarChart3 size={18} />
@@ -660,15 +660,15 @@ const PushNotificationAdmin: React.FC = () => {
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <h4 className="font-semibold text-gray-900">{template.template_name}</h4>
-                            <p className="text-sm text-gray-600 mt-1">
+                            <p className="text-sm text-slate-700 mt-1">
                               <span className="font-medium">Category:</span> {template.category}
                             </p>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-slate-700">
                               <span className="font-medium">Priority:</span> {template.priority}
                             </p>
                             <div className="mt-3 p-3 bg-gray-50 rounded border border-gray-200">
                               <p className="text-sm font-medium text-gray-700">{template.title_template}</p>
-                              <p className="text-sm text-gray-600 mt-1">{template.message_template}</p>
+                              <p className="text-sm text-slate-700 mt-1">{template.message_template}</p>
                             </div>
                           </div>
                         </div>
@@ -701,14 +701,14 @@ const PushNotificationAdmin: React.FC = () => {
                     <table className="w-full">
                       <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Title</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Category</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Priority</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Recipients</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Delivered</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Opened</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Status</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Date</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Title</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Category</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Priority</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Recipients</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Delivered</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Opened</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Status</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Date</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
@@ -716,7 +716,7 @@ const PushNotificationAdmin: React.FC = () => {
                           <tr key={notification.id} className="hover:bg-gray-50">
                             <td className="px-4 py-3 text-sm">
                               <div className="font-medium text-gray-900">{notification.title}</div>
-                              <div className="text-gray-600 text-xs mt-1">{notification.message.substring(0, 50)}...</div>
+                              <div className="text-slate-700 text-xs mt-1">{notification.message.substring(0, 50)}...</div>
                             </td>
                             <td className="px-4 py-3 text-sm">{notification.category}</td>
                             <td className="px-4 py-3 text-sm">
@@ -742,7 +742,7 @@ const PushNotificationAdmin: React.FC = () => {
                                 {notification.delivery_status}
                               </span>
                             </td>
-                            <td className="px-4 py-3 text-sm text-gray-600">
+                            <td className="px-4 py-3 text-sm text-slate-700">
                               {new Date(notification.created_at).toLocaleString()}
                             </td>
                           </tr>
@@ -767,7 +767,7 @@ const PushNotificationAdmin: React.FC = () => {
 
                     <div className="grid grid-cols-2 gap-6">
                       <div className="border border-gray-200 rounded-lg p-6">
-                        <h4 className="text-sm font-medium text-gray-600 mb-4">Delivery Performance</h4>
+                        <h4 className="text-sm font-medium text-slate-700 mb-4">Delivery Performance</h4>
                         <div className="space-y-3">
                           <div>
                             <div className="flex justify-between text-sm mb-1">
@@ -797,7 +797,7 @@ const PushNotificationAdmin: React.FC = () => {
                       </div>
 
                       <div className="border border-gray-200 rounded-lg p-6">
-                        <h4 className="text-sm font-medium text-gray-600 mb-4">Engagement Metrics</h4>
+                        <h4 className="text-sm font-medium text-slate-700 mb-4">Engagement Metrics</h4>
                         <div className="space-y-3">
                           <div>
                             <div className="flex justify-between text-sm mb-1">
@@ -834,7 +834,7 @@ const PushNotificationAdmin: React.FC = () => {
                             <p className="text-sm text-blue-800 font-medium">Total Notifications</p>
                             <p className="text-3xl font-bold text-blue-900 mt-2">{statsQuery.data?.totalSent}</p>
                           </div>
-                          <Bell className="text-blue-600" size={40} />
+                          <Bell className="text-blue-800" size={40} />
                         </div>
                       </div>
                       <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg border border-green-200">

@@ -56,7 +56,7 @@ export function DrillThroughMetric({
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className={`inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline decoration-dashed underline-offset-2 hover:decoration-solid transition-all cursor-pointer ${className}`}
+        className={`inline-flex items-center gap-1 text-blue-800 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline decoration-dashed underline-offset-2 hover:decoration-solid transition-all cursor-pointer ${className}`}
         title={tooltip || defaultTooltip}
         type="button"
       >

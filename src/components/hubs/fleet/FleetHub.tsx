@@ -50,7 +50,7 @@ export const FleetHub: React.FC = () => {
               <p className="text-sm text-muted-foreground">Total Mileage</p>
               <p className="text-2xl font-bold">2.4M</p>
             </div>
-            <TrendingUp className="w-8 h-8 text-blue-500" />
+            <TrendingUp className="w-8 h-8 text-blue-800" />
           </div>
         </div>
 

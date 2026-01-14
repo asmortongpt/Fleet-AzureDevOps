@@ -221,7 +221,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
         return <CheckCircle2 className="h-5 w-5 text-green-500" />
       case 'investigating':
       case 'under_review':
-        return <Clock className="h-5 w-5 text-blue-500" />
+        return <Clock className="h-5 w-5 text-blue-800" />
       case 'reported':
         return <AlertCircle className="h-5 w-5 text-yellow-500" />
       default:

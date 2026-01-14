@@ -106,7 +106,7 @@ export function AnimationShowcase() {
           <h1 className="text-4xl font-bold text-gray-900">
             Phase 4: Animation Showcase
           </h1>
-          <p className="text-gray-600">
+          <p className="text-slate-700">
             Visual polish with Framer Motion animations and loading states
           </p>
         </motion.div>
@@ -134,31 +134,31 @@ export function AnimationShowcase() {
                       <AnimatedMarker status="active" showPulse>
                         42
                       </AnimatedMarker>
-                      <p className="text-xs mt-2 text-gray-600">Active</p>
+                      <p className="text-xs mt-2 text-slate-700">Active</p>
                     </div>
                     <div className="text-center">
                       <AnimatedMarker status="idle">
                         15
                       </AnimatedMarker>
-                      <p className="text-xs mt-2 text-gray-600">Idle</p>
+                      <p className="text-xs mt-2 text-slate-700">Idle</p>
                     </div>
                     <div className="text-center">
                       <AnimatedMarker status="maintenance">
                         8
                       </AnimatedMarker>
-                      <p className="text-xs mt-2 text-gray-600">Maintenance</p>
+                      <p className="text-xs mt-2 text-slate-700">Maintenance</p>
                     </div>
                     <div className="text-center">
                       <AnimatedMarker status="offline">
                         3
                       </AnimatedMarker>
-                      <p className="text-xs mt-2 text-gray-600">Offline</p>
+                      <p className="text-xs mt-2 text-slate-700">Offline</p>
                     </div>
                     <div className="text-center">
                       <AnimatedMarker isActive showPulse status="active">
                         99
                       </AnimatedMarker>
-                      <p className="text-xs mt-2 text-gray-600">Selected</p>
+                      <p className="text-xs mt-2 text-slate-700">Selected</p>
                     </div>
                   </div>
                 </div>
@@ -205,38 +205,38 @@ export function AnimationShowcase() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div>
-                    <h3 className="text-sm font-semibold mb-3 text-gray-600">Map Loading</h3>
+                    <h3 className="text-sm font-semibold mb-3 text-slate-700">Map Loading</h3>
                     <div className="h-64 border rounded-lg overflow-hidden">
                       {showLoading && <MapLoadingSkeleton />}
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-semibold mb-3 text-gray-600">Vehicle List</h3>
+                    <h3 className="text-sm font-semibold mb-3 text-slate-700">Vehicle List</h3>
                     <div className="h-64 border rounded-lg overflow-hidden">
                       {showLoading && <VehicleListLoadingSkeleton />}
                     </div>
                   </div>
 
                   <div className="lg:col-span-2">
-                    <h3 className="text-sm font-semibold mb-3 text-gray-600">Dashboard Cards</h3>
+                    <h3 className="text-sm font-semibold mb-3 text-slate-700">Dashboard Cards</h3>
                     {showLoading && <DashboardCardsLoadingSkeleton />}
                   </div>
 
                   <div className="lg:col-span-2">
-                    <h3 className="text-sm font-semibold mb-3 text-gray-600">Data Table</h3>
+                    <h3 className="text-sm font-semibold mb-3 text-slate-700">Data Table</h3>
                     {showLoading && <TableLoadingSkeleton rows={5} columns={4} />}
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-semibold mb-3 text-gray-600">Detail Panel</h3>
+                    <h3 className="text-sm font-semibold mb-3 text-slate-700">Detail Panel</h3>
                     <div className="border rounded-lg">
                       {showLoading && <DetailPanelLoadingSkeleton />}
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-semibold mb-3 text-gray-600">Chart</h3>
+                    <h3 className="text-sm font-semibold mb-3 text-slate-700">Chart</h3>
                     {showLoading && <ChartLoadingSkeleton />}
                   </div>
                 </div>

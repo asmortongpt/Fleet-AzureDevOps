@@ -305,7 +305,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
       default:
         return (
           <div key={visual.id} className="p-4 bg-gray-100 rounded-lg">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-700">
               Unsupported visual type: {visual.type}
             </p>
           </div>
@@ -319,7 +319,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
       <div className="flex items-center justify-center h-full">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-600">Loading report...</p>
+          <p className="text-sm text-slate-700">Loading report...</p>
         </div>
       </div>
     );
@@ -330,7 +330,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-8">
         <div className="text-red-500 mb-4">Error loading report</div>
-        <p className="text-gray-600 mb-6">{error || 'Report not found'}</p>
+        <p className="text-slate-700 mb-6">{error || 'Report not found'}</p>
         <Button onClick={onBack}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Reports
@@ -351,7 +351,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
             </Button>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{reportDef.title}</h1>
-              <p className="text-sm text-gray-600">{reportDef.description}</p>
+              <p className="text-sm text-slate-700">{reportDef.description}</p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -399,7 +399,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
               <ArrowLeft className="h-3 w-3 mr-1" />
               Drill Up
             </Button>
-            <span className="text-gray-600">
+            <span className="text-slate-700">
               Filtered by: {Object.entries(drilldownState.filters).map(([key, value]) => `${key}=${value}`).join(', ')}
             </span>
           </div>

@@ -84,7 +84,7 @@ const CATEGORY_CONFIG: Record<EventCategory, {
   label: string
   color: string
 }> = {
-  telemetry: { icon: Pulse, label: 'Telemetry', color: 'text-blue-500' },
+  telemetry: { icon: Pulse, label: 'Telemetry', color: 'text-blue-800' },
   maintenance: { icon: Wrench, label: 'Maintenance', color: 'text-orange-500' },
   driver: { icon: User, label: 'Driver', color: 'text-green-500' },
   fuel: { icon: GasPump, label: 'Fuel', color: 'text-amber-500' },
@@ -99,7 +99,7 @@ const SEVERITY_CONFIG: Record<EventSeverity, {
   bgColor: string
   borderColor: string
 }> = {
-  info: { color: 'text-blue-600', bgColor: 'bg-blue-50', borderColor: 'border-blue-200' },
+  info: { color: 'text-blue-800', bgColor: 'bg-blue-50', borderColor: 'border-blue-200' },
   warning: { color: 'text-amber-600', bgColor: 'bg-amber-50', borderColor: 'border-amber-200' },
   critical: { color: 'text-red-600', bgColor: 'bg-red-50', borderColor: 'border-red-200' },
   success: { color: 'text-green-600', bgColor: 'bg-green-50', borderColor: 'border-green-200' }

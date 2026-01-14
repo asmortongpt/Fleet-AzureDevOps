@@ -89,7 +89,7 @@ export const LoginPage = () => {
         <Card className="w-full max-w-md p-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Initializing authentication...</p>
+            <p className="text-slate-700">Initializing authentication...</p>
           </div>
         </Card>
       </div>
@@ -103,7 +103,7 @@ export const LoginPage = () => {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <svg
-              className="w-16 h-16 text-blue-600"
+              className="w-16 h-16 text-blue-800"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -119,7 +119,7 @@ export const LoginPage = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Fleet Management System
           </h1>
-          <p className="text-gray-600">
+          <p className="text-slate-700">
             Secure authentication with Microsoft Azure AD
           </p>
         </div>
@@ -172,7 +172,7 @@ export const LoginPage = () => {
             onClick={handleLoginPopup}
             disabled={isLoading}
             variant="outline"
-            className="w-full h-12 text-lg font-semibold border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+            className="w-full h-12 text-lg font-semibold border-2 border-blue-600 text-blue-800 hover:bg-blue-50"
           >
             Sign in with Popup
           </Button>
@@ -182,7 +182,7 @@ export const LoginPage = () => {
         <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-start">
             <svg
-              className="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0"
+              className="w-5 h-5 text-blue-800 mr-2 mt-0.5 flex-shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -211,7 +211,7 @@ export const LoginPage = () => {
           <p>By signing in, you agree to our Terms of Service and Privacy Policy</p>
           <p className="mt-2">
             Need help?{' '}
-            <a href="mailto:support@capitaltechalliance.com" className="text-blue-600 hover:underline">
+            <a href="mailto:support@capitaltechalliance.com" className="text-blue-800 hover:underline">
               Contact Support
             </a>
           </p>

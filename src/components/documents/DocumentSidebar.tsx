@@ -56,7 +56,7 @@ const mockFolders: FolderType[] = [
     id: 'evidence',
     name: 'Evidence',
     path: '/evidence',
-    color: 'text-blue-500',
+    color: 'text-blue-800',
     icon: 'camera',
     documentCount: 156,
     createdAt: new Date(),

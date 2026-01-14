@@ -422,7 +422,7 @@ function BillingReportsContent() {
                                 <div className="text-base font-semibold text-slate-900 dark:text-slate-100">Customer B</div>
                                 <div className="text-sm text-slate-600 dark:text-slate-400">28 invoices</div>
                             </div>
-                            <span className="text-xl font-bold text-blue-600">$67.4K</span>
+                            <span className="text-xl font-bold text-blue-800">$67.4K</span>
                         </div>
                         <div className="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border-l-4 border-purple-600">
                             <div>
@@ -725,7 +725,7 @@ function BudgetTrackingContent() {
                 <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
                     <div className="flex items-center gap-4 mb-4">
                         <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                            <Wallet className="w-7 h-7 text-blue-600" />
+                            <Wallet className="w-7 h-7 text-blue-800" />
                         </div>
                         <div>
                             <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Total Allocated</p>
@@ -879,7 +879,7 @@ function CostBenefitContent() {
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-slate-600 dark:text-slate-400 font-medium">Investment: $180K</span>
-                                <span className="text-blue-600 dark:text-blue-400 font-semibold">Annual Savings: $35.6K</span>
+                                <span className="text-blue-800 dark:text-blue-400 font-semibold">Annual Savings: $35.6K</span>
                             </div>
                         </div>
 
@@ -903,7 +903,7 @@ function CostBenefitContent() {
                 <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
                     <div className="flex items-start justify-between mb-6">
                         <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Annual Cost Savings</h3>
-                        <Sparkle className="w-6 h-6 text-blue-600" />
+                        <Sparkle className="w-6 h-6 text-blue-800" />
                     </div>
                     <div className="space-y-5">
                         <div>
@@ -937,7 +937,7 @@ function CostBenefitContent() {
                     <div className="mt-6 p-5 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                         <div className="flex justify-between items-center">
                             <span className="text-base font-semibold text-blue-900 dark:text-blue-100">Total Annual Savings</span>
-                            <span className="text-2xl font-bold text-blue-600">$156K</span>
+                            <span className="text-2xl font-bold text-blue-800">$156K</span>
                         </div>
                     </div>
                 </div>
@@ -1068,7 +1068,7 @@ function InvoicesContent() {
                             {invoices.map((invoice) => (
                                 <tr key={invoice.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
                                     <td className="px-6 py-4">
-                                        <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">{invoice.id}</span>
+                                        <span className="text-sm font-semibold text-blue-800 dark:text-blue-400">{invoice.id}</span>
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className="text-base text-slate-900 dark:text-slate-100 font-medium">{invoice.vendor}</span>
@@ -1090,7 +1090,7 @@ function InvoicesContent() {
                                     </td>
                                     <td className="px-6 py-4">
                                         <button
-                                            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium text-sm flex items-center gap-1"
+                                            className="text-blue-800 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium text-sm flex items-center gap-1"
                                             onClick={() => push({ type: 'invoice-detail', data: { invoice }, id: invoice.id } as Omit<DrilldownLevel, "timestamp">)}
                                         >
                                             View Details
@@ -1211,7 +1211,7 @@ function PaymentsContent() {
                 <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
                     <div className="flex items-center gap-4 mb-6">
                         <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                            <Bank className="w-7 h-7 text-blue-600" />
+                            <Bank className="w-7 h-7 text-blue-800" />
                         </div>
                         <div>
                             <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Bank Reconciliation</p>
@@ -1243,7 +1243,7 @@ function PaymentsContent() {
                         </div>
                         <div className="flex justify-between p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
                             <span className="text-base text-slate-700 dark:text-slate-300 font-medium">1-5 Days</span>
-                            <span className="text-base font-bold text-blue-600 dark:text-blue-400">48%</span>
+                            <span className="text-base font-bold text-blue-800 dark:text-blue-400">48%</span>
                         </div>
                         <div className="flex justify-between p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
                             <span className="text-base text-slate-700 dark:text-slate-300 font-medium">5+ Days</span>

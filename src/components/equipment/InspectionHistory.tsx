@@ -339,7 +339,7 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
                                                   </p>
                                                 )}
                                                 {response.photo_url && (
-                                                  <div className="mt-2 flex items-center gap-2 text-sm text-blue-600">
+                                                  <div className="mt-2 flex items-center gap-2 text-sm text-blue-800">
                                                     <Camera className="w-4 h-4" />
                                                     Photo attached
                                                   </div>

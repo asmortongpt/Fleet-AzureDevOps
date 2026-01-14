@@ -493,9 +493,9 @@ export function TrafficCameras(): JSX.Element {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Enabled</p>
-                <p className="text-3xl font-bold text-blue-600">{stats.enabled}</p>
+                <p className="text-3xl font-bold text-blue-800">{stats.enabled}</p>
               </div>
-              <CheckCircle className="w-8 h-8 text-blue-600" weight="fill" />
+              <CheckCircle className="w-8 h-8 text-blue-800" weight="fill" />
             </div>
           </CardContent>
         </Card>

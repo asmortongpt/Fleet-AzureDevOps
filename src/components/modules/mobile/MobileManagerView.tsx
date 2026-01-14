@@ -106,7 +106,7 @@ const MobileManagerView: React.FC = () => {
       {dashboardData.pending_approvals.length === 0 ? (
         <div className="bg-white rounded-lg p-8 text-center">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <p className="text-gray-600">No pending approvals</p>
+          <p className="text-slate-700">No pending approvals</p>
         </div>
       ) : (
         dashboardData.pending_approvals.map((assignment: PendingAssignment) => (
@@ -114,7 +114,7 @@ const MobileManagerView: React.FC = () => {
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h3 className="font-semibold text-gray-900">{assignment.driver_name}</h3>
-                <p className="text-sm text-gray-600">{assignment.employee_number}</p>
+                <p className="text-sm text-slate-700">{assignment.employee_number}</p>
                 <p className="text-xs text-gray-500 mt-1">{assignment.department_name}</p>
               </div>
               <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
@@ -169,7 +169,7 @@ const MobileManagerView: React.FC = () => {
           <div className="flex items-start justify-between mb-2">
             <div>
               <h3 className="font-semibold text-gray-900">{assignment.driver_name}</h3>
-              <p className="text-sm text-gray-600">{assignment.employee_number}</p>
+              <p className="text-sm text-slate-700">{assignment.employee_number}</p>
             </div>
             <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
               Active
@@ -191,7 +191,7 @@ const MobileManagerView: React.FC = () => {
       {dashboardData.current_on_call.length === 0 ? (
         <div className="bg-white rounded-lg p-8 text-center">
           <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">No team members on-call</p>
+          <p className="text-slate-700">No team members on-call</p>
         </div>
       ) : (
         dashboardData.current_on_call.map((period: any) => (
@@ -199,7 +199,7 @@ const MobileManagerView: React.FC = () => {
             <div className="flex items-start justify-between mb-2">
               <div>
                 <h3 className="font-semibold text-gray-900">{period.driver_name}</h3>
-                <p className="text-sm text-gray-600">{period.employee_number}</p>
+                <p className="text-sm text-slate-700">{period.employee_number}</p>
               </div>
               <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
                 On-Call Now
@@ -212,7 +212,7 @@ const MobileManagerView: React.FC = () => {
               </p>
             )}
 
-            <div className="flex items-center gap-4 text-sm text-gray-600">
+            <div className="flex items-center gap-4 text-sm text-slate-700">
               <div className="flex items-center gap-1">
                 <Phone className="w-4 h-4" />
                 <span>{period.driver_phone || 'N/A'}</span>
@@ -240,13 +240,13 @@ const MobileManagerView: React.FC = () => {
           <h2 className="text-xl font-bold">Review Assignment</h2>
 
           <div className="space-y-2">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-700">
               <strong>Driver:</strong> {selectedAssignment.driver_name}
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-700">
               <strong>Vehicle:</strong> {selectedAssignment.unit_number} - {selectedAssignment.make} {selectedAssignment.model}
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-700">
               <strong>Type:</strong> {selectedAssignment.assignment_type.replace('_', ' ')}
             </p>
           </div>
@@ -326,8 +326,8 @@ const MobileManagerView: React.FC = () => {
           onClick={() => setActiveTab('pending')}
           className={`flex-1 py-4 text-center font-medium ${
             activeTab === 'pending'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-600'
+              ? 'text-blue-800 border-b-2 border-blue-600'
+              : 'text-slate-700'
           }`}
         >
           Pending ({dashboardData.notifications.pending_approvals_count})
@@ -336,8 +336,8 @@ const MobileManagerView: React.FC = () => {
           onClick={() => setActiveTab('active')}
           className={`flex-1 py-4 text-center font-medium ${
             activeTab === 'active'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-600'
+              ? 'text-blue-800 border-b-2 border-blue-600'
+              : 'text-slate-700'
           }`}
         >
           Active
@@ -346,8 +346,8 @@ const MobileManagerView: React.FC = () => {
           onClick={() => setActiveTab('on-call')}
           className={`flex-1 py-4 text-center font-medium ${
             activeTab === 'on-call'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-600'
+              ? 'text-blue-800 border-b-2 border-blue-600'
+              : 'text-slate-700'
           }`}
         >
           On-Call

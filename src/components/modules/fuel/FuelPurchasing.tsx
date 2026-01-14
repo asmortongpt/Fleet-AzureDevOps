@@ -182,7 +182,7 @@ export function FuelPurchasing() {
       case 'wait':
         return 'text-yellow-600'
       default:
-        return 'text-blue-600'
+        return 'text-blue-800'
     }
   }
 
@@ -205,10 +205,10 @@ export function FuelPurchasing() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2">
-          <GasPump className="h-8 w-8 text-blue-600" weight="fill" />
+          <GasPump className="h-8 w-8 text-blue-800" weight="fill" />
           Fuel Purchasing Intelligence
         </h1>
-        <p className="text-gray-600 mt-2">
+        <p className="text-slate-700 mt-2">
           Real-time pricing, predictive analytics, and optimization for smart fuel purchasing
         </p>
       </div>
@@ -223,7 +223,7 @@ export function FuelPurchasing() {
             <div className="text-2xl font-bold text-green-600">
               ${savings?.totalSavings.toFixed(0) || '0'}
             </div>
-            <div className="text-xs text-gray-600 mt-1">
+            <div className="text-xs text-slate-700 mt-1">
               {savings?.totalGallons.toFixed(0) || '0'} gallons purchased
             </div>
           </CardContent>
@@ -237,7 +237,7 @@ export function FuelPurchasing() {
             <div className="text-2xl font-bold">
               {formatPrice(savings?.averagePricePaid || 0)}
             </div>
-            <div className="text-xs text-gray-600 mt-1">per gallon</div>
+            <div className="text-xs text-slate-700 mt-1">per gallon</div>
           </CardContent>
         </Card>
 
@@ -249,7 +249,7 @@ export function FuelPurchasing() {
             <div className="text-2xl font-bold">
               {formatPrice(savings?.marketAveragePrice || 0)}
             </div>
-            <div className="text-xs text-gray-600 mt-1">per gallon</div>
+            <div className="text-xs text-slate-700 mt-1">per gallon</div>
           </CardContent>
         </Card>
 
@@ -258,10 +258,10 @@ export function FuelPurchasing() {
             <CardTitle className="text-sm font-medium">Active Contracts</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
+            <div className="text-2xl font-bold text-blue-800">
               {contracts.length}
             </div>
-            <div className="text-xs text-gray-600 mt-1">supplier agreements</div>
+            <div className="text-xs text-slate-700 mt-1">supplier agreements</div>
           </CardContent>
         </Card>
       </div>
@@ -285,7 +285,7 @@ export function FuelPurchasing() {
                   <Badge variant="secondary" className="uppercase">
                     {purchaseRecommendation.recommendation.replace('_', ' ')}
                   </Badge>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-slate-700">
                     {purchaseRecommendation.confidence}% confidence
                   </span>
                 </div>
@@ -391,7 +391,7 @@ export function FuelPurchasing() {
               {loading ? (
                 <div className="text-center py-8">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                  <p className="text-gray-600">Loading stations...</p>
+                  <p className="text-slate-700">Loading stations...</p>
                 </div>
               ) : nearbyStations.length > 0 ? (
                 <Table>
@@ -410,7 +410,7 @@ export function FuelPurchasing() {
                       <TableRow key={station.id}>
                         <TableCell>
                           <div className="font-medium">{station.stationName}</div>
-                          <div className="text-sm text-gray-600">{station.brand}</div>
+                          <div className="text-sm text-slate-700">{station.brand}</div>
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">
@@ -444,7 +444,7 @@ export function FuelPurchasing() {
                   </TableBody>
                 </Table>
               ) : (
-                <div className="text-center py-8 text-gray-600">
+                <div className="text-center py-8 text-slate-700">
                   No stations found. Try adjusting your search criteria.
                 </div>
               )}

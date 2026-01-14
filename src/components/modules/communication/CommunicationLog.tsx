@@ -348,7 +348,7 @@ export function CommunicationLog() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Today's Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{todayLogs}</div>
+            <div className="text-2xl font-bold text-blue-800">{todayLogs}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Calendar className="w-3 h-3" />
               Logged today

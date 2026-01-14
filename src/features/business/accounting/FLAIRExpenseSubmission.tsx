@@ -102,7 +102,7 @@ const ExpenseTypeSelector: React.FC<{
               <span className="text-xl sm:text-2xl">{config.icon}</span>
               <div className="min-w-0 flex-1">
                 <h4 className="font-medium text-gray-900 text-sm sm:text-base">{config.label}</h4>
-                <p className="text-xs sm:text-sm text-gray-600 mt-1">{config.description}</p>
+                <p className="text-xs sm:text-sm text-slate-700 mt-1">{config.description}</p>
                 <div className="flex flex-wrap gap-1 sm:gap-2 mt-2">
                   {config.requiresApproval && (
                     <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">
@@ -240,7 +240,7 @@ const FuelExpenseForm: React.FC<{
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+          className="px-4 py-2 text-slate-700 hover:text-gray-800 transition-colors"
         >
           ← Back
         </button>
@@ -381,7 +381,7 @@ const MaintenanceExpenseForm: React.FC<{
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+          className="px-4 py-2 text-slate-700 hover:text-gray-800 transition-colors"
         >
           ← Back
         </button>
@@ -556,7 +556,7 @@ const VehicleRentalForm: React.FC<{
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+          className="px-4 py-2 text-slate-700 hover:text-gray-800 transition-colors"
         >
           ← Back
         </button>
@@ -682,7 +682,7 @@ const ParkingFeesForm: React.FC<{
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+          className="px-4 py-2 text-slate-700 hover:text-gray-800 transition-colors"
         >
           ← Back
         </button>
@@ -835,7 +835,7 @@ const TollChargesForm: React.FC<{
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+          className="px-4 py-2 text-slate-700 hover:text-gray-800 transition-colors"
         >
           ← Back
         </button>
@@ -990,7 +990,7 @@ const TravelMileageForm: React.FC<{
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-blue-800">Total Reimbursement:</span>
-            <span className="text-lg font-bold text-blue-600">${totalAmount.toFixed(2)}</span>
+            <span className="text-lg font-bold text-blue-800">${totalAmount.toFixed(2)}</span>
           </div>
         </div>
       )}
@@ -1000,7 +1000,7 @@ const TravelMileageForm: React.FC<{
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+          className="px-4 py-2 text-slate-700 hover:text-gray-800 transition-colors"
         >
           ← Back
         </button>
@@ -1088,9 +1088,9 @@ const DocumentUpload: React.FC<{
       >
         <div className="text-center">
           <div className="text-4xl mb-2">📎</div>
-          <div className="text-sm text-gray-600 mb-2">
+          <div className="text-sm text-slate-700 mb-2">
             Drag and drop files here, or{' '}
-            <label className="text-blue-600 hover:text-blue-700 cursor-pointer">
+            <label className="text-blue-800 hover:text-blue-700 cursor-pointer">
               browse
               <input
                 type="file"
@@ -1367,7 +1367,7 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
             <div className="flex flex-col sm:flex-row justify-between pt-4 gap-3 sm:gap-0">
               <button
                 onClick={() => setCurrentStep('form')}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-slate-700 hover:text-gray-800 transition-colors"
               >
                 ← Back
               </button>
@@ -1406,7 +1406,7 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
                 <span className="text-2xl">{expenseConfig.icon}</span>
                 <div>
                   <h4 className="font-medium text-gray-900">{expenseConfig.label}</h4>
-                  <p className="text-sm text-gray-600">{expenseConfig.description}</p>
+                  <p className="text-sm text-slate-700">{expenseConfig.description}</p>
                 </div>
               </div>
 
@@ -1447,7 +1447,7 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
             <div className="flex flex-col sm:flex-row justify-between pt-4 gap-3 sm:gap-0">
               <button
                 onClick={() => setCurrentStep(documents.length > 0 ? 'documents' : 'form')}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-slate-700 hover:text-gray-800 transition-colors"
               >
                 ← Back
               </button>
@@ -1472,7 +1472,7 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
       {/* Header */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">FLAIR Expense Submission</h2>
-        <p className="text-gray-600">
+        <p className="text-slate-700">
           Submit fleet-related expenses to Florida's FLAIR accounting system
         </p>
       </div>

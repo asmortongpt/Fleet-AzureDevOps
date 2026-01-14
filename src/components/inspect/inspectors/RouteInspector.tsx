@@ -106,8 +106,8 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-        <span className="ml-2 text-gray-600">Loading route data...</span>
+        <Loader2 className="h-8 w-8 animate-spin text-blue-800" />
+        <span className="ml-2 text-slate-700">Loading route data...</span>
       </div>
     );
   }
@@ -140,7 +140,7 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
               {route.name}
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-slate-700 dark:text-gray-400">
               {route.description}
             </p>
           </div>
@@ -165,24 +165,24 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
               <h3 className="text-lg font-semibold mb-4">Route Information</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <MapPin className="w-6 h-6 mx-auto mb-2 text-blue-600" />
-                  <p className="text-2xl font-bold text-blue-600">{route.totalDistance.toFixed(1)}</p>
-                  <p className="text-sm text-gray-600">Miles</p>
+                  <MapPin className="w-6 h-6 mx-auto mb-2 text-blue-800" />
+                  <p className="text-2xl font-bold text-blue-800">{route.totalDistance.toFixed(1)}</p>
+                  <p className="text-sm text-slate-700">Miles</p>
                 </div>
                 <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                   <Navigation className="w-6 h-6 mx-auto mb-2 text-green-600" />
                   <p className="text-2xl font-bold text-green-600">{route.stops.length}</p>
-                  <p className="text-sm text-gray-600">Stops</p>
+                  <p className="text-sm text-slate-700">Stops</p>
                 </div>
                 <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                   <Loader2 className="w-6 h-6 mx-auto mb-2 text-purple-600" />
                   <p className="text-2xl font-bold text-purple-600">{formatDuration(route.estimatedDuration)}</p>
-                  <p className="text-sm text-gray-600">Est. Time</p>
+                  <p className="text-sm text-slate-700">Est. Time</p>
                 </div>
                 <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                   <TrendingUp className="w-6 h-6 mx-auto mb-2 text-yellow-600" />
                   <p className="text-2xl font-bold text-yellow-600">{route.optimizationScore}%</p>
-                  <p className="text-sm text-gray-600">Optimized</p>
+                  <p className="text-sm text-slate-700">Optimized</p>
                 </div>
               </div>
             </Card>
@@ -192,22 +192,22 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
               <dl className="space-y-3">
                 {route.assignedVehicle && (
                   <div>
-                    <dt className="text-sm text-gray-600">Vehicle</dt>
+                    <dt className="text-sm text-slate-700">Vehicle</dt>
                     <dd className="font-medium">{route.assignedVehicle.name}</dd>
                   </div>
                 )}
                 {route.assignedDriver && (
                   <div>
-                    <dt className="text-sm text-gray-600">Driver</dt>
+                    <dt className="text-sm text-slate-700">Driver</dt>
                     <dd className="font-medium">{route.assignedDriver.name}</dd>
                   </div>
                 )}
                 <div>
-                  <dt className="text-sm text-gray-600">Created</dt>
+                  <dt className="text-sm text-slate-700">Created</dt>
                   <dd className="font-medium">{new Date(route.createdAt).toLocaleDateString()}</dd>
                 </div>
                 <div>
-                  <dt className="text-sm text-gray-600">Status</dt>
+                  <dt className="text-sm text-slate-700">Status</dt>
                   <dd className="font-medium capitalize">{route.status}</dd>
                 </div>
               </dl>
@@ -248,7 +248,7 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
                         {stop.status}
                       </Badge>
                     </div>
-                    <p className="text-sm text-gray-600 mb-1">{stop.location.address}</p>
+                    <p className="text-sm text-slate-700 mb-1">{stop.location.address}</p>
                     <p className="text-xs text-gray-500 font-mono">
                       {stop.location.latitude.toFixed(6)}, {stop.location.longitude.toFixed(6)}
                     </p>
@@ -270,7 +270,7 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between mb-2">
-                    <span className="text-sm text-gray-600">Overall Efficiency</span>
+                    <span className="text-sm text-slate-700">Overall Efficiency</span>
                     <span className="text-sm font-medium">{route.optimizationScore}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3">
@@ -282,17 +282,17 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                   <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <p className="text-sm text-gray-600">Distance Savings</p>
-                    <p className="text-xl font-bold text-blue-600">12.3 mi</p>
+                    <p className="text-sm text-slate-700">Distance Savings</p>
+                    <p className="text-xl font-bold text-blue-800">12.3 mi</p>
                     <p className="text-xs text-gray-500">vs. unoptimized</p>
                   </div>
                   <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                    <p className="text-sm text-gray-600">Time Savings</p>
+                    <p className="text-sm text-slate-700">Time Savings</p>
                     <p className="text-xl font-bold text-green-600">45 min</p>
                     <p className="text-xs text-gray-500">vs. unoptimized</p>
                   </div>
                   <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                    <p className="text-sm text-gray-600">Fuel Savings</p>
+                    <p className="text-sm text-slate-700">Fuel Savings</p>
                     <p className="text-xl font-bold text-purple-600">$18.50</p>
                     <p className="text-xs text-gray-500">estimated</p>
                   </div>
@@ -304,19 +304,19 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
               <h3 className="text-lg font-semibold mb-4">Performance Metrics</h3>
               <dl className="space-y-3">
                 <div className="flex justify-between">
-                  <dt className="text-gray-600">Average Stop Time</dt>
+                  <dt className="text-slate-700">Average Stop Time</dt>
                   <dd className="font-medium">8 minutes</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-600">Completion Rate</dt>
+                  <dt className="text-slate-700">Completion Rate</dt>
                   <dd className="font-medium">95%</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-600">On-Time Deliveries</dt>
+                  <dt className="text-slate-700">On-Time Deliveries</dt>
                   <dd className="font-medium">92%</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-600">Estimated Fuel Cost</dt>
+                  <dt className="text-slate-700">Estimated Fuel Cost</dt>
                   <dd className="font-medium">${(route.totalDistance * 0.35).toFixed(2)}</dd>
                 </div>
               </dl>
@@ -326,17 +326,17 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
               <h3 className="text-lg font-semibold mb-4">Recommendations</h3>
               <div className="space-y-2">
                 <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <span className="text-blue-600">💡</span>
+                  <span className="text-blue-800">💡</span>
                   <div className="flex-1">
                     <p className="font-medium text-blue-900 dark:text-blue-100">Optimize Stop Sequence</p>
-                    <p className="text-sm text-gray-600">Reordering stops 5-7 could save 3.2 miles</p>
+                    <p className="text-sm text-slate-700">Reordering stops 5-7 could save 3.2 miles</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                   <span className="text-green-600">✅</span>
                   <div className="flex-1">
                     <p className="font-medium text-green-900 dark:text-green-100">Well Optimized</p>
-                    <p className="text-sm text-gray-600">Current route is highly efficient</p>
+                    <p className="text-sm text-slate-700">Current route is highly efficient</p>
                   </div>
                 </div>
               </div>

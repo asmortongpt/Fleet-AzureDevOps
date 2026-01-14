@@ -148,7 +148,7 @@ function PartsContent() {
                                     <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                                     <span className="text-sm font-medium text-slate-900 dark:text-slate-100">Adequate Stock</span>
                                 </div>
-                                <span className="text-sm font-bold text-blue-600">115 SKUs</span>
+                                <span className="text-sm font-bold text-blue-800">115 SKUs</span>
                             </div>
                             <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
                                 <div className="bg-blue-600 h-3 rounded-full" style={{ width: '9.2%' }}></div>
@@ -221,10 +221,10 @@ function PartsContent() {
 
                         <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                             <div className="flex justify-between items-center">
-                                <span className="text-sm font-medium text-blue-600 dark:text-blue-400">Avg Days to Turnover</span>
-                                <span className="text-lg font-bold text-blue-600 dark:text-blue-400">43 days</span>
+                                <span className="text-sm font-medium text-blue-800 dark:text-blue-400">Avg Days to Turnover</span>
+                                <span className="text-lg font-bold text-blue-800 dark:text-blue-400">43 days</span>
                             </div>
-                            <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">Industry avg: 52 days • 17% better</div>
+                            <div className="text-xs text-blue-800 dark:text-blue-400 mt-1">Industry avg: 52 days • 17% better</div>
                         </div>
                     </div>
                 </div>
@@ -251,7 +251,7 @@ function PartsContent() {
                     <div className="bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 cursor-pointer transition-all">
                         <div className="flex items-start justify-between mb-4">
                             <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                <Engine className="w-6 h-6 text-blue-600" />
+                                <Engine className="w-6 h-6 text-blue-800" />
                             </div>
                             <span className="text-xs px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-full">98% in stock</span>
                         </div>

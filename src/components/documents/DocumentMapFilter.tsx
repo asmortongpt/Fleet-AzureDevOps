@@ -73,7 +73,7 @@ export function DocumentMapFilter({
         >
           <div className="flex items-center gap-2">
             <svg
-              className="w-5 h-5 text-gray-600 dark:text-gray-400"
+              className="w-5 h-5 text-slate-700 dark:text-gray-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -97,7 +97,7 @@ export function DocumentMapFilter({
 
           <div className="flex items-center gap-2">
             {/* Document count */}
-            <span className="text-sm text-gray-600 dark:text-gray-400">
+            <span className="text-sm text-slate-700 dark:text-gray-400">
               {filteredDocuments} / {totalDocuments}
             </span>
 
@@ -168,7 +168,7 @@ export function DocumentMapFilter({
                         type="checkbox"
                         checked={selectedCategories.includes(category.categoryName)}
                         onChange={() => toggleCategory(category.categoryName)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        className="w-4 h-4 text-blue-800 border-gray-300 rounded focus:ring-blue-500"
                       />
                       <span
                         className="w-3 h-3 rounded-full flex-shrink-0"

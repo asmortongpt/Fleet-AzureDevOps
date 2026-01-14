@@ -63,7 +63,7 @@ export default function App() {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between text-sm font-medium">
                 <span className="text-slate-600 dark:text-slate-400">Total Vehicles</span>
-                <Truck className="w-4 h-4 text-blue-600" weight="duotone" />
+                <Truck className="w-4 h-4 text-blue-800" weight="duotone" />
               </CardTitle>
             </CardHeader>
             <CardContent>

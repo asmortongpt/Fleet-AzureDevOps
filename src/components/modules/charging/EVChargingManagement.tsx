@@ -541,7 +541,7 @@ export function EVChargingManagement() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{activeSessions}</div>
+            <div className="text-2xl font-bold text-blue-800">{activeSessions}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <BatteryCharging className="w-3 h-3" />
               Charging now
@@ -577,7 +577,7 @@ export function EVChargingManagement() {
                 <div key={station.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <Lightning className="w-4 h-4 text-blue-600" />
+                      <Lightning className="w-4 h-4 text-blue-800" />
                       <span className="font-medium">{station.name}</span>
                     </div>
                     <div className="text-sm text-muted-foreground mt-1">
@@ -623,7 +623,7 @@ export function EVChargingManagement() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <BatteryCharging className="w-5 h-5 text-blue-600" />
+                  <BatteryCharging className="w-5 h-5 text-blue-800" />
                   <span className="text-sm font-medium">Total Energy Delivered</span>
                 </div>
                 <span className="text-lg font-bold">{totalEnergy.toFixed(1)} kWh</span>
@@ -723,7 +723,7 @@ export function EVChargingManagement() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        <BatteryCharging className="w-3 h-3 text-blue-600" />
+                        <BatteryCharging className="w-3 h-3 text-blue-800" />
                         <span className="text-sm">{session.energyDelivered.toFixed(1)} kWh</span>
                       </div>
                     </TableCell>

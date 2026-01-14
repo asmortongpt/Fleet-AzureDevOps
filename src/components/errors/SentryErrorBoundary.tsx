@@ -167,7 +167,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
               <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300">
                 Stack Trace:
               </h4>
-              <pre className="text-xs text-gray-600 dark:text-gray-400 overflow-x-auto whitespace-pre-wrap font-mono">
+              <pre className="text-xs text-slate-700 dark:text-gray-400 overflow-x-auto whitespace-pre-wrap font-mono">
                 {error.stack}
               </pre>
             </div>
@@ -178,7 +178,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
               <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300">
                 Component Stack:
               </h4>
-              <pre className="text-xs text-gray-600 dark:text-gray-400 overflow-x-auto whitespace-pre-wrap font-mono">
+              <pre className="text-xs text-slate-700 dark:text-gray-400 overflow-x-auto whitespace-pre-wrap font-mono">
                 {errorInfo.componentStack}
               </pre>
             </div>
@@ -189,7 +189,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
               <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300">
                 Error ID:
               </h4>
-              <p className="text-xs text-gray-600 dark:text-gray-400 font-mono">
+              <p className="text-xs text-slate-700 dark:text-gray-400 font-mono">
                 {this.state.eventId}
               </p>
             </div>
@@ -287,7 +287,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-slate-700 dark:text-gray-400">
               This section couldn't load properly.
             </p>
             {(showDetailsProp !== false || import.meta.env.DEV) && (
@@ -320,7 +320,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
             <AlertTriangle className="h-4 w-4" />
             <span className="text-sm font-medium">Component Error</span>
           </div>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-1 text-sm text-slate-700 dark:text-gray-400">
             Failed to render this component.
           </p>
           <Button

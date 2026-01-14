@@ -205,7 +205,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
         return <CheckCircle2 className="h-5 w-5 text-green-500" />
       case 'in_progress':
       case 'in progress':
-        return <Clock className="h-5 w-5 text-blue-500" />
+        return <Clock className="h-5 w-5 text-blue-800" />
       case 'pending':
         return <AlertCircle className="h-5 w-5 text-yellow-500" />
       case 'cancelled':

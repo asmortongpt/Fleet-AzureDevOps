@@ -117,7 +117,7 @@ const PROVIDER_INFO = {
   smartcar: {
     name: 'Smartcar',
     icon: Car,
-    color: 'text-blue-500',
+    color: 'text-blue-800',
     bgColor: 'bg-blue-500/10',
     description: 'Connect via Smartcar OAuth for OEM telematics'
   },
@@ -326,7 +326,7 @@ const AddProviderDialog: React.FC<AddProviderDialogProps> = ({
           <div className="space-y-4">
             <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-blue-500 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-blue-800 mt-0.5" />
                 <div className="space-y-2">
                   <p className="text-sm font-medium">OAuth Connection Required</p>
                   <p className="text-xs text-muted-foreground">

@@ -238,7 +238,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                     <Button
                       variant="link"
                       size="sm"
-                      className="h-auto p-0 text-blue-600"
+                      className="h-auto p-0 text-blue-800"
                       onClick={() => push({
                         id: `driver-${vehicle.id}`,
                         type: 'driver',
@@ -289,7 +289,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <Wrench className="w-4 h-4 text-blue-600" />
+                            <Wrench className="w-4 h-4 text-blue-800" />
                             <h4 className="font-semibold">{service.type}</h4>
                             {getStatusBadge(service.status)}
                           </div>
@@ -337,7 +337,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                       className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
                     >
                       <div className="flex items-center gap-3">
-                        <FileText className="w-5 h-5 text-blue-600" />
+                        <FileText className="w-5 h-5 text-blue-800" />
                         <div>
                           <p className="font-medium text-sm">{doc.name}</p>
                           <p className="text-xs text-muted-foreground">
@@ -367,7 +367,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Gauge className="w-5 h-5 text-blue-600" />
+                        <Gauge className="w-5 h-5 text-blue-800" />
                         <span>Speed</span>
                       </div>
                       <span className="font-mono font-medium">{telemetryData.speed} mph</span>
@@ -376,7 +376,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-blue-600" />
+                        <Activity className="w-5 h-5 text-blue-800" />
                         <span>Engine RPM</span>
                       </div>
                       <span className="font-mono font-medium">{telemetryData.rpm}</span>
@@ -385,7 +385,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Fuel className="w-5 h-5 text-blue-600" />
+                        <Fuel className="w-5 h-5 text-blue-800" />
                         <span>Fuel Level</span>
                       </div>
                       <span className="font-mono font-medium">{telemetryData.fuelLevel}%</span>
@@ -396,7 +396,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <ThermometerSun className="w-5 h-5 text-blue-600" />
+                        <ThermometerSun className="w-5 h-5 text-blue-800" />
                         <span>Engine Temperature</span>
                       </div>
                       <span className="font-mono font-medium">{telemetryData.engineTemp}°F</span>
@@ -405,7 +405,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Gauge className="w-5 h-5 text-blue-600" />
+                        <Gauge className="w-5 h-5 text-blue-800" />
                         <span>Oil Pressure</span>
                       </div>
                       <span className="font-mono font-medium">{telemetryData.oilPressure} psi</span>
@@ -414,7 +414,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-blue-600" />
+                        <Activity className="w-5 h-5 text-blue-800" />
                         <span>Battery Voltage</span>
                       </div>
                       <span className="font-mono font-medium">{telemetryData.batteryVoltage}V</span>
@@ -443,7 +443,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <Wrench className="w-4 h-4 text-blue-600" />
+                            <Wrench className="w-4 h-4 text-blue-800" />
                             <h4 className="font-semibold">{item.service}</h4>
                             {getStatusBadge(item.status)}
                           </div>
@@ -477,7 +477,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
-                      <DollarSign className="w-5 h-5 text-blue-600" />
+                      <DollarSign className="w-5 h-5 text-blue-800" />
                       <h3 className="font-semibold">Total Costs</h3>
                     </div>
                     <div className="space-y-2 text-sm">
@@ -498,7 +498,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5 text-blue-600" />
+                      <TrendingUp className="w-5 h-5 text-blue-800" />
                       <h3 className="font-semibold">Averages</h3>
                     </div>
                     <div className="space-y-2 text-sm">

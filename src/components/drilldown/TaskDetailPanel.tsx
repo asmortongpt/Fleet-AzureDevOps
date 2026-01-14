@@ -356,7 +356,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <ListChecks className="h-8 w-8 text-blue-500" />
+                <ListChecks className="h-8 w-8 text-blue-800" />
                 <div>
                   <h3 className="text-2xl font-bold">{task.title}</h3>
                   {task.number && (
@@ -393,7 +393,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
             </div>
             {task.completionPercent !== undefined && task.status !== 'completed' && (
               <div className="text-right">
-                <div className="text-3xl font-bold text-blue-600">{task.completionPercent}%</div>
+                <div className="text-3xl font-bold text-blue-800">{task.completionPercent}%</div>
                 <div className="text-sm text-muted-foreground">Complete</div>
               </div>
             )}
@@ -489,7 +489,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                             <Phone className="h-4 w-4 text-muted-foreground" />
                             <a
                               href={`tel:${task.assignedToPhone}`}
-                              className="text-sm text-blue-600 hover:underline font-medium"
+                              className="text-sm text-blue-800 hover:underline font-medium"
                               onClick={(e) => {
                                 e.preventDefault()
                                 handleCallAssignee()
@@ -507,7 +507,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                             <Mail className="h-4 w-4 text-muted-foreground" />
                             <a
                               href={`mailto:${task.assignedToEmail}`}
-                              className="text-sm text-blue-600 hover:underline"
+                              className="text-sm text-blue-800 hover:underline"
                               onClick={(e) => {
                                 e.preventDefault()
                                 handleEmailAssignee()

@@ -138,7 +138,7 @@ export function OperationsHubMap({
       {showDispatchOverlay && (
         <div className="absolute top-20 left-4 z-10 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 max-w-xs">
           <h4 className="font-semibold text-xs text-slate-700 mb-2 flex items-center gap-2">
-            <Package className="h-4 w-4 text-blue-500" />
+            <Package className="h-4 w-4 text-blue-800" />
             Active Dispatches
           </h4>
           <div className="space-y-1.5">
@@ -244,7 +244,7 @@ export function OperationsHubMap({
           {selectedVehicleId && (
             <div className="absolute bottom-4 right-4 z-20 bg-white rounded-lg shadow-xl p-4 max-w-xs">
               <div className="flex items-start gap-3">
-                <Package className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                <Package className="h-5 w-5 text-blue-800 flex-shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-semibold text-sm text-slate-800">Load Planning</h4>
                   <div className="mt-2 space-y-1 text-xs text-slate-600">

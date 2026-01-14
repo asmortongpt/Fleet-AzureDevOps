@@ -766,7 +766,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                     {repair.technicianPhone && (
                       <a
                         href={`tel:${repair.technicianPhone}`}
-                        className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
+                        className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
                       >
                         <Phone className="w-4 h-4" />
                         {repair.technicianPhone}
@@ -775,7 +775,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                     {repair.technicianEmail && (
                       <a
                         href={`mailto:${repair.technicianEmail}`}
-                        className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
+                        className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
                       >
                         <Mail className="w-4 h-4" />
                         {repair.technicianEmail}
@@ -921,14 +921,14 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                       <p className="font-medium">{repair.reportedBy}</p>
                       <a
                         href={`tel:${repair.reportedByPhone}`}
-                        className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
+                        className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
                       >
                         <Phone className="w-4 h-4" />
                         {repair.reportedByPhone}
                       </a>
                       <a
                         href={`mailto:${repair.reportedByEmail}`}
-                        className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
+                        className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
                       >
                         <Mail className="w-4 h-4" />
                         {repair.reportedByEmail}
@@ -944,7 +944,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                         {repair.technicianPhone && (
                           <a
                             href={`tel:${repair.technicianPhone}`}
-                            className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
+                            className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
                           >
                             <Phone className="w-4 h-4" />
                             {repair.technicianPhone}
@@ -953,7 +953,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                         {repair.technicianEmail && (
                           <a
                             href={`mailto:${repair.technicianEmail}`}
-                            className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
+                            className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
                           >
                             <Mail className="w-4 h-4" />
                             {repair.technicianEmail}
@@ -1405,7 +1405,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                   <p className="text-sm text-muted-foreground">{inspection.location.address}</p>
                   <a
                     href={`tel:${inspection.location.phone}`}
-                    className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
+                    className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
                   >
                     <Phone className="w-4 h-4" />
                     {inspection.location.phone}
@@ -1832,7 +1832,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                         href={vendor.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-blue-600 hover:underline"
+                        className="text-sm text-blue-800 hover:underline"
                       >
                         {vendor.website}
                       </a>
@@ -2018,7 +2018,7 @@ export function GarageBaysMatrixPanel() {
       cellClassName: 'font-semibold',
       colorRules: [
         { condition: (v) => v >= 75, className: 'text-green-600 dark:text-green-400' },
-        { condition: (v) => v >= 50 && v < 75, className: 'text-blue-600 dark:text-blue-400' },
+        { condition: (v) => v >= 50 && v < 75, className: 'text-blue-800 dark:text-blue-400' },
         { condition: (v) => v >= 25 && v < 50, className: 'text-yellow-600 dark:text-yellow-400' },
         { condition: (v) => v < 25, className: 'text-orange-600 dark:text-orange-400' },
       ],

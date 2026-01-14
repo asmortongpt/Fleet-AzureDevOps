@@ -379,7 +379,7 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
         <div className="flex items-start justify-between">
           <div>
             <h3 className="text-2xl font-bold flex items-center gap-2">
-              <Package className="h-7 w-7 text-blue-500" />
+              <Package className="h-7 w-7 text-blue-800" />
               Active Jobs Matrix
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
@@ -396,7 +396,7 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600">{metrics.active}</div>
+              <div className="text-2xl font-bold text-blue-800">{metrics.active}</div>
               <div className="text-xs text-muted-foreground">Active</div>
             </CardContent>
           </Card>

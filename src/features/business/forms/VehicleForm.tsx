@@ -96,7 +96,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Add New Vehicle</h2>
-      <p className="text-sm text-gray-600 mb-4">
+      <p className="text-sm text-slate-700 mb-4">
         🔄 Real Database Entry - Data will be saved to SQLite database
       </p>
 
