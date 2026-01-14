@@ -104,15 +104,18 @@ export function requirePermission(
       return res.status(401).json({ error: 'Authentication required' })
     }
 
+    // Type narrow: user is guaranteed to exist after guard
+    const user = req.user;
+
     try {
       // Check if user has the permission
-      const hasAccess = await hasPermission(req.user.id, permission)
+      const hasAccess = await hasPermission(user.id, permission)
 
       if (!hasAccess) {
         // Log failed permission check
         await logPermissionCheck({
-          userId: req.user.id,
-          tenantId: req.user.tenant_id,
+          userId: user.id,
+          tenantId: user.tenant_id || 'unknown',
           permission,
           granted: false,
           reason: 'Permission not granted to user role',
@@ -131,8 +134,8 @@ export function requirePermission(
         const customValid = await options.customCheck(req)
         if (!customValid) {
           await logPermissionCheck({
-            userId: req.user.id,
-            tenantId: req.user.tenant_id,
+            userId: user.id,
+            tenantId: user.tenant_id || 'unknown',
             permission,
             granted: false,
             reason: 'Custom validation failed',
@@ -151,8 +154,8 @@ export function requirePermission(
         const scopeValid = await options.validateScope(req)
         if (!scopeValid) {
           await logPermissionCheck({
-            userId: req.user.id,
-            tenantId: req.user.tenant_id,
+            userId: user.id,
+            tenantId: user.tenant_id || 'unknown',
             permission,
             granted: false,
             reason: 'Scope validation failed',
@@ -168,8 +171,8 @@ export function requirePermission(
 
       // Log successful permission check
       await logPermissionCheck({
-        userId: req.user.id,
-        tenantId: req.user.tenant_id,
+        userId: user.id,
+        tenantId: user.tenant_id || 'unknown',
         permission,
         granted: true,
         ipAddress: req.ip,
@@ -178,7 +181,7 @@ export function requirePermission(
 
       next()
     } catch (error) {
-      logger.error('Permission check failed', { error, permission, userId: req.user?.id }) // Wave 14: Winston logger
+      logger.error('Permission check failed', { error, permission, userId: req.user?.id as string }) // Wave 14: Winston logger
       return res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -328,6 +331,8 @@ export function validateScope(resourceType: 'vehicle' | 'driver' | 'work_order' 
       return res.status(401).json({ error: 'Authentication required' })
     }
 
+    const user = req.user;
+
     try {
       const resourceId = req.params.id
 
@@ -335,12 +340,12 @@ export function validateScope(resourceType: 'vehicle' | 'driver' | 'work_order' 
         return res.status(400).json({ error: `Resource ID required` })
       }
 
-      const hasAccess = await validateResourceScope(req.user.id, resourceType, resourceId)
+      const hasAccess = await validateResourceScope(user.id, resourceType, resourceId)
 
       if (!hasAccess) {
         await logPermissionCheck({
-          userId: req.user.id,
-          tenantId: req.user.tenant_id,
+          userId: user.id,
+          tenantId: user.tenant_id || 'unknown',
           permission: `${resourceType}:scope_check`,
           granted: false,
           reason: 'Resource outside user scope',
@@ -370,6 +375,8 @@ export function preventSelfApproval(createdByField: string = 'created_by') {
     if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' })
     }
+
+    const user = req.user;
 
     try {
       const resourceId = req.params.id
@@ -409,10 +416,10 @@ table = `safety_incidents`
 
       const createdBy = result.rows[0][createdByField]
 
-      if (createdBy === req.user.id) {
+      if (createdBy === user.id) {
         await logPermissionCheck({
-          userId: req.user.id,
-          tenantId: req.user.tenant_id,
+          userId: user.id,
+          tenantId: user.tenant_id || 'unknown',
           permission: `${table}:approve`,
           granted: false,
           reason: `Separation of Duties: Cannot approve own record`,
@@ -443,11 +450,13 @@ export function checkApprovalLimit() {
       return res.status(401).json({ error: 'Authentication required' })
     }
 
+    const user = req.user;
+
     try {
       const poId = req.params.id
 
       const [userResult, poResult] = await Promise.all([
-        pool.query('SELECT approval_limit FROM users WHERE id = $1', [req.user.id]),
+        pool.query('SELECT approval_limit FROM users WHERE id = $1', [user.id]),
         pool.query('SELECT total FROM purchase_orders WHERE id = $1', [poId])
       ])
 
@@ -460,8 +469,8 @@ export function checkApprovalLimit() {
 
       if (poTotal > approvalLimit) {
         await logPermissionCheck({
-          userId: req.user.id,
-          tenantId: req.user.tenant_id,
+          userId: user.id,
+          tenantId: user.tenant_id || 'unknown',
           permission: `purchase_order:approve`,
           granted: false,
           reason: `PO total $${poTotal} exceeds approval limit $${approvalLimit}`,
