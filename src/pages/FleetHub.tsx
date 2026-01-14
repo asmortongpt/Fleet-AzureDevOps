@@ -136,10 +136,18 @@ import type { VehicleRow } from '@/shared/design-system/types'
 function FleetOverviewContent() {
     const { push } = useDrilldown()
     const [expandedRow, setExpandedRow] = useState<string | null>(null)
+    const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
 
-    // Use real data
-    const { data: vehiclesData, isLoading } = useVehicles({ limit: 1000, tenant_id: '' })
+    // Use real data with auto-refresh
+    const { data: vehiclesData, isLoading, dataUpdatedAt } = useVehicles({ limit: 1000, tenant_id: '' })
     const { createVehicle } = useVehicleMutations()
+
+    // Update last refresh timestamp when data changes
+    React.useEffect(() => {
+        if (dataUpdatedAt) {
+            setLastUpdate(new Date(dataUpdatedAt))
+        }
+    }, [dataUpdatedAt])
     const vehicles: VehicleRow[] = React.useMemo(() => {
         if (!vehiclesData) return []
         return (Array.isArray(vehiclesData) ? vehiclesData : (vehiclesData as any).data || []).map((v: any) => ({
@@ -192,11 +200,43 @@ function FleetOverviewContent() {
                             content="Real-time view of all fleet vehicles with expandable telemetry drilldowns. Click any row to see detailed vehicle health metrics and maintenance records."
                             type="info"
                         />
+                        {/* Live Indicator */}
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            padding: '4px 12px',
+                            borderRadius: 12,
+                            background: 'rgba(34, 197, 94, 0.1)',
+                            border: '1px solid rgba(34, 197, 94, 0.3)'
+                        }}>
+                            <div style={{
+                                width: 8,
+                                height: 8,
+                                borderRadius: '50%',
+                                background: '#22c55e',
+                                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                            }} />
+                            <span style={{
+                                fontSize: 12,
+                                fontWeight: 600,
+                                color: '#22c55e',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em'
+                            }}>LIVE</span>
+                            <span style={{
+                                fontSize: 11,
+                                color: '#9ca3af',
+                                marginLeft: 4
+                            }}>
+                                {lastUpdate.toLocaleTimeString()}
+                            </span>
+                        </div>
                     </div>
                     <p style={{
                         fontSize: 14,
                         color: '#9ca3af'
-                    }}>Professional table-first navigation with expandable drilldowns</p>
+                    }}>Professional table-first navigation with expandable drilldowns • Auto-refreshes every 10s</p>
                 </div>
                 {/* Add Vehicle Button via Dialog */}
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
