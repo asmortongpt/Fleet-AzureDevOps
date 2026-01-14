@@ -10,21 +10,22 @@ import { db } from '../db/connection';
 import { schema } from '../schemas/production.schema';
 import { eq } from 'drizzle-orm';
 
-// Extend Express Request to include user info
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        tenantId: string;
-        email: string;
-        role: string;
-        firstName: string;
-        lastName: string;
-      };
-    }
-  }
+// ============================================================================
+// JWT TOKEN GENERATION & VERIFICATION
+// ============================================================================
+
+export interface ProductionTokenPayload {
+  id: string;
+  userId: string;
+  tenantId: string;
+  email: string;
+  role: string;
+  firstName: string;
+  lastName: string;
 }
+
+// Note: Express Request.user type is extended in auth.middleware.ts
+// to avoid duplicate declarations across middleware files
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const BCRYPT_ROUNDS = 12; // Cost factor for bcrypt (FedRAMP compliant)
@@ -41,20 +42,7 @@ export const verifyPassword = async (password: string, hash: string): Promise<bo
   return await bcrypt.compare(password, hash);
 };
 
-// ============================================================================
-// JWT TOKEN GENERATION & VERIFICATION
-// ============================================================================
-
-export interface TokenPayload {
-  userId: string;
-  tenantId: string;
-  email: string;
-  role: string;
-  firstName: string;
-  lastName: string;
-}
-
-export const generateToken = (payload: TokenPayload): string => {
+export const generateToken = (payload: ProductionTokenPayload): string => {
   return jwt.sign(payload, JWT_SECRET, {
     expiresIn: '24h',
     issuer: 'fleet-api',
@@ -62,12 +50,12 @@ export const generateToken = (payload: TokenPayload): string => {
   });
 };
 
-export const verifyToken = (token: string): TokenPayload => {
+export const verifyToken = (token: string): ProductionTokenPayload => {
   try {
     return jwt.verify(token, JWT_SECRET, {
       issuer: 'fleet-api',
       audience: 'fleet-app',
-    }) as TokenPayload;
+    }) as ProductionTokenPayload;
   } catch (error) {
     throw new Error('Invalid or expired token');
   }
@@ -108,6 +96,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     // Attach user info to request
     req.user = {
       id: user.id,
+      userId: user.id,
       tenantId: user.tenantId,
       email: user.email,
       role: user.role,
@@ -371,6 +360,7 @@ export const loginHandler = async (req: Request, res: Response): Promise<void> =
 
     // Generate token
     const token = generateToken({
+      id: user.id,
       userId: user.id,
       tenantId: user.tenantId,
       email: user.email,
@@ -457,6 +447,7 @@ export const registerHandler = async (req: Request, res: Response): Promise<void
 
     // Generate token
     const token = generateToken({
+      id: newUser.id,
       userId: newUser.id,
       tenantId: newUser.tenantId,
       email: newUser.email,
