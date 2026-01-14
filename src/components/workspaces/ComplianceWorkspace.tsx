@@ -269,7 +269,7 @@ const IncidentTracking = () => {
       case 'minor': return 'text-yellow-600'
       case 'moderate': return 'text-orange-600'
       case 'major': return 'text-red-600'
-      default: return 'text-gray-600'
+      default: return 'text-slate-700'
     }
   }
 
@@ -378,10 +378,10 @@ const SafetyCompliance = ({ vehicles, drivers }: { vehicles?: unknown[]; drivers
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'excellent': return 'text-green-600'
-      case 'good': return 'text-blue-600'
+      case 'good': return 'text-blue-800'
       case 'warning': return 'text-yellow-600'
       case 'critical': return 'text-red-600'
-      default: return 'text-gray-600'
+      default: return 'text-slate-700'
     }
   }
 

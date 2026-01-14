@@ -84,7 +84,7 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
       case "off-duty":
         return <Clock className="h-3 w-3 text-gray-500" />
       case "on-leave":
-        return <Moon className="h-3 w-3 text-blue-500" />
+        return <Moon className="h-3 w-3 text-blue-800" />
       default:
         return <User className="h-3 w-3 text-gray-500" />
     }

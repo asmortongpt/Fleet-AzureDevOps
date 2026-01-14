@@ -314,7 +314,7 @@ export function CSRFTokenDisplay() {
         Example 5: Display CSRF Token
       </h3>
       <div className="space-y-2">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-slate-700">
           Current CSRF Token (for debugging):
         </p>
         {csrfToken ? (
@@ -365,7 +365,7 @@ export function BatchOperationsExample() {
       </h3>
       <div className="space-y-4">
         <div>
-          <p className="text-sm text-gray-600 mb-2">
+          <p className="text-sm text-slate-700 mb-2">
             Selected incidents: {selectedIds.length}
           </p>
           <div className="space-x-2">
@@ -410,7 +410,7 @@ export function CSRFProtectionExamples() {
   return (
     <div className="container mx-auto p-8">
       <h1 className="text-3xl font-bold mb-2">CSRF Protection Examples</h1>
-      <p className="text-gray-600 mb-8">
+      <p className="text-slate-700 mb-8">
         All examples automatically include CSRF tokens. No manual token handling required!
       </p>
 

@@ -98,7 +98,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
         <Card>
           <CardContent className="p-3">
             <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4 text-blue-600" />
+              <Activity className="h-4 w-4 text-blue-800" />
               <div>
                 <div className="text-sm font-semibold capitalize">{analyticsType} View</div>
                 <div className="text-xs text-muted-foreground">{getAnalyticsDescription()}</div>

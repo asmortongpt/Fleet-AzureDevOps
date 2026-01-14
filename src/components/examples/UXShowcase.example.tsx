@@ -36,7 +36,7 @@ export const UXShowcase: React.FC = () => {
     <div className="max-w-6xl mx-auto p-8 space-y-12">
       <div>
         <h1 className="text-4xl font-bold mb-2">UX Components Showcase</h1>
-        <p className="text-gray-600">
+        <p className="text-slate-700">
           Visual demonstration of all UX improvement components
         </p>
       </div>

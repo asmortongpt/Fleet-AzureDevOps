@@ -129,7 +129,7 @@ export function OperationsWorkspace() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-500/10 rounded-lg">
-                    <Navigation className="h-5 w-5 text-blue-500" />
+                    <Navigation className="h-5 w-5 text-blue-800" />
                   </div>
                   <div>
                     <h2 className="font-semibold text-sm tracking-wide text-slate-200">Dispatch Queue</h2>

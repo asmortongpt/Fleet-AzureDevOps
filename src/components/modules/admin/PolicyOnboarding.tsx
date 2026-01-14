@@ -244,8 +244,8 @@ export function PolicyOnboarding() {
       case 'critical': return 'text-red-600 bg-red-50 border-red-200'
       case 'high': return 'text-orange-600 bg-orange-50 border-orange-200'
       case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200'
-      case 'low': return 'text-blue-600 bg-blue-50 border-blue-200'
-      default: return 'text-gray-600 bg-gray-50 border-gray-200'
+      case 'low': return 'text-blue-800 bg-blue-50 border-blue-200'
+      default: return 'text-slate-700 bg-gray-50 border-gray-200'
     }
   }
 
@@ -262,7 +262,7 @@ export function PolicyOnboarding() {
               <h1 className="text-3xl font-bold text-gray-900">
                 AI-Powered Policy Onboarding
               </h1>
-              <p className="text-gray-600">
+              <p className="text-slate-700">
                 Intelligent policy generation based on your fleet operations
               </p>
             </div>
@@ -324,7 +324,7 @@ export function PolicyOnboarding() {
               {/* Fleet Basics */}
               <div>
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Truck className="w-5 h-5 text-blue-500" />
+                  <Truck className="w-5 h-5 text-blue-800" />
                   Fleet Information
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -378,7 +378,7 @@ export function PolicyOnboarding() {
               {/* Vehicle Types */}
               <div>
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Truck className="w-5 h-5 text-blue-500" />
+                  <Truck className="w-5 h-5 text-blue-800" />
                   Vehicle Types *
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -402,7 +402,7 @@ export function PolicyOnboarding() {
               {/* Operation Types */}
               <div>
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Target className="w-5 h-5 text-blue-500" />
+                  <Target className="w-5 h-5 text-blue-800" />
                   Operation Types *
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -426,7 +426,7 @@ export function PolicyOnboarding() {
               {/* Compliance Requirements */}
               <div>
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-blue-500" />
+                  <Shield className="w-5 h-5 text-blue-800" />
                   Compliance Requirements
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -450,7 +450,7 @@ export function PolicyOnboarding() {
               {/* Current Challenges */}
               <div>
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-blue-500" />
+                  <AlertTriangle className="w-5 h-5 text-blue-800" />
                   Current Challenges
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -474,7 +474,7 @@ export function PolicyOnboarding() {
               {/* Staffing */}
               <div>
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-blue-500" />
+                  <Users className="w-5 h-5 text-blue-800" />
                   Staffing Information *
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -563,8 +563,8 @@ export function PolicyOnboarding() {
               {isAnalyzing && (
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Analysis Progress</span>
-                    <span className="font-medium text-blue-600">{analysisProgress}%</span>
+                    <span className="text-slate-700">Analysis Progress</span>
+                    <span className="font-medium text-blue-800">{analysisProgress}%</span>
                   </div>
                   <Progress value={analysisProgress} className="h-2" />
                 </div>
@@ -599,10 +599,10 @@ export function PolicyOnboarding() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">Recommendations</p>
-                      <p className="text-3xl font-bold text-blue-600">{recommendations.length}</p>
+                      <p className="text-sm text-slate-700 mb-1">Recommendations</p>
+                      <p className="text-3xl font-bold text-blue-800">{recommendations.length}</p>
                     </div>
-                    <FileText className="w-8 h-8 text-blue-500" />
+                    <FileText className="w-8 h-8 text-blue-800" />
                   </div>
                 </CardContent>
               </Card>
@@ -610,7 +610,7 @@ export function PolicyOnboarding() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">Gaps Identified</p>
+                      <p className="text-sm text-slate-700 mb-1">Gaps Identified</p>
                       <p className="text-3xl font-bold text-orange-600">{gaps.length}</p>
                     </div>
                     <AlertTriangle className="w-8 h-8 text-orange-500" />
@@ -621,7 +621,7 @@ export function PolicyOnboarding() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">Bottlenecks</p>
+                      <p className="text-sm text-slate-700 mb-1">Bottlenecks</p>
                       <p className="text-3xl font-bold text-red-600">{bottlenecks.length}</p>
                     </div>
                     <Wrench className="w-8 h-8 text-red-500" />
@@ -632,7 +632,7 @@ export function PolicyOnboarding() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">Est. Savings</p>
+                      <p className="text-sm text-slate-700 mb-1">Est. Savings</p>
                       <p className="text-3xl font-bold text-green-600">
                         ${recommendations.reduce((sum, r) => sum + (r.estimatedImpact.costSavings || 0), 0).toLocaleString()}
                       </p>
@@ -676,11 +676,11 @@ export function PolicyOnboarding() {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <p className="text-sm font-medium text-gray-700 mb-1">Current State</p>
-                          <p className="text-sm text-gray-600">{gap.currentState}</p>
+                          <p className="text-sm text-slate-700">{gap.currentState}</p>
                         </div>
                         <div>
                           <p className="text-sm font-medium text-gray-700 mb-1">Desired State</p>
-                          <p className="text-sm text-gray-600">{gap.desiredState}</p>
+                          <p className="text-sm text-slate-700">{gap.desiredState}</p>
                         </div>
                       </div>
                       <Separator />
@@ -688,7 +688,7 @@ export function PolicyOnboarding() {
                         <p className="text-sm font-medium text-gray-700 mb-2">Recommendations:</p>
                         <ul className="space-y-1">
                           {gap.recommendations.map((rec, recIdx) => (
-                            <li key={recIdx} className="flex items-start gap-2 text-sm text-gray-600">
+                            <li key={recIdx} className="flex items-start gap-2 text-sm text-slate-700">
                               <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                               {rec}
                             </li>
@@ -722,18 +722,18 @@ export function PolicyOnboarding() {
                     <CardContent className="space-y-3">
                       <div>
                         <p className="text-sm font-medium text-gray-700 mb-1">Impact</p>
-                        <p className="text-sm text-gray-600">{bottleneck.impact}</p>
+                        <p className="text-sm text-slate-700">{bottleneck.impact}</p>
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-700 mb-1">Root Cause</p>
-                        <p className="text-sm text-gray-600">{bottleneck.rootCause}</p>
+                        <p className="text-sm text-slate-700">{bottleneck.rootCause}</p>
                       </div>
                       <Separator />
                       <div>
                         <p className="text-sm font-medium text-gray-700 mb-2">Solutions:</p>
                         <ul className="space-y-1">
                           {bottleneck.solutions.map((solution, solIdx) => (
-                            <li key={solIdx} className="flex items-start gap-2 text-sm text-gray-600">
+                            <li key={solIdx} className="flex items-start gap-2 text-sm text-slate-700">
                               <Lightbulb className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
                               {solution}
                             </li>
@@ -834,7 +834,7 @@ export function PolicyOnboarding() {
                         <Lightbulb className="w-4 h-4 text-yellow-500" />
                         Rationale
                       </p>
-                      <p className="text-sm text-gray-600">{rec.rationale}</p>
+                      <p className="text-sm text-slate-700">{rec.rationale}</p>
                     </div>
 
                     {/* Estimated Impact */}
@@ -853,7 +853,7 @@ export function PolicyOnboarding() {
                       {rec.estimatedImpact.safetyImprovement !== undefined && (
                         <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                           <div className="flex items-center gap-2 mb-1">
-                            <Shield className="w-4 h-4 text-blue-600" />
+                            <Shield className="w-4 h-4 text-blue-800" />
                             <p className="text-xs font-medium text-blue-700">Safety Improvement</p>
                           </div>
                           <p className="text-lg font-bold text-blue-700">
@@ -877,12 +877,12 @@ export function PolicyOnboarding() {
                     {/* Implementation Steps */}
                     <div>
                       <p className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-gray-600" />
+                        <Clock className="w-4 h-4 text-slate-700" />
                         Implementation Steps
                       </p>
                       <ol className="space-y-1">
                         {rec.implementationSteps.map((step, stepIdx) => (
-                          <li key={stepIdx} className="flex items-start gap-2 text-sm text-gray-600">
+                          <li key={stepIdx} className="flex items-start gap-2 text-sm text-slate-700">
                             <span className="font-medium text-gray-500 flex-shrink-0">
                               {stepIdx + 1}.
                             </span>
@@ -894,7 +894,7 @@ export function PolicyOnboarding() {
 
                     {/* Best Practice Source */}
                     <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-slate-700">
                         <span className="font-medium">Source:</span> {rec.bestPracticeSource}
                       </p>
                     </div>
@@ -954,14 +954,14 @@ export function PolicyOnboarding() {
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">
                   {selectedRecommendations.size} {selectedRecommendations.size === 1 ? 'Policy' : 'Policies'} Activated
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-slate-700">
                   Your fleet management system is now protected by AI-powered intelligent policies
                 </p>
               </div>
 
               <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
                 <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                  <p className="text-sm text-gray-600 mb-1">Total Est. Savings</p>
+                  <p className="text-sm text-slate-700 mb-1">Total Est. Savings</p>
                   <p className="text-2xl font-bold text-green-600">
                     ${recommendations
                       .filter((_, idx) => selectedRecommendations.has(idx))
@@ -970,8 +970,8 @@ export function PolicyOnboarding() {
                   </p>
                 </div>
                 <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-sm text-gray-600 mb-1">Avg Safety Improvement</p>
-                  <p className="text-2xl font-bold text-blue-600">
+                  <p className="text-sm text-slate-700 mb-1">Avg Safety Improvement</p>
+                  <p className="text-2xl font-bold text-blue-800">
                     +{Math.round(
                       recommendations
                         .filter((_, idx) => selectedRecommendations.has(idx))
@@ -981,7 +981,7 @@ export function PolicyOnboarding() {
                   </p>
                 </div>
                 <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                  <p className="text-sm text-gray-600 mb-1">Avg Efficiency Gain</p>
+                  <p className="text-sm text-slate-700 mb-1">Avg Efficiency Gain</p>
                   <p className="text-2xl font-bold text-purple-600">
                     +{Math.round(
                       recommendations
@@ -1001,25 +1001,25 @@ export function PolicyOnboarding() {
                   <Button variant="outline" className="h-auto py-3">
                     <div className="text-left">
                       <p className="font-medium">Monitor Policy Performance</p>
-                      <p className="text-xs text-gray-600">View real-time execution metrics</p>
+                      <p className="text-xs text-slate-700">View real-time execution metrics</p>
                     </div>
                   </Button>
                   <Button variant="outline" className="h-auto py-3">
                     <div className="text-left">
                       <p className="font-medium">Configure Notifications</p>
-                      <p className="text-xs text-gray-600">Set up alerts and approvals</p>
+                      <p className="text-xs text-slate-700">Set up alerts and approvals</p>
                     </div>
                   </Button>
                   <Button variant="outline" className="h-auto py-3">
                     <div className="text-left">
                       <p className="font-medium">Train Your Team</p>
-                      <p className="text-xs text-gray-600">Share policy documentation</p>
+                      <p className="text-xs text-slate-700">Share policy documentation</p>
                     </div>
                   </Button>
                   <Button variant="outline" className="h-auto py-3">
                     <div className="text-left">
                       <p className="font-medium">Review & Refine</p>
-                      <p className="text-xs text-gray-600">Adjust based on results</p>
+                      <p className="text-xs text-slate-700">Adjust based on results</p>
                     </div>
                   </Button>
                 </div>

@@ -177,7 +177,7 @@ export function DateRangePicker({ value, onChange, className = '' }: DateRangePi
             <h4 className="text-sm font-medium mb-2 text-gray-700">Custom Range</h4>
             <div className="space-y-2">
               <div>
-                <label htmlFor="custom-start" className="block text-xs text-gray-600 mb-1">
+                <label htmlFor="custom-start" className="block text-xs text-slate-700 mb-1">
                   Start Date
                 </label>
                 <input
@@ -189,7 +189,7 @@ export function DateRangePicker({ value, onChange, className = '' }: DateRangePi
                 />
               </div>
               <div>
-                <label htmlFor="custom-end" className="block text-xs text-gray-600 mb-1">
+                <label htmlFor="custom-end" className="block text-xs text-slate-700 mb-1">
                   End Date
                 </label>
                 <input

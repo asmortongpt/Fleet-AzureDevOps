@@ -83,14 +83,14 @@ export function MetricCard({
 
   const iconColorStyles = {
     default:
-      "text-slate-400 dark:text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:scale-110",
+      "text-slate-400 dark:text-slate-500 group-hover:text-blue-800 dark:group-hover:text-blue-400 group-hover:scale-110",
     success:
       "text-emerald-400 dark:text-emerald-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 group-hover:scale-110",
     warning:
       "text-amber-400 dark:text-amber-500 group-hover:text-amber-600 dark:group-hover:text-amber-400 group-hover:scale-110",
     danger:
       "text-red-400 dark:text-red-500 group-hover:text-red-600 dark:group-hover:text-red-400 group-hover:scale-110",
-    info: "text-blue-400 dark:text-blue-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:scale-110",
+    info: "text-blue-400 dark:text-blue-800 group-hover:text-blue-800 dark:group-hover:text-blue-400 group-hover:scale-110",
   }
 
   // Trend color mappings (semantic colors)

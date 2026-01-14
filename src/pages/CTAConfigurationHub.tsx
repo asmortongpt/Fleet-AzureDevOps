@@ -170,7 +170,7 @@ function CategoryCard({ category }: { category: ConfigCategory }) {
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 hover:border-blue-300 transition-all cursor-pointer">
       <div className="flex items-start gap-4">
         <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-          <Gear className="w-6 h-6 text-blue-600" />
+          <Gear className="w-6 h-6 text-blue-800" />
         </div>
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{category.name}</h3>
@@ -596,7 +596,7 @@ function ConfigSettingInput({ setting }: { setting: ConfigSetting }) {
               type="checkbox"
               checked={value}
               onChange={(e) => handleChange(e.target.checked)}
-              className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+              className="w-4 h-4 text-blue-800 border-slate-300 rounded focus:ring-blue-500"
             />
             <span className="text-sm text-slate-700 dark:text-slate-300">
               {value ? 'Enabled' : 'Disabled'}

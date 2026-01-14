@@ -219,7 +219,7 @@ function App() {
         <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-gray-50 rounded-lg">
           <Shield className="w-16 h-16 text-red-500 mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-slate-700 mb-6">
             You do not have permission to view this module.
           </p>
           <Button onClick={() => setActiveModule('live-fleet-dashboard')}>
@@ -472,14 +472,6 @@ function App() {
 
   return (
     <DrilldownManager>
-      {/* Skip to main content link for accessibility */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg"
-      >
-        Skip to main content
-      </a>
-
       <CommandCenterLayout>
         <EnhancedErrorBoundary
           showDetails={import.meta.env.DEV}
@@ -495,14 +487,19 @@ function App() {
         </EnhancedErrorBoundary>
       </CommandCenterLayout>
 
-      {/* Role Switcher FAB button */}
-      <RoleSwitcher />
+      {/* Role Switcher FAB button - Floating UI with proper ARIA */}
+      <div role="complementary" aria-label="Role switcher">
+        <RoleSwitcher />
+      </div>
 
       {/* Toast notifications - Legacy */}
-      <ToastContainer />
+      <div role="status" aria-live="polite" aria-label="Toast notifications">
+        <ToastContainer />
+      </div>
 
       {/* React Hot Toast - Modern notifications */}
-      <Toaster
+      <div role="status" aria-live="polite" aria-label="Notifications">
+        <Toaster
         position="top-right"
         toastOptions={{
           duration: 4000,
@@ -526,7 +523,8 @@ function App() {
             },
           },
         }}
-      />
+        />
+      </div>
 
     </DrilldownManager >
   )

@@ -6,7 +6,7 @@ export default function Home() {
           <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-6">
             Radio Fleet Dispatch
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+          <p className="text-xl text-slate-700 dark:text-gray-300 mb-8">
             AI-powered radio transcription and fleet dispatch management
           </p>
 
@@ -14,7 +14,7 @@ export default function Home() {
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
               ✅ Deployment Successful!
             </h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
+            <p className="text-slate-700 dark:text-gray-300 mb-4">
               All production runtime errors have been fixed:
             </p>
             <ul className="text-left max-w-2xl mx-auto space-y-2 text-gray-700 dark:text-gray-300">
@@ -29,19 +29,19 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-6 mt-12">
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
               <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-white">Radio Monitoring</h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
+              <p className="text-slate-700 dark:text-gray-300 text-sm">
                 Real-time transcription and analysis
               </p>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
               <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-white">Fleet Management</h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
+              <p className="text-slate-700 dark:text-gray-300 text-sm">
                 Track and coordinate your assets
               </p>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
               <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-white">Incident Response</h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
+              <p className="text-slate-700 dark:text-gray-300 text-sm">
                 Automated dispatch and coordination
               </p>
             </div>

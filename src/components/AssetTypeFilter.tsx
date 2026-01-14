@@ -111,7 +111,7 @@ const powerTypes: { value: PowerType; label: string }[] = [
 
 const operationalStatuses: { value: OperationalStatus; label: string; color: string }[] = [
   { value: 'AVAILABLE', label: 'Available', color: 'text-green-600' },
-  { value: 'IN_USE', label: 'In Use', color: 'text-blue-600' },
+  { value: 'IN_USE', label: 'In Use', color: 'text-blue-800' },
   { value: 'MAINTENANCE', label: 'Maintenance', color: 'text-orange-600' },
   { value: 'RESERVED', label: 'Reserved', color: 'text-purple-600' }
 ]
@@ -168,7 +168,7 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
       {/* Filter Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
         <div className="flex items-center gap-2">
-          <Funnel className="w-5 h-5 text-gray-600" />
+          <Funnel className="w-5 h-5 text-slate-700" />
           <h3 className="font-semibold text-gray-900">Asset Filters</h3>
           {activeFilterCount > 0 && (
             <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
@@ -180,14 +180,14 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
           {activeFilterCount > 0 && (
             <button
               onClick={handleClearAll}
-              className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              className="text-sm text-slate-700 hover:text-gray-900 transition-colors"
             >
               Clear all
             </button>
           )}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-slate-700 transition-colors"
           >
             {isExpanded ? <X className="w-5 h-5" /> : <Funnel className="w-5 h-5" />}
           </button>
@@ -348,7 +348,7 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
                 type="checkbox"
                 checked={filters.is_road_legal === true}
                 onChange={(e) => handleFilterChange('is_road_legal', e.target.checked ? true : undefined)}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-800 border-gray-300 rounded focus:ring-blue-500"
               />
               <span className="text-sm font-medium text-gray-700">
                 Road Legal Only

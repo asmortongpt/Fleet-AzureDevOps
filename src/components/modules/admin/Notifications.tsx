@@ -167,7 +167,7 @@ export function Notifications() {
         return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20'
       case 'info':
       default:
-        return 'text-blue-600 bg-blue-100 dark:bg-blue-900/20'
+        return 'text-blue-800 bg-blue-100 dark:bg-blue-900/20'
     }
   }
 
@@ -176,12 +176,12 @@ export function Notifications() {
       case 'resolved':
         return 'text-green-600 bg-green-100'
       case 'acknowledged':
-        return 'text-blue-600 bg-blue-100'
+        return 'text-blue-800 bg-blue-100'
       case 'sent':
         return 'text-purple-600 bg-purple-100'
       case 'pending':
       default:
-        return 'text-gray-600 bg-gray-100'
+        return 'text-slate-700 bg-gray-100'
     }
   }
 
@@ -229,7 +229,7 @@ export function Notifications() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <Bell className="w-8 h-8 text-blue-600" />
+              <Bell className="w-8 h-8 text-blue-800" />
               <div className="text-3xl font-bold">
                 {stats?.by_status.find(s => s.status === 'sent')?.count || 0}
               </div>

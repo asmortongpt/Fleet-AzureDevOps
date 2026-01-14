@@ -120,7 +120,7 @@ const WorkHub: React.FC = () => {
         label: "Active Tasks",
         value: 24,
         trend: { value: 12, direction: "up", isPositive: false },
-        color: "text-blue-500",
+        color: "text-blue-800",
       },
       {
         id: "in-progress",

@@ -126,7 +126,7 @@ export function DrilldownCard({
     success: 'text-green-500',
     warning: 'text-yellow-500',
     danger: 'text-red-500',
-    info: 'text-blue-500',
+    info: 'text-blue-800',
   }
 
   const variantClasses = {

@@ -132,7 +132,7 @@ export function AlertsFeed({
                       </div>
                       {!alert.isRead && (
                         <Circle
-                          className="w-2 h-2 fill-blue-500 text-blue-500 flex-shrink-0 mt-1"
+                          className="w-2 h-2 fill-blue-500 text-blue-800 flex-shrink-0 mt-1"
                           weight="fill"
                         />
                       )}
@@ -222,7 +222,7 @@ export function ActivityFeed({ activities, maxHeight = "100%", maxItems }: Activ
                 transition={{ duration: 0.15, delay: index * 0.03 }}
               >
                 <Circle
-                  className="w-1.5 h-1.5 mt-1.5 fill-blue-500 text-blue-500 flex-shrink-0"
+                  className="w-1.5 h-1.5 mt-1.5 fill-blue-500 text-blue-800 flex-shrink-0"
                   weight="fill"
                 />
                 <div className="flex-1 min-w-0">

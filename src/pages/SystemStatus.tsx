@@ -210,7 +210,7 @@ export default function SystemStatus() {
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading system status...</p>
+          <p className="text-slate-700 dark:text-gray-400">Loading system status...</p>
         </div>
       </div>
     );
@@ -383,19 +383,19 @@ export default function SystemStatus() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Total Vehicles</p>
-                      <p className="text-2xl font-bold text-blue-600">{emulatorStatus.stats.totalVehicles}</p>
+                      <p className="text-sm text-slate-700 dark:text-gray-400">Total Vehicles</p>
+                      <p className="text-2xl font-bold text-blue-800">{emulatorStatus.stats.totalVehicles}</p>
                     </div>
                     <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Active</p>
+                      <p className="text-sm text-slate-700 dark:text-gray-400">Active</p>
                       <p className="text-2xl font-bold text-green-600">{emulatorStatus.stats.activeVehicles}</p>
                     </div>
                     <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Events/sec</p>
+                      <p className="text-sm text-slate-700 dark:text-gray-400">Events/sec</p>
                       <p className="text-2xl font-bold text-purple-600">{emulatorStatus.stats.eventsPerSecond}</p>
                     </div>
                     <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Total Events</p>
+                      <p className="text-sm text-slate-700 dark:text-gray-400">Total Events</p>
                       <p className="text-2xl font-bold text-orange-600">{emulatorStatus.stats.totalEvents.toLocaleString()}</p>
                     </div>
                   </div>
@@ -404,7 +404,7 @@ export default function SystemStatus() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {Object.entries(emulatorStatus.emulators).map(([type, count]) => (
                       <div key={type} className="p-3 border rounded-lg">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 capitalize">{type}</p>
+                        <p className="text-sm text-slate-700 dark:text-gray-400 capitalize">{type}</p>
                         <p className="text-xl font-semibold">{count} active</p>
                       </div>
                     ))}

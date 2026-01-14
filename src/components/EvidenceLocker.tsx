@@ -224,7 +224,7 @@ export default function EvidenceLocker() {
                 <p className="text-sm text-muted-foreground">Total Cases</p>
                 <p className="text-2xl font-bold">{stats.total}</p>
               </div>
-              <Folder className="h-8 w-8 text-blue-500" />
+              <Folder className="h-8 w-8 text-blue-800" />
             </div>
           </CardContent>
         </Card>

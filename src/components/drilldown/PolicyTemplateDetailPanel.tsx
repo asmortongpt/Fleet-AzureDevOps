@@ -345,7 +345,7 @@ export function PolicyTemplateDetailPanel({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold text-blue-800">
                 +{templateData.estimated_impact.safety_improvement || 0}%
               </div>
               <p className="text-xs text-muted-foreground">Reduction in incidents</p>

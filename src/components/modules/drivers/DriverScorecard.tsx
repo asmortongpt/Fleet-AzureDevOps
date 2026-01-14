@@ -134,7 +134,7 @@ export function DriverScorecard() {
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return "text-green-600"
-    if (score >= 75) return "text-blue-600"
+    if (score >= 75) return "text-blue-800"
     if (score >= 60) return "text-yellow-600"
     return "text-red-600"
   }
@@ -164,7 +164,7 @@ export function DriverScorecard() {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading driver scorecard...</p>
+          <p className="text-slate-700">Loading driver scorecard...</p>
         </div>
       </div>
     )
@@ -177,7 +177,7 @@ export function DriverScorecard() {
           <Trophy className="h-8 w-8 text-yellow-600" weight="fill" />
           Driver Scorecard & Gamification
         </h1>
-        <p className="text-gray-600 mt-2">
+        <p className="text-slate-700 mt-2">
           Performance rankings, achievements, and driver engagement
         </p>
       </div>
@@ -352,7 +352,7 @@ export function DriverScorecard() {
                     </div>
                     <div className="flex items-center gap-2">
                       {getTrendIcon(selectedDriver.trend)}
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-slate-700">
                         {selectedDriver.trend === 'improving' && 'Improving'}
                         {selectedDriver.trend === 'declining' && 'Declining'}
                         {selectedDriver.trend === 'stable' && 'Stable'}
@@ -365,7 +365,7 @@ export function DriverScorecard() {
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <ShieldCheck className="h-5 w-5 text-blue-600" weight="fill" />
+                        <ShieldCheck className="h-5 w-5 text-blue-800" weight="fill" />
                         <span className="text-sm font-medium">Safety</span>
                       </div>
                       <div className="text-2xl font-bold">{selectedDriver.safetyScore.toFixed(1)}</div>
@@ -412,7 +412,7 @@ export function DriverScorecard() {
                               {getAchievementIcon(achievement.icon)}
                             </div>
                             <div className="text-lg font-semibold">{achievement.achievementName}</div>
-                            <div className="text-sm text-gray-600">{achievement.achievementDescription}</div>
+                            <div className="text-sm text-slate-700">{achievement.achievementDescription}</div>
                             <div className="text-sm mt-1">+{achievement.points.toString()} points</div>
                           </CardContent>
                         </Card>

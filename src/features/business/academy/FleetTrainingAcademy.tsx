@@ -449,10 +449,10 @@ const FleetTrainingAcademy: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center">
-                <BookOpen className="mr-3 text-blue-600" />
+                <BookOpen className="mr-3 text-blue-800" />
                 Fleet Training Academy
               </h1>
-              <p className="text-gray-600 text-lg">
+              <p className="text-slate-700 text-lg">
                 Professional development and certification for fleet management excellence
               </p>
             </div>
@@ -718,7 +718,7 @@ const FleetTrainingAcademy: React.FC = () => {
                                   >
                                     <div className="flex items-center space-x-3 flex-1">
                                       <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                        <ModuleIcon className="w-4 h-4 text-blue-600" />
+                                        <ModuleIcon className="w-4 h-4 text-blue-800" />
                                       </div>
                                       <div>
                                         <p className="font-medium">
@@ -779,7 +779,7 @@ const FleetTrainingAcademy: React.FC = () => {
                               <h4 className="font-semibold mb-2">Instructor</h4>
                               <div className="p-3 bg-gray-50 rounded-lg">
                                 <p className="font-medium">{course.instructor.name}</p>
-                                <p className="text-sm text-gray-600">{course.instructor.title}</p>
+                                <p className="text-sm text-slate-700">{course.instructor.title}</p>
                                 <p className="text-sm mt-1">{course.instructor.bio}</p>
                                 <div className="flex items-center mt-2 text-sm">
                                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
@@ -817,7 +817,7 @@ const FleetTrainingAcademy: React.FC = () => {
                                   <p className="text-sm text-green-600">
                                     Valid for {course.certification.validityPeriod} months
                                   </p>
-                                  <p className="text-xs text-gray-600 mt-1">
+                                  <p className="text-xs text-slate-700 mt-1">
                                     Accredited by {course.certification.accreditingBody}
                                   </p>
                                 </div>
@@ -869,7 +869,7 @@ const FleetTrainingAcademy: React.FC = () => {
             <CardContent>
               <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No courses found</h3>
-              <p className="text-gray-600 mb-4">
+              <p className="text-slate-700 mb-4">
                 Try adjusting your search terms or selected category.
               </p>
               <Button

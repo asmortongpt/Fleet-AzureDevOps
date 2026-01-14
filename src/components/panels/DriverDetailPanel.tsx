@@ -92,7 +92,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                             <div className="text-[10px] uppercase font-bold text-slate-400 mt-0.5">Rating</div>
                         </div>
                         <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
-                            <div className="text-xl font-bold text-blue-600">
+                            <div className="text-xl font-bold text-blue-800">
                                 98%
                             </div>
                             <div className="text-[10px] uppercase font-bold text-slate-400 mt-0.5">On-Time</div>
@@ -114,7 +114,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                                     <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Current Status</h4>
                                     <div className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl shadow-sm">
                                         <div className="flex items-center gap-3">
-                                            <Activity className="w-5 h-5 text-blue-500" />
+                                            <Activity className="w-5 h-5 text-blue-800" />
                                             <div>
                                                 <div className="font-semibold text-sm capitalize">{driver.status}</div>
                                                 <div className="text-xs text-slate-500">Since 08:00 AM</div>
@@ -137,7 +137,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                                                         <Truck className="w-5 h-5 text-slate-600" />
                                                     </div>
                                                     <div>
-                                                        <div className="font-semibold text-sm group-hover:text-blue-600 transition-colors">
+                                                        <div className="font-semibold text-sm group-hover:text-blue-800 transition-colors">
                                                             {assignment.make} {assignment.model}
                                                         </div>
                                                         <div className="text-xs text-slate-500 mt-0.5">
@@ -204,7 +204,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                                     <div className="space-y-4">
                                         <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col items-center">
                                             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-3">
-                                                <Truck className="w-8 h-8 text-blue-600" />
+                                                <Truck className="w-8 h-8 text-blue-800" />
                                             </div>
                                             <h3 className="font-bold text-lg">{assignment.make} {assignment.model}</h3>
                                             <div className="text-sm text-slate-500">{assignment.number}</div>

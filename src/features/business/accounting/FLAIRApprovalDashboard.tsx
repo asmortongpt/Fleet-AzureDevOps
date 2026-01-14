@@ -92,7 +92,7 @@ const ExpenseEntryCard: React.FC<{
             <h3 className="font-semibold text-gray-900">
               {entry.expenseType.replace('_', ' ').toUpperCase()}
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-700">
               {entry.employeeName} • {entry.department}
             </p>
           </div>
@@ -130,7 +130,7 @@ const ExpenseEntryCard: React.FC<{
           <h4 className="text-sm font-medium text-gray-900 mb-2">Approval History</h4>
           <div className="space-y-1">
             {entry.approvalHistory.map((approval, index) => (
-              <div key={index} className="text-xs text-gray-600">
+              <div key={index} className="text-xs text-slate-700">
                 <strong>{approval.approverName}</strong> ({approval.approvalLevel}) approved on{' '}
                 {new Date(approval.approvedAt).toLocaleString()}
                 {approval.comments && <div className="italic ml-2">"{approval.comments}"</div>}
@@ -144,7 +144,7 @@ const ExpenseEntryCard: React.FC<{
       <div className="flex items-center justify-between pt-4 border-t border-gray-200">
         <button
           onClick={() => onViewDetails(entry.id)}
-          className="text-blue-600 hover:text-blue-800 text-sm transition-colors"
+          className="text-blue-800 hover:text-blue-800 text-sm transition-colors"
         >
           View details
         </button>
@@ -192,7 +192,7 @@ const ExpenseEntryCard: React.FC<{
             <div className="flex justify-end space-x-2">
               <button
                 onClick={() => setShowApprovalForm(false)}
-                className="px-3 py-1 text-gray-600 hover:text-gray-800 text-sm transition-colors"
+                className="px-3 py-1 text-slate-700 hover:text-gray-800 text-sm transition-colors"
               >
                 Cancel
               </button>
@@ -311,20 +311,20 @@ const SummaryStats: React.FC<{
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
       <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
-        <div className="text-sm text-gray-600">Total Entries</div>
+        <div className="text-2xl font-bold text-blue-800">{stats.total}</div>
+        <div className="text-sm text-slate-700">Total Entries</div>
       </div>
       <div className="bg-white border border-gray-200 rounded-lg p-4">
         <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
-        <div className="text-sm text-gray-600">Pending Approval</div>
+        <div className="text-sm text-slate-700">Pending Approval</div>
       </div>
       <div className="bg-white border border-gray-200 rounded-lg p-4">
         <div className="text-2xl font-bold text-green-600">{stats.approved}</div>
-        <div className="text-sm text-gray-600">Approved</div>
+        <div className="text-sm text-slate-700">Approved</div>
       </div>
       <div className="bg-white border border-gray-200 rounded-lg p-4">
         <div className="text-2xl font-bold text-purple-600">${stats.totalAmount.toFixed(2)}</div>
-        <div className="text-sm text-gray-600">Total Amount</div>
+        <div className="text-sm text-slate-700">Total Amount</div>
       </div>
     </div>
   );
@@ -535,7 +535,7 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-2 text-gray-600">Loading expense entries...</span>
+        <span className="ml-2 text-slate-700">Loading expense entries...</span>
       </div>
     );
   }
@@ -546,7 +546,7 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">FLAIR Approval Dashboard</h2>
-          <p className="text-gray-600">Review and approve expense submissions</p>
+          <p className="text-slate-700">Review and approve expense submissions</p>
         </div>
         <div className="text-sm text-gray-500">
           Logged in as: {user?.fullName} ({user?.role})
@@ -565,7 +565,7 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
           <div className="text-center py-12">
             <div className="text-4xl mb-4">📭</div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No Expense Entries Found</h3>
-            <p className="text-gray-600">
+            <p className="text-slate-700">
               Try adjusting your filters or check back later for new submissions.
             </p>
           </div>

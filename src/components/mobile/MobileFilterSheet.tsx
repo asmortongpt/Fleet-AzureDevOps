@@ -132,7 +132,7 @@ export function MobileFilterSheet({
                 variant="ghost"
                 size="sm"
                 onClick={handleReset}
-                className="text-blue-600"
+                className="text-blue-800"
                 data-testid="reset-filters-btn"
               >
                 <RotateCcw className="h-4 w-4 mr-1" />

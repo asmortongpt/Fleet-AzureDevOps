@@ -81,7 +81,7 @@ const variantStyles = {
         hoverBorder: 'hover:border-blue-500/40',
         accent: 'from-blue-500 to-blue-500/70',
         iconBg: 'bg-blue-500/10',
-        iconColor: 'text-blue-500',
+        iconColor: 'text-blue-800',
         valueColor: 'text-foreground'
     }
 }

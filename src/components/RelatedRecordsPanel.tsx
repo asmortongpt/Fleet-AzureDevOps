@@ -65,7 +65,7 @@ interface SectionConfig {
 // ============================================================================
 
 const SECTION_CONFIGS: SectionConfig[] = [
-  { type: 'vehicle', key: 'vehicles', label: 'Vehicles', icon: Car, color: 'text-blue-500', badgeVariant: 'default' },
+  { type: 'vehicle', key: 'vehicles', label: 'Vehicles', icon: Car, color: 'text-blue-800', badgeVariant: 'default' },
   { type: 'driver', key: 'drivers', label: 'Drivers', icon: User, color: 'text-green-500', badgeVariant: 'secondary' },
   { type: 'work-order', key: 'workOrders', label: 'Work Orders', icon: Wrench, color: 'text-orange-500', badgeVariant: 'outline' },
   { type: 'maintenance', key: 'maintenanceRecords', label: 'Maintenance', icon: Clock, color: 'text-purple-500', badgeVariant: 'secondary' },
