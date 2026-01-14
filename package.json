@@ -17,6 +17,7 @@
     "test:a11y:watch": "vitest --watch src/tests/accessibility.test.tsx"
   },
   "dependencies": {
+    "@googlemaps/js-api-loader": "^2.0.2",
     "@googlemaps/markerclusterer": "^2.6.2",
     "@googlemaps/react-wrapper": "^1.2.0",
     "@hookform/resolvers": "^5.2.2",
