@@ -21,6 +21,7 @@ import scanSessionsRouter from './routes/scan-sessions.routes';
 import geospatialRouter from './routes/geospatial.routes';
 import emulatorsRouter from './routes/emulators.routes';
 import systemHealthRouter from './routes/system-health.routes';
+import dashboardRouter from './routes/dashboard.routes';
 import { schema } from './schemas/production.schema';
 import { connectionHealthService } from './services/ConnectionHealthService';
 
@@ -94,6 +95,7 @@ app.use('/api/scan-sessions', scanSessionsRouter);
 app.use('/api/geospatial', geospatialRouter);
 app.use('/api/emulators', emulatorsRouter);
 app.use('/api/system-health', systemHealthRouter);
+app.use('/api/dashboard', dashboardRouter);
 
 // ============================================================================
 // PRODUCTION HEALTH CHECKS & MONITORING
