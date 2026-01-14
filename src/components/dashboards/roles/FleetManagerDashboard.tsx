@@ -11,8 +11,9 @@
  * Design Philosophy: Clean, minimal, focused
  */
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import {
   Warning,
   Wrench,
@@ -24,49 +25,53 @@ import {
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
-
-interface FleetStats {
-  active_vehicles: number;
-  maintenance_vehicles: number;
-  idle_vehicles: number;
-  out_of_service: number;
-}
-
-interface CostSummary {
-  fuel_cost: number;
-  fuel_trend: number;
-  maintenance_cost: number;
-  maintenance_trend: number;
-  cost_per_mile: number;
-  target_cost_per_mile: number;
-}
+import { dashboardApi, dashboardQueryKeys } from '@/services/dashboardApi';
+import type { FleetStats, CostSummary } from '@/services/dashboardApi';
 
 export function FleetManagerDashboard() {
   const navigate = useNavigate();
 
-  const [overdueCount, setOverdueCount] = useState(5);
-  const [upcomingCount, setUpcomingCount] = useState(12);
-  const [openWorkOrders, setOpenWorkOrders] = useState(8);
-  const [fleetStats, setFleetStats] = useState<FleetStats>({
-    active_vehicles: 142,
-    maintenance_vehicles: 18,
-    idle_vehicles: 5,
-    out_of_service: 3
-  });
-  const [costSummary, setCostSummary] = useState<CostSummary>({
-    fuel_cost: 42315,
-    fuel_trend: 12,
-    maintenance_cost: 18230,
-    maintenance_trend: -5,
-    cost_per_mile: 2.34,
-    target_cost_per_mile: 2.10
+  // React Query hooks for real-time data fetching
+  const { data: maintenanceData, isLoading: maintenanceLoading, error: maintenanceError } = useQuery({
+    queryKey: dashboardQueryKeys.maintenanceAlerts,
+    queryFn: dashboardApi.getMaintenanceAlerts,
+    refetchInterval: 30000, // Refetch every 30 seconds
   });
 
-  // Load data on mount (API integration pattern)
-  useEffect(() => {
-    // API integration placeholder
-  }, []);
+  const { data: fleetStatsData, isLoading: fleetLoading } = useQuery({
+    queryKey: dashboardQueryKeys.fleetStats,
+    queryFn: dashboardApi.getFleetStats,
+    refetchInterval: 15000, // Refetch every 15 seconds
+  });
+
+  const { data: costData, isLoading: costLoading } = useQuery({
+    queryKey: dashboardQueryKeys.costSummary('monthly'),
+    queryFn: () => dashboardApi.getCostSummary('monthly'),
+    refetchInterval: 60000, // Refetch every minute
+  });
+
+  // Extract values with fallbacks for loading states
+  const overdueCount = maintenanceData?.overdue_count ?? 0;
+  const upcomingCount = maintenanceData?.upcoming_count ?? 0;
+  const openWorkOrders = maintenanceData?.open_work_orders ?? 0;
+
+  const fleetStats: FleetStats = fleetStatsData ?? {
+    active_vehicles: 0,
+    maintenance_vehicles: 0,
+    idle_vehicles: 0,
+    out_of_service: 0
+  };
+
+  const costSummary: CostSummary = costData ?? {
+    fuel_cost: 0,
+    fuel_trend: 0,
+    maintenance_cost: 0,
+    maintenance_trend: 0,
+    cost_per_mile: 0,
+    target_cost_per_mile: 2.10
+  };
 
   // Quick actions - Now with proper navigation
   const handleAssignDriver = () => {
@@ -102,6 +107,33 @@ export function FleetManagerDashboard() {
     });
     toast.info('Opening maintenance scheduler...');
   };
+
+  // Loading state - show spinner while fetching initial data
+  if (maintenanceLoading || fleetLoading || costLoading) {
+    return (
+      <div className="min-h-screen bg-[var(--minimalist-bg-primary)] p-2 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+          <p className="text-sm text-[var(--minimalist-text-secondary)]">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state - show error if critical data fails to load
+  if (maintenanceError) {
+    return (
+      <div className="min-h-screen bg-[var(--minimalist-bg-primary)] p-2">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error Loading Data</AlertTitle>
+          <AlertDescription>
+            {maintenanceError instanceof Error ? maintenanceError.message : 'Failed to load dashboard data'}
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[var(--minimalist-bg-primary)] p-2">
