@@ -180,72 +180,42 @@ function FleetOverviewContent() {
         : 0
 
     return (
-        <div style={{
-            padding: 24,
-            background: '#030712',
-            minHeight: '100vh'
-        }}>
-            {/* Header */}
-            <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="p-2 md:p-4 lg:p-6 bg-[#030712] min-h-screen">
+            {/* Header - Compact & Responsive */}
+            <div className="mb-3 md:mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <div>
-                    <div className="flex items-center gap-2">
-                        <h2 style={{
-                            fontSize: 28,
-                            fontWeight: 700,
-                            color: '#f9fafb',
-                            marginBottom: 8
-                        }}>Fleet Overview</h2>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-slate-50 leading-tight">
+                            Fleet Overview
+                        </h2>
                         <InfoPopover
                             title="Fleet Overview"
                             content="Real-time view of all fleet vehicles with expandable telemetry drilldowns. Click any row to see detailed vehicle health metrics and maintenance records."
                             type="info"
                         />
-                        {/* Live Indicator */}
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            padding: '4px 12px',
-                            borderRadius: 12,
-                            background: 'rgba(34, 197, 94, 0.1)',
-                            border: '1px solid rgba(34, 197, 94, 0.3)'
-                        }}>
-                            <div style={{
-                                width: 8,
-                                height: 8,
-                                borderRadius: '50%',
-                                background: '#22c55e',
-                                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                            }} />
-                            <span style={{
-                                fontSize: 12,
-                                fontWeight: 600,
-                                color: '#22c55e',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.05em'
-                            }}>LIVE</span>
-                            <span style={{
-                                fontSize: 11,
-                                color: '#9ca3af',
-                                marginLeft: 4
-                            }}>
+                        {/* Live Indicator - Compact */}
+                        <div className="flex items-center gap-1.5 px-2 md:px-3 py-1 rounded-lg bg-green-500/10 border border-green-500/30">
+                            <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-500 animate-pulse" />
+                            <span className="text-[10px] md:text-xs font-semibold text-green-500 uppercase tracking-wider">
+                                LIVE
+                            </span>
+                            <span className="text-[9px] md:text-[10px] text-slate-400 ml-1 hidden sm:inline">
                                 {lastUpdate.toLocaleTimeString()}
                             </span>
                         </div>
                     </div>
-                    <p style={{
-                        fontSize: 14,
-                        color: '#9ca3af'
-                    }}>Professional table-first navigation with expandable drilldowns • Auto-refreshes every 10s</p>
+                    <p className="text-xs md:text-sm text-slate-400 mt-1">
+                        Auto-refreshes every 10s • Click rows to expand
+                    </p>
                 </div>
-                {/* Add Vehicle Button via Dialog */}
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                {/* Add Vehicle Button - Compact */}
+                <div className="flex gap-2 items-center">
                     <AddVehicleDialog onAdd={handleAddVehicle} />
                 </div>
             </div>
 
-            {/* Fleet Metrics Grid */}
-            <MetricGrid columns={4} className="mb-6">
+            {/* Fleet Metrics Grid - Responsive & Compact */}
+            <MetricGrid columns={4} className="mb-3 md:mb-4 gap-2 md:gap-3">
                 <InteractiveMetric
                     title="Total Vehicles"
                     value={totalVehicles}
@@ -295,156 +265,133 @@ function FleetOverviewContent() {
                 />
             </MetricGrid>
 
-            {/* Vehicle Table - Professional Design */}
-            <div style={{
-                border: '1px solid rgba(148, 163, 184, 0.2)',
-                borderRadius: 16,
-                background: 'linear-gradient(135deg, #1a2332 0%, #0f1419 100%)',
-                overflow: 'hidden',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
-            }}>
+            {/* Vehicle Table - Compact & Responsive Design */}
+            <div className="border border-slate-700/50 rounded-lg md:rounded-xl overflow-hidden bg-gradient-to-br from-slate-800/50 to-slate-900/50 shadow-xl">
                 {isLoading ? (
-                    <div className="p-12 text-center text-slate-500 flex flex-col items-center justify-center gap-4">
-                        <div className="w-8 h-8 rounded-full border-2 border-slate-600 border-t-blue-500 animate-spin" />
-                        <p>Loading fleet data...</p>
+                    <div className="p-6 md:p-8 lg:p-12 text-center text-slate-500 flex flex-col items-center justify-center gap-3">
+                        <div className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-slate-600 border-t-blue-500 animate-spin" />
+                        <p className="text-sm md:text-base">Loading fleet data...</p>
                     </div>
                 ) : (
-                    <table style={{
-                        width: '100%',
-                        borderCollapse: 'separate',
-                        borderSpacing: 0
-                    }}
-                        role="grid"
-                        aria-label="Fleet vehicles inventory"
-                    >
-                        <thead>
-                            <tr style={{ background: 'rgba(96, 165, 250, 0.08)', borderBottom: '1px solid rgba(96, 165, 250, 0.2)' }}>
-                                <th scope="col" style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Vehicle</th>
-                                <th scope="col" style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Type</th>
-                                <th scope="col" style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Odometer</th>
-                                <th scope="col" style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Fuel</th>
-                                <th scope="col" style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Health</th>
-                                <th scope="col" style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Alerts</th>
-                                <th scope="col" style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}>Updated</th>
-                                <th scope="col" style={{ padding: 16, fontSize: 12, color: '#93c5fd', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600 }}><span className="sr-only">Actions</span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {vehicles.map(vehicle => (
-                                <React.Fragment key={vehicle.id}>
-                                    <tr style={{
-                                        borderBottom: '1px solid rgba(255,255,255,0.06)',
-                                        cursor: 'pointer',
-                                        background: expandedRow === vehicle.id ? 'rgba(96,165,250,0.08)' : 'transparent',
-                                        transition: 'background 0.15s'
-                                    }}
-                                        onClick={() => setExpandedRow(expandedRow === vehicle.id ? null : vehicle.id)}
-                                        onMouseEnter={(e) => e.currentTarget.style.background = expandedRow === vehicle.id ? 'rgba(96,165,250,0.08)' : 'rgba(255,255,255,0.03)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.background = expandedRow === vehicle.id ? 'rgba(96,165,250,0.08)' : 'transparent'}
-                                    >
-                                        <td style={{ padding: 16 }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                                <EntityAvatar entity={vehicle} size={38} />
-                                                <div>
-                                                    <div style={{ fontSize: 14, fontWeight: 600, color: '#f9fafb' }}>{vehicle.displayName}</div>
-                                                    <div style={{ fontSize: 12, color: '#9ca3af' }}>{vehicle.id}</div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full border-collapse"
+                            role="grid"
+                            aria-label="Fleet vehicles inventory"
+                        >
+                            <thead>
+                                <tr className="bg-blue-500/8 border-b border-blue-500/20">
+                                    <th scope="col" className="px-2 md:px-4 py-2 md:py-3 text-[10px] md:text-xs text-blue-300 text-left uppercase tracking-wider font-semibold">Vehicle</th>
+                                    <th scope="col" className="hidden sm:table-cell px-2 md:px-4 py-2 md:py-3 text-[10px] md:text-xs text-blue-300 text-left uppercase tracking-wider font-semibold">Type</th>
+                                    <th scope="col" className="hidden md:table-cell px-2 md:px-4 py-2 md:py-3 text-[10px] md:text-xs text-blue-300 text-left uppercase tracking-wider font-semibold">Odometer</th>
+                                    <th scope="col" className="hidden lg:table-cell px-2 md:px-4 py-2 md:py-3 text-[10px] md:text-xs text-blue-300 text-left uppercase tracking-wider font-semibold">Fuel</th>
+                                    <th scope="col" className="px-2 md:px-4 py-2 md:py-3 text-[10px] md:text-xs text-blue-300 text-left uppercase tracking-wider font-semibold">Status</th>
+                                    <th scope="col" className="hidden xl:table-cell px-2 md:px-4 py-2 md:py-3 text-[10px] md:text-xs text-blue-300 text-left uppercase tracking-wider font-semibold">Updated</th>
+                                    <th scope="col" className="px-2 md:px-4 py-2 md:py-3 text-[10px] md:text-xs text-blue-300 text-left uppercase tracking-wider font-semibold"><span className="sr-only">Actions</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {vehicles.map(vehicle => (
+                                    <React.Fragment key={vehicle.id}>
+                                        <tr className={cn(
+                                            "border-b border-white/5 cursor-pointer transition-colors duration-150",
+                                            expandedRow === vehicle.id ? "bg-blue-500/8" : "hover:bg-white/[0.03]"
+                                        )}
+                                            onClick={() => setExpandedRow(expandedRow === vehicle.id ? null : vehicle.id)}
+                                        >
+                                            <td className="p-2 md:p-4">
+                                                <div className="flex items-center gap-2 md:gap-3">
+                                                    <EntityAvatar entity={vehicle} size={32} className="hidden sm:block" />
+                                                    <div className="min-w-0">
+                                                        <div className="text-xs md:text-sm font-semibold text-slate-50 truncate">
+                                                            {vehicle.displayName}
+                                                        </div>
+                                                        <div className="text-[10px] md:text-xs text-slate-400 truncate">
+                                                            {vehicle.id}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td style={{ padding: 16, fontSize: 14, color: '#e5e7eb' }}>{vehicle.kind}</td>
-                                        <td style={{ padding: 16, fontSize: 14, color: '#e5e7eb' }}>{vehicle.odometer.toLocaleString()} mi</td>
-                                        <td style={{ padding: 16 }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                <div style={{ width: 60, height: 6, borderRadius: 3, background: 'rgba(148, 163, 184, 0.2)', overflow: 'hidden' }}>
-                                                    <div style={{
-                                                        width: `${vehicle.fuelPct}%`,
-                                                        height: '100%',
-                                                        background: vehicle.fuelPct < 25 ? '#ef4444' : vehicle.fuelPct < 50 ? '#f59e0b' : '#22c55e',
-                                                        transition: 'width 0.3s'
-                                                    }} />
+                                            </td>
+                                            <td className="hidden sm:table-cell p-2 md:p-4 text-xs md:text-sm text-slate-300">
+                                                {vehicle.kind}
+                                            </td>
+                                            <td className="hidden md:table-cell p-2 md:p-4 text-xs md:text-sm text-slate-300">
+                                                {vehicle.odometer.toLocaleString()} mi
+                                            </td>
+                                            <td className="hidden lg:table-cell p-2 md:p-4">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-12 md:w-16 h-1.5 md:h-2 rounded-full bg-slate-700/50 overflow-hidden">
+                                                        <div className={cn(
+                                                            "h-full transition-all duration-300",
+                                                            vehicle.fuelPct < 25 ? "bg-red-500" : vehicle.fuelPct < 50 ? "bg-amber-500" : "bg-green-500"
+                                                        )}
+                                                            style={{ width: `${vehicle.fuelPct}%` }}
+                                                        />
+                                                    </div>
+                                                    <span className="text-[10px] md:text-xs text-slate-400">
+                                                        {vehicle.fuelPct}%
+                                                    </span>
                                                 </div>
-                                                <span style={{ fontSize: 12, color: '#d1d5db' }}>{vehicle.fuelPct}%</span>
-                                            </div>
-                                        </td>
-                                        <td style={{ padding: 16, fontSize: 14, fontWeight: 600, color: vehicle.healthScore >= 80 ? '#22c55e' : vehicle.healthScore >= 60 ? '#f59e0b' : '#ef4444' }}>
-                                            {vehicle.healthScore}
-                                        </td>
-                                        <td style={{ padding: 16 }}>
-                                            {vehicle.alerts > 0 ? (
-                                                <StatusChip status={vehicle.status} label={`${vehicle.alerts} Alert${vehicle.alerts > 1 ? 's' : ''}`} />
-                                            ) : (
-                                                <StatusChip status="good" label="OK" />
-                                            )}
-                                        </td>
-                                        <td style={{ padding: 16, fontSize: 12, color: '#9ca3af' }}>{vehicle.updatedAgo}</td>
-                                        <td style={{ padding: 16 }}>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    push({
-                                                        id: vehicle.id,
-                                                        type: 'vehicle-details',
-                                                        label: `${vehicle.displayName} Details`,
-                                                        data: vehicle
-                                                    })
-                                                }}
-                                                style={{
-                                                    padding: '8px 16px',
-                                                    borderRadius: 8,
-                                                    border: '1px solid rgba(96, 165, 250, 0.3)',
-                                                    background: 'rgba(96, 165, 250, 0.12)',
-                                                    color: '#93c5fd',
-                                                    cursor: 'pointer',
-                                                    fontSize: 13,
-                                                    fontWeight: 600,
-                                                    transition: 'all 0.2s'
-                                                }}
-                                                onMouseEnter={(e) => {
-                                                    e.currentTarget.style.background = 'rgba(96, 165, 250, 0.2)'
-                                                    e.currentTarget.style.borderColor = 'rgba(96, 165, 250, 0.5)'
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    e.currentTarget.style.background = 'rgba(96, 165, 250, 0.12)'
-                                                    e.currentTarget.style.borderColor = 'rgba(96, 165, 250, 0.3)'
-                                                }}
-                                            >
-                                                View
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    {expandedRow === vehicle.id && (
-                                        <tr>
-                                            <td colSpan={8} style={{ padding: 16, background: 'rgba(0,0,0,0.12)' }}>
-                                                <RowExpandPanel
-                                                    anomalies={[
-                                                        { status: 'good', label: 'Engine Temp: Normal' },
-                                                        { status: 'warn', label: 'Tire Pressure: Low' },
-                                                        { status: vehicle.fuelPct < 25 ? 'bad' : 'good', label: `Fuel: ${vehicle.fuelPct}%` }
-                                                    ]}
-                                                    records={[
-                                                        { id: 'REC-001', summary: 'Routine maintenance completed', timestamp: '2h ago', severity: 'info' },
-                                                        { id: 'REC-002', summary: 'Low tire pressure detected', timestamp: '5h ago', severity: 'warn' }
-                                                    ]}
-                                                    onOpenRecord={(id) => push({
-                                                        id,
-                                                        type: 'record-details',
-                                                        label: `Record ${id}`,
-                                                        data: { recordId: id }
-                                                    })}
-                                                />
+                                            </td>
+                                            <td className="p-2 md:p-4">
+                                                {vehicle.alerts > 0 ? (
+                                                    <StatusChip status={vehicle.status} label={`${vehicle.alerts}`} />
+                                                ) : (
+                                                    <StatusChip status="good" label="OK" />
+                                                )}
+                                            </td>
+                                            <td className="hidden xl:table-cell p-2 md:p-4 text-[10px] md:text-xs text-slate-400">
+                                                {vehicle.updatedAgo}
+                                            </td>
+                                            <td className="p-2 md:p-4">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        push({
+                                                            id: vehicle.id,
+                                                            type: 'vehicle-details',
+                                                            label: `${vehicle.displayName} Details`,
+                                                            data: vehicle
+                                                        })
+                                                    }}
+                                                    className="px-2 md:px-4 py-1 md:py-2 rounded-lg border border-blue-500/30 bg-blue-500/12 text-blue-300 hover:bg-blue-500/20 hover:border-blue-500/50 text-[10px] md:text-xs font-semibold transition-all duration-200"
+                                                >
+                                                    View
+                                                </button>
                                             </td>
                                         </tr>
-                                    )}
-                                </React.Fragment>
-                            ))}
-                        </tbody>
-                    </table>
+                                        {expandedRow === vehicle.id && (
+                                            <tr>
+                                                <td colSpan={7} className="p-2 md:p-4 bg-black/12">
+                                                    <RowExpandPanel
+                                                        anomalies={[
+                                                            { status: 'good', label: 'Engine Temp: Normal' },
+                                                            { status: 'warn', label: 'Tire Pressure: Low' },
+                                                            { status: vehicle.fuelPct < 25 ? 'bad' : 'good', label: `Fuel: ${vehicle.fuelPct}%` }
+                                                        ]}
+                                                        records={[
+                                                            { id: 'REC-001', summary: 'Routine maintenance completed', timestamp: '2h ago', severity: 'info' },
+                                                            { id: 'REC-002', summary: 'Low tire pressure detected', timestamp: '5h ago', severity: 'warn' }
+                                                        ]}
+                                                        onOpenRecord={(id) => push({
+                                                            id,
+                                                            type: 'record-details',
+                                                            label: `Record ${id}`,
+                                                            data: { recordId: id }
+                                                        })}
+                                                    />
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </div>
 
-
-            <p style={{ marginTop: 16, fontSize: 12, color: '#6b7280', textAlign: 'center' }}>
-                Click rows to expand telemetry drilldowns • Click "View" for full vehicle details
+            <p className="mt-3 md:mt-4 text-[10px] md:text-xs text-slate-500 text-center">
+                Click rows to expand telemetry • Tap "View" for details
             </p>
         </div >
     )
@@ -554,27 +501,19 @@ function VideoContent() {
     const storageUsedTB = 2.4
 
     return (
-        <div style={{
-            padding: 24,
-            background: 'var(--bg)',
-            minHeight: '100vh'
-        }}>
-            {/* Header */}
-            <div style={{ marginBottom: 24 }}>
-                <h2 style={{
-                    fontSize: 28,
-                    fontWeight: 700,
-                    color: 'var(--text)',
-                    marginBottom: 8
-                }}>Video Telematics</h2>
-                <p style={{
-                    fontSize: 14,
-                    color: 'var(--muted)'
-                }}>Professional camera management with table-first navigation</p>
+        <div className="p-2 md:p-4 lg:p-6 bg-[#030712] min-h-screen">
+            {/* Header - Compact */}
+            <div className="mb-3 md:mb-4">
+                <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-slate-50 mb-1">
+                    Video Telematics
+                </h2>
+                <p className="text-xs md:text-sm text-slate-400">
+                    Camera feeds • Table-first navigation
+                </p>
             </div>
 
-            {/* Summary Stats Row - Enhanced with InteractiveMetric */}
-            <MetricGrid columns={3} className="mb-6">
+            {/* Summary Stats Row - Compact & Responsive */}
+            <MetricGrid columns={3} className="mb-3 md:mb-4 gap-2 md:gap-3">
                 <InteractiveMetric
                     title="Active Cameras"
                     value={recordingCameras}
