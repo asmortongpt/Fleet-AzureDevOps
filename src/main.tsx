@@ -89,13 +89,14 @@ import "./styles/accessibility.css"
 // Legacy fleet theme - DISABLED to prevent conflicts
 // import "./styles/fleet-theme.css"
 
-// Create a client
+// Create a client with reactive data configuration
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
+      refetchOnWindowFocus: true, // Refetch when window regains focus
+      refetchInterval: 10000, // Auto-refresh every 10 seconds
+      staleTime: 5000, // Data considered fresh for 5 seconds
       retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
     },
   },
 })
