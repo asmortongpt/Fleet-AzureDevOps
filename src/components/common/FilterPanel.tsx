@@ -254,10 +254,10 @@ export function FilterPanel({
 
   return (
     <Card className={className}>
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-4">
+      <CardContent className="p-2">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <FunnelSimple className="w-5 h-5 text-muted-foreground" />
+            <FunnelSimple className="w-3 h-3 text-muted-foreground" />
             <span className="font-medium">Filters</span>
             {activeFilterCount > 0 && (
               <Badge variant="secondary" className="ml-2">
@@ -277,7 +277,7 @@ export function FilterPanel({
             </Button>
           )}
         </div>
-        <div className="space-y-4">{filters.map(renderFilter)}</div>
+        <div className="space-y-2">{filters.map(renderFilter)}</div>
       </CardContent>
     </Card>
   )

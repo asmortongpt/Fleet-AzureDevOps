@@ -92,9 +92,9 @@ export function AnalyticsDashboard() {
   if (error) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-center space-y-4">
-          <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
-          <h2 className="text-lg font-semibold">Failed to load analytics</h2>
+        <div className="text-center space-y-2">
+          <AlertTriangle className="h-9 w-12 text-destructive mx-auto" />
+          <h2 className="text-sm font-semibold">Failed to load analytics</h2>
           <p className="text-muted-foreground">{error.message}</p>
           <Button onClick={() => refetch()}>Retry</Button>
         </div>
@@ -106,7 +106,7 @@ export function AnalyticsDashboard() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center space-y-2">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="w-4 h-4 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-sm text-muted-foreground">Loading analytics dashboard...</p>
         </div>
       </div>
@@ -116,9 +116,9 @@ export function AnalyticsDashboard() {
   if (!isLoading && vehicles.length === 0) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-center space-y-4">
-          <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto" />
-          <h2 className="text-lg font-semibold">No vehicle data available</h2>
+        <div className="text-center space-y-2">
+          <BarChart3 className="h-9 w-12 text-muted-foreground mx-auto" />
+          <h2 className="text-sm font-semibold">No vehicle data available</h2>
           <p className="text-muted-foreground">Add vehicles to see analytics</p>
         </div>
       </div>
@@ -129,10 +129,10 @@ export function AnalyticsDashboard() {
     <div className="h-screen flex flex-col" data-testid="analytics-dashboard">
       {/* Header with KPIs */}
       <div className="border-b bg-background">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between mb-4">
+        <div className="px-3 py-2">
+          <div className="flex items-center justify-between mb-2">
             <div>
-              <h1 className="text-2xl font-bold">Analytics Dashboard</h1>
+              <h1 className="text-sm font-bold">Analytics Dashboard</h1>
               <p className="text-sm text-muted-foreground">
                 Real-time fleet analytics with map visualization
               </p>
@@ -143,16 +143,16 @@ export function AnalyticsDashboard() {
           </div>
 
           {/* KPI Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" data-testid="analytics-kpi-cards">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2" data-testid="analytics-kpi-cards">
             {kpis.map((kpi, index) => (
               <Card key={index} data-testid={`analytics-kpi-${index}`}>
-                <CardContent className="p-4">
+                <CardContent className="p-2">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-muted-foreground">{kpi.title}</span>
                     <div className="text-muted-foreground">{kpi.icon}</div>
                   </div>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold">{kpi.value}</span>
+                    <span className="text-sm font-bold">{kpi.value}</span>
                     {kpi.trend && (
                       <Badge variant={kpi.isPositive ? 'default' : 'destructive'} className="text-xs">
                         {kpi.isPositive ? (
@@ -172,7 +172,7 @@ export function AnalyticsDashboard() {
       </div>
 
       {/* Analytics Type Selector & Export Panel */}
-      <div className="border-b bg-background px-6 py-3">
+      <div className="border-b bg-background px-3 py-3">
         <div className="flex items-center justify-between">
           <Tabs value={analyticsType} onValueChange={(v) => setAnalyticsType(v as AnalyticsType)}>
             <TabsList data-testid="analytics-type-tabs">

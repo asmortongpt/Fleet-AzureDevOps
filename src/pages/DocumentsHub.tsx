@@ -307,9 +307,9 @@ function DocumentsHub() {
 
   // Get file icon
   const getFileIcon = (mimeType: string) => {
-    if (mimeType.startsWith('image/')) return <Image className="w-5 h-5" />
-    if (mimeType.includes('pdf')) return <FileText className="w-5 h-5" />
-    return <File className="w-5 h-5" />
+    if (mimeType.startsWith('image/')) return <Image className="w-3 h-3" />
+    if (mimeType.includes('pdf')) return <FileText className="w-3 h-3" />
+    return <File className="w-3 h-3" />
   }
 
   // Get status badge
@@ -327,8 +327,8 @@ function DocumentsHub() {
   }
 
   return (
-    <HubPage title="Documents Hub" icon={<FileStack className="w-6 h-6" />}>
-      <Tabs defaultValue="browse" className="space-y-6">
+    <HubPage title="Documents Hub" icon={<FileStack className="w-4 h-4" />}>
+      <Tabs defaultValue="browse" className="space-y-2">
         <TabsList>
           <TabsTrigger value="browse">Browse</TabsTrigger>
           <TabsTrigger value="search">Advanced Search</TabsTrigger>
@@ -336,9 +336,9 @@ function DocumentsHub() {
         </TabsList>
 
         {/* Browse Tab */}
-        <TabsContent value="browse" className="space-y-6">
+        <TabsContent value="browse" className="space-y-2">
           {/* Header Actions */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+          <div className="flex flex-col sm:flex-row gap-2 justify-between items-start sm:items-center">
             <div className="flex gap-2 flex-wrap">
               <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
                 <DialogTrigger asChild>
@@ -354,7 +354,7 @@ function DocumentsHub() {
                       Upload a new document with AI-powered indexing and OCR
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     <div>
                       <Label>File</Label>
                       <Input
@@ -397,7 +397,7 @@ function DocumentsHub() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-2">
                       <div>
                         <Label>Category *</Label>
                         <Select
@@ -521,20 +521,20 @@ function DocumentsHub() {
           {/* Documents Grid/List */}
           {loading ? (
             <Card>
-              <CardContent className="p-8 text-center text-muted-foreground">
+              <CardContent className="p-3 text-center text-muted-foreground">
                 Loading documents...
               </CardContent>
             </Card>
           ) : documents.length === 0 ? (
             <Card>
-              <CardContent className="p-8 text-center text-muted-foreground">
+              <CardContent className="p-3 text-center text-muted-foreground">
                 No documents found. Upload your first document to get started.
               </CardContent>
             </Card>
           ) : viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
               {documents.map(doc => (
-                <Card key={doc.id} className="hover:shadow-lg transition-shadow">
+                <Card key={doc.id} className="hover:shadow-sm transition-shadow">
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-2">
                       {getFileIcon(doc.mimeType)}
@@ -602,8 +602,8 @@ function DocumentsHub() {
               <CardContent className="p-0">
                 <div className="divide-y">
                   {documents.map(doc => (
-                    <div key={doc.id} className="p-4 hover:bg-muted/50 transition-colors">
-                      <div className="flex items-start justify-between gap-4">
+                    <div key={doc.id} className="p-2 hover:bg-muted/50 transition-colors">
+                      <div className="flex items-start justify-between gap-2">
                         <div className="flex items-start gap-3 flex-1 min-w-0">
                           {getFileIcon(doc.mimeType)}
                           <div className="flex-1 min-w-0">
@@ -662,16 +662,16 @@ function DocumentsHub() {
         </TabsContent>
 
         {/* Analytics Tab */}
-        <TabsContent value="analytics" className="space-y-6">
+        <TabsContent value="analytics" className="space-y-2">
           {analytics && (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium">Total Documents</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{analytics.totalDocuments}</div>
+                    <div className="text-sm font-bold">{analytics.totalDocuments}</div>
                   </CardContent>
                 </Card>
 
@@ -680,7 +680,7 @@ function DocumentsHub() {
                     <CardTitle className="text-sm font-medium">Storage Used</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{formatFileSize(analytics.totalStorage)}</div>
+                    <div className="text-sm font-bold">{formatFileSize(analytics.totalStorage)}</div>
                   </CardContent>
                 </Card>
 
@@ -689,7 +689,7 @@ function DocumentsHub() {
                     <CardTitle className="text-sm font-medium">Recent Uploads</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{analytics.recentUploads}</div>
+                    <div className="text-sm font-bold">{analytics.recentUploads}</div>
                     <p className="text-xs text-muted-foreground">Last 7 days</p>
                   </CardContent>
                 </Card>
@@ -699,7 +699,7 @@ function DocumentsHub() {
                     <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{analytics.pendingApprovals}</div>
+                    <div className="text-sm font-bold">{analytics.pendingApprovals}</div>
                   </CardContent>
                 </Card>
               </div>

@@ -252,11 +252,11 @@ export function ChargesAndBilling() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <CurrencyDollar className="w-8 h-8" />
+        <h1 className="text-base font-bold flex items-center gap-2">
+          <CurrencyDollar className="w-4 h-4" />
           Charges & Billing
         </h1>
         <p className="text-muted-foreground">
@@ -266,14 +266,14 @@ export function ChargesAndBilling() {
 
       {/* Summary Cards */}
       {summary && (
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-2 md:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pending Charges</CardTitle>
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${summary.total_pending.toFixed(2)}</div>
+              <div className="text-sm font-bold">${summary.total_pending.toFixed(2)}</div>
               <p className="text-xs text-muted-foreground">Awaiting invoice</p>
             </CardContent>
           </Card>
@@ -284,7 +284,7 @@ export function ChargesAndBilling() {
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${summary.total_billed.toFixed(2)}</div>
+              <div className="text-sm font-bold">${summary.total_billed.toFixed(2)}</div>
               <p className="text-xs text-muted-foreground">Invoiced, awaiting payment</p>
             </CardContent>
           </Card>
@@ -295,7 +295,7 @@ export function ChargesAndBilling() {
               <CheckCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${summary.total_paid.toFixed(2)}</div>
+              <div className="text-sm font-bold">${summary.total_paid.toFixed(2)}</div>
               <p className="text-xs text-muted-foreground">Total collected</p>
             </CardContent>
           </Card>
@@ -306,7 +306,7 @@ export function ChargesAndBilling() {
               <Warning className="h-4 w-4 text-destructive" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-destructive">
+              <div className="text-sm font-bold text-destructive">
                 ${summary.total_overdue.toFixed(2)}
               </div>
               <p className="text-xs text-muted-foreground">Past due date</p>
@@ -320,8 +320,8 @@ export function ChargesAndBilling() {
         <CardHeader>
           <CardTitle>Filters</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-4">
+        <CardContent className="space-y-2">
+          <div className="grid gap-2 md:grid-cols-4">
             <div className="space-y-2">
               <Label>Billing Period</Label>
               <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
@@ -395,9 +395,9 @@ export function ChargesAndBilling() {
             </CardHeader>
             <CardContent>
               {loading ? (
-                <div className="text-center py-8">Loading...</div>
+                <div className="text-center py-3">Loading...</div>
               ) : filteredCharges.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">No charges found</div>
+                <div className="text-center py-3 text-muted-foreground">No charges found</div>
               ) : (
                 <Table>
                   <TableHeader>
@@ -473,7 +473,7 @@ export function ChargesAndBilling() {
         </TabsContent>
 
         <TabsContent value="analytics">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-2 md:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle>Monthly Billing Trend</CardTitle>
@@ -493,7 +493,7 @@ export function ChargesAndBilling() {
               <CardHeader>
                 <CardTitle>Collection Rate</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-2">
                 {[
                   { label: 'Paid on Time', value: 78, color: 'bg-green-500' },
                   { label: 'Paid Late', value: 15, color: 'bg-yellow-500' },
@@ -513,7 +513,7 @@ export function ChargesAndBilling() {
               </CardContent>
             </Card>
           </div>
-          <Card className="mt-4">
+          <Card className="mt-2">
             <CardHeader>
               <CardTitle>Top Personal Use Drivers</CardTitle>
               <CardDescription>Highest personal use charges this period</CardDescription>
@@ -558,7 +558,7 @@ export function ChargesAndBilling() {
               Create an invoice for this personal use charge.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div className="space-y-2">
               <Label>Invoice Number</Label>
               <Input

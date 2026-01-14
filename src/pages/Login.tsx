@@ -115,18 +115,18 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-2 sm:p-3 lg:p-3">
       <div className="w-full max-w-md">
-        <Card className="shadow-lg border-slate-200 dark:border-slate-700">
-          <CardHeader className="space-y-4 pb-6">
+        <Card className="shadow-sm border-slate-200 dark:border-slate-700">
+          <CardHeader className="space-y-2 pb-3">
             <div className="flex justify-center">
-              <div className="p-3 bg-blue-600 rounded-xl">
-                <CarProfile className="w-10 h-10 text-white" weight="bold" />
+              <div className="p-3 bg-blue-600 rounded-md">
+                <CarProfile className="w-10 h-8 text-white" weight="bold" />
               </div>
             </div>
 
             <div className="space-y-2 text-center">
-              <CardTitle className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+              <CardTitle className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                 Fleet Manager
               </CardTitle>
               <CardDescription className="text-base text-slate-600 dark:text-slate-400">
@@ -135,7 +135,7 @@ export function Login() {
             </div>
           </CardHeader>
 
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-2">
             {/* Show URL errors */}
             {urlError && (
               <Alert variant="destructive">
@@ -164,7 +164,7 @@ export function Login() {
               className="w-full font-medium border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
               onClick={handleMicrosoftLogin}
             >
-              <svg className="w-5 h-5 mr-3" viewBox="0 0 23 23">
+              <svg className="w-3 h-3 mr-3" viewBox="0 0 23 23">
                 <path fill="#f35325" d="M1 1h10v10H1z" />
                 <path fill="#81bc06" d="M12 1h10v10H12z" />
                 <path fill="#05a6f0" d="M1 12h10v10H1z" />
@@ -185,7 +185,7 @@ export function Login() {
             </div>
 
             {/* Email/Password Form */}
-            <form onSubmit={handleEmailLogin} className="space-y-4">
+            <form onSubmit={handleEmailLogin} className="space-y-2">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Email
@@ -241,7 +241,7 @@ export function Login() {
           </CardContent>
         </Card>
 
-        <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-8">
+        <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-3">
           Fleet Management System v2.0
         </p>
       </div>

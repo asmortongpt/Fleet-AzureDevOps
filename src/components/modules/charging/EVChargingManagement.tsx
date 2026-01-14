@@ -376,10 +376,10 @@ export function EVChargingManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">EV Charging Management</h2>
+          <h2 className="text-sm font-semibold">EV Charging Management</h2>
           <p className="text-muted-foreground">
             Smart charging with OCPP protocol, tariff optimization, and carbon tracking
           </p>
@@ -398,8 +398,8 @@ export function EVChargingManagement() {
                 Register a new EV charging station for your fleet
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2 py-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="station-name">Station Name *</Label>
                   <Input
@@ -444,7 +444,7 @@ export function EVChargingManagement() {
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="charger-type">Charger Type</Label>
                   <Select
@@ -503,7 +503,7 @@ export function EVChargingManagement() {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -511,7 +511,7 @@ export function EVChargingManagement() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalStations}</div>
+            <div className="text-sm font-bold">{totalStations}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Lightning className="w-3 h-3" />
               Registered
@@ -526,7 +526,7 @@ export function EVChargingManagement() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{availableStations}</div>
+            <div className="text-sm font-bold text-green-600">{availableStations}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <CheckCircle className="w-3 h-3" />
               Ready to charge
@@ -541,7 +541,7 @@ export function EVChargingManagement() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-800">{activeSessions}</div>
+            <div className="text-sm font-bold text-blue-800">{activeSessions}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <BatteryCharging className="w-3 h-3" />
               Charging now
@@ -556,7 +556,7 @@ export function EVChargingManagement() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{totalCarbon.toFixed(1)} kg</div>
+            <div className="text-sm font-bold text-green-600">{totalCarbon.toFixed(1)} kg</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Leaf className="w-3 h-3" />
               CO2 saved
@@ -565,7 +565,7 @@ export function EVChargingManagement() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-2">
         <Card>
           <CardHeader>
             <CardTitle>Charging Stations</CardTitle>
@@ -606,7 +606,7 @@ export function EVChargingManagement() {
                 </div>
               ))}
               {(stations || []).length === 0 && (
-                <div className="text-center text-muted-foreground py-8">
+                <div className="text-center text-muted-foreground py-3">
                   No charging stations registered. Add your first station to get started.
                 </div>
               )}
@@ -620,27 +620,27 @@ export function EVChargingManagement() {
             <CardDescription>Completed charging sessions</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <BatteryCharging className="w-5 h-5 text-blue-800" />
+                  <BatteryCharging className="w-3 h-3 text-blue-800" />
                   <span className="text-sm font-medium">Total Energy Delivered</span>
                 </div>
-                <span className="text-lg font-bold">{totalEnergy.toFixed(1)} kWh</span>
+                <span className="text-sm font-bold">{totalEnergy.toFixed(1)} kWh</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CurrencyDollar className="w-5 h-5 text-green-600" />
+                  <CurrencyDollar className="w-3 h-3 text-green-600" />
                   <span className="text-sm font-medium">Total Cost</span>
                 </div>
-                <span className="text-lg font-bold">${totalCost.toFixed(2)}</span>
+                <span className="text-sm font-bold">${totalCost.toFixed(2)}</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Leaf className="w-5 h-5 text-green-600" />
+                  <Leaf className="w-3 h-3 text-green-600" />
                   <span className="text-sm font-medium">Carbon Offset</span>
                 </div>
-                <span className="text-lg font-bold">{totalCarbon.toFixed(1)} kg CO2</span>
+                <span className="text-sm font-bold">{totalCarbon.toFixed(1)} kg CO2</span>
               </div>
               <div className="pt-3 border-t">
                 <div className="text-xs text-muted-foreground">Average cost per kWh</div>
@@ -653,7 +653,7 @@ export function EVChargingManagement() {
         </Card>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-2">
         <div className="relative flex-1">
           <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -697,7 +697,7 @@ export function EVChargingManagement() {
             <TableBody>
               {filteredSessions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-3">
                     No charging sessions found.
                   </TableCell>
                 </TableRow>

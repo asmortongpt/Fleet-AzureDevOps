@@ -131,7 +131,7 @@ function DamageMarker({ point, isSelected, onSelect, onRemove, isEditMode }: Dam
                     style={{ pointerEvents: isSelected ? 'auto' : 'none' }}
                 >
                     <div
-                        className="bg-slate-900/95 backdrop-blur-sm rounded-lg p-3 border border-slate-700 shadow-xl min-w-[200px]"
+                        className="bg-slate-900/95 backdrop-blur-sm rounded-lg p-3 border border-slate-700 shadow-sm min-w-[200px]"
                         style={{ transform: 'translateY(-50%)' }}
                     >
                         <div className="flex items-center justify-between mb-2">
@@ -255,7 +255,7 @@ export function DamageSummaryPanel({
 
     if (damagePoints.length === 0) {
         return (
-            <div className="p-4 text-center text-slate-400">
+            <div className="p-2 text-center text-slate-400">
                 <p className="text-sm">No damage recorded</p>
                 <p className="text-xs mt-1">Click on vehicle to add damage points</p>
             </div>
@@ -263,15 +263,15 @@ export function DamageSummaryPanel({
     }
 
     return (
-        <div className="p-4 space-y-4">
+        <div className="p-2 space-y-2">
             {/* Summary Stats */}
             <div className="grid grid-cols-2 gap-2">
                 <div className="bg-slate-800/50 rounded-lg p-3 text-center">
-                    <p className="text-2xl font-bold text-white">{damagePoints.length}</p>
+                    <p className="text-sm font-bold text-white">{damagePoints.length}</p>
                     <p className="text-xs text-slate-400">Damage Points</p>
                 </div>
                 <div className="bg-slate-800/50 rounded-lg p-3 text-center">
-                    <p className="text-2xl font-bold text-green-400">${totalCost.toLocaleString()}</p>
+                    <p className="text-sm font-bold text-green-400">${totalCost.toLocaleString()}</p>
                     <p className="text-xs text-slate-400">Est. Total Cost</p>
                 </div>
             </div>
@@ -318,7 +318,7 @@ export function DamageSummaryPanel({
                             <span className="text-xs text-green-400">${point.estimatedCost.toLocaleString()}</span>
                         </div>
                         {point.zone && (
-                            <p className="text-xs text-slate-400 mt-0.5 ml-4">{point.zone}</p>
+                            <p className="text-xs text-slate-400 mt-0.5 ml-2">{point.zone}</p>
                         )}
                     </button>
                 ))}

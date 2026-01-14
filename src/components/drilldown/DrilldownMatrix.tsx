@@ -285,7 +285,7 @@ export function DrilldownMatrix<T extends Record<string, any>>({
   if (loading) {
     return (
       <div className={cn('flex items-center justify-center py-12', className)}>
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
         <span className="ml-2 text-muted-foreground">Loading data...</span>
       </div>
     )

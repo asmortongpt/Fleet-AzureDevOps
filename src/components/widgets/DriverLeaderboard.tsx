@@ -119,27 +119,27 @@ const DEMO_DRIVERS: DriverScore[] = [
 function RankBadge({ rank }: { rank: number }) {
     if (rank === 1) {
         return (
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg shadow-yellow-500/20">
+            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-sm shadow-yellow-500/20">
                 <Trophy className="w-4 h-4 text-yellow-900" weight="fill" />
             </div>
         )
     }
     if (rank === 2) {
         return (
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-300 to-slate-500 flex items-center justify-center shadow-lg shadow-slate-400/20">
+            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-slate-300 to-slate-500 flex items-center justify-center shadow-sm shadow-slate-400/20">
                 <Medal className="w-4 h-4 text-slate-700" weight="fill" />
             </div>
         )
     }
     if (rank === 3) {
         return (
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center shadow-lg shadow-amber-600/20">
+            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center shadow-sm shadow-amber-600/20">
                 <Medal className="w-4 h-4 text-amber-200" weight="fill" />
             </div>
         )
     }
     return (
-        <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-sm font-bold text-slate-400">
+        <div className="w-4 h-4 rounded-full bg-slate-800 flex items-center justify-center text-sm font-bold text-slate-400">
             {rank}
         </div>
     )
@@ -190,8 +190,8 @@ export function DriverLeaderboard({
             <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <Trophy className="w-5 h-5 text-yellow-400" weight="fill" />
-                        <CardTitle className="text-lg">Driver Leaderboard</CardTitle>
+                        <Trophy className="w-3 h-3 text-yellow-400" weight="fill" />
+                        <CardTitle className="text-sm">Driver Leaderboard</CardTitle>
                     </div>
                     <Tabs value={selectedPeriod} onValueChange={handlePeriodChange}>
                         <TabsList className="h-8 bg-slate-800">
@@ -204,13 +204,13 @@ export function DriverLeaderboard({
             </CardHeader>
             <CardContent>
                 <ScrollArea className="h-80">
-                    <div className="space-y-2 pr-4">
+                    <div className="space-y-2 pr-2">
                         {drivers.map((driver, index) => (
                             <button
                                 key={driver.id}
                                 onClick={() => onDriverClick?.(driver)}
                                 className={cn(
-                                    "w-full flex items-center gap-3 p-3 rounded-xl transition-all",
+                                    "w-full flex items-center gap-3 p-3 rounded-md transition-all",
                                     "hover:bg-slate-800/50 text-left",
                                     index === 0 && "bg-yellow-500/5 border border-yellow-500/20"
                                 )}
@@ -220,7 +220,7 @@ export function DriverLeaderboard({
 
                                 {/* Avatar & Name */}
                                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                                    <Avatar className="h-10 w-10 border-2 border-slate-700">
+                                    <Avatar className="h-8 w-10 border-2 border-slate-700">
                                         <AvatarImage src={driver.avatarUrl} />
                                         <AvatarFallback className="bg-slate-800 text-slate-300">
                                             {driver.name.split(' ').map(n => n[0]).join('')}
@@ -247,7 +247,7 @@ export function DriverLeaderboard({
                                 {/* Score */}
                                 <div className="text-right">
                                     <p className={cn(
-                                        "text-lg font-bold",
+                                        "text-sm font-bold",
                                         driver.score >= 95 ? "text-emerald-400" :
                                             driver.score >= 85 ? "text-blue-400" :
                                                 driver.score >= 75 ? "text-yellow-400" : "text-red-400"
@@ -262,7 +262,7 @@ export function DriverLeaderboard({
                 </ScrollArea>
 
                 {/* Legend */}
-                <div className="mt-4 pt-4 border-t border-slate-800 flex justify-center gap-4 text-xs text-slate-500">
+                <div className="mt-2 pt-2 border-t border-slate-800 flex justify-center gap-2 text-xs text-slate-500">
                     <div className="flex items-center gap-1.5">
                         <Shield className="w-3.5 h-3.5" />
                         <span>Safety</span>

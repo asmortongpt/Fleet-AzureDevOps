@@ -116,7 +116,7 @@ export function DrilldownList<T extends DrilldownListItem>({
     none: '',
     sm: 'gap-1',
     md: 'gap-2',
-    lg: 'gap-4',
+    lg: 'gap-2',
   }
 
   const variantClasses = {
@@ -128,15 +128,15 @@ export function DrilldownList<T extends DrilldownListItem>({
 
   if (loading) {
     return (
-      <div className={cn('flex items-center justify-center py-8', className)}>
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      <div className={cn('flex items-center justify-center py-3', className)}>
+        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
       </div>
     )
   }
 
   if (items.length === 0) {
     return (
-      <div className={cn('text-center py-8 text-muted-foreground', className)}>
+      <div className={cn('text-center py-3 text-muted-foreground', className)}>
         {emptyMessage}
       </div>
     )
@@ -170,7 +170,7 @@ export function DrilldownList<T extends DrilldownListItem>({
                 'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary/50',
                 // Variant-specific styles
                 variant === 'default' && [
-                  'px-4 py-3 hover:bg-muted/50',
+                  'px-2 py-3 hover:bg-muted/50',
                   showDividers && !isLast && 'border-b border-border/50',
                 ],
                 variant === 'compact' && [
@@ -178,11 +178,11 @@ export function DrilldownList<T extends DrilldownListItem>({
                   showDividers && !isLast && 'border-b border-border/50',
                 ],
                 variant === 'cards' && [
-                  'px-4 py-3 rounded-lg border bg-card hover:bg-muted/30',
+                  'px-2 py-3 rounded-lg border bg-card hover:bg-muted/30',
                   'shadow-sm hover:shadow-md',
                 ],
                 variant === 'striped' && [
-                  'px-4 py-3 hover:bg-muted/50',
+                  'px-2 py-3 hover:bg-muted/50',
                   index % 2 === 0 && 'bg-muted/20',
                   showDividers && !isLast && 'border-b border-border/50',
                 ],
@@ -206,7 +206,7 @@ export function DrilldownList<T extends DrilldownListItem>({
                 {showChevron && !disabled && (
                   <ChevronRight
                     className={cn(
-                      'w-5 h-5 text-muted-foreground flex-shrink-0 ml-2',
+                      'w-3 h-3 text-muted-foreground flex-shrink-0 ml-2',
                       'opacity-0 group-hover:opacity-100 transition-opacity',
                       'group-focus:opacity-100'
                     )}

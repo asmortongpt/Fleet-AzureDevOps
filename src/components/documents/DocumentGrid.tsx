@@ -134,7 +134,7 @@ function DocumentCard({ document, isSelected, onSelect, onOpen }: DocumentCardPr
       className={`
         group relative rounded-lg border bg-card overflow-hidden
         transition-all duration-200 cursor-pointer
-        hover:shadow-lg hover:scale-[1.02]
+        hover:shadow-sm hover:scale-[1.02]
         ${isSelected ? 'ring-2 ring-primary shadow-md' : ''}
       `}
       onMouseEnter={() => setIsHovered(true)}
@@ -302,7 +302,7 @@ function DocumentCard({ document, isSelected, onSelect, onOpen }: DocumentCardPr
 
 function DocumentGridSkeleton() {
   return (
-    <div className="p-4 grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
+    <div className="p-2 grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-2">
       {Array.from({ length: 12 }).map((_, i) => (
         <div key={i} className="rounded-lg border bg-card overflow-hidden">
           <Skeleton className="aspect-[4/3] w-full" />
@@ -322,12 +322,12 @@ function DocumentGridSkeleton() {
 
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center h-full text-center p-8">
-      <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-4">
-        <Eye className="w-12 h-12 text-muted-foreground" />
+    <div className="flex flex-col items-center justify-center h-full text-center p-3">
+      <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-2">
+        <Eye className="w-12 h-9 text-muted-foreground" />
       </div>
-      <h3 className="text-lg font-semibold mb-2">No documents found</h3>
-      <p className="text-muted-foreground max-w-sm mb-6">
+      <h3 className="text-sm font-semibold mb-2">No documents found</h3>
+      <p className="text-muted-foreground max-w-sm mb-3">
         Upload your first document to get started, or adjust your search filters.
       </p>
       <Button>

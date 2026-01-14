@@ -249,7 +249,7 @@ export function DataTable<T extends Record<string, any>>({
 
       {/* Pagination */}
       {pagination && (
-        <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center justify-between mt-2">
           <div className="text-sm text-muted-foreground">
             Showing {(pagination.page - 1) * pagination.pageSize + 1} to{" "}
             {Math.min(pagination.page * pagination.pageSize, pagination.total)} of{" "}

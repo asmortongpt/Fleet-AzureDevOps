@@ -250,7 +250,7 @@ export function GPSTracking({
           borderRadius: 16,
           background: 'rgba(255,255,255,0.03)'
         }}>
-          <Circle className="w-8 h-8 mx-auto mb-4 animate-spin" />
+          <Circle className="w-4 h-4 mx-auto mb-2 animate-spin" />
           <p style={{ color: 'var(--muted, #94a3b8)' }}>Loading GPS data...</p>
         </div>
       </div>
@@ -728,7 +728,7 @@ export function GPSTracking({
                   height: '100%'
                 }}>
                   <div style={{ textAlign: 'center', color: 'var(--muted, #94a3b8)' }}>
-                    <MapPin className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <MapPin className="w-12 h-9 mx-auto mb-2 opacity-50" />
                     <p>No vehicles with GPS data available</p>
                   </div>
                 </div>

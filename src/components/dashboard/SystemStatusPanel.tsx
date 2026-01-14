@@ -82,7 +82,7 @@ export function SystemStatusPanel({
 
   return (
     <Card className="shadow-sm border-border/50">
-      <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30">
+      <CardHeader className="px-2 py-3 border-b border-border/50 bg-muted/30">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
             <ChartLine className="w-4 h-4 text-primary" />
@@ -93,29 +93,29 @@ export function SystemStatusPanel({
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="px-4 pb-4 pt-3">
+      <CardContent className="px-2 pb-2 pt-3">
         {/* Overall Metrics */}
-        <div className="grid grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-4 gap-3 mb-2">
           <div className="text-center">
-            <div className="text-lg font-bold text-primary">
+            <div className="text-sm font-bold text-primary">
               {healthMetrics.emulatorsActive}/{healthMetrics.emulatorsTotal}
             </div>
             <div className="text-[10px] text-muted-foreground">Emulators</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-primary">
+            <div className="text-sm font-bold text-primary">
               {healthMetrics.aiServicesHealthy}/{healthMetrics.aiServicesTotal}
             </div>
             <div className="text-[10px] text-muted-foreground">AI Services</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-primary">
+            <div className="text-sm font-bold text-primary">
               {healthMetrics.totalDataFlow.toFixed(1)}
             </div>
             <div className="text-[10px] text-muted-foreground">Events/sec</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-primary">
+            <div className="text-sm font-bold text-primary">
               {Math.floor(healthMetrics.uptime / 60)}m
             </div>
             <div className="text-[10px] text-muted-foreground">Uptime</div>

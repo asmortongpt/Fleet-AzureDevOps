@@ -207,15 +207,15 @@ export default function ReportsHub() {
   const renderGallery = () => (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white px-8 py-12">
+      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white px-3 py-12">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold mb-3">Reports Hub</h1>
-          <p className="text-lg opacity-90 mb-6">
+          <h1 className="text-sm font-bold mb-3">Reports Hub</h1>
+          <p className="text-sm opacity-90 mb-3">
             {viewTab === 'core' ? reportLibrary.count : customReports.length} {viewTab === 'core' ? 'universal' : 'custom'} reports across {Object.keys(DOMAIN_METADATA).length} domains
           </p>
 
           {/* Tab Navigation */}
-          <div className="flex gap-2 mb-6 items-center">
+          <div className="flex gap-2 mb-3 items-center">
             <Button
               variant={viewTab === 'core' ? 'default' : 'outline'}
               onClick={() => setViewTab('core')}
@@ -244,7 +244,7 @@ export default function ReportsHub() {
           </div>
 
           {/* Search and filter bar */}
-          <div className="flex gap-4 mb-4">
+          <div className="flex gap-2 mb-2">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <Input
@@ -274,8 +274,8 @@ export default function ReportsHub() {
 
           {/* Filter panel */}
           {showFilters && (
-            <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 text-gray-900">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-white/90 backdrop-blur-sm rounded-lg p-2 text-gray-900">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <div>
                   <label className="block text-sm font-medium mb-2">Domain</label>
                   <select
@@ -341,48 +341,48 @@ export default function ReportsHub() {
       </div>
 
       {/* Report statistics */}
-      <div className="bg-gray-50 border-b border-gray-200 px-8 py-4">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg p-4 shadow-sm">
+      <div className="bg-gray-50 border-b border-gray-200 px-3 py-2">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-2">
+          <div className="bg-white rounded-lg p-2 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-indigo-100 rounded-lg">
                 <Star className="h-5 w-5 text-indigo-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-900">{filteredReports.length}</div>
+                <div className="text-sm font-bold text-gray-900">{filteredReports.length}</div>
                 <div className="text-sm text-slate-700">Available Reports</div>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg p-4 shadow-sm">
+          <div className="bg-white rounded-lg p-2 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-purple-100 rounded-lg">
                 <Clock className="h-5 w-5 text-purple-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-900">0</div>
+                <div className="text-sm font-bold text-gray-900">0</div>
                 <div className="text-sm text-slate-700">Recently Viewed</div>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg p-4 shadow-sm">
+          <div className="bg-white rounded-lg p-2 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 rounded-lg">
                 <TrendingUp className="h-5 w-5 text-green-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-900">0</div>
+                <div className="text-sm font-bold text-gray-900">0</div>
                 <div className="text-sm text-slate-700">Custom Reports</div>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg p-4 shadow-sm">
+          <div className="bg-white rounded-lg p-2 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-orange-100 rounded-lg">
                 <Download className="h-5 w-5 text-orange-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-900">0</div>
+                <div className="text-sm font-bold text-gray-900">0</div>
                 <div className="text-sm text-slate-700">Exports Today</div>
               </div>
             </div>
@@ -391,25 +391,25 @@ export default function ReportsHub() {
       </div>
 
       {/* Reports grid by domain */}
-      <div className="flex-1 overflow-y-auto px-8 py-6 bg-gray-50">
-        <div className="max-w-7xl mx-auto space-y-8">
+      <div className="flex-1 overflow-y-auto px-3 py-3 bg-gray-50">
+        <div className="max-w-7xl mx-auto space-y-2">
           {Object.entries(reportsByDomain).map(([domain, reports]) => {
             const meta = DOMAIN_METADATA[domain];
             if (!meta) return null;
 
             return (
-              <div key={domain} className="space-y-4">
+              <div key={domain} className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <div className={`px-4 py-2 bg-gradient-to-r ${meta.color} text-white rounded-lg shadow-md`}>
-                    <span className="text-2xl mr-2">{meta.icon}</span>
-                    <span className="font-bold text-lg">{meta.label}</span>
+                  <div className={`px-2 py-2 bg-gradient-to-r ${meta.color} text-white rounded-lg shadow-md`}>
+                    <span className="text-sm mr-2">{meta.icon}</span>
+                    <span className="font-bold text-sm">{meta.label}</span>
                   </div>
                   <p className="text-sm text-slate-700">{meta.description}</p>
                   <span className="ml-auto text-sm font-medium text-gray-500">
                     {reports.length} {reports.length === 1 ? 'report' : 'reports'}
                   </span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                   {reports.map((report) => (
                     <ReportCard
                       key={report.id}
@@ -425,8 +425,8 @@ export default function ReportsHub() {
 
           {filteredReports.length === 0 && (
             <div className="text-center py-12">
-              <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No reports found</h3>
+              <Search className="h-9 w-12 text-gray-400 mx-auto mb-2" />
+              <h3 className="text-sm font-medium text-gray-900 mb-2">No reports found</h3>
               <p className="text-slate-700">
                 Try adjusting your search or filters
               </p>

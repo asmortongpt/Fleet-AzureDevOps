@@ -68,10 +68,10 @@ export function FleetMapDemo() {
   );
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
+          <h1 className="text-base font-bold flex items-center gap-2">
             <MapPin className="h-8 w-8" />
             Fleet Map Demo
           </h1>
@@ -86,13 +86,13 @@ export function FleetMapDemo() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-5">
+      <div className="grid gap-2 md:grid-cols-5">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">Total Vehicles</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{vehicles.length}</div>
+            <div className="text-sm font-bold">{vehicles.length}</div>
           </CardContent>
         </Card>
 
@@ -102,7 +102,7 @@ export function FleetMapDemo() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <div className="text-2xl font-bold">{vehiclesByStatus.active || 0}</div>
+              <div className="text-sm font-bold">{vehiclesByStatus.active || 0}</div>
               <Badge className="bg-green-100 text-green-800">Available</Badge>
             </div>
           </CardContent>
@@ -114,7 +114,7 @@ export function FleetMapDemo() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <div className="text-2xl font-bold">{vehiclesByStatus.in_use || 0}</div>
+              <div className="text-sm font-bold">{vehiclesByStatus.in_use || 0}</div>
               <Badge className="bg-blue-100 text-blue-800">Deployed</Badge>
             </div>
           </CardContent>
@@ -126,7 +126,7 @@ export function FleetMapDemo() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <div className="text-2xl font-bold">{vehiclesByStatus.maintenance || 0}</div>
+              <div className="text-sm font-bold">{vehiclesByStatus.maintenance || 0}</div>
               <Badge className="bg-yellow-100 text-yellow-800">Service</Badge>
             </div>
           </CardContent>
@@ -138,7 +138,7 @@ export function FleetMapDemo() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <div className="text-2xl font-bold">{vehiclesByStatus.out_of_service || 0}</div>
+              <div className="text-sm font-bold">{vehiclesByStatus.out_of_service || 0}</div>
               <Badge className="bg-red-100 text-red-800">Offline</Badge>
             </div>
           </CardContent>
@@ -162,7 +162,7 @@ export function FleetMapDemo() {
                 className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  <div className="w-10 h-8 rounded-full bg-blue-100 flex items-center justify-center">
                     <MapPin className="h-5 w-5 text-blue-800" />
                   </div>
                   <div>

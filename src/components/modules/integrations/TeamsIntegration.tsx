@@ -89,12 +89,12 @@ export function TeamsIntegration() {
   }
 
   return (
-    <div className="h-[calc(100vh-12rem)] flex gap-6">
-      <div className="w-64 space-y-4">
+    <div className="h-[calc(100vh-12rem)] flex gap-2">
+      <div className="w-64 space-y-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ChatsCircle className="w-5 h-5" />
+              <ChatsCircle className="w-3 h-3" />
               Channels
             </CardTitle>
           </CardHeader>
@@ -149,7 +149,7 @@ export function TeamsIntegration() {
                     Send a message to the selected channel
                   </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
+                <div className="space-y-2 py-2">
                   <div className="space-y-2">
                     <Label htmlFor="message-subject">Subject</Label>
                     <Input
@@ -212,26 +212,26 @@ export function TeamsIntegration() {
           <CardDescription>Team collaboration and notifications</CardDescription>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col p-0">
-          <ScrollArea className="flex-1 px-6">
+          <ScrollArea className="flex-1 px-3">
             {channelMessages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                <div className="p-4 bg-muted rounded-full mb-4">
-                  <ChatsCircle className="w-12 h-12 text-muted-foreground" />
+              <div className="flex flex-col items-center justify-center h-full text-center p-3">
+                <div className="p-2 bg-muted rounded-full mb-2">
+                  <ChatsCircle className="w-12 h-9 text-muted-foreground" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">No messages yet</h3>
+                <h3 className="text-sm font-semibold mb-2">No messages yet</h3>
                 <p className="text-muted-foreground max-w-md">
                   Start the conversation by posting your first message to this channel.
                 </p>
-                <Button className="mt-4" onClick={() => setIsComposeOpen(true)}>
+                <Button className="mt-2" onClick={() => setIsComposeOpen(true)}>
                   Post Message
                 </Button>
               </div>
             ) : (
-              <div className="space-y-4 py-4">
+              <div className="space-y-2 py-2">
                 {channelMessages.map(message => (
                   <div key={message.id} className="space-y-2">
                     <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
+                      <div className="w-4 h-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
                         {message.author?.charAt(0) ?? "?"}
                       </div>
                       <div className="flex-1">

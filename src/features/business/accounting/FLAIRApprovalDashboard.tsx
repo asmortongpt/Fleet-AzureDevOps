@@ -83,11 +83,11 @@ const ExpenseEntryCard: React.FC<{
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+    <div className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-start justify-between mb-2">
         <div className="flex items-center space-x-3">
-          <span className="text-2xl">{getExpenseTypeIcon()}</span>
+          <span className="text-sm">{getExpenseTypeIcon()}</span>
           <div>
             <h3 className="font-semibold text-gray-900">
               {entry.expenseType.replace('_', ' ').toUpperCase()}
@@ -98,13 +98,13 @@ const ExpenseEntryCard: React.FC<{
           </div>
         </div>
         <div className="text-right">
-          <div className="text-lg font-bold text-green-600">${entry.amount.toFixed(2)}</div>
+          <div className="text-sm font-bold text-green-600">${entry.amount.toFixed(2)}</div>
           {getStatusBadge()}
         </div>
       </div>
 
       {/* Details */}
-      <div className="space-y-2 mb-4">
+      <div className="space-y-2 mb-2">
         <div className="text-sm">
           <span className="font-medium text-gray-700">Date:</span>{' '}
           {new Date(entry.transactionDate).toLocaleDateString()}
@@ -126,7 +126,7 @@ const ExpenseEntryCard: React.FC<{
 
       {/* Approval history */}
       {entry.approvalHistory.length > 0 && (
-        <div className="bg-gray-50 rounded-lg p-3 mb-4">
+        <div className="bg-gray-50 rounded-lg p-3 mb-2">
           <h4 className="text-sm font-medium text-gray-900 mb-2">Approval History</h4>
           <div className="space-y-1">
             {entry.approvalHistory.map((approval, index) => (
@@ -141,7 +141,7 @@ const ExpenseEntryCard: React.FC<{
       )}
 
       {/* Actions */}
-      <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+      <div className="flex items-center justify-between pt-2 border-t border-gray-200">
         <button
           onClick={() => onViewDetails(entry.id)}
           className="text-blue-800 hover:text-blue-800 text-sm transition-colors"
@@ -175,7 +175,7 @@ const ExpenseEntryCard: React.FC<{
 
       {/* Approval form */}
       {showApprovalForm && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="mt-2 pt-2 border-t border-gray-200">
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -220,10 +220,10 @@ const FilterPanel: React.FC<{
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-4">
+    <div className="bg-white border border-gray-200 rounded-lg p-2 space-y-2">
       <h3 className="font-semibold text-gray-900">Filters</h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
           <select
@@ -309,21 +309,21 @@ const SummaryStats: React.FC<{
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <div className="text-2xl font-bold text-blue-800">{stats.total}</div>
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-3">
+      <div className="bg-white border border-gray-200 rounded-lg p-2">
+        <div className="text-sm font-bold text-blue-800">{stats.total}</div>
         <div className="text-sm text-slate-700">Total Entries</div>
       </div>
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
+      <div className="bg-white border border-gray-200 rounded-lg p-2">
+        <div className="text-sm font-bold text-yellow-600">{stats.pending}</div>
         <div className="text-sm text-slate-700">Pending Approval</div>
       </div>
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <div className="text-2xl font-bold text-green-600">{stats.approved}</div>
+      <div className="bg-white border border-gray-200 rounded-lg p-2">
+        <div className="text-sm font-bold text-green-600">{stats.approved}</div>
         <div className="text-sm text-slate-700">Approved</div>
       </div>
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <div className="text-2xl font-bold text-purple-600">${stats.totalAmount.toFixed(2)}</div>
+      <div className="bg-white border border-gray-200 rounded-lg p-2">
+        <div className="text-sm font-bold text-purple-600">${stats.totalAmount.toFixed(2)}</div>
         <div className="text-sm text-slate-700">Total Amount</div>
       </div>
     </div>
@@ -541,11 +541,11 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
   }
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`space-y-2 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">FLAIR Approval Dashboard</h2>
+          <h2 className="text-sm font-bold text-gray-900">FLAIR Approval Dashboard</h2>
           <p className="text-slate-700">Review and approve expense submissions</p>
         </div>
         <div className="text-sm text-gray-500">
@@ -560,11 +560,11 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
       <FilterPanel filters={filters} onFiltersChange={setFilters} />
 
       {/* Entries list */}
-      <div className="space-y-4">
+      <div className="space-y-2">
         {filteredEntries.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-4xl mb-4">📭</div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Expense Entries Found</h3>
+            <div className="text-sm mb-2">📭</div>
+            <h3 className="text-sm font-semibold text-gray-900 mb-2">No Expense Entries Found</h3>
             <p className="text-slate-700">
               Try adjusting your filters or check back later for new submissions.
             </p>

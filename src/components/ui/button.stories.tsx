@@ -159,7 +159,7 @@ export const Loading: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div className="flex flex-wrap gap-4">
+    <div className="flex flex-wrap gap-2">
       <Button variant="default">Default</Button>
       <Button variant="destructive">Destructive</Button>
       <Button variant="outline">Outline</Button>
@@ -179,7 +179,7 @@ export const AllVariants: Story = {
 
 export const AllSizes: Story = {
   render: () => (
-    <div className="flex flex-wrap items-end gap-4">
+    <div className="flex flex-wrap items-end gap-2">
       <Button size="sm">Small</Button>
       <Button size="default">Default</Button>
       <Button size="lg">Large</Button>
@@ -200,7 +200,7 @@ export const AllSizes: Story = {
 
 export const FleetActions: Story = {
   render: () => (
-    <div className="flex flex-wrap gap-4">
+    <div className="flex flex-wrap gap-2">
       <Button>
         <Plus className="mr-2 h-4 w-4" />
         Add Vehicle
@@ -238,7 +238,7 @@ export const FleetActions: Story = {
 
 export const AccessibilityExample: Story = {
   render: () => (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <Button aria-label="Add new vehicle to fleet">
         <Plus className="h-4 w-4" />
       </Button>

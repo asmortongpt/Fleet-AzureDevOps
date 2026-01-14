@@ -92,7 +92,7 @@ function MetricTooltip({
       <TooltipTrigger asChild>
         {children}
       </TooltipTrigger>
-      <TooltipContent side="top" className="p-0 max-w-sm bg-popover border-border/50 shadow-lg">
+      <TooltipContent side="top" className="p-0 max-w-sm bg-popover border-border/50 shadow-sm">
         <div className="p-3 space-y-2">
           <div>
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">

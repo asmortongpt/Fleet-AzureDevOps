@@ -217,7 +217,7 @@ const Asset3DViewer = lazy(() => import('@/components/garage/Asset3DViewer'));
 const Viewer3DFallback: React.FC = () => (
   <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-900 to-slate-800">
     <div className="text-center text-white">
-      <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-3" />
+      <div className="w-12 h-9 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-3" />
       <p className="text-sm">Loading 3D viewer...</p>
     </div>
   </div>
@@ -254,7 +254,7 @@ class ViewerErrorBoundary extends React.Component<
       return (
         <div className="flex items-center justify-center h-full bg-slate-900 text-red-400">
           <div className="text-center">
-            <Warning className="w-12 h-12 mx-auto mb-3" />
+            <Warning className="w-12 h-9 mx-auto mb-3" />
             <p>Failed to load 3D viewer</p>
           </div>
         </div>
@@ -319,8 +319,8 @@ const AssetDisplay: React.FC<AssetDisplayProps> = ({ asset }) => {
     return (
       <div className="flex items-center justify-center h-full bg-slate-900 text-slate-400">
         <div className="text-center">
-          <Car className="w-16 h-16 mx-auto mb-4 opacity-50" />
-          <p className="text-lg font-medium">Select a vehicle to view</p>
+          <Car className="w-16 h-16 mx-auto mb-2 opacity-50" />
+          <p className="text-sm font-medium">Select a vehicle to view</p>
           <p className="text-sm mt-2">Choose from the vehicle list on the left</p>
         </div>
       </div>
@@ -330,14 +330,14 @@ const AssetDisplay: React.FC<AssetDisplayProps> = ({ asset }) => {
   return (
     <div className="h-full flex flex-col bg-slate-950">
       {/* Top Bar with Vehicle Info and Controls */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-900/50">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between p-2 border-b border-slate-800 bg-slate-900/50">
+        <div className="flex items-center gap-2">
           <div
             className="w-4 h-4 rounded-full border-2 border-white/50"
             style={{ backgroundColor: asset.color || '#3B82F6' }}
           />
           <div>
-            <h2 className="text-lg font-bold text-white">
+            <h2 className="text-sm font-bold text-white">
               {asset.asset_name || `${asset.year} ${asset.make} ${asset.model}`}
             </h2>
             <div className="flex items-center gap-2 mt-0.5">
@@ -385,13 +385,13 @@ const AssetDisplay: React.FC<AssetDisplayProps> = ({ asset }) => {
 
               {/* Assigned Driver */}
               {assignedDriver && (
-                <div className="mt-4 p-3 rounded-lg bg-slate-800/50 border border-slate-700">
+                <div className="mt-2 p-3 rounded-lg bg-slate-800/50 border border-slate-700">
                   <h4 className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
                     <User className="w-3 h-3" />
                     Assigned Driver
                   </h4>
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
+                    <div className="w-10 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
                       {assignedDriver.name.split(' ').map(n => n[0]).join('')}
                     </div>
                     <div>
@@ -442,14 +442,14 @@ const AssetDisplay: React.FC<AssetDisplayProps> = ({ asset }) => {
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-4 text-slate-500">
-                    <Wrench className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <div className="text-center py-2 text-slate-500">
+                    <Wrench className="w-4 h-4 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">No upcoming maintenance</p>
                   </div>
                 )}
 
                 {/* Recent Service History */}
-                <h4 className="text-xs font-medium text-slate-400 uppercase tracking-wider flex items-center gap-2 mt-4">
+                <h4 className="text-xs font-medium text-slate-400 uppercase tracking-wider flex items-center gap-2 mt-2">
                   <Clock className="w-3 h-3" />
                   Recent Service
                 </h4>
@@ -507,8 +507,8 @@ const AssetDisplay: React.FC<AssetDisplayProps> = ({ asset }) => {
 
         {/* Right Panel - Damage Details (shown when damage selected) */}
         {selectedDamageId && (
-          <div className="w-72 border-l border-slate-800 bg-slate-900/30 p-4">
-            <div className="flex items-center justify-between mb-4">
+          <div className="w-72 border-l border-slate-800 bg-slate-900/30 p-2">
+            <div className="flex items-center justify-between mb-2">
               <h3 className="font-semibold text-white">Damage Details</h3>
               <Button
                 variant="ghost"
@@ -522,7 +522,7 @@ const AssetDisplay: React.FC<AssetDisplayProps> = ({ asset }) => {
               const damage = damagePoints.find(d => d.id === selectedDamageId);
               if (!damage) return null;
               return (
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <div>
                     <p className="text-xs text-slate-400 uppercase">Zone</p>
                     <p className="text-white font-medium">{damage.zone}</p>
@@ -542,7 +542,7 @@ const AssetDisplay: React.FC<AssetDisplayProps> = ({ asset }) => {
                   </div>
                   <div>
                     <p className="text-xs text-slate-400 uppercase">Estimated Cost</p>
-                    <p className="text-green-400 font-bold text-xl">${damage.estimatedCost.toLocaleString()}</p>
+                    <p className="text-green-400 font-bold text-base">${damage.estimatedCost.toLocaleString()}</p>
                   </div>
                   <Button className="w-full" variant="outline">
                     Create Work Order
@@ -826,7 +826,7 @@ export function VirtualGarage() {
         </div>
       ) : error ? (
         <div style={{ padding: 40, textAlign: 'center', color: '#ef4444' }}>
-          <Warning className="w-12 h-12" style={{ margin: '0 auto 12px' }} />
+          <Warning className="w-12 h-9" style={{ margin: '0 auto 12px' }} />
           <p style={{ marginBottom: 12 }}>Failed to load vehicles</p>
           <Button variant="outline" size="sm" onClick={() => refetch()}>
             Retry
@@ -960,7 +960,7 @@ export function VirtualGarage() {
               {filteredAssets.length === 0 && (
                 <tr>
                   <td colSpan={7} style={{ padding: 40, textAlign: 'center', color: 'var(--muted, #94a3b8)' }}>
-                    <Car className="w-12 h-12" style={{ margin: '0 auto 12px', opacity: 0.5 }} />
+                    <Car className="w-12 h-9" style={{ margin: '0 auto 12px', opacity: 0.5 }} />
                     <p>No vehicles found</p>
                   </td>
                 </tr>

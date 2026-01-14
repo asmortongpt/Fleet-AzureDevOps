@@ -98,13 +98,13 @@ export function DriverControlPanel({
                     animate={{ x: 0, opacity: 1 }}
                     exit={{ x: -400, opacity: 0 }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    className="absolute left-4 top-20 bottom-8 w-[400px] bg-white/95 backdrop-blur-md border border-slate-200 shadow-2xl rounded-2xl overflow-hidden flex flex-col z-40"
+                    className="absolute left-4 top-20 bottom-8 w-[400px] bg-white/95 backdrop-blur-md border border-slate-200 shadow-sm rounded-lg overflow-hidden flex flex-col z-40"
                 >
                     {/* Header */}
-                    <div className="p-4 border-b border-slate-100 flex justify-between items-start bg-slate-50/50">
+                    <div className="p-2 border-b border-slate-100 flex justify-between items-start bg-slate-50/50">
                         <div>
-                            <h2 className="text-lg font-bold flex items-center gap-2 text-slate-800">
-                                <Users className="w-5 h-5 text-blue-800" />
+                            <h2 className="text-sm font-bold flex items-center gap-2 text-slate-800">
+                                <Users className="w-3 h-3 text-blue-800" />
                                 Driver Roster
                             </h2>
                             <p className="text-xs text-slate-500 mt-1">
@@ -121,7 +121,7 @@ export function DriverControlPanel({
                         <div className="bg-white p-2 rounded-lg border border-slate-100 shadow-sm flex items-center justify-between">
                             <div>
                                 <div className="text-[10px] text-slate-500 uppercase font-semibold">Avg Safety</div>
-                                <div className={`text-lg font-bold ${stats.avgScore >= 90 ? 'text-green-600' : stats.avgScore >= 75 ? 'text-amber-600' : 'text-red-600'}`}>
+                                <div className={`text-sm font-bold ${stats.avgScore >= 90 ? 'text-green-600' : stats.avgScore >= 75 ? 'text-amber-600' : 'text-red-600'}`}>
                                     {stats.avgScore}
                                 </div>
                             </div>
@@ -130,7 +130,7 @@ export function DriverControlPanel({
                         <div className="bg-white p-2 rounded-lg border border-slate-100 shadow-sm flex items-center justify-between">
                             <div>
                                 <div className="text-[10px] text-slate-500 uppercase font-semibold">Attention</div>
-                                <div className="text-lg font-bold text-slate-700">{stats.actionRequired}</div>
+                                <div className="text-sm font-bold text-slate-700">{stats.actionRequired}</div>
                             </div>
                             <AlertTriangle className="w-4 h-4 text-amber-500" />
                         </div>
@@ -159,7 +159,7 @@ export function DriverControlPanel({
                                     <DialogHeader>
                                         <DialogTitle>Add New Driver</DialogTitle>
                                     </DialogHeader>
-                                    <form onSubmit={handleCreateDriver} className="space-y-4 mt-2">
+                                    <form onSubmit={handleCreateDriver} className="space-y-2 mt-2">
                                         <div className="grid w-full gap-1.5">
                                             <Label htmlFor="name">Full Name</Label>
                                             <Input id="name" name="name" placeholder="John Doe" required />
@@ -168,7 +168,7 @@ export function DriverControlPanel({
                                             <Label htmlFor="email">Email</Label>
                                             <Input id="email" name="email" type="email" placeholder="john@example.com" required />
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-2 gap-2">
                                             <div className="grid gap-1.5">
                                                 <Label htmlFor="license">License #</Label>
                                                 <Input id="license" name="license" placeholder="DL-12345" required />
@@ -206,11 +206,11 @@ export function DriverControlPanel({
                                 <div
                                     key={driver.id}
                                     onClick={() => onDriverSelect(driver)}
-                                    className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 cursor-pointer transition-all"
+                                    className="group flex items-center justify-between p-3 rounded-md hover:bg-slate-50 border border-transparent hover:border-slate-200 cursor-pointer transition-all"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="relative">
-                                            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-semibold text-sm border-2 border-white shadow-sm">
+                                            <div className="w-10 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-semibold text-sm border-2 border-white shadow-sm">
                                                 {driver.name.charAt(0)}
                                             </div>
                                             <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white ${driver.status === 'active' ? 'bg-green-500' :

@@ -167,19 +167,19 @@ export function MapErrorRecoveryExample() {
   // --------------------------------------------------------------------------
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-3 space-y-2">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold mb-2">Map Error Recovery System</h1>
+        <h1 className="text-base font-bold mb-2">Map Error Recovery System</h1>
         <p className="text-slate-700 dark:text-gray-400">
           Comprehensive demonstration of advanced error recovery, retry logic, and health monitoring
         </p>
       </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
         {/* Map Section (2/3 width) */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-2">
           {/* Info Alert */}
           <Alert>
             <AlertTitle>Interactive Demo</AlertTitle>
@@ -217,11 +217,11 @@ export function MapErrorRecoveryExample() {
         </div>
 
         {/* Control Panel (1/3 width) */}
-        <div className="space-y-4">
+        <div className="space-y-2">
           {/* Provider Selection */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Map Provider</CardTitle>
+              <CardTitle className="text-sm">Map Provider</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <Button
@@ -244,7 +244,7 @@ export function MapErrorRecoveryExample() {
           {/* Error Simulation */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Error Simulation</CardTitle>
+              <CardTitle className="text-sm">Error Simulation</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <Button
@@ -294,7 +294,7 @@ export function MapErrorRecoveryExample() {
           {/* Health Dashboard Toggle */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Monitoring</CardTitle>
+              <CardTitle className="text-sm">Monitoring</CardTitle>
             </CardHeader>
             <CardContent>
               <Button
@@ -311,7 +311,7 @@ export function MapErrorRecoveryExample() {
           <Card className="max-h-[300px] overflow-hidden">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Event Log</CardTitle>
+                <CardTitle className="text-sm">Event Log</CardTitle>
                 <Button variant="ghost" size="sm" onClick={() => setEventLog([])}>
                   Clear
                 </Button>

@@ -456,38 +456,38 @@ export function InspectionsMatrixView() {
   const passRate = totalInspections > 0 ? Math.round((passedCount / totalInspections) * 100) : 0
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-white">{totalInspections}</div>
+          <CardContent className="p-2 text-center">
+            <div className="text-sm font-bold text-white">{totalInspections}</div>
             <div className="text-xs text-slate-400">Total Inspections</div>
           </CardContent>
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
-          <CardContent className="p-4 text-center">
+          <CardContent className="p-2 text-center">
             <div className="flex items-center justify-center gap-1">
-              <CheckCircle className="w-5 h-5 text-green-400" />
-              <div className="text-2xl font-bold text-green-400">{passedCount}</div>
+              <CheckCircle className="w-3 h-3 text-green-400" />
+              <div className="text-sm font-bold text-green-400">{passedCount}</div>
             </div>
             <div className="text-xs text-slate-400">Passed ({passRate}%)</div>
           </CardContent>
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
-          <CardContent className="p-4 text-center">
+          <CardContent className="p-2 text-center">
             <div className="flex items-center justify-center gap-1">
-              <XCircle className="w-5 h-5 text-red-400" />
-              <div className="text-2xl font-bold text-red-400">{failedCount}</div>
+              <XCircle className="w-3 h-3 text-red-400" />
+              <div className="text-sm font-bold text-red-400">{failedCount}</div>
             </div>
             <div className="text-xs text-slate-400">Failed</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
-          <CardContent className="p-4 text-center">
+          <CardContent className="p-2 text-center">
             <div className="flex items-center justify-center gap-1">
-              <AlertTriangle className="w-5 h-5 text-amber-400" />
-              <div className="text-2xl font-bold text-amber-400">{violationsCount}</div>
+              <AlertTriangle className="w-3 h-3 text-amber-400" />
+              <div className="text-sm font-bold text-amber-400">{violationsCount}</div>
             </div>
             <div className="text-xs text-slate-400">Total Violations</div>
           </CardContent>
@@ -496,7 +496,7 @@ export function InspectionsMatrixView() {
 
       {/* Filter and Export Controls */}
       <Card className="bg-slate-800/50 border-slate-700">
-        <CardContent className="p-4">
+        <CardContent className="p-2">
           <div className="flex items-center gap-3">
             <div className="flex-1">
               <Input
@@ -541,8 +541,8 @@ export function InspectionsMatrixView() {
       {/* Excel-Style Inspection Matrix */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
-          <CardTitle className="text-white text-lg flex items-center gap-2">
-            <ClipboardCheck className="w-5 h-5 text-blue-400" />
+          <CardTitle className="text-white text-sm flex items-center gap-2">
+            <ClipboardCheck className="w-3 h-3 text-blue-400" />
             All Safety Inspections - Excel View ({filteredData.length} records)
           </CardTitle>
         </CardHeader>
@@ -641,11 +641,11 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {inspection && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <h3 className="text-2xl font-bold">Inspection #{inspection.inspection_number}</h3>
+              <h3 className="text-sm font-bold">Inspection #{inspection.inspection_number}</h3>
               <p className="text-sm text-muted-foreground">
                 {new Date(inspection.date).toLocaleDateString()}{' '}
                 {inspection.time && `at ${inspection.time}`}
@@ -664,11 +664,11 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                 )}
               </div>
             </div>
-            <ClipboardCheck className="h-12 w-12 text-blue-400" />
+            <ClipboardCheck className="h-9 w-12 text-blue-400" />
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -677,7 +677,7 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{inspection.violations}</div>
+                <div className="text-sm font-bold">{inspection.violations}</div>
                 {inspection.critical_items > 0 && (
                   <p className="text-xs text-destructive mt-1">
                     {inspection.critical_items} critical
@@ -754,7 +754,7 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
               <CardTitle>Inspection Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-sm text-muted-foreground">Vehicle</p>
                   <Button variant="link" className="p-0 h-auto font-medium" onClick={handleViewVehicle}>
@@ -802,7 +802,7 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                           : '#6b7280',
                     }}
                   >
-                    <CardContent className="p-4">
+                    <CardContent className="p-2">
                       <div className="space-y-2">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
@@ -832,7 +832,7 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                             <p className="text-sm text-muted-foreground">
                               {violation.corrective_action}
                             </p>
-                            <div className="flex items-center gap-4 mt-2 text-xs">
+                            <div className="flex items-center gap-2 mt-2 text-xs">
                               {violation.due_date && (
                                 <div className="flex items-center gap-1">
                                   <Calendar className="h-3 w-3" />

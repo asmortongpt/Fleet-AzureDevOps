@@ -128,7 +128,7 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
       return (
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-500 mx-auto mb-2"></div>
             <p className="text-gray-500">Loading document...</p>
           </div>
         </div>
@@ -139,9 +139,9 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
       return (
         <div className="flex items-center justify-center h-full">
           <div className="text-center text-red-500">
-            <File className="h-12 w-12 mx-auto mb-4" />
+            <File className="h-9 w-12 mx-auto mb-2" />
             <p>{error}</p>
-            <Button onClick={handleDownload} className="mt-4">
+            <Button onClick={handleDownload} className="mt-2">
               <Download className="h-4 w-4 mr-2" />
               Download Instead
             </Button>
@@ -160,7 +160,7 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
             onLoadError={onDocumentLoadError}
             loading={
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-500 mx-auto mb-2"></div>
                 <p className="text-gray-500">Loading PDF...</p>
               </div>
             }
@@ -171,13 +171,13 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
               rotate={rotation}
               renderTextLayer={true}
               renderAnnotationLayer={true}
-              className="shadow-lg"
+              className="shadow-sm"
             />
           </Document>
 
           {/* Page Navigation */}
           {numPages > 1 && (
-            <div className="flex items-center gap-4 mt-4">
+            <div className="flex items-center gap-2 mt-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -206,11 +206,11 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
     // Image Preview
     if (isImage) {
       return (
-        <div className="flex items-center justify-center h-full p-4">
+        <div className="flex items-center justify-center h-full p-2">
           <img
             src={downloadUrl}
             alt={document.title}
-            className="max-w-full max-h-full object-contain shadow-lg"
+            className="max-w-full max-h-full object-contain shadow-sm"
             style={{
               transform: `scale(${scale}) rotate(${rotation}deg)`,
               transition: 'transform 0.2s ease-in-out'
@@ -231,8 +231,8 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
     // Text Preview
     if (isText && document.content_text) {
       return (
-        <ScrollArea className="h-full w-full p-6">
-          <pre className="whitespace-pre-wrap font-mono text-sm text-gray-800 bg-gray-50 p-4 rounded-lg">
+        <ScrollArea className="h-full w-full p-3">
+          <pre className="whitespace-pre-wrap font-mono text-sm text-gray-800 bg-gray-50 p-2 rounded-lg">
             {document.content_text}
           </pre>
         </ScrollArea>
@@ -243,9 +243,9 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
-          <File className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+          <File className="h-16 w-16 mx-auto mb-2 text-gray-400" />
           <p className="text-slate-700 mb-2">Preview not available for this file type</p>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-gray-500 mb-2">
             {document.file_type || 'Unknown file type'}
           </p>
           <Button onClick={handleDownload}>
@@ -281,12 +281,12 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
             : "max-w-6xl h-[90vh]"
         )}
       >
-        <DialogHeader className="border-b pb-4">
+        <DialogHeader className="border-b pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {getFileIcon()}
               <div>
-                <DialogTitle className="text-lg">{document.title}</DialogTitle>
+                <DialogTitle className="text-sm">{document.title}</DialogTitle>
                 <DialogDescription className="text-sm">
                   {document.file_name} • {formatFileSize(document.file_size)}
                 </DialogDescription>

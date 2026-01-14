@@ -151,7 +151,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
     if (!showDetails || !error) return null
 
     return (
-      <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+      <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
         <div className="space-y-2">
           <div>
             <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300">
@@ -216,7 +216,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
     if (level === 'page') {
       // Full page error
       return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-950">
+        <div className="min-h-screen flex items-center justify-center p-2 bg-gray-50 dark:bg-gray-950">
           <Card className="max-w-lg w-full">
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -230,7 +230,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
             </CardHeader>
 
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {errorCount > 1 && (
                   <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                     <p className="text-sm text-yellow-800 dark:text-yellow-200">
@@ -279,7 +279,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
     } else if (level === 'section') {
       // Section error
       return (
-        <Card className="m-4">
+        <Card className="m-2">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-yellow-500" />
@@ -315,7 +315,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
     } else {
       // Component error (minimal UI)
       return (
-        <div className="p-4 border border-red-200 dark:border-red-800 rounded-lg bg-red-50 dark:bg-red-900/20">
+        <div className="p-2 border border-red-200 dark:border-red-800 rounded-lg bg-red-50 dark:bg-red-900/20">
           <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
             <AlertTriangle className="h-4 w-4" />
             <span className="text-sm font-medium">Component Error</span>

@@ -70,7 +70,7 @@ export function MetricCard({
       </CardHeader>
       <CardContent>
         <div className={cn(
-          'text-2xl font-bold',
+          'text-sm font-bold',
           isPrimary && 'text-primary'
         )}>
           {formattedValue}
@@ -151,7 +151,7 @@ export function MetricCardWithProgress({
       </CardHeader>
       <CardContent>
         <div className={cn(
-          'text-2xl font-bold',
+          'text-sm font-bold',
           isPrimary && 'text-primary',
           isCritical && 'text-destructive',
           isWarning && 'text-yellow-600'

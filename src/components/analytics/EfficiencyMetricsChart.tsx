@@ -78,10 +78,10 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
         if (!active || !payload) return null
 
         return (
-            <div className="bg-slate-800/95 border border-slate-700 rounded-lg p-4 shadow-xl">
+            <div className="bg-slate-800/95 border border-slate-700 rounded-lg p-2 shadow-sm">
                 <p className="text-slate-300 font-medium mb-2">{label}</p>
                 {payload.map((entry: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between gap-4 text-sm">
+                    <div key={index} className="flex items-center justify-between gap-2 text-sm">
                         <span className="flex items-center gap-2">
                             <div
                                 className="w-3 h-3 rounded-full"
@@ -184,51 +184,51 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
     }
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-2">
             {/* Summary Stats */}
             {stats && type === 'trend' && (
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <div className="bg-slate-800/40 rounded-lg p-4">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                    <div className="bg-slate-800/40 rounded-lg p-2">
                         <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
                             <Gauge className="w-4 h-4" />
                             <span>Avg MPG</span>
                         </div>
-                        <p className="text-2xl font-bold text-white">
+                        <p className="text-sm font-bold text-white">
                             {stats.avgMPG}
                         </p>
                     </div>
-                    <div className="bg-slate-800/40 rounded-lg p-4">
+                    <div className="bg-slate-800/40 rounded-lg p-2">
                         <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
                             <Pulse className="w-4 h-4" />
                             <span>Utilization</span>
                         </div>
-                        <p className="text-2xl font-bold text-white">
+                        <p className="text-sm font-bold text-white">
                             {stats.avgUtilization}%
                         </p>
                     </div>
-                    <div className="bg-slate-800/40 rounded-lg p-4">
+                    <div className="bg-slate-800/40 rounded-lg p-2">
                         <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
                             <Clock className="w-4 h-4" />
                             <span>Idle Time</span>
                         </div>
-                        <p className="text-2xl font-bold text-white">
+                        <p className="text-sm font-bold text-white">
                             {stats.avgIdleTime}h
                         </p>
                     </div>
-                    <div className="bg-slate-800/40 rounded-lg p-4">
+                    <div className="bg-slate-800/40 rounded-lg p-2">
                         <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
                             <Lightning className="w-4 h-4" />
                             <span>Efficiency</span>
                         </div>
-                        <p className="text-2xl font-bold text-white">
+                        <p className="text-sm font-bold text-white">
                             {stats.avgEfficiencyScore}
                         </p>
                     </div>
-                    <div className="bg-slate-800/40 rounded-lg p-4">
+                    <div className="bg-slate-800/40 rounded-lg p-2">
                         <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
                             <span>Improvement</span>
                         </div>
-                        <p className={`text-2xl font-bold ${parseFloat(stats.improvement) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        <p className={`text-sm font-bold ${parseFloat(stats.improvement) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                             {parseFloat(stats.improvement) >= 0 ? '+' : ''}{stats.improvement}%
                         </p>
                     </div>
@@ -236,7 +236,7 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
             )}
 
             {/* Chart */}
-            <div className="bg-slate-800/40 rounded-lg p-6">
+            <div className="bg-slate-800/40 rounded-lg p-3">
                 <ResponsiveContainer width="100%" height={400}>
                     {type === 'trend' ? renderTrendChart() : renderRadarChart()}
                 </ResponsiveContainer>

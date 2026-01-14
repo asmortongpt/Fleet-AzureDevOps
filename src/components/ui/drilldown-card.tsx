@@ -123,7 +123,7 @@ export function DrilldownCard({
     <Card className={cn('relative', className)}>
       <CardHeader>
         {/* Breadcrumb Navigation */}
-        <div className="flex items-center justify-between gap-4 mb-2">
+        <div className="flex items-center justify-between gap-2 mb-2">
           <div className="flex items-center gap-2 flex-wrap">
             {levelHistory.length > 1 && (
               <SmartTooltip content="Go back to previous level">
@@ -193,9 +193,9 @@ export function DrilldownCard({
         </div>
 
         {/* Level Title */}
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
-            <CardTitle className="text-xl">{currentLevel.title}</CardTitle>
+            <CardTitle className="text-base">{currentLevel.title}</CardTitle>
             {currentLevel.description && (
               <CardDescription className="mt-1">
                 {currentLevel.description}
@@ -206,7 +206,7 @@ export function DrilldownCard({
 
         {/* Metadata */}
         {currentLevel.metadata && (
-          <div className="flex items-center gap-4 text-xs text-muted-foreground mt-2">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
             {currentLevel.metadata.total && (
               <span>{currentLevel.metadata.total}</span>
             )}
@@ -225,7 +225,7 @@ export function DrilldownCard({
 
         {/* Navigation Hints */}
         {currentIndex < levels.length - 1 && (
-          <div className="mt-4 p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
+          <div className="mt-2 p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
             <p className="flex items-center gap-2">
               <ExternalLink className="h-4 w-4" />
               Click on items above to drill down into {levels[currentIndex + 1]?.title.toLowerCase()}

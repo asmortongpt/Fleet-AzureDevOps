@@ -46,12 +46,12 @@ const IRS_RATE_2025 = 0.67 // Federal IRS rate per mile for 2025
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center h-64">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-primary"></div>
   </div>
 )
 
 const ErrorDisplay = ({ error, onRetry }: { error: string; onRetry: () => void }) => (
-  <Alert variant="destructive" className="m-4">
+  <Alert variant="destructive" className="m-2">
     <Warning className="h-4 w-4" />
     <AlertTitle>Error</AlertTitle>
     <AlertDescription className="flex items-center justify-between">
@@ -291,12 +291,12 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
   if (error && error instanceof Error && error.message !== 'Failed to fetch') return <ErrorDisplay error={error.message} onRetry={() => queryClient.invalidateQueries({ queryKey: ['personal-use-policies'] })} />
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <div className="container mx-auto p-2 space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Shield className="w-8 h-8" />
+          <h1 className="text-base font-bold flex items-center gap-2">
+            <Shield className="w-4 h-4" />
             Personal Use Policy Configuration
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -331,7 +331,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
         </Alert>
       )}
 
-      <Tabs defaultValue="basic" className="space-y-4">
+      <Tabs defaultValue="basic" className="space-y-2">
         <TabsList>
           <TabsTrigger value="basic">Basic Settings</TabsTrigger>
           <TabsTrigger value="limits">Usage Limits</TabsTrigger>
@@ -341,7 +341,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
         </TabsList>
 
         {/* Basic Settings Tab */}
-        <TabsContent value="basic" className="space-y-6">
+        <TabsContent value="basic" className="space-y-2">
           <Card>
             <CardHeader>
               <CardTitle>Personal Use Policy</CardTitle>
@@ -349,7 +349,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
                 Core settings for allowing and managing personal vehicle use
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-2">
               {/* Allow Personal Use */}
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
@@ -393,7 +393,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
 
               {/* Approval Workflow */}
               {formData.require_approval && (
-                <div className="space-y-3 pl-6 border-l-2">
+                <div className="space-y-3 pl-3 border-l-2">
                   <Label className="text-base">Approval Workflow</Label>
                   <RadioGroup
                     value={formData.approval_workflow}

@@ -15,13 +15,13 @@ interface FacilitiesSidebarProps {
 function getFacilityIcon(type: GISFacility["type"]) {
   switch (type) {
     case "office":
-      return <Buildings className="w-5 h-5" />
+      return <Buildings className="w-3 h-3" />
     case "depot":
-      return <CarProfile className="w-5 h-5" />
+      return <CarProfile className="w-3 h-3" />
     case "service-center":
-      return <Wrench className="w-5 h-5" />
+      return <Wrench className="w-3 h-3" />
     case "fueling-station":
-      return <GasPump className="w-5 h-5" />
+      return <GasPump className="w-3 h-3" />
   }
 }
 

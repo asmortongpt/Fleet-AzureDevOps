@@ -106,8 +106,8 @@ export function FilterBar({
     localFilters.shop !== 'All';
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div className="bg-white border border-gray-200 rounded-lg p-2 shadow-sm">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
         {/* Date Range */}
         <div>
           <label htmlFor="date-range" className="block text-sm font-medium text-gray-700 mb-1">
@@ -130,7 +130,7 @@ export function FilterBar({
               id="business-area"
               value={localFilters.businessArea}
               onChange={(e) => updateFilter('businessArea', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md appearance-none bg-white pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md appearance-none bg-white pr-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
               <option value="All">All</option>
               <option value="Fleet">Fleet</option>
@@ -151,7 +151,7 @@ export function FilterBar({
               value={localFilters.division}
               onChange={(e) => updateFilter('division', e.target.value)}
               disabled={localFilters.businessArea === 'All'}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md appearance-none bg-white pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md appearance-none bg-white pr-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
             >
               <option value="All">All Divisions</option>
               {availableDivisions.map((div) => (
@@ -175,7 +175,7 @@ export function FilterBar({
               value={localFilters.department}
               onChange={(e) => updateFilter('department', e.target.value)}
               disabled={localFilters.division === 'All'}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md appearance-none bg-white pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md appearance-none bg-white pr-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
             >
               <option value="All">All Departments</option>
               {availableDepartments.map((dept) => (
@@ -199,7 +199,7 @@ export function FilterBar({
               value={localFilters.shop}
               onChange={(e) => updateFilter('shop', e.target.value)}
               disabled={localFilters.department === 'All'}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md appearance-none bg-white pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md appearance-none bg-white pr-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
             >
               <option value="All">All Shops</option>
               {availableShops.map((shop) => (
@@ -214,7 +214,7 @@ export function FilterBar({
       </div>
 
       {/* Action buttons */}
-      <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+      <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200">
         <div className="text-sm text-slate-700">
           {hasActiveFilters && (
             <span className="flex items-center gap-2">

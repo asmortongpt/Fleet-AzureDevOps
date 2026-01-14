@@ -22,10 +22,10 @@ export function FileUpload({ onUpload, accept, maxSize }: FileUploadProps) {
   return (
     <div
       {...getRootProps()}
-      className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:border-primary"
+      className="border-2 border-dashed rounded-lg p-3 text-center cursor-pointer hover:border-primary"
     >
       <input {...getInputProps()} />
-      <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+      <Upload className="mx-auto h-9 w-12 text-muted-foreground mb-2" />
       {isDragActive ? (
         <p>Drop files here...</p>
       ) : (

@@ -304,7 +304,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
 
       default:
         return (
-          <div key={visual.id} className="p-4 bg-gray-100 rounded-lg">
+          <div key={visual.id} className="p-2 bg-gray-100 rounded-lg">
             <p className="text-sm text-slate-700">
               Unsupported visual type: {visual.type}
             </p>
@@ -318,7 +318,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-4 h-4 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-slate-700">Loading report...</p>
         </div>
       </div>
@@ -328,9 +328,9 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
   // Error state
   if (error || !reportDef) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8">
-        <div className="text-red-500 mb-4">Error loading report</div>
-        <p className="text-slate-700 mb-6">{error || 'Report not found'}</p>
+      <div className="flex flex-col items-center justify-center h-full p-3">
+        <div className="text-red-500 mb-2">Error loading report</div>
+        <p className="text-slate-700 mb-3">{error || 'Report not found'}</p>
         <Button onClick={onBack}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Reports
@@ -342,15 +342,15 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
   return (
     <div className="flex flex-col h-full bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="bg-white border-b border-gray-200 px-3 py-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <Button variant="ghost" onClick={onBack} size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{reportDef.title}</h1>
+              <h1 className="text-sm font-bold text-gray-900">{reportDef.title}</h1>
               <p className="text-sm text-slate-700">{reportDef.description}</p>
             </div>
           </div>
@@ -380,7 +380,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
       </div>
 
       {/* Filters */}
-      <div className="px-6 py-4 bg-white border-b border-gray-200">
+      <div className="px-3 py-2 bg-white border-b border-gray-200">
         <FilterBar
           filters={filters}
           onChange={setFilters}
@@ -393,7 +393,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
 
       {/* Drill-down breadcrumb */}
       {drilldownState.level > 0 && (
-        <div className="px-6 py-2 bg-indigo-50 border-b border-indigo-200">
+        <div className="px-3 py-2 bg-indigo-50 border-b border-indigo-200">
           <div className="flex items-center gap-2 text-sm">
             <Button variant="ghost" size="sm" onClick={handleDrillUp}>
               <ArrowLeft className="h-3 w-3 mr-1" />
@@ -407,8 +407,8 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
       )}
 
       {/* Report content */}
-      <div className="flex-1 overflow-y-auto px-6 py-6">
-        <div className="max-w-7xl mx-auto space-y-6">
+      <div className="flex-1 overflow-y-auto px-3 py-3">
+        <div className="max-w-7xl mx-auto space-y-2">
           {reportDef.visuals.map((visual) => renderVisual(visual))}
         </div>
       </div>

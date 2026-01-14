@@ -86,9 +86,9 @@ export function AnalyticsTab({
   }, [vehicles, fuelRecords, maintenanceRecords, timeRange])
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Fleet Analytics</h2>
+    <div className="space-y-2">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-base font-semibold">Fleet Analytics</h2>
         <Select value={timeRange} onValueChange={onTimeRangeChange}>
           <SelectTrigger className="w-32">
             <SelectValue />
@@ -102,7 +102,7 @@ export function AnalyticsTab({
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -110,7 +110,7 @@ export function AnalyticsTab({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">
+            <div className="text-base font-bold">
               {((analyticsMetrics.activeVehicles / analyticsMetrics.totalVehicles) * 100).toFixed(1)}%
             </div>
             <p className="text-sm text-muted-foreground mt-1">
@@ -126,7 +126,7 @@ export function AnalyticsTab({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">
+            <div className="text-base font-bold">
               {analyticsMetrics.avgMilesPerDay}
             </div>
             <p className="text-sm text-muted-foreground mt-1">
@@ -142,7 +142,7 @@ export function AnalyticsTab({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-lg font-bold truncate">
+            <div className="text-sm font-bold truncate">
               {analyticsMetrics.mostEfficient.vehicle}
             </div>
             <p className="text-sm text-muted-foreground mt-1">
@@ -152,16 +152,16 @@ export function AnalyticsTab({
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Cost Analysis (Last {timeRange} days)</CardTitle>
+            <CardTitle className="text-sm">Cost Analysis (Last {timeRange} days)</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-2">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Total Operating Cost</span>
-                <span className="font-semibold text-lg">${analyticsMetrics.totalCost}</span>
+                <span className="font-semibold text-sm">${analyticsMetrics.totalCost}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Cost per Vehicle</span>
@@ -169,7 +169,7 @@ export function AnalyticsTab({
               </div>
             </div>
 
-            <div className="pt-4 border-t">
+            <div className="pt-2 border-t">
               <h4 className="text-sm font-medium mb-3">Cost Breakdown</h4>
               <div className="space-y-3">
                 <div>
@@ -207,12 +207,12 @@ export function AnalyticsTab({
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Vehicle Utilization</CardTitle>
+            <CardTitle className="text-sm">Vehicle Utilization</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-64 flex items-center justify-center border-2 border-dashed border-muted rounded-lg">
               <div className="text-center text-muted-foreground">
-                <ChartLine className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <ChartLine className="w-12 h-9 mx-auto mb-2 opacity-50" />
                 <p>Chart visualization placeholder</p>
                 <p className="text-sm">Bar chart showing vehicle utilization by department</p>
               </div>
@@ -223,30 +223,30 @@ export function AnalyticsTab({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Top Performers</CardTitle>
+          <CardTitle className="text-sm">Top Performers</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="border-b bg-muted/50">
                 <tr>
-                  <th className="text-left p-4 font-medium">Category</th>
-                  <th className="text-left p-4 font-medium">Vehicle</th>
-                  <th className="text-left p-4 font-medium">Metric</th>
-                  <th className="text-left p-4 font-medium">Performance</th>
+                  <th className="text-left p-2 font-medium">Category</th>
+                  <th className="text-left p-2 font-medium">Vehicle</th>
+                  <th className="text-left p-2 font-medium">Metric</th>
+                  <th className="text-left p-2 font-medium">Performance</th>
                 </tr>
               </thead>
               <tbody>
                 <tr className="border-b hover:bg-muted/50 transition-colors">
-                  <td className="p-4 font-medium">Most Efficient</td>
-                  <td className="p-4">
+                  <td className="p-2 font-medium">Most Efficient</td>
+                  <td className="p-2">
                     <p className="font-medium">{vehicles[0]?.number || "N/A"}</p>
                     <p className="text-sm text-muted-foreground">
                       {vehicles[0] ? `${vehicles[0].year} ${vehicles[0].make} ${vehicles[0].model}` : ""}
                     </p>
                   </td>
-                  <td className="p-4">Fuel Economy</td>
-                  <td className="p-4">
+                  <td className="p-2">Fuel Economy</td>
+                  <td className="p-2">
                     <Badge variant="outline" className="bg-success/10 text-success border-success/20">
                       <TrendUp className="w-3 h-3 mr-1" />
                       28.5 MPG
@@ -254,15 +254,15 @@ export function AnalyticsTab({
                   </td>
                 </tr>
                 <tr className="border-b hover:bg-muted/50 transition-colors">
-                  <td className="p-4 font-medium">Most Reliable</td>
-                  <td className="p-4">
+                  <td className="p-2 font-medium">Most Reliable</td>
+                  <td className="p-2">
                     <p className="font-medium">{vehicles[2]?.number || "N/A"}</p>
                     <p className="text-sm text-muted-foreground">
                       {vehicles[2] ? `${vehicles[2].year} ${vehicles[2].make} ${vehicles[2].model}` : ""}
                     </p>
                   </td>
-                  <td className="p-4">Uptime</td>
-                  <td className="p-4">
+                  <td className="p-2">Uptime</td>
+                  <td className="p-2">
                     <Badge variant="outline" className="bg-success/10 text-success border-success/20">
                       <CheckCircle className="w-3 h-3 mr-1" />
                       99.2%
@@ -270,15 +270,15 @@ export function AnalyticsTab({
                   </td>
                 </tr>
                 <tr className="border-b hover:bg-muted/50 transition-colors">
-                  <td className="p-4 font-medium">Lowest Cost</td>
-                  <td className="p-4">
+                  <td className="p-2 font-medium">Lowest Cost</td>
+                  <td className="p-2">
                     <p className="font-medium">{vehicles[4]?.number || "N/A"}</p>
                     <p className="text-sm text-muted-foreground">
                       {vehicles[4] ? `${vehicles[4].year} ${vehicles[4].make} ${vehicles[4].model}` : ""}
                     </p>
                   </td>
-                  <td className="p-4">Operating Cost</td>
-                  <td className="p-4">
+                  <td className="p-2">Operating Cost</td>
+                  <td className="p-2">
                     <Badge variant="outline" className="bg-success/10 text-success border-success/20">
                       <TrendDown className="w-3 h-3 mr-1" />
                       $0.42/mi
@@ -293,12 +293,12 @@ export function AnalyticsTab({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Cost Trends</CardTitle>
+          <CardTitle className="text-sm">Cost Trends</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-64 flex items-center justify-center border-2 border-dashed border-muted rounded-lg">
             <div className="text-center text-muted-foreground">
-              <ChartLine className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <ChartLine className="w-12 h-9 mx-auto mb-2 opacity-50" />
               <p>Chart visualization placeholder</p>
               <p className="text-sm">Line chart showing cost trends over time</p>
             </div>

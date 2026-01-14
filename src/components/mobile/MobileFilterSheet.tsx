@@ -116,7 +116,7 @@ export function MobileFilterSheet({
         data-testid="mobile-filter-sheet"
       >
         {/* Header */}
-        <SheetHeader className="px-4 py-4 border-b">
+        <SheetHeader className="px-2 py-2 border-b">
           <div className="flex items-center justify-between">
             <SheetTitle className="flex items-center gap-2">
               <Filter className="h-5 w-5" />
@@ -143,8 +143,8 @@ export function MobileFilterSheet({
         </SheetHeader>
 
         {/* Filter Groups */}
-        <ScrollArea className="flex-1 px-4 py-4">
-          <div className="space-y-6">
+        <ScrollArea className="flex-1 px-2 py-2">
+          <div className="space-y-2">
             {filterGroups.map((group) => (
               <div key={group.id} className="space-y-3">
                 <Label className="text-base font-semibold">{group.label}</Label>
@@ -191,7 +191,7 @@ export function MobileFilterSheet({
                           variant={isSelected ? 'default' : 'outline'}
                           size="lg"
                           onClick={() => handleRadioChange(group.id, option.id)}
-                          className="h-12 touch-manipulation"
+                          className="h-9 touch-manipulation"
                           data-testid={`filter-radio-${option.id}`}
                         >
                           {option.label}
@@ -207,7 +207,7 @@ export function MobileFilterSheet({
                 )}
 
                 {group.type === 'range' && (
-                  <div className="space-y-4 pt-2">
+                  <div className="space-y-2 pt-2">
                     <Slider
                       min={group.min || 0}
                       max={group.max || 100}
@@ -254,13 +254,13 @@ export function MobileFilterSheet({
         </ScrollArea>
 
         {/* Footer with Actions */}
-        <SheetFooter className="px-4 py-4 border-t mt-auto">
+        <SheetFooter className="px-2 py-2 border-t mt-auto">
           <div className="flex gap-2 w-full">
             <Button
               variant="outline"
               size="lg"
               onClick={() => onOpenChange(false)}
-              className="flex-1 h-12 touch-manipulation"
+              className="flex-1 h-9 touch-manipulation"
               data-testid="cancel-filters-btn"
             >
               Cancel
@@ -269,7 +269,7 @@ export function MobileFilterSheet({
               variant="default"
               size="lg"
               onClick={handleApply}
-              className="flex-1 h-12 touch-manipulation"
+              className="flex-1 h-9 touch-manipulation"
               data-testid="apply-filters-btn"
             >
               Apply Filters

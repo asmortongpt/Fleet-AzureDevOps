@@ -301,17 +301,17 @@ const FleetCalendar: React.FC = () => {
   };
 
   const CustomToolbar = ({ label, onNavigate, onView }: any) => (
-    <div className="flex items-center justify-between mb-4 p-4 bg-white rounded-lg shadow-sm">
-      <div className="flex items-center space-x-4">
+    <div className="flex items-center justify-between mb-2 p-2 bg-white rounded-lg shadow-sm">
+      <div className="flex items-center space-x-2">
         <button
           onClick={() => onNavigate('PREV')}
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-3 h-3" />
         </button>
         <button
           onClick={() => onNavigate('TODAY')}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           Today
         </button>
@@ -319,9 +319,9 @@ const FleetCalendar: React.FC = () => {
           onClick={() => onNavigate('NEXT')}
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="w-3 h-3" />
         </button>
-        <h2 className="text-xl font-semibold text-gray-800">{label}</h2>
+        <h2 className="text-base font-semibold text-gray-800">{label}</h2>
       </div>
 
       <div className="flex items-center space-x-2">
@@ -367,18 +367,18 @@ const FleetCalendar: React.FC = () => {
   });
 
   return (
-    <div className="h-full bg-gray-50 p-6">
+    <div className="h-full bg-gray-50 p-3">
       {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
+      <div className="mb-3">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-3">
-            <CalendarDays className="w-8 h-8 text-blue-800" />
-            <h1 className="text-3xl font-bold text-gray-800">Fleet Calendar</h1>
+            <CalendarDays className="w-4 h-4 text-blue-800" />
+            <h1 className="text-base font-bold text-gray-800">Fleet Calendar</h1>
           </div>
 
           <div className="flex items-center space-x-3">
             {/* Outlook Integration Status */}
-            <div className="flex items-center space-x-2 px-4 py-2 bg-white rounded-lg shadow-sm">
+            <div className="flex items-center space-x-2 px-2 py-2 bg-white rounded-lg shadow-sm">
               {isSignedIn ? (
                 <>
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
@@ -412,22 +412,22 @@ const FleetCalendar: React.FC = () => {
                 disabled={loading}
                 className="p-2 bg-white rounded-lg shadow-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
               >
-                <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
               </button>
             )}
 
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center space-x-2 px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="w-3 h-3" />
               <span>New Event</span>
             </button>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="flex items-center space-x-4 p-4 bg-white rounded-lg shadow-sm">
+        <div className="flex items-center space-x-2 p-2 bg-white rounded-lg shadow-sm">
           <span className="text-sm font-medium text-gray-700">Filter:</span>
           {Object.entries(filters).map(([type, enabled]) => (
             <button
@@ -449,7 +449,7 @@ const FleetCalendar: React.FC = () => {
       </div>
 
       {/* Calendar */}
-      <div className="bg-white rounded-lg shadow-lg p-4" style={{ height: 'calc(100vh - 280px)' }}>
+      <div className="bg-white rounded-lg shadow-sm p-2" style={{ height: 'calc(100vh - 280px)' }}>
         <Calendar
           localizer={localizer}
           events={filteredEvents}
@@ -473,14 +473,14 @@ const FleetCalendar: React.FC = () => {
       {/* Event Details Modal */}
       {showEventModal && selectedEvent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold">{selectedEvent.title}</h3>
+          <div className="bg-white rounded-lg shadow-sm w-full max-w-md p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-base font-semibold">{selectedEvent.title}</h3>
               <button
                 onClick={() => setShowEventModal(false)}
                 className="p-1 hover:bg-gray-100 rounded"
               >
-                <X className="w-5 h-5" />
+                <X className="w-3 h-3" />
               </button>
             </div>
 
@@ -505,20 +505,20 @@ const FleetCalendar: React.FC = () => {
               )}
 
               {selectedEvent.resource?.description && (
-                <div className="mt-4 p-3 bg-gray-50 rounded">
+                <div className="mt-2 p-3 bg-gray-50 rounded">
                   <p className="text-sm text-gray-700">{selectedEvent.resource.description}</p>
                 </div>
               )}
             </div>
 
-            <div className="flex justify-end space-x-2 mt-6">
+            <div className="flex justify-end space-x-2 mt-3">
               <button
                 onClick={() => setShowEventModal(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                className="px-2 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
               >
                 Close
               </button>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              <button className="px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 Edit
               </button>
             </div>

@@ -40,26 +40,26 @@ interface FleetData {
 // Fully implemented analytics components
 
 const CostAnalysisCenter: React.FC = () => (
-  <div className="space-y-6 p-6">
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div className="space-y-2 p-3">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
       <Card>
         <CardHeader><CardTitle className="text-sm">Total Fleet Costs (YTD)</CardTitle></CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold text-red-400">$847,234</div>
+          <div className="text-base font-bold text-red-400">$847,234</div>
           <p className="text-xs text-muted-foreground">+12% vs last year</p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader><CardTitle className="text-sm">Cost Per Mile</CardTitle></CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold text-orange-400">$0.42</div>
+          <div className="text-base font-bold text-orange-400">$0.42</div>
           <p className="text-xs text-muted-foreground">-8% improvement</p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader><CardTitle className="text-sm">Savings Opportunities</CardTitle></CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold text-green-400">$45,200</div>
+          <div className="text-base font-bold text-green-400">$45,200</div>
           <p className="text-xs text-muted-foreground">Identified this quarter</p>
         </CardContent>
       </Card>
@@ -94,7 +94,7 @@ const CostAnalysisCenter: React.FC = () => (
 const CustomReportBuilder: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState("fleet-summary");
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-2 p-3">
       <Card>
         <CardHeader><CardTitle>Report Templates</CardTitle></CardHeader>
         <CardContent>
@@ -111,7 +111,7 @@ const CustomReportBuilder: React.FC = () => {
                 className="flex flex-col h-24 w-full"
                 onClick={() => setSelectedReport(report.id)}
               >
-                <report.icon className="w-6 h-6 mb-2" />
+                <report.icon className="w-4 h-4 mb-2" />
                 <span className="text-xs">{report.name}</span>
               </Button>
             ))}
@@ -120,8 +120,8 @@ const CustomReportBuilder: React.FC = () => {
       </Card>
       <Card>
         <CardHeader><CardTitle>Generate Report</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <CardContent className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="text-sm font-medium">Date Range</label>
               <select className="w-full mt-1 p-2 rounded bg-accent/10 border border-border">
@@ -148,11 +148,11 @@ const CustomReportBuilder: React.FC = () => {
 };
 
 const DataWorkbench: React.FC = () => (
-  <div className="space-y-6 p-6">
+  <div className="space-y-2 p-3">
     <Card>
       <CardHeader><CardTitle>Data Explorer</CardTitle></CardHeader>
       <CardContent>
-        <div className="grid grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-4 gap-2 mb-2">
           {["Vehicles", "Drivers", "Trips", "Maintenance"].map((table) => (
             <Button key={table} variant="outline" className="w-full">{table}</Button>
           ))}
@@ -190,8 +190,8 @@ const DataWorkbench: React.FC = () => (
 );
 
 const ExecutiveDashboard: React.FC = () => (
-  <div className="space-y-6 p-6">
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+  <div className="space-y-2 p-3">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
       {[
         { label: "Total Assets", value: "247", change: "+12", color: "text-blue-400" },
         { label: "Active Drivers", value: "183", change: "+5", color: "text-green-400" },
@@ -199,15 +199,15 @@ const ExecutiveDashboard: React.FC = () => (
         { label: "Monthly Revenue", value: "$2.4M", change: "+18%", color: "text-orange-400" },
       ].map((stat) => (
         <Card key={stat.label}>
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="text-sm text-muted-foreground">{stat.label}</div>
-            <div className={`text-3xl font-bold ${stat.color}`}>{stat.value}</div>
+            <div className={`text-base font-bold ${stat.color}`}>{stat.value}</div>
             <Badge variant="default" className="mt-2">{stat.change}</Badge>
           </CardContent>
         </Card>
       ))}
     </div>
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
       <Card>
         <CardHeader><CardTitle>Revenue Trend (12 Months)</CardTitle></CardHeader>
         <CardContent>
@@ -249,26 +249,26 @@ const ExecutiveDashboard: React.FC = () => (
 );
 
 const FleetAnalytics: React.FC<{ data: FleetData | null }> = ({ data }) => (
-  <div className="space-y-6 p-6">
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div className="space-y-2 p-3">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
       <Card>
         <CardHeader><CardTitle className="text-sm">Fleet Efficiency</CardTitle></CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold text-green-400">92%</div>
+          <div className="text-base font-bold text-green-400">92%</div>
           <p className="text-xs text-muted-foreground">Above target by 7%</p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader><CardTitle className="text-sm">Miles This Month</CardTitle></CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold text-blue-400">1.2M</div>
+          <div className="text-base font-bold text-blue-400">1.2M</div>
           <p className="text-xs text-muted-foreground">+15% vs last month</p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader><CardTitle className="text-sm">Avg MPG</CardTitle></CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold text-purple-400">24.8</div>
+          <div className="text-base font-bold text-purple-400">24.8</div>
           <p className="text-xs text-muted-foreground">Fleet average</p>
         </CardContent>
       </Card>
@@ -276,14 +276,14 @@ const FleetAnalytics: React.FC<{ data: FleetData | null }> = ({ data }) => (
     <Card>
       <CardHeader><CardTitle>Vehicle Utilization by Type</CardTitle></CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-2">
           {[
             { type: "Sedans", count: 45, utilization: 89 },
             { type: "SUVs", count: 32, utilization: 92 },
             { type: "Trucks", count: 28, utilization: 78 },
             { type: "Vans", count: 18, utilization: 85 },
           ].map((v) => (
-            <div key={v.type} className="flex items-center gap-4">
+            <div key={v.type} className="flex items-center gap-2">
               <div className="w-24 text-sm">{v.type}</div>
               <div className="flex-1">
                 <div className="w-full bg-accent/20 rounded-full h-3">
@@ -302,26 +302,26 @@ const FleetAnalytics: React.FC<{ data: FleetData | null }> = ({ data }) => (
 );
 
 const PredictiveMaintenance: React.FC = () => (
-  <div className="space-y-6 p-6">
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div className="space-y-2 p-3">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
       <Card className="border-yellow-500/50">
         <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Warning className="w-4 h-4 text-yellow-500" />Attention Needed</CardTitle></CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold text-yellow-400">7</div>
+          <div className="text-base font-bold text-yellow-400">7</div>
           <p className="text-xs text-muted-foreground">Vehicles require service soon</p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader><CardTitle className="text-sm">Prediction Accuracy</CardTitle></CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold text-green-400">94%</div>
+          <div className="text-base font-bold text-green-400">94%</div>
           <p className="text-xs text-muted-foreground">Last 90 days</p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader><CardTitle className="text-sm">Savings from Prevention</CardTitle></CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold text-blue-400">$28K</div>
+          <div className="text-base font-bold text-blue-400">$28K</div>
           <p className="text-xs text-muted-foreground">Avoided repair costs</p>
         </CardContent>
       </Card>
@@ -375,17 +375,17 @@ const InsightsHub: React.FC = () => {
       case "overview":
       default:
         return (
-          <div className="space-y-6 p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="space-y-2 p-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
               <Card className="hover:bg-accent/5 cursor-pointer transition-colors">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <ChartLine className="w-5 h-5 text-blue-800" />
+                    <ChartLine className="w-3 h-3 text-blue-800" />
                     Total Analytics
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">1,247</div>
+                  <div className="text-base font-bold">1,247</div>
                   <p className="text-sm text-muted-foreground mt-2">
                     Reports generated this month
                   </p>
@@ -395,12 +395,12 @@ const InsightsHub: React.FC = () => {
               <Card className="hover:bg-accent/5 cursor-pointer transition-colors">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <TrendUp className="w-5 h-5 text-green-500" />
+                    <TrendUp className="w-3 h-3 text-green-500" />
                     Performance Trend
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">+18%</div>
+                  <div className="text-base font-bold">+18%</div>
                   <p className="text-sm text-muted-foreground mt-2">
                     Efficiency improvement YoY
                   </p>
@@ -410,12 +410,12 @@ const InsightsHub: React.FC = () => {
               <Card className="hover:bg-accent/5 cursor-pointer transition-colors">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <CurrencyDollar className="w-5 h-5 text-orange-500" />
+                    <CurrencyDollar className="w-3 h-3 text-orange-500" />
                     Cost Savings
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">$45K</div>
+                  <div className="text-base font-bold">$45K</div>
                   <p className="text-sm text-muted-foreground mt-2">
                     Identified this quarter
                   </p>
@@ -425,12 +425,12 @@ const InsightsHub: React.FC = () => {
               <Card className="hover:bg-accent/5 cursor-pointer transition-colors">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Brain className="w-5 h-5 text-purple-500" />
+                    <Brain className="w-3 h-3 text-purple-500" />
                     AI Predictions
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">92%</div>
+                  <div className="text-base font-bold">92%</div>
                   <p className="text-sm text-muted-foreground mt-2">
                     Prediction accuracy rate
                   </p>
@@ -438,13 +438,13 @@ const InsightsHub: React.FC = () => {
               </Card>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Key Performance Indicators</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     {[
                       { label: "Fleet Utilization", value: 87, change: "+5%", positive: true },
                       { label: "Fuel Efficiency", value: 92, change: "+12%", positive: true },
@@ -528,7 +528,7 @@ const InsightsHub: React.FC = () => {
         <div style={{ borderLeft: "1px solid #1e232a", minHeight: 0, overflow: "auto", background: "#0b0f14" }}>
           <div style={{ padding: "16px" }}>
             <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">Analytics Modules</h3>
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">Analytics Modules</h3>
 
               <Button variant={activeModule === "overview" ? "secondary" : "ghost"} className="w-full justify-start" onClick={() => setActiveModule("overview")}>
                 <ChartLine className="w-4 h-4 mr-2" />Overview
@@ -559,8 +559,8 @@ const InsightsHub: React.FC = () => {
               </Button>
             </div>
 
-            <div className="mt-8 pt-8 border-t border-border">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">Quick Metrics</h3>
+            <div className="mt-3 pt-3 border-t border-border">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">Quick Metrics</h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 rounded-lg bg-blue-500/10">
                   <span className="text-sm">Reports Today</span>

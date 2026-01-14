@@ -21,7 +21,7 @@ export function MobileNav() {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-[280px] p-0">
-        <nav className="flex flex-col gap-1 p-4">
+        <nav className="flex flex-col gap-1 p-2">
           {navigationItems.map((item) => (
             <Button
               key={item.id}

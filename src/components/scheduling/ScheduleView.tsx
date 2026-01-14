@@ -224,7 +224,7 @@ export function ScheduleView({
 
   const renderReservationCard = (reservation: VehicleReservation) => (
     <Card key={reservation.id} className="hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
+      <CardContent className="p-2">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
@@ -338,7 +338,7 @@ export function ScheduleView({
 
   const renderMaintenanceCard = (appointment: MaintenanceAppointment) => (
     <Card key={appointment.id} className="hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
+      <CardContent className="p-2">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">

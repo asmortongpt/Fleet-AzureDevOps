@@ -213,10 +213,10 @@ export function ReceiptProcessing() {
   const totalApproved = (receipts || []).filter(r => r.status === "approved").reduce((sum, r) => sum + r.amount, 0)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Receipt Processing</h2>
+          <h2 className="text-sm font-semibold">Receipt Processing</h2>
           <p className="text-muted-foreground">Automated OCR extraction and expense tracking</p>
         </div>
         <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
@@ -234,8 +234,8 @@ export function ReceiptProcessing() {
               </DialogDescription>
             </DialogHeader>
             
-            <div className="space-y-4 py-4">
-              <div className="border-2 border-dashed rounded-lg p-8 text-center">
+            <div className="space-y-2 py-2">
+              <div className="border-2 border-dashed rounded-lg p-3 text-center">
                 <Input
                   ref={fileInputRef}
                   type="file"
@@ -247,7 +247,7 @@ export function ReceiptProcessing() {
                 <Label htmlFor="receipt-upload" className="cursor-pointer">
                   <div className="flex flex-col items-center gap-2">
                     <div className="p-3 bg-primary/10 rounded-full">
-                      <Image className="w-8 h-8 text-primary" />
+                      <Image className="w-4 h-4 text-primary" />
                     </div>
                     <div className="text-sm font-medium">
                       {isProcessing ? "Processing..." : "Click to upload receipt image"}
@@ -270,7 +270,7 @@ export function ReceiptProcessing() {
               )}
 
               {ocrPreview && (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-3">
                     <h3 className="font-medium">Extracted Data</h3>
                     <div className="space-y-2 text-sm">
@@ -312,7 +312,7 @@ export function ReceiptProcessing() {
               )}
 
               {ocrPreview && (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="receipt-vendor">Vendor *</Label>
                     <Input
@@ -393,13 +393,13 @@ export function ReceiptProcessing() {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Receipts</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(receipts || []).length}</div>
+            <div className="text-sm font-bold">{(receipts || []).length}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <FileText className="w-3 h-3" />
               All time
@@ -412,7 +412,7 @@ export function ReceiptProcessing() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Pending Approval</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">${totalPending.toLocaleString()}</div>
+            <div className="text-sm font-bold text-yellow-600">${totalPending.toLocaleString()}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Receipt className="w-3 h-3" />
               {(receipts || []).filter(r => r.status === "pending").length} receipts
@@ -425,7 +425,7 @@ export function ReceiptProcessing() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Approved</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">${totalApproved.toLocaleString()}</div>
+            <div className="text-sm font-bold text-green-600">${totalApproved.toLocaleString()}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <CheckCircle className="w-3 h-3" />
               {(receipts || []).filter(r => r.status === "approved").length} receipts
@@ -438,7 +438,7 @@ export function ReceiptProcessing() {
             <CardTitle className="text-sm font-medium text-muted-foreground">OCR Accuracy</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">94.5%</div>
+            <div className="text-sm font-bold">94.5%</div>
             <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
               <Scan className="w-3 h-3" />
               High confidence
@@ -469,7 +469,7 @@ export function ReceiptProcessing() {
             <TableBody>
               {(receipts || []).length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={8} className="text-center text-muted-foreground py-3">
                     No receipts found. Upload your first receipt to get started.
                   </TableCell>
                 </TableRow>

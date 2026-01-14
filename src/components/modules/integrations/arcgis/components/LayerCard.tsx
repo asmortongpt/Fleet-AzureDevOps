@@ -57,7 +57,7 @@ export function LayerCard({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <CardTitle className="text-lg">{layer.name}</CardTitle>
+              <CardTitle className="text-sm">{layer.name}</CardTitle>
               <Badge variant="outline" className="text-xs">
                 {layer.layerType}
               </Badge>

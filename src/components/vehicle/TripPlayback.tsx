@@ -455,7 +455,7 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
 
         {/* Error State */}
         {error && (
-          <div className="flex items-center gap-2 p-4 border border-destructive bg-destructive/10 rounded-md">
+          <div className="flex items-center gap-2 p-2 border border-destructive bg-destructive/10 rounded-md">
             <AlertCircle className="h-5 w-5 text-destructive" />
             <div>
               <p className="font-semibold text-destructive">Failed to load trip data</p>
@@ -470,11 +470,11 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
             {/* Map Container */}
             <div
               id="trip-playback-map"
-              className="w-full h-[400px] rounded-md border mb-4"
+              className="w-full h-[400px] rounded-md border mb-2"
             />
 
             {/* Playback Controls */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               {/* Time Scrubber */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
@@ -493,7 +493,7 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
               </div>
 
               {/* Controls Row */}
-              <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Button
                   size="sm"
                   variant="outline"

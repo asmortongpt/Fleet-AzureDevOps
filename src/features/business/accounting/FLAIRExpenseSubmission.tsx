@@ -85,21 +85,21 @@ const ExpenseTypeSelector: React.FC<{
   onSelect: (type: ExpenseType) => void;
 }> = ({ selectedType, onSelect }) => {
   return (
-    <div className="space-y-3 sm:space-y-4">
-      <h3 className="text-base sm:text-lg font-semibold text-gray-900">Select Expense Type</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+    <div className="space-y-3 sm:space-y-2">
+      <h3 className="text-base sm:text-sm font-semibold text-gray-900">Select Expense Type</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-2">
         {Object.entries(EXPENSE_TYPES).map(([type, config]) => (
           <button
             key={type}
             onClick={() => onSelect(type as ExpenseType)}
-            className={`p-3 sm:p-4 rounded-lg border-2 text-left transition-all ${
+            className={`p-3 sm:p-2 rounded-lg border-2 text-left transition-all ${
               selectedType === type
                 ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
                 : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
             }`}
           >
             <div className="flex items-start space-x-2 sm:space-x-3">
-              <span className="text-xl sm:text-2xl">{config.icon}</span>
+              <span className="text-base sm:text-sm">{config.icon}</span>
               <div className="min-w-0 flex-1">
                 <h4 className="font-medium text-gray-900 text-sm sm:text-base">{config.label}</h4>
                 <p className="text-xs sm:text-sm text-slate-700 mt-1">{config.description}</p>
@@ -150,8 +150,8 @@ const FuelExpenseForm: React.FC<{
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+    <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-2">
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Vehicle ID/License Plate
@@ -236,18 +236,18 @@ const FuelExpenseForm: React.FC<{
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
-      <div className="flex flex-col sm:flex-row justify-between pt-4 gap-3 sm:gap-0">
+      <div className="flex flex-col sm:flex-row justify-between pt-2 gap-3 sm:gap-0">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-slate-700 hover:text-gray-800 transition-colors"
+          className="px-2 py-2 text-slate-700 hover:text-gray-800 transition-colors"
         >
           ← Back
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? 'Submitting...' : 'Continue'}
         </button>
@@ -291,8 +291,8 @@ const MaintenanceExpenseForm: React.FC<{
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+    <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-2">
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Vehicle ID/License Plate
@@ -377,18 +377,18 @@ const MaintenanceExpenseForm: React.FC<{
           required
         />
       </div>
-      <div className="flex flex-col sm:flex-row justify-between pt-4 gap-3 sm:gap-0">
+      <div className="flex flex-col sm:flex-row justify-between pt-2 gap-3 sm:gap-0">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-slate-700 hover:text-gray-800 transition-colors"
+          className="px-2 py-2 text-slate-700 hover:text-gray-800 transition-colors"
         >
           ← Back
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? 'Submitting...' : 'Continue'}
         </button>
@@ -435,8 +435,8 @@ const VehicleRentalForm: React.FC<{
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+    <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-2">
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Rental Company</label>
           <input
@@ -552,18 +552,18 @@ const VehicleRentalForm: React.FC<{
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
-      <div className="flex flex-col sm:flex-row justify-between pt-4 gap-3 sm:gap-0">
+      <div className="flex flex-col sm:flex-row justify-between pt-2 gap-3 sm:gap-0">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-slate-700 hover:text-gray-800 transition-colors"
+          className="px-2 py-2 text-slate-700 hover:text-gray-800 transition-colors"
         >
           ← Back
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? 'Submitting...' : 'Continue'}
         </button>
@@ -605,8 +605,8 @@ const ParkingFeesForm: React.FC<{
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+    <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-2">
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Parking Location</label>
           <input
@@ -678,18 +678,18 @@ const ParkingFeesForm: React.FC<{
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
-      <div className="flex flex-col sm:flex-row justify-between pt-4 gap-3 sm:gap-0">
+      <div className="flex flex-col sm:flex-row justify-between pt-2 gap-3 sm:gap-0">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-slate-700 hover:text-gray-800 transition-colors"
+          className="px-2 py-2 text-slate-700 hover:text-gray-800 transition-colors"
         >
           ← Back
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? 'Submitting...' : 'Continue'}
         </button>
@@ -733,8 +733,8 @@ const TollChargesForm: React.FC<{
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+    <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-2">
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Toll Road/Authority
@@ -831,18 +831,18 @@ const TollChargesForm: React.FC<{
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
-      <div className="flex flex-col sm:flex-row justify-between pt-4 gap-3 sm:gap-0">
+      <div className="flex flex-col sm:flex-row justify-between pt-2 gap-3 sm:gap-0">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-slate-700 hover:text-gray-800 transition-colors"
+          className="px-2 py-2 text-slate-700 hover:text-gray-800 transition-colors"
         >
           ← Back
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? 'Submitting...' : 'Continue'}
         </button>
@@ -888,8 +888,8 @@ const TravelMileageForm: React.FC<{
   const totalAmount = (parseFloat(formData.mileage) || 0) * (parseFloat(formData.mileageRate) || 0);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+    <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-2">
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Origin Address</label>
           <input
@@ -987,27 +987,27 @@ const TravelMileageForm: React.FC<{
 
       {/* Total amount display */}
       {totalAmount > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-blue-800">Total Reimbursement:</span>
-            <span className="text-lg font-bold text-blue-800">${totalAmount.toFixed(2)}</span>
+            <span className="text-sm font-bold text-blue-800">${totalAmount.toFixed(2)}</span>
           </div>
         </div>
       )}
 
       {/* Form actions */}
-      <div className="flex flex-col sm:flex-row justify-between pt-4 gap-3 sm:gap-0">
+      <div className="flex flex-col sm:flex-row justify-between pt-2 gap-3 sm:gap-0">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-slate-700 hover:text-gray-800 transition-colors"
+          className="px-2 py-2 text-slate-700 hover:text-gray-800 transition-colors"
         >
           ← Back
         </button>
         <button
           type="submit"
           disabled={isSubmitting || totalAmount <= 0}
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? 'Submitting...' : 'Submit to FLAIR'}
         </button>
@@ -1068,7 +1068,7 @@ const DocumentUpload: React.FC<{
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <h4 className="font-medium text-gray-900">Supporting Documents</h4>
         {required && <span className="text-sm text-red-600">* Required</span>}
@@ -1076,7 +1076,7 @@ const DocumentUpload: React.FC<{
 
       {/* Upload area */}
       <div
-        className={`border-2 border-dashed rounded-lg p-6 transition-colors ${
+        className={`border-2 border-dashed rounded-lg p-3 transition-colors ${
           isDragging ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
         }`}
         onDragOver={(e) => {
@@ -1087,7 +1087,7 @@ const DocumentUpload: React.FC<{
         onDrop={handleDrop}
       >
         <div className="text-center">
-          <div className="text-4xl mb-2">📎</div>
+          <div className="text-sm mb-2">📎</div>
           <div className="text-sm text-slate-700 mb-2">
             Drag and drop files here, or{' '}
             <label className="text-blue-800 hover:text-blue-700 cursor-pointer">
@@ -1116,7 +1116,7 @@ const DocumentUpload: React.FC<{
               className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
             >
               <div className="flex items-center space-x-3">
-                <span className="text-lg">📄</span>
+                <span className="text-sm">📄</span>
                 <div>
                   <div className="font-medium text-sm">{doc.fileName}</div>
                   <div className="text-xs text-gray-500">
@@ -1357,24 +1357,24 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
       case 'documents':
         const config = EXPENSE_TYPES[selectedType!];
         return (
-          <div className="space-y-6">
+          <div className="space-y-2">
             <DocumentUpload
               documents={documents}
               onDocumentAdd={handleDocumentAdd}
               onDocumentRemove={handleDocumentRemove}
               required={config.documentationRequired}
             />
-            <div className="flex flex-col sm:flex-row justify-between pt-4 gap-3 sm:gap-0">
+            <div className="flex flex-col sm:flex-row justify-between pt-2 gap-3 sm:gap-0">
               <button
                 onClick={() => setCurrentStep('form')}
-                className="px-4 py-2 text-slate-700 hover:text-gray-800 transition-colors"
+                className="px-2 py-2 text-slate-700 hover:text-gray-800 transition-colors"
               >
                 ← Back
               </button>
               <button
                 onClick={() => setCurrentStep('review')}
                 disabled={config.documentationRequired && documents.length === 0}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
               >
                 Continue to Review →
               </button>
@@ -1398,19 +1398,19 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
         })();
 
         return (
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900">Review Submission</h3>
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold text-gray-900">Review Submission</h3>
 
-            <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+            <div className="bg-gray-50 rounded-lg p-3 space-y-2">
               <div className="flex items-center space-x-3">
-                <span className="text-2xl">{expenseConfig.icon}</span>
+                <span className="text-sm">{expenseConfig.icon}</span>
                 <div>
                   <h4 className="font-medium text-gray-900">{expenseConfig.label}</h4>
                   <p className="text-sm text-slate-700">{expenseConfig.description}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <span className="font-medium text-gray-700">Employee:</span>
                   <div>{user?.fullName}</div>
@@ -1421,7 +1421,7 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
                 </div>
                 <div>
                   <span className="font-medium text-gray-700">Amount:</span>
-                  <div className="text-lg font-semibold text-green-600">
+                  <div className="text-sm font-semibold text-green-600">
                     ${totalAmount.toFixed(2)}
                   </div>
                 </div>
@@ -1433,7 +1433,7 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
             </div>
 
             {expenseConfig.requiresApproval && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2">
                 <div className="flex items-start space-x-2">
                   <span className="text-yellow-600">⚠️</span>
                   <div className="text-sm text-yellow-800">
@@ -1444,17 +1444,17 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
               </div>
             )}
 
-            <div className="flex flex-col sm:flex-row justify-between pt-4 gap-3 sm:gap-0">
+            <div className="flex flex-col sm:flex-row justify-between pt-2 gap-3 sm:gap-0">
               <button
                 onClick={() => setCurrentStep(documents.length > 0 ? 'documents' : 'form')}
-                className="px-4 py-2 text-slate-700 hover:text-gray-800 transition-colors"
+                className="px-2 py-2 text-slate-700 hover:text-gray-800 transition-colors"
               >
                 ← Back
               </button>
               <button
                 onClick={handleFinalSubmit}
                 disabled={isSubmitting}
-                className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
               >
                 {isSubmitting ? 'Submitting to FLAIR...' : 'Submit to FLAIR'}
               </button>
@@ -1468,10 +1468,10 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
   };
 
   return (
-    <div className={`max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg ${className}`}>
+    <div className={`max-w-4xl mx-auto p-3 bg-white rounded-lg shadow-sm ${className}`}>
       {/* Header */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">FLAIR Expense Submission</h2>
+      <div className="mb-3">
+        <h2 className="text-sm font-bold text-gray-900 mb-2">FLAIR Expense Submission</h2>
         <p className="text-slate-700">
           Submit fleet-related expenses to Florida's FLAIR accounting system
         </p>
@@ -1479,7 +1479,7 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
 
       {/* Error display */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex items-center space-x-2">
             <span className="text-red-600">❌</span>
             <span className="text-red-800">{error}</span>

@@ -128,7 +128,7 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
       />
 
       {/* Stats Overlay */}
-      <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg p-3 shadow-lg z-10">
+      <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg p-3 shadow-sm z-10">
         <div className="grid grid-cols-2 gap-3">
           <div className="flex items-center gap-2">
             <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
@@ -161,9 +161,9 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
 
   // Side panel with driver details
   const sidePanel = (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Drivers</h2>
+        <h2 className="text-sm font-bold">Drivers</h2>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-32">
             <SelectValue />
@@ -183,7 +183,7 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
               <div>
-                <CardTitle className="text-lg">{selectedDriver.name}</CardTitle>
+                <CardTitle className="text-sm">{selectedDriver.name}</CardTitle>
                 <p className="text-sm text-muted-foreground">{selectedDriver.employeeId}</p>
               </div>
               <Badge variant={getStatusBadgeVariant(selectedDriver.status)}>
@@ -203,7 +203,7 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
               </div>
               <div className="space-y-1">
                 <div className="text-xs text-muted-foreground">Safety Score</div>
-                <div className={cn("text-2xl font-bold", getSafetyScoreColor(selectedDriver.safetyScore))}>
+                <div className={cn("text-sm font-bold", getSafetyScoreColor(selectedDriver.safetyScore))}>
                   {selectedDriver.safetyScore}
                 </div>
               </div>
@@ -255,8 +255,8 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
         </Card>
       ) : (
         <Card>
-          <CardContent className="p-6 text-center text-muted-foreground">
-            <User className="h-12 w-12 mx-auto mb-2 opacity-50" />
+          <CardContent className="p-3 text-center text-muted-foreground">
+            <User className="h-9 w-12 mx-auto mb-2 opacity-50" />
             <p>Select a driver to view details</p>
           </CardContent>
         </Card>

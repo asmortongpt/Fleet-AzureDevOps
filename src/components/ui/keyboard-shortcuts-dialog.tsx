@@ -89,13 +89,13 @@ export function KeyboardShortcutsDialog() {
         role="dialog"
         aria-labelledby="keyboard-shortcuts-title"
         aria-modal="true"
-        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-card rounded-lg shadow-lg border animate-in fade-in zoom-in-95"
+        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-card rounded-lg shadow-sm border animate-in fade-in zoom-in-95"
       >
         {/* Header */}
-        <div className="sticky top-0 bg-card border-b px-6 py-4 flex items-center justify-between">
+        <div className="sticky top-0 bg-card border-b px-3 py-2 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Keyboard className="w-5 h-5 text-primary" />
-            <h2 id="keyboard-shortcuts-title" className="text-lg font-semibold">
+            <Keyboard className="w-3 h-3 text-primary" />
+            <h2 id="keyboard-shortcuts-title" className="text-sm font-semibold">
               Keyboard Shortcuts
             </h2>
           </div>
@@ -111,7 +111,7 @@ export function KeyboardShortcutsDialog() {
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-8">
+        <div className="p-3 space-y-2">
           {shortcutGroups.map((group) => (
             <div key={group.category}>
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
@@ -145,7 +145,7 @@ export function KeyboardShortcutsDialog() {
         </div>
 
         {/* Footer */}
-        <div className="border-t px-6 py-4 bg-muted/30">
+        <div className="border-t px-3 py-2 bg-muted/30">
           <p className="text-xs text-muted-foreground text-center">
             Press <kbd className="px-1.5 py-0.5 rounded bg-muted text-xs font-mono">?</kbd> to toggle
             this dialog

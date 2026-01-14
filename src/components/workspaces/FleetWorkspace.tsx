@@ -62,7 +62,7 @@ interface Telemetry {
 const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle | null; telemetry: Telemetry | null }) => {
   if (!vehicle) {
     return (
-      <div className="p-4 text-center text-muted-foreground">
+      <div className="p-2 text-center text-muted-foreground">
         Select a vehicle to view telemetry data
       </div>
     )
@@ -70,11 +70,11 @@ const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle |
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4 space-y-4">
+      <div className="p-2 space-y-2">
         {/* Vehicle Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-sm font-semibold">
               {vehicle.year} {vehicle.make} {vehicle.model}
             </h3>
             <p className="text-sm text-muted-foreground">
@@ -98,21 +98,21 @@ const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle |
                   <Gauge className="h-3 w-3 mr-1" />
                   Speed
                 </div>
-                <div className="text-xl font-semibold">{telemetry?.speed || 0} mph</div>
+                <div className="text-base font-semibold">{telemetry?.speed || 0} mph</div>
               </div>
               <div className="space-y-1">
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Activity className="h-3 w-3 mr-1" />
                   RPM
                 </div>
-                <div className="text-xl font-semibold">{telemetry?.rpm || 0}</div>
+                <div className="text-base font-semibold">{telemetry?.rpm || 0}</div>
               </div>
               <div className="space-y-1">
                 <div className="flex items-center text-sm text-muted-foreground">
                   <ThermometerSun className="h-3 w-3 mr-1" />
                   Engine Temp
                 </div>
-                <div className="text-xl font-semibold">{telemetry?.engineTemp || 0}°F</div>
+                <div className="text-base font-semibold">{telemetry?.engineTemp || 0}°F</div>
               </div>
               <div className="space-y-1">
                 <div className="flex items-center text-sm text-muted-foreground">
@@ -269,9 +269,9 @@ const VehicleInventoryPanel = ({ vehicles, onVehicleSelect }: { vehicles: FleetV
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4">
+      <div className="p-2">
         {/* Filters */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2 mb-2">
           <Select value={filter} onValueChange={setFilter}>
             <SelectTrigger className="w-32">
               <SelectValue />
@@ -319,7 +319,7 @@ const VehicleInventoryPanel = ({ vehicles, onVehicleSelect }: { vehicles: FleetV
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
                     <div className="text-right">
                       <div className="text-sm font-medium">{vehicle.fuelLevel}%</div>
                       <div className="text-xs text-muted-foreground">
@@ -387,7 +387,7 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
   return (
     <div className="h-screen flex flex-col" data-testid="fleet-workspace">
       {/* View Switcher */}
-      <div className="border-b px-4 py-2">
+      <div className="border-b px-2 py-2">
         <Tabs value={activeView} onValueChange={setActiveView}>
           <TabsList data-testid="fleet-view-tabs">
             <TabsTrigger value="map" data-testid="fleet-tab-map">Map View</TabsTrigger>

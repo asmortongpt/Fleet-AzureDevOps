@@ -160,12 +160,12 @@ export function DocumentScanner({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Upload Area */}
       <Card>
-        <CardContent className="p-6">
+        <CardContent className="p-3">
           <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+            className={`border-2 border-dashed rounded-lg p-3 text-center transition-colors ${
               isDragging ? 'border-primary bg-primary/5' : 'border-gray-300'
             }`}
             onDrop={handleDrop}
@@ -181,13 +181,13 @@ export function DocumentScanner({
               className="hidden"
             />
 
-            <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+            <Upload className="w-12 h-9 mx-auto mb-2 text-gray-400" />
 
-            <h3 className="text-lg font-semibold mb-2">
+            <h3 className="text-sm font-semibold mb-2">
               Upload {documentType ? documentType.replace('_', ' ') : 'Document'}
             </h3>
 
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm text-muted-foreground mb-2">
               Drag and drop {allowBatch ? 'files' : 'a file'} here, or click to browse
             </p>
 
@@ -225,7 +225,7 @@ export function DocumentScanner({
               )}
             </div>
 
-            <p className="text-xs text-muted-foreground mt-4">
+            <p className="text-xs text-muted-foreground mt-2">
               Supported formats: JPG, PNG, PDF (max 10MB)
             </p>
           </div>
@@ -235,9 +235,9 @@ export function DocumentScanner({
       {/* Processing Status */}
       {isProcessing && (
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-2">
             <div className="flex items-center gap-3">
-              <Loader2 className="w-5 h-5 animate-spin text-primary" />
+              <Loader2 className="w-3 h-3 animate-spin text-primary" />
               <div className="flex-1">
                 <p className="font-medium">Processing documents...</p>
                 <Progress value={66} className="mt-2" />
@@ -298,9 +298,9 @@ export function DocumentScanner({
 
                 {/* Analysis Results */}
                 {analysis && selectedFile === file.name && (
-                  <CardContent className="border-t pt-4">
+                  <CardContent className="border-t pt-2">
                     {/* Confidence Score */}
-                    <div className="mb-4">
+                    <div className="mb-2">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-medium">Extraction Confidence</span>
                         <span className={`text-sm font-bold ${getConfidenceColor(analysis.confidence)}`}>
@@ -312,7 +312,7 @@ export function DocumentScanner({
 
                     {/* Validation Issues */}
                     {analysis.validationIssues.length > 0 && (
-                      <Alert className="mb-4 bg-yellow-50 border-yellow-200">
+                      <Alert className="mb-2 bg-yellow-50 border-yellow-200">
                         <AlertCircle className="h-4 w-4 text-yellow-600" />
                         <AlertDescription>
                           <p className="font-semibold text-yellow-900 mb-1">Issues Found:</p>
@@ -325,7 +325,7 @@ export function DocumentScanner({
 
                     {/* Suggested Matches */}
                     {Object.keys(analysis.suggestedMatches).length > 0 && (
-                      <div className="mb-4">
+                      <div className="mb-2">
                         <p className="text-sm font-semibold mb-2">Matched Entities:</p>
                         <div className="space-y-1">
                           {analysis.suggestedMatches.vehicle && (

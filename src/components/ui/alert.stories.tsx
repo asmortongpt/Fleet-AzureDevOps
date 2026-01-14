@@ -102,7 +102,7 @@ export const TitleOnly: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <Alert>
         <Info className="h-4 w-4" />
         <AlertTitle>Info</AlertTitle>

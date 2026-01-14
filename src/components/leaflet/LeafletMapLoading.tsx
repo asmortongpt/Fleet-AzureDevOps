@@ -15,10 +15,10 @@ export function LeafletMapLoading({ libraryLoaded }: LeafletMapLoadingProps) {
       aria-live="polite"
       aria-atomic="true"
     >
-      <div className="text-center max-w-xs px-6">
+      <div className="text-center max-w-xs px-3">
         {/* Animated spinner */}
         <div
-          className="animate-spin rounded-full h-16 w-16 border-4 border-primary/30 border-t-primary mx-auto mb-6"
+          className="animate-spin rounded-full h-16 w-16 border-4 border-primary/30 border-t-primary mx-auto mb-3"
           role="img"
           aria-label="Loading spinner"
         />
@@ -30,12 +30,12 @@ export function LeafletMapLoading({ libraryLoaded }: LeafletMapLoadingProps) {
         <p className="text-sm text-muted-foreground mb-1">
           {libraryLoaded ? "Setting up interactive map view" : "Downloading OpenStreetMap components"}
         </p>
-        <p className="text-xs text-muted-foreground/70 mt-4">
+        <p className="text-xs text-muted-foreground/70 mt-2">
           100% Free • No API Key Required • Powered by OpenStreetMap
         </p>
 
         {/* Progress indicator */}
-        <div className="mt-6 w-full bg-muted rounded-full h-1.5 overflow-hidden">
+        <div className="mt-3 w-full bg-muted rounded-full h-1.5 overflow-hidden">
           <div
             className="bg-primary h-full rounded-full animate-pulse"
             style={{

@@ -185,11 +185,11 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+          <h1 className="text-base font-bold tracking-tight">Settings</h1>
           <p className="text-muted-foreground">
             Manage your account settings and preferences
           </p>
@@ -213,7 +213,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Desktop Layout: Sidebar + Content */}
-      <div className="hidden md:flex gap-6">
+      <div className="hidden md:flex gap-2">
         {/* Sidebar Navigation */}
         <Card className="w-64 h-fit">
           <CardHeader>
@@ -255,7 +255,7 @@ export default function SettingsPage() {
         {/* Content Area */}
         <div className="flex-1">
           <ScrollArea className="h-[calc(100vh-200px)]">
-            <div className="pr-4">{renderContent()}</div>
+            <div className="pr-2">{renderContent()}</div>
           </ScrollArea>
         </div>
       </div>
@@ -272,7 +272,7 @@ export default function SettingsPage() {
             ))}
           </TabsList>
 
-          <div className="mt-6">
+          <div className="mt-3">
             <ScrollArea className="h-[calc(100vh-250px)]">{renderContent()}</ScrollArea>
           </div>
         </Tabs>

@@ -51,45 +51,45 @@ function OverviewContent() {
   const stewardshipTasks = 7
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Data Governance Overview</h2>
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">Data Governance Overview</h2>
           <p className="text-slate-600 dark:text-slate-400 mt-1">Enterprise data quality, lineage, and master data management</p>
         </div>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <StatCard
           title="Data Quality Score"
           value={`${dataQualityScore}%`}
           variant="success"
-          icon={<CheckCircle className="w-6 h-6" />}
+          icon={<CheckCircle className="w-4 h-4" />}
         />
         <StatCard
           title="Master Records"
           value={masterRecords.toLocaleString()}
-          icon={<Database className="w-6 h-6" />}
+          icon={<Database className="w-4 h-4" />}
         />
         <StatCard
           title="Data Issues"
           value={dataIssues.toString()}
           variant="warning"
-          icon={<WarningIcon className="w-6 h-6" />}
+          icon={<WarningIcon className="w-4 h-4" />}
         />
         <StatCard
           title="Stewardship Tasks"
           value={stewardshipTasks.toString()}
           variant="info"
-          icon={<Users className="w-6 h-6" />}
+          icon={<Users className="w-4 h-4" />}
         />
       </div>
 
       {/* Master Data Domains */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Master Data Domains</h3>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Master Data Domains</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
           <MasterDataDomainCard
             domain="Vehicles"
             records={3247}
@@ -138,8 +138,8 @@ function OverviewContent() {
       </div>
 
       {/* Data Quality Issues */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Recent Data Quality Issues</h3>
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Recent Data Quality Issues</h3>
         <div className="space-y-3">
           <DataIssueItem
             issue="Duplicate vendor records detected"
@@ -184,13 +184,13 @@ function MasterDataDomainCard({
   hasIssues?: boolean
 }) {
   return (
-    <div className="bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-blue-300 transition-all cursor-pointer">
+    <div className="bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-2 hover:border-blue-300 transition-all cursor-pointer">
       <div className="flex items-start justify-between mb-3">
         <div>
           <h4 className="font-semibold text-slate-900 dark:text-white">{domain}</h4>
           <p className="text-sm text-slate-600 dark:text-slate-400">{records.toLocaleString()} records</p>
         </div>
-        {hasIssues && <WarningIcon className="w-5 h-5 text-yellow-600" />}
+        {hasIssues && <WarningIcon className="w-3 h-3 text-yellow-600" />}
       </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
@@ -231,7 +231,7 @@ function DataIssueItem({
   }
 
   return (
-    <div className="flex items-start justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+    <div className="flex items-start justify-between p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-1">
           <span className={`px-2 py-0.5 rounded text-xs font-medium uppercase ${severityColors[severity]}`}>
@@ -262,19 +262,19 @@ function MasterDataContent() {
   const [selectedDomain, setSelectedDomain] = useState<string>('vehicles')
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Master Data Management</h2>
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">Master Data Management</h2>
           <p className="text-slate-600 dark:text-slate-400 mt-1">Canonical source of truth for critical business entities</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
-            <Upload className="w-5 h-5" />
+          <button className="px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+            <Upload className="w-3 h-3" />
             Import Master Data
           </button>
-          <button className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-2">
-            <Download className="w-5 h-5" />
+          <button className="px-2 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-2">
+            <Download className="w-3 h-3" />
             Export Master Data
           </button>
         </div>
@@ -286,7 +286,7 @@ function MasterDataContent() {
           <button
             key={domain}
             onClick={() => setSelectedDomain(domain)}
-            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-colors ${
+            className={`px-2 py-2 rounded-lg font-medium whitespace-nowrap transition-colors ${
               selectedDomain === domain
                 ? 'bg-blue-600 text-white'
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
@@ -298,9 +298,9 @@ function MasterDataContent() {
       </div>
 
       {/* MDM Principles */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800 p-6">
+      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-md border-2 border-blue-200 dark:border-blue-800 p-3">
         <div className="flex items-start gap-3">
-          <Info className="w-6 h-6 text-blue-800 flex-shrink-0 mt-0.5" />
+          <Info className="w-4 h-4 text-blue-800 flex-shrink-0 mt-0.5" />
           <div>
             <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">Master Data Management Principles</h3>
             <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
@@ -315,19 +315,19 @@ function MasterDataContent() {
       </div>
 
       {/* Master Data Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white capitalize">{selectedDomain} Master Data</h3>
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div className="p-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white capitalize">{selectedDomain} Master Data</h3>
           <div className="flex items-center gap-3">
             <div className="relative">
-              <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search master data..."
-                className="pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
+                className="pl-10 pr-2 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
               />
             </div>
-            <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+            <button className="px-2 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
               Add Record
             </button>
           </div>
@@ -336,13 +336,13 @@ function MasterDataContent() {
           <table className="w-full">
             <thead className="bg-slate-50 dark:bg-slate-900">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Quality</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Steward</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Last Updated</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Quality</th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Steward</th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Last Updated</th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
@@ -396,13 +396,13 @@ function MasterDataRow({
 }) {
   return (
     <tr className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="px-3 py-2 whitespace-nowrap">
         <span className="text-sm font-mono text-slate-900 dark:text-white">{id}</span>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="px-3 py-2 whitespace-nowrap">
         <span className="text-sm font-medium text-slate-900 dark:text-white">{name}</span>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="px-3 py-2 whitespace-nowrap">
         <span className={`px-2 py-1 rounded text-xs font-medium ${
           status === 'active'
             ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300'
@@ -411,18 +411,18 @@ function MasterDataRow({
           {status}
         </span>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="px-3 py-2 whitespace-nowrap">
         <span className={`text-sm font-semibold ${quality >= 95 ? 'text-green-600' : quality >= 90 ? 'text-yellow-600' : 'text-red-600'}`}>
           {quality}%
         </span>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="px-3 py-2 whitespace-nowrap">
         <span className="text-sm text-slate-600 dark:text-slate-400">{steward}</span>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="px-3 py-2 whitespace-nowrap">
         <span className="text-sm text-slate-600 dark:text-slate-400">{lastUpdated}</span>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="px-3 py-2 whitespace-nowrap">
         <div className="flex items-center gap-2">
           <button className="p-1 text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors">
             <Eye className="w-4 h-4" />
@@ -445,19 +445,19 @@ function MasterDataRow({
 
 function DataQualityContent() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Data Quality Management</h2>
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">Data Quality Management</h2>
           <p className="text-slate-600 dark:text-slate-400 mt-1">Monitor and improve data quality across all domains</p>
         </div>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+        <button className="px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
           Run Quality Check
         </button>
       </div>
 
       {/* Data Quality Dimensions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-2">
         <DataQualityDimensionCard dimension="Accuracy" score={96.2} />
         <DataQualityDimensionCard dimension="Completeness" score={93.8} />
         <DataQualityDimensionCard dimension="Consistency" score={94.5} />
@@ -467,8 +467,8 @@ function DataQualityContent() {
       </div>
 
       {/* Quality Rules */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Data Quality Rules</h3>
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Data Quality Rules</h3>
         <div className="space-y-3">
           <QualityRuleItem
             rule="VIN number must be 17 characters"
@@ -502,11 +502,11 @@ function DataQualityContent() {
       </div>
 
       {/* Data Profiling */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Data Profiling Results</h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Statistical analysis of data patterns and anomalies</p>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Data Profiling Results</h3>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Statistical analysis of data patterns and anomalies</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+          <div className="p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
             <h4 className="font-medium text-slate-900 dark:text-white mb-3">Field Completeness</h4>
             <div className="space-y-2">
               <ProfilingBar label="VIN" percentage={99.1} />
@@ -515,7 +515,7 @@ function DataQualityContent() {
               <ProfilingBar label="Odometer" percentage={95.7} />
             </div>
           </div>
-          <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+          <div className="p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
             <h4 className="font-medium text-slate-900 dark:text-white mb-3">Data Patterns</h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
@@ -540,9 +540,9 @@ function DataQualityContent() {
 
 function DataQualityDimensionCard({ dimension, score }: { dimension: string; score: number }) {
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-2">
       <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{dimension}</p>
-      <p className={`text-2xl font-bold ${score >= 95 ? 'text-green-600' : score >= 90 ? 'text-yellow-600' : 'text-red-600'}`}>
+      <p className={`text-sm font-bold ${score >= 95 ? 'text-green-600' : score >= 90 ? 'text-yellow-600' : 'text-red-600'}`}>
         {score}%
       </p>
     </div>
@@ -572,7 +572,7 @@ function QualityRuleItem({
   }
 
   return (
-    <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+    <div className="p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
       <div className="flex items-start justify-between mb-2">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
@@ -627,17 +627,17 @@ function ProfilingBar({ label, percentage }: { label: string; percentage: number
 
 function DataLineageContent() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Data Lineage</h2>
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">Data Lineage</h2>
           <p className="text-slate-600 dark:text-slate-400 mt-1">Track data flow from source to consumption</p>
         </div>
       </div>
 
-      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800 p-6">
+      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-md border-2 border-blue-200 dark:border-blue-800 p-3">
         <div className="flex items-start gap-3">
-          <Info className="w-6 h-6 text-blue-800 flex-shrink-0 mt-0.5" />
+          <Info className="w-4 h-4 text-blue-800 flex-shrink-0 mt-0.5" />
           <div>
             <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">Data Lineage Capabilities</h3>
             <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
@@ -651,9 +651,9 @@ function DataLineageContent() {
       </div>
 
       {/* Lineage Visualization */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Sample Lineage: Vehicle Odometer</h3>
-        <div className="space-y-4">
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Sample Lineage: Vehicle Odometer</h3>
+        <div className="space-y-2">
           <LineageStep
             step={1}
             source="Telematics Device"
@@ -709,14 +709,14 @@ function LineageStep({
   timestamp: string
 }) {
   return (
-    <div className="relative pl-8">
-      <div className="absolute left-0 top-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+    <div className="relative pl-3">
+      <div className="absolute left-0 top-0 w-4 h-4 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
         {step}
       </div>
       {step < 5 && (
         <div className="absolute left-3 top-6 bottom-0 w-0.5 bg-blue-300 dark:bg-blue-700" />
       )}
-      <div className="pb-6">
+      <div className="pb-3">
         <div className="flex items-start justify-between mb-1">
           <h4 className="font-semibold text-slate-900 dark:text-white">{process}</h4>
           <span className="text-xs text-slate-500">{timestamp}</span>
@@ -736,18 +736,18 @@ function LineageStep({
 
 function ReferenceDataContent() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Reference Data</h2>
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">Reference Data</h2>
           <p className="text-slate-600 dark:text-slate-400 mt-1">Manage lookup tables, codes, and standard values</p>
         </div>
-        <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+        <button className="px-2 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
           Add Reference Table
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
         <ReferenceTableCard
           name="Vehicle Makes"
           records={43}
@@ -801,13 +801,13 @@ function ReferenceTableCard({
   lastUpdated: string
 }) {
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 hover:border-blue-300 transition-all cursor-pointer">
+    <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 hover:border-blue-300 transition-all cursor-pointer">
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <h3 className="font-semibold text-slate-900 dark:text-white mb-1">{name}</h3>
           <p className="text-sm text-slate-600 dark:text-slate-400">{description}</p>
         </div>
-        <Table className="w-6 h-6 text-blue-800" />
+        <Table className="w-4 h-4 text-blue-800" />
       </div>
       <div className="flex items-center justify-between text-sm">
         <span className="text-slate-600 dark:text-slate-400">{records} records</span>
@@ -823,38 +823,38 @@ function ReferenceTableCard({
 
 function DataSecurityContent() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Data Security & Privacy</h2>
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">Data Security & Privacy</h2>
           <p className="text-slate-600 dark:text-slate-400 mt-1">PII/sensitive data identification and protection</p>
         </div>
       </div>
 
       {/* Sensitive Data Inventory */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         <StatCard
           title="PII Fields Identified"
           value="47"
-          icon={<Lock className="w-6 h-6" />}
+          icon={<Lock className="w-4 h-4" />}
         />
         <StatCard
           title="Masked Fields"
           value="42"
           variant="success"
-          icon={<ShieldCheck className="w-6 h-6" />}
+          icon={<ShieldCheck className="w-4 h-4" />}
         />
         <StatCard
           title="Encryption Applied"
           value="100%"
           variant="success"
-          icon={<CheckCircle className="w-6 h-6" />}
+          icon={<CheckCircle className="w-4 h-4" />}
         />
       </div>
 
       {/* Sensitive Data Classification */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Sensitive Data Classification</h3>
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Sensitive Data Classification</h3>
         <div className="space-y-3">
           <SensitiveDataItem
             field="drivers.social_security_number"
@@ -884,8 +884,8 @@ function DataSecurityContent() {
       </div>
 
       {/* Data Retention Policies */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Data Retention Policies</h3>
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Data Retention Policies</h3>
         <div className="space-y-3">
           <RetentionPolicyItem
             dataType="Vehicle Service Records"
@@ -929,9 +929,9 @@ function SensitiveDataItem({
   accessRestricted: string
 }) {
   return (
-    <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+    <div className="p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
       <div className="flex items-start gap-3">
-        <Lock className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+        <Lock className="w-3 h-3 text-red-600 flex-shrink-0 mt-0.5" />
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
             <code className="text-sm font-mono text-slate-900 dark:text-white">{field}</code>
@@ -967,7 +967,7 @@ function RetentionPolicyItem({
   autoDelete: boolean
 }) {
   return (
-    <div className="flex items-start justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+    <div className="flex items-start justify-between p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-1">
           <h4 className="font-medium text-slate-900 dark:text-white">{dataType}</h4>
@@ -993,25 +993,25 @@ function RetentionPolicyItem({
 
 function DataCatalogContent() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Data Catalog</h2>
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">Data Catalog</h2>
           <p className="text-slate-600 dark:text-slate-400 mt-1">Searchable inventory of all data assets with metadata</p>
         </div>
         <div className="relative">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
           <input
             type="text"
             placeholder="Search data catalog..."
-            className="pl-10 pr-4 py-2 w-96 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
+            className="pl-10 pr-2 py-2 w-96 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
           />
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-200 dark:border-slate-700">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Database Tables</h3>
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div className="p-3 border-b border-slate-200 dark:border-slate-700">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Database Tables</h3>
         </div>
         <div className="divide-y divide-slate-200 dark:divide-slate-700">
           <CatalogItem
@@ -1068,17 +1068,17 @@ function CatalogItem({
   tags: string[]
 }) {
   return (
-    <div className="p-6 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+    <div className="p-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
-            <code className="text-lg font-mono font-semibold text-slate-900 dark:text-white">{name}</code>
+            <code className="text-sm font-mono font-semibold text-slate-900 dark:text-white">{name}</code>
             <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium rounded">
               {type}
             </span>
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">{description}</p>
-          <div className="flex items-center gap-4 text-sm">
+          <div className="flex items-center gap-2 text-sm">
             <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
               <Table className="w-4 h-4" />
               <span>{fields} fields</span>
@@ -1113,43 +1113,43 @@ export default function DataGovernanceHub() {
     {
       id: 'overview',
       label: 'Overview',
-      icon: <Database className="w-5 h-5" />,
+      icon: <Database className="w-3 h-3" />,
       content: <OverviewContent />
     },
     {
       id: 'master-data',
       label: 'Master Data',
-      icon: <Database className="w-5 h-5" />,
+      icon: <Database className="w-3 h-3" />,
       content: <MasterDataContent />
     },
     {
       id: 'data-quality',
       label: 'Data Quality',
-      icon: <ChartBar className="w-5 h-5" />,
+      icon: <ChartBar className="w-3 h-3" />,
       content: <DataQualityContent />
     },
     {
       id: 'lineage',
       label: 'Data Lineage',
-      icon: <FlowArrow className="w-5 h-5" />,
+      icon: <FlowArrow className="w-3 h-3" />,
       content: <DataLineageContent />
     },
     {
       id: 'reference-data',
       label: 'Reference Data',
-      icon: <BookOpen className="w-5 h-5" />,
+      icon: <BookOpen className="w-3 h-3" />,
       content: <ReferenceDataContent />
     },
     {
       id: 'security',
       label: 'Security & Privacy',
-      icon: <ShieldCheck className="w-5 h-5" />,
+      icon: <ShieldCheck className="w-3 h-3" />,
       content: <DataSecurityContent />
     },
     {
       id: 'catalog',
       label: 'Data Catalog',
-      icon: <MagnifyingGlass className="w-5 h-5" />,
+      icon: <MagnifyingGlass className="w-3 h-3" />,
       content: <DataCatalogContent />
     }
   ]
@@ -1158,7 +1158,7 @@ export default function DataGovernanceHub() {
     <HubPage
       title="Data Governance & Master Data Management"
       description="Enterprise data quality, lineage, and master data management"
-      icon={<Database className="w-6 h-6" />}
+      icon={<Database className="w-4 h-4" />}
       tabs={tabs}
       defaultTab="overview"
       gradient="from-emerald-900/20 via-teal-900/10 to-transparent"

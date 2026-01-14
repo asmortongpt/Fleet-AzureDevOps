@@ -238,10 +238,10 @@ export function OSHAForms() {
   const criticalIncidents = (forms || []).filter(f => f.severity === "critical" || f.severity === "fatal").length
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">OSHA Safety Forms</h2>
+          <h2 className="text-sm font-semibold">OSHA Safety Forms</h2>
           <p className="text-muted-foreground">
             Manage workplace safety incidents, near-misses, and compliance documentation
           </p>
@@ -268,8 +268,8 @@ export function OSHAForms() {
                 Document workplace incidents, injuries, and safety observations
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2 py-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="form-type">Form Type *</Label>
                   <Select
@@ -336,7 +336,7 @@ export function OSHAForms() {
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="incident-date">Incident Date *</Label>
                   <Input
@@ -366,7 +366,7 @@ export function OSHAForms() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="employee-name">Employee Name</Label>
                   <Input
@@ -387,7 +387,7 @@ export function OSHAForms() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="injury-type">Injury Type</Label>
                   <Input

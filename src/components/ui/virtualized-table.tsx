@@ -289,9 +289,9 @@ export function VirtualizedTable<TData>({
   }
 
   return (
-    <div className={cn('space-y-4', containerClassName)}>
+    <div className={cn('space-y-2', containerClassName)}>
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center justify-between">
         {/* Search */}
         {enableSearch && (
           <div className="relative w-full sm:w-64">
@@ -401,7 +401,7 @@ export function VirtualizedTable<TData>({
                   <th
                     key={header.id}
                     style={{ width: header.getSize() }}
-                    className="relative px-4 py-3 text-left text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wider"
+                    className="relative px-2 py-3 text-left text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wider"
                   >
                     {header.isPlaceholder ? null : (
                       <div className="flex items-center gap-2">
@@ -493,7 +493,7 @@ export function VirtualizedTable<TData>({
                       <td
                         key={cell.id}
                         style={{ width: cell.column.getSize() }}
-                        className="px-4 py-3 text-sm text-slate-700 dark:text-slate-300"
+                        className="px-2 py-3 text-sm text-slate-700 dark:text-slate-300"
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
@@ -516,7 +516,7 @@ export function VirtualizedTable<TData>({
                     <td
                       key={cell.id}
                       style={{ width: cell.column.getSize() }}
-                      className="px-4 py-3 text-sm text-slate-700 dark:text-slate-300"
+                      className="px-2 py-3 text-sm text-slate-700 dark:text-slate-300"
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
@@ -628,7 +628,7 @@ const DefaultLoadingState = () => (
 const DefaultErrorState = ({ error }: { error: Error }) => (
   <div className="flex items-center justify-center h-64">
     <div className="text-center space-y-2">
-      <X className="w-8 h-8 text-red-500 mx-auto" />
+      <X className="w-4 h-4 text-red-500 mx-auto" />
       <p className="text-sm font-medium">Failed to load data</p>
       <p className="text-xs text-slate-500">{error.message}</p>
     </div>
@@ -639,7 +639,7 @@ const DefaultEmptyState = ({ message }: { message: string }) => (
   <div className="flex items-center justify-center h-64">
     <div className="text-center space-y-2">
       <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full inline-flex">
-        <Search className="w-6 h-6 text-slate-400" />
+        <Search className="w-4 h-4 text-slate-400" />
       </div>
       <p className="text-sm font-medium">{message}</p>
       <p className="text-xs text-slate-500">Try adjusting your filters or search</p>

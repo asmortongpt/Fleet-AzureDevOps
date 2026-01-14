@@ -91,18 +91,18 @@ export function ReactiveMetricCard({
 
   return (
     <motion.div
-      className={`rounded-lg p-6 shadow-lg ${colorClasses[color]}`}
+      className={`rounded-lg p-3 shadow-sm ${colorClasses[color]}`}
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.2 }}
     >
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-medium opacity-80">{title}</h3>
-        {icon && <div className="text-2xl opacity-60">{icon}</div>}
+        {icon && <div className="text-sm opacity-60">{icon}</div>}
       </div>
 
       <div className="flex items-baseline gap-2">
         <motion.span
-          className="text-3xl font-bold"
+          className="text-base font-bold"
           key={displayValue}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -110,7 +110,7 @@ export function ReactiveMetricCard({
         >
           {typeof value === 'number' ? Math.round(displayValue) : value}
         </motion.span>
-        {unit && <span className="text-lg opacity-70">{unit}</span>}
+        {unit && <span className="text-sm opacity-70">{unit}</span>}
       </div>
 
       {trend && trendValue !== undefined && (
@@ -180,7 +180,7 @@ export function ReactiveDataTable<T extends Record<string, any>>({
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600"></div>
       </div>
     )
   }
@@ -201,7 +201,7 @@ export function ReactiveDataTable<T extends Record<string, any>>({
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={`px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider ${
+                className={`px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider ${
                   column.sortable ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700' : ''
                 }`}
                 onClick={() => column.sortable && handleSort(column.key)}
@@ -233,7 +233,7 @@ export function ReactiveDataTable<T extends Record<string, any>>({
                 onClick={() => onRowClick?.(item)}
               >
                 {columns.map((column) => (
-                  <td key={column.key} className="px-6 py-4 whitespace-nowrap">
+                  <td key={column.key} className="px-3 py-2 whitespace-nowrap">
                     {column.render ? column.render(item) : item[column.key]}
                   </td>
                 ))}
@@ -278,11 +278,11 @@ export function RealtimeAlertsFeed() {
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -100 }}
-            className={`p-4 rounded-lg border-l-4 ${alertColors[alert.type]}`}
+            className={`p-2 rounded-lg border-l-4 ${alertColors[alert.type]}`}
           >
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-3">
-                <div className="text-2xl">{alertIcons[alert.type]}</div>
+                <div className="text-sm">{alertIcons[alert.type]}</div>
                 <div>
                   <h4 className="font-semibold text-sm">{alert.title}</h4>
                   <p className="text-sm opacity-80 mt-1">{alert.message}</p>
@@ -313,7 +313,7 @@ export function RealtimeAlertsFeed() {
       </AnimatePresence>
 
       {alerts.length === 0 && (
-        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+        <div className="text-center py-3 text-gray-500 dark:text-gray-400">
           No active alerts
         </div>
       )}
@@ -330,7 +330,7 @@ export function FleetStatsDashboard() {
   const metrics = useAtomValue(fleetMetricsAtom)
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
       <ReactiveMetricCard
         title="Total Vehicles"
         value={stats.total}

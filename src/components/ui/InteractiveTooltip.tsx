@@ -99,10 +99,10 @@ export function InteractiveTooltip({
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: side === "top" ? 5 : -5 }}
                 transition={{ duration: 0.15 }}
-                className="bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden min-w-[280px] max-w-[320px]"
+                className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden min-w-[280px] max-w-[320px]"
               >
                 {/* Header */}
-                <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3 text-white">
+                <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-2 py-3 text-white">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
                       <h4 className="font-semibold text-sm leading-tight">{data.name}</h4>
@@ -119,7 +119,7 @@ export function InteractiveTooltip({
                 </div>
 
                 {/* Content */}
-                <div className="p-4 space-y-3">
+                <div className="p-2 space-y-3">
                   {/* Quick Stats */}
                   {showDetails && (
                     <div className="grid grid-cols-2 gap-3">
@@ -305,7 +305,7 @@ export function SimpleTooltip({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.12 }}
-                className="bg-gray-900 text-white px-3 py-2 rounded-md shadow-lg text-sm max-w-xs"
+                className="bg-gray-900 text-white px-3 py-2 rounded-md shadow-sm text-sm max-w-xs"
               >
                 {content}
               </motion.div>
@@ -372,12 +372,12 @@ export function DataTooltip({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 5 }}
                 transition={{ duration: 0.1 }}
-                className="bg-white border border-gray-200 rounded-lg shadow-lg px-3 py-2 min-w-[120px]"
+                className="bg-white border border-gray-200 rounded-lg shadow-sm px-3 py-2 min-w-[120px]"
               >
                 <div className="text-xs text-slate-700 mb-1">{label}</div>
                 <div className="flex items-baseline gap-1">
                   <div
-                    className="text-lg font-bold"
+                    className="text-sm font-bold"
                     style={{ color }}
                   >
                     {value}

@@ -27,14 +27,14 @@ const buttonVariants = cva(
           "bg-[var(--minimalist-accent-amber)] text-white hover:bg-amber-600 rounded-md",
       },
       size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
+        default: "h-9 px-2 py-2 has-[>svg]:px-3",
         sm: "h-8 gap-1.5 px-3 text-xs has-[>svg]:px-2",
-        lg: "h-10 px-5 text-sm has-[>svg]:px-4",
-        xl: "h-11 px-6 text-base has-[>svg]:px-5",
+        lg: "h-8 px-5 text-sm has-[>svg]:px-2",
+        xl: "h-11 px-3 text-base has-[>svg]:px-5",
         icon: "size-9",
         "icon-sm": "size-7",
         "icon-lg": "size-10",
-        touch: "h-11 px-5 py-2.5 has-[>svg]:px-4 min-h-[44px] min-w-[44px]",
+        touch: "h-11 px-5 py-2.5 has-[>svg]:px-2 min-h-[44px] min-w-[44px]",
       },
     },
     defaultVariants: {

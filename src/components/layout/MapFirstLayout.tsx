@@ -74,7 +74,7 @@ export function MapFirstLayout({
             variant="default"
             size="icon"
             onClick={() => setIsMapFullscreen(!isMapFullscreen)}
-            className="h-10 w-10 rounded-full shadow-lg bg-card text-foreground hover:bg-muted"
+            className="h-8 w-10 rounded-full shadow-sm bg-card text-foreground hover:bg-muted"
             data-testid="map-fullscreen-toggle"
             aria-label={isMapFullscreen ? "Exit fullscreen map" : "Enter fullscreen map"}
           >
@@ -89,7 +89,7 @@ export function MapFirstLayout({
               variant="default"
               size="sm"
               onClick={() => setIsDrawerOpen(true)}
-              className="shadow-lg rounded-full px-4 h-10"
+              className="shadow-sm rounded-full px-2 h-8"
               data-testid="open-drawer-btn"
             >
               <ChevronUp className="h-4 w-4 mr-2" />
@@ -102,7 +102,7 @@ export function MapFirstLayout({
       {/* Side Panel - Desktop/Tablet */}
       <div
         className={cn(
-          'bg-card shadow-lg overflow-hidden',
+          'bg-card shadow-sm overflow-hidden',
           // Mobile: Hidden (drawer instead)
           'hidden md:flex md:flex-col',
           // Tablet: 40% width
@@ -118,14 +118,14 @@ export function MapFirstLayout({
       >
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto" tabIndex={0} role="region" aria-label="Side panel content">
-          <div className="p-4 md:p-5 lg:p-6">
+          <div className="p-2 md:p-5 lg:p-3">
             {sidePanel}
           </div>
         </div>
 
         {/* Extended Details - Desktop Only */}
         {drawerContent && (
-          <div className="hidden lg:block border-t border-border p-4 bg-muted">
+          <div className="hidden lg:block border-t border-border p-2 bg-muted">
             <details className="group">
               <summary className="flex items-center justify-between cursor-pointer list-none font-semibold text-sm">
                 <span>Extended Details</span>
@@ -147,11 +147,11 @@ export function MapFirstLayout({
         defaultSnapPoint="half"
         className="md:hidden"
       >
-        <div className="space-y-4">
+        <div className="space-y-2">
           {sidePanel}
           {drawerContent && (
             <>
-              <div className="border-t border-border my-4" />
+              <div className="border-t border-border my-2" />
               <div className="space-y-3">
                 <h3 className="font-semibold text-sm">Additional Details</h3>
                 {drawerContent}

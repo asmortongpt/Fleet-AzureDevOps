@@ -262,8 +262,8 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
     return (
       <Card>
         <CardContent className="flex items-center justify-center h-96">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <div className="flex flex-col items-center space-y-2">
+            <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-primary"></div>
             <p className="text-muted-foreground">Loading LiDAR scan...</p>
           </div>
         </CardContent>
@@ -281,7 +281,7 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Scan Info Header */}
       <Card>
         <CardHeader>
@@ -315,7 +315,7 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
       </Card>
 
       {/* Main Viewer */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
         {/* 3D Viewer Canvas */}
         <Card className="lg:col-span-2">
           <CardContent className="p-0">
@@ -369,7 +369,7 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
 
               {/* Selected Annotation Overlay */}
               {selectedAnnotation && (
-                <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm rounded-lg p-4 text-white max-w-sm">
+                <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm rounded-lg p-2 text-white max-w-sm">
                   <h4 className="font-semibold mb-2">
                     {selectedAnnotation.damageType.replace('_', ' ').toUpperCase()}
                   </h4>
@@ -409,7 +409,7 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
 
               <TabsContent value="list" className="space-y-2">
                 {damageAnnotations.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-8">
+                  <p className="text-sm text-muted-foreground text-center py-3">
                     No damage annotations
                   </p>
                 ) : (
@@ -442,7 +442,7 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
               </TabsContent>
 
               <TabsContent value="stats">
-                <div className="space-y-4 text-sm">
+                <div className="space-y-2 text-sm">
                   <div>
                     <div className="font-medium mb-2">Damage Summary</div>
                     <div className="space-y-2">
@@ -461,7 +461,7 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
 
                   <div>
                     <div className="font-medium mb-2">Total Volume</div>
-                    <div className="text-lg font-bold">
+                    <div className="text-sm font-bold">
                       {formatVolume(
                         damageAnnotations.reduce((sum, a) => sum + (a.volume || 0), 0)
                       )}
@@ -470,7 +470,7 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
 
                   <div>
                     <div className="font-medium mb-2">Total Area</div>
-                    <div className="text-lg font-bold">
+                    <div className="text-sm font-bold">
                       {damageAnnotations
                         .reduce((sum, a) => sum + a.area, 0)
                         .toFixed(4)}{' '}

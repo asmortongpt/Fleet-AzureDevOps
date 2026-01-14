@@ -121,7 +121,7 @@ export default function CostAnalyticsPage() {
         value: `$${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
         change: budgetVariance,
         changeLabel: `${Math.abs(budgetVariance).toFixed(1)}% ${budgetVariance > 0 ? 'over' : 'under'} budget`,
-        icon: <DollarSign className="w-5 h-5" />,
+        icon: <DollarSign className="w-3 h-3" />,
         variant: budgetVariance > 10 ? 'danger' : budgetVariance > 5 ? 'warning' : 'success'
       },
       {
@@ -129,7 +129,7 @@ export default function CostAnalyticsPage() {
         value: `$${costPerMile.toFixed(3)}`,
         change: savingsPercentage,
         changeLabel: `vs IRS rate ($${CURRENT_IRS_RATE}/mi)`,
-        icon: <Car className="w-5 h-5" />,
+        icon: <Car className="w-3 h-3" />,
         variant: costPerMile < CURRENT_IRS_RATE ? 'success' : 'warning'
       },
       {
@@ -137,7 +137,7 @@ export default function CostAnalyticsPage() {
         value: `$${totalFuelCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
         change: -3.2,
         changeLabel: 'vs last month',
-        icon: <Fuel className="w-5 h-5" />,
+        icon: <Fuel className="w-3 h-3" />,
         variant: 'success'
       },
       {
@@ -145,7 +145,7 @@ export default function CostAnalyticsPage() {
         value: `$${totalMaintenanceCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
         change: 5.8,
         changeLabel: 'vs last month',
-        icon: <Wrench className="w-5 h-5" />,
+        icon: <Wrench className="w-3 h-3" />,
         variant: 'warning'
       }
     ]
@@ -298,10 +298,10 @@ export default function CostAnalyticsPage() {
     <div className="h-screen flex flex-col bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       {/* Header */}
       <div className="border-b bg-white dark:bg-slate-900 shadow-sm">
-        <div className="px-6 py-4">
+        <div className="px-3 py-2">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h1 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <DollarSign className="w-7 h-7 text-green-600" />
                 Cost Analytics
               </h1>
@@ -347,19 +347,19 @@ export default function CostAnalyticsPage() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
+      <div className="flex-1 overflow-auto p-3">
+        <div className="max-w-7xl mx-auto space-y-2">
           {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             {costMetrics.map((metric, index) => (
               <Card key={index} className={`border-2 ${getVariantColor(metric.variant)}`}>
-                <CardContent className="p-6">
+                <CardContent className="p-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
                         {metric.label}
                       </p>
-                      <p className="text-2xl font-bold mt-2">{metric.value}</p>
+                      <p className="text-sm font-bold mt-2">{metric.value}</p>
                       <div className="flex items-center gap-2 mt-2">
                         {metric.change > 0 ? (
                           <TrendingUp className="w-4 h-4 text-red-500" />
@@ -371,7 +371,7 @@ export default function CostAnalyticsPage() {
                         </span>
                       </div>
                     </div>
-                    <div className="ml-4">{metric.icon}</div>
+                    <div className="ml-2">{metric.icon}</div>
                   </div>
                 </CardContent>
               </Card>
@@ -379,18 +379,18 @@ export default function CostAnalyticsPage() {
           </div>
 
           {/* Cost Breakdown */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
             {/* Category Breakdown */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <PieChart className="w-5 h-5" />
+                  <PieChart className="w-3 h-3" />
                   Cost Breakdown by Category
                 </CardTitle>
                 <CardDescription>Budget vs actual spending analysis</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {costBreakdown.map((item, index) => (
                     <div key={index} className="space-y-2">
                       <div className="flex items-center justify-between">
@@ -432,21 +432,21 @@ export default function CostAnalyticsPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5" />
+                  <BarChart3 className="w-3 h-3" />
                   IRS Mileage Rate Comparison
                 </CardTitle>
                 <CardDescription>Industry standard benchmarking</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-6">
-                  <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="space-y-2">
+                  <div className="p-2 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
                     <div className="flex items-start gap-3">
-                      <AlertTriangle className="w-5 h-5 text-blue-800 mt-0.5" />
+                      <AlertTriangle className="w-3 h-3 text-blue-800 mt-0.5" />
                       <div>
                         <p className="font-semibold text-blue-900 dark:text-blue-100">
                           2024 IRS Standard Mileage Rate
                         </p>
-                        <p className="text-2xl font-bold text-blue-800 mt-1">
+                        <p className="text-sm font-bold text-blue-800 mt-1">
                           ${CURRENT_IRS_RATE} per mile
                         </p>
                         <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
@@ -466,7 +466,7 @@ export default function CostAnalyticsPage() {
                     ))}
                   </div>
 
-                  <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
+                  <div className="p-2 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
                     <p className="text-sm font-medium text-green-900 dark:text-green-100">
                       Fleet Performance
                     </p>
@@ -490,7 +490,7 @@ export default function CostAnalyticsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-2">
-                    <Car className="w-5 h-5" />
+                    <Car className="w-3 h-3" />
                     Per-Vehicle Cost Analysis
                   </CardTitle>
                   <CardDescription>
@@ -515,25 +515,25 @@ export default function CostAnalyticsPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-slate-200 dark:border-slate-700">
-                      <th className="text-left py-3 px-4 font-semibold text-sm text-slate-700 dark:text-slate-300">
+                      <th className="text-left py-3 px-2 font-semibold text-sm text-slate-700 dark:text-slate-300">
                         Vehicle
                       </th>
-                      <th className="text-right py-3 px-4 font-semibold text-sm text-slate-700 dark:text-slate-300">
+                      <th className="text-right py-3 px-2 font-semibold text-sm text-slate-700 dark:text-slate-300">
                         Total Cost
                       </th>
-                      <th className="text-right py-3 px-4 font-semibold text-sm text-slate-700 dark:text-slate-300">
+                      <th className="text-right py-3 px-2 font-semibold text-sm text-slate-700 dark:text-slate-300">
                         Cost/Mile
                       </th>
-                      <th className="text-right py-3 px-4 font-semibold text-sm text-slate-700 dark:text-slate-300">
+                      <th className="text-right py-3 px-2 font-semibold text-sm text-slate-700 dark:text-slate-300">
                         Miles
                       </th>
-                      <th className="text-right py-3 px-4 font-semibold text-sm text-slate-700 dark:text-slate-300">
+                      <th className="text-right py-3 px-2 font-semibold text-sm text-slate-700 dark:text-slate-300">
                         Fuel Cost
                       </th>
-                      <th className="text-right py-3 px-4 font-semibold text-sm text-slate-700 dark:text-slate-300">
+                      <th className="text-right py-3 px-2 font-semibold text-sm text-slate-700 dark:text-slate-300">
                         Maintenance
                       </th>
-                      <th className="text-right py-3 px-4 font-semibold text-sm text-slate-700 dark:text-slate-300">
+                      <th className="text-right py-3 px-2 font-semibold text-sm text-slate-700 dark:text-slate-300">
                         vs IRS Rate
                       </th>
                     </tr>
@@ -544,31 +544,31 @@ export default function CostAnalyticsPage() {
                         key={vehicle.vehicleId}
                         className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                       >
-                        <td className="py-3 px-4">
+                        <td className="py-3 px-2">
                           <p className="font-medium text-sm">{vehicle.vehicleName}</p>
                         </td>
-                        <td className="py-3 px-4 text-right">
+                        <td className="py-3 px-2 text-right">
                           <p className="font-semibold">
                             ${vehicle.totalCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                           </p>
                         </td>
-                        <td className="py-3 px-4 text-right">
+                        <td className="py-3 px-2 text-right">
                           <Badge
                             variant={vehicle.costPerMile < CURRENT_IRS_RATE ? 'default' : 'destructive'}
                           >
                             ${vehicle.costPerMile.toFixed(3)}
                           </Badge>
                         </td>
-                        <td className="py-3 px-4 text-right text-sm">
+                        <td className="py-3 px-2 text-right text-sm">
                           {vehicle.miles.toLocaleString()}
                         </td>
-                        <td className="py-3 px-4 text-right text-sm">
+                        <td className="py-3 px-2 text-right text-sm">
                           ${vehicle.fuelCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="py-3 px-4 text-right text-sm">
+                        <td className="py-3 px-2 text-right text-sm">
                           ${vehicle.maintenanceCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="py-3 px-4 text-right">
+                        <td className="py-3 px-2 text-right">
                           <div className="flex items-center justify-end gap-1">
                             {vehicle.variance < 0 ? (
                               <TrendingDown className="w-4 h-4 text-green-500" />
@@ -591,7 +591,7 @@ export default function CostAnalyticsPage() {
                 </table>
               </div>
               {vehicleCostData.length > 10 && (
-                <div className="mt-4 text-center">
+                <div className="mt-2 text-center">
                   <Button variant="outline" size="sm">
                     View All {vehicleCostData.length} Vehicles
                   </Button>

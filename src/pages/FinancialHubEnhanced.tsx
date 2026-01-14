@@ -181,7 +181,7 @@ const EnhancedStatCard = React.memo<any>(({
                 icon={icon}
                 trend={trend}
                 onClick={onClick}
-                className="shadow-lg hover:shadow-xl transition-shadow duration-300"
+                className="shadow-sm hover:shadow-sm transition-shadow duration-300"
             />
         </motion.div>
     )
@@ -233,11 +233,11 @@ const CostAnalysisContent = React.memo(() => {
 
     return (
         <SectionErrorBoundary>
-            <div className="p-8 space-y-8 bg-gradient-to-b from-slate-900/50 via-transparent to-transparent">
+            <div className="p-3 space-y-2 bg-gradient-to-b from-slate-900/50 via-transparent to-transparent">
                 {/* Enhanced Header with Actions */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-3xl font-bold text-white mb-2">Cost Analysis & Control</h2>
+                        <h2 className="text-base font-bold text-white mb-2">Cost Analysis & Control</h2>
                         <p className="text-slate-400">Real-time cost tracking with predictive analytics</p>
                     </div>
                     <div className="flex gap-2">
@@ -277,18 +277,18 @@ const CostAnalysisContent = React.memo(() => {
                     error={error}
                     data={metrics}
                     loadingComponent={
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2">
                             {[1, 2, 3, 4].map(i => <StatCardSkeleton key={i} />)}
                         </div>
                     }
                 >
                     {(data) => (
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2">
                             <EnhancedStatCard
                                 title="Total Monthly Costs"
                                 value={`$${(data.totalMonthlyCosts / 1000).toFixed(1)}K`}
                                 variant="primary"
-                                icon={<CurrencyDollar className="w-6 h-6" />}
+                                icon={<CurrencyDollar className="w-4 h-4" />}
                                 onClick={() => push({
                                     type: 'total-costs',
                                     data: { title: 'Monthly Cost Breakdown', period: 'current', metrics: data },
@@ -321,7 +321,7 @@ const CostAnalysisContent = React.memo(() => {
                                 title="Cost per Mile"
                                 value={`$${data.costPerMile.toFixed(2)}`}
                                 variant="default"
-                                icon={<Calculator className="w-6 h-6" />}
+                                icon={<Calculator className="w-4 h-4" />}
                                 onClick={() => push({
                                     type: 'cost-per-mile',
                                     data: { title: 'Cost per Mile Analysis' },
@@ -333,7 +333,7 @@ const CostAnalysisContent = React.memo(() => {
                 </AsyncState>
 
                 {/* Advanced Visualizations */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                     <Suspense fallback={<ChartSkeleton height="400px" />}>
                         <AdvancedChart
                             title="Cost Trend Analysis"
@@ -460,9 +460,9 @@ const BudgetUtilizationTable = React.memo(() => {
     ], [])
 
     return (
-        <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden">
-            <div className="p-6 border-b border-slate-700/50">
-                <h3 className="text-lg font-semibold text-white">Department Budget Utilization</h3>
+        <div className="bg-slate-800/50 rounded-md border border-slate-700/50 overflow-hidden">
+            <div className="p-3 border-b border-slate-700/50">
+                <h3 className="text-sm font-semibold text-white">Department Budget Utilization</h3>
                 <p className="text-sm text-slate-400 mt-1">Real-time budget tracking by department</p>
             </div>
             <VirtualizedTable
@@ -501,7 +501,7 @@ export default function EnhancedFinancialHub() {
             <HubPage
                 title="Financial Management"
                 description="Enterprise-grade financial operations and analytics"
-                icon={<CurrencyDollar className="w-8 h-8" />}
+                icon={<CurrencyDollar className="w-4 h-4" />}
                 headerActions={
                     <div className="flex items-center gap-2">
                         <Button
@@ -509,9 +509,9 @@ export default function EnhancedFinancialHub() {
                             size="sm"
                             className="relative"
                         >
-                            <Bell className="w-5 h-5" />
+                            <Bell className="w-3 h-3" />
                             {activeNotifications > 0 && (
-                                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
                                     {activeNotifications}
                                 </span>
                             )}
@@ -520,55 +520,55 @@ export default function EnhancedFinancialHub() {
                             variant="ghost"
                             size="sm"
                         >
-                            <Settings className="w-5 h-5" />
+                            <Settings className="w-3 h-3" />
                         </Button>
                     </div>
                 }
             >
-                <HubTabItem value="cost-analysis" label="Cost Analysis" icon={<Calculator className="w-5 h-5" />}>
+                <HubTabItem value="cost-analysis" label="Cost Analysis" icon={<Calculator className="w-3 h-3" />}>
                     <CostAnalysisContent />
                 </HubTabItem>
 
-                <HubTabItem value="billing" label="Billing Reports" icon={<ChartBar className="w-5 h-5" />}>
+                <HubTabItem value="billing" label="Billing Reports" icon={<ChartBar className="w-3 h-3" />}>
                     <SectionErrorBoundary>
-                        <div className="p-8">
-                            <h2 className="text-2xl font-bold text-white mb-4">Billing & Revenue Reports</h2>
+                        <div className="p-3">
+                            <h2 className="text-sm font-bold text-white mb-2">Billing & Revenue Reports</h2>
                             <p className="text-slate-400">Enhanced billing features coming soon...</p>
                         </div>
                     </SectionErrorBoundary>
                 </HubTabItem>
 
-                <HubTabItem value="budget" label="Budget Tracking" icon={<Wallet className="w-5 h-5" />}>
+                <HubTabItem value="budget" label="Budget Tracking" icon={<Wallet className="w-3 h-3" />}>
                     <SectionErrorBoundary>
-                        <div className="p-8">
-                            <h2 className="text-2xl font-bold text-white mb-4">Budget Tracking & Forecasting</h2>
+                        <div className="p-3">
+                            <h2 className="text-sm font-bold text-white mb-2">Budget Tracking & Forecasting</h2>
                             <p className="text-slate-400">Advanced budget analytics coming soon...</p>
                         </div>
                     </SectionErrorBoundary>
                 </HubTabItem>
 
-                <HubTabItem value="cost-benefit" label="ROI Analysis" icon={<TrendUp className="w-5 h-5" />}>
+                <HubTabItem value="cost-benefit" label="ROI Analysis" icon={<TrendUp className="w-3 h-3" />}>
                     <SectionErrorBoundary>
-                        <div className="p-8">
-                            <h2 className="text-2xl font-bold text-white mb-4">Cost-Benefit & ROI Analysis</h2>
+                        <div className="p-3">
+                            <h2 className="text-sm font-bold text-white mb-2">Cost-Benefit & ROI Analysis</h2>
                             <p className="text-slate-400">Investment analysis tools coming soon...</p>
                         </div>
                     </SectionErrorBoundary>
                 </HubTabItem>
 
-                <HubTabItem value="invoices" label="Invoice Processing" icon={<Invoice className="w-5 h-5" />}>
+                <HubTabItem value="invoices" label="Invoice Processing" icon={<Invoice className="w-3 h-3" />}>
                     <SectionErrorBoundary>
-                        <div className="p-8">
-                            <h2 className="text-2xl font-bold text-white mb-4">Automated Invoice Processing</h2>
+                        <div className="p-3">
+                            <h2 className="text-sm font-bold text-white mb-2">Automated Invoice Processing</h2>
                             <p className="text-slate-400">AI-powered invoice management coming soon...</p>
                         </div>
                     </SectionErrorBoundary>
                 </HubTabItem>
 
-                <HubTabItem value="payments" label="Payment Tracking" icon={<CreditCard className="w-5 h-5" />}>
+                <HubTabItem value="payments" label="Payment Tracking" icon={<CreditCard className="w-3 h-3" />}>
                     <SectionErrorBoundary>
-                        <div className="p-8">
-                            <h2 className="text-2xl font-bold text-white mb-4">Payment Tracking & Reconciliation</h2>
+                        <div className="p-3">
+                            <h2 className="text-sm font-bold text-white mb-2">Payment Tracking & Reconciliation</h2>
                             <p className="text-slate-400">Real-time payment monitoring coming soon...</p>
                         </div>
                     </SectionErrorBoundary>

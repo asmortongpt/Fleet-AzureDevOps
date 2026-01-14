@@ -11,31 +11,31 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function SystemHealthDrilldown() {
     return (
-        <div className="space-y-6">
+        <div className="space-y-2">
             <div className="grid grid-cols-4 gap-2">
                 <Card className="bg-blue-900/30 border-blue-700/50">
                     <CardContent className="p-3 text-center">
-                        <Users className="w-5 h-5 text-blue-400 mx-auto mb-1" />
-                        <div className="text-xl font-bold text-white">42</div>
+                        <Users className="w-3 h-3 text-blue-400 mx-auto mb-1" />
+                        <div className="text-base font-bold text-white">42</div>
                         <div className="text-xs text-slate-400">Sessions</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-3 text-center">
-                        <div className="text-xl font-bold text-emerald-400">99.9%</div>
+                        <div className="text-base font-bold text-emerald-400">99.9%</div>
                         <div className="text-xs text-slate-400">Uptime</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-slate-800/50 border-slate-700">
                     <CardContent className="p-3 text-center">
-                        <Cpu className="w-5 h-5 text-slate-400 mx-auto mb-1" />
-                        <div className="text-xl font-bold text-slate-300">24%</div>
+                        <Cpu className="w-3 h-3 text-slate-400 mx-auto mb-1" />
+                        <div className="text-base font-bold text-slate-300">24%</div>
                         <div className="text-xs text-slate-400">CPU</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-slate-800/50 border-slate-700">
                     <CardContent className="p-3 text-center">
-                        <div className="text-xl font-bold text-slate-300">68%</div>
+                        <div className="text-base font-bold text-slate-300">68%</div>
                         <div className="text-xs text-slate-400">Memory</div>
                     </CardContent>
                 </Card>
@@ -43,8 +43,8 @@ export function SystemHealthDrilldown() {
 
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-white text-lg flex items-center gap-2">
-                        <Pulse className="w-5 h-5 text-blue-400" />
+                    <CardTitle className="text-white text-sm flex items-center gap-2">
+                        <Pulse className="w-3 h-3 text-blue-400" />
                         Service Status
                     </CardTitle>
                 </CardHeader>
@@ -79,24 +79,24 @@ export function AlertsDrilldown() {
     ]
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-2">
             <div className="grid grid-cols-3 gap-3">
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
-                    <CardContent className="p-4 text-center">
-                        <CheckCircle className="w-6 h-6 text-emerald-400 mx-auto mb-2" />
-                        <div className="text-2xl font-bold text-emerald-400">0</div>
+                    <CardContent className="p-2 text-center">
+                        <CheckCircle className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
+                        <div className="text-sm font-bold text-emerald-400">0</div>
                         <div className="text-xs text-slate-400">Critical</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-emerald-400">12</div>
+                    <CardContent className="p-2 text-center">
+                        <div className="text-sm font-bold text-emerald-400">12</div>
                         <div className="text-xs text-slate-400">Resolved Today</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-slate-800/50 border-slate-700">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-slate-300">2</div>
+                    <CardContent className="p-2 text-center">
+                        <div className="text-sm font-bold text-slate-300">2</div>
                         <div className="text-xs text-slate-400">Suppressed</div>
                     </CardContent>
                 </Card>
@@ -104,8 +104,8 @@ export function AlertsDrilldown() {
 
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-white text-lg flex items-center gap-2">
-                        <Bell className="w-5 h-5 text-amber-400" />
+                    <CardTitle className="text-white text-sm flex items-center gap-2">
+                        <Bell className="w-3 h-3 text-amber-400" />
                         Recent Alerts
                     </CardTitle>
                 </CardHeader>
@@ -114,8 +114,8 @@ export function AlertsDrilldown() {
                         <div key={alert.id} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
                             <div className="flex items-center gap-3">
                                 {alert.severity === 'warning' ?
-                                    <Warning className="w-5 h-5 text-amber-400" /> :
-                                    <Bell className="w-5 h-5 text-blue-400" />
+                                    <Warning className="w-3 h-3 text-amber-400" /> :
+                                    <Bell className="w-3 h-3 text-blue-400" />
                                 }
                                 <div>
                                     <div className="font-medium text-white text-sm">{alert.message}</div>
@@ -133,24 +133,24 @@ export function AlertsDrilldown() {
 
 export function FilesDrilldown() {
     return (
-        <div className="space-y-6">
+        <div className="space-y-2">
             <div className="grid grid-cols-3 gap-3">
                 <Card className="bg-blue-900/30 border-blue-700/50">
-                    <CardContent className="p-4 text-center">
-                        <HardDrive className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-                        <div className="text-2xl font-bold text-white">2.4 TB</div>
+                    <CardContent className="p-2 text-center">
+                        <HardDrive className="w-4 h-4 text-blue-400 mx-auto mb-2" />
+                        <div className="text-sm font-bold text-white">2.4 TB</div>
                         <div className="text-xs text-slate-400">Total Storage</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-slate-800/50 border-slate-700">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-slate-300">456</div>
+                    <CardContent className="p-2 text-center">
+                        <div className="text-sm font-bold text-slate-300">456</div>
                         <div className="text-xs text-slate-400">Shared Files</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-emerald-400">24</div>
+                    <CardContent className="p-2 text-center">
+                        <div className="text-sm font-bold text-emerald-400">24</div>
                         <div className="text-xs text-slate-400">Uploaded Today</div>
                     </CardContent>
                 </Card>
@@ -158,9 +158,9 @@ export function FilesDrilldown() {
 
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-white text-lg">Storage by Type</CardTitle>
+                    <CardTitle className="text-white text-sm">Storage by Type</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                     {[
                         { type: 'Documents', size: '890 GB', percent: 37, color: 'bg-blue-500' },
                         { type: 'Video Telematics', size: '1.2 TB', percent: 50, color: 'bg-purple-500' },

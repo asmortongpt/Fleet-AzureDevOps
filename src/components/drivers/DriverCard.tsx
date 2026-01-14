@@ -54,12 +54,12 @@ export function DriverCard({ driver, onClick, compact = false }: DriverCardProps
             )}
             onClick={onClick}
         >
-            <CardContent className={cn("p-4", compact && "p-3")}>
+            <CardContent className={cn("p-2", compact && "p-3")}>
                 <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
                         <div className="relative">
-                            <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
-                                <User className="w-5 h-5 text-muted-foreground" />
+                            <div className="w-10 h-8 rounded-full bg-secondary flex items-center justify-center">
+                                <User className="w-3 h-3 text-muted-foreground" />
                             </div>
                             <div className={cn(
                                 "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-background",
@@ -83,7 +83,7 @@ export function DriverCard({ driver, onClick, compact = false }: DriverCardProps
 
                     {driver.performance && (
                         <div className="text-right">
-                            <div className={cn("text-lg font-bold", getScoreColor(driver.performance.safetyScore))}>
+                            <div className={cn("text-sm font-bold", getScoreColor(driver.performance.safetyScore))}>
                                 {driver.performance.safetyScore}
                             </div>
                             <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Score</p>

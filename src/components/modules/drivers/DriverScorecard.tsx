@@ -163,7 +163,7 @@ export function DriverScorecard() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
           <p className="text-slate-700">Loading driver scorecard...</p>
         </div>
       </div>
@@ -171,9 +171,9 @@ export function DriverScorecard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2">
+        <h1 className="text-base font-bold flex items-center gap-2">
           <Trophy className="h-8 w-8 text-yellow-600" weight="fill" />
           Driver Scorecard & Gamification
         </h1>
@@ -190,10 +190,10 @@ export function DriverScorecard() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="leaderboard" className="space-y-6">
+        <TabsContent value="leaderboard" className="space-y-2">
           {/* Top 3 Podium */}
           {leaderboard.length >= 3 && (
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-3 gap-2 mb-3">
               {/* 2nd Place */}
               <Card
                 className="border-2 border-gray-300 cursor-pointer hover:shadow-md transition-all"
@@ -201,13 +201,13 @@ export function DriverScorecard() {
               >
                 <CardHeader className="text-center pb-3">
                   <div className="flex justify-center mb-2">
-                    <Medal className="h-12 w-12 text-gray-400" weight="fill" />
+                    <Medal className="h-9 w-12 text-gray-400" weight="fill" />
                   </div>
-                  <CardTitle className="text-lg">{leaderboard[1]?.driverName}</CardTitle>
+                  <CardTitle className="text-sm">{leaderboard[1]?.driverName}</CardTitle>
                   <CardDescription>2nd Place</CardDescription>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <div className={`text-3xl font-bold ${getScoreColor(leaderboard[1]?.overallScore || 0)}`}>
+                  <div className={`text-base font-bold ${getScoreColor(leaderboard[1]?.overallScore || 0)}`}>
                     {(leaderboard[1]?.overallScore || 0).toFixed(1)}
                   </div>
                   <Button
@@ -223,18 +223,18 @@ export function DriverScorecard() {
 
               {/* 1st Place */}
               <Card
-                className="border-2 border-yellow-400 transform scale-105 shadow-lg cursor-pointer hover:shadow-xl transition-all"
+                className="border-2 border-yellow-400 transform scale-105 shadow-sm cursor-pointer hover:shadow-sm transition-all"
                 onClick={() => leaderboard[0] && handleDriverDrilldown(leaderboard[0])}
               >
                 <CardHeader className="text-center pb-3 bg-gradient-to-b from-yellow-50 to-transparent">
                   <div className="flex justify-center mb-2">
                     <Trophy className="h-16 w-16 text-yellow-500" weight="fill" />
                   </div>
-                  <CardTitle className="text-xl">{leaderboard[0]?.driverName}</CardTitle>
+                  <CardTitle className="text-base">{leaderboard[0]?.driverName}</CardTitle>
                   <CardDescription className="font-semibold">1st Place - Champion!</CardDescription>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <div className={`text-4xl font-bold ${getScoreColor(leaderboard[0]?.overallScore || 0)}`}>
+                  <div className={`text-sm font-bold ${getScoreColor(leaderboard[0]?.overallScore || 0)}`}>
                     {(leaderboard[0]?.overallScore || 0).toFixed(1)}
                   </div>
                   <Badge className="mt-2" variant="default">Top Performer</Badge>
@@ -256,13 +256,13 @@ export function DriverScorecard() {
               >
                 <CardHeader className="text-center pb-3">
                   <div className="flex justify-center mb-2">
-                    <Medal className="h-12 w-12 text-orange-600" weight="fill" />
+                    <Medal className="h-9 w-12 text-orange-600" weight="fill" />
                   </div>
-                  <CardTitle className="text-lg">{leaderboard[2]?.driverName}</CardTitle>
+                  <CardTitle className="text-sm">{leaderboard[2]?.driverName}</CardTitle>
                   <CardDescription>3rd Place</CardDescription>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <div className={`text-3xl font-bold ${getScoreColor(leaderboard[2]?.overallScore || 0)}`}>
+                  <div className={`text-base font-bold ${getScoreColor(leaderboard[2]?.overallScore || 0)}`}>
                     {(leaderboard[2]?.overallScore || 0).toFixed(1)}
                   </div>
                   <Button
@@ -339,7 +339,7 @@ export function DriverScorecard() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="driver-detail" className="space-y-6">
+        <TabsContent value="driver-detail" className="space-y-2">
           {selectedDriver && (
             <>
               {/* Driver Overview */}
@@ -347,7 +347,7 @@ export function DriverScorecard() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-2xl">{selectedDriver.driverName}</CardTitle>
+                      <CardTitle className="text-sm">{selectedDriver.driverName}</CardTitle>
                       <CardDescription>Rank #{selectedDriver.rank} - Overall Score: {selectedDriver.overallScore.toFixed(1)}</CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
@@ -360,15 +360,15 @@ export function DriverScorecard() {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-2">
                   {/* Score Breakdown */}
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-3 gap-2">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <ShieldCheck className="h-5 w-5 text-blue-800" weight="fill" />
                         <span className="text-sm font-medium">Safety</span>
                       </div>
-                      <div className="text-2xl font-bold">{selectedDriver.safetyScore.toFixed(1)}</div>
+                      <div className="text-sm font-bold">{selectedDriver.safetyScore.toFixed(1)}</div>
                       <Progress value={selectedDriver.safetyScore} className="h-2" />
                     </div>
 
@@ -377,7 +377,7 @@ export function DriverScorecard() {
                         <GasPump className="h-5 w-5 text-green-600" weight="fill" />
                         <span className="text-sm font-medium">Efficiency</span>
                       </div>
-                      <div className="text-2xl font-bold">{selectedDriver.efficiencyScore.toFixed(1)}</div>
+                      <div className="text-sm font-bold">{selectedDriver.efficiencyScore.toFixed(1)}</div>
                       <Progress value={selectedDriver.efficiencyScore} className="h-2" />
                     </div>
 
@@ -386,7 +386,7 @@ export function DriverScorecard() {
                         <CheckCircle className="h-5 w-5 text-purple-600" weight="fill" />
                         <span className="text-sm font-medium">Compliance</span>
                       </div>
-                      <div className="text-2xl font-bold">{selectedDriver.complianceScore.toFixed(1)}</div>
+                      <div className="text-sm font-bold">{selectedDriver.complianceScore.toFixed(1)}</div>
                       <Progress value={selectedDriver.complianceScore} className="h-2" />
                     </div>
                   </div>
@@ -404,14 +404,14 @@ export function DriverScorecard() {
                 </CardHeader>
                 <CardContent>
                   {achievements.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                       {achievements.map((achievement) => (
                         <Card key={achievement.id} className="border-2">
-                          <CardContent className="pt-6 text-center">
+                          <CardContent className="pt-3 text-center">
                             <div className="flex justify-center mb-3 text-yellow-600">
                               {getAchievementIcon(achievement.icon)}
                             </div>
-                            <div className="text-lg font-semibold">{achievement.achievementName}</div>
+                            <div className="text-sm font-semibold">{achievement.achievementName}</div>
                             <div className="text-sm text-slate-700">{achievement.achievementDescription}</div>
                             <div className="text-sm mt-1">+{achievement.points.toString()} points</div>
                           </CardContent>
@@ -419,8 +419,8 @@ export function DriverScorecard() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <Target className="h-12 w-12 mx-auto mb-3 text-gray-400" weight="duotone" />
+                    <div className="text-center py-3 text-gray-500">
+                      <Target className="h-9 w-12 mx-auto mb-3 text-gray-400" weight="duotone" />
                       <p>No achievements earned yet. Keep driving safely!</p>
                     </div>
                   )}

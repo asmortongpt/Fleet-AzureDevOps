@@ -360,7 +360,7 @@ export function VehicleHistoryTrail({
       <CardContent>
         {/* Date Range Display */}
         {(startDate || endDate) && (
-          <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 mb-2 text-sm text-muted-foreground">
             <Calendar className="h-4 w-4" />
             <span>
               {startDate && format(new Date(startDate), 'MMM d, yyyy')}
@@ -384,7 +384,7 @@ export function VehicleHistoryTrail({
 
         {/* Error State */}
         {error && (
-          <div className="flex items-center gap-2 p-4 border border-destructive bg-destructive/10 rounded-md">
+          <div className="flex items-center gap-2 p-2 border border-destructive bg-destructive/10 rounded-md">
             <AlertCircle className="h-5 w-5 text-destructive" />
             <div>
               <p className="font-semibold text-destructive">Failed to load location history</p>
@@ -405,14 +405,14 @@ export function VehicleHistoryTrail({
             {!visible && (
               <div className="h-[400px] flex items-center justify-center border rounded-md bg-muted">
                 <div className="text-center">
-                  <EyeOff className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
+                  <EyeOff className="h-9 w-12 mx-auto mb-2 text-muted-foreground" />
                   <p className="text-muted-foreground">Trail hidden</p>
                 </div>
               </div>
             )}
 
             {/* Legend */}
-            <div className="mt-4 flex items-center gap-4 text-sm">
+            <div className="mt-2 flex items-center gap-2 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-[#0066cc]" />
                 <span>Oldest</span>
@@ -433,7 +433,7 @@ export function VehicleHistoryTrail({
 
             {/* Stats */}
             {data && data.data.length > 0 && (
-              <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
+              <div className="mt-2 grid grid-cols-3 gap-2 text-sm">
                 <div>
                   <p className="text-muted-foreground">First Point</p>
                   <p className="font-semibold">

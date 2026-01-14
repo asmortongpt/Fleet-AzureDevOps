@@ -182,7 +182,7 @@ export function DrilldownCard({
       <CardContent className={variant === 'compact' ? 'p-0' : undefined}>
         {loading ? (
           <div className="flex items-center gap-2">
-            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+            <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Loading...</span>
           </div>
         ) : (
@@ -190,15 +190,15 @@ export function DrilldownCard({
             <div className="flex items-baseline justify-between">
               <div
                 className={cn(
-                  'text-2xl font-bold',
-                  variant === 'compact' && 'text-xl'
+                  'text-sm font-bold',
+                  variant === 'compact' && 'text-base'
                 )}
               >
                 {value}
               </div>
               <ArrowRight
                 className={cn(
-                  'w-5 h-5 text-muted-foreground',
+                  'w-3 h-3 text-muted-foreground',
                   'opacity-0 group-hover:opacity-100 transition-opacity',
                   'group-focus:opacity-100'
                 )}
@@ -378,7 +378,7 @@ export function KPICardDrilldown({
       value={
         <div className="space-y-2">
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold">{value}</span>
+            <span className="text-sm font-bold">{value}</span>
             {target && (
               <span className="text-sm text-muted-foreground">/ {target}{unit}</span>
             )}
@@ -477,8 +477,8 @@ export function DrilldownCardGrid({
 
   const gapClasses = {
     sm: 'gap-2',
-    md: 'gap-4',
-    lg: 'gap-6',
+    md: 'gap-2',
+    lg: 'gap-2',
   }
 
   return (

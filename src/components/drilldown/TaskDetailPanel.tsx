@@ -351,14 +351,14 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {task && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
                 <ListChecks className="h-8 w-8 text-blue-800" />
                 <div>
-                  <h3 className="text-2xl font-bold">{task.title}</h3>
+                  <h3 className="text-sm font-bold">{task.title}</h3>
                   {task.number && (
                     <p className="text-sm text-muted-foreground">Task #{task.number}</p>
                   )}
@@ -393,7 +393,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
             </div>
             {task.completionPercent !== undefined && task.status !== 'completed' && (
               <div className="text-right">
-                <div className="text-3xl font-bold text-blue-800">{task.completionPercent}%</div>
+                <div className="text-base font-bold text-blue-800">{task.completionPercent}%</div>
                 <div className="text-sm text-muted-foreground">Complete</div>
               </div>
             )}
@@ -401,7 +401,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
 
           {task.description && (
             <Card>
-              <CardContent className="pt-6">
+              <CardContent className="pt-3">
                 <p className="text-sm text-muted-foreground">{task.description}</p>
               </CardContent>
             </Card>
@@ -416,7 +416,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                   Progress
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-2">
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium">Overall Progress</span>
@@ -426,15 +426,15 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                 </div>
 
                 {task.checklistTotal && (
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Checklist Items</p>
-                      <p className="text-xl font-bold">{task.checklistCompleted} / {task.checklistTotal}</p>
+                      <p className="text-base font-bold">{task.checklistCompleted} / {task.checklistTotal}</p>
                     </div>
                     {task.actualDuration && (
                       <div>
                         <p className="text-sm text-muted-foreground">Time Spent</p>
-                        <p className="text-xl font-bold">{task.actualDuration} min</p>
+                        <p className="text-base font-bold">{task.actualDuration} min</p>
                       </div>
                     )}
                   </div>
@@ -472,7 +472,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-semibold text-lg">{task.assignedToName}</p>
+                      <p className="font-semibold text-sm">{task.assignedToName}</p>
                       <p className="text-sm text-muted-foreground capitalize">{task.assignedToType}</p>
                     </div>
                     <Button size="sm" variant="outline" onClick={handleViewAssignee}>
@@ -525,7 +525,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                   )}
                 </div>
               ) : (
-                <div className="text-center py-4 text-muted-foreground">
+                <div className="text-center py-2 text-muted-foreground">
                   <p>No assignee</p>
                 </div>
               )}
@@ -583,7 +583,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-sm text-muted-foreground">Created</p>
                   <p className="font-medium">{formatDateTime(task.createdDate)}</p>
@@ -637,7 +637,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                   Dependencies
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-2">
                 {task.dependencies && task.dependencies.length > 0 && (
                   <div>
                     <p className="text-sm font-medium mb-2">Depends On ({task.dependencies.length})</p>
@@ -699,8 +699,8 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
 
           {/* Metadata */}
           <Card className="bg-muted/50">
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-2 gap-4 text-xs">
+            <CardContent className="pt-3">
+              <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
                   <p className="text-muted-foreground">Last Updated</p>
                   <p>{formatDateTime(task.updatedAt)}</p>

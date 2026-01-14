@@ -132,7 +132,7 @@ function DamagePinMarker({
         <TooltipTrigger asChild>
           <button
             className={cn(
-              'absolute w-5 h-5 rounded-full flex items-center justify-center',
+              'absolute w-3 h-3 rounded-full flex items-center justify-center',
               'transform -translate-x-1/2 -translate-y-1/2 transition-all',
               colors.bg,
               isSelected && 'ring-2 ring-white scale-125',
@@ -284,8 +284,8 @@ export function DamageStrip({
       )}
     >
       {/* Collapsed Header */}
-      <div className="h-16 px-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="h-16 px-2 flex items-center justify-between">
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="sm"
@@ -293,19 +293,19 @@ export function DamageStrip({
             onClick={onToggleExpand}
           >
             {isExpanded ? (
-              <CaretDown className="w-5 h-5" />
+              <CaretDown className="w-3 h-3" />
             ) : (
-              <CaretUp className="w-5 h-5" />
+              <CaretUp className="w-3 h-3" />
             )}
           </Button>
 
           <div className="flex items-center gap-2">
-            <Warning className="w-5 h-5 text-amber-400" />
+            <Warning className="w-3 h-3 text-amber-400" />
             <span className="font-medium text-white">Damage Inspector</span>
           </div>
 
           {/* Quick stats */}
-          <div className="flex items-center gap-3 ml-4">
+          <div className="flex items-center gap-3 ml-2">
             <Badge variant="destructive" className="text-xs">
               {activeDamages.length} Active
             </Badge>
@@ -343,9 +343,9 @@ export function DamageStrip({
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="px-4 pb-4 grid grid-cols-[1fr,300px] gap-4 h-48">
+        <div className="px-2 pb-2 grid grid-cols-[1fr,300px] gap-2 h-48">
           {/* Vehicle Silhouette with Damage Pins */}
-          <div className="relative bg-slate-900/50 rounded-lg p-4 border border-slate-700/50">
+          <div className="relative bg-slate-900/50 rounded-lg p-2 border border-slate-700/50">
             <VehicleSilhouette className="opacity-60" />
 
             {/* Damage pins */}
@@ -381,7 +381,7 @@ export function DamageStrip({
                 ))
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-slate-500">
-                  <PushPin className="w-6 h-6 mb-2 opacity-50" />
+                  <PushPin className="w-4 h-4 mb-2 opacity-50" />
                   <p className="text-xs">No damage reported</p>
                 </div>
               )}

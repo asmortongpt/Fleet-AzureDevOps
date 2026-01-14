@@ -214,24 +214,24 @@ export function DriverDashboard() {
   const allInspectionsDone = inspectionItems.every(item => item.completed);
 
   return (
-    <div className="min-h-screen bg-slate-900 p-4">
+    <div className="min-h-screen bg-slate-900 p-2">
       {/* Header */}
-      <div className="mb-4">
-        <h1 className="text-lg font-bold text-white mb-1">My Dashboard</h1>
+      <div className="mb-2">
+        <h1 className="text-sm font-bold text-white mb-1">My Dashboard</h1>
         <p className="text-sm text-slate-400">Driver: {driverName}</p>
       </div>
 
       {/* Assigned Vehicle */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-4 mb-6">
+      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
           <Car className="w-4 h-4 text-cyan-400" />
-          <h2 className="text-lg font-bold text-white">My Assigned Vehicle</h2>
+          <h2 className="text-sm font-bold text-white">My Assigned Vehicle</h2>
         </div>
 
-        <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
+        <div className="bg-slate-900/50 rounded-md p-2 border border-slate-700">
           <div className="flex items-start justify-between mb-3">
             <div>
-              <h3 className="text-lg font-bold text-white mb-1">
+              <h3 className="text-sm font-bold text-white mb-1">
                 {assignedVehicle.name}
               </h3>
               <p className="text-sm text-slate-300">
@@ -248,7 +248,7 @@ export function DriverDashboard() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
             {/* Fuel Level */}
             <div>
               <div className="flex items-center gap-2 mb-2">
@@ -272,7 +272,7 @@ export function DriverDashboard() {
                 <Gauge className="w-4 h-4 text-slate-400" />
                 <span className="text-sm text-slate-300 text-sm">Mileage</span>
               </div>
-              <p className="text-lg font-bold text-white">
+              <p className="text-sm font-bold text-white">
                 {assignedVehicle.mileage.toLocaleString()} mi
               </p>
             </div>
@@ -283,7 +283,7 @@ export function DriverDashboard() {
                 <Calendar className="w-4 h-4 text-slate-400" />
                 <span className="text-sm text-slate-300 text-sm">Last Inspection</span>
               </div>
-              <p className="text-lg font-bold text-white flex items-center gap-2">
+              <p className="text-sm font-bold text-white flex items-center gap-2">
                 {assignedVehicle.last_inspection}
                 <CheckCircle className="w-4 h-4 text-green-400" />
               </p>
@@ -293,10 +293,10 @@ export function DriverDashboard() {
       </Card>
 
       {/* Today's Trips */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-4 mb-6">
+      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
           <Route className="w-4 h-4 text-violet-400" />
-          <h2 className="text-lg font-bold text-white">Today's Trips</h2>
+          <h2 className="text-sm font-bold text-white">Today's Trips</h2>
         </div>
 
         <div className="space-y-3">
@@ -304,11 +304,11 @@ export function DriverDashboard() {
             <motion.div
               key={trip.id}
               whileHover={{ scale: 1.01 }}
-              className="bg-slate-900/50 rounded-xl p-4 border border-slate-700 hover:border-violet-500/50 transition-all"
+              className="bg-slate-900/50 rounded-md p-2 border border-slate-700 hover:border-violet-500/50 transition-all"
             >
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  <h3 className="text-lg font-bold text-white mb-1">
+                  <h3 className="text-sm font-bold text-white mb-1">
                     Trip #{trip.id} - {trip.route_name}
                   </h3>
                   <div className="flex items-center gap-2 text-sm text-slate-300">
@@ -360,7 +360,7 @@ export function DriverDashboard() {
       </Card>
 
       {/* Quick Actions */}
-      <div className="mb-6 flex flex-wrap gap-3">
+      <div className="mb-3 flex flex-wrap gap-3">
         <Button size="sm"
           onClick={handleLogFuel}
           className="bg-cyan-600 hover:bg-cyan-700 text-white"
@@ -378,10 +378,10 @@ export function DriverDashboard() {
       </div>
 
       {/* Pre-Trip Inspection Checklist */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-4">
+      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
         <div className="flex items-center gap-2 mb-3">
           <ClipboardText className="w-4 h-4 text-amber-400" />
-          <h2 className="text-lg font-bold text-white">Pre-Trip Inspection Checklist</h2>
+          <h2 className="text-sm font-bold text-white">Pre-Trip Inspection Checklist</h2>
         </div>
 
         <div className="space-y-2 mb-3">
@@ -397,7 +397,7 @@ export function DriverDashboard() {
               )}
             >
               <div className={cn(
-                "w-6 h-6 rounded border-2 flex items-center justify-center",
+                "w-4 h-4 rounded border-2 flex items-center justify-center",
                 item.completed
                   ? "bg-green-500 border-green-500"
                   : "border-slate-600"
@@ -405,7 +405,7 @@ export function DriverDashboard() {
                 {item.completed && <CheckCircle className="w-4 h-4 text-white" weight="fill" />}
               </div>
               <span className={cn(
-                "text-lg",
+                "text-sm",
                 item.completed ? "text-green-300 line-through" : "text-white"
               )}>
                 {item.label}

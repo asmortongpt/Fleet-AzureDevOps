@@ -82,12 +82,12 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-7xl w-full max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-2">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm max-w-7xl w-full max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-sm font-bold text-gray-900 dark:text-white">
               {config.title}
             </h2>
             {config.description && (
@@ -100,17 +100,17 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
             onClick={onClose}
             className="text-gray-400 hover:text-slate-700 dark:hover:text-gray-300 transition-colors"
           >
-            <X className="w-6 h-6" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Toolbar */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+        <div className="flex items-center justify-between p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
           <div className="flex items-center gap-2">
             {config.enableFilters !== false && (
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${
+                className={`px-2 py-2 rounded-lg flex items-center gap-2 transition-colors ${
                   showFilters
                     ? 'bg-blue-600 text-white'
                     : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600'
@@ -123,7 +123,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
             <button
               onClick={() => refetch()}
               disabled={isLoading}
-              className="px-4 py-2 rounded-lg flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+              className="px-2 py-2 rounded-lg flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh
@@ -160,14 +160,14 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
 
         {/* Summary Stats */}
         {data?.summary && (
-          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border-b border-gray-200 dark:border-gray-700">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="p-2 bg-blue-50 dark:bg-blue-900/20 border-b border-gray-200 dark:border-gray-700">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {Object.entries(data.summary).map(([key, value]) => (
                 <div key={key}>
                   <p className="text-xs text-slate-700 dark:text-gray-400 uppercase tracking-wide">
                     {key.replace(/_/g, ' ')}
                   </p>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
                     {typeof value === 'number' ? value.toLocaleString() : value}
                   </p>
                 </div>
@@ -177,15 +177,15 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
         )}
 
         {/* Content */}
-        <div className="flex-1 overflow-auto p-4">
+        <div className="flex-1 overflow-auto p-2">
           {isLoading && (
             <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600"></div>
             </div>
           )}
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-center">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-2 text-center">
               <p className="text-red-800 dark:text-red-200">
                 Error loading data: {error.message}
               </p>
@@ -206,7 +206,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
                     {config.columns.map((column) => (
                       <th
                         key={column.key}
-                        className={`px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-600 ${
+                        className={`px-2 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-600 ${
                           column.sortable !== false ? 'cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600' : ''
                         }`}
                         style={{ width: column.width }}
@@ -235,7 +235,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
                       {config.columns.map((column) => (
                         <td
                           key={column.key}
-                          className="px-4 py-3 text-sm text-gray-900 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
+                          className="px-2 py-3 text-sm text-gray-900 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
                         >
                           {column.render
                             ? column.render(row[column.key], row)
@@ -252,7 +252,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
 
         {/* Pagination */}
         {data && data.totalPages > 1 && (
-          <div className="flex items-center justify-between p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+          <div className="flex items-center justify-between p-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
             <p className="text-sm text-slate-700 dark:text-gray-400">
               Showing {((page - 1) * (data.pageSize ?? 0)) + 1} to{' '}
               {Math.min(page * (data.pageSize ?? 0), data.totalCount ?? 0)} of{' '}

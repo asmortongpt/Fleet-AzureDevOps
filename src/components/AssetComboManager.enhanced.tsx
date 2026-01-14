@@ -293,13 +293,13 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
     `${vehicle.year} ${vehicle.make} ${vehicle.model} (${vehicle.vin})`
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link className="w-6 h-6 text-blue-800" />
+          <Link className="w-4 h-4 text-blue-800" />
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Attached Assets</h2>
+            <h2 className="text-sm font-bold text-gray-900">Attached Assets</h2>
             <p className="text-sm text-slate-700">Manage trailers, attachments, and equipment</p>
           </div>
         </div>
@@ -327,41 +327,41 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
 
       {/* No available assets warning */}
       {availableAssets.length === 0 && !loading && (
-        <div className="flex items-center gap-2 p-4 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-700">
-          <Warning className="w-5 h-5 flex-shrink-0" />
+        <div className="flex items-center gap-2 p-2 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-700">
+          <Warning className="w-3 h-3 flex-shrink-0" />
           <span>No compatible assets available to attach. All assets are either in use or incompatible.</span>
         </div>
       )}
 
       {/* Current Attachments */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">
+        <div className="px-3 py-2 border-b border-gray-200">
+          <h3 className="text-sm font-semibold text-gray-900">
             Currently Attached ({currentAttachments.length})
           </h3>
         </div>
         <div className="divide-y divide-gray-200">
           {loading ? (
-            <div className="p-8 text-center text-gray-500">Loading...</div>
+            <div className="p-3 text-center text-gray-500">Loading...</div>
           ) : currentAttachments.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
+            <div className="p-3 text-center text-gray-500">
               No assets currently attached to this {parentAssetType.toLowerCase().replace('_', ' ')}
             </div>
           ) : (
             currentAttachments.map(combo => (
-              <div key={combo.relationship_type} className="p-6 hover:bg-gray-50 transition-colors">
+              <div key={combo.relationship_type} className="p-3 hover:bg-gray-50 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
                         {combo.relationship_type}
                       </div>
-                      <CheckCircle className="w-5 h-5 text-green-600" weight="fill" />
+                      <CheckCircle className="w-3 h-3 text-green-600" weight="fill" />
                     </div>
-                    <div className="text-lg font-medium text-gray-900">
+                    <div className="text-sm font-medium text-gray-900">
                       {combo.child_asset_name}
                     </div>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-slate-700">
+                    <div className="flex items-center gap-2 mt-2 text-sm text-slate-700">
                       <div className="flex items-center gap-1">
                         <CalendarBlank className="w-4 h-4" />
                         <span>Attached: {new Date(combo.effective_from).toLocaleDateString()}</span>
@@ -416,19 +416,19 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       {/* Relationship History */}
       {showHistory && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">
+          <div className="px-3 py-2 border-b border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-900">
               Relationship History ({relationshipHistory.length})
             </h3>
           </div>
           <div className="divide-y divide-gray-200">
             {relationshipHistory.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
+              <div className="p-3 text-center text-gray-500">
                 No relationship history found
               </div>
             ) : (
               relationshipHistory.map((entry, index) => (
-                <div key={index} className="p-6">
+                <div key={index} className="p-3">
                   <div className="flex items-start gap-3">
                     {/* Add content for history entry if needed */}
                   </div>

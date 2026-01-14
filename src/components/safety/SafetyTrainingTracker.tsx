@@ -169,12 +169,12 @@ export function SafetyTrainingTracker() {
     }
 
     return (
-        <div className="space-y-6 p-6">
+        <div className="space-y-2 p-3">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <GraduationCap className="w-6 h-6" />
+                    <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                        <GraduationCap className="w-4 h-4" />
                         Safety Training Compliance
                     </h2>
                     <p className="text-slate-400 mt-1">Track OSHA-required training and certifications</p>
@@ -186,14 +186,14 @@ export function SafetyTrainingTracker() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
                 <Card className="bg-gradient-to-br from-green-500/10 to-green-600/10 border-green-500/30">
                     <CardHeader className="pb-3">
                         <CardTitle className="text-sm font-medium text-slate-300">Compliance Rate</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-baseline gap-2">
-                            <span className="text-3xl font-bold text-white">{stats.compliance_rate}%</span>
+                            <span className="text-base font-bold text-white">{stats.compliance_rate}%</span>
                             <TrendUp className="w-4 h-4 text-green-400" />
                         </div>
                         <Progress value={stats.compliance_rate} className="mt-2 h-2" />
@@ -206,8 +206,8 @@ export function SafetyTrainingTracker() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
-                            <CheckCircle className="w-5 h-5 text-green-400" />
-                            <span className="text-3xl font-bold text-white">{stats.compliant_employees}</span>
+                            <CheckCircle className="w-3 h-3 text-green-400" />
+                            <span className="text-base font-bold text-white">{stats.compliant_employees}</span>
                             <span className="text-slate-400">/ {stats.total_employees}</span>
                         </div>
                     </CardContent>
@@ -219,8 +219,8 @@ export function SafetyTrainingTracker() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
-                            <Warning className="w-5 h-5 text-yellow-400" />
-                            <span className="text-3xl font-bold text-white">{stats.expiring_soon}</span>
+                            <Warning className="w-3 h-3 text-yellow-400" />
+                            <span className="text-base font-bold text-white">{stats.expiring_soon}</span>
                         </div>
                         <p className="text-xs text-slate-400 mt-1">Within 30 days</p>
                     </CardContent>
@@ -232,8 +232,8 @@ export function SafetyTrainingTracker() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
-                            <Warning className="w-5 h-5 text-red-400" />
-                            <span className="text-3xl font-bold text-white">{stats.expired_certifications}</span>
+                            <Warning className="w-3 h-3 text-red-400" />
+                            <span className="text-base font-bold text-white">{stats.expired_certifications}</span>
                         </div>
                         <p className="text-xs text-slate-400 mt-1">Requires renewal</p>
                     </CardContent>
@@ -245,8 +245,8 @@ export function SafetyTrainingTracker() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
-                            <Clock className="w-5 h-5 text-slate-400" />
-                            <span className="text-3xl font-bold text-white">{stats.pending_training}</span>
+                            <Clock className="w-3 h-3 text-slate-400" />
+                            <span className="text-base font-bold text-white">{stats.pending_training}</span>
                         </div>
                         <p className="text-xs text-slate-400 mt-1">Not started</p>
                     </CardContent>
@@ -258,7 +258,7 @@ export function SafetyTrainingTracker() {
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <CardTitle className="text-white flex items-center gap-2">
-                            <Certificate className="w-5 h-5" />
+                            <Certificate className="w-3 h-3" />
                             Training Records
                         </CardTitle>
                         <Select value={selectedFilter} onValueChange={setSelectedFilter}>

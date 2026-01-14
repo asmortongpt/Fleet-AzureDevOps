@@ -162,7 +162,7 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string, 
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative" aria-label={unreadCount > 0 ? `View notifications (${unreadCount} unread)` : "View notifications"}>
-          <Bell className="w-5 h-5" aria-hidden="true" />
+          <Bell className="w-3 h-3" aria-hidden="true" />
           {unreadCount > 0 && (
             <Badge
               variant="destructive"
@@ -191,12 +191,12 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string, 
 
         <ScrollArea className="h-[400px]">
           {isLoading ? (
-            <div className="p-4 text-center text-sm text-muted-foreground">
+            <div className="p-2 text-center text-sm text-muted-foreground">
               Loading notifications...
             </div>
           ) : notifications.length === 0 ? (
-            <div className="p-8 text-center">
-              <Bell className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" aria-hidden="true" />
+            <div className="p-3 text-center">
+              <Bell className="w-12 h-9 mx-auto mb-3 text-muted-foreground opacity-50" aria-hidden="true" />
               <p className="text-sm text-muted-foreground">No notifications</p>
             </div>
           ) : (

@@ -166,10 +166,10 @@ export function RouteManagement() {
   }, [routes, activeTab])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Route Management</h1>
+          <h1 className="text-base font-semibold tracking-tight">Route Management</h1>
           <p className="text-muted-foreground mt-1">Plan, optimize, and track delivery routes</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -183,8 +183,8 @@ export function RouteManagement() {
             <DialogHeader>
               <DialogTitle>Create New Route</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 mt-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2 mt-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label>Route Name</Label>
                   <Input 
@@ -209,7 +209,7 @@ export function RouteManagement() {
                   </Select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label>Driver</Label>
                   <Select value={driver} onValueChange={setDriver}>
@@ -263,33 +263,33 @@ export function RouteManagement() {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <MetricCard
           title="Active Routes"
           value={metrics.active}
           subtitle="in progress"
-          icon={<Path className="w-5 h-5" />}
+          icon={<Path className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
           title="Completed Today"
           value={metrics.completedToday}
           subtitle="routes finished"
-          icon={<CheckCircle className="w-5 h-5" />}
+          icon={<CheckCircle className="w-3 h-3" />}
           status="success"
         />
         <MetricCard
           title="Total Distance"
           value={`${metrics.totalDistance}mi`}
           subtitle="all routes"
-          icon={<MapPin className="w-5 h-5" />}
+          icon={<MapPin className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
           title="Avg Efficiency"
           value={`${metrics.avgEfficiency}%`}
           subtitle="route completion"
-          icon={<TrendUp className="w-5 h-5" />}
+          icon={<TrendUp className="w-3 h-3" />}
           status="success"
         />
       </div>
@@ -330,7 +330,7 @@ export function RouteManagement() {
         <CardContent>
           {(filteredRoutes || []).length === 0 ? (
             <div className="text-center py-12">
-              <MapTrifold className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <MapTrifold className="w-12 h-9 mx-auto text-muted-foreground mb-2" />
               <p className="text-muted-foreground">No routes found. Create your first route to get started.</p>
             </div>
           ) : (
@@ -338,7 +338,7 @@ export function RouteManagement() {
               {(filteredRoutes || []).map(route => (
                 <div 
                   key={route.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  className="flex items-center justify-between p-2 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
@@ -347,7 +347,7 @@ export function RouteManagement() {
                         {route.status}
                       </Badge>
                     </div>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
                         <p className="text-muted-foreground">Vehicle: {route.vehicleNumber}</p>
                         <p className="text-muted-foreground">Driver: {route.driver}</p>

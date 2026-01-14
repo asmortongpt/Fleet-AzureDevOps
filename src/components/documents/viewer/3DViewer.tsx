@@ -48,12 +48,12 @@ export function ThreeDViewer({ document }: ThreeDViewerProps) {
     // Fallback for unsupported formats
     return (
       <div className="flex items-center justify-center h-full bg-muted/30">
-        <div className="text-center max-w-md p-8">
-          <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-background flex items-center justify-center text-indigo-600">
-            <Box className="w-12 h-12" />
+        <div className="text-center max-w-md p-3">
+          <div className="w-24 h-24 mx-auto mb-3 rounded-full bg-background flex items-center justify-center text-indigo-600">
+            <Box className="w-12 h-9" />
           </div>
-          <h3 className="text-xl font-semibold mb-2">{document.name}</h3>
-          <p className="text-muted-foreground mb-4">
+          <h3 className="text-base font-semibold mb-2">{document.name}</h3>
+          <p className="text-muted-foreground mb-2">
             This 3D format requires conversion. Supported formats: GLTF, GLB, OBJ
           </p>
           <Button onClick={handleDownload} size="lg">
@@ -95,7 +95,7 @@ export function ThreeDViewer({ document }: ThreeDViewerProps) {
           </Button>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 w-32">
             <Sun className="w-4 h-4 text-yellow-400" />
             <Slider

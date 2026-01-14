@@ -102,11 +102,11 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pass':
-        return <CheckCircle className="w-5 h-5 text-green-600" />
+        return <CheckCircle className="w-3 h-3 text-green-600" />
       case 'fail':
-        return <XCircle className="w-5 h-5 text-red-600" />
+        return <XCircle className="w-3 h-3 text-red-600" />
       case 'conditional':
-        return <AlertCircle className="w-5 h-5 text-yellow-600" />
+        return <AlertCircle className="w-3 h-3 text-yellow-600" />
       default:
         return null
     }
@@ -156,9 +156,9 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
   const passRate = inspections.length > 0 ? (passedInspections / inspections.length) * 100 : 0
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -167,7 +167,7 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{inspections.length}</div>
+            <div className="text-sm font-bold">{inspections.length}</div>
           </CardContent>
         </Card>
 
@@ -179,7 +179,7 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{passedInspections}</div>
+            <div className="text-sm font-bold text-green-600">{passedInspections}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {passRate.toFixed(1)}% pass rate
             </p>
@@ -194,7 +194,7 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{failedInspections}</div>
+            <div className="text-sm font-bold text-red-600">{failedInspections}</div>
           </CardContent>
         </Card>
 
@@ -206,12 +206,12 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{conditionalInspections}</div>
+            <div className="text-sm font-bold text-yellow-600">{conditionalInspections}</div>
           </CardContent>
         </Card>
       </div>
 
-      <Tabs defaultValue="history" className="space-y-4">
+      <Tabs defaultValue="history" className="space-y-2">
         <TabsList>
           <TabsTrigger value="history">Inspection History</TabsTrigger>
           <TabsTrigger value="compliance">Compliance</TabsTrigger>
@@ -225,7 +225,7 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
             </CardHeader>
             <CardContent>
               {inspections.length === 0 ? (
-                <div className="text-center text-muted-foreground py-8">
+                <div className="text-center text-muted-foreground py-3">
                   No inspection records found
                 </div>
               ) : (
@@ -287,8 +287,8 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
                                 </DialogDescription>
                               </DialogHeader>
                               {selectedInspection && (
-                                <div className="space-y-4">
-                                  <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <div className="grid grid-cols-2 gap-2">
                                     <div>
                                       <p className="text-sm text-muted-foreground">Inspector</p>
                                       <p className="font-medium">
@@ -329,7 +329,7 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
                                     <div className="space-y-2">
                                       {selectedInspection.responses?.map((response, idx) => (
                                         <Card key={idx}>
-                                          <CardContent className="p-4">
+                                          <CardContent className="p-2">
                                             <div className="flex items-start justify-between">
                                               <div className="flex-1">
                                                 <p className="font-medium">{response.item_description}</p>
@@ -345,7 +345,7 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
                                                   </div>
                                                 )}
                                               </div>
-                                              <div className="ml-4">
+                                              <div className="ml-2">
                                                 {getResponseBadge(response.response)}
                                               </div>
                                             </div>
@@ -377,7 +377,7 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
               <CardDescription>Inspection compliance and trends</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div>
                   <h4 className="font-semibold mb-3">Pass Rate</h4>
                   <div className="space-y-2">
@@ -396,7 +396,7 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
 
                 <div>
                   <h4 className="font-semibold mb-3">Recent Trend</h4>
-                  <div className="text-center text-muted-foreground py-4">
+                  <div className="text-center text-muted-foreground py-2">
                     Last 5 inspections:
                     <div className="flex justify-center gap-2 mt-2">
                       {inspections.slice(0, 5).map((insp, idx) => (

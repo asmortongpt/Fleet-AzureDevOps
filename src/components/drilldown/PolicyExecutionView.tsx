@@ -316,10 +316,10 @@ export function PolicyExecutionView({
 
   return (
     <DrilldownContent loading={false} error={null}>
-      <div className="space-y-6">
+      <div className="space-y-2">
         {/* Header */}
         <div>
-          <h3 className="text-2xl font-bold">Policy Execution History</h3>
+          <h3 className="text-sm font-bold">Policy Execution History</h3>
           <p className="text-sm text-muted-foreground">
             Automated policy executions and enforcement actions
           </p>
@@ -327,7 +327,7 @@ export function PolicyExecutionView({
 
         {/* Statistics */}
         {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -336,7 +336,7 @@ export function PolicyExecutionView({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.total_executions}</div>
+                <div className="text-sm font-bold">{stats.total_executions}</div>
                 <p className="text-xs text-muted-foreground">Executions</p>
               </CardContent>
             </Card>
@@ -349,7 +349,7 @@ export function PolicyExecutionView({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">{stats.successful}</div>
+                <div className="text-sm font-bold text-green-600">{stats.successful}</div>
                 <p className="text-xs text-muted-foreground">
                   {stats.total_executions > 0
                     ? Math.round((stats.successful / stats.total_executions) * 100)
@@ -367,7 +367,7 @@ export function PolicyExecutionView({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-red-600">{stats.failed}</div>
+                <div className="text-sm font-bold text-red-600">{stats.failed}</div>
                 <p className="text-xs text-muted-foreground">
                   {stats.total_executions > 0
                     ? Math.round((stats.failed / stats.total_executions) * 100)
@@ -385,7 +385,7 @@ export function PolicyExecutionView({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-yellow-600">{stats.warnings}</div>
+                <div className="text-sm font-bold text-yellow-600">{stats.warnings}</div>
                 <p className="text-xs text-muted-foreground">
                   {stats.total_executions > 0
                     ? Math.round((stats.warnings / stats.total_executions) * 100)
@@ -403,7 +403,7 @@ export function PolicyExecutionView({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-sm font-bold">
                   {stats.avg_duration_ms < 1000
                     ? `${Math.round(stats.avg_duration_ms)}ms`
                     : `${(stats.avg_duration_ms / 1000).toFixed(2)}s`}
@@ -420,7 +420,7 @@ export function PolicyExecutionView({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{Math.round(stats.avg_confidence * 100)}%</div>
+                <div className="text-sm font-bold">{Math.round(stats.avg_confidence * 100)}%</div>
                 <p className="text-xs text-muted-foreground">Average</p>
               </CardContent>
             </Card>
@@ -430,13 +430,13 @@ export function PolicyExecutionView({
         {/* Filters */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-sm flex items-center gap-2">
               <Filter className="h-5 w-5" />
               Filters
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
               <div>
                 <label className="text-sm font-medium mb-1 block">Search</label>
                 <Input

@@ -36,7 +36,7 @@ export function MobileCard({
       onClick={onClick}
       {...props}
     >
-      <CardContent className="p-4 space-y-4">
+      <CardContent className="p-2 space-y-2">
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">

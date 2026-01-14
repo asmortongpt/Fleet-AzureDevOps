@@ -533,12 +533,12 @@ export function MapboxMap({
     >
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-200 bg-opacity-75 z-50">
-          <div className="text-lg font-medium text-gray-700">Loading map...</div>
+          <div className="text-sm font-medium text-gray-700">Loading map...</div>
         </div>
       )}
       {mapError && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 bg-opacity-75 z-50 p-4 text-center">
-          <div className="text-lg font-medium text-red-800 mb-2">Map Error</div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 bg-opacity-75 z-50 p-2 text-center">
+          <div className="text-sm font-medium text-red-800 mb-2">Map Error</div>
           <div className="text-sm text-red-600 max-w-md">{mapError}</div>
         </div>
       )}
