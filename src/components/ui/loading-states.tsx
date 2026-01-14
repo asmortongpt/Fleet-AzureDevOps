@@ -398,7 +398,7 @@ export const LoadingStatus: React.FC<LoadingStatusProps> = ({ status, message })
 
   const colors = {
     idle: 'text-slate-500',
-    loading: 'text-blue-500',
+    loading: 'text-blue-800',
     success: 'text-green-500',
     error: 'text-red-500'
   }

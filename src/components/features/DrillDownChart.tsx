@@ -153,7 +153,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
       return (
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 shadow-xl">
           <p className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-2">{data.name}</p>
-          <p className="text-2xl font-bold text-blue-600 mb-1">
+          <p className="text-2xl font-bold text-blue-800 mb-1">
             ${(data.value / 1000).toFixed(1)}K
           </p>
           {data.percentage && (
@@ -172,7 +172,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
             </p>
           )}
           {currentLevel < 3 && (
-            <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 font-medium">
+            <p className="text-xs text-blue-800 dark:text-blue-400 mt-2 font-medium">
               Click to drill down →
             </p>
           )}
@@ -284,7 +284,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
         {currentLevel > 1 && (
           <button
             onClick={() => handleBreadcrumbClick(breadcrumbs.length - 2)}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-800 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
           >
             <CaretLeft className="w-4 h-4" />
             Back to {breadcrumbs[breadcrumbs.length - 2]?.label}

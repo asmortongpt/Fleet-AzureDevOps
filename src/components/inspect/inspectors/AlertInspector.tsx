@@ -121,8 +121,8 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-        <span className="ml-2 text-gray-600">Loading alert data...</span>
+        <Loader2 className="h-8 w-8 animate-spin text-blue-800" />
+        <span className="ml-2 text-slate-700">Loading alert data...</span>
       </div>
     );
   }
@@ -159,7 +159,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                 {alert.type}
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-slate-700 dark:text-gray-400">
                 {new Date(alert.timestamp).toLocaleString()}
               </p>
             </div>
@@ -190,28 +190,28 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
               <h3 className="text-lg font-semibold mb-4">Alert Information</h3>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-gray-600">Message</p>
+                  <p className="text-sm text-slate-700">Message</p>
                   <p className="font-medium text-lg">{alert.message}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Description</p>
+                  <p className="text-sm text-slate-700">Description</p>
                   <p className="text-gray-800 dark:text-gray-200">{alert.description}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div>
-                    <p className="text-sm text-gray-600">Alert Type</p>
+                    <p className="text-sm text-slate-700">Alert Type</p>
                     <p className="font-medium">{alert.type}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Severity</p>
+                    <p className="text-sm text-slate-700">Severity</p>
                     <p className="font-medium capitalize">{alert.severity}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Status</p>
+                    <p className="text-sm text-slate-700">Status</p>
                     <p className="font-medium capitalize">{alert.status}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Time</p>
+                    <p className="text-sm text-slate-700">Time</p>
                     <p className="font-medium">{new Date(alert.timestamp).toLocaleString()}</p>
                   </div>
                 </div>
@@ -224,17 +224,17 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                 <div className="space-y-2">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-sm text-gray-600">Latitude</p>
+                      <p className="text-sm text-slate-700">Latitude</p>
                       <p className="font-mono">{alert.location.latitude.toFixed(6)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600">Longitude</p>
+                      <p className="text-sm text-slate-700">Longitude</p>
                       <p className="font-mono">{alert.location.longitude.toFixed(6)}</p>
                     </div>
                   </div>
                   {alert.location.address && (
                     <div>
-                      <p className="text-sm text-gray-600">Address</p>
+                      <p className="text-sm text-slate-700">Address</p>
                       <p className="font-medium">{alert.location.address}</p>
                     </div>
                   )}
@@ -253,7 +253,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                 <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div>
                     <p className="font-medium">{alert.vehicle.name}</p>
-                    <p className="text-sm text-gray-600">Vehicle ID: {alert.vehicle.id}</p>
+                    <p className="text-sm text-slate-700">Vehicle ID: {alert.vehicle.id}</p>
                   </div>
                   <Button variant="outline" size="sm">View Vehicle</Button>
                 </div>
@@ -266,7 +266,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                 <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div>
                     <p className="font-medium">{alert.driver.name}</p>
-                    <p className="text-sm text-gray-600">Driver ID: {alert.driver.id}</p>
+                    <p className="text-sm text-slate-700">Driver ID: {alert.driver.id}</p>
                   </div>
                   <Button variant="outline" size="sm">View Driver</Button>
                 </div>
@@ -279,14 +279,14 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                 <div className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                   <div>
                     <p className="font-medium">Speeding Alert</p>
-                    <p className="text-sm text-gray-600">2 hours ago</p>
+                    <p className="text-sm text-slate-700">2 hours ago</p>
                   </div>
                   <Badge variant="outline">Medium</Badge>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                   <div>
                     <p className="font-medium">Route Deviation</p>
-                    <p className="text-sm text-gray-600">4 hours ago</p>
+                    <p className="text-sm text-slate-700">4 hours ago</p>
                   </div>
                   <Badge variant="outline">Low</Badge>
                 </div>
@@ -346,7 +346,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                   </div>
                   <div className="flex-1 pb-4">
                     <p className="font-medium">Alert Created</p>
-                    <p className="text-sm text-gray-600">{new Date(alert.timestamp).toLocaleString()}</p>
+                    <p className="text-sm text-slate-700">{new Date(alert.timestamp).toLocaleString()}</p>
                     <p className="text-sm text-gray-500">System detected {alert.type.toLowerCase()}</p>
                   </div>
                 </div>
@@ -358,7 +358,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                     </div>
                     <div className="flex-1 pb-4">
                       <p className="font-medium">{alert.status === 'acknowledged' ? 'Acknowledged' : 'Status Updated'}</p>
-                      <p className="text-sm text-gray-600">Status changed to {alert.status}</p>
+                      <p className="text-sm text-slate-700">Status changed to {alert.status}</p>
                     </div>
                   </div>
                 )}

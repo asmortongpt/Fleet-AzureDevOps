@@ -192,7 +192,7 @@ class MapErrorBoundary extends Component<
             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
               Map Failed to Load
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-slate-700 dark:text-gray-400 mb-4">
               {this.state.error?.message || "An unexpected error occurred while loading the map."}
             </p>
             <button
@@ -711,7 +711,7 @@ export function UniversalMap(props: UniversalMapProps) {
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-gray-900/80">
             <div className="flex flex-col items-center gap-3">
               <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-slate-700 dark:text-gray-400">
                 Loading {provider === "google" ? "Google Maps" : "OpenStreetMap"}...
               </p>
             </div>
@@ -737,7 +737,7 @@ export function UniversalMap(props: UniversalMapProps) {
 
         {/* Clustering Info Badge */}
         {shouldCluster && (
-          <div className="absolute bottom-4 left-4 z-40 bg-white/90 dark:bg-gray-800/90 px-3 py-1.5 rounded-md shadow-md text-xs text-gray-600 dark:text-gray-300">
+          <div className="absolute bottom-4 left-4 z-40 bg-white/90 dark:bg-gray-800/90 px-3 py-1.5 rounded-md shadow-md text-xs text-slate-700 dark:text-gray-300">
             Clustering {totalMarkerCount} markers
           </div>
         )}

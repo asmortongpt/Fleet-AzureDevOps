@@ -29,7 +29,7 @@ const statusConfig: Record<string, {
     label: "Active"
   },
   "in-transit": {
-    color: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    color: "bg-blue-500/10 text-blue-800 border-blue-500/20",
     icon: <CheckCircle className="w-3 h-3" weight="fill" aria-hidden="true" />,
     label: "In Transit"
   },

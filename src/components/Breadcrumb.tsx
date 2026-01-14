@@ -33,7 +33,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' })
             {item.href && index < items.length - 1 ? (
               <Link
                 to={item.href}
-                className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600"
+                className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-800"
               >
                 {item.label}
               </Link>

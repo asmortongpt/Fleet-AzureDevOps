@@ -234,7 +234,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
       case 'chemical':
         return <AlertTriangle className="h-5 w-5 text-orange-500" />
       case 'physical':
-        return <Shield className="h-5 w-5 text-blue-500" />
+        return <Shield className="h-5 w-5 text-blue-800" />
       case 'environmental':
         return <AlertTriangle className="h-5 w-5 text-yellow-500" />
       default:
@@ -245,7 +245,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
   const getEventIcon = (eventType: string) => {
     switch (eventType) {
       case 'entry':
-        return <Navigation className="h-4 w-4 text-blue-500" />
+        return <Navigation className="h-4 w-4 text-blue-800" />
       case 'exit':
         return <Navigation className="h-4 w-4 text-green-500 rotate-180" />
       case 'violation':

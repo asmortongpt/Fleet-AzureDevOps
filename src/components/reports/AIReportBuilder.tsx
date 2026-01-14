@@ -265,7 +265,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                   <h3 className="text-lg font-semibold text-gray-900">
                     {generatedReport.title}
                   </h3>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-slate-700 mt-1">
                     {generatedReport.description}
                   </p>
                 </div>
@@ -287,7 +287,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                         </Button>
                       </div>
                       {visual.measures && (
-                        <div className="text-xs text-gray-600">
+                        <div className="text-xs text-slate-700">
                           {visual.measures.length} measures configured
                         </div>
                       )}

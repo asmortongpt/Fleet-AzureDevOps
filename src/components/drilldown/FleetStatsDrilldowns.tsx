@@ -65,7 +65,7 @@ export function FleetOverviewDrilldown() {
             <div className="grid grid-cols-2 gap-4">
                 <Card className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 border-blue-800/50 backdrop-blur-sm">
                     <CardContent className="pt-4">
-                        <div className="text-3xl font-bold text-blue-500">{vehicles.length}</div>
+                        <div className="text-3xl font-bold text-blue-800">{vehicles.length}</div>
                         <div className="text-sm text-blue-400">Total Fleet Size</div>
                     </CardContent>
                 </Card>
@@ -267,10 +267,10 @@ export function MaintenanceDrilldown() {
                 <Card className="border-blue-500/30 bg-blue-500/10">
                     <CardContent className="pt-4 pb-3">
                         <div className="flex items-center gap-2">
-                            <Calendar className="h-5 w-5 text-blue-500" />
+                            <Calendar className="h-5 w-5 text-blue-800" />
                             <div>
                                 <div className="text-2xl font-bold text-blue-700">{byStatus.scheduled.length}</div>
-                                <div className="text-xs text-blue-600">Scheduled</div>
+                                <div className="text-xs text-blue-800">Scheduled</div>
                             </div>
                         </div>
                     </CardContent>
@@ -355,9 +355,9 @@ export function FuelManagementDrilldown() {
                 <Card className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 border-blue-800/50 backdrop-blur-sm">
                     <CardContent className="pt-4 pb-3">
                         <div className="flex items-center gap-2">
-                            <Fuel className="h-5 w-5 text-blue-500" />
+                            <Fuel className="h-5 w-5 text-blue-800" />
                             <div>
-                                <div className="text-2xl font-bold text-blue-500">{transactions.length}</div>
+                                <div className="text-2xl font-bold text-blue-800">{transactions.length}</div>
                                 <div className="text-xs text-blue-400">Total Transactions</div>
                             </div>
                         </div>

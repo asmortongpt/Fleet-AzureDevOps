@@ -65,7 +65,7 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
             case "active": return "text-green-500 border-green-200 bg-green-50";
             case "maintenance": return "text-amber-500 border-amber-200 bg-amber-50";
             case "inactive": return "text-gray-500 border-gray-200 bg-gray-50";
-            default: return "text-blue-500 border-blue-200 bg-blue-50";
+            default: return "text-blue-800 border-blue-200 bg-blue-50";
         }
     };
 

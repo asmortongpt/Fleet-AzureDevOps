@@ -215,7 +215,7 @@ export function FilterBar({
 
       {/* Action buttons */}
       <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-slate-700">
           {hasActiveFilters && (
             <span className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 bg-indigo-500 rounded-full" />

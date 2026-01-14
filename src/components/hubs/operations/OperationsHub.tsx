@@ -141,10 +141,10 @@ export function OperationsHub() {
           <CardContent className="pt-4 pb-3 px-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl font-bold text-blue-600">{metrics.activeJobs}</div>
+                <div className="text-2xl font-bold text-blue-800">{metrics.activeJobs}</div>
                 <div className="text-xs text-slate-600 mt-1">Active Jobs</div>
               </div>
-              <Package className="h-8 w-8 text-blue-500 opacity-20" />
+              <Package className="h-8 w-8 text-blue-800 opacity-20" />
             </div>
           </CardContent>
         </Card>
@@ -256,7 +256,7 @@ export function OperationsHub() {
                         ? 'text-red-500'
                         : alert.type === 'warning'
                         ? 'text-amber-500'
-                        : 'text-blue-500'
+                        : 'text-blue-800'
                     }`}
                   />
                   <div className="flex-1">
@@ -311,7 +311,7 @@ export function OperationsHub() {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-blue-500" />
+                <MapPin className="h-4 w-4 text-blue-800" />
                 {selectedVehicle.vehicleNumber}
               </span>
               <Badge variant={selectedVehicle.status === 'active' ? 'default' : 'secondary'}>
@@ -420,7 +420,7 @@ export function OperationsHub() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <Package className="h-12 w-12 animate-spin mx-auto text-blue-500" />
+          <Package className="h-12 w-12 animate-spin mx-auto text-blue-800" />
           <p className="mt-4 text-slate-600">Loading operations data...</p>
         </div>
       </div>

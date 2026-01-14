@@ -104,7 +104,7 @@ export function DriverControlPanel({
                     <div className="p-4 border-b border-slate-100 flex justify-between items-start bg-slate-50/50">
                         <div>
                             <h2 className="text-lg font-bold flex items-center gap-2 text-slate-800">
-                                <Users className="w-5 h-5 text-blue-600" />
+                                <Users className="w-5 h-5 text-blue-800" />
                                 Driver Roster
                             </h2>
                             <p className="text-xs text-slate-500 mt-1">

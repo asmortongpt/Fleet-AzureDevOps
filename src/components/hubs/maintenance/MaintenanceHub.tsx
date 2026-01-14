@@ -199,7 +199,7 @@ export function MaintenanceHub() {
         <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('workOrder', 'active')}>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <Wrench className="w-5 h-5 text-blue-500" />
+              <Wrench className="w-5 h-5 text-blue-800" />
               <div>
                 <p className="text-xs text-muted-foreground">Active</p>
                 <p className="text-2xl font-bold">{metrics.activeCount}</p>

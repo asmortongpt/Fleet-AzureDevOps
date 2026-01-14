@@ -116,7 +116,7 @@ export function CompactVehicleList({
                   <Car className="w-3.5 h-3.5" weight="fill" />
                   {wasRecentlyUpdated && (
                     <Circle
-                      className="absolute -top-0.5 -right-0.5 w-2 h-2 fill-blue-500 text-blue-500 animate-pulse"
+                      className="absolute -top-0.5 -right-0.5 w-2 h-2 fill-blue-500 text-blue-800 animate-pulse"
                       weight="fill"
                     />
                   )}
@@ -188,7 +188,7 @@ export function CompactVehicleListMini({
     const colors = {
       active: "text-green-600 dark:text-green-400",
       idle: "text-gray-500 dark:text-gray-400",
-      charging: "text-blue-600 dark:text-blue-400",
+      charging: "text-blue-800 dark:text-blue-400",
       service: "text-amber-600 dark:text-amber-400",
       emergency: "text-red-600 dark:text-red-400",
       offline: "text-gray-400 dark:text-gray-500"

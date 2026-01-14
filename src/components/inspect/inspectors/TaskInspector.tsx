@@ -136,8 +136,8 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-        <span className="ml-2 text-gray-600">Loading task data...</span>
+        <Loader2 className="h-8 w-8 animate-spin text-blue-800" />
+        <span className="ml-2 text-slate-700">Loading task data...</span>
       </div>
     );
   }
@@ -172,7 +172,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
               {task.title}
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-sm text-slate-700 dark:text-gray-400 mt-1">
               {task.type}
             </p>
           </div>
@@ -205,24 +205,24 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
               <h3 className="text-lg font-semibold mb-4">Task Information</h3>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-gray-600">Description</p>
+                  <p className="text-sm text-slate-700">Description</p>
                   <p className="text-gray-800 dark:text-gray-200 mt-1">{task.description}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div>
-                    <p className="text-sm text-gray-600">Priority</p>
+                    <p className="text-sm text-slate-700">Priority</p>
                     <p className="font-medium capitalize">{task.priority}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Status</p>
+                    <p className="text-sm text-slate-700">Status</p>
                     <p className="font-medium capitalize">{task.status}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Type</p>
+                    <p className="text-sm text-slate-700">Type</p>
                     <p className="font-medium">{task.type}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Progress</p>
+                    <p className="text-sm text-slate-700">Progress</p>
                     <p className="font-medium">{task.progress}%</p>
                   </div>
                 </div>
@@ -233,18 +233,18 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
               <h3 className="text-lg font-semibold mb-4">Timeline</h3>
               <dl className="space-y-3">
                 <div className="flex justify-between">
-                  <dt className="text-gray-600">Created</dt>
+                  <dt className="text-slate-700">Created</dt>
                   <dd className="font-medium">{new Date(task.createdAt).toLocaleString()}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-600">Due Date</dt>
+                  <dt className="text-slate-700">Due Date</dt>
                   <dd className={`font-medium ${isOverdue ? 'text-red-600' : ''}`}>
                     {new Date(task.dueDate).toLocaleString()}
                   </dd>
                 </div>
                 {task.completedAt && (
                   <div className="flex justify-between">
-                    <dt className="text-gray-600">Completed</dt>
+                    <dt className="text-slate-700">Completed</dt>
                     <dd className="font-medium text-green-600">{new Date(task.completedAt).toLocaleString()}</dd>
                   </div>
                 )}
@@ -257,7 +257,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                 <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div>
                     <p className="font-medium">{task.assignedTo.name}</p>
-                    <p className="text-sm text-gray-600 capitalize">{task.assignedTo.type}</p>
+                    <p className="text-sm text-slate-700 capitalize">{task.assignedTo.type}</p>
                   </div>
                   <Button variant="outline" size="sm">View Profile</Button>
                 </div>
@@ -270,7 +270,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                 <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div>
                     <p className="font-medium">{task.relatedVehicle.name}</p>
-                    <p className="text-sm text-gray-600">Vehicle ID: {task.relatedVehicle.id}</p>
+                    <p className="text-sm text-slate-700">Vehicle ID: {task.relatedVehicle.id}</p>
                   </div>
                   <Button variant="outline" size="sm">View Vehicle</Button>
                 </div>
@@ -287,7 +287,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
               <div className="space-y-3">
                 <div>
                   <div className="flex justify-between mb-2">
-                    <span className="text-sm text-gray-600">Completion</span>
+                    <span className="text-sm text-slate-700">Completion</span>
                     <span className="text-sm font-medium">{task.progress}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3">
@@ -298,7 +298,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                   </div>
                 </div>
                 <div className="flex items-center justify-between pt-2">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-slate-700">
                     {task.checklist.filter(item => item.completed).length} of {task.checklist.length} items completed
                   </span>
                   {task.status === 'pending' && (
@@ -369,7 +369,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                 </div>
                 <div className="flex-1 pb-4">
                   <p className="font-medium">Task Created</p>
-                  <p className="text-sm text-gray-600">{new Date(task.createdAt).toLocaleString()}</p>
+                  <p className="text-sm text-slate-700">{new Date(task.createdAt).toLocaleString()}</p>
                   <p className="text-sm text-gray-500">Priority set to {task.priority}</p>
                 </div>
               </div>
@@ -382,7 +382,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                   </div>
                   <div className="flex-1 pb-4">
                     <p className="font-medium">Task Assigned</p>
-                    <p className="text-sm text-gray-600">{new Date(task.createdAt).toLocaleString()}</p>
+                    <p className="text-sm text-slate-700">{new Date(task.createdAt).toLocaleString()}</p>
                     <p className="text-sm text-gray-500">Assigned to {task.assignedTo.name}</p>
                   </div>
                 </div>
@@ -396,7 +396,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                   </div>
                   <div className="flex-1 pb-4">
                     <p className="font-medium">Status Updated</p>
-                    <p className="text-sm text-gray-600">Status changed to {task.status}</p>
+                    <p className="text-sm text-slate-700">Status changed to {task.status}</p>
                   </div>
                 </div>
               )}
@@ -408,7 +408,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-green-600">Task Completed</p>
-                    <p className="text-sm text-gray-600">{new Date(task.completedAt).toLocaleString()}</p>
+                    <p className="text-sm text-slate-700">{new Date(task.completedAt).toLocaleString()}</p>
                     <p className="text-sm text-gray-500">All checklist items completed</p>
                   </div>
                 </div>

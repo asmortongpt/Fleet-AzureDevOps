@@ -244,7 +244,7 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <File className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-          <p className="text-gray-600 mb-2">Preview not available for this file type</p>
+          <p className="text-slate-700 mb-2">Preview not available for this file type</p>
           <p className="text-sm text-gray-500 mb-4">
             {document.file_type || 'Unknown file type'}
           </p>
@@ -327,7 +327,7 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
                     step={10}
                     className="w-32"
                   />
-                  <span className="text-sm text-gray-600 w-12">
+                  <span className="text-sm text-slate-700 w-12">
                     {Math.round(scale * 100)}%
                   </span>
                 </div>

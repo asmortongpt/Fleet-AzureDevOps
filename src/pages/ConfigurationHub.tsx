@@ -104,7 +104,7 @@ const CATEGORY_ICONS: Record<string, any> = {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  system: 'text-blue-600 bg-blue-50 border-blue-200',
+  system: 'text-blue-800 bg-blue-50 border-blue-200',
   branding: 'text-purple-600 bg-purple-50 border-purple-200',
   security: 'text-red-600 bg-red-50 border-red-200',
   features: 'text-green-600 bg-green-50 border-green-200',
@@ -113,7 +113,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   workflows: 'text-orange-600 bg-orange-50 border-orange-200',
   policies: 'text-teal-600 bg-teal-50 border-teal-200',
   'ui-ux': 'text-pink-600 bg-pink-50 border-pink-200',
-  'data-retention': 'text-gray-600 bg-gray-50 border-gray-200',
+  'data-retention': 'text-slate-700 bg-gray-50 border-gray-200',
   'ai-services': 'text-cyan-600 bg-cyan-50 border-cyan-200',
   reporting: 'text-emerald-600 bg-emerald-50 border-emerald-200'
 }
@@ -367,7 +367,7 @@ export function ConfigurationHub() {
         <TabsContent value="configurations" className="space-y-6">
           {categories.map(category => {
             const Icon = CATEGORY_ICONS[category] || Settings
-            const colorClass = CATEGORY_COLORS[category] || 'text-gray-600 bg-gray-50'
+            const colorClass = CATEGORY_COLORS[category] || 'text-slate-700 bg-gray-50'
 
             return (
               <Card key={category}>
@@ -498,7 +498,7 @@ function ConfigItemRow({ config, onEdit }: ConfigItemRowProps) {
             <Badge variant="outline" className="text-xs">Required</Badge>
           )}
         </div>
-        <p className="text-sm text-gray-600 mb-2">{config.description}</p>
+        <p className="text-sm text-slate-700 mb-2">{config.description}</p>
         <div className="flex items-center gap-4 text-xs text-gray-500">
           <span>Value: {formatValue(config.value, config.type)}</span>
           {config.lastModified && (
@@ -537,7 +537,7 @@ function ChangeHistoryRow({ change, onRollback }: ChangeHistoryRowProps) {
           <h4 className="font-medium">{change.configKey}</h4>
           {getSourceBadge(change.source)}
         </div>
-        <p className="text-sm text-gray-600 mb-2">
+        <p className="text-sm text-slate-700 mb-2">
           Changed by {change.changedBy} on {new Date(change.changedAt).toLocaleString()}
         </p>
         <div className="flex items-center gap-4 text-xs text-gray-500">
@@ -581,7 +581,7 @@ function ConfigEditModal({ config, value, onChange, onSave, onCancel }: ConfigEd
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <p className="text-sm text-gray-600 mb-4">{config.description}</p>
+            <p className="text-sm text-slate-700 mb-4">{config.description}</p>
 
             {config.type === 'boolean' && (
               <label className="flex items-center gap-2">

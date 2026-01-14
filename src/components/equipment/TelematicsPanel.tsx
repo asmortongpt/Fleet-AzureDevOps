@@ -330,7 +330,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                         <AlertTriangle className={`w-5 h-5 mt-0.5 ${
                           alert.severity === 'critical' ? 'text-red-600' :
                           alert.severity === 'warning' ? 'text-yellow-600' :
-                          'text-blue-600'
+                          'text-blue-800'
                         }`} />
                         <div>
                           <p className="font-medium">{alert.message}</p>

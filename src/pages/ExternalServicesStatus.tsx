@@ -303,7 +303,7 @@ export function ExternalServicesStatus() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">External Services Status</h1>
-          <p className="text-gray-600 mt-2">Monitor the health and connectivity of all external integrations</p>
+          <p className="text-slate-700 mt-2">Monitor the health and connectivity of all external integrations</p>
         </div>
         <Button onClick={testAllServices} disabled={testing}>
           <RefreshCw className={`h-4 w-4 mr-2 ${testing ? 'animate-spin' : ''}`} />
@@ -403,7 +403,7 @@ export function ExternalServicesStatus() {
         <CardContent className="space-y-4">
           <div className="prose prose-sm max-w-none">
             <h4 className="font-semibold">Environment Variables</h4>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-700">
               Configure services by adding the following environment variables to your <code>.env.local</code> file:
             </p>
             <pre className="bg-gray-100 p-4 rounded text-xs overflow-x-auto">

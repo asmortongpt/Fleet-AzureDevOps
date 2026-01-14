@@ -103,7 +103,7 @@ export function PredictiveMaintenanceWidget() {
                         </div>
                         <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
                             <div className="text-xs text-muted-foreground">Next 7 Days</div>
-                            <div className="text-2xl font-bold text-blue-600">3</div>
+                            <div className="text-2xl font-bold text-blue-800">3</div>
                         </div>
                     </div>
 
@@ -121,7 +121,7 @@ export function PredictiveMaintenanceWidget() {
                                         ) : risk.riskLevel === 'high' ? (
                                             <Warning className="text-orange-500 h-4 w-4" weight="bold" />
                                         ) : (
-                                            <Wrench className="text-blue-500 h-4 w-4" />
+                                            <Wrench className="text-blue-800 h-4 w-4" />
                                         )}
                                         <div>
                                             <div className="text-sm font-semibold">{risk.vehicleName}</div>
@@ -132,7 +132,7 @@ export function PredictiveMaintenanceWidget() {
                                     </div>
                                     <div className="text-right">
                                         <div className={`text-sm font-bold ${risk.riskLevel === 'critical' ? 'text-red-600' :
-                                            risk.riskLevel === 'high' ? 'text-orange-600' : 'text-blue-600'
+                                            risk.riskLevel === 'high' ? 'text-orange-600' : 'text-blue-800'
                                             }`}>
                                             {risk.riskScore}%
                                         </div>

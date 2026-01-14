@@ -364,7 +364,7 @@ export function CustomReportBuilder() {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading report builder...</p>
+          <p className="text-slate-700">Loading report builder...</p>
         </div>
       </div>
     )
@@ -375,7 +375,7 @@ export function CustomReportBuilder() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Custom Report Builder</h1>
-          <p className="text-gray-600">Create and schedule custom reports with drag-and-drop interface</p>
+          <p className="text-slate-700">Create and schedule custom reports with drag-and-drop interface</p>
         </div>
         <Button onClick={handleNewReport}>
           <Plus className="w-4 h-4 mr-2" />
@@ -472,7 +472,7 @@ export function CustomReportBuilder() {
                       <CardDescription>{template.category}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-gray-600 mb-4">{template.description}</p>
+                      <p className="text-sm text-slate-700 mb-4">{template.description}</p>
                       <Button
                         variant="outline"
                         className="w-full"
