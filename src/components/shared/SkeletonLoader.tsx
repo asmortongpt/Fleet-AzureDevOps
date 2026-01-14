@@ -30,7 +30,7 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
       case 'rectangular':
         return 'h-32';
       case 'circular':
-        return 'h-12 w-12';
+        return 'h-9 w-12';
       case 'table':
         return 'h-16';
       default:
@@ -54,7 +54,7 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
     return (
       <div className={`space-y-2 ${className}`}>
         {/* Table Header Skeleton */}
-        <div className={`${baseClasses} ${getShapeClass()} h-12 w-full mb-4`} />
+        <div className={`${baseClasses} ${getShapeClass()} h-9 w-full mb-2`} />
         {/* Table Rows */}
         {Array.from({ length: rows }).map((_, index) => (
           <div key={index} className={`${baseClasses} ${getShapeClass()} h-16 w-full`} />

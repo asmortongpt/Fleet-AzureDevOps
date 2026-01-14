@@ -107,7 +107,7 @@ export function MaintenanceRequestDialog({
                 <DialogHeader>
                     <DialogTitle>Submit Maintenance Request</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4">
+                <div className="space-y-2">
                     <div className="space-y-2">
                         <Label htmlFor="vehicle">Vehicle</Label>
                         <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>

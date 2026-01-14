@@ -735,9 +735,9 @@ export function ExcelStyleTable<T extends Record<string, any>>({
   const selectedCount = Object.keys(rowSelection).length
 
   return (
-    <div className={cn('w-full space-y-4', className)}>
+    <div className={cn('w-full space-y-2', className)}>
       {/* TOOLBAR */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:flex-1">
           {/* Global Search */}
           {enableSearch && (
@@ -747,7 +747,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                 placeholder={isMobile ? "Search..." : "Search all columns..."}
                 value={globalFilter}
                 onChange={(e) => setGlobalFilter(e.target.value)}
-                className="pl-8 h-9 text-base sm:text-sm"
+                className="pl-3 h-9 text-base sm:text-sm"
               />
               {globalFilter && (
                 <button
@@ -857,7 +857,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                       key={header.id}
                       className={cn(
                         'text-left font-medium text-xs sm:text-sm',
-                        compact ? 'px-1 py-1 sm:px-2 sm:py-2' : 'px-2 py-2 sm:px-4 sm:py-3',
+                        compact ? 'px-1 py-1 sm:px-2 sm:py-2' : 'px-2 py-2 sm:px-2 sm:py-3',
                         'border-r last:border-r-0',
                         isSortable && 'cursor-pointer select-none hover:bg-muted/80 active:bg-muted'
                       )}
@@ -929,7 +929,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                           key={cell.id}
                           className={cn(
                             'border-r last:border-r-0',
-                            compact ? 'px-1 py-1 text-xs sm:px-2 sm:text-sm' : 'px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm',
+                            compact ? 'px-1 py-1 text-xs sm:px-2 sm:text-sm' : 'px-2 py-1 text-xs sm:px-2 sm:py-2 sm:text-sm',
                             'truncate max-w-[150px] sm:max-w-none'
                           )}
                           onClick={(e) => handleCellClick(row.original, cell.column.id, e)}
@@ -959,7 +959,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                         key={cell.id}
                         className={cn(
                           'border-r last:border-r-0',
-                          compact ? 'px-1 py-1 text-xs sm:px-2 sm:text-sm' : 'px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm',
+                          compact ? 'px-1 py-1 text-xs sm:px-2 sm:text-sm' : 'px-2 py-1 text-xs sm:px-2 sm:py-2 sm:text-sm',
                           'truncate max-w-[150px] sm:max-w-none'
                         )}
                         onClick={(e) => handleCellClick(row.original, cell.column.id, e)}
@@ -987,7 +987,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
 
       {/* PAGINATION */}
       {enablePagination && (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
             <div className="text-xs sm:text-sm text-muted-foreground">
               {isMobile ? (

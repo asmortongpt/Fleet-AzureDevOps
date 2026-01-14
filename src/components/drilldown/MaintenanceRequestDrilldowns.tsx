@@ -76,11 +76,11 @@ export function MaintenanceRequestDetailPanel({
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {request && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Request Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <h3 className="text-2xl font-bold">{request.title}</h3>
+              <h3 className="text-sm font-bold">{request.title}</h3>
               <p className="text-sm text-muted-foreground">
                 Request #{request.request_number}
               </p>
@@ -93,11 +93,11 @@ export function MaintenanceRequestDetailPanel({
                 </Badge>
               </div>
             </div>
-            <Wrench className="h-12 w-12 text-muted-foreground" />
+            <Wrench className="h-9 w-12 text-muted-foreground" />
           </div>
 
           {/* Quick Info */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -144,17 +144,17 @@ export function MaintenanceRequestDetailPanel({
               <TabsTrigger value="history">History</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="details" className="space-y-4">
+            <TabsContent value="details" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Request Details</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Description</p>
                     <p className="text-sm">{request.description || 'No description provided'}</p>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Type</p>
                       <p className="font-medium">{request.request_type || 'N/A'}</p>
@@ -182,13 +182,13 @@ export function MaintenanceRequestDetailPanel({
               </Card>
             </TabsContent>
 
-            <TabsContent value="asset" className="space-y-4">
+            <TabsContent value="asset" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Related Asset</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Asset</p>
                       <p className="font-medium">{request.asset_name || 'N/A'}</p>
@@ -226,13 +226,13 @@ export function MaintenanceRequestDetailPanel({
               </Card>
             </TabsContent>
 
-            <TabsContent value="review" className="space-y-4">
+            <TabsContent value="review" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Review Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Reviewer</p>
                       <p className="font-medium">{request.reviewer_name || 'Not assigned'}</p>
@@ -262,7 +262,7 @@ export function MaintenanceRequestDetailPanel({
               </Card>
             </TabsContent>
 
-            <TabsContent value="history" className="space-y-4">
+            <TabsContent value="history" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Activity History</CardTitle>
@@ -374,9 +374,9 @@ export function MaintenanceRequestListView({
 
   return (
     <DrilldownContent loading={isLoading} error={error}>
-      <div className="space-y-4">
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-bold">
+          <h3 className="text-sm font-bold">
             {status ? statusLabels[status] : 'All Maintenance Requests'}
           </h3>
           <Badge>{requests?.length || 0} requests</Badge>
@@ -396,7 +396,7 @@ export function MaintenanceRequestListView({
                 })
               }
             >
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="flex items-start justify-between">
                   <div className="space-y-1 flex-1">
                     <div className="flex items-center gap-2">
@@ -433,8 +433,8 @@ export function MaintenanceRequestListView({
 
           {(!requests || requests.length === 0) && (
             <Card>
-              <CardContent className="p-8 text-center">
-                <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+              <CardContent className="p-3 text-center">
+                <MessageSquare className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                 <p className="text-muted-foreground">
                   No {status ? statusLabels[status].toLowerCase() : 'maintenance requests'} found
                 </p>

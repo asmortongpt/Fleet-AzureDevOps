@@ -163,11 +163,11 @@ function EmailListItem({ email, onClick }: EmailListItemProps) {
     >
       <div className="flex-shrink-0 mt-1">
         {email.priority === 'high' ? (
-          <Warning className="w-5 h-5 text-red-400" />
+          <Warning className="w-3 h-3 text-red-400" />
         ) : email.hasReceipt ? (
-          <CheckCircle className="w-5 h-5 text-emerald-400" />
+          <CheckCircle className="w-3 h-3 text-emerald-400" />
         ) : (
-          <Envelope className={`w-5 h-5 ${!email.isRead ? 'text-blue-400' : 'text-slate-500'}`} />
+          <Envelope className={`w-3 h-3 ${!email.isRead ? 'text-blue-400' : 'text-slate-500'}`} />
         )}
       </div>
       <div className="flex-1 min-w-0">
@@ -222,7 +222,7 @@ function ConversationListItem({ conversation, onClick }: ConversationListItemPro
       onClick={onClick}
     >
       <div className="flex items-center gap-3 min-w-0">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+        <div className="w-10 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
           {conversation.user.split(' ').map(n => n[0]).join('')}
         </div>
         <div className="min-w-0">
@@ -259,7 +259,7 @@ function MessageListItem({ message, onClick }: MessageListItemProps) {
       className="flex items-start gap-3 p-3 bg-slate-900/50 rounded-lg cursor-pointer hover:bg-slate-800/50 transition-colors"
       onClick={onClick}
     >
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-cyan-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+      <div className="w-4 h-4 rounded-full bg-gradient-to-br from-emerald-500 to-cyan-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
         {message.author.split(' ').map(n => n[0]).join('')}
       </div>
       <div className="flex-1 min-w-0">
@@ -296,28 +296,28 @@ export function AiAgentDrilldown() {
     : mockConversations
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Summary Stats */}
       <div className="grid grid-cols-3 gap-3">
         <Card className="bg-emerald-900/30 border-emerald-700/50 cursor-pointer hover:border-emerald-500/50 transition-colors"
               onClick={() => push({ type: 'ai-satisfaction', data: { filter: 'satisfaction', title: 'High Satisfaction' } } as any)}>
-          <CardContent className="p-4 text-center">
-            <Robot className="w-6 h-6 text-emerald-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white">94%</div>
+          <CardContent className="p-2 text-center">
+            <Robot className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
+            <div className="text-sm font-bold text-white">94%</div>
             <div className="text-xs text-slate-400">Satisfaction</div>
           </CardContent>
         </Card>
         <Card className="bg-blue-900/30 border-blue-700/50">
-          <CardContent className="p-4 text-center">
-            <Clock className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-blue-400">1.2s</div>
+          <CardContent className="p-2 text-center">
+            <Clock className="w-4 h-4 text-blue-400 mx-auto mb-2" />
+            <div className="text-sm font-bold text-blue-400">1.2s</div>
             <div className="text-xs text-slate-400">Avg Response</div>
           </CardContent>
         </Card>
         <Card className="bg-purple-900/30 border-purple-700/50">
-          <CardContent className="p-4 text-center">
-            <ChatCircle className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-purple-400">{filteredConversations.length}</div>
+          <CardContent className="p-2 text-center">
+            <ChatCircle className="w-4 h-4 text-purple-400 mx-auto mb-2" />
+            <div className="text-sm font-bold text-purple-400">{filteredConversations.length}</div>
             <div className="text-xs text-slate-400">Conversations</div>
           </CardContent>
         </Card>
@@ -326,9 +326,9 @@ export function AiAgentDrilldown() {
       {/* Conversation List */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
-          <CardTitle className="text-white text-lg flex items-center justify-between">
+          <CardTitle className="text-white text-sm flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkle className="w-5 h-5 text-purple-400" />
+              <Sparkle className="w-3 h-3 text-purple-400" />
               AI Conversations
             </div>
             <Badge variant="outline" className="text-xs">
@@ -337,7 +337,7 @@ export function AiAgentDrilldown() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[400px] pr-4">
+          <ScrollArea className="h-[400px] pr-2">
             <div className="space-y-2">
               {filteredConversations.map(conv => (
                 <ConversationListItem
@@ -367,9 +367,9 @@ export function AiAgentDrilldown() {
       {/* Usage Breakdown */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
-          <CardTitle className="text-white text-lg">Query Categories</CardTitle>
+          <CardTitle className="text-white text-sm">Query Categories</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           {[
             { name: 'Fleet Status', value: 45, color: 'bg-blue-500' },
             { name: 'Maintenance', value: 28, color: 'bg-emerald-500' },
@@ -405,27 +405,27 @@ export function MessagesDrilldown() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Summary Stats */}
       <div className="grid grid-cols-3 gap-3">
         <Card className="bg-blue-900/30 border-blue-700/50">
-          <CardContent className="p-4 text-center">
-            <ChatCircle className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white">234</div>
+          <CardContent className="p-2 text-center">
+            <ChatCircle className="w-4 h-4 text-blue-400 mx-auto mb-2" />
+            <div className="text-sm font-bold text-white">234</div>
             <div className="text-xs text-slate-400">Messages Today</div>
           </CardContent>
         </Card>
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardContent className="p-4 text-center">
-            <Hash className="w-6 h-6 text-slate-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-slate-300">12</div>
+          <CardContent className="p-2 text-center">
+            <Hash className="w-4 h-4 text-slate-400 mx-auto mb-2" />
+            <div className="text-sm font-bold text-slate-300">12</div>
             <div className="text-xs text-slate-400">Channels</div>
           </CardContent>
         </Card>
         <Card className="bg-emerald-900/30 border-emerald-700/50">
-          <CardContent className="p-4 text-center">
-            <Users className="w-6 h-6 text-emerald-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-emerald-400">48</div>
+          <CardContent className="p-2 text-center">
+            <Users className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
+            <div className="text-sm font-bold text-emerald-400">48</div>
             <div className="text-xs text-slate-400">Active Users</div>
           </CardContent>
         </Card>
@@ -434,7 +434,7 @@ export function MessagesDrilldown() {
       {/* Channel Activity */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
-          <CardTitle className="text-white text-lg">Channel Activity</CardTitle>
+          <CardTitle className="text-white text-sm">Channel Activity</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {channelActivity.map(ch => (
@@ -467,13 +467,13 @@ export function MessagesDrilldown() {
       {/* Recent Messages */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
-          <CardTitle className="text-white text-lg flex items-center justify-between">
+          <CardTitle className="text-white text-sm flex items-center justify-between">
             Recent Messages
             <Badge variant="outline" className="text-xs">{mockTeamsMessages.length} shown</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[300px] pr-4">
+          <ScrollArea className="h-[300px] pr-2">
             <div className="space-y-2">
               {mockTeamsMessages.map(msg => (
                 <MessageListItem
@@ -525,16 +525,16 @@ export function EmailDrilldown() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Summary Stats */}
       <div className="grid grid-cols-4 gap-3">
         <Card
           className="bg-blue-900/30 border-blue-700/50 cursor-pointer hover:border-blue-500/50 transition-colors"
           onClick={() => push({ type: 'email', data: { filter: 'sent', title: 'Sent Today' } } as any)}
         >
-          <CardContent className="p-4 text-center">
-            <PaperPlaneTilt className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white">156</div>
+          <CardContent className="p-2 text-center">
+            <PaperPlaneTilt className="w-4 h-4 text-blue-400 mx-auto mb-2" />
+            <div className="text-sm font-bold text-white">156</div>
             <div className="text-xs text-slate-400">Sent Today</div>
           </CardContent>
         </Card>
@@ -542,16 +542,16 @@ export function EmailDrilldown() {
           className="bg-slate-800/50 border-slate-700 cursor-pointer hover:border-slate-500/50 transition-colors"
           onClick={() => push({ type: 'email-templates', data: { filter: 'templates', title: 'Templates' } } as any)}
         >
-          <CardContent className="p-4 text-center">
-            <EnvelopeSimple className="w-6 h-6 text-slate-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-slate-300">24</div>
+          <CardContent className="p-2 text-center">
+            <EnvelopeSimple className="w-4 h-4 text-slate-400 mx-auto mb-2" />
+            <div className="text-sm font-bold text-slate-300">24</div>
             <div className="text-xs text-slate-400">Templates</div>
           </CardContent>
         </Card>
         <Card className="bg-emerald-900/30 border-emerald-700/50">
-          <CardContent className="p-4 text-center">
-            <Eye className="w-6 h-6 text-emerald-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-emerald-400">42%</div>
+          <CardContent className="p-2 text-center">
+            <Eye className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
+            <div className="text-sm font-bold text-emerald-400">42%</div>
             <div className="text-xs text-slate-400">Open Rate</div>
           </CardContent>
         </Card>
@@ -559,9 +559,9 @@ export function EmailDrilldown() {
           className="bg-amber-900/30 border-amber-700/50 cursor-pointer hover:border-amber-500/50 transition-colors"
           onClick={() => push({ type: 'scheduled-emails', data: { filter: 'scheduled', title: 'Scheduled' } } as any)}
         >
-          <CardContent className="p-4 text-center">
-            <Calendar className="w-6 h-6 text-amber-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-amber-400">12</div>
+          <CardContent className="p-2 text-center">
+            <Calendar className="w-4 h-4 text-amber-400 mx-auto mb-2" />
+            <div className="text-sm font-bold text-amber-400">12</div>
             <div className="text-xs text-slate-400">Scheduled</div>
           </CardContent>
         </Card>
@@ -570,9 +570,9 @@ export function EmailDrilldown() {
       {/* Email List */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
-          <CardTitle className="text-white text-lg flex items-center justify-between">
+          <CardTitle className="text-white text-sm flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Envelope className="w-5 h-5 text-blue-400" />
+              <Envelope className="w-3 h-3 text-blue-400" />
               {filterType === 'sent' ? 'Sent Emails' :
                filterType === 'unread' ? 'Unread Emails' :
                filterType === 'receipts' ? 'Receipt Emails' :
@@ -585,7 +585,7 @@ export function EmailDrilldown() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[400px] pr-4">
+          <ScrollArea className="h-[400px] pr-2">
             <div className="space-y-2">
               {filteredEmails.map(email => (
                 <EmailListItem
@@ -625,7 +625,7 @@ export function EmailDrilldown() {
       {/* Email Templates */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
-          <CardTitle className="text-white text-lg">Email Templates</CardTitle>
+          <CardTitle className="text-white text-sm">Email Templates</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {emailTemplates.map(template => (
@@ -640,7 +640,7 @@ export function EmailDrilldown() {
               })}
             >
               <div className="flex items-center gap-3">
-                <EnvelopeSimple className="w-5 h-5 text-slate-500" />
+                <EnvelopeSimple className="w-3 h-3 text-slate-500" />
                 <div>
                   <div className="font-medium text-white">{template.name}</div>
                   <div className="text-xs text-slate-500">Used {template.usageCount} times • Last: {template.lastUsed}</div>
@@ -655,12 +655,12 @@ export function EmailDrilldown() {
       {/* Campaign Performance */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
-          <CardTitle className="text-white text-lg flex items-center gap-2">
-            <TrendUp className="w-5 h-5 text-emerald-400" />
+          <CardTitle className="text-white text-sm flex items-center gap-2">
+            <TrendUp className="w-3 h-3 text-emerald-400" />
             Campaign Performance
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           {[
             { name: 'Weekly Fleet Update', sent: 156, opened: 72, rate: 46 },
             { name: 'Maintenance Reminder', sent: 48, opened: 38, rate: 79 },
@@ -715,13 +715,13 @@ export function HistoryDrilldown() {
     : history
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Summary Stats */}
       <div className="grid grid-cols-3 gap-3">
         <Card className="bg-emerald-900/30 border-emerald-700/50">
-          <CardContent className="p-4 text-center">
-            <CheckCircle className="w-6 h-6 text-emerald-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-emerald-400">456</div>
+          <CardContent className="p-2 text-center">
+            <CheckCircle className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
+            <div className="text-sm font-bold text-emerald-400">456</div>
             <div className="text-xs text-slate-400">This Week</div>
           </CardContent>
         </Card>
@@ -729,9 +729,9 @@ export function HistoryDrilldown() {
           className="bg-amber-900/30 border-amber-700/50 cursor-pointer hover:border-amber-500/50 transition-colors"
           onClick={() => push({ type: 'flagged', data: { filter: 'flagged', title: 'Flagged' } } as any)}
         >
-          <CardContent className="p-4 text-center">
-            <Flag className="w-6 h-6 text-amber-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-amber-400">{flaggedMessages.length}</div>
+          <CardContent className="p-2 text-center">
+            <Flag className="w-4 h-4 text-amber-400 mx-auto mb-2" />
+            <div className="text-sm font-bold text-amber-400">{flaggedMessages.length}</div>
             <div className="text-xs text-slate-400">Flagged</div>
           </CardContent>
         </Card>
@@ -739,9 +739,9 @@ export function HistoryDrilldown() {
           className="bg-slate-800/50 border-slate-700 cursor-pointer hover:border-slate-500/50 transition-colors"
           onClick={() => push({ type: 'archived', data: { filter: 'archived', title: 'Archived' } } as any)}
         >
-          <CardContent className="p-4 text-center">
-            <Archive className="w-6 h-6 text-slate-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-slate-300">3.2K</div>
+          <CardContent className="p-2 text-center">
+            <Archive className="w-4 h-4 text-slate-400 mx-auto mb-2" />
+            <div className="text-sm font-bold text-slate-300">3.2K</div>
             <div className="text-xs text-slate-400">Archived</div>
           </CardContent>
         </Card>
@@ -750,9 +750,9 @@ export function HistoryDrilldown() {
       {/* Communication History */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
-          <CardTitle className="text-white text-lg flex items-center justify-between">
+          <CardTitle className="text-white text-sm flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <ChatCircle className="w-5 h-5 text-blue-400" />
+              <ChatCircle className="w-3 h-3 text-blue-400" />
               {filterType === 'flagged' ? 'Flagged Messages' :
                filterType === 'archived' ? 'Archived Messages' :
                'Communication History'}
@@ -761,7 +761,7 @@ export function HistoryDrilldown() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[400px] pr-4">
+          <ScrollArea className="h-[400px] pr-2">
             <div className="space-y-2">
               {filteredHistory.map(item => (
                 <div
@@ -783,11 +783,11 @@ export function HistoryDrilldown() {
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     {item.type === 'email' ? (
-                      <Envelope className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                      <Envelope className="w-3 h-3 text-blue-400 flex-shrink-0" />
                     ) : item.type === 'sms' ? (
-                      <ChatCircle className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                      <ChatCircle className="w-3 h-3 text-emerald-400 flex-shrink-0" />
                     ) : (
-                      <Bell className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                      <Bell className="w-3 h-3 text-purple-400 flex-shrink-0" />
                     )}
                     <div className="min-w-0">
                       <div className="font-medium text-white truncate">{item.subject}</div>

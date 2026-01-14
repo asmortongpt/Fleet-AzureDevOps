@@ -22,8 +22,8 @@ const colorSchemes = [
 const fontSizes = [
   { value: 'small', label: 'Small', example: 'text-sm' },
   { value: 'medium', label: 'Medium', example: 'text-base' },
-  { value: 'large', label: 'Large', example: 'text-lg' },
-  { value: 'extra-large', label: 'Extra Large', example: 'text-xl' },
+  { value: 'large', label: 'Large', example: 'text-sm' },
+  { value: 'extra-large', label: 'Extra Large', example: 'text-base' },
 ]
 
 const densities = [
@@ -45,12 +45,12 @@ export function AppearanceSettings() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Theme */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Palette className="w-5 h-5" />
+            <Palette className="w-3 h-3" />
             <CardTitle>Theme</CardTitle>
           </div>
           <CardDescription>Select your preferred color theme</CardDescription>
@@ -60,15 +60,15 @@ export function AppearanceSettings() {
             value={settings.theme}
             onValueChange={(value) => updateSetting('theme', value as any)}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {/* Light Theme */}
               <div className="relative">
                 <RadioGroupItem value="light" id="theme-light" className="peer sr-only" />
                 <Label
                   htmlFor="theme-light"
-                  className="flex flex-col items-center gap-3 p-4 border-2 rounded-lg cursor-pointer hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
+                  className="flex flex-col items-center gap-3 p-2 border-2 rounded-lg cursor-pointer hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
                 >
-                  <Sun className="w-8 h-8" />
+                  <Sun className="w-4 h-4" />
                   <div className="text-center">
                     <div className="font-medium">Light</div>
                     <div className="text-xs text-muted-foreground">Bright and clean</div>
@@ -81,9 +81,9 @@ export function AppearanceSettings() {
                 <RadioGroupItem value="dark" id="theme-dark" className="peer sr-only" />
                 <Label
                   htmlFor="theme-dark"
-                  className="flex flex-col items-center gap-3 p-4 border-2 rounded-lg cursor-pointer hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
+                  className="flex flex-col items-center gap-3 p-2 border-2 rounded-lg cursor-pointer hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
                 >
-                  <Moon className="w-8 h-8" />
+                  <Moon className="w-4 h-4" />
                   <div className="text-center">
                     <div className="font-medium">Dark</div>
                     <div className="text-xs text-muted-foreground">Easy on the eyes</div>
@@ -96,9 +96,9 @@ export function AppearanceSettings() {
                 <RadioGroupItem value="auto" id="theme-auto" className="peer sr-only" />
                 <Label
                   htmlFor="theme-auto"
-                  className="flex flex-col items-center gap-3 p-4 border-2 rounded-lg cursor-pointer hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
+                  className="flex flex-col items-center gap-3 p-2 border-2 rounded-lg cursor-pointer hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
                 >
-                  <MagicWand className="w-8 h-8" />
+                  <MagicWand className="w-4 h-4" />
                   <div className="text-center">
                     <div className="font-medium">Auto</div>
                     <div className="text-xs text-muted-foreground">Follow system</div>
@@ -114,7 +114,7 @@ export function AppearanceSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Palette className="w-5 h-5" />
+            <Palette className="w-3 h-3" />
             <CardTitle>Color Scheme</CardTitle>
           </div>
           <CardDescription>Choose your accent color</CardDescription>
@@ -136,7 +136,7 @@ export function AppearanceSettings() {
                     htmlFor={`color-${scheme.value}`}
                     className="flex flex-col items-center gap-2 p-3 border-2 rounded-lg cursor-pointer hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
                   >
-                    <div className={`w-8 h-8 rounded-full ${scheme.color}`} />
+                    <div className={`w-4 h-4 rounded-full ${scheme.color}`} />
                     <div className="text-sm font-medium">{scheme.label}</div>
                   </Label>
                 </div>
@@ -150,7 +150,7 @@ export function AppearanceSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <TextAa className="w-5 h-5" />
+            <TextAa className="w-3 h-3" />
             <CardTitle>Font Size</CardTitle>
           </div>
           <CardDescription>Adjust text size for better readability</CardDescription>
@@ -186,7 +186,7 @@ export function AppearanceSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <TextAa className="w-5 h-5" />
+            <TextAa className="w-3 h-3" />
             <CardTitle>Display Density</CardTitle>
           </div>
           <CardDescription>Control spacing and information density</CardDescription>
@@ -222,12 +222,12 @@ export function AppearanceSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Sidebar className="w-5 h-5" />
+            <Sidebar className="w-3 h-3" />
             <CardTitle>Interface Options</CardTitle>
           </div>
           <CardDescription>Customize your interface experience</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="sidebar-collapsed">Collapse Sidebar by Default</Label>

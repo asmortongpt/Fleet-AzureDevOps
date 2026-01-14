@@ -119,10 +119,10 @@ export function GarageService() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
 
-        <h1 className="text-3xl font-semibold tracking-tight">Garage & Service Center</h1>
+        <h1 className="text-base font-semibold tracking-tight">Garage & Service Center</h1>
         {hasPermission('work_order:create') && (
           <Button>
             <Plus className="w-4 h-4 mr-2" />
@@ -140,39 +140,39 @@ export function GarageService() {
           <TabsTrigger value="schedule">Maintenance Schedule</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="dashboard" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <TabsContent value="dashboard" className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             <MetricCard
               title="Available Bays"
               value={metrics.availableBays}
               subtitle={`of ${serviceBays.length} total`}
-              icon={<Wrench className="w-5 h-5" />}
+              icon={<Wrench className="w-3 h-3" />}
               status="info"
             />
             <MetricCard
               title="Active Work Orders"
               value={metrics.activeWorkOrders}
               subtitle="in progress"
-              icon={<Clock className="w-5 h-5" />}
+              icon={<Clock className="w-3 h-3" />}
               status="success"
             />
             <MetricCard
               title="Available Technicians"
               value={metrics.availableTechs}
               subtitle={`of ${technicians.length} total`}
-              icon={<User className="w-5 h-5" />}
+              icon={<User className="w-3 h-3" />}
               status="info"
             />
             <MetricCard
               title="Overdue Maintenance"
               value={metrics.overdueJobs}
               subtitle="requires attention"
-              icon={<Warning className="w-5 h-5" />}
+              icon={<Warning className="w-3 h-3" />}
               status={metrics.overdueJobs > 5 ? "warning" : "success"}
             />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Service Bay Status</CardTitle>
@@ -253,7 +253,7 @@ export function GarageService() {
               <CardTitle>Service Bay Management</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {serviceBays.map(bay => (
                   <Card
                     key={bay.id}
@@ -265,10 +265,10 @@ export function GarageService() {
                           : "border-warning/50"
                     }
                   >
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-4">
+                    <CardContent className="p-3">
+                      <div className="flex items-start justify-between mb-2">
                         <div>
-                          <h3 className="font-semibold text-lg">{bay.number}</h3>
+                          <h3 className="font-semibold text-sm">{bay.number}</h3>
                           <Badge
                             variant="outline"
                             className={
@@ -283,7 +283,7 @@ export function GarageService() {
                           </Badge>
                         </div>
                         {bay.status === "maintenance" && (
-                          <Wrench className="w-6 h-6 text-muted-foreground" />
+                          <Wrench className="w-4 h-4 text-muted-foreground" />
                         )}
                       </div>
                       {bay.status !== "closed" && bay.vehicle && (
@@ -325,15 +325,15 @@ export function GarageService() {
               <table className="w-full">
                 <thead className="bg-muted/50 border-b">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Work Order #</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vehicle</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Service Type</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Priority</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Assigned To</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Created</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cost</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
+                    <th className="px-2 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Work Order #</th>
+                    <th className="px-2 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vehicle</th>
+                    <th className="px-2 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Service Type</th>
+                    <th className="px-2 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Priority</th>
+                    <th className="px-2 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
+                    <th className="px-2 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Assigned To</th>
+                    <th className="px-2 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Created</th>
+                    <th className="px-2 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cost</th>
+                    <th className="px-2 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border bg-card">
@@ -346,27 +346,27 @@ export function GarageService() {
                       tabIndex={0}
                       onKeyDown={(e) => e.key === 'Enter' && handleWorkOrderClick(order)}
                     >
-                      <td className="px-4 py-3 text-sm font-medium">#{order.id}</td>
-                      <td className="px-4 py-3 text-sm font-medium">{order.vehicleNumber}</td>
-                      <td className="px-4 py-3 text-sm">{order.serviceType}</td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="px-2 py-3 text-sm font-medium">#{order.id}</td>
+                      <td className="px-2 py-3 text-sm font-medium">{order.vehicleNumber}</td>
+                      <td className="px-2 py-3 text-sm">{order.serviceType}</td>
+                      <td className="px-2 py-3 text-sm">
                         <Badge variant="outline" className={getPriorityColor(order.priority)}>
                           {order.priority}
                         </Badge>
                       </td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="px-2 py-3 text-sm">
                         <Badge variant="outline" className={getStatusColor(order.status)}>
                           {order.status}
                         </Badge>
                       </td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                      <td className="px-2 py-3 text-sm text-muted-foreground">
                         {order.assignedTo || '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">{order.createdDate}</td>
-                      <td className="px-4 py-3 text-sm text-right font-semibold">
+                      <td className="px-2 py-3 text-sm text-muted-foreground">{order.createdDate}</td>
+                      <td className="px-2 py-3 text-sm text-right font-semibold">
                         {order.cost ? `$${order.cost.toFixed(2)}` : '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-right">
+                      <td className="px-2 py-3 text-sm text-right">
                         <div className="flex justify-end gap-2">
                           <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleWorkOrderClick(order); }}>
                             View
@@ -406,7 +406,7 @@ export function GarageService() {
               <CardTitle>Technician Status</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                 {technicians.map(tech => (
                   <Card
                     key={tech.id}
@@ -416,8 +416,8 @@ export function GarageService() {
                     tabIndex={0}
                     onKeyDown={(e) => e.key === 'Enter' && handleTechnicianClick(tech as any)}
                   >
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-4">
+                    <CardContent className="p-3">
+                      <div className="flex items-start justify-between mb-2">
                         <div>
                           <h3 className="font-semibold">{tech.name}</h3>
                           <Badge
@@ -434,7 +434,7 @@ export function GarageService() {
                           </Badge>
                         </div>
                         <div className="text-center">
-                          <p className="text-2xl font-semibold">{tech.efficiency}%</p>
+                          <p className="text-sm font-semibold">{tech.efficiency}%</p>
                           <p className="text-xs text-muted-foreground">Efficiency</p>
                         </div>
                       </div>

@@ -292,11 +292,11 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
       {/* Floating Layer Controls (Top Left, below Tabs) */}
       <div className="absolute top-14 left-2 z-10">
         {showControls ? (
-          <Card className="p-3 border rounded-lg shadow-xl bg-background/95 backdrop-blur w-[600px] animate-in slide-in-from-top-2 duration-200">
+          <Card className="p-3 border rounded-lg shadow-sm bg-background/95 backdrop-blur w-[600px] animate-in slide-in-from-top-2 duration-200">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
                 <div className="flex items-center gap-2">
-                  <Layers className="w-5 h-5 text-muted-foreground" />
+                  <Layers className="w-3 h-3 text-muted-foreground" />
                   <span className="font-medium">Map Layers</span>
                 </div>
 
@@ -362,7 +362,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
             size="sm"
             variant="secondary"
             onClick={() => setShowControls(true)}
-            className="shadow-lg bg-background/95 backdrop-blur border border-white/10"
+            className="shadow-sm bg-background/95 backdrop-blur border border-white/10"
           >
             <Layers className="w-4 h-4 mr-2" />
             Show Layers
@@ -373,7 +373,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
       {/* Main Content Area */}
       <div className="flex-1 relative">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
-          <TabsList className="absolute top-2 left-2 z-10 bg-background/95 backdrop-blur border border-white/10 shadow-lg rounded-lg h-9">
+          <TabsList className="absolute top-2 left-2 z-10 bg-background/95 backdrop-blur border border-white/10 shadow-sm rounded-lg h-9">
             <TabsTrigger value="map" className="text-xs px-3">Map View</TabsTrigger>
             <TabsTrigger value="geofencing" className="text-xs px-3">
               Geofencing

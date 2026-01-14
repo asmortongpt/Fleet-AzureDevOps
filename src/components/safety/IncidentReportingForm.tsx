@@ -136,20 +136,20 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-2">
             <Card className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border-slate-700/50">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-white">
-                        <Warning className="w-5 h-5 text-red-400" />
+                        <Warning className="w-3 h-3 text-red-400" />
                         Report Safety Incident
                     </CardTitle>
                     <CardDescription className="text-slate-400">
                         All fields marked with * are required for OSHA compliance
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-2">
                     {/* Basic Information */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <div className="space-y-2">
                             <Label htmlFor="incident_type" className="text-slate-300">
                                 Incident Type *
@@ -194,7 +194,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                     </div>
 
                     {/* Date and Location */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <div className="space-y-2">
                             <Label htmlFor="incident_date" className="text-slate-300 flex items-center gap-2">
                                 <Calendar className="w-4 h-4" />
@@ -373,9 +373,9 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
 
                     {/* OSHA Warning */}
                     {hasInjuries && (
-                        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+                        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-2">
                             <div className="flex items-start gap-3">
-                                <Warning className="w-5 h-5 text-yellow-400 mt-0.5" />
+                                <Warning className="w-3 h-3 text-yellow-400 mt-0.5" />
                                 <div className="space-y-1">
                                     <p className="text-yellow-400 font-medium">OSHA Reporting Required</p>
                                     <p className="text-sm text-slate-300">
@@ -388,7 +388,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                     )}
 
                     {/* Action Buttons */}
-                    <div className="flex gap-3 pt-4">
+                    <div className="flex gap-3 pt-2">
                         <Button
                             type="submit"
                             disabled={isSubmitting}

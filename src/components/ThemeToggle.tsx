@@ -25,9 +25,9 @@ export function ThemeToggle() {
       title={resolvedTheme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
     >
       {resolvedTheme === 'light' ? (
-        <Moon className="w-5 h-5" aria-hidden="true" />
+        <Moon className="w-3 h-3" aria-hidden="true" />
       ) : (
-        <Sun className="w-5 h-5" aria-hidden="true" />
+        <Sun className="w-3 h-3" aria-hidden="true" />
       )}
     </Button>
   )

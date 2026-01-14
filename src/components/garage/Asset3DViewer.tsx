@@ -263,7 +263,7 @@ function DamageMarker({ point, isSelected, onClick }: DamageMarkerProps) {
       {/* Tooltip on hover/select */}
       {isSelected && (
         <Html center distanceFactor={10}>
-          <div className="bg-slate-900/95 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap">
+          <div className="bg-slate-900/95 text-white text-xs px-3 py-2 rounded-lg shadow-sm whitespace-nowrap">
             <div className="font-semibold">{point.zone}</div>
             <div className="text-slate-300 capitalize">{point.severity} damage</div>
             {point.description && (
@@ -318,7 +318,7 @@ function VehicleModel({
 
     return (
       <Html center>
-        <div className="bg-red-900/90 text-white px-4 py-2 rounded-lg text-sm">
+        <div className="bg-red-900/90 text-white px-2 py-2 rounded-lg text-sm">
           Failed to load model
         </div>
       </Html>
@@ -629,7 +629,7 @@ export function Asset3DViewer({
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
           <div className="text-center text-white">
-            <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-12 h-9 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-3" />
             <p className="text-sm">Loading 3D model...</p>
           </div>
         </div>
@@ -638,9 +638,9 @@ export function Asset3DViewer({
       {/* Error Display */}
       {loadError && (
         <div className="absolute inset-0 flex items-center justify-center bg-slate-900/80">
-          <div className="text-center text-white p-6">
-            <div className="text-red-400 text-4xl mb-3">⚠️</div>
-            <p className="text-lg font-semibold mb-2">Failed to load 3D model</p>
+          <div className="text-center text-white p-3">
+            <div className="text-red-400 text-sm mb-3">⚠️</div>
+            <p className="text-sm font-semibold mb-2">Failed to load 3D model</p>
             <p className="text-sm text-slate-400">{loadError.message}</p>
           </div>
         </div>
@@ -648,7 +648,7 @@ export function Asset3DViewer({
 
       {/* Camera Preset Controls */}
       {showControls && !loadError && (
-        <div className="absolute top-4 right-4 bg-slate-900/90 backdrop-blur-sm rounded-lg shadow-lg p-4 space-y-2">
+        <div className="absolute top-4 right-4 bg-slate-900/90 backdrop-blur-sm rounded-lg shadow-sm p-2 space-y-2">
           <h3 className="font-semibold text-sm text-white mb-2">Camera Views</h3>
           <div className="grid grid-cols-2 gap-2">
             {cameraPresetList.map(preset => (

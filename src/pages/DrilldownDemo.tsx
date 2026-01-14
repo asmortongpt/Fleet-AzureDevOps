@@ -174,9 +174,9 @@ export default function DrilldownDemo() {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Universal Drilldown Demo</h1>
+    <div className="container mx-auto p-3">
+      <div className="mb-3">
+        <h1 className="text-base font-bold">Universal Drilldown Demo</h1>
         <p className="text-muted-foreground mt-2">
           This demonstrates the Summary → Detail → Edit flow with RBAC permissions.
           Try clicking on a vehicle to see details, then drill into maintenance records.

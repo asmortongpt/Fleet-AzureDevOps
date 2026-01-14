@@ -99,7 +99,7 @@ export function KPICard({
       <CardContent className="space-y-3">
         {/* Main Value */}
         <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-bold metric-number">
+          <span className="text-base font-bold metric-number">
             {loading ? "..." : formattedValue}
           </span>
         </div>

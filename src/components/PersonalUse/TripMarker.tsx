@@ -196,21 +196,21 @@ export function TripMarker({
     <Card className={className}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Car className="w-5 h-5" />
+          <Car className="w-3 h-3" />
           Mark Trip Usage
         </CardTitle>
         <CardDescription>
           Classify this trip as business, personal, or mixed use
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-2">
         {/* Usage Type Selection */}
         <div className="space-y-3">
           <Label>Trip Type</Label>
           <RadioGroup
             value={usageType}
             onValueChange={(value: 'business' | 'personal' | 'mixed') => setUsageType(value)}
-            className="grid grid-cols-3 gap-4"
+            className="grid grid-cols-3 gap-2"
           >
             <div>
               <RadioGroupItem
@@ -220,7 +220,7 @@ export function TripMarker({
               />
               <Label
                 htmlFor="business"
-                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
               >
                 <Briefcase className="mb-3 h-6 w-6" />
                 <span className="text-sm font-medium">Business</span>
@@ -235,7 +235,7 @@ export function TripMarker({
               />
               <Label
                 htmlFor="personal"
-                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
               >
                 <Coffee className="mb-3 h-6 w-6" />
                 <span className="text-sm font-medium">Personal</span>
@@ -250,7 +250,7 @@ export function TripMarker({
               />
               <Label
                 htmlFor="mixed"
-                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
               >
                 <SplitHorizontal className="mb-3 h-6 w-6" />
                 <span className="text-sm font-medium">Mixed</span>

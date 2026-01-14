@@ -67,25 +67,25 @@ export function ErrorPanel({
 
   const sizeClasses = {
     sm: {
-      container: 'p-4 max-w-md',
+      container: 'p-2 max-w-md',
       icon: 'h-8 w-8',
       title: 'text-base',
       message: 'text-xs',
       button: 'px-3 py-1.5 text-xs',
     },
     md: {
-      container: 'p-6 max-w-lg',
-      icon: 'h-12 w-12',
-      title: 'text-lg',
+      container: 'p-3 max-w-lg',
+      icon: 'h-9 w-12',
+      title: 'text-sm',
       message: 'text-sm',
-      button: 'px-4 py-2 text-sm',
+      button: 'px-2 py-2 text-sm',
     },
     lg: {
-      container: 'p-8 max-w-xl',
+      container: 'p-3 max-w-xl',
       icon: 'h-16 w-16',
-      title: 'text-xl',
+      title: 'text-base',
       message: 'text-base',
-      button: 'px-6 py-3 text-base',
+      button: 'px-3 py-3 text-base',
     },
   };
 
@@ -109,7 +109,7 @@ export function ErrorPanel({
           {/* Icon */}
           <div
             className={cn(
-              'mb-4 rounded-full p-3',
+              'mb-2 rounded-full p-3',
               iconColor
             )}
           >
@@ -122,13 +122,13 @@ export function ErrorPanel({
           </h3>
 
           {/* Error Message */}
-          <p className={cn('mb-4 text-muted-foreground', sizeClasses[size].message)}>
+          <p className={cn('mb-2 text-muted-foreground', sizeClasses[size].message)}>
             {errorMessage}
           </p>
 
           {/* Additional error details for debugging (development only) */}
           {process.env.NODE_ENV === 'development' && apiError && (
-            <details className="mb-4 w-full">
+            <details className="mb-2 w-full">
               <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
                 Error Details
               </summary>

@@ -233,7 +233,7 @@ export function VehicleReservationModal({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-2">
             {/* Vehicle Selection */}
             <FormField
               control={form.control}
@@ -293,7 +293,7 @@ export function VehicleReservationModal({
             />
 
             {/* Date and Time Selection */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <FormField
                 control={form.control}
                 name="startDate"
@@ -359,7 +359,7 @@ export function VehicleReservationModal({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <FormField
                 control={form.control}
                 name="endDate"
@@ -462,7 +462,7 @@ export function VehicleReservationModal({
             />
 
             {/* Location Fields */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <FormField
                 control={form.control}
                 name="pickupLocation"

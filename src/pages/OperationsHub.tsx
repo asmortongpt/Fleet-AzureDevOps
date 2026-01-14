@@ -63,7 +63,7 @@ interface DispatchMetrics {
 const StatCardSkeleton = memo(function StatCardSkeleton() {
     return (
         <div
-            className="animate-pulse bg-card/60 rounded-xl border border-border/30 p-4 sm:p-6"
+            className="animate-pulse bg-card/60 rounded-md border border-border/30 p-2 sm:p-3"
             role="status"
             aria-label="Loading statistic"
         >
@@ -110,9 +110,9 @@ const InteractiveCard = memo(function InteractiveCard({
     return (
         <div
             className={cn(
-                "bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700",
-                "shadow-sm p-6 sm:p-8 cursor-pointer transition-all duration-300",
-                "hover:shadow-lg hover:-translate-y-0.5",
+                "bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700",
+                "shadow-sm p-3 sm:p-3 cursor-pointer transition-all duration-300",
+                "hover:shadow-sm hover:-translate-y-0.5",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 className
             )}
@@ -204,18 +204,18 @@ const DispatchContent = memo(function DispatchContent() {
 
     return (
         <section
-            className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent min-h-full"
+            className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent min-h-full"
             aria-labelledby={headingId}
             role="region"
         >
             <AnnouncementRegion />
 
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                     <h2
                         id={headingId}
-                        className="text-xl sm:text-2xl font-bold text-white"
+                        className="text-base sm:text-sm font-bold text-white"
                     >
                         Dispatch Console
                     </h2>
@@ -245,7 +245,7 @@ const DispatchContent = memo(function DispatchContent() {
                     <StatusDot status={isLive ? "online" : "offline"} label="Live Updates" />
                     <button
                         className={cn(
-                            "inline-flex items-center gap-2 px-4 py-2 rounded-lg",
+                            "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
                             "bg-primary text-primary-foreground font-medium text-sm",
                             "hover:bg-primary/90 transition-colors duration-200",
                             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
@@ -261,7 +261,7 @@ const DispatchContent = memo(function DispatchContent() {
 
             {/* Primary Stats */}
             <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-2"
                 role="list"
                 aria-label="Dispatch statistics"
             >
@@ -281,7 +281,7 @@ const DispatchContent = memo(function DispatchContent() {
                             trend="up"
                             trendValue="+4"
                             variant="primary"
-                            icon={<Package className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />}
+                            icon={<Package className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
                             onClick={() => handleStatClick('active-jobs', 'Active Jobs')}
                             aria-label={`Active jobs: ${metrics?.activeJobs}, ${metrics?.startingWithinHour} starting within the hour. Click for details.`}
                         />
@@ -290,7 +290,7 @@ const DispatchContent = memo(function DispatchContent() {
                             value={metrics?.inTransit.toString() || '0'}
                             subtitle="On schedule"
                             variant="success"
-                            icon={<Truck className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />}
+                            icon={<Truck className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
                             onClick={() => handleStatClick('in-transit', 'In Transit')}
                             aria-label={`Jobs in transit: ${metrics?.inTransit}, all on schedule. Click for details.`}
                         />
@@ -301,7 +301,7 @@ const DispatchContent = memo(function DispatchContent() {
                             trend="up"
                             trendValue="+12%"
                             variant="success"
-                            icon={<CheckSquare className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />}
+                            icon={<CheckSquare className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
                             onClick={() => handleStatClick('dispatch', 'Completed Today')}
                             aria-label={`Completed today: ${metrics?.completedToday} of ${metrics?.target} target, up 12%. Click for details.`}
                         />
@@ -312,7 +312,7 @@ const DispatchContent = memo(function DispatchContent() {
                             trend="down"
                             trendValue="-2"
                             variant="danger"
-                            icon={<Warning className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />}
+                            icon={<Warning className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
                             onClick={() => handleStatClick('delayed', 'Delayed Jobs')}
                             aria-label={`Delayed jobs: ${metrics?.delayed}, ${metrics?.criticalDelayed} critical. Down 2 from earlier. Click for details.`}
                         />
@@ -322,7 +322,7 @@ const DispatchContent = memo(function DispatchContent() {
 
             {/* Secondary Row */}
             <div
-                className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6"
+                className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-2"
                 role="list"
                 aria-label="Performance metrics"
             >
@@ -331,7 +331,7 @@ const DispatchContent = memo(function DispatchContent() {
                     ariaLabel={`On-time rate: ${metrics?.onTimeRate || 0}% versus ${metrics?.yesterdayOnTimeRate || 0}% yesterday. Click for details.`}
                     className="hover:border-emerald-600"
                 >
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">
                         On-Time Rate
                     </h3>
                     <div className="flex items-center justify-center">
@@ -353,7 +353,7 @@ const DispatchContent = memo(function DispatchContent() {
                     ariaLabel={`Today's metrics: Average delivery ${metrics?.avgDeliveryTime || 0} minutes, ${metrics?.jobsPerDriver || 0} jobs per driver, ${metrics?.customerRating || 0} customer rating. Click for details.`}
                     className="hover:border-blue-600"
                 >
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">
                         Today's Metrics
                     </h3>
                     <div className="space-y-1">
@@ -380,7 +380,7 @@ const DispatchContent = memo(function DispatchContent() {
                     ariaLabel={`Driver capacity: ${metrics?.driverCapacity || 0}%, ${metrics?.availableDrivers || 0} drivers available. Click for details.`}
                     className="hover:border-blue-600"
                 >
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">
                         Driver Capacity
                     </h3>
                     <div className="flex items-center justify-center">
@@ -400,13 +400,13 @@ const DispatchContent = memo(function DispatchContent() {
 
             {/* Quick Actions */}
             <div
-                className="flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-slate-700"
+                className="flex flex-wrap items-center justify-end gap-3 pt-2 border-t border-slate-700"
                 role="toolbar"
                 aria-label="Quick actions"
             >
                 <button
                     className={cn(
-                        "inline-flex items-center gap-2 px-4 py-2 rounded-lg",
+                        "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
                         "bg-slate-700 text-slate-300 font-medium text-sm",
                         "hover:bg-slate-600 transition-colors duration-200",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
@@ -419,7 +419,7 @@ const DispatchContent = memo(function DispatchContent() {
                 </button>
                 <button
                     className={cn(
-                        "inline-flex items-center gap-2 px-4 py-2 rounded-lg",
+                        "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
                         "bg-slate-700 text-slate-300 font-medium text-sm",
                         "hover:bg-slate-600 transition-colors duration-200",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
@@ -459,15 +459,15 @@ const RoutesContent = memo(function RoutesContent() {
 
     return (
         <section
-            className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent"
+            className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent"
             aria-labelledby={headingId}
             role="region"
         >
             <AnnouncementRegion />
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                    <h2 id={headingId} className="text-xl sm:text-2xl font-bold text-white">
+                    <h2 id={headingId} className="text-base sm:text-sm font-bold text-white">
                         Route Management
                     </h2>
                     <p className="text-slate-400 mt-1">
@@ -476,7 +476,7 @@ const RoutesContent = memo(function RoutesContent() {
                 </div>
                 <button
                     className={cn(
-                        "inline-flex items-center gap-2 px-4 py-2 rounded-lg",
+                        "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
                         "bg-primary text-primary-foreground font-medium text-sm",
                         "hover:bg-primary/90 transition-colors duration-200",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
@@ -490,7 +490,7 @@ const RoutesContent = memo(function RoutesContent() {
             </div>
 
             <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-2"
                 role="list"
                 aria-label="Route statistics"
             >
@@ -506,7 +506,7 @@ const RoutesContent = memo(function RoutesContent() {
                             title="Active Routes"
                             value="45"
                             variant="primary"
-                            icon={<MapTrifold className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />}
+                            icon={<MapTrifold className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
                             onClick={() => handleStatClick('active-routes', 'Active Routes')}
                             aria-label="Active routes: 45. Click for details."
                         />
@@ -523,7 +523,7 @@ const RoutesContent = memo(function RoutesContent() {
                             title="Avg Duration"
                             value="2.4 hrs"
                             variant="default"
-                            icon={<Timer className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />}
+                            icon={<Timer className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
                             onClick={() => handleStatClick('routes', 'Route Duration')}
                             aria-label="Average route duration: 2.4 hours. Click for details."
                         />
@@ -533,12 +533,12 @@ const RoutesContent = memo(function RoutesContent() {
 
             {/* Route Optimization Insights */}
             <div
-                className="bg-slate-800/50 rounded-xl border border-slate-700 p-6"
+                className="bg-slate-800/50 rounded-md border border-slate-700 p-3"
                 role="region"
                 aria-label="Optimization insights"
             >
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    <Lightning className="w-5 h-5 text-amber-400" aria-hidden="true" />
+                <h3 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
+                    <Lightning className="w-3 h-3 text-amber-400" aria-hidden="true" />
                     Optimization Insights
                 </h3>
                 <ul className="space-y-3 text-sm" role="list">
@@ -590,15 +590,15 @@ const TasksContent = memo(function TasksContent() {
 
     return (
         <section
-            className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent"
+            className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent"
             aria-labelledby={headingId}
             role="region"
         >
             <AnnouncementRegion />
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                    <h2 id={headingId} className="text-xl sm:text-2xl font-bold text-white">
+                    <h2 id={headingId} className="text-base sm:text-sm font-bold text-white">
                         Task Management
                     </h2>
                     <p className="text-slate-400 mt-1">
@@ -607,7 +607,7 @@ const TasksContent = memo(function TasksContent() {
                 </div>
                 <button
                     className={cn(
-                        "inline-flex items-center gap-2 px-4 py-2 rounded-lg",
+                        "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
                         "bg-primary text-primary-foreground font-medium text-sm",
                         "hover:bg-primary/90 transition-colors duration-200",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
@@ -621,7 +621,7 @@ const TasksContent = memo(function TasksContent() {
             </div>
 
             <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-2"
                 role="list"
                 aria-label="Task statistics"
             >
@@ -693,15 +693,15 @@ const CalendarContent = memo(function CalendarContent() {
 
     return (
         <section
-            className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent"
+            className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent"
             aria-labelledby={headingId}
             role="region"
         >
             <AnnouncementRegion />
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                    <h2 id={headingId} className="text-xl sm:text-2xl font-bold text-white">
+                    <h2 id={headingId} className="text-base sm:text-sm font-bold text-white">
                         Operations Calendar
                     </h2>
                     <p className="text-slate-400 mt-1">
@@ -710,7 +710,7 @@ const CalendarContent = memo(function CalendarContent() {
                 </div>
                 <button
                     className={cn(
-                        "inline-flex items-center gap-2 px-4 py-2 rounded-lg",
+                        "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
                         "bg-primary text-primary-foreground font-medium text-sm",
                         "hover:bg-primary/90 transition-colors duration-200",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
@@ -724,7 +724,7 @@ const CalendarContent = memo(function CalendarContent() {
             </div>
 
             <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-2"
                 role="list"
                 aria-label="Calendar statistics"
             >
@@ -740,7 +740,7 @@ const CalendarContent = memo(function CalendarContent() {
                             title="Scheduled Today"
                             value="24"
                             variant="primary"
-                            icon={<CalendarDots className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />}
+                            icon={<CalendarDots className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
                             onClick={() => handleStatClick('calendar-list', 'scheduled-today', { timeframe: 'today' })}
                             aria-label="Events scheduled today: 24. Click for details."
                         />
@@ -803,7 +803,7 @@ export function OperationsHub() {
     return (
         <HubPage
             title="Operations Hub"
-            icon={<OperationsIcon className="w-6 h-6" aria-hidden="true" />}
+            icon={<OperationsIcon className="w-4 h-4" aria-hidden="true" />}
             description="Dispatch, routing, and task management"
             tabs={tabs}
             defaultTab="dispatch"

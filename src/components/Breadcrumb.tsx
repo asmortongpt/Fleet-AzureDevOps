@@ -19,7 +19,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' })
           <li key={index} className="inline-flex items-center">
             {index > 0 && (
               <svg
-                className="w-6 h-6 text-gray-400"
+                className="w-4 h-4 text-gray-400"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >

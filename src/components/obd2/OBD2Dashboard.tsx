@@ -226,10 +226,10 @@ export const OBD2Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-3 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+      <div className="mb-3">
+        <h1 className="text-base font-bold text-gray-900 dark:text-white">
           OBD2 Vehicle Diagnostics
         </h1>
         <p className="text-slate-700 dark:text-gray-400 mt-2">
@@ -238,8 +238,8 @@ export const OBD2Dashboard: React.FC = () => {
       </div>
 
       {/* Connection Status */}
-      <div className="mb-6 flex items-center gap-4">
-        <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
+      <div className="mb-3 flex items-center gap-2">
+        <div className={`flex items-center gap-2 px-2 py-2 rounded-full ${
           isConnected
             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
             : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
@@ -259,11 +259,11 @@ export const OBD2Dashboard: React.FC = () => {
 
       {/* Error Display */}
       {error && (
-        <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+        <div className="mb-3 p-2 bg-red-100 border border-red-400 text-red-700 rounded-lg">
           {error}
           <button
             onClick={() => setError(null)}
-            className="ml-4 text-red-500 hover:text-red-700"
+            className="ml-2 text-red-500 hover:text-red-700"
           >
             Dismiss
           </button>
@@ -271,12 +271,12 @@ export const OBD2Dashboard: React.FC = () => {
       )}
 
       {/* Emulator Controls */}
-      <div className="mb-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+      <div className="mb-3 p-3 bg-white dark:bg-gray-800 rounded-md shadow-sm">
+        <h2 className="text-base font-semibold mb-2 text-gray-900 dark:text-white">
           OBD2 Emulator Controls
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Vehicle Profile
@@ -331,14 +331,14 @@ export const OBD2Dashboard: React.FC = () => {
               <button
                 onClick={startEmulator}
                 disabled={isLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isLoading ? 'Starting...' : 'Start Emulator'}
               </button>
             ) : (
               <button
                 onClick={() => stopEmulator(activeSession)}
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-2 rounded-lg transition-colors"
               >
                 Stop Emulator
               </button>
@@ -349,13 +349,13 @@ export const OBD2Dashboard: React.FC = () => {
 
       {/* Live Data Display */}
       {liveData && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
           {/* Primary Gauges */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+          <div className="bg-white dark:bg-gray-800 rounded-md shadow-sm p-3">
+            <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">
               Primary Metrics
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <GaugeCard
                 label="Engine RPM"
                 value={liveData.engineRpm}
@@ -388,11 +388,11 @@ export const OBD2Dashboard: React.FC = () => {
           </div>
 
           {/* Temperature Readings */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+          <div className="bg-white dark:bg-gray-800 rounded-md shadow-sm p-3">
+            <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">
               Temperature
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <DataCard
                 label="Coolant Temp"
                 value={liveData.engineCoolantTemp}
@@ -419,11 +419,11 @@ export const OBD2Dashboard: React.FC = () => {
           </div>
 
           {/* Fuel System */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+          <div className="bg-white dark:bg-gray-800 rounded-md shadow-sm p-3">
+            <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">
               Fuel System
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <GaugeCard
                 label="Fuel Level"
                 value={liveData.fuelLevel}
@@ -450,11 +450,11 @@ export const OBD2Dashboard: React.FC = () => {
           </div>
 
           {/* Electrical */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+          <div className="bg-white dark:bg-gray-800 rounded-md shadow-sm p-3">
+            <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">
               Electrical & Airflow
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <DataCard
                 label="Battery"
                 value={liveData.batteryVoltage.toFixed(1)}
@@ -480,11 +480,11 @@ export const OBD2Dashboard: React.FC = () => {
           </div>
 
           {/* Trip Info */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 lg:col-span-2">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+          <div className="bg-white dark:bg-gray-800 rounded-md shadow-sm p-3 lg:col-span-2">
+            <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">
               Trip Information
             </h3>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-4 gap-2">
               <DataCard
                 label="Distance"
                 value={liveData.distanceTraveled.toFixed(2)}
@@ -514,15 +514,15 @@ export const OBD2Dashboard: React.FC = () => {
 
       {/* Active Sessions List */}
       {sessions.length > 0 && (
-        <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+        <div className="mt-3 bg-white dark:bg-gray-800 rounded-md shadow-sm p-3">
+          <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">
             Active Emulator Sessions
           </h3>
           <div className="space-y-2">
             {sessions.map((session) => (
               <div
                 key={session.sessionId}
-                className={`flex items-center justify-between p-4 rounded-lg ${
+                className={`flex items-center justify-between p-2 rounded-lg ${
                   session.sessionId === activeSession
                     ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
                     : 'bg-gray-50 dark:bg-gray-700'
@@ -532,7 +532,7 @@ export const OBD2Dashboard: React.FC = () => {
                   <span className="font-medium">
                     Vehicle {session.vehicleId} - {session.profile}
                   </span>
-                  <span className="text-sm text-gray-500 ml-4">
+                  <span className="text-sm text-gray-500 ml-2">
                     {session.sessionId.slice(0, 8)}...
                   </span>
                 </div>
@@ -586,9 +586,9 @@ const GaugeCard: React.FC<GaugeCardProps> = ({ label, value, unit, max, color })
   }
 
   return (
-    <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+    <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
       <div className="text-sm text-slate-700 dark:text-gray-400 mb-1">{label}</div>
-      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+      <div className="text-sm font-bold text-gray-900 dark:text-white">
         {typeof value === 'number' ? value.toLocaleString() : value}
         <span className="text-sm font-normal text-gray-500 ml-1">{unit}</span>
       </div>
@@ -612,13 +612,13 @@ interface DataCardProps {
 
 const DataCard: React.FC<DataCardProps> = ({ label, value, unit, warning }) => {
   return (
-    <div className={`p-4 rounded-lg ${
+    <div className={`p-2 rounded-lg ${
       warning
         ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
         : 'bg-gray-50 dark:bg-gray-700'
     }`}>
       <div className="text-sm text-slate-700 dark:text-gray-400 mb-1">{label}</div>
-      <div className={`text-xl font-bold ${warning ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
+      <div className={`text-base font-bold ${warning ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
         {value}
         {unit && <span className="text-sm font-normal text-gray-500 ml-1">{unit}</span>}
       </div>

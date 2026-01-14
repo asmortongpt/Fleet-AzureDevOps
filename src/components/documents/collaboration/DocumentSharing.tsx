@@ -72,7 +72,7 @@ export function DocumentSharing({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Share with people */}
           <div className="space-y-3">
             <Label>Share with people</Label>

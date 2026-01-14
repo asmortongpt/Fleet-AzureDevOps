@@ -45,30 +45,30 @@ export function DriversRosterDrilldown() {
     const onLeave = drivers.filter(d => d.status === 'on-leave')
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-2">
             {/* Summary Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <Card className="bg-slate-800/50 border-slate-700">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-3xl font-bold text-white">{drivers.length}</div>
+                    <CardContent className="p-2 text-center">
+                        <div className="text-base font-bold text-white">{drivers.length}</div>
                         <div className="text-sm text-slate-400">Total Drivers</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-3xl font-bold text-emerald-400">{onDuty.length}</div>
+                    <CardContent className="p-2 text-center">
+                        <div className="text-base font-bold text-emerald-400">{onDuty.length}</div>
                         <div className="text-sm text-slate-400">On Duty</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-3xl font-bold text-amber-400">{offDuty.length}</div>
+                    <CardContent className="p-2 text-center">
+                        <div className="text-base font-bold text-amber-400">{offDuty.length}</div>
                         <div className="text-sm text-slate-400">Off Duty</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-slate-800/50 border-slate-700">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-3xl font-bold text-slate-300">{onLeave.length}</div>
+                    <CardContent className="p-2 text-center">
+                        <div className="text-base font-bold text-slate-300">{onLeave.length}</div>
                         <div className="text-sm text-slate-400">On Leave</div>
                     </CardContent>
                 </Card>
@@ -77,7 +77,7 @@ export function DriversRosterDrilldown() {
             {/* Driver List */}
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-white text-lg">Driver Roster</CardTitle>
+                    <CardTitle className="text-white text-sm">Driver Roster</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {drivers.slice(0, 10).map(driver => (
@@ -126,16 +126,16 @@ export function DriverPerformanceDrilldown() {
     const improvement = drivers.filter(d => (d.safetyScore || 0) < 60)
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-2">
             {/* Performance Breakdown */}
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-white text-lg flex items-center gap-2">
-                        <ChartLine className="w-5 h-5 text-blue-400" />
+                    <CardTitle className="text-white text-sm flex items-center gap-2">
+                        <ChartLine className="w-3 h-3 text-blue-400" />
                         Performance Distribution
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                     <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                             <span className="text-emerald-400">Top Performers (90+)</span>
@@ -178,8 +178,8 @@ export function DriverPerformanceDrilldown() {
             {/* Top Performers List */}
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-white text-lg flex items-center gap-2">
-                        <Star className="w-5 h-5 text-amber-400" weight="fill" />
+                    <CardTitle className="text-white text-sm flex items-center gap-2">
+                        <Star className="w-3 h-3 text-amber-400" weight="fill" />
                         Top Performers
                     </CardTitle>
                 </CardHeader>
@@ -191,7 +191,7 @@ export function DriverPerformanceDrilldown() {
                             onClick={() => push({ type: 'driver', data: driver } as Omit<DrilldownLevel, "timestamp">)}
                         >
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-bold text-sm">
+                                <div className="w-4 h-4 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-bold text-sm">
                                     {idx + 1}
                                 </div>
                                 <div>
@@ -199,7 +199,7 @@ export function DriverPerformanceDrilldown() {
                                     <div className="text-xs text-slate-400">Safety Score: {driver.safetyScore ?? 0}</div>
                                 </div>
                             </div>
-                            <Trophy className="w-5 h-5 text-amber-400" weight="fill" />
+                            <Trophy className="w-3 h-3 text-amber-400" weight="fill" />
                         </div>
                     ))}
                 </CardContent>
@@ -214,20 +214,20 @@ export function DriverScorecardDrilldown() {
     const topScore = Math.max(...drivers.map(d => d.safetyScore || 85))
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-2">
             {/* Key Metrics */}
             <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
                 <Card className="bg-blue-900/30 border-blue-700/50">
-                    <CardContent className="p-4 text-center">
-                        <Trophy className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-                        <div className="text-3xl font-bold text-white">{avgScore}</div>
+                    <CardContent className="p-2 text-center">
+                        <Trophy className="w-4 h-4 text-blue-400 mx-auto mb-2" />
+                        <div className="text-base font-bold text-white">{avgScore}</div>
                         <div className="text-sm text-slate-400">Fleet Average</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
-                    <CardContent className="p-4 text-center">
-                        <Star className="w-6 h-6 text-amber-400 mx-auto mb-2" weight="fill" />
-                        <div className="text-3xl font-bold text-white">{topScore}</div>
+                    <CardContent className="p-2 text-center">
+                        <Star className="w-4 h-4 text-amber-400 mx-auto mb-2" weight="fill" />
+                        <div className="text-base font-bold text-white">{topScore}</div>
                         <div className="text-sm text-slate-400">Highest Score</div>
                     </CardContent>
                 </Card>
@@ -236,9 +236,9 @@ export function DriverScorecardDrilldown() {
             {/* Score Categories */}
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-white text-lg">Score Components</CardTitle>
+                    <CardTitle className="text-white text-sm">Score Components</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                     {[
                         { label: 'Safe Driving', score: 94, icon: Shield },
                         { label: 'Fuel Efficiency', score: 88, icon: Gauge },
@@ -274,7 +274,7 @@ export function GarageDrilldown() {
     const completed = workOrders.filter(wo => wo.status === 'completed')
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-2">
             {/* Bay Status */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map(bay => {
@@ -282,7 +282,7 @@ export function GarageDrilldown() {
                     return (
                         <Card key={bay} className={`${isOccupied ? 'bg-blue-900/30 border-blue-700/50' : 'bg-slate-800/50 border-slate-700'}`}>
                             <CardContent className="p-3 text-center">
-                                <div className={`text-lg font-bold ${isOccupied ? 'text-blue-400' : 'text-slate-500'}`}>Bay {bay}</div>
+                                <div className={`text-sm font-bold ${isOccupied ? 'text-blue-400' : 'text-slate-500'}`}>Bay {bay}</div>
                                 <div className="text-xs text-slate-400">{isOccupied ? 'In Use' : 'Open'}</div>
                             </CardContent>
                         </Card>
@@ -293,23 +293,23 @@ export function GarageDrilldown() {
             {/* Work Order Summary */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Card className="bg-amber-900/30 border-amber-700/50">
-                    <CardContent className="p-4 text-center">
-                        <Wrench className="w-6 h-6 text-amber-400 mx-auto mb-2" />
-                        <div className="text-3xl font-bold text-amber-400">{inProgress.length}</div>
+                    <CardContent className="p-2 text-center">
+                        <Wrench className="w-4 h-4 text-amber-400 mx-auto mb-2" />
+                        <div className="text-base font-bold text-amber-400">{inProgress.length}</div>
                         <div className="text-sm text-slate-400">In Progress</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-slate-800/50 border-slate-700">
-                    <CardContent className="p-4 text-center">
-                        <Warning className="w-6 h-6 text-slate-400 mx-auto mb-2" />
-                        <div className="text-3xl font-bold text-slate-300">{pending.length}</div>
+                    <CardContent className="p-2 text-center">
+                        <Warning className="w-4 h-4 text-slate-400 mx-auto mb-2" />
+                        <div className="text-base font-bold text-slate-300">{pending.length}</div>
                         <div className="text-sm text-slate-400">Pending</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
-                    <CardContent className="p-4 text-center">
-                        <CheckCircle className="w-6 h-6 text-emerald-400 mx-auto mb-2" />
-                        <div className="text-3xl font-bold text-emerald-400">{completed.length}</div>
+                    <CardContent className="p-2 text-center">
+                        <CheckCircle className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
+                        <div className="text-base font-bold text-emerald-400">{completed.length}</div>
                         <div className="text-sm text-slate-400">Completed</div>
                     </CardContent>
                 </Card>
@@ -318,7 +318,7 @@ export function GarageDrilldown() {
             {/* Work Orders List */}
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-white text-lg">Active Work Orders</CardTitle>
+                    <CardTitle className="text-white text-sm">Active Work Orders</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {workOrders.slice(0, 8).map(wo => (
@@ -355,7 +355,7 @@ export function PredictiveMaintenanceDrilldown() {
         <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                    <Wrench className="w-5 h-5" weight="fill" /> Predictive Maintenance
+                    <Wrench className="w-3 h-3" weight="fill" /> Predictive Maintenance
                 </CardTitle>
             </CardHeader>
             <CardContent className="text-slate-400">
@@ -370,7 +370,7 @@ export function MaintenanceCalendarDrilldown() {
         <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                    <CalendarDots className="w-5 h-5" weight="fill" /> Maintenance Calendar
+                    <CalendarDots className="w-3 h-3" weight="fill" /> Maintenance Calendar
                 </CardTitle>
             </CardHeader>
             <CardContent className="text-slate-400">
@@ -400,7 +400,7 @@ export function CostAnalysisDrilldown() {
         <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                    <CurrencyDollar className="w-5 h-5" weight="fill" /> Cost Analysis
+                    <CurrencyDollar className="w-3 h-3" weight="fill" /> Cost Analysis
                 </CardTitle>
             </CardHeader>
             <CardContent className="text-slate-400">
@@ -415,7 +415,7 @@ export function FleetOptimizerDrilldown() {
         <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                    <Gauge className="w-5 h-5" weight="fill" /> Fleet Optimizer
+                    <Gauge className="w-3 h-3" weight="fill" /> Fleet Optimizer
                 </CardTitle>
             </CardHeader>
             <CardContent className="text-slate-400">

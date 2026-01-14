@@ -211,10 +211,10 @@ export function DocumentManagement() {
   }
 
   const getFileIcon = (fileType: string) => {
-    if (fileType.includes('pdf')) return <FilePdf className="w-8 h-8 text-red-500" />
-    if (fileType.includes('word') || fileType.includes('document')) return <FileDoc className="w-8 h-8 text-blue-800" />
-    if (fileType.includes('image')) return <FileImage className="w-8 h-8 text-green-500" />
-    return <File className="w-8 h-8 text-gray-500" />
+    if (fileType.includes('pdf')) return <FilePdf className="w-4 h-4 text-red-500" />
+    if (fileType.includes('word') || fileType.includes('document')) return <FileDoc className="w-4 h-4 text-blue-800" />
+    if (fileType.includes('image')) return <FileImage className="w-4 h-4 text-green-500" />
+    return <File className="w-4 h-4 text-gray-500" />
   }
 
   const formatFileSize = (bytes: number): string => {
@@ -243,11 +243,11 @@ export function DocumentManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Document Management</h2>
+          <h2 className="text-base font-bold tracking-tight">Document Management</h2>
           <p className="text-muted-foreground">Manage fleet documents with AI-powered search</p>
         </div>
         <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
@@ -264,10 +264,10 @@ export function DocumentManagement() {
                 Upload a new document to your fleet library
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="space-y-2 py-2">
               <div className="space-y-2">
                 <Label>File</Label>
-                <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                <div className="border-2 border-dashed rounded-lg p-3 text-center">
                   <input
                     type="file"
                     id="file-upload"
@@ -276,7 +276,7 @@ export function DocumentManagement() {
                     accept=".pdf,.doc,.docx,.txt,.csv,.jpg,.jpeg,.png"
                   />
                   <label htmlFor="file-upload" className="cursor-pointer">
-                    <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <Upload className="w-12 h-9 mx-auto mb-2 text-muted-foreground" />
                     {uploadFile ? (
                       <div>
                         <p className="font-medium">{uploadFile.name}</p>
@@ -342,13 +342,13 @@ export function DocumentManagement() {
 
       {/* Statistics */}
       {stats && (
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-2 md:grid-cols-4">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Documents</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.total_documents}</div>
+              <div className="text-sm font-bold">{stats.total_documents}</div>
               <p className="text-xs text-muted-foreground">
                 {stats.recent_uploads} uploaded this week
               </p>
@@ -359,7 +359,7 @@ export function DocumentManagement() {
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Size</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{formatFileSize(stats.total_size_bytes)}</div>
+              <div className="text-sm font-bold">{formatFileSize(stats.total_size_bytes)}</div>
               <p className="text-xs text-muted-foreground">Storage used</p>
             </CardContent>
           </Card>
@@ -368,7 +368,7 @@ export function DocumentManagement() {
               <CardTitle className="text-sm font-medium text-muted-foreground">Categories</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{categories.length}</div>
+              <div className="text-sm font-bold">{categories.length}</div>
               <p className="text-xs text-muted-foreground">Document types</p>
             </CardContent>
           </Card>
@@ -377,7 +377,7 @@ export function DocumentManagement() {
               <CardTitle className="text-sm font-medium text-muted-foreground">AI Ready</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-sm font-bold">
                 {documents.filter(d => d.embedding_status === 'completed').length}
               </div>
               <p className="text-xs text-muted-foreground">Searchable with AI</p>
@@ -388,8 +388,8 @@ export function DocumentManagement() {
 
       {/* Filters */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex gap-4">
+        <CardContent className="pt-3">
+          <div className="flex gap-2">
             <div className="flex-1">
               <div className="relative">
                 <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -511,8 +511,8 @@ export function DocumentManagement() {
             <DialogDescription>Document details and metadata</DialogDescription>
           </DialogHeader>
           {selectedDocument && (
-            <div className="space-y-6 py-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2 py-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label>File Type</Label>
                   <div className="text-sm">{selectedDocument.file_type}</div>
@@ -556,7 +556,7 @@ export function DocumentManagement() {
               )}
               <div className="space-y-2">
                 <Label>AI Processing Status</Label>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <div className="text-sm font-medium">OCR Status</div>
                     <div className="text-sm text-muted-foreground">{selectedDocument.ocr_status}</div>

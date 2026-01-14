@@ -113,7 +113,7 @@ function ActionToastContent({
   return (
     <div
       className={cn(
-        'relative flex flex-col gap-3 p-4 rounded-lg border shadow-lg',
+        'relative flex flex-col gap-3 p-2 rounded-lg border shadow-sm',
         'min-w-[320px] max-w-[420px]',
         styles.bgColor,
         styles.borderColor
@@ -141,7 +141,7 @@ function ActionToastContent({
 
       {/* Actions */}
       {(primaryAction || secondaryAction) && (
-        <div className="flex items-center gap-2 ml-8">
+        <div className="flex items-center gap-2 ml-3">
           {primaryAction && (
             <Button
               size="sm"

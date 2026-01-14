@@ -152,7 +152,7 @@ export function LanguageSwitcher({
               aria-label={`${lang.nativeName} (${lang.name})${isActive ? ' - Currently selected' : ''}`}
             >
               <div className="flex items-center gap-2 flex-1">
-                <span className="text-lg" role="img" aria-label={`${lang.name} flag`}>{lang.flag}</span>
+                <span className="text-sm" role="img" aria-label={`${lang.name} flag`}>{lang.flag}</span>
                 <div className={cn('flex flex-col', isRTL && 'items-end')}>
                   <span className="font-medium">{lang.nativeName}</span>
                   <span className="text-xs text-muted-foreground">

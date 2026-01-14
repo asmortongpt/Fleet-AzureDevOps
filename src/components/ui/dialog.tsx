@@ -62,8 +62,8 @@ function DialogContent({
           "fixed top-[50%] left-[50%] z-50 translate-x-[-50%] translate-y-[-50%]",
           "w-full max-w-[calc(100%-2rem)] sm:max-w-lg",
           // Visual styles
-          "bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl",
-          "grid gap-4 p-6",
+          "bg-card/95 backdrop-blur-xl border border-border/50 rounded-lg shadow-sm",
+          "grid gap-2 p-3",
           // Animations
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
@@ -113,7 +113,7 @@ function DialogFooter({ className, ...props }: ComponentProps<"div">) {
       data-slot="dialog-footer"
       className={cn(
         "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
-        "pt-4 border-t border-border/50",
+        "pt-2 border-t border-border/50",
         className
       )}
       {...props}
@@ -128,7 +128,7 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("text-lg leading-none font-semibold tracking-tight", className)}
+      className={cn("text-sm leading-none font-semibold tracking-tight", className)}
       {...props}
     />
   )
@@ -166,7 +166,7 @@ function DialogContentFullscreen({
           "w-full sm:max-w-lg sm:max-h-[85vh]",
           // Visual styles
           "bg-background sm:bg-card/95 sm:backdrop-blur-xl",
-          "sm:border sm:border-border/50 sm:rounded-2xl sm:shadow-2xl",
+          "sm:border sm:border-border/50 sm:rounded-lg sm:shadow-sm",
           "flex flex-col overflow-hidden",
           // Animations
           "data-[state=open]:animate-in data-[state=closed]:animate-out",

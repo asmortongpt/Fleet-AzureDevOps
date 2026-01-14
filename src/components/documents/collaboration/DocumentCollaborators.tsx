@@ -60,7 +60,7 @@ export function DocumentCollaborators({ collaborators, compact = false }: Docume
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b">
+      <div className="p-2 border-b">
         <h3 className="font-semibold flex items-center gap-2">
           <Users className="h-5 w-5" />
           Collaborators
@@ -71,7 +71,7 @@ export function DocumentCollaborators({ collaborators, compact = false }: Docume
       </div>
 
       <ScrollArea className="flex-1">
-        <div className="p-4 space-y-4">
+        <div className="p-2 space-y-2">
           {/* Online collaborators */}
           {onlineCollaborators.length > 0 && (
             <div>
@@ -123,7 +123,7 @@ function CollaboratorCard({ collaborator, isOnline }: CollaboratorCardProps) {
     <div className="flex items-center justify-between p-2 rounded-lg hover:bg-accent transition-colors">
       <div className="flex items-center gap-3">
         <div className="relative">
-          <Avatar className="h-10 w-10">
+          <Avatar className="h-8 w-10">
             <AvatarImage src={collaborator.userAvatar} />
             <AvatarFallback>
               {collaborator.userName.substring(0, 2).toUpperCase()}

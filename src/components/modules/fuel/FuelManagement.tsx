@@ -73,23 +73,23 @@ export function FuelManagement() {
   const recentTransactions = transactions.slice(0, 20)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-semibold tracking-tight">Fuel Management</h1>
+        <h1 className="text-base font-semibold tracking-tight">Fuel Management</h1>
         <Button>
           <Plus className="w-4 h-4 mr-2" />
           Add Transaction
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
         <MetricCard
           title="Total Fuel Cost"
           value={`$${metrics.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
           change={8.3}
           trend="up"
           subtitle="last 90 days"
-          icon={<CurrencyDollar className="w-5 h-5" />}
+          icon={<CurrencyDollar className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
@@ -98,7 +98,7 @@ export function FuelManagement() {
           change={5.1}
           trend="up"
           subtitle="consumed"
-          icon={<GasPump className="w-5 h-5" />}
+          icon={<GasPump className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
@@ -107,7 +107,7 @@ export function FuelManagement() {
           change={2.4}
           trend="down"
           subtitle="trending down"
-          icon={<TrendUp className="w-5 h-5" />}
+          icon={<TrendUp className="w-3 h-3" />}
           status="success"
         />
         <MetricCard
@@ -116,7 +116,7 @@ export function FuelManagement() {
           change={1.8}
           trend="up"
           subtitle="improving"
-          icon={<Gauge className="w-5 h-5" />}
+          icon={<Gauge className="w-3 h-3" />}
           status="success"
         />
       </div>
@@ -130,7 +130,7 @@ export function FuelManagement() {
           <TabsTrigger value="optimization">Cost Optimization</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="records" className="space-y-6">
+        <TabsContent value="records" className="space-y-2">
           <ChartCard
             title="Monthly Fuel Costs"
             subtitle="Fuel expenditure trend"
@@ -146,15 +146,15 @@ export function FuelManagement() {
               <table className="w-full">
                 <thead className="bg-muted/50 border-b">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Date</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vehicle</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Station</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Gallons</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Price/Gal</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Cost</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">MPG</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Payment</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
+                    <th className="px-2 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Date</th>
+                    <th className="px-2 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vehicle</th>
+                    <th className="px-2 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Station</th>
+                    <th className="px-2 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Gallons</th>
+                    <th className="px-2 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Price/Gal</th>
+                    <th className="px-2 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Cost</th>
+                    <th className="px-2 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">MPG</th>
+                    <th className="px-2 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Payment</th>
+                    <th className="px-2 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border bg-card">
@@ -167,36 +167,36 @@ export function FuelManagement() {
                       tabIndex={0}
                       onKeyDown={(e) => e.key === 'Enter' && handleTransactionClick(transaction)}
                     >
-                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                      <td className="px-2 py-3 text-sm text-muted-foreground">
                         {transaction?.date ? new Date(transaction.date).toLocaleDateString() : 'N/A'}
                       </td>
                       <td
-                        className="px-4 py-3 text-sm font-medium text-primary hover:underline"
+                        className="px-2 py-3 text-sm font-medium text-primary hover:underline"
                         onClick={(e) => { e.stopPropagation(); handleVehicleClick(transaction?.vehicleNumber ?? '') }}
                       >
                         {transaction?.vehicleNumber ?? 'N/A'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                      <td className="px-2 py-3 text-sm text-muted-foreground">
                         {transaction?.station ?? 'N/A'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-right">
+                      <td className="px-2 py-3 text-sm text-right">
                         {(transaction?.gallons ?? 0).toFixed(1)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-right">
+                      <td className="px-2 py-3 text-sm text-right">
                         ${(transaction?.pricePerGallon ?? 0).toFixed(2)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-right font-semibold">
+                      <td className="px-2 py-3 text-sm text-right font-semibold">
                         ${(transaction?.totalCost ?? 0).toFixed(2)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-right font-medium">
+                      <td className="px-2 py-3 text-sm text-right font-medium">
                         {(transaction?.mpg ?? 0).toFixed(1)}
                       </td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="px-2 py-3 text-sm">
                         <Badge variant="outline" className="text-xs">
                           {transaction?.paymentMethod ?? 'N/A'}
                         </Badge>
                       </td>
-                      <td className="px-4 py-3 text-sm text-right">
+                      <td className="px-2 py-3 text-sm text-right">
                         <Button variant="ghost" size="sm">
                           View
                         </Button>
@@ -213,7 +213,7 @@ export function FuelManagement() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <CreditCard className="w-5 h-5" />
+                <CreditCard className="w-3 h-3" />
                 Fleet Card Management
               </CardTitle>
             </CardHeader>
@@ -229,7 +229,7 @@ export function FuelManagement() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <MapPin className="w-5 h-5" />
+                <MapPin className="w-3 h-3" />
                 Preferred Fueling Stations
               </CardTitle>
             </CardHeader>
@@ -241,8 +241,8 @@ export function FuelManagement() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TabsContent value="analytics" className="space-y-2">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
             <ChartCard
               title="Fuel Consumption by Vehicle Type"
               subtitle="Gallons consumed"
@@ -279,8 +279,8 @@ export function FuelManagement() {
               <CardTitle>Fuel Cost Optimization Recommendations</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="p-4 border rounded-lg bg-success/5">
+              <div className="space-y-2">
+                <div className="p-2 border rounded-lg bg-success/5">
                   <h3 className="font-semibold mb-2 flex items-center gap-2">
                     <TrendUp className="w-4 h-4 text-success" />
                     Route Optimization Potential
@@ -289,13 +289,13 @@ export function FuelManagement() {
                     Implementing optimized routing could save approximately $2,400/month in fuel costs.
                   </p>
                 </div>
-                <div className="p-4 border rounded-lg">
+                <div className="p-2 border rounded-lg">
                   <h3 className="font-semibold mb-2">Bulk Purchasing Agreements</h3>
                   <p className="text-sm text-muted-foreground">
                     Consider negotiating fleet contracts with preferred stations for volume discounts.
                   </p>
                 </div>
-                <div className="p-4 border rounded-lg">
+                <div className="p-2 border rounded-lg">
                   <h3 className="font-semibold mb-2">Vehicle Replacement Analysis</h3>
                   <p className="text-sm text-muted-foreground">
                     12 vehicles in the fleet have below-average fuel efficiency and may be candidates for replacement.

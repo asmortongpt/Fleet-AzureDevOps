@@ -90,7 +90,7 @@ function TimelineEventCard({
   return (
     <div
       className={cn(
-        'relative pl-8 pb-4',
+        'relative pl-3 pb-2',
         'before:absolute before:left-3 before:top-6 before:h-full before:w-px',
         'before:bg-gradient-to-b before:from-slate-600 before:to-transparent'
       )}
@@ -98,7 +98,7 @@ function TimelineEventCard({
       {/* Timeline dot */}
       <div
         className={cn(
-          'absolute left-0 top-1 w-6 h-6 rounded-full flex items-center justify-center',
+          'absolute left-0 top-1 w-4 h-4 rounded-full flex items-center justify-center',
           config.bgColor,
           'border border-slate-600'
         )}
@@ -223,19 +223,19 @@ function QuickStats({ events }: { events: TimelineEvent[] }) {
   return (
     <div className="grid grid-cols-4 gap-2 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50">
       <div className="text-center">
-        <p className="text-lg font-bold text-blue-400">{maintenanceCount}</p>
+        <p className="text-sm font-bold text-blue-400">{maintenanceCount}</p>
         <p className="text-[10px] text-slate-500 uppercase">Service</p>
       </div>
       <div className="text-center">
-        <p className="text-lg font-bold text-red-400">{damageCount}</p>
+        <p className="text-sm font-bold text-red-400">{damageCount}</p>
         <p className="text-[10px] text-slate-500 uppercase">Damage</p>
       </div>
       <div className="text-center">
-        <p className="text-lg font-bold text-green-400">{inspectionCount}</p>
+        <p className="text-sm font-bold text-green-400">{inspectionCount}</p>
         <p className="text-[10px] text-slate-500 uppercase">Inspect</p>
       </div>
       <div className="text-center">
-        <p className="text-lg font-bold text-amber-400">${(totalCost / 1000).toFixed(1)}k</p>
+        <p className="text-sm font-bold text-amber-400">${(totalCost / 1000).toFixed(1)}k</p>
         <p className="text-[10px] text-slate-500 uppercase">Total</p>
       </div>
     </div>
@@ -269,17 +269,17 @@ export function TimelineDrawer({
       className={cn(
         'fixed right-0 top-0 h-full w-80 z-50',
         'bg-gradient-to-b from-slate-950 to-slate-900',
-        'border-l border-slate-700/50 shadow-2xl',
+        'border-l border-slate-700/50 shadow-sm',
         'transform transition-transform duration-300',
         isOpen ? 'translate-x-0' : 'translate-x-full',
         className
       )}
     >
       {/* Header */}
-      <div className="p-4 border-b border-slate-700/50">
+      <div className="p-2 border-b border-slate-700/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-blue-400" />
+            <Clock className="w-3 h-3 text-blue-400" />
             <h3 className="font-bold text-white">Vehicle Timeline</h3>
           </div>
           <Button
@@ -308,7 +308,7 @@ export function TimelineDrawer({
 
       {/* Timeline */}
       <ScrollArea className="h-[calc(100%-200px)]">
-        <div className="p-4">
+        <div className="p-2">
           {sortedEvents.length > 0 ? (
             sortedEvents.map((event) => (
               <TimelineEventCard
@@ -322,8 +322,8 @@ export function TimelineDrawer({
               />
             ))
           ) : (
-            <div className="text-center py-8 text-slate-500">
-              <Clock className="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <div className="text-center py-3 text-slate-500">
+              <Clock className="w-4 h-4 mx-auto mb-2 opacity-50" />
               <p className="text-sm">No events found</p>
             </div>
           )}
@@ -331,7 +331,7 @@ export function TimelineDrawer({
       </ScrollArea>
 
       {/* Footer */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700/50 bg-slate-950">
+      <div className="absolute bottom-0 left-0 right-0 p-2 border-t border-slate-700/50 bg-slate-950">
         <Button variant="outline" size="sm" className="w-full">
           <CaretDoubleRight className="w-4 h-4 mr-2" />
           View Full History

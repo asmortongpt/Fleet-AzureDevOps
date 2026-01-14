@@ -305,11 +305,11 @@ export function SafetyHub() {
   return (
     <div className="h-screen overflow-hidden bg-background flex flex-col">
       {/* Header */}
-      <div className="border-b bg-card px-6 py-4">
+      <div className="border-b bg-card px-3 py-2">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <FirstAid className="w-6 h-6 text-red-500" />
+            <h1 className="text-sm font-bold flex items-center gap-2">
+              <FirstAid className="w-4 h-4 text-red-500" />
               Safety Hub
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
@@ -330,8 +330,8 @@ export function SafetyHub() {
       </div>
 
       {/* OSHA Metrics Cards */}
-      <div className="px-6 py-4 border-b bg-card">
-        <div className="grid grid-cols-4 gap-4">
+      <div className="px-3 py-2 border-b bg-card">
+        <div className="grid grid-cols-4 gap-2">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -339,7 +339,7 @@ export function SafetyHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-500">
+              <div className="text-base font-bold text-green-500">
                 {oshaMetrics.daysWithoutIncident}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -356,10 +356,10 @@ export function SafetyHub() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
-                <div className="text-3xl font-bold">
+                <div className="text-base font-bold">
                   {oshaMetrics.complianceScore}%
                 </div>
-                <TrendUp className="w-5 h-5 text-green-500" />
+                <TrendUp className="w-3 h-3 text-green-500" />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 +3% from last month
@@ -374,7 +374,7 @@ export function SafetyHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-orange-500">
+              <div className="text-base font-bold text-orange-500">
                 {oshaMetrics.recordableIncidents}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -390,7 +390,7 @@ export function SafetyHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-red-500">
+              <div className="text-base font-bold text-red-500">
                 {oshaMetrics.totalWorkDaysLost}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -505,9 +505,9 @@ export function SafetyHub() {
 
           {/* RIGHT: Data Panel */}
           <div className="overflow-auto">
-            <div className="p-4">
+            <div className="p-2">
               {/* Filters */}
-              <div className="flex gap-2 mb-4">
+              <div className="flex gap-2 mb-2">
                 <Select value={severityFilter} onValueChange={setSeverityFilter}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Severity" />
@@ -542,7 +542,7 @@ export function SafetyHub() {
                   <TabsTrigger value="hazards-list" className="flex-1">Hazard Zones</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="incidents-list" className="mt-4">
+                <TabsContent value="incidents-list" className="mt-2">
                   <Card>
                     <CardHeader>
                       <CardTitle>Recent Incidents</CardTitle>
@@ -601,7 +601,7 @@ export function SafetyHub() {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="inspections-list" className="mt-4">
+                <TabsContent value="inspections-list" className="mt-2">
                   <Card>
                     <CardHeader>
                       <CardTitle>Recent Safety Inspections</CardTitle>
@@ -661,13 +661,13 @@ export function SafetyHub() {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="hazards-list" className="mt-4">
+                <TabsContent value="hazards-list" className="mt-2">
                   <Card>
                     <CardHeader>
                       <CardTitle>Active Hazard Zones</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-4">
+                      <div className="space-y-2">
                         {hazardZones.map(zone => (
                           <Card
                             key={zone.id}

@@ -90,14 +90,14 @@ export function IncidentsExample() {
 
   // Success state - render the data
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Header with filters and refresh */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">
+        <h1 className="text-sm font-bold">
           Incidents ({data.length})
         </h1>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           {/* Filter buttons */}
           <div className="flex gap-2">
             <FilterButton
@@ -123,7 +123,7 @@ export function IncidentsExample() {
           {/* Refresh button */}
           <button
             onClick={refetch}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            className="rounded-md bg-primary px-2 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             Refresh
           </button>
@@ -131,7 +131,7 @@ export function IncidentsExample() {
       </div>
 
       {/* Incidents list */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
         {data.map((incident) => (
           <IncidentCard key={incident.id} incident={incident} />
         ))}
@@ -167,7 +167,7 @@ function FilterButton({
 // Example incident card component
 function IncidentCard({ incident }: { incident: Incident }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
+    <div className="rounded-lg border border-border bg-card p-2">
       <div className="mb-2 flex items-start justify-between">
         <h3 className="font-semibold text-card-foreground">
           {incident.title}
@@ -219,19 +219,19 @@ export function IncidentsInlineExample() {
   );
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6">
-      <h2 className="mb-4 text-xl font-bold">Recent Incidents</h2>
+    <div className="rounded-lg border border-border bg-card p-3">
+      <h2 className="mb-2 text-base font-bold">Recent Incidents</h2>
 
       {/* Inline loading state */}
       {loading && (
-        <div className="flex items-center justify-center py-8">
+        <div className="flex items-center justify-center py-3">
           <LoadingSpinner size="sm" message="Loading..." />
         </div>
       )}
 
       {/* Inline error state */}
       {error && (
-        <div className="py-4">
+        <div className="py-2">
           <ErrorPanel
             error={error}
             onRetry={refetch}
@@ -293,13 +293,13 @@ export function IncidentsSearchExample() {
   if (error) return <ErrorPanel error={error} onRetry={refetch} />;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <input
         type="search"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         placeholder="Search incidents..."
-        className="w-full rounded-md border border-input bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        className="w-full rounded-md border border-input bg-background px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
       />
 
       {!data || data.length === 0 ? (

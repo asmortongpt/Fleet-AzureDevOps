@@ -402,8 +402,8 @@ const Enhanced3DVehicleShowroom: React.FC<Enhanced3DVehicleShowroomProps> = ({
         style={{ background: currentTheme.bg, color: currentTheme.text }}
       >
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mx-auto mb-4"></div>
-          <h2 className="text-2xl font-bold mb-2">Loading enhanced 3D showroom</h2>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mx-auto mb-2"></div>
+          <h2 className="text-sm font-bold mb-2">Loading enhanced 3D showroom</h2>
           <p>Preparing photorealistic vehicles and 3D rendering</p>
         </div>
       </div>

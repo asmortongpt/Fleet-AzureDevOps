@@ -57,7 +57,7 @@ export function InfoPopover({
       <PopoverTrigger asChild>
         <button
           type="button"
-          className={`inline-flex items-center justify-center w-5 h-5
+          className={`inline-flex items-center justify-center w-3 h-3
                      ${iconColors[type]} hover:text-foreground
                      transition-colors rounded-full
                      hover:bg-muted focus:outline-none focus:ring-2
@@ -69,7 +69,7 @@ export function InfoPopover({
       </PopoverTrigger>
       <PopoverContent
         side={placement}
-        className="w-80 p-4 shadow-lg"
+        className="w-80 p-2 shadow-sm"
         sideOffset={5}
       >
         <div className="space-y-3">

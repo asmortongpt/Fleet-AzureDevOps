@@ -124,7 +124,7 @@ const MutationExample: React.FC = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-2">
           <div>
             <label className="block text-sm font-medium mb-2">Make</label>
             <input
@@ -218,7 +218,7 @@ const ErrorBoundaryExample: React.FC = () => {
           Protected component with error boundary
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-2">
         <Button
           onClick={() => setShouldError(!shouldError)}
           variant={shouldError ? 'destructive' : 'default'}
@@ -249,7 +249,7 @@ const LoadingStatesExample: React.FC = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-2">
           <div className="flex gap-2">
             <Button
               variant={loadingType === 'table' ? 'default' : 'outline'}
@@ -281,7 +281,7 @@ const LoadingStatesExample: React.FC = () => {
             </Button>
           </div>
 
-          <div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-900">
+          <div className="border rounded-lg p-2 bg-gray-50 dark:bg-gray-900">
             {loadingType === 'table' && <SkeletonTable rows={3} />}
             {loadingType === 'card' && <SkeletonCard />}
             {loadingType === 'list' && <SkeletonList items={3} />}
@@ -298,9 +298,9 @@ const LoadingStatesExample: React.FC = () => {
  */
 export const ErrorHandlingExample: React.FC = () => {
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-3 space-y-2">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold">Error Handling Examples</h1>
+        <h1 className="text-base font-bold">Error Handling Examples</h1>
         <p className="text-muted-foreground">
           Comprehensive examples of error handling, loading states, and user feedback
         </p>
@@ -322,7 +322,7 @@ export const ErrorHandlingExample: React.FC = () => {
         </AlertDescription>
       </Alert>
 
-      <Tabs defaultValue="query" className="space-y-4">
+      <Tabs defaultValue="query" className="space-y-2">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="query">Query</TabsTrigger>
           <TabsTrigger value="mutation">Mutation</TabsTrigger>
@@ -355,7 +355,7 @@ export const ErrorHandlingExample: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-2 gap-4 text-sm">
+          <div className="grid md:grid-cols-2 gap-2 text-sm">
             <div>
               <h4 className="font-semibold mb-2 text-blue-900 dark:text-blue-100">For Queries:</h4>
               <ul className="space-y-1 text-blue-800 dark:text-blue-200">

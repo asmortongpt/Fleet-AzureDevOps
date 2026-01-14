@@ -94,19 +94,19 @@ export function DataPrivacySettings() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Data Retention */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Lock className="w-5 h-5" />
+            <Lock className="w-3 h-3" />
             <CardTitle>Data Retention</CardTitle>
           </div>
           <CardDescription>
             How long we keep your fleet and activity data
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="space-y-2">
             <Label htmlFor="retention-period">Data Retention Period</Label>
             <Select
@@ -135,12 +135,12 @@ export function DataPrivacySettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Cookie className="w-5 h-5" />
+            <Cookie className="w-3 h-3" />
             <CardTitle>Cookie Preferences</CardTitle>
           </div>
           <CardDescription>Manage how we use cookies on this site</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="necessary-cookies">Necessary Cookies</Label>
@@ -190,12 +190,12 @@ export function DataPrivacySettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <ChartLine className="w-5 h-5" />
+            <ChartLine className="w-3 h-3" />
             <CardTitle>Analytics & Tracking</CardTitle>
           </div>
           <CardDescription>Control how your data is used for analytics</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="analytics-enabled">Enable Analytics</Label>
@@ -216,12 +216,12 @@ export function DataPrivacySettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Download className="w-5 h-5" />
+            <Download className="w-3 h-3" />
             <CardTitle>Export Your Data</CardTitle>
           </div>
           <CardDescription>Download a copy of all your data</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <p className="text-sm text-muted-foreground">
             You can request a copy of all your personal data and fleet information. We'll prepare
             a downloadable archive in JSON format.
@@ -237,13 +237,13 @@ export function DataPrivacySettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5" />
+            <FileText className="w-3 h-3" />
             <CardTitle>Privacy Policy</CardTitle>
           </div>
           <CardDescription>Review our privacy practices</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
+          <p className="text-sm text-muted-foreground mb-2">
             Learn more about how we collect, use, and protect your data.
           </p>
           <Button variant="outline" asChild>
@@ -258,14 +258,14 @@ export function DataPrivacySettings() {
       <Card className="border-destructive">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Trash className="w-5 h-5 text-destructive" />
+            <Trash className="w-3 h-3 text-destructive" />
             <CardTitle className="text-destructive">Danger Zone</CardTitle>
           </div>
           <CardDescription>Permanently delete your account and all data</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="flex items-start gap-3 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-            <Warning className="w-5 h-5 text-destructive mt-0.5" />
+            <Warning className="w-3 h-3 text-destructive mt-0.5" />
             <div className="flex-1 text-sm">
               <p className="font-medium text-destructive">This action cannot be undone!</p>
               <p className="text-muted-foreground mt-1">

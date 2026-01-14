@@ -297,7 +297,7 @@ flowchart LR
   const totalDuration = flowSteps.reduce((sum, step) => sum + step.duration, 0)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Controls */}
       <div className="flex items-center justify-between">
         <div className="flex gap-3">
@@ -336,7 +336,7 @@ flowchart LR
       </div>
 
       {/* Real-Time Metrics */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2">
         {metrics.map(metric => (
           <Card key={metric.label}>
             <CardHeader className="pb-3">
@@ -345,7 +345,7 @@ flowchart LR
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className={`text-2xl font-bold ${metric.color}`}>
+              <div className={`text-sm font-bold ${metric.color}`}>
                 {metric.value}
               </div>
               {metric.trend && (
@@ -389,7 +389,7 @@ flowchart LR
         <CardContent>
           <div className="space-y-3">
             {flowSteps.map((step, index) => (
-              <div key={step.id} className="flex items-center gap-4">
+              <div key={step.id} className="flex items-center gap-2">
                 <div className="w-8 text-center">
                   {getStepIcon(step.status)}
                 </div>
@@ -438,7 +438,7 @@ flowchart LR
                   {point.icon}
                   <span className="text-sm font-medium">{point.name}</span>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
                   <Badge variant="outline" className="text-xs">
                     {point.latency}
                   </Badge>
@@ -461,7 +461,7 @@ flowchart LR
           <CardTitle className="text-sm">Architecture Layers</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-blue-500" />
               <span className="text-sm">Frontend Layer</span>

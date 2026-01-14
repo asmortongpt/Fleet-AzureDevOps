@@ -8,12 +8,12 @@ import { ReservationSystem } from './ReservationSystem';
 
 export const ReservationsHub: React.FC = () => {
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-2 p-3">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Calendar className="w-8 h-8 text-primary" />
+          <h1 className="text-base font-bold flex items-center gap-3">
+            <Calendar className="w-4 h-4 text-primary" />
             Vehicle Reservations
           </h1>
           <p className="text-muted-foreground mt-2">
@@ -23,44 +23,44 @@ export const ReservationsHub: React.FC = () => {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-card border border-border rounded-lg p-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+        <div className="bg-card border border-border rounded-lg p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Pending Approvals</p>
-              <p className="text-2xl font-bold">8</p>
+              <p className="text-sm font-bold">8</p>
             </div>
-            <Clock className="w-8 h-8 text-yellow-500" />
+            <Clock className="w-4 h-4 text-yellow-500" />
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-lg p-4">
+        <div className="bg-card border border-border rounded-lg p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Active Reservations</p>
-              <p className="text-2xl font-bold">15</p>
+              <p className="text-sm font-bold">15</p>
             </div>
-            <CheckCircle className="w-8 h-8 text-green-500" />
+            <CheckCircle className="w-4 h-4 text-green-500" />
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-lg p-4">
+        <div className="bg-card border border-border rounded-lg p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Available Vehicles</p>
-              <p className="text-2xl font-bold">37</p>
+              <p className="text-sm font-bold">37</p>
             </div>
-            <Calendar className="w-8 h-8 text-blue-800" />
+            <Calendar className="w-4 h-4 text-blue-800" />
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-lg p-4">
+        <div className="bg-card border border-border rounded-lg p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">This Month</p>
-              <p className="text-2xl font-bold">142</p>
+              <p className="text-sm font-bold">142</p>
             </div>
-            <AlertCircle className="w-8 h-8 text-primary" />
+            <AlertCircle className="w-4 h-4 text-primary" />
           </div>
         </div>
       </div>

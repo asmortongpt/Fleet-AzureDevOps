@@ -72,7 +72,7 @@ export function DocumentProperties({ document, onUpdate, onClose }: DocumentProp
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b flex items-center justify-between">
+      <div className="p-2 border-b flex items-center justify-between">
         <div className="flex items-center gap-2">
           <FileText className="h-5 w-5" />
           <h3 className="font-semibold">Properties</h3>
@@ -104,16 +104,16 @@ export function DocumentProperties({ document, onUpdate, onClose }: DocumentProp
       </div>
 
       <ScrollArea className="flex-1">
-        <Tabs defaultValue="details" className="p-4">
+        <Tabs defaultValue="details" className="p-2">
           <TabsList className="w-full">
             <TabsTrigger value="details" className="flex-1">Details</TabsTrigger>
             <TabsTrigger value="metadata" className="flex-1">Metadata</TabsTrigger>
             <TabsTrigger value="activity" className="flex-1">Activity</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="details" className="space-y-6 mt-4">
+          <TabsContent value="details" className="space-y-2 mt-2">
             {/* Basic Information */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               <div>
                 <Label>File name</Label>
                 {isEditing ? (
@@ -216,7 +216,7 @@ export function DocumentProperties({ document, onUpdate, onClose }: DocumentProp
             </div>
           </TabsContent>
 
-          <TabsContent value="metadata" className="space-y-4 mt-4">
+          <TabsContent value="metadata" className="space-y-2 mt-2">
             <PropertyRow icon={HardDrive} label="Size" value={formatFileSize(document.size)} />
             <PropertyRow icon={FileText} label="MIME type" value={document.mimeType} />
             <PropertyRow
@@ -276,7 +276,7 @@ export function DocumentProperties({ document, onUpdate, onClose }: DocumentProp
             )}
           </TabsContent>
 
-          <TabsContent value="activity" className="space-y-4 mt-4">
+          <TabsContent value="activity" className="space-y-2 mt-2">
             <PropertyRow icon={Clock} label="Views" value={document.viewCount.toString()} />
             <PropertyRow
               icon={Clock}

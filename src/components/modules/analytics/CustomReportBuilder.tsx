@@ -363,7 +363,7 @@ export function CustomReportBuilder() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
           <p className="text-slate-700">Loading report builder...</p>
         </div>
       </div>
@@ -371,10 +371,10 @@ export function CustomReportBuilder() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Custom Report Builder</h1>
+          <h1 className="text-base font-bold text-gray-900">Custom Report Builder</h1>
           <p className="text-slate-700">Create and schedule custom reports with drag-and-drop interface</p>
         </div>
         <Button onClick={handleNewReport}>
@@ -404,15 +404,15 @@ export function CustomReportBuilder() {
         </TabsList>
 
         {/* Report Builder Tab */}
-        <TabsContent value="builder" className="space-y-6">
+        <TabsContent value="builder" className="space-y-2">
           <Card>
             <CardHeader>
               <CardTitle>Report Configuration</CardTitle>
               <CardDescription>Define your custom report parameters</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-2">
               {/* Basic Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label>Report Name *</Label>
                   <Input
@@ -457,22 +457,22 @@ export function CustomReportBuilder() {
         </TabsContent>
 
         {/* Templates Tab */}
-        <TabsContent value="templates" className="space-y-6">
+        <TabsContent value="templates" className="space-y-2">
           <Card>
             <CardHeader>
               <CardTitle>Report Templates</CardTitle>
               <CardDescription>Start with pre-configured report templates</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                 {templates.map((template: ReportTemplate) => (
                   <Card key={template.id} className="hover:shadow-md transition-shadow">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-lg">{template.template_name}</CardTitle>
+                      <CardTitle className="text-sm">{template.template_name}</CardTitle>
                       <CardDescription>{template.category}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-slate-700 mb-4">{template.description}</p>
+                      <p className="text-sm text-slate-700 mb-2">{template.description}</p>
                       <Button
                         variant="outline"
                         className="w-full"
@@ -490,7 +490,7 @@ export function CustomReportBuilder() {
         </TabsContent>
 
         {/* My Reports Tab */}
-        <TabsContent value="my-reports" className="space-y-6">
+        <TabsContent value="my-reports" className="space-y-2">
           <Card>
             <CardHeader>
               <CardTitle>My Custom Reports</CardTitle>
@@ -498,18 +498,18 @@ export function CustomReportBuilder() {
             </CardHeader>
             <CardContent>
               {myReports.length === 0 ? (
-                <div className="text-center py-8">
+                <div className="text-center py-3">
                   <p className="text-gray-500">You haven't created any custom reports yet.</p>
                   <Button variant="link" className="mt-2" onClick={() => setActiveTab("builder")}>
                     Create Your First Report
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {myReports.map((report: CustomReport) => (
                     <div
                       key={report.id}
-                      className="border rounded-lg p-4 flex flex-col md:flex-row justify-between items-start md:items-center hover:bg-gray-50"
+                      className="border rounded-lg p-2 flex flex-col md:flex-row justify-between items-start md:items-center hover:bg-gray-50"
                     >
                       <div>
                         <h3 className="font-medium">{report.report_name}</h3>
@@ -550,14 +550,14 @@ export function CustomReportBuilder() {
         </TabsContent>
 
         {/* Execution History Tab */}
-        <TabsContent value="history" className="space-y-6">
+        <TabsContent value="history" className="space-y-2">
           <Card>
             <CardHeader>
               <CardTitle>Execution History</CardTitle>
               <CardDescription>View past report executions</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-center text-gray-500 py-8">Execution history will be displayed here.</p>
+              <p className="text-center text-gray-500 py-3">Execution history will be displayed here.</p>
             </CardContent>
           </Card>
         </TabsContent>
@@ -570,7 +570,7 @@ export function CustomReportBuilder() {
             <DialogTitle>Schedule Report</DialogTitle>
             <DialogDescription>Set up automated report delivery</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div className="space-y-2">
               <Label>Frequency</Label>
               <Select value={scheduleType} onValueChange={setScheduleType}>

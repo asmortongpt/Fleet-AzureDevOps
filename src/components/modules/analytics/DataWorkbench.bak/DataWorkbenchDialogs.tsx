@@ -103,7 +103,7 @@ export function DataWorkbenchDialogs({
               Enter the vehicle information to add it to your fleet
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-2 py-2">
             <div className="space-y-2">
               <Label htmlFor="vehicle-number">Vehicle Number *</Label>
               <Input
@@ -113,7 +113,7 @@ export function DataWorkbenchDialogs({
                 onChange={(e) => setNewVehicle({ ...newVehicle, number: e.target.value })}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <div className="space-y-2">
                 <Label htmlFor="make">Make *</Label>
                 <Input
@@ -182,11 +182,11 @@ export function DataWorkbenchDialogs({
               Search vehicles using multiple criteria to find exactly what you need
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-6 py-4">
+          <div className="space-y-2 py-2">
             {/* Vehicle Identification */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               <h3 className="text-sm font-semibold text-foreground">Vehicle Identification</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="adv-vehicle-number">Vehicle Number</Label>
                   <Input
@@ -235,9 +235,9 @@ export function DataWorkbenchDialogs({
             </div>
 
             {/* Vehicle Specifications */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               <h3 className="text-sm font-semibold text-foreground">Vehicle Specifications</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="adv-make">Make</Label>
                   <Input
@@ -280,9 +280,9 @@ export function DataWorkbenchDialogs({
             </div>
 
             {/* Assignment & Location */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               <h3 className="text-sm font-semibold text-foreground">Assignment & Location</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="adv-department">Department</Label>
                   <Input
@@ -314,9 +314,9 @@ export function DataWorkbenchDialogs({
             </div>
 
             {/* Performance Metrics */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               <h3 className="text-sm font-semibold text-foreground">Performance Metrics</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="adv-fuel-min">Fuel Level Min (%)</Label>
                   <Input
@@ -387,7 +387,7 @@ export function DataWorkbenchDialogs({
               Schedule maintenance service for a vehicle
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-2 py-2">
             <div className="space-y-2">
               <Label htmlFor="service-vehicle">Vehicle *</Label>
               <Select>

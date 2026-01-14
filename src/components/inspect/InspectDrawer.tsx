@@ -23,7 +23,7 @@ export const InspectDrawer: React.FC = () => {
                 {target.type.charAt(0).toUpperCase() + target.type.slice(1)} Details
               </SheetTitle>
             </SheetHeader>
-            <div className="mt-6">
+            <div className="mt-3">
               <InspectorRouter target={target} />
             </div>
           </>

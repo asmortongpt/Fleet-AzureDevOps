@@ -202,10 +202,10 @@ export function MaintenanceScheduling() {
   )
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Maintenance Calendar</h2>
+          <h2 className="text-sm font-semibold">Maintenance Calendar</h2>
           <p className="text-muted-foreground">Schedule and track maintenance appointments</p>
         </div>
         <Button onClick={handleScheduleMaintenance}>
@@ -214,13 +214,13 @@ export function MaintenanceScheduling() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Scheduled</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(schedules || []).length}</div>
+            <div className="text-sm font-bold">{(schedules || []).length}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <CalendarDots className="w-3 h-3" />
               All services
@@ -233,7 +233,7 @@ export function MaintenanceScheduling() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Due Soon</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{upcomingSchedules.length}</div>
+            <div className="text-sm font-bold text-yellow-600">{upcomingSchedules.length}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Clock className="w-3 h-3" />
               Next 30 days
@@ -246,7 +246,7 @@ export function MaintenanceScheduling() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Overdue</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{overdueSchedules.length}</div>
+            <div className="text-sm font-bold text-red-600">{overdueSchedules.length}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Warning className="w-3 h-3" />
               Requires attention
@@ -259,7 +259,7 @@ export function MaintenanceScheduling() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Completed</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-sm font-bold text-green-600">
               {(schedules || []).filter(s => s.status === "completed").length}
             </div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
@@ -270,7 +270,7 @@ export function MaintenanceScheduling() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         <Card>
           <CardHeader>
             <CardTitle>Calendar</CardTitle>
@@ -299,7 +299,7 @@ export function MaintenanceScheduling() {
           </CardHeader>
           <CardContent>
             {schedulesForDate.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="text-center py-3 text-muted-foreground">
                 No services scheduled for this date
               </div>
             ) : (
@@ -307,7 +307,7 @@ export function MaintenanceScheduling() {
                 {schedulesForDate.map(schedule => (
                   <div
                     key={schedule.id}
-                    className="border rounded-lg p-4 hover:bg-muted/30 cursor-pointer transition-colors"
+                    className="border rounded-lg p-2 hover:bg-muted/30 cursor-pointer transition-colors"
                     onClick={() => handleScheduleClick(schedule)}
                     role="button"
                     tabIndex={0}
@@ -315,7 +315,7 @@ export function MaintenanceScheduling() {
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <Wrench className="w-5 h-5 text-muted-foreground" />
+                        <Wrench className="w-3 h-3 text-muted-foreground" />
                         <div>
                           <div className="font-medium">{schedule.serviceType}</div>
                           <div
@@ -374,8 +374,8 @@ export function MaintenanceScheduling() {
             </DialogDescription>
           </DialogHeader>
           {selectedSchedule && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <h3 className="text-sm font-semibold mb-3">Service Information</h3>
                   <div className="space-y-2 text-sm">

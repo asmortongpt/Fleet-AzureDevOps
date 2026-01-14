@@ -554,14 +554,14 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-3 lg:px-3">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white text-2xl font-bold">DCF</span>
+            <span className="text-white text-sm font-bold">DCF</span>
           </div>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <h2 className="mt-3 text-center text-base font-extrabold text-gray-900">
           Florida DCF Fleet Management
         </h2>
         <p className="mt-2 text-center text-sm text-slate-700">
@@ -569,21 +569,21 @@ export const Login: React.FC = () => {
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+      <div className="mt-3 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-3 px-2 shadow sm:rounded-lg sm:px-10">
           {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
+            <div className="mb-2 bg-red-50 border border-red-200 text-red-700 px-2 py-3 rounded relative">
               <strong className="font-bold">Authentication Error:</strong>
               <span className="block sm:inline"> {error}</span>
             </div>
           )}
 
-          <div className="space-y-6">
+          <div className="space-y-2">
             <div>
               <button
                 onClick={handleLogin}
                 disabled={isLoading || isLoggingIn}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-3 px-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading || isLoggingIn ? (
                   <div className="flex items-center">
@@ -622,7 +622,7 @@ export const LoginCallbackComponent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
       <p className="text-slate-700">Completing authentication...</p>
     </div>
   );
@@ -700,16 +700,16 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
       <div className="text-center">
-        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <span className="text-red-600 text-2xl">🚫</span>
+        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
+          <span className="text-red-600 text-sm">🚫</span>
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
-        <p className="text-slate-700 mb-4">
+        <h2 className="text-sm font-bold text-gray-900 mb-2">Access Denied</h2>
+        <p className="text-slate-700 mb-2">
           You don't have the required permissions to access this resource.
         </p>
 
         {(requiredRole || requiredRoles) && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded p-4 mb-4">
+          <div className="bg-yellow-50 border border-yellow-200 rounded p-2 mb-2">
             <p className="text-sm text-yellow-800">
               <strong>Required Role:</strong> {requiredRole || requiredRoles?.join(', ')}
             </p>
@@ -720,7 +720,7 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
         )}
 
         {(requiredPermission || requiredPermissions) && (
-          <div className="bg-blue-50 border border-blue-200 rounded p-4 mb-4">
+          <div className="bg-blue-50 border border-blue-200 rounded p-2 mb-2">
             <p className="text-sm text-blue-800">
               <strong>Required Permission:</strong> {requiredPermission || requiredPermissions?.join(', ')}
             </p>
@@ -757,8 +757,8 @@ export const UserProfile: React.FC = () => {
   const minutesUntilExpiry = Math.floor(timeUntilExpiry / (1000 * 60));
 
   return (
-    <div className="bg-white shadow rounded-lg p-6">
-      <h3 className="text-lg font-medium text-gray-900 mb-4">User Profile</h3>
+    <div className="bg-white shadow rounded-lg p-3">
+      <h3 className="text-sm font-medium text-gray-900 mb-2">User Profile</h3>
 
       <div className="space-y-3">
         <div>
@@ -809,17 +809,17 @@ export const UserProfile: React.FC = () => {
         )}
       </div>
 
-      <div className="mt-6 flex space-x-3">
+      <div className="mt-3 flex space-x-3">
         <button
           onClick={handleExtendSession}
           disabled={isExtending}
-          className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 disabled:opacity-50"
+          className="bg-blue-600 text-white px-2 py-2 rounded text-sm hover:bg-blue-700 disabled:opacity-50"
         >
           {isExtending ? 'Extending...' : 'Extend Session'}
         </button>
         <button
           onClick={logout}
-          className="bg-red-600 text-white px-4 py-2 rounded text-sm hover:bg-red-700"
+          className="bg-red-600 text-white px-2 py-2 rounded text-sm hover:bg-red-700"
         >
           Sign Out
         </button>

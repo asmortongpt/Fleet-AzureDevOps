@@ -29,9 +29,9 @@ export const StandardButton: React.FC<StandardButtonProps> = ({
 
   // Size classes - ALL enforce minimum 44px height (Fitts's Law)
   const sizeClasses = {
-    small: 'h-11 px-4 text-sm', // 44px minimum
-    medium: 'h-12 px-6 text-base', // 48px
-    large: 'h-14 px-8 text-lg', // 56px
+    small: 'h-11 px-2 text-sm', // 44px minimum
+    medium: 'h-9 px-3 text-base', // 48px
+    large: 'h-14 px-3 text-sm', // 56px
   };
 
   // Font weight for visual hierarchy

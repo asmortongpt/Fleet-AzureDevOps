@@ -63,7 +63,7 @@ export const VehicleCard: Story = {
         </div>
       </CardHeader>
       <CardContent className="space-y-2">
-        <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="grid grid-cols-2 gap-2 text-sm">
           <div>
             <p className="text-muted-foreground">Mileage</p>
             <p className="font-medium">45,230 mi</p>
@@ -125,7 +125,7 @@ export const MetricCard: Story = {
         <Truck className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">254</div>
+        <div className="text-sm font-bold">254</div>
         <p className="text-xs text-muted-foreground">+12% from last month</p>
       </CardContent>
     </Card>
@@ -140,7 +140,7 @@ export const FuelEfficiencyCard: Story = {
         <Fuel className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">18.5 MPG</div>
+        <div className="text-sm font-bold">18.5 MPG</div>
         <p className="text-xs text-green-600">↑ 2.3% improvement</p>
       </CardContent>
     </Card>
@@ -149,13 +149,13 @@ export const FuelEfficiencyCard: Story = {
 
 export const CardGrid: Story = {
   render: () => (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader>
           <CardTitle className="text-sm font-medium">Active Vehicles</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">187</div>
+          <div className="text-sm font-bold">187</div>
         </CardContent>
       </Card>
       <Card>
@@ -163,7 +163,7 @@ export const CardGrid: Story = {
           <CardTitle className="text-sm font-medium">Maintenance Due</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-orange-500">23</div>
+          <div className="text-sm font-bold text-orange-500">23</div>
         </CardContent>
       </Card>
       <Card>
@@ -171,7 +171,7 @@ export const CardGrid: Story = {
           <CardTitle className="text-sm font-medium">Out of Service</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-red-500">8</div>
+          <div className="text-sm font-bold text-red-500">8</div>
         </CardContent>
       </Card>
     </div>
@@ -180,7 +180,7 @@ export const CardGrid: Story = {
 
 export const InteractiveCard: Story = {
   render: () => (
-    <Card className="cursor-pointer transition-shadow hover:shadow-lg">
+    <Card className="cursor-pointer transition-shadow hover:shadow-sm">
       <CardHeader>
         <CardTitle>Click to expand</CardTitle>
         <CardDescription>This card is interactive</CardDescription>

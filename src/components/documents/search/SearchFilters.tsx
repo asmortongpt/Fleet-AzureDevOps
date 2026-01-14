@@ -101,7 +101,7 @@ export function SearchFilters({ filters, onChange, availableTags = [] }: SearchF
       </PopoverTrigger>
 
       <PopoverContent className="w-96 p-0" align="end">
-        <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center justify-between p-2 border-b">
           <h3 className="font-semibold">Filters</h3>
           <div className="flex items-center gap-2">
             {activeFilterCount > 0 && (
@@ -113,7 +113,7 @@ export function SearchFilters({ filters, onChange, availableTags = [] }: SearchF
         </div>
 
         <ScrollArea className={`max-h-[500px] transition-opacity duration-200 ${isPending ? 'opacity-60 pointer-events-none' : ''}`}>
-          <div className="p-4 space-y-6">
+          <div className="p-2 space-y-2">
             {/* Document Types */}
             <div>
               <Label className="flex items-center gap-2 mb-3">

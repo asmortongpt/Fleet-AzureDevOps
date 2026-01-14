@@ -42,11 +42,11 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {asset && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Asset Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <h3 className="text-2xl font-bold">{asset.name}</h3>
+              <h3 className="text-sm font-bold">{asset.name}</h3>
               <p className="text-sm text-muted-foreground">
                 Asset #{asset.asset_number}
               </p>
@@ -57,11 +57,11 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
                 <Badge variant="outline">{asset.category}</Badge>
               </div>
             </div>
-            <Package className="h-12 w-12 text-muted-foreground" />
+            <Package className="h-9 w-12 text-muted-foreground" />
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -70,7 +70,7 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-sm font-bold">
                   ${asset.current_value?.toLocaleString() || '0'}
                 </div>
               </CardContent>
@@ -84,7 +84,7 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{asset.condition_score || 0}%</div>
+                <div className="text-sm font-bold">{asset.condition_score || 0}%</div>
                 <Progress value={asset.condition_score || 0} className="mt-2" />
               </CardContent>
             </Card>
@@ -100,13 +100,13 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
               <TabsTrigger value="value">Value</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="overview" className="space-y-4">
+            <TabsContent value="overview" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Asset Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Category</p>
                       <p className="font-medium">{asset.category || 'N/A'}</p>
@@ -140,7 +140,7 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
               </Card>
             </TabsContent>
 
-            <TabsContent value="maintenance" className="space-y-4">
+            <TabsContent value="maintenance" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Maintenance History</CardTitle>
@@ -153,7 +153,7 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
                     Next Service Due: {asset.next_service_date || 'Not scheduled'}
                   </p>
                   <Button
-                    className="mt-4"
+                    className="mt-2"
                     onClick={() =>
                       push({
                         id: `asset-maintenance-${assetId}`,
@@ -169,7 +169,7 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
               </Card>
             </TabsContent>
 
-            <TabsContent value="assignments" className="space-y-4">
+            <TabsContent value="assignments" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Assignment History</CardTitle>
@@ -185,7 +185,7 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
               </Card>
             </TabsContent>
 
-            <TabsContent value="location" className="space-y-4">
+            <TabsContent value="location" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Location History</CardTitle>
@@ -198,34 +198,34 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
               </Card>
             </TabsContent>
 
-            <TabsContent value="value" className="space-y-4">
+            <TabsContent value="value" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Value & Depreciation</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Purchase Price</p>
-                      <p className="text-xl font-bold">
+                      <p className="text-base font-bold">
                         ${asset.purchase_price?.toLocaleString() || '0'}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Current Value</p>
-                      <p className="text-xl font-bold">
+                      <p className="text-base font-bold">
                         ${asset.current_value?.toLocaleString() || '0'}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Depreciation</p>
-                      <p className="text-xl font-bold text-destructive">
+                      <p className="text-base font-bold text-destructive">
                         -${(asset.purchase_price - asset.current_value)?.toLocaleString() || '0'}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Depreciation Rate</p>
-                      <p className="text-xl font-bold">
+                      <p className="text-base font-bold">
                         {asset.depreciation_rate || 0}%/yr
                       </p>
                     </div>
@@ -257,11 +257,11 @@ export function EquipmentDetailPanel({ equipmentId }: EquipmentDetailPanelProps)
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {equipment && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Equipment Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <h3 className="text-2xl font-bold">{equipment.name}</h3>
+              <h3 className="text-sm font-bold">{equipment.name}</h3>
               <p className="text-sm text-muted-foreground">
                 {equipment.category} Equipment
               </p>
@@ -269,11 +269,11 @@ export function EquipmentDetailPanel({ equipmentId }: EquipmentDetailPanelProps)
                 {equipment.status}
               </Badge>
             </div>
-            <Wrench className="h-12 w-12 text-muted-foreground" />
+            <Wrench className="h-9 w-12 text-muted-foreground" />
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -282,7 +282,7 @@ export function EquipmentDetailPanel({ equipmentId }: EquipmentDetailPanelProps)
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-sm font-bold">
                   {equipment.operating_hours?.toLocaleString() || '0'} hrs
                 </div>
               </CardContent>
@@ -296,7 +296,7 @@ export function EquipmentDetailPanel({ equipmentId }: EquipmentDetailPanelProps)
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{equipment.utilization || 0}%</div>
+                <div className="text-sm font-bold">{equipment.utilization || 0}%</div>
                 <Progress value={equipment.utilization || 0} className="mt-2" />
               </CardContent>
             </Card>
@@ -311,13 +311,13 @@ export function EquipmentDetailPanel({ equipmentId }: EquipmentDetailPanelProps)
               <TabsTrigger value="service">Service</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="overview" className="space-y-4">
+            <TabsContent value="overview" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Equipment Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Type</p>
                       <p className="font-medium">{equipment.type || 'N/A'}</p>
@@ -339,7 +339,7 @@ export function EquipmentDetailPanel({ equipmentId }: EquipmentDetailPanelProps)
               </Card>
             </TabsContent>
 
-            <TabsContent value="operators" className="space-y-4">
+            <TabsContent value="operators" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Operator History</CardTitle>
@@ -355,22 +355,22 @@ export function EquipmentDetailPanel({ equipmentId }: EquipmentDetailPanelProps)
               </Card>
             </TabsContent>
 
-            <TabsContent value="usage" className="space-y-4">
+            <TabsContent value="usage" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Usage Metrics</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Hours This Month</p>
-                      <p className="text-xl font-bold">
+                      <p className="text-base font-bold">
                         {equipment.hours_this_month || 0} hrs
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Avg Daily Usage</p>
-                      <p className="text-xl font-bold">
+                      <p className="text-base font-bold">
                         {equipment.avg_daily_usage || 0} hrs
                       </p>
                     </div>
@@ -379,7 +379,7 @@ export function EquipmentDetailPanel({ equipmentId }: EquipmentDetailPanelProps)
               </Card>
             </TabsContent>
 
-            <TabsContent value="service" className="space-y-4">
+            <TabsContent value="service" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Service Schedule</CardTitle>
@@ -418,11 +418,11 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {item && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Item Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <h3 className="text-2xl font-bold">{item.name}</h3>
+              <h3 className="text-sm font-bold">{item.name}</h3>
               <p className="text-sm text-muted-foreground">SKU: {item.sku}</p>
               <Badge
                 variant={
@@ -432,11 +432,11 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
                 {item.quantity > item.reorder_point ? 'In Stock' : 'Low Stock'}
               </Badge>
             </div>
-            <Package className="h-12 w-12 text-muted-foreground" />
+            <Package className="h-9 w-12 text-muted-foreground" />
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -445,7 +445,7 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{item.quantity || 0}</div>
+                <div className="text-sm font-bold">{item.quantity || 0}</div>
                 <p className="text-xs text-muted-foreground mt-1">
                   Reorder at: {item.reorder_point || 0}
                 </p>
@@ -460,7 +460,7 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-sm font-bold">
                   ${item.unit_cost?.toFixed(2) || '0.00'}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -479,13 +479,13 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
               <TabsTrigger value="locations">Locations</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="overview" className="space-y-4">
+            <TabsContent value="overview" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Item Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Category</p>
                       <p className="font-medium">{item.category || 'N/A'}</p>
@@ -507,7 +507,7 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
               </Card>
             </TabsContent>
 
-            <TabsContent value="usage" className="space-y-4">
+            <TabsContent value="usage" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Usage History</CardTitle>
@@ -523,7 +523,7 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
               </Card>
             </TabsContent>
 
-            <TabsContent value="reorders" className="space-y-4">
+            <TabsContent value="reorders" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Reorder History</CardTitle>
@@ -539,7 +539,7 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
               </Card>
             </TabsContent>
 
-            <TabsContent value="locations" className="space-y-4">
+            <TabsContent value="locations" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Stock Locations</CardTitle>
@@ -588,9 +588,9 @@ export function AssetListView({ filter = 'all' }: AssetListViewProps) {
 
   return (
     <DrilldownContent loading={isLoading} error={error}>
-      <div className="space-y-4">
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-bold">{filterLabels[filter]}</h3>
+          <h3 className="text-sm font-bold">{filterLabels[filter]}</h3>
           <Badge>{assets?.length || 0} assets</Badge>
         </div>
 
@@ -608,7 +608,7 @@ export function AssetListView({ filter = 'all' }: AssetListViewProps) {
                 })
               }
             >
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <p className="font-semibold">{asset.name}</p>
@@ -657,9 +657,9 @@ export function EquipmentListView({ category }: EquipmentListViewProps) {
 
   return (
     <DrilldownContent loading={isLoading} error={error}>
-      <div className="space-y-4">
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-bold">
+          <h3 className="text-sm font-bold">
             {category ? categoryLabels[category] : 'All Equipment'}
           </h3>
           <Badge>{equipment?.length || 0} items</Badge>
@@ -679,7 +679,7 @@ export function EquipmentListView({ category }: EquipmentListViewProps) {
                 })
               }
             >
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <p className="font-semibold">{item.name}</p>
@@ -728,9 +728,9 @@ export function InventoryListView({ filter = 'all' }: InventoryListViewProps) {
 
   return (
     <DrilldownContent loading={isLoading} error={error}>
-      <div className="space-y-4">
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-bold">{filterLabels[filter]}</h3>
+          <h3 className="text-sm font-bold">{filterLabels[filter]}</h3>
           <Badge>{items?.length || 0} items</Badge>
         </div>
 
@@ -748,7 +748,7 @@ export function InventoryListView({ filter = 'all' }: InventoryListViewProps) {
                 })
               }
             >
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <p className="font-semibold">{item.name}</p>

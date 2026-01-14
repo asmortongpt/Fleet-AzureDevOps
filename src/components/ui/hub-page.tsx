@@ -134,23 +134,23 @@ export function HubPage({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
                 className={cn(
-                    "flex items-center justify-between px-6 py-4 border-b",
+                    "flex items-center justify-between px-3 py-2 border-b",
                     "bg-gradient-to-r from-slate-900/80 via-slate-800/60 to-slate-900/80",
                     "backdrop-blur-md border-slate-700/50",
-                    "shadow-lg"
+                    "shadow-sm"
                 )}
                 data-testid="hub-header"
             >
-                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                <div className="flex items-center gap-3 sm:gap-2 min-w-0">
                     {icon && (
                         <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
                             className={cn(
-                                "flex items-center justify-center w-10 h-10 rounded-lg",
+                                "flex items-center justify-center w-10 h-8 rounded-lg",
                                 "bg-primary/20 backdrop-blur-sm border border-primary/30",
-                                "text-primary shadow-lg"
+                                "text-primary shadow-sm"
                             )}
                         >
                             {icon}
@@ -161,7 +161,7 @@ export function HubPage({
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.15 }}
                     >
-                        <h1 className="text-2xl font-semibold text-foreground">{title}</h1>
+                        <h1 className="text-sm font-semibold text-foreground">{title}</h1>
                         {description && (
                             <p className="text-sm text-muted-foreground mt-0.5 truncate">{description}</p>
                         )}
@@ -196,7 +196,7 @@ export function HubPage({
                 >
                     <TabsList
                         className={cn(
-                            "w-full justify-start rounded-none border-b px-6 h-12",
+                            "w-full justify-start rounded-none border-b px-3 h-9",
                             "bg-gradient-to-b from-slate-900/60 to-slate-900/40",
                             "backdrop-blur-sm border-slate-700/50",
                             "shadow-md"
@@ -215,7 +215,7 @@ export function HubPage({
                                     disabled={tab.disabled}
                                     aria-label={tab.ariaLabel || tab.label}
                                     className={cn(
-                                        "gap-2 rounded-none px-4",
+                                        "gap-2 rounded-none px-2",
                                         "data-[state=active]:bg-gradient-to-b data-[state=active]:from-primary/10 data-[state=active]:to-transparent",
                                         "data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary",
                                         "transition-all duration-200"
@@ -272,17 +272,17 @@ export function HubSection({
         <section
             className={cn(
                 'flex flex-col',
-                padding && 'p-4 sm:p-6',
+                padding && 'p-2 sm:p-3',
                 animate && 'animate-fade-in-up',
                 className
             )}
             data-testid="hub-section"
         >
             {(title || actions) && (
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 sm:mb-3 gap-2">
                     <div className="min-w-0">
                         {title && (
-                            <h2 className="text-lg sm:text-xl font-semibold text-foreground">{title}</h2>
+                            <h2 className="text-sm sm:text-base font-semibold text-foreground">{title}</h2>
                         )}
                         {description && (
                             <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
@@ -314,7 +314,7 @@ export function HubGrid({ children, className, columns = 4 }: HubGridProps) {
     }
 
     return (
-        <div className={cn('grid gap-4 sm:gap-6', gridCols[columns], className)}>
+        <div className={cn('grid gap-2 sm:gap-2', gridCols[columns], className)}>
             {children}
         </div>
     )

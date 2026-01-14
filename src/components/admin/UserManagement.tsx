@@ -196,10 +196,10 @@ export function UserManagement() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">User Management</h1>
+          <h1 className="text-base font-bold">User Management</h1>
           <p className="text-muted-foreground mt-1">
             Manage users, roles, and permissions
           </p>
@@ -212,7 +212,7 @@ export function UserManagement() {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -312,7 +312,7 @@ export function UserManagement() {
               Add a new user to the system with appropriate role and permissions.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div>
               <label className="text-sm font-medium">Name</label>
               <Input
@@ -374,7 +374,7 @@ export function UserManagement() {
               Update user information and permissions.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div>
               <label className="text-sm font-medium">Name</label>
               <Input

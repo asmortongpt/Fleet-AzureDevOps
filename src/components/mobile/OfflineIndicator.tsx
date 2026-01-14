@@ -179,7 +179,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
         position === 'top' ? 'top-0' : 'bottom-0'
       } left-0 right-0 z-50 transition-all duration-300`}
     >
-      <div className={`${getStatusColor()} border-b px-4 py-3`}>
+      <div className={`${getStatusColor()} border-b px-2 py-3`}>
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           {/* Status */}
           <div className="flex items-center space-x-3">
@@ -226,7 +226,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
         {/* Expanded Details */}
         {showDetails && isExpanded && (
           <div className="mt-3 pt-3 border-t border-gray-200">
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
                 <p className="text-gray-500">Network Status</p>
                 <p className="font-medium text-gray-800">
@@ -276,7 +276,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
 
       {/* Offline Banner (persistent) */}
       {!isOnline && (
-        <div className="bg-red-500 text-white px-4 py-2 text-center text-sm font-medium">
+        <div className="bg-red-500 text-white px-2 py-2 text-center text-sm font-medium">
           You are working offline. Changes will sync when connection is restored.
         </div>
       )}

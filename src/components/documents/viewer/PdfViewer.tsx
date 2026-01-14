@@ -116,7 +116,7 @@ export function PdfViewer({ document, state, onStateChange }: PdfViewerProps) {
                 placeholder="Search in document..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 h-8 w-64"
+                className="pl-3 h-8 w-64"
                 aria-label="Search PDF"
               />
             </div>
@@ -140,7 +140,7 @@ export function PdfViewer({ document, state, onStateChange }: PdfViewerProps) {
         <ScrollArea className="flex-1 bg-muted/30">
           <div
             ref={containerRef}
-            className="flex items-start justify-center p-8"
+            className="flex items-start justify-center p-3"
             style={{
               transform: `scale(${state.zoom / 100}) rotate(${state.rotation}deg)`,
               transformOrigin: 'center top',
@@ -149,8 +149,8 @@ export function PdfViewer({ document, state, onStateChange }: PdfViewerProps) {
           >
             {/* PDF.js canvas will be rendered here */}
             {/* For now, showing a placeholder */}
-            <div className="bg-white shadow-2xl" style={{ width: 612, minHeight: 792 }}>
-              <div className="p-12 space-y-4">
+            <div className="bg-white shadow-sm" style={{ width: 612, minHeight: 792 }}>
+              <div className="p-12 space-y-2">
                 <div className="h-6 bg-gray-200 rounded w-3/4" />
                 <div className="h-4 bg-gray-100 rounded" />
                 <div className="h-4 bg-gray-100 rounded" />
@@ -165,12 +165,12 @@ export function PdfViewer({ document, state, onStateChange }: PdfViewerProps) {
                 <div className="h-4 bg-gray-100 rounded w-5/6" />
 
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-                  <div className="bg-primary/10 border border-primary/20 rounded-lg p-6">
+                  <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
                     <p className="text-sm text-muted-foreground mb-2">PDF Viewer</p>
                     <p className="text-xs text-muted-foreground">
                       Page {currentPage} of {pageCount}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-4">
+                    <p className="text-xs text-muted-foreground mt-2">
                       Integrate pdf.js for full PDF rendering
                     </p>
                   </div>
@@ -184,22 +184,22 @@ export function PdfViewer({ document, state, onStateChange }: PdfViewerProps) {
       {/* Annotations sidebar */}
       {showAnnotations && (
         <div className="w-80 border-l bg-card flex flex-col">
-          <div className="p-4 border-b">
+          <div className="p-2 border-b">
             <h3 className="font-semibold">Annotations</h3>
             <p className="text-xs text-muted-foreground mt-1">
               Comments and highlights
             </p>
           </div>
 
-          <ScrollArea className="flex-1 p-4">
-            <div className="space-y-4">
-              <div className="text-sm text-muted-foreground text-center py-8">
+          <ScrollArea className="flex-1 p-2">
+            <div className="space-y-2">
+              <div className="text-sm text-muted-foreground text-center py-3">
                 No annotations yet
               </div>
             </div>
           </ScrollArea>
 
-          <div className="p-4 border-t">
+          <div className="p-2 border-t">
             <Button size="sm" className="w-full">
               <MessageSquare className="mr-2 h-4 w-4" />
               Add comment

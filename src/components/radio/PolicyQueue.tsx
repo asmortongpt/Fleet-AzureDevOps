@@ -78,13 +78,13 @@ export function PolicyQueue({ pendingApprovals }: PolicyQueueProps) {
           {pendingApprovals.length === 0 ? (
             <div className="flex h-[400px] items-center justify-center text-muted-foreground">
               <div className="text-center">
-                <CheckCircle className="mx-auto h-12 w-12 mb-4 opacity-50" />
+                <CheckCircle className="mx-auto h-9 w-12 mb-2 opacity-50" />
                 <p>No pending approvals</p>
                 <p className="text-sm">All actions have been reviewed</p>
               </div>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-2">
               {pendingApprovals.map((approval) => (
                 <Card key={approval.id} className="border-l-4 border-l-orange-500">
                   <CardHeader>
@@ -98,7 +98,7 @@ export function PolicyQueue({ pendingApprovals }: PolicyQueueProps) {
                       </span>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-2">
                     {/* Conditions Matched */}
                     <div>
                       <h4 className="text-sm font-medium mb-2">Conditions Matched</h4>

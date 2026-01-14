@@ -19,24 +19,24 @@ export function LeafletMapError({ error, minHeight, className = "", onRetry }: L
       aria-live="assertive"
       aria-atomic="true"
     >
-      <div className="text-center p-8 max-w-md">
-        <div className="text-6xl mb-4" role="img" aria-label="Error">
+      <div className="text-center p-3 max-w-md">
+        <div className="text-6xl mb-2" role="img" aria-label="Error">
           🗺️❌
         </div>
-        <h3 className="text-lg font-semibold text-destructive mb-3">Map Error</h3>
+        <h3 className="text-sm font-semibold text-destructive mb-3">Map Error</h3>
         <p className="text-sm text-muted-foreground mb-1">{error}</p>
-        <p className="text-xs text-muted-foreground/70 mb-6">
+        <p className="text-xs text-muted-foreground/70 mb-3">
           This may be due to network issues, browser compatibility, or missing dependencies.
         </p>
         <button
           onClick={() => window.location.reload()}
-          className="px-6 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors font-medium text-sm"
+          className="px-3 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors font-medium text-sm"
           aria-label="Reload page to retry map initialization"
         >
           Reload Page
         </button>
         {onRetry && (
-          <div className="mt-4">
+          <div className="mt-2">
             <button
               onClick={onRetry}
               className="text-xs text-muted-foreground hover:text-foreground underline"

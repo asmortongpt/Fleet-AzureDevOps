@@ -101,8 +101,8 @@ export function DrilldownPanel({
       aria-labelledby={title ? "drilldown-panel-title" : undefined}
     >
       {/* Sticky Header */}
-      <div className="sticky top-0 bg-slate-800 border-b border-slate-700 shadow-lg z-10">
-        <div className="flex items-center justify-between p-4 gap-4">
+      <div className="sticky top-0 bg-slate-800 border-b border-slate-700 shadow-sm z-10">
+        <div className="flex items-center justify-between p-2 gap-2">
           {/* Left: Back button + Title */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
             {showBackButton && canGoBack && (
@@ -112,7 +112,7 @@ export function DrilldownPanel({
                 aria-label="Go back"
                 data-testid="back-button"
               >
-                <ArrowLeft className="w-5 h-5 text-slate-400" weight="bold" />
+                <ArrowLeft className="w-3 h-3 text-slate-400" weight="bold" />
               </button>
             )}
 
@@ -120,7 +120,7 @@ export function DrilldownPanel({
               {title && (
                 <h2
                   id="drilldown-panel-title"
-                  className="text-xl font-bold text-white truncate"
+                  className="text-base font-bold text-white truncate"
                 >
                   {title}
                 </h2>
@@ -147,13 +147,13 @@ export function DrilldownPanel({
             className="shrink-0 p-2 hover:bg-slate-700 rounded-lg transition-colors"
             aria-label="Close panel"
           >
-            <X className="w-5 h-5 text-slate-400" weight="bold" />
+            <X className="w-3 h-3 text-slate-400" weight="bold" />
           </button>
         </div>
       </div>
 
       {/* Content Area */}
-      <div data-testid="drilldown-content" className="p-6">
+      <div data-testid="drilldown-content" className="p-3">
         {children}
       </div>
     </div>

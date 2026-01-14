@@ -183,7 +183,7 @@ export function DamageReport3DViewer({ modelUrl }: DamageReport3DViewerProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* 3D Viewer Container */}
       <Card>
         <CardContent className="p-0">
@@ -195,8 +195,8 @@ export function DamageReport3DViewer({ modelUrl }: DamageReport3DViewerProps) {
           >
             {loading && (
               <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
-                <div className="text-center space-y-4">
-                  <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
+                <div className="text-center space-y-2">
+                  <Loader2 className="h-9 w-12 animate-spin mx-auto text-primary" />
                   <p className="text-muted-foreground">Loading 3D model...</p>
                 </div>
               </div>
@@ -204,8 +204,8 @@ export function DamageReport3DViewer({ modelUrl }: DamageReport3DViewerProps) {
 
             {error && (
               <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
-                <div className="text-center space-y-4">
-                  <AlertTriangle className="h-12 w-12 mx-auto text-destructive" />
+                <div className="text-center space-y-2">
+                  <AlertTriangle className="h-9 w-12 mx-auto text-destructive" />
                   <p className="text-destructive">{error}</p>
                 </div>
               </div>
@@ -215,7 +215,7 @@ export function DamageReport3DViewer({ modelUrl }: DamageReport3DViewerProps) {
       </Card>
 
       {/* Controls */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -259,7 +259,7 @@ export function DamageReport3DViewer({ modelUrl }: DamageReport3DViewerProps) {
 
       {/* Instructions */}
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="pt-3">
           <div className="text-sm text-muted-foreground space-y-2">
             <p className="font-semibold">Viewer Controls:</p>
             <ul className="list-disc list-inside space-y-1">

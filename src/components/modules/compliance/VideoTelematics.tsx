@@ -328,10 +328,10 @@ export function VideoTelematics() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Video Telematics</h2>
+          <h2 className="text-sm font-semibold">Video Telematics</h2>
           <p className="text-muted-foreground">
             AI-powered dashcam event detection with driver coaching workflows
           </p>
@@ -344,7 +344,7 @@ export function VideoTelematics() {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -352,7 +352,7 @@ export function VideoTelematics() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalEvents}</div>
+            <div className="text-sm font-bold">{totalEvents}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <VideoCamera className="w-3 h-3" />
               All time
@@ -367,7 +367,7 @@ export function VideoTelematics() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{unreviewedEvents}</div>
+            <div className="text-sm font-bold text-yellow-600">{unreviewedEvents}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Eye className="w-3 h-3" />
               Pending
@@ -382,7 +382,7 @@ export function VideoTelematics() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{coachingPending}</div>
+            <div className="text-sm font-bold text-orange-600">{coachingPending}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Clock className="w-3 h-3" />
               Assigned
@@ -397,7 +397,7 @@ export function VideoTelematics() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{criticalEvents}</div>
+            <div className="text-sm font-bold text-red-600">{criticalEvents}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Warning className="w-3 h-3" />
               High priority
@@ -406,7 +406,7 @@ export function VideoTelematics() {
         </Card>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-2">
         <div className="relative flex-1">
           <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -477,7 +477,7 @@ export function VideoTelematics() {
             <TableBody>
               {filteredEvents.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-3">
                     No video events found. Events will appear here when detected by AI.
                   </TableCell>
                 </TableRow>
@@ -574,7 +574,7 @@ export function VideoTelematics() {
             </DialogDescription>
           </DialogHeader>
           {selectedEvent && (
-            <div className="space-y-4">
+            <div className="space-y-2">
               <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
                 <div className="text-center text-gray-400">
                   <VideoCamera className="w-16 h-16 mx-auto mb-2" />
@@ -585,7 +585,7 @@ export function VideoTelematics() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label className="text-xs text-muted-foreground">Location</Label>
                   <p className="text-sm">{selectedEvent.location?.address}</p>
@@ -607,7 +607,7 @@ export function VideoTelematics() {
               </div>
 
               {selectedEvent.coaching.assigned && (
-                <div className="border-t pt-4">
+                <div className="border-t pt-2">
                   <Label className="text-xs text-muted-foreground">Coaching Status</Label>
                   <div className="mt-2 space-y-2">
                     <div className="flex items-center justify-between">
@@ -643,16 +643,16 @@ export function VideoTelematics() {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5" />
+              <ShieldCheck className="w-3 h-3" />
               Privacy Settings
             </DialogTitle>
             <DialogDescription>
               Configure privacy and data retention settings for video telematics
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-6">
+          <div className="space-y-2">
             {/* Recording Settings */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               <h3 className="text-sm font-semibold">Recording Settings</h3>
 
               <div className="flex items-center justify-between">
@@ -696,7 +696,7 @@ export function VideoTelematics() {
             </div>
 
             {/* Data Retention */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               <h3 className="text-sm font-semibold">Data Retention</h3>
 
               <div className="space-y-2">
@@ -736,7 +736,7 @@ export function VideoTelematics() {
             </div>
 
             {/* Privacy Protection */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               <h3 className="text-sm font-semibold">Privacy Protection</h3>
 
               <div className="flex items-center justify-between">
@@ -767,7 +767,7 @@ export function VideoTelematics() {
             </div>
 
             {/* Access Control */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               <h3 className="text-sm font-semibold">Access Control</h3>
 
               <div className="space-y-3">
@@ -842,7 +842,7 @@ export function VideoTelematics() {
             </div>
 
             {/* Security */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               <h3 className="text-sm font-semibold">Security</h3>
 
               <div className="flex items-center justify-between">

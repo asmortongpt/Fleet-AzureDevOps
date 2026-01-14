@@ -51,12 +51,12 @@ export function MobileBottomNav({ items, activeId, onItemClick }: MobileBottomNa
               aria-current={isActive ? 'page' : undefined}
             >
               <div className="relative">
-                <div className="text-2xl">{item.icon}</div>
+                <div className="text-sm">{item.icon}</div>
                 {item.badge !== undefined && item.badge > 0 && (
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"
+                    className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-3 h-3 flex items-center justify-center font-bold"
                   >
                     {item.badge > 99 ? '99+' : item.badge}
                   </motion.div>
@@ -120,7 +120,7 @@ export function MobileDrawer({
             className={`
               fixed top-0 ${position === 'left' ? 'left-0' : 'right-0'} bottom-0 z-50
               bg-white dark:bg-gray-900
-              shadow-2xl
+              shadow-sm
               overflow-y-auto
               safe-area
             `}
@@ -173,7 +173,7 @@ export function MobileTabs({ tabs, activeId: controlledActiveId, onChange }: Mob
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
               className={`
-                flex-shrink-0 px-4 py-3 text-sm font-medium whitespace-nowrap
+                flex-shrink-0 px-2 py-3 text-sm font-medium whitespace-nowrap
                 transition-colors duration-200 touch-target
                 ${
                   isActive
@@ -249,11 +249,11 @@ export function MobileHeader({
       }}
       transition={{ duration: 0.2 }}
     >
-      <div className="flex items-center justify-between px-4 h-14">
+      <div className="flex items-center justify-between px-2 h-14">
         <div className="flex items-center gap-3 flex-1">
           {leftAction && <div className="flex-shrink-0">{leftAction}</div>}
           <motion.h1
-            className="text-lg font-semibold truncate"
+            className="text-sm font-semibold truncate"
             animate={{
               fontSize: isScrolled ? '1rem' : '1.125rem',
             }}
@@ -303,22 +303,22 @@ export function MobileFab({
   }
 
   const sizeClasses: Record<string, string> = {
-    sm: 'w-12 h-12 text-xl',
-    md: 'w-14 h-14 text-2xl',
-    lg: 'w-16 h-16 text-3xl',
+    sm: 'w-12 h-9 text-base',
+    md: 'w-14 h-14 text-sm',
+    lg: 'w-16 h-16 text-base',
   }
 
   return (
     <motion.button
       onClick={onClick}
       className={`
-        fixed z-40 rounded-full shadow-2xl
+        fixed z-40 rounded-full shadow-sm
         flex items-center justify-center
         transition-colors duration-200
         ${positionClasses[position]}
         ${colorClasses[color]}
         ${sizeClasses[size]}
-        ${label ? 'px-4 gap-2' : ''}
+        ${label ? 'px-2 gap-2' : ''}
       `}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
@@ -374,7 +374,7 @@ export function MobileSearchBar({
           }}
           placeholder={placeholder}
           className="
-            w-full px-4 py-3 pl-10 pr-10
+            w-full px-2 py-3 pl-10 pr-10
             bg-gray-100 dark:bg-gray-800
             border border-gray-300 dark:border-gray-700
             rounded-full
@@ -422,7 +422,7 @@ export function MobileMenuItem({
     <motion.button
       onClick={onClick}
       className={`
-        w-full flex items-center gap-3 px-4 py-3 touch-target
+        w-full flex items-center gap-3 px-2 py-3 touch-target
         transition-colors duration-200
         ${
           danger
@@ -432,10 +432,10 @@ export function MobileMenuItem({
       `}
       whileTap={{ scale: 0.98 }}
     >
-      {icon && <div className="text-xl flex-shrink-0">{icon}</div>}
+      {icon && <div className="text-base flex-shrink-0">{icon}</div>}
       <span className="flex-1 text-left font-medium">{label}</span>
       {badge !== undefined && badge > 0 && (
-        <div className="bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
+        <div className="bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
           {badge > 99 ? '99+' : badge}
         </div>
       )}

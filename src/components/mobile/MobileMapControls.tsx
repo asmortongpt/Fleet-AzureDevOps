@@ -33,7 +33,7 @@ export function MobileMapControls({
   const [_isExpanded, _setIsExpanded] = useState(false);
 
   // Touch-optimized button size (44px minimum for accessibility)
-  const buttonSize = 'h-11 w-11 sm:h-10 sm:w-10';
+  const buttonSize = 'h-11 w-11 sm:h-8 sm:w-10';
   const iconSize = 'h-5 w-5';
 
   return (
@@ -52,7 +52,7 @@ export function MobileMapControls({
           size="icon"
           className={cn(
             buttonSize,
-            'rounded-full shadow-lg bg-white text-slate-900 hover:bg-slate-100',
+            'rounded-full shadow-sm bg-white text-slate-900 hover:bg-slate-100',
             'active:scale-95 transition-all touch-manipulation'
           )}
           onClick={onToggleFullscreen}
@@ -74,7 +74,7 @@ export function MobileMapControls({
           size="icon"
           className={cn(
             buttonSize,
-            'rounded-full shadow-lg bg-white text-slate-900 hover:bg-slate-100',
+            'rounded-full shadow-sm bg-white text-slate-900 hover:bg-slate-100',
             'active:scale-95 transition-all touch-manipulation'
           )}
           onClick={onToggleLayers}
@@ -92,7 +92,7 @@ export function MobileMapControls({
           size="icon"
           className={cn(
             buttonSize,
-            'rounded-full shadow-lg bg-white text-slate-900 hover:bg-slate-100',
+            'rounded-full shadow-sm bg-white text-slate-900 hover:bg-slate-100',
             'active:scale-95 transition-all touch-manipulation'
           )}
           onClick={onLocate}
@@ -104,7 +104,7 @@ export function MobileMapControls({
       )}
 
       {/* Zoom Controls */}
-      <div className="flex flex-col gap-1 bg-white rounded-full shadow-lg p-1">
+      <div className="flex flex-col gap-1 bg-white rounded-full shadow-sm p-1">
         {onZoomIn && (
           <Button
             variant="ghost"

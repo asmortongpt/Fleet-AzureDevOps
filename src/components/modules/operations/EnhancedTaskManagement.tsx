@@ -369,11 +369,11 @@ export function EnhancedTaskManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Task Management</h2>
+          <h2 className="text-base font-bold tracking-tight">Task Management</h2>
           <p className="text-muted-foreground mt-1">
             AI-powered task tracking and workflow automation
           </p>
@@ -410,7 +410,7 @@ export function EnhancedTaskManagement() {
                   Add a new task with AI-powered suggestions
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
+              <div className="grid gap-2 py-2">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="task-title">Task Title *</Label>
@@ -462,7 +462,7 @@ export function EnhancedTaskManagement() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="task-type">Task Type *</Label>
                   </div>

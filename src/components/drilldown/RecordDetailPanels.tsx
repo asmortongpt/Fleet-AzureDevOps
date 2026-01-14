@@ -64,7 +64,7 @@ interface DetailSectionProps {
 
 function DetailSection({ title, children, actions }: DetailSectionProps) {
   return (
-    <Card className="mb-4">
+    <Card className="mb-2">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-base">{title}</CardTitle>
         {actions}
@@ -129,11 +129,11 @@ export function AssetDetailPanel({ assetId }: AssetDetailPanelProps) {
 
   return (
     <DrilldownContent>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-2xl font-bold">{asset.name}</h2>
+            <h2 className="text-sm font-bold">{asset.name}</h2>
             <p className="text-muted-foreground">{asset.type}</p>
           </div>
           <StatusBadge status={asset.status} variant={statusVariant} />
@@ -143,7 +143,7 @@ export function AssetDetailPanel({ assetId }: AssetDetailPanelProps) {
 
         {/* Basic Info */}
         <DetailSection title="Asset Information">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DetailRow label="Asset ID" value={asset.id} icon={<Package className="w-4 h-4" />} />
             <DetailRow label="Serial Number" value={asset.serialNumber} icon={<FileText className="w-4 h-4" />} />
             <DetailRow label="Manufacturer" value={asset.manufacturer} icon={<Building className="w-4 h-4" />} />
@@ -153,7 +153,7 @@ export function AssetDetailPanel({ assetId }: AssetDetailPanelProps) {
 
         {/* Location & Assignment */}
         <DetailSection title="Location & Assignment">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DetailRow label="Location" value={asset.location} icon={<MapPin className="w-4 h-4" />} />
             <DetailRow label="Assigned To" value={asset.assignedTo} icon={<User className="w-4 h-4" />} />
           </div>
@@ -161,7 +161,7 @@ export function AssetDetailPanel({ assetId }: AssetDetailPanelProps) {
 
         {/* Dates & Value */}
         <DetailSection title="Purchase & Warranty">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DetailRow
               label="Purchase Date"
               value={asset.purchaseDate ? new Date(asset.purchaseDate).toLocaleDateString() : '-'}
@@ -234,16 +234,16 @@ export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
 
   return (
     <DrilldownContent>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-2xl font-bold">{invoice.number}</h2>
+            <h2 className="text-sm font-bold">{invoice.number}</h2>
             <p className="text-muted-foreground">{invoice.vendor}</p>
           </div>
           <div className="text-right">
             <StatusBadge status={invoice.status} variant={statusVariant} />
-            <div className="text-2xl font-bold mt-2">${invoice.total.toLocaleString()}</div>
+            <div className="text-sm font-bold mt-2">${invoice.total.toLocaleString()}</div>
           </div>
         </div>
 
@@ -251,7 +251,7 @@ export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
 
         {/* Invoice Details */}
         <DetailSection title="Invoice Details">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DetailRow label="Invoice Number" value={invoice.number} icon={<FileText className="w-4 h-4" />} />
             <DetailRow label="Vendor" value={invoice.vendor} icon={<Building className="w-4 h-4" />} />
             <DetailRow
@@ -363,11 +363,11 @@ export function RouteDetailPanel({ routeId }: RouteDetailPanelProps) {
 
   return (
     <DrilldownContent>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-2xl font-bold">{route.name}</h2>
+            <h2 className="text-sm font-bold">{route.name}</h2>
             <p className="text-muted-foreground">
               {route.startLocation} → {route.endLocation}
             </p>
@@ -379,7 +379,7 @@ export function RouteDetailPanel({ routeId }: RouteDetailPanelProps) {
 
         {/* Route Details */}
         <DetailSection title="Route Information">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DetailRow label="Route ID" value={route.id} icon={<Route className="w-4 h-4" />} />
             <DetailRow
               label="Distance"
@@ -401,7 +401,7 @@ export function RouteDetailPanel({ routeId }: RouteDetailPanelProps) {
 
         {/* Assignment */}
         <DetailSection title="Assignment">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <div
               className={cn(route.driverId && 'cursor-pointer hover:bg-muted/50 rounded p-2 -m-2')}
               onClick={handleDriverDrilldown}
@@ -419,7 +419,7 @@ export function RouteDetailPanel({ routeId }: RouteDetailPanelProps) {
 
         {/* Timing */}
         <DetailSection title="Schedule">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DetailRow
               label="Start Time"
               value={route.startTime ? new Date(route.startTime).toLocaleString() : '-'}
@@ -484,11 +484,11 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
 
   return (
     <DrilldownContent>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-2xl font-bold">{task.name}</h2>
+            <h2 className="text-sm font-bold">{task.name}</h2>
             <div className="flex gap-2 mt-2">
               <StatusBadge status={task.status} variant={statusVariant} />
               <StatusBadge status={`${task.priority} priority`} variant={priorityVariant} />
@@ -500,7 +500,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
 
         {/* Task Details */}
         <DetailSection title="Task Information">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DetailRow label="Task ID" value={task.id} icon={<Target className="w-4 h-4" />} />
             <DetailRow label="Assigned To" value={task.assignedTo} icon={<User className="w-4 h-4" />} />
             <DetailRow
@@ -608,11 +608,11 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
 
   return (
     <DrilldownContent>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-2xl font-bold">{incident.number}</h2>
+            <h2 className="text-sm font-bold">{incident.number}</h2>
             <p className="text-muted-foreground">{incident.type}</p>
             <div className="flex gap-2 mt-2">
               <StatusBadge status={incident.status} variant={statusVariant} />
@@ -631,7 +631,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
 
         {/* Incident Details */}
         <DetailSection title="Incident Details">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DetailRow label="Incident #" value={incident.number} icon={<AlertTriangle className="w-4 h-4" />} />
             <DetailRow label="Type" value={incident.type} icon={<Activity className="w-4 h-4" />} />
             <DetailRow
@@ -645,7 +645,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
 
         {/* Involved Parties */}
         <DetailSection title="Involved Parties">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <div
               className={cn(incident.driverId && 'cursor-pointer hover:bg-muted/50 rounded p-2 -m-2')}
               onClick={() => {
@@ -741,11 +741,11 @@ export function VendorDetailPanel({ vendorId }: VendorDetailPanelProps) {
 
   return (
     <DrilldownContent>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-2xl font-bold">{vendor.name}</h2>
+            <h2 className="text-sm font-bold">{vendor.name}</h2>
             <p className="text-muted-foreground">{vendor.type}</p>
           </div>
           <StatusBadge status={vendor.status} variant={statusVariant} />
@@ -755,7 +755,7 @@ export function VendorDetailPanel({ vendorId }: VendorDetailPanelProps) {
 
         {/* Vendor Details */}
         <DetailSection title="Vendor Information">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DetailRow label="Vendor ID" value={vendor.id} icon={<Building className="w-4 h-4" />} />
             <DetailRow label="Type" value={vendor.type} icon={<Package className="w-4 h-4" />} />
             {vendor.rating && (
@@ -766,7 +766,7 @@ export function VendorDetailPanel({ vendorId }: VendorDetailPanelProps) {
 
         {/* Contact */}
         <DetailSection title="Contact Information">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DetailRow label="Contact Name" value={vendor.contactName} icon={<User className="w-4 h-4" />} />
             <DetailRow label="Email" value={vendor.email} icon={<Mail className="w-4 h-4" />} />
             <DetailRow label="Phone" value={vendor.phone} icon={<Phone className="w-4 h-4" />} />
@@ -776,7 +776,7 @@ export function VendorDetailPanel({ vendorId }: VendorDetailPanelProps) {
 
         {/* Financial Summary */}
         <DetailSection title="Financial Summary">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DetailRow
               label="Total Spend"
               value={`$${vendor.totalSpend.toLocaleString()}`}
@@ -836,11 +836,11 @@ export function PartDetailPanel({ partId }: PartDetailPanelProps) {
 
   return (
     <DrilldownContent>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-2xl font-bold">{part.name}</h2>
+            <h2 className="text-sm font-bold">{part.name}</h2>
             <p className="text-muted-foreground">{part.number}</p>
           </div>
           <StatusBadge status={part.status.replace('-', ' ')} variant={statusVariant} />
@@ -850,7 +850,7 @@ export function PartDetailPanel({ partId }: PartDetailPanelProps) {
 
         {/* Part Details */}
         <DetailSection title="Part Information">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DetailRow label="Part Number" value={part.number} icon={<Package className="w-4 h-4" />} />
             <DetailRow label="Category" value={part.category} icon={<FileText className="w-4 h-4" />} />
             <DetailRow label="Manufacturer" value={part.manufacturer} icon={<Building className="w-4 h-4" />} />
@@ -860,7 +860,7 @@ export function PartDetailPanel({ partId }: PartDetailPanelProps) {
 
         {/* Inventory */}
         <DetailSection title="Inventory">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DetailRow label="Quantity" value={part.quantity} icon={<Package className="w-4 h-4" />} />
             <DetailRow label="Reorder Level" value={part.reorderLevel} icon={<AlertTriangle className="w-4 h-4" />} />
             <DetailRow
@@ -942,16 +942,16 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
 
   return (
     <DrilldownContent>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-2xl font-bold">{po.number}</h2>
+            <h2 className="text-sm font-bold">{po.number}</h2>
             <p className="text-muted-foreground">{po.vendor}</p>
           </div>
           <div className="text-right">
             <StatusBadge status={po.status} variant={statusVariant} />
-            <div className="text-2xl font-bold mt-2">${po.amount.toLocaleString()}</div>
+            <div className="text-sm font-bold mt-2">${po.amount.toLocaleString()}</div>
           </div>
         </div>
 
@@ -959,7 +959,7 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
 
         {/* PO Details */}
         <DetailSection title="Purchase Order Details">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DetailRow label="PO Number" value={po.number} icon={<FileText className="w-4 h-4" />} />
             <div
               className={cn(po.vendorId && 'cursor-pointer hover:bg-muted/50 rounded p-2 -m-2')}
@@ -1063,11 +1063,11 @@ export function TripDetailPanel({ tripId }: TripDetailPanelProps) {
 
   return (
     <DrilldownContent>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-2xl font-bold">{trip.name}</h2>
+            <h2 className="text-sm font-bold">{trip.name}</h2>
             <p className="text-muted-foreground">
               {trip.startLocation} → {trip.endLocation}
             </p>
@@ -1079,7 +1079,7 @@ export function TripDetailPanel({ tripId }: TripDetailPanelProps) {
 
         {/* Trip Details */}
         <DetailSection title="Trip Information">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DetailRow label="Trip ID" value={trip.id} icon={<Route className="w-4 h-4" />} />
             <DetailRow
               label="Distance"
@@ -1103,7 +1103,7 @@ export function TripDetailPanel({ tripId }: TripDetailPanelProps) {
 
         {/* Driver & Vehicle */}
         <DetailSection title="Driver & Vehicle">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <div
               className={cn(trip.driverId && 'cursor-pointer hover:bg-muted/50 rounded p-2 -m-2')}
               onClick={() => {
@@ -1139,7 +1139,7 @@ export function TripDetailPanel({ tripId }: TripDetailPanelProps) {
 
         {/* Timing */}
         <DetailSection title="Schedule">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DetailRow
               label="Start Time"
               value={trip.startTime ? new Date(trip.startTime).toLocaleString() : '-'}
@@ -1156,7 +1156,7 @@ export function TripDetailPanel({ tripId }: TripDetailPanelProps) {
         {/* Speed Stats */}
         {(trip.avgSpeed || trip.maxSpeed) && (
           <DetailSection title="Speed Statistics">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               {trip.avgSpeed && (
                 <DetailRow
                   label="Average Speed"
@@ -1224,11 +1224,11 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
 
   return (
     <DrilldownContent>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-2xl font-bold">{inspection.number}</h2>
+            <h2 className="text-sm font-bold">{inspection.number}</h2>
             <p className="text-muted-foreground">{inspection.type} Inspection</p>
           </div>
           <div className="flex gap-2">
@@ -1241,7 +1241,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
 
         {/* Inspection Details */}
         <DetailSection title="Inspection Details">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DetailRow label="Inspection #" value={inspection.number} icon={<FileText className="w-4 h-4" />} />
             <DetailRow label="Type" value={inspection.type} icon={<CheckCircle className="w-4 h-4" />} />
             <DetailRow
@@ -1254,7 +1254,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
 
         {/* Driver & Vehicle */}
         <DetailSection title="Driver & Vehicle">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <div
               className={cn(inspection.driverId && 'cursor-pointer hover:bg-muted/50 rounded p-2 -m-2')}
               onClick={() => {

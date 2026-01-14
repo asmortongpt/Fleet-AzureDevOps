@@ -305,13 +305,13 @@ export function ExecutiveDashboard() {
   const getInsightIcon = (type: string) => {
     switch (type) {
       case 'critical':
-        return <Fire className="w-5 h-5" weight="fill" />
+        return <Fire className="w-3 h-3" weight="fill" />
       case 'warning':
-        return <Warning className="w-5 h-5" weight="fill" />
+        return <Warning className="w-3 h-3" weight="fill" />
       case 'recommendation':
-        return <Lightning className="w-5 h-5" weight="fill" />
+        return <Lightning className="w-3 h-3" weight="fill" />
       default:
-        return <Brain className="w-5 h-5" weight="fill" />
+        return <Brain className="w-3 h-3" weight="fill" />
     }
   }
 
@@ -332,7 +332,7 @@ export function ExecutiveDashboard() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <ArrowsClockwise className="w-12 h-12 animate-spin mx-auto mb-4 text-primary" />
+          <ArrowsClockwise className="w-12 h-9 animate-spin mx-auto mb-2 text-primary" />
           <p className="text-muted-foreground">Loading executive dashboard...</p>
         </div>
       </div>
@@ -348,11 +348,11 @@ export function ExecutiveDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Executive Dashboard</h2>
+          <h2 className="text-base font-bold tracking-tight">Executive Dashboard</h2>
           <p className="text-muted-foreground">
             Real-time fleet insights and AI-powered recommendations
           </p>
@@ -383,7 +383,7 @@ export function ExecutiveDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Gauge className="w-6 h-6" />
+                <Gauge className="w-4 h-4" />
                 Overall Fleet Health
               </CardTitle>
               <CardDescription>Comprehensive health score across all categories</CardDescription>
@@ -400,7 +400,7 @@ export function ExecutiveDashboard() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-2">
             {fleetHealth.breakdown.map((item) => (
               <Card
                 key={item.category}
@@ -415,11 +415,11 @@ export function ExecutiveDashboard() {
                   data: { category: item.category, score: item.score, weight: item.weight }
                 })}
               >
-                <CardContent className="pt-6">
+                <CardContent className="pt-3">
                   <div className="text-center">
                     <p className="text-sm text-muted-foreground mb-2">{item.category}</p>
                     <p
-                      className="text-3xl font-bold"
+                      className="text-base font-bold"
                       style={{ color: getHealthColor(item.score) }}
                     >
                       {item.score.toFixed(1)}
@@ -436,7 +436,7 @@ export function ExecutiveDashboard() {
       </Card>
 
       {/* Key Performance Indicators - All clickable with deep drilldown */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
         <Card
           className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
           onClick={() => push({
@@ -446,16 +446,16 @@ export function ExecutiveDashboard() {
             data: { filter: 'all', totalVehicles: kpis.totalVehicles }
           })}
         >
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Vehicles</p>
-                <p className="text-2xl font-bold">{kpis.totalVehicles}</p>
+                <p className="text-sm font-bold">{kpis.totalVehicles}</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   {kpis.activeVehicles} active • {kpis.maintenanceVehicles} in maintenance
                 </p>
               </div>
-              <Truck className="w-8 h-8 text-primary" weight="duotone" />
+              <Truck className="w-4 h-4 text-primary" weight="duotone" />
             </div>
           </CardContent>
         </Card>
@@ -469,16 +469,16 @@ export function ExecutiveDashboard() {
             data: { rate: kpis.fleetUtilizationRate, assetRate: kpis.assetUtilizationPercentage }
           })}
         >
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Fleet Utilization</p>
-                <p className="text-2xl font-bold">{kpis.fleetUtilizationRate.toFixed(1)}%</p>
+                <p className="text-sm font-bold">{kpis.fleetUtilizationRate.toFixed(1)}%</p>
                 <Badge variant="outline" className="mt-1">
                   {kpis.assetUtilizationPercentage.toFixed(1)}% assets active
                 </Badge>
               </div>
-              <ChartLine className="w-8 h-8 text-success" weight="duotone" />
+              <ChartLine className="w-4 h-4 text-success" weight="duotone" />
             </div>
           </CardContent>
         </Card>
@@ -492,11 +492,11 @@ export function ExecutiveDashboard() {
             data: { thisMonth: kpis.totalMileageThisMonth, lastMonth: kpis.totalMileageLastMonth, change: kpis.mileageChange }
           })}
         >
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Monthly Mileage</p>
-                <p className="text-2xl font-bold">{kpis.totalMileageThisMonth.toLocaleString()}</p>
+                <p className="text-sm font-bold">{kpis.totalMileageThisMonth.toLocaleString()}</p>
                 <div className="flex items-center gap-1 mt-1">
                   {kpis.mileageChange >= 0 ? (
                     <TrendUp className="w-4 h-4 text-success" />
@@ -508,7 +508,7 @@ export function ExecutiveDashboard() {
                   </span>
                 </div>
               </div>
-              <Gauge className="w-8 h-8 text-primary" weight="duotone" />
+              <Gauge className="w-4 h-4 text-primary" weight="duotone" />
             </div>
           </CardContent>
         </Card>
@@ -522,14 +522,14 @@ export function ExecutiveDashboard() {
             data: { avgEfficiency: kpis.avgFuelEfficiency }
           })}
         >
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Avg. Fuel Efficiency</p>
-                <p className="text-2xl font-bold">{kpis.avgFuelEfficiency.toFixed(1)} MPG</p>
+                <p className="text-sm font-bold">{kpis.avgFuelEfficiency.toFixed(1)} MPG</p>
                 <p className="text-xs text-muted-foreground mt-1">Fleet average</p>
               </div>
-              <CurrencyDollar className="w-8 h-8 text-warning" weight="duotone" />
+              <CurrencyDollar className="w-4 h-4 text-warning" weight="duotone" />
             </div>
           </CardContent>
         </Card>
@@ -539,18 +539,18 @@ export function ExecutiveDashboard() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Brain className="w-6 h-6" />
+            <Brain className="w-4 h-4" />
             AI-Powered Insights
           </CardTitle>
           <CardDescription>Intelligent recommendations and alerts</CardDescription>
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-72">
-            <div className="space-y-4">
+            <div className="space-y-2">
               {insights?.map((insight) => (
                 <div
                   key={insight.id}
-                  className="border rounded-md p-4 bg-muted/50 cursor-pointer hover:bg-muted/80 transition-colors"
+                  className="border rounded-md p-2 bg-muted/50 cursor-pointer hover:bg-muted/80 transition-colors"
                   onClick={() => {
                     // Drill to related record if available, otherwise show insight detail
                     if (insight.relatedVehicle) {

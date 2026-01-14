@@ -159,8 +159,8 @@ export function EmailCenter() {
   ]
 
   return (
-    <div className="h-[calc(100vh-12rem)] flex gap-6">
-      <div className="w-64 space-y-4">
+    <div className="h-[calc(100vh-12rem)] flex gap-2">
+      <div className="w-64 space-y-2">
         <Card>
           <CardHeader>
             <Dialog open={isComposeOpen} onOpenChange={setIsComposeOpen}>
@@ -177,7 +177,7 @@ export function EmailCenter() {
                     Compose and send an email through Outlook
                   </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
+                <div className="space-y-2 py-2">
                   <div className="space-y-2">
                     <Label htmlFor="email-to">To *</Label>
                     <Input
@@ -246,11 +246,11 @@ export function EmailCenter() {
         </Card>
       </div>
 
-      <div className="flex-1 grid grid-cols-2 gap-6">
+      <div className="flex-1 grid grid-cols-2 gap-2">
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Envelope className="w-5 h-5" />
+              <Envelope className="w-3 h-3" />
               Inbox
             </CardTitle>
             <CardDescription>{filteredEmails.length} messages</CardDescription>
@@ -258,8 +258,8 @@ export function EmailCenter() {
           <CardContent className="flex-1 p-0">
             <ScrollArea className="h-[calc(100vh-24rem)]">
               {filteredEmails.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-                  <Envelope className="w-12 h-12 text-muted-foreground mb-4" />
+                <div className="flex flex-col items-center justify-center h-full p-3 text-center">
+                  <Envelope className="w-12 h-9 text-muted-foreground mb-2" />
                   <p className="text-muted-foreground">No emails in this category</p>
                 </div>
               ) : (
@@ -267,7 +267,7 @@ export function EmailCenter() {
                   {filteredEmails.map(email => (
                     <div
                       key={email.id}
-                      className={`p-4 cursor-pointer hover:bg-muted/50 transition-colors ${!email.isRead ? "bg-blue-50/50" : ""
+                      className={`p-2 cursor-pointer hover:bg-muted/50 transition-colors ${!email.isRead ? "bg-blue-50/50" : ""
                         } ${selectedEmail?.id === email.id ? "bg-muted" : ""}`}
                       onClick={() => {
                         setSelectedEmail(email)
@@ -317,14 +317,14 @@ export function EmailCenter() {
           <CardContent className="flex-1">
             {!selectedEmail ? (
               <div className="flex flex-col items-center justify-center h-full text-center">
-                <Envelope className="w-12 h-12 text-muted-foreground mb-4" />
+                <Envelope className="w-12 h-9 text-muted-foreground mb-2" />
                 <p className="text-muted-foreground">Select an email to view details</p>
               </div>
             ) : (
               <ScrollArea className="h-[calc(100vh-24rem)]">
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">{selectedEmail.subject}</h3>
+                    <h3 className="text-sm font-semibold mb-2">{selectedEmail.subject}</h3>
                     <div className="space-y-1 text-sm">
                       <div className="flex items-center gap-2">
                         <span className="text-muted-foreground">From:</span>

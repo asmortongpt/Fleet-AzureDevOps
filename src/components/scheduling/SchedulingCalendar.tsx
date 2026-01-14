@@ -230,7 +230,7 @@ export function SchedulingCalendar({
             </Tabs>
           </div>
         </div>
-        <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center justify-between mt-2">
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={navigatePrevious}>
               <ChevronLeft className="h-4 w-4" />
@@ -242,8 +242,8 @@ export function SchedulingCalendar({
               Today
             </Button>
           </div>
-          <h3 className="text-lg font-semibold">{dateRange.title}</h3>
-          <div className="flex items-center gap-4">
+          <h3 className="text-sm font-semibold">{dateRange.title}</h3>
+          <div className="flex items-center gap-2">
             {onCreateReservation && (
               <Button variant="outline" size="sm" onClick={() => onCreateReservation(selectedDate || currentDate)}>
                 <Truck className="h-4 w-4 mr-1" />
@@ -261,7 +261,7 @@ export function SchedulingCalendar({
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="space-y-4">
+          <div className="space-y-2">
             <Skeleton className="h-64 w-full" />
             <Skeleton className="h-32 w-full" />
           </div>
@@ -331,7 +331,7 @@ export function SchedulingCalendar({
                 {days.map((day) => (
                   <div key={day.toISOString()} className="text-center">
                     <div className="text-sm font-semibold">{format(day, 'EEE')}</div>
-                    <div className={cn('text-lg', isSameDay(day, new Date()) && 'text-primary font-bold')}>
+                    <div className={cn('text-sm', isSameDay(day, new Date()) && 'text-primary font-bold')}>
                       {format(day, 'd')}
                     </div>
                   </div>
@@ -353,7 +353,7 @@ export function SchedulingCalendar({
                           <button
                             key={`${day.toISOString()}-${hour}`}
                             onClick={() => handleDateSelect(new Date(day.setHours(hour)))}
-                            className="min-h-12 p-1 border-r hover:bg-accent transition-colors relative"
+                            className="min-h-9 p-1 border-r hover:bg-accent transition-colors relative"
                           >
                             {hourEvents.map((event) => (
                               <div

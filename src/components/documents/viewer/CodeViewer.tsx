@@ -172,7 +172,7 @@ export function CodeViewer({ document: docMetadata }: CodeViewerProps) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2" />
           <p className="text-muted-foreground">Loading code...</p>
         </div>
       </div>
@@ -198,7 +198,7 @@ export function CodeViewer({ document: docMetadata }: CodeViewerProps) {
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 h-8 w-48"
+              className="pl-3 h-8 w-48"
               aria-label="Search code"
             />
           </div>
@@ -247,12 +247,12 @@ export function CodeViewer({ document: docMetadata }: CodeViewerProps) {
                   className="hover:bg-accent/50 transition-colors"
                 >
                   {/* Line number */}
-                  <td className="px-4 py-0.5 text-right text-muted-foreground select-none border-r w-16 bg-muted/30">
+                  <td className="px-2 py-0.5 text-right text-muted-foreground select-none border-r w-16 bg-muted/30">
                     {idx + 1}
                   </td>
 
                   {/* Code line */}
-                  <td className="px-4 py-0.5">
+                  <td className="px-2 py-0.5">
                     <pre
                       className="whitespace-pre-wrap break-all"
                       dangerouslySetInnerHTML={{ __html: sanitizeHtml(sanitizeHtml(highlightCode(line) || '&nbsp;')) }}

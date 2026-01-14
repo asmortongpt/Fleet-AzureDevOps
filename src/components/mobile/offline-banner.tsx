@@ -54,17 +54,17 @@ export function OfflineBanner() {
     <div
       className={`fixed top-0 left-0 right-0 z-[9999] ${
         isOnline ? 'bg-green-600' : 'bg-orange-600'
-      } text-white shadow-lg transition-all duration-300 ease-in-out`}
+      } text-white shadow-sm transition-all duration-300 ease-in-out`}
       role="alert"
       aria-live="polite"
     >
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex items-center justify-between gap-4">
+      <div className="container mx-auto px-2 py-3">
+        <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             {isOnline ? (
-              <Wifi className="w-5 h-5" aria-hidden="true" />
+              <Wifi className="w-3 h-3" aria-hidden="true" />
             ) : (
-              <WifiOff className="w-5 h-5" aria-hidden="true" />
+              <WifiOff className="w-3 h-3" aria-hidden="true" />
             )}
 
             <div className="flex-1">

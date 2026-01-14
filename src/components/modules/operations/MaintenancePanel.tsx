@@ -58,10 +58,10 @@ export const MaintenancePanel: React.FC<MaintenancePanelProps> = ({ open, onOpen
                 side="right"
                 style={{ backgroundColor: 'transparent' }}
             >
-                <SheetHeader className="p-6 border-b border-white/10 bg-black/20">
+                <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
                     <div className="flex items-center justify-between">
-                        <SheetTitle className="text-xl font-semibold flex items-center gap-2 text-white">
-                            <Wrench className="w-6 h-6 text-orange-500" weight="fill" />
+                        <SheetTitle className="text-base font-semibold flex items-center gap-2 text-white">
+                            <Wrench className="w-4 h-4 text-orange-500" weight="fill" />
                             Maintenance
                         </SheetTitle>
                         <div className="flex gap-2">
@@ -74,7 +74,7 @@ export const MaintenancePanel: React.FC<MaintenancePanelProps> = ({ open, onOpen
                         Track service schedules and vehicle health.
                     </SheetDescription>
 
-                    <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
+                    <div className="mt-2 flex gap-2 overflow-x-auto pb-2">
                         <button
                             onClick={() => setFilter('all')}
                             className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${filter === 'all' ? 'bg-orange-500 text-white border-orange-500' : 'bg-background hover:bg-muted text-muted-foreground'}`}
@@ -96,17 +96,17 @@ export const MaintenancePanel: React.FC<MaintenancePanelProps> = ({ open, onOpen
                     </div>
                 </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                <div className="flex-1 overflow-y-auto p-2 space-y-3">
                     {filteredTasks.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
-                            <CheckCircle className="w-8 h-8 mb-2 opacity-50 text-green-500" />
+                            <CheckCircle className="w-4 h-4 mb-2 opacity-50 text-green-500" />
                             <p>All systems operational</p>
                         </div>
                     ) : (
                         filteredTasks.map((task, idx) => (
                             <div
                                 key={idx}
-                                className="flex flex-col p-4 rounded-xl border bg-card hover:bg-accent/50 transition-all group relative overflow-hidden"
+                                className="flex flex-col p-2 rounded-md border bg-card hover:bg-accent/50 transition-all group relative overflow-hidden"
                             >
                                 {task.status === 'overdue' && (
                                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500" />

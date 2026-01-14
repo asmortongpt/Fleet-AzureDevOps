@@ -43,14 +43,14 @@ export const Default: Story = {
                         Make changes to your profile here. Click save when you're done.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
+                <div className="grid gap-2 py-2">
+                    <div className="grid grid-cols-4 items-center gap-2">
                         <Label htmlFor="name" className="text-right">
                             Name
                         </Label>
                         <Input id="name" defaultValue="Pedro Duarte" className="col-span-3" />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
+                    <div className="grid grid-cols-4 items-center gap-2">
                         <Label htmlFor="username" className="text-right">
                             Username
                         </Label>
@@ -78,8 +78,8 @@ export const FullscreenMobile: Story = {
                         Comprehensive view of vehicle statistics and status.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="flex-1 overflow-y-auto p-4">
-                    <div className="space-y-4">
+                <div className="flex-1 overflow-y-auto p-2">
+                    <div className="space-y-2">
                         <div className="h-40 rounded-lg bg-muted/50 animate-pulse" />
                         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
                         <div className="h-20 rounded-lg bg-muted/30 animate-pulse" />

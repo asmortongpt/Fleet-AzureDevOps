@@ -145,11 +145,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       // Default error UI
       return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-red-50 to-orange-50 dark:from-gray-900 dark:to-gray-800">
-          <Card className="max-w-2xl w-full shadow-lg border-red-200 dark:border-red-900">
+        <div className="min-h-screen flex items-center justify-center p-2 bg-gradient-to-br from-red-50 to-orange-50 dark:from-gray-900 dark:to-gray-800">
+          <Card className="max-w-2xl w-full shadow-sm border-red-200 dark:border-red-900">
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
+                <div className="w-12 h-9 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
                   <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
                 </div>
                 <div>
@@ -164,9 +164,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2">
               {/* Error Message */}
-              <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-4">
+              <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-2">
                 <p className="font-mono text-sm text-red-900 dark:text-red-100">
                   {error?.message || 'Unknown error'}
                 </p>
@@ -198,7 +198,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
               {/* Error Details (Development/Debug) */}
               {import.meta.env.DEV && error && (
-                <div className="pt-4 border-t">
+                <div className="pt-2 border-t">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -219,7 +219,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                   </Button>
 
                   {showDetails && (
-                    <div className="mt-4 space-y-4">
+                    <div className="mt-2 space-y-2">
                       <div>
                         <h4 className="text-sm font-semibold mb-2">Error Stack:</h4>
                         <pre className="text-xs bg-gray-100 dark:bg-gray-900 p-3 rounded overflow-x-auto border">
@@ -241,7 +241,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               )}
 
               {/* Error ID (for support reference) */}
-              <div className="pt-4 border-t">
+              <div className="pt-2 border-t">
                 <p className="text-xs text-muted-foreground">
                   Error ID: {Date.now().toString(36)}
                   {errorCount > 1 && ` (Count: ${errorCount})`}

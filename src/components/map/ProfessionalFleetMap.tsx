@@ -134,13 +134,13 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
                 {vehicle.status === 'active' && (
                   <div className={`absolute inset-0 rounded-full ${getMarkerColor(vehicle.status)} animate-ping opacity-40`} aria-hidden="true" />
                 )}
-                <div className={`relative p-2 rounded-full shadow-lg ${getMarkerColor(vehicle.status)} ${isSelected ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900' : ''}`}>
+                <div className={`relative p-2 rounded-full shadow-sm ${getMarkerColor(vehicle.status)} ${isSelected ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900' : ''}`}>
                   <Navigation className="h-4 w-4 text-white" style={{ transform: `rotate(${(index * 45) % 360}deg)` }} aria-hidden="true" />
                 </div>
               </div>
               {/* Vehicle label on hover/select */}
               {isSelected && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-white rounded shadow-lg text-xs font-medium text-slate-800 whitespace-nowrap" aria-live="polite">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-white rounded shadow-sm text-xs font-medium text-slate-800 whitespace-nowrap" aria-live="polite">
                   {vehicle.vehicleNumber || `Vehicle ${vehicle.id.slice(0, 6)}`}
                 </div>
               )}
@@ -168,7 +168,7 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
         </div>
 
         {/* Stats overlay */}
-        <div className="absolute top-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md rounded-lg px-4 py-2 border border-slate-700">
+        <div className="absolute top-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md rounded-lg px-2 py-2 border border-slate-700">
           <span className="text-sm font-semibold text-emerald-400">{vehiclesWithCoords.length}</span>
           <span className="text-sm text-slate-400 ml-1">vehicles tracked</span>
         </div>

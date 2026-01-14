@@ -94,7 +94,7 @@ export function DataTable<T extends { id: string | number }>({
                     key={column.key}
                     scope="col"
                     className={cn(
-                      "text-left p-4 font-medium",
+                      "text-left p-2 font-medium",
                       column.sortable && "cursor-pointer hover:bg-muted/70 select-none",
                       column.className
                     )}
@@ -125,7 +125,7 @@ export function DataTable<T extends { id: string | number }>({
                 <tr>
                   <td
                     colSpan={columns.length}
-                    className="p-8 text-center text-muted-foreground"
+                    className="p-3 text-center text-muted-foreground"
                   >
                     {emptyMessage}
                   </td>
@@ -139,7 +139,7 @@ export function DataTable<T extends { id: string | number }>({
                     {columns.map((column) => (
                       <td
                         key={`${item.id}-${column.key}`}
-                        className={cn("p-4", column.className)}
+                        className={cn("p-2", column.className)}
                       >
                         {column.accessor(item)}
                       </td>

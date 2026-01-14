@@ -146,10 +146,10 @@ export function FileUpload({
             : "border-muted-foreground/25 hover:border-muted-foreground/50"
         } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
       >
-        <CardContent className="p-6">
+        <CardContent className="p-3">
           <input {...getInputProps()} />
           <div className="flex flex-col items-center justify-center gap-2 text-center">
-            <Upload className="w-10 h-10 text-muted-foreground" />
+            <Upload className="w-10 h-8 text-muted-foreground" />
             <p className="text-sm font-medium">
               {isDragActive ? "Drop files here..." : message || getDefaultMessage()}
             </p>
@@ -163,7 +163,7 @@ export function FileUpload({
 
       {/* Upload Progress */}
       {uploadProgress !== undefined && uploadProgress > 0 && uploadProgress < 100 && (
-        <div className="mt-4">
+        <div className="mt-2">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium">Uploading...</span>
             <span className="text-sm text-muted-foreground">{uploadProgress}%</span>
@@ -174,7 +174,7 @@ export function FileUpload({
 
       {/* File List */}
       {files.length > 0 && (
-        <div className="mt-4 space-y-2">
+        <div className="mt-2 space-y-2">
           <p className="text-sm font-medium">
             {files.length} file{files.length > 1 ? "s" : ""} selected
           </p>
@@ -188,14 +188,14 @@ export function FileUpload({
                       <img
                         src={previewUrls.get(file.name) ?? ""}
                         alt={file.name}
-                        className="w-12 h-12 object-cover rounded"
+                        className="w-12 h-9 object-cover rounded"
                       />
                     ) : (
-                      <div className="w-12 h-12 flex items-center justify-center bg-muted rounded">
+                      <div className="w-12 h-9 flex items-center justify-center bg-muted rounded">
                         {isImageFile(file) ? (
-                          <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                          <ImageIcon className="w-4 h-4 text-muted-foreground" />
                         ) : (
-                          <File className="w-6 h-6 text-muted-foreground" />
+                          <File className="w-4 h-4 text-muted-foreground" />
                         )}
                       </div>
                     )}

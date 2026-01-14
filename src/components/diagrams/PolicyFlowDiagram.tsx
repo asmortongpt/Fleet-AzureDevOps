@@ -188,7 +188,7 @@ flowchart TB
   const modeInfo = getFlowModeInfo()
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Mode Selector */}
       <div className="flex gap-3">
         <Button
@@ -283,7 +283,7 @@ flowchart TB
           <CardTitle className="text-sm">Flow Elements Legend</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-blue-500" />
               <span className="text-sm">User Actions</span>
@@ -313,7 +313,7 @@ flowchart TB
       </Card>
 
       {/* Process Statistics */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -321,7 +321,7 @@ flowchart TB
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-sm font-bold">
               {flowMode === "monitor" ? "120ms" : flowMode === "human-in-loop" ? "2.5min" : "450ms"}
             </div>
           </CardContent>
@@ -333,7 +333,7 @@ flowchart TB
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-sm font-bold text-green-600">
               {flowMode === "monitor" ? "100%" : flowMode === "human-in-loop" ? "97.8%" : "99.2%"}
             </div>
           </CardContent>
@@ -345,7 +345,7 @@ flowchart TB
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-sm font-bold">
               {flowMode === "monitor" ? "6" : flowMode === "human-in-loop" ? "12" : "14"}
             </div>
           </CardContent>
@@ -357,7 +357,7 @@ flowchart TB
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-600">
+            <div className="text-sm font-bold text-amber-600">
               {flowMode === "monitor" ? "0%" : flowMode === "human-in-loop" ? "100%" : "2.3%"}
             </div>
           </CardContent>

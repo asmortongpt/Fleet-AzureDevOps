@@ -14,7 +14,7 @@ const meta = {
     decorators: [
         (Story) => (
             <DrilldownProvider>
-                <div className="w-[800px] p-6 bg-background">
+                <div className="w-[800px] p-3 bg-background">
                     <Story />
                 </div>
             </DrilldownProvider>

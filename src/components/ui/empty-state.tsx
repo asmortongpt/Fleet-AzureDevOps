@@ -32,16 +32,16 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div
-      className="flex flex-col items-center justify-center h-full min-h-[400px] p-8 text-center"
+      className="flex flex-col items-center justify-center h-full min-h-[400px] p-3 text-center"
       role="status"
       aria-live="polite"
     >
-      <div className="mb-4 p-4 rounded-full bg-muted/50" aria-hidden="true">
+      <div className="mb-2 p-2 rounded-full bg-muted/50" aria-hidden="true">
         {icon}
       </div>
 
-      <h3 className="text-xl font-semibold mb-2 text-foreground">{title}</h3>
-      <p className="text-muted-foreground mb-6 max-w-md text-sm leading-relaxed">
+      <h3 className="text-base font-semibold mb-2 text-foreground">{title}</h3>
+      <p className="text-muted-foreground mb-3 max-w-md text-sm leading-relaxed">
         {description}
       </p>
 
@@ -65,7 +65,7 @@ export function EmptyState({
       </div>
 
       {helpArticle && (
-        <div className="mt-8 p-4 border rounded-lg bg-muted/30 max-w-md">
+        <div className="mt-3 p-2 border rounded-lg bg-muted/30 max-w-md">
           <div className="flex items-center gap-2 text-sm">
             <BookOpen className="h-4 w-4 text-primary flex-shrink-0" />
             <span className="text-muted-foreground">New to this feature?</span>

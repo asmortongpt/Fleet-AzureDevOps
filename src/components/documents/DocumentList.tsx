@@ -214,7 +214,7 @@ function DocumentRow({ document, isSelected, onSelect, onOpen }: DocumentRowProp
   return (
     <div
       className={`
-        flex items-center gap-4 px-4 border-b h-[72px] hover:bg-accent/50
+        flex items-center gap-2 px-2 border-b h-[72px] hover:bg-accent/50
         transition-colors cursor-pointer
         ${isSelected ? 'bg-accent' : ''}
       `}
@@ -239,7 +239,7 @@ function DocumentRow({ document, isSelected, onSelect, onOpen }: DocumentRowProp
       </div>
 
       {/* Icon/Thumbnail */}
-      <div className="w-12 h-12 flex-shrink-0">
+      <div className="w-12 h-9 flex-shrink-0">
         <div className={`w-full h-full rounded border-2 ${getDocumentColor(document.type)} bg-muted overflow-hidden`}>
           {document.thumbnailUrl ? (
             <img
@@ -337,10 +337,10 @@ function DocumentRow({ document, isSelected, onSelect, onOpen }: DocumentRowProp
 
 function DocumentListSkeleton() {
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-2 space-y-2">
       {Array.from({ length: 10 }).map((_, i) => (
-        <div key={i} className="flex items-center gap-4">
-          <Skeleton className="h-12 w-12 rounded" />
+        <div key={i} className="flex items-center gap-2">
+          <Skeleton className="h-9 w-12 rounded" />
           <div className="flex-1 space-y-2">
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-3 w-2/3" />
@@ -356,11 +356,11 @@ function DocumentListSkeleton() {
 
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center h-full text-center p-8">
-      <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-4">
-        <FileIcon className="w-12 h-12 text-muted-foreground" />
+    <div className="flex flex-col items-center justify-center h-full text-center p-3">
+      <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-2">
+        <FileIcon className="w-12 h-9 text-muted-foreground" />
       </div>
-      <h3 className="text-lg font-semibold mb-2">No documents found</h3>
+      <h3 className="text-sm font-semibold mb-2">No documents found</h3>
       <p className="text-muted-foreground max-w-sm">
         Upload your first document to get started, or adjust your search filters.
       </p>

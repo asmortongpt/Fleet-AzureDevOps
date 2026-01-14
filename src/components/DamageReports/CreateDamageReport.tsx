@@ -191,10 +191,10 @@ export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportP
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-2">
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Create Damage Report</h2>
+        <h2 className="text-base font-bold tracking-tight">Create Damage Report</h2>
         <p className="text-muted-foreground">
           Document vehicle damage with photos and detailed information
         </p>
@@ -214,7 +214,7 @@ export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportP
           <CardTitle>Basic Information</CardTitle>
           <CardDescription>Provide details about the damage incident</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           {/* Vehicle Selection */}
           <div className="space-y-2">
             <Label htmlFor="vehicle_id" className="flex items-center gap-2">
@@ -310,7 +310,7 @@ export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportP
             Upload photos and videos of the damage (Max 50MB per file)
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           {/* File Upload Button */}
           <div>
             <Label htmlFor="file-upload" className="sr-only">
@@ -371,10 +371,10 @@ export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportP
                         <img
                           src={URL.createObjectURL(file)}
                           alt={file.name}
-                          className="h-12 w-12 object-cover rounded"
+                          className="h-9 w-12 object-cover rounded"
                         />
                       ) : (
-                        <div className="h-12 w-12 bg-background rounded flex items-center justify-center">
+                        <div className="h-9 w-12 bg-background rounded flex items-center justify-center">
                           <Upload className="h-6 w-6 text-muted-foreground" />
                         </div>
                       )}
@@ -414,7 +414,7 @@ export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportP
             Link this damage report to related work orders or inspections
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           {/* Linked Work Order */}
           <div className="space-y-2">
             <Label htmlFor="linked_work_order_id">Work Order ID</Label>
@@ -442,7 +442,7 @@ export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportP
       </Card>
 
       {/* Form Actions */}
-      <div className="flex items-center justify-end gap-4">
+      <div className="flex items-center justify-end gap-2">
         <Button
           type="button"
           variant="outline"

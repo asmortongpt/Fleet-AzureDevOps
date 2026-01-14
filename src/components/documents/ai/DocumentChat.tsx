@@ -43,7 +43,7 @@ export function DocumentChat({ document, messages, onSendMessage, isLoading = fa
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b">
+      <div className="p-2 border-b">
         <div className="flex items-center gap-2 mb-1">
           <Sparkles className="h-5 w-5 text-primary" />
           <h3 className="font-semibold">Ask AI</h3>
@@ -53,12 +53,12 @@ export function DocumentChat({ document, messages, onSendMessage, isLoading = fa
         </p>
       </div>
 
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
+      <ScrollArea className="flex-1 p-2">
+        <div className="space-y-2">
           {messages.length === 0 && (
-            <div className="text-center py-8">
-              <Sparkles className="h-12 w-12 text-muted-foreground opacity-30 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground mb-4">
+            <div className="text-center py-3">
+              <Sparkles className="h-9 w-12 text-muted-foreground opacity-30 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground mb-2">
                 Start a conversation about this document
               </p>
               <div className="grid grid-cols-1 gap-2 max-w-sm mx-auto">
@@ -92,7 +92,7 @@ export function DocumentChat({ document, messages, onSendMessage, isLoading = fa
         </div>
       </ScrollArea>
 
-      <div className="p-4 border-t">
+      <div className="p-2 border-t">
         <div className="flex gap-2">
           <Textarea
             placeholder="Ask a question about this document..."

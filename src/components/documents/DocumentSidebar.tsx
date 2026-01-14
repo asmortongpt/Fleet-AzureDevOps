@@ -126,7 +126,7 @@ export function DocumentSidebar({
   return (
     <aside className={cn('flex flex-col bg-sidebar border-r', className)}>
       {/* Header */}
-      <div className="p-4 border-b">
+      <div className="p-2 border-b">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-sidebar-foreground">Documents</h2>
           <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -212,7 +212,7 @@ export function DocumentSidebar({
       </ScrollArea>
 
       {/* Footer - Storage info */}
-      <div className="p-4 border-t">
+      <div className="p-2 border-t">
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Storage used</span>
@@ -288,7 +288,7 @@ function FolderNode({
           isActive
             ? 'bg-sidebar-accent text-sidebar-accent-foreground'
             : 'hover:bg-sidebar-accent/50 text-sidebar-foreground',
-          level > 0 && 'ml-4'
+          level > 0 && 'ml-2'
         )}
       >
         {/* Expand/collapse */}

@@ -94,19 +94,19 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
   return (
     <div className="h-full overflow-y-auto bg-gray-50 dark:bg-gray-900">
       {/* Header Section with Photo */}
-      <div className="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white p-6">
+      <div className="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white p-3">
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <Avatar className="w-20 h-20 border-4 border-white">
               <AvatarImage src={driver.photoUrl} alt={driver.name} />
-              <AvatarFallback className="bg-indigo-500 text-white text-2xl">
+              <AvatarFallback className="bg-indigo-500 text-white text-sm">
                 {driver.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-2xl font-bold mb-1">{driver.name}</h1>
+              <h1 className="text-sm font-bold mb-1">{driver.name}</h1>
               <p className="text-indigo-100 mb-2">{driver.department || 'Fleet Operations'}</p>
-              <div className="flex gap-4 text-sm">
+              <div className="flex gap-2 text-sm">
                 <div className="flex items-center gap-1">
                   <Mail className="w-4 h-4" />
                   {driver.email || 'N/A'}
@@ -120,39 +120,39 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
           </div>
           {onClose && (
             <Button variant="ghost" onClick={onClose} className="text-white hover:bg-indigo-700">
-              <XCircle className="w-5 h-5" />
+              <XCircle className="w-3 h-3" />
             </Button>
           )}
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
             <p className="text-xs text-indigo-200">Safety Score</p>
-            <p className="text-2xl font-bold">{performanceMetrics.safetyScore}%</p>
+            <p className="text-sm font-bold">{performanceMetrics.safetyScore}%</p>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
             <p className="text-xs text-indigo-200">Overall Rating</p>
             <div className="flex items-center gap-1">
-              <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-              <p className="text-2xl font-bold">{performanceMetrics.overallRating}</p>
+              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+              <p className="text-sm font-bold">{performanceMetrics.overallRating}</p>
             </div>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
             <p className="text-xs text-indigo-200">License Status</p>
-            <p className="text-2xl font-bold">Valid</p>
+            <p className="text-sm font-bold">Valid</p>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
             <p className="text-xs text-indigo-200">Years of Service</p>
-            <p className="text-2xl font-bold">5.2</p>
+            <p className="text-sm font-bold">5.2</p>
           </div>
         </div>
       </div>
 
       {/* Detailed Information Tabs */}
-      <div className="p-6">
+      <div className="p-3">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-5 w-full mb-6">
+          <TabsList className="grid grid-cols-5 w-full mb-3">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="certifications">Certifications</TabsTrigger>
             <TabsTrigger value="performance">Performance</TabsTrigger>
@@ -161,8 +161,8 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
           </TabsList>
 
           {/* Profile Tab */}
-          <TabsContent value="profile" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <TabsContent value="profile" className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -259,7 +259,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                           <p className="text-xs text-muted-foreground">Date: {incident.date}</p>
                         </div>
                         {incident.resolved && (
-                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <CheckCircle className="w-3 h-3 text-green-500" />
                         )}
                       </div>
                     ))}
@@ -274,7 +274,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Award className="w-5 h-5" />
+                  <Award className="w-3 h-3" />
                   Licenses & Certifications
                 </CardTitle>
                 <CardDescription>{certifications.length} active certifications</CardDescription>
@@ -282,7 +282,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
               <CardContent>
                 <div className="space-y-3">
                   {certifications.map((cert) => (
-                    <div key={cert.id} className="border rounded-lg p-4">
+                    <div key={cert.id} className="border rounded-lg p-2">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
@@ -292,7 +292,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                           <p className="text-sm text-muted-foreground">Type: {cert.type}</p>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-4 text-xs mt-3 pt-3 border-t">
+                      <div className="grid grid-cols-2 gap-2 text-xs mt-3 pt-3 border-t">
                         <div>
                           <span className="text-muted-foreground">Issued:</span>
                           <p className="font-medium">{cert.issued}</p>
@@ -311,13 +311,13 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
 
           {/* Performance Tab */}
           <TabsContent value="performance">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-3">
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">Safety Score</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold mb-2">{performanceMetrics.safetyScore}%</div>
+                  <div className="text-sm font-bold mb-2">{performanceMetrics.safetyScore}%</div>
                   <Progress value={performanceMetrics.safetyScore} className="w-full" />
                   <p className="text-xs text-muted-foreground mt-1">Top 10% of fleet</p>
                 </CardContent>
@@ -327,7 +327,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                   <CardTitle className="text-sm">Fuel Efficiency</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold mb-2">{performanceMetrics.fuelEfficiency}%</div>
+                  <div className="text-sm font-bold mb-2">{performanceMetrics.fuelEfficiency}%</div>
                   <Progress value={performanceMetrics.fuelEfficiency} className="w-full" />
                   <p className="text-xs text-muted-foreground mt-1">Above fleet average</p>
                 </CardContent>
@@ -337,7 +337,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                   <CardTitle className="text-sm">On-Time Performance</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold mb-2">{performanceMetrics.onTimePerformance}%</div>
+                  <div className="text-sm font-bold mb-2">{performanceMetrics.onTimePerformance}%</div>
                   <Progress value={performanceMetrics.onTimePerformance} className="w-full" />
                   <p className="text-xs text-muted-foreground mt-1">Excellent performance</p>
                 </CardContent>
@@ -347,7 +347,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                   <CardTitle className="text-sm">Customer Satisfaction</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold mb-2">{performanceMetrics.customerSatisfaction}%</div>
+                  <div className="text-sm font-bold mb-2">{performanceMetrics.customerSatisfaction}%</div>
                   <Progress value={performanceMetrics.customerSatisfaction} className="w-full" />
                   <p className="text-xs text-muted-foreground mt-1">Based on feedback</p>
                 </CardContent>
@@ -357,7 +357,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                   <CardTitle className="text-sm">Maintenance Compliance</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold mb-2">{performanceMetrics.maintenanceCompliance}%</div>
+                  <div className="text-sm font-bold mb-2">{performanceMetrics.maintenanceCompliance}%</div>
                   <Progress value={performanceMetrics.maintenanceCompliance} className="w-full" />
                   <p className="text-xs text-muted-foreground mt-1">Pre-trip inspections</p>
                 </CardContent>
@@ -370,7 +370,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Car className="w-5 h-5" />
+                  <Car className="w-3 h-3" />
                   Vehicle Assignments
                 </CardTitle>
                 <CardDescription>Current and past vehicle assignments</CardDescription>
@@ -378,7 +378,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
               <CardContent>
                 <div className="space-y-3">
                   {assignments.map((assignment) => (
-                    <div key={assignment.vehicleId} className="border rounded-lg p-4">
+                    <div key={assignment.vehicleId} className="border rounded-lg p-2">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
@@ -389,7 +389,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                         </div>
                         <p className="text-sm font-medium">{assignment.milesDriven.toLocaleString()} mi</p>
                       </div>
-                      <div className="grid grid-cols-2 gap-4 text-xs mt-3 pt-3 border-t">
+                      <div className="grid grid-cols-2 gap-2 text-xs mt-3 pt-3 border-t">
                         <div>
                           <span className="text-muted-foreground">Assigned:</span>
                           <p className="font-medium">{assignment.assignedDate}</p>
@@ -411,7 +411,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <GraduationCap className="w-5 h-5" />
+                  <GraduationCap className="w-3 h-3" />
                   Training Records
                 </CardTitle>
                 <CardDescription>Completed and scheduled training sessions</CardDescription>
@@ -419,7 +419,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
               <CardContent>
                 <div className="space-y-3">
                   {trainingRecords.map((record) => (
-                    <div key={record.id} className="border rounded-lg p-4">
+                    <div key={record.id} className="border rounded-lg p-2">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
@@ -429,7 +429,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                           <p className="text-sm text-muted-foreground">Instructor: {record.instructor}</p>
                         </div>
                         {record.score && (
-                          <div className={`font-bold text-lg ${getScoreColor(record.score)}`}>
+                          <div className={`font-bold text-sm ${getScoreColor(record.score)}`}>
                             {record.score}%
                           </div>
                         )}

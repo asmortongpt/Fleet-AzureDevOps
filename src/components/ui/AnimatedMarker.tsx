@@ -45,9 +45,9 @@ export function AnimatedMarker({
 }: AnimatedMarkerProps) {
   // Size variants
   const sizeClasses = {
-    sm: "w-8 h-8 text-xs",
-    md: "w-10 h-10 text-sm",
-    lg: "w-12 h-12 text-base",
+    sm: "w-4 h-4 text-xs",
+    md: "w-10 h-8 text-sm",
+    lg: "w-12 h-9 text-base",
   };
 
   // Status colors
@@ -86,7 +86,7 @@ export function AnimatedMarker({
       }}
       className={cn(
         "relative rounded-full border-2 flex items-center justify-center",
-        "cursor-pointer shadow-lg transition-shadow",
+        "cursor-pointer shadow-sm transition-shadow",
         "backdrop-blur-sm",
         sizeClasses[size],
         colorClasses,
@@ -157,8 +157,8 @@ export function AnimatedMarkerCluster({
   ...props
 }: AnimatedMarkerClusterProps) {
   const sizeClasses = {
-    sm: "w-10 h-10 text-xs",
-    md: "w-12 h-12 text-sm",
+    sm: "w-10 h-8 text-xs",
+    md: "w-12 h-9 text-sm",
     lg: "w-14 h-14 text-base",
   };
 
@@ -179,7 +179,7 @@ export function AnimatedMarkerCluster({
       }}
       className={cn(
         "relative rounded-full border-3 flex items-center justify-center",
-        "cursor-pointer shadow-xl",
+        "cursor-pointer shadow-sm",
         "bg-gradient-to-br from-blue-500 to-blue-600",
         "border-blue-700",
         sizeClasses[size],
@@ -244,8 +244,8 @@ export function AnimatedMarkerRoute({
         damping: 20
       }}
       className={cn(
-        "relative w-8 h-8 rounded-full border-2 flex items-center justify-center",
-        "shadow-lg cursor-pointer",
+        "relative w-4 h-4 rounded-full border-2 flex items-center justify-center",
+        "shadow-sm cursor-pointer",
         config.color,
         className
       )}
@@ -258,7 +258,7 @@ export function AnimatedMarkerRoute({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium bg-black/75 text-white px-2 py-1 rounded shadow-lg"
+          className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium bg-black/75 text-white px-2 py-1 rounded shadow-sm"
         >
           {label}
         </motion.div>

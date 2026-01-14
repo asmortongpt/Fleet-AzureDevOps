@@ -250,16 +250,16 @@ export function PolicyOnboarding() {
   }
 
   return (
-    <div className="h-full overflow-auto bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
+    <div className="h-full overflow-auto bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-3">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-3">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl">
-              <Brain className="w-8 h-8 text-white" />
+            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-md">
+              <Brain className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-base font-bold text-gray-900">
                 AI-Powered Policy Onboarding
               </h1>
               <p className="text-slate-700">
@@ -270,14 +270,14 @@ export function PolicyOnboarding() {
         </div>
 
         {/* Progress Steps */}
-        <div className="mb-8">
+        <div className="mb-3">
           <div className="flex items-center justify-between">
             {['profile', 'analysis', 'recommendations', 'implementation'].map((step, idx, arr) => (
               <div key={step} className="flex items-center flex-1">
                 <div className="flex flex-col items-center flex-1">
                   <div
                     className={cn(
-                      "w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all",
+                      "w-12 h-9 rounded-full flex items-center justify-center border-2 transition-all",
                       currentStep === step
                         ? "bg-blue-500 border-blue-500 text-white"
                         : arr.indexOf(currentStep) > idx
@@ -286,7 +286,7 @@ export function PolicyOnboarding() {
                     )}
                   >
                     {arr.indexOf(currentStep) > idx ? (
-                      <CheckCircle className="w-6 h-6" />
+                      <CheckCircle className="w-4 h-4" />
                     ) : (
                       <span className="font-semibold">{idx + 1}</span>
                     )}
@@ -310,24 +310,24 @@ export function PolicyOnboarding() {
 
         {/* Content */}
         {currentStep === 'profile' && (
-          <Card className="border-2 shadow-xl">
+          <Card className="border-2 shadow-sm">
             <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
               <CardTitle className="flex items-center gap-2">
-                <Building className="w-5 h-5" />
+                <Building className="w-3 h-3" />
                 Organization Profile
               </CardTitle>
               <CardDescription>
                 Tell us about your fleet to receive personalized policy recommendations
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6 space-y-8">
+            <CardContent className="p-3 space-y-2">
               {/* Fleet Basics */}
               <div>
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Truck className="w-5 h-5 text-blue-800" />
+                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                  <Truck className="w-3 h-3 text-blue-800" />
                   Fleet Information
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="fleetSize">Fleet Size *</Label>
                     <Input
@@ -345,7 +345,7 @@ export function PolicyOnboarding() {
                     <Label htmlFor="industryVertical">Industry *</Label>
                     <select
                       id="industryVertical"
-                      className="w-full h-10 px-3 border border-gray-300 rounded-md bg-white"
+                      className="w-full h-8 px-3 border border-gray-300 rounded-md bg-white"
                       value={profile.industryVertical || ''}
                       onChange={(e) => updateProfile({ industryVertical: e.target.value })}
                     >
@@ -360,7 +360,7 @@ export function PolicyOnboarding() {
                     <Label htmlFor="geographicScope">Geographic Scope *</Label>
                     <select
                       id="geographicScope"
-                      className="w-full h-10 px-3 border border-gray-300 rounded-md bg-white"
+                      className="w-full h-8 px-3 border border-gray-300 rounded-md bg-white"
                       value={profile.geographicScope || ''}
                       onChange={(e) => updateProfile({ geographicScope: e.target.value })}
                     >
@@ -377,8 +377,8 @@ export function PolicyOnboarding() {
 
               {/* Vehicle Types */}
               <div>
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Truck className="w-5 h-5 text-blue-800" />
+                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                  <Truck className="w-3 h-3 text-blue-800" />
                   Vehicle Types *
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -386,7 +386,7 @@ export function PolicyOnboarding() {
                     <Badge
                       key={type}
                       variant={profile.vehicleTypes?.includes(type) ? "default" : "outline"}
-                      className="cursor-pointer px-4 py-2 text-sm"
+                      className="cursor-pointer px-2 py-2 text-sm"
                       onClick={() => updateProfile({
                         vehicleTypes: toggleArrayItem(profile.vehicleTypes || [], type)
                       })}
@@ -401,8 +401,8 @@ export function PolicyOnboarding() {
 
               {/* Operation Types */}
               <div>
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Target className="w-5 h-5 text-blue-800" />
+                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                  <Target className="w-3 h-3 text-blue-800" />
                   Operation Types *
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -410,7 +410,7 @@ export function PolicyOnboarding() {
                     <Badge
                       key={type}
                       variant={profile.operationTypes?.includes(type) ? "default" : "outline"}
-                      className="cursor-pointer px-4 py-2 text-sm"
+                      className="cursor-pointer px-2 py-2 text-sm"
                       onClick={() => updateProfile({
                         operationTypes: toggleArrayItem(profile.operationTypes || [], type)
                       })}
@@ -425,8 +425,8 @@ export function PolicyOnboarding() {
 
               {/* Compliance Requirements */}
               <div>
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-blue-800" />
+                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                  <Shield className="w-3 h-3 text-blue-800" />
                   Compliance Requirements
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -434,7 +434,7 @@ export function PolicyOnboarding() {
                     <Badge
                       key={req}
                       variant={profile.complianceRequirements?.includes(req) ? "default" : "outline"}
-                      className="cursor-pointer px-4 py-2 text-sm"
+                      className="cursor-pointer px-2 py-2 text-sm"
                       onClick={() => updateProfile({
                         complianceRequirements: toggleArrayItem(profile.complianceRequirements || [], req)
                       })}
@@ -449,8 +449,8 @@ export function PolicyOnboarding() {
 
               {/* Current Challenges */}
               <div>
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-blue-800" />
+                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                  <AlertTriangle className="w-3 h-3 text-blue-800" />
                   Current Challenges
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -458,7 +458,7 @@ export function PolicyOnboarding() {
                     <Badge
                       key={challenge}
                       variant={profile.currentChallenges?.includes(challenge) ? "default" : "outline"}
-                      className="cursor-pointer px-4 py-2 text-sm"
+                      className="cursor-pointer px-2 py-2 text-sm"
                       onClick={() => updateProfile({
                         currentChallenges: toggleArrayItem(profile.currentChallenges || [], challenge)
                       })}
@@ -473,11 +473,11 @@ export function PolicyOnboarding() {
 
               {/* Staffing */}
               <div>
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-blue-800" />
+                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                  <Users className="w-3 h-3 text-blue-800" />
                   Staffing Information *
                 </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="drivers">Drivers</Label>
                     <Input
@@ -538,7 +538,7 @@ export function PolicyOnboarding() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex justify-end gap-3 pt-4">
+              <div className="flex justify-end gap-3 pt-2">
                 <Button
                   onClick={runAnalysis}
                   disabled={!isProfileComplete() || isAnalyzing}
@@ -552,7 +552,7 @@ export function PolicyOnboarding() {
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-5 h-5 mr-2" />
+                      <Sparkles className="w-3 h-3 mr-2" />
                       Run AI Analysis
                     </>
                   )}
@@ -574,70 +574,70 @@ export function PolicyOnboarding() {
         )}
 
         {currentStep === 'analysis' && (
-          <div className="space-y-6">
+          <div className="space-y-2">
             {/* AI Analysis Overview */}
-            <Card className="border-2 shadow-xl">
+            <Card className="border-2 shadow-sm">
               <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
                 <CardTitle className="flex items-center gap-2">
-                  <Brain className="w-5 h-5" />
+                  <Brain className="w-3 h-3" />
                   AI Analysis Results
                 </CardTitle>
                 <CardDescription>
                   Comprehensive analysis of your fleet operations
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-6">
-                <pre className="whitespace-pre-wrap font-mono text-sm bg-gray-50 p-4 rounded-lg border">
+              <CardContent className="p-3">
+                <pre className="whitespace-pre-wrap font-mono text-sm bg-gray-50 p-2 rounded-lg border">
                   {analysisText}
                 </pre>
               </CardContent>
             </Card>
 
             {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
               <Card className="border-2">
-                <CardContent className="p-6">
+                <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-slate-700 mb-1">Recommendations</p>
-                      <p className="text-3xl font-bold text-blue-800">{recommendations.length}</p>
+                      <p className="text-base font-bold text-blue-800">{recommendations.length}</p>
                     </div>
-                    <FileText className="w-8 h-8 text-blue-800" />
+                    <FileText className="w-4 h-4 text-blue-800" />
                   </div>
                 </CardContent>
               </Card>
               <Card className="border-2">
-                <CardContent className="p-6">
+                <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-slate-700 mb-1">Gaps Identified</p>
-                      <p className="text-3xl font-bold text-orange-600">{gaps.length}</p>
+                      <p className="text-base font-bold text-orange-600">{gaps.length}</p>
                     </div>
-                    <AlertTriangle className="w-8 h-8 text-orange-500" />
+                    <AlertTriangle className="w-4 h-4 text-orange-500" />
                   </div>
                 </CardContent>
               </Card>
               <Card className="border-2">
-                <CardContent className="p-6">
+                <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-slate-700 mb-1">Bottlenecks</p>
-                      <p className="text-3xl font-bold text-red-600">{bottlenecks.length}</p>
+                      <p className="text-base font-bold text-red-600">{bottlenecks.length}</p>
                     </div>
-                    <Wrench className="w-8 h-8 text-red-500" />
+                    <Wrench className="w-4 h-4 text-red-500" />
                   </div>
                 </CardContent>
               </Card>
               <Card className="border-2">
-                <CardContent className="p-6">
+                <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-slate-700 mb-1">Est. Savings</p>
-                      <p className="text-3xl font-bold text-green-600">
+                      <p className="text-base font-bold text-green-600">
                         ${recommendations.reduce((sum, r) => sum + (r.estimatedImpact.costSavings || 0), 0).toLocaleString()}
                       </p>
                     </div>
-                    <DollarSign className="w-8 h-8 text-green-500" />
+                    <DollarSign className="w-4 h-4 text-green-500" />
                   </div>
                 </CardContent>
               </Card>
@@ -656,13 +656,13 @@ export function PolicyOnboarding() {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="gaps" className="space-y-4 mt-6">
+              <TabsContent value="gaps" className="space-y-2 mt-3">
                 {gaps.map((gap, idx) => (
                   <Card key={idx} className={cn("border-2", getSeverityColor(gap.severity))}>
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div>
-                          <CardTitle className="text-lg">{gap.category}</CardTitle>
+                          <CardTitle className="text-sm">{gap.category}</CardTitle>
                           <CardDescription className="mt-1">
                             <span className="font-medium">Gap:</span> {gap.gap}
                           </CardDescription>
@@ -673,7 +673,7 @@ export function PolicyOnboarding() {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-2">
                         <div>
                           <p className="text-sm font-medium text-gray-700 mb-1">Current State</p>
                           <p className="text-sm text-slate-700">{gap.currentState}</p>
@@ -700,14 +700,14 @@ export function PolicyOnboarding() {
                 ))}
               </TabsContent>
 
-              <TabsContent value="bottlenecks" className="space-y-4 mt-6">
+              <TabsContent value="bottlenecks" className="space-y-2 mt-3">
                 {bottlenecks.map((bottleneck, idx) => (
                   <Card key={idx} className="border-2 border-red-200 bg-red-50">
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div>
-                          <CardTitle className="text-lg flex items-center gap-2">
-                            <Wrench className="w-5 h-5 text-red-600" />
+                          <CardTitle className="text-sm flex items-center gap-2">
+                            <Wrench className="w-3 h-3 text-red-600" />
                             {bottleneck.process}
                           </CardTitle>
                           <CardDescription className="mt-1 text-red-700">
@@ -754,27 +754,27 @@ export function PolicyOnboarding() {
                 className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
               >
                 View Policy Recommendations
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <ArrowRight className="w-3 h-3 ml-2" />
               </Button>
             </div>
           </div>
         )}
 
         {currentStep === 'recommendations' && (
-          <div className="space-y-6">
-            <Card className="border-2 shadow-xl">
+          <div className="space-y-2">
+            <Card className="border-2 shadow-sm">
               <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="flex items-center gap-2">
-                      <Sparkles className="w-5 h-5" />
+                      <Sparkles className="w-3 h-3" />
                       AI-Generated Policy Recommendations
                     </CardTitle>
                     <CardDescription>
                       Select policies to implement in your fleet management system
                     </CardDescription>
                   </div>
-                  <Badge variant="outline" className="text-lg px-4 py-2">
+                  <Badge variant="outline" className="text-sm px-2 py-2">
                     {selectedRecommendations.size} of {recommendations.length} selected
                   </Badge>
                 </div>
@@ -782,12 +782,12 @@ export function PolicyOnboarding() {
             </Card>
 
             {/* Policy Cards */}
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 gap-2">
               {recommendations.map((rec, idx) => (
                 <Card
                   key={idx}
                   className={cn(
-                    "border-2 transition-all cursor-pointer hover:shadow-lg",
+                    "border-2 transition-all cursor-pointer hover:shadow-sm",
                     selectedRecommendations.has(idx)
                       ? "border-blue-500 bg-blue-50"
                       : "border-gray-200 hover:border-blue-300"
@@ -803,20 +803,20 @@ export function PolicyOnboarding() {
                   }}
                 >
                   <CardHeader>
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-2">
                       <div className={cn(
-                        "w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-1",
+                        "w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-1",
                         selectedRecommendations.has(idx)
                           ? "bg-blue-500 border-blue-500"
                           : "bg-white border-gray-300"
                       )}>
                         {selectedRecommendations.has(idx) && (
-                          <CheckCircle className="w-5 h-5 text-white" />
+                          <CheckCircle className="w-3 h-3 text-white" />
                         )}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-2">
-                          <CardTitle className="text-xl">{rec.policy.name}</CardTitle>
+                          <CardTitle className="text-base">{rec.policy.name}</CardTitle>
                           <Badge className={getPriorityColor(rec.priority)}>
                             {rec.priority.toUpperCase()}
                           </Badge>
@@ -827,9 +827,9 @@ export function PolicyOnboarding() {
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-2">
                     {/* Rationale */}
-                    <div className="bg-white p-4 rounded-lg border">
+                    <div className="bg-white p-2 rounded-lg border">
                       <p className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
                         <Lightbulb className="w-4 h-4 text-yellow-500" />
                         Rationale
@@ -838,36 +838,36 @@ export function PolicyOnboarding() {
                     </div>
 
                     {/* Estimated Impact */}
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-3 gap-2">
                       {rec.estimatedImpact.costSavings !== undefined && (
-                        <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <div className="bg-green-50 p-2 rounded-lg border border-green-200">
                           <div className="flex items-center gap-2 mb-1">
                             <DollarSign className="w-4 h-4 text-green-600" />
                             <p className="text-xs font-medium text-green-700">Cost Savings</p>
                           </div>
-                          <p className="text-lg font-bold text-green-700">
+                          <p className="text-sm font-bold text-green-700">
                             ${rec.estimatedImpact.costSavings.toLocaleString()}
                           </p>
                         </div>
                       )}
                       {rec.estimatedImpact.safetyImprovement !== undefined && (
-                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <div className="bg-blue-50 p-2 rounded-lg border border-blue-200">
                           <div className="flex items-center gap-2 mb-1">
                             <Shield className="w-4 h-4 text-blue-800" />
                             <p className="text-xs font-medium text-blue-700">Safety Improvement</p>
                           </div>
-                          <p className="text-lg font-bold text-blue-700">
+                          <p className="text-sm font-bold text-blue-700">
                             +{rec.estimatedImpact.safetyImprovement}%
                           </p>
                         </div>
                       )}
                       {rec.estimatedImpact.efficiencyGain !== undefined && (
-                        <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                        <div className="bg-purple-50 p-2 rounded-lg border border-purple-200">
                           <div className="flex items-center gap-2 mb-1">
                             <Zap className="w-4 h-4 text-purple-600" />
                             <p className="text-xs font-medium text-purple-700">Efficiency Gain</p>
                           </div>
-                          <p className="text-lg font-bold text-purple-700">
+                          <p className="text-sm font-bold text-purple-700">
                             +{rec.estimatedImpact.efficiencyGain}%
                           </p>
                         </div>
@@ -904,7 +904,7 @@ export function PolicyOnboarding() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex justify-between gap-3 pt-4">
+            <div className="flex justify-between gap-3 pt-2">
               <Button
                 variant="outline"
                 onClick={() => setCurrentStep('analysis')}
@@ -926,7 +926,7 @@ export function PolicyOnboarding() {
                   size="lg"
                   className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
                 >
-                  <Play className="w-5 h-5 mr-2" />
+                  <Play className="w-3 h-3 mr-2" />
                   Implement {selectedRecommendations.size} {selectedRecommendations.size === 1 ? 'Policy' : 'Policies'}
                 </Button>
               </div>
@@ -935,23 +935,23 @@ export function PolicyOnboarding() {
         )}
 
         {currentStep === 'implementation' && (
-          <Card className="border-2 shadow-xl">
+          <Card className="border-2 shadow-sm">
             <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
               <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="w-6 h-6 text-green-600" />
+                <CheckCircle className="w-4 h-4 text-green-600" />
                 Implementation Complete!
               </CardTitle>
               <CardDescription>
                 Your AI-generated policies have been successfully deployed
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-8 text-center space-y-6">
+            <CardContent className="p-3 text-center space-y-2">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle className="w-12 h-12 text-green-600" />
+                <CheckCircle className="w-12 h-9 text-green-600" />
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                <h3 className="text-sm font-bold text-gray-900 mb-2">
                   {selectedRecommendations.size} {selectedRecommendations.size === 1 ? 'Policy' : 'Policies'} Activated
                 </h3>
                 <p className="text-slate-700">
@@ -959,19 +959,19 @@ export function PolicyOnboarding() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
-                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+              <div className="grid grid-cols-3 gap-2 max-w-2xl mx-auto">
+                <div className="p-2 bg-green-50 rounded-lg border border-green-200">
                   <p className="text-sm text-slate-700 mb-1">Total Est. Savings</p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-sm font-bold text-green-600">
                     ${recommendations
                       .filter((_, idx) => selectedRecommendations.has(idx))
                       .reduce((sum, r) => sum + (r.estimatedImpact.costSavings || 0), 0)
                       .toLocaleString()}
                   </p>
                 </div>
-                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="p-2 bg-blue-50 rounded-lg border border-blue-200">
                   <p className="text-sm text-slate-700 mb-1">Avg Safety Improvement</p>
-                  <p className="text-2xl font-bold text-blue-800">
+                  <p className="text-sm font-bold text-blue-800">
                     +{Math.round(
                       recommendations
                         .filter((_, idx) => selectedRecommendations.has(idx))
@@ -980,9 +980,9 @@ export function PolicyOnboarding() {
                     )}%
                   </p>
                 </div>
-                <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                <div className="p-2 bg-purple-50 rounded-lg border border-purple-200">
                   <p className="text-sm text-slate-700 mb-1">Avg Efficiency Gain</p>
-                  <p className="text-2xl font-bold text-purple-600">
+                  <p className="text-sm font-bold text-purple-600">
                     +{Math.round(
                       recommendations
                         .filter((_, idx) => selectedRecommendations.has(idx))
@@ -1025,7 +1025,7 @@ export function PolicyOnboarding() {
                 </div>
               </div>
 
-              <div className="flex gap-3 justify-center pt-4">
+              <div className="flex gap-3 justify-center pt-2">
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -1045,7 +1045,7 @@ export function PolicyOnboarding() {
                   className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
                 >
                   Go to Policy Engine
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  <ArrowRight className="w-3 h-3 ml-2" />
                 </Button>
               </div>
             </CardContent>

@@ -475,36 +475,36 @@ export function ViolationsMatrixView() {
     .reduce((sum, v) => sum + (v.fine_amount || 0), 0)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-white">{totalViolations}</div>
+          <CardContent className="p-2 text-center">
+            <div className="text-sm font-bold text-white">{totalViolations}</div>
             <div className="text-xs text-slate-400">Total Violations</div>
           </CardContent>
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
-          <CardContent className="p-4 text-center">
+          <CardContent className="p-2 text-center">
             <div className="flex items-center justify-center gap-1">
-              <AlertOctagon className="w-5 h-5 text-red-400" />
-              <div className="text-2xl font-bold text-red-400">{openCount}</div>
+              <AlertOctagon className="w-3 h-3 text-red-400" />
+              <div className="text-sm font-bold text-red-400">{openCount}</div>
             </div>
             <div className="text-xs text-slate-400">Open/In Progress</div>
           </CardContent>
         </Card>
         <Card className="bg-orange-900/30 border-orange-700/50">
-          <CardContent className="p-4 text-center">
+          <CardContent className="p-2 text-center">
             <div className="flex items-center justify-center gap-1">
-              <AlertTriangle className="w-5 h-5 text-orange-400" />
-              <div className="text-2xl font-bold text-orange-400">{criticalCount}</div>
+              <AlertTriangle className="w-3 h-3 text-orange-400" />
+              <div className="text-sm font-bold text-orange-400">{criticalCount}</div>
             </div>
             <div className="text-xs text-slate-400">Critical Severity</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-amber-400">${unpaidFines.toFixed(0)}</div>
+          <CardContent className="p-2 text-center">
+            <div className="text-sm font-bold text-amber-400">${unpaidFines.toFixed(0)}</div>
             <div className="text-xs text-slate-400">Unpaid Fines</div>
           </CardContent>
         </Card>
@@ -515,7 +515,7 @@ export function ViolationsMatrixView() {
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             <span>Total Fines Assessment</span>
-            <span className="text-2xl font-bold text-red-400">${totalFines.toFixed(2)}</span>
+            <span className="text-sm font-bold text-red-400">${totalFines.toFixed(2)}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -529,7 +529,7 @@ export function ViolationsMatrixView() {
 
       {/* Filter and Export Controls */}
       <Card className="bg-slate-800/50 border-slate-700">
-        <CardContent className="p-4">
+        <CardContent className="p-2">
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex-1 min-w-[200px]">
               <Input
@@ -583,8 +583,8 @@ export function ViolationsMatrixView() {
       {/* Excel-Style Violations Matrix */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
-          <CardTitle className="text-white text-lg flex items-center gap-2">
-            <Scale className="w-5 h-5 text-amber-400" />
+          <CardTitle className="text-white text-sm flex items-center gap-2">
+            <Scale className="w-3 h-3 text-amber-400" />
             All Compliance Violations - Excel View ({filteredData.length} records)
           </CardTitle>
         </CardHeader>
@@ -799,36 +799,36 @@ export function IncidentsMatrixView() {
   const totalCost = filteredData.reduce((sum, i) => sum + i.cost, 0)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-white">{totalIncidents}</div>
+          <CardContent className="p-2 text-center">
+            <div className="text-sm font-bold text-white">{totalIncidents}</div>
             <div className="text-xs text-slate-400">Total Incidents</div>
           </CardContent>
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
-          <CardContent className="p-4 text-center">
+          <CardContent className="p-2 text-center">
             <div className="flex items-center justify-center gap-1">
-              <AlertOctagon className="w-5 h-5 text-red-400" />
-              <div className="text-2xl font-bold text-red-400">{openCount}</div>
+              <AlertOctagon className="w-3 h-3 text-red-400" />
+              <div className="text-sm font-bold text-red-400">{openCount}</div>
             </div>
             <div className="text-xs text-slate-400">Open/Investigating</div>
           </CardContent>
         </Card>
         <Card className="bg-orange-900/30 border-orange-700/50">
-          <CardContent className="p-4 text-center">
+          <CardContent className="p-2 text-center">
             <div className="flex items-center justify-center gap-1">
-              <AlertTriangle className="w-5 h-5 text-orange-400" />
-              <div className="text-2xl font-bold text-orange-400">{totalInjured}</div>
+              <AlertTriangle className="w-3 h-3 text-orange-400" />
+              <div className="text-sm font-bold text-orange-400">{totalInjured}</div>
             </div>
             <div className="text-xs text-slate-400">Total Injuries</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-amber-400">${totalCost.toFixed(0)}</div>
+          <CardContent className="p-2 text-center">
+            <div className="text-sm font-bold text-amber-400">${totalCost.toFixed(0)}</div>
             <div className="text-xs text-slate-400">Total Cost</div>
           </CardContent>
         </Card>
@@ -836,7 +836,7 @@ export function IncidentsMatrixView() {
 
       {/* Filter and Export Controls */}
       <Card className="bg-slate-800/50 border-slate-700">
-        <CardContent className="p-4">
+        <CardContent className="p-2">
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex-1 min-w-[200px]">
               <Input
@@ -893,8 +893,8 @@ export function IncidentsMatrixView() {
       {/* Excel-Style Incidents Matrix */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
-          <CardTitle className="text-white text-lg flex items-center gap-2">
-            <Shield className="w-5 h-5 text-blue-400" />
+          <CardTitle className="text-white text-sm flex items-center gap-2">
+            <Shield className="w-3 h-3 text-blue-400" />
             All Safety Incidents - Excel View ({filteredData.length} records)
           </CardTitle>
         </CardHeader>

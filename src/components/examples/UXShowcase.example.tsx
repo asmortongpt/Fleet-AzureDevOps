@@ -33,18 +33,18 @@ export const UXShowcase: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-8 space-y-12">
+    <div className="max-w-6xl mx-auto p-3 space-y-12">
       <div>
-        <h1 className="text-4xl font-bold mb-2">UX Components Showcase</h1>
+        <h1 className="text-sm font-bold mb-2">UX Components Showcase</h1>
         <p className="text-slate-700">
           Visual demonstration of all UX improvement components
         </p>
       </div>
 
       {/* Breadcrumb */}
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold border-b pb-2">Breadcrumb Navigation</h2>
-        <div className="bg-white p-6 rounded-lg shadow">
+      <section className="space-y-2">
+        <h2 className="text-sm font-semibold border-b pb-2">Breadcrumb Navigation</h2>
+        <div className="bg-white p-3 rounded-lg shadow">
           <Breadcrumb
             items={[
               { label: 'Home', href: '/' },
@@ -56,10 +56,10 @@ export const UXShowcase: React.FC = () => {
       </section>
 
       {/* Loading Spinners */}
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold border-b pb-2">Loading Spinners</h2>
-        <div className="bg-white p-6 rounded-lg shadow space-y-6">
-          <div className="flex items-center gap-8">
+      <section className="space-y-2">
+        <h2 className="text-sm font-semibold border-b pb-2">Loading Spinners</h2>
+        <div className="bg-white p-3 rounded-lg shadow space-y-2">
+          <div className="flex items-center gap-2">
             <div>
               <p className="text-sm font-medium mb-2">Small</p>
               <LoadingSpinner size="sm" />
@@ -76,7 +76,7 @@ export const UXShowcase: React.FC = () => {
 
           <div>
             <p className="text-sm font-medium mb-2">In Button</p>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded flex items-center">
+            <button className="bg-blue-600 text-white px-2 py-2 rounded flex items-center">
               <LoadingSpinner size="sm" className="mr-2" />
               Loading...
             </button>
@@ -85,12 +85,12 @@ export const UXShowcase: React.FC = () => {
       </section>
 
       {/* Loading Overlay */}
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold border-b pb-2">Loading Overlay</h2>
-        <div className="bg-white p-6 rounded-lg shadow">
+      <section className="space-y-2">
+        <h2 className="text-sm font-semibold border-b pb-2">Loading Overlay</h2>
+        <div className="bg-white p-3 rounded-lg shadow">
           <button
             onClick={handleShowOverlay}
-            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+            className="bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700"
           >
             Show Loading Overlay (2 seconds)
           </button>
@@ -99,10 +99,10 @@ export const UXShowcase: React.FC = () => {
       </section>
 
       {/* Skeleton Loaders */}
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold border-b pb-2">Skeleton Loaders</h2>
+      <section className="space-y-2">
+        <h2 className="text-sm font-semibold border-b pb-2">Skeleton Loaders</h2>
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="p-4 bg-gray-50 border-b">
+          <div className="p-2 bg-gray-50 border-b">
             <h3 className="font-semibold">Loading Table Data...</h3>
           </div>
           <SkeletonTable rows={3} />
@@ -110,9 +110,9 @@ export const UXShowcase: React.FC = () => {
       </section>
 
       {/* Error Messages */}
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold border-b pb-2">Error Messages</h2>
-        <div className="space-y-4">
+      <section className="space-y-2">
+        <h2 className="text-sm font-semibold border-b pb-2">Error Messages</h2>
+        <div className="space-y-2">
           <div>
             <p className="text-sm font-medium mb-2">Standard Error Message</p>
             <ErrorMessage message="Failed to load vehicle data. Please check your connection." />
@@ -150,31 +150,31 @@ export const UXShowcase: React.FC = () => {
       </section>
 
       {/* Toast Notifications */}
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold border-b pb-2">Toast Notifications</h2>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <section className="space-y-2">
+        <h2 className="text-sm font-semibold border-b pb-2">Toast Notifications</h2>
+        <div className="bg-white p-3 rounded-lg shadow">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             <button
               onClick={() => handleShowToast('success')}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              className="bg-green-600 text-white px-2 py-2 rounded hover:bg-green-700"
             >
               Success Toast
             </button>
             <button
               onClick={() => handleShowToast('error')}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              className="bg-red-600 text-white px-2 py-2 rounded hover:bg-red-700"
             >
               Error Toast
             </button>
             <button
               onClick={() => handleShowToast('info')}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              className="bg-blue-600 text-white px-2 py-2 rounded hover:bg-blue-700"
             >
               Info Toast
             </button>
             <button
               onClick={() => handleShowToast('warning')}
-              className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+              className="bg-yellow-600 text-white px-2 py-2 rounded hover:bg-yellow-700"
             >
               Warning Toast
             </button>
@@ -183,11 +183,11 @@ export const UXShowcase: React.FC = () => {
       </section>
 
       {/* Empty State */}
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold border-b pb-2">Empty State Example</h2>
+      <section className="space-y-2">
+        <h2 className="text-sm font-semibold border-b pb-2">Empty State Example</h2>
         <div className="bg-white rounded-lg shadow p-12 text-center">
           <svg
-            className="mx-auto h-16 w-16 text-gray-400 mb-4"
+            className="mx-auto h-16 w-16 text-gray-400 mb-2"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -199,21 +199,21 @@ export const UXShowcase: React.FC = () => {
               d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
             />
           </svg>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No vehicles found</h3>
-          <p className="text-gray-500 mb-4">
+          <h3 className="text-sm font-medium text-gray-900 mb-2">No vehicles found</h3>
+          <p className="text-gray-500 mb-2">
             Get started by adding your first vehicle to the fleet.
           </p>
-          <button className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+          <button className="bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700">
             Add Vehicle
           </button>
         </div>
       </section>
 
       {/* Form States */}
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold border-b pb-2">Form States</h2>
-        <div className="bg-white p-6 rounded-lg shadow space-y-4">
-          <div className="max-w-md space-y-4">
+      <section className="space-y-2">
+        <h2 className="text-sm font-semibold border-b pb-2">Form States</h2>
+        <div className="bg-white p-3 rounded-lg shadow space-y-2">
+          <div className="max-w-md space-y-2">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Normal State
@@ -249,13 +249,13 @@ export const UXShowcase: React.FC = () => {
               />
             </div>
 
-            <div className="flex gap-4">
-              <button className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+            <div className="flex gap-2">
+              <button className="bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700">
                 Normal Button
               </button>
               <button
                 disabled
-                className="bg-gray-400 text-white px-6 py-2 rounded cursor-not-allowed"
+                className="bg-gray-400 text-white px-3 py-2 rounded cursor-not-allowed"
               >
                 Disabled Button
               </button>
@@ -265,25 +265,25 @@ export const UXShowcase: React.FC = () => {
       </section>
 
       {/* Color Palette */}
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold border-b pb-2">Color Palette</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg shadow p-4">
+      <section className="space-y-2">
+        <h2 className="text-sm font-semibold border-b pb-2">Color Palette</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <div className="bg-white rounded-lg shadow p-2">
             <div className="h-20 bg-blue-600 rounded mb-2"></div>
             <p className="text-sm font-medium">Primary (Blue)</p>
             <p className="text-xs text-gray-500">Actions, Links</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-white rounded-lg shadow p-2">
             <div className="h-20 bg-green-600 rounded mb-2"></div>
             <p className="text-sm font-medium">Success (Green)</p>
             <p className="text-xs text-gray-500">Confirmations</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-white rounded-lg shadow p-2">
             <div className="h-20 bg-red-600 rounded mb-2"></div>
             <p className="text-sm font-medium">Error (Red)</p>
             <p className="text-xs text-gray-500">Errors, Warnings</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-white rounded-lg shadow p-2">
             <div className="h-20 bg-yellow-500 rounded mb-2"></div>
             <p className="text-sm font-medium">Warning (Yellow)</p>
             <p className="text-xs text-gray-500">Cautions</p>

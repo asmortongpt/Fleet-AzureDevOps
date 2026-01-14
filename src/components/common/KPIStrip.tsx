@@ -75,7 +75,7 @@ export const KPIStrip: React.FC<KPIStripProps> = ({
               <div className="flex items-center gap-1">
                 <span className={cn(
                   "font-bold tabular-nums",
-                  compact ? "text-lg" : "text-xl"
+                  compact ? "text-sm" : "text-base"
                 )}>
                   {metric.value}
                 </span>
@@ -106,7 +106,7 @@ export const KPIStrip: React.FC<KPIStripProps> = ({
 
           {/* Separator */}
           {index < metrics.length - 1 && (
-            <div className="h-10 w-px bg-border flex-shrink-0" />
+            <div className="h-8 w-px bg-border flex-shrink-0" />
           )}
         </React.Fragment>
       ))}

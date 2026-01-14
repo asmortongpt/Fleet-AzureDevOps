@@ -119,10 +119,10 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Driver Performance</h1>
+          <h1 className="text-base font-semibold tracking-tight">Driver Performance</h1>
           <p className="text-muted-foreground mt-1">Monitor and analyze driver metrics and safety scores</p>
         </div>
         <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
@@ -138,38 +138,38 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
         <MetricCard
           title="Total Drivers"
           value={metrics.totalDrivers}
           subtitle={`${metrics.activeDrivers} active`}
-          icon={<CarProfile className="w-5 h-5" />}
+          icon={<CarProfile className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
           title="Avg Safety Score"
           value={metrics.avgSafetyScore}
           subtitle="fleet average"
-          icon={<Star className="w-5 h-5" />}
+          icon={<Star className="w-3 h-3" />}
           status={metrics.avgSafetyScore >= 85 ? "success" : "warning"}
         />
         <MetricCard
           title="Total Trips"
           value={metrics.totalTrips.toLocaleString()}
           subtitle="completed"
-          icon={<Target className="w-5 h-5" />}
+          icon={<Target className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
           title="Total Incidents"
           value={metrics.totalIncidents}
           subtitle="reported"
-          icon={<Warning className="w-5 h-5" />}
+          icon={<Warning className="w-3 h-3" />}
           status={metrics.totalIncidents < 10 ? "success" : "warning"}
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
         <div className="lg:col-span-2">
           <ChartCard
             title="Safety Score Trend"
@@ -184,12 +184,12 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-warning" />
+              <Trophy className="w-3 h-3 text-warning" />
               Top Performers
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-2">
               {topPerformers.map((driver, index: number) => (
                 <div
                   key={driver.id}
@@ -199,7 +199,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                   tabIndex={0}
                   onKeyDown={(e) => e.key === 'Enter' && push({ type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
                 >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm ${
+                  <div className={`w-4 h-4 rounded-full flex items-center justify-center font-semibold text-sm ${
                     index === 0 ? "bg-warning/20 text-warning" :
                     index === 1 ? "bg-muted-foreground/20 text-muted-foreground" :
                     "bg-accent/20 text-accent"
@@ -229,8 +229,8 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
           <TabsTrigger value="attention">Needs Attention</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4 mt-6">
-          <div className="grid grid-cols-1 gap-4">
+        <TabsContent value="overview" className="space-y-2 mt-3">
+          <div className="grid grid-cols-1 gap-2">
             {enhancedDrivers.map((driver) => {
               const badge = getScoreBadge(driver.safetyScore)
               return (
@@ -242,15 +242,15 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                   tabIndex={0}
                   onKeyDown={(e) => e.key === 'Enter' && push({ type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
                 >
-                  <CardContent className="p-6">
+                  <CardContent className="p-3">
                     <div className="flex items-start justify-between">
-                      <div className="flex gap-4 flex-1">
-                        <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
+                      <div className="flex gap-2 flex-1">
+                        <div className="w-12 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
                           {driver.name.split(' ').map((n: string) => n[0]).join('')}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <h3 className="font-semibold text-lg">{driver.name}</h3>
+                            <h3 className="font-semibold text-sm">{driver.name}</h3>
                             <Badge className={badge.color}>
                               {badge.label}
                             </Badge>
@@ -261,29 +261,29 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                           <p className="text-sm text-muted-foreground mb-3">
                             {driver.employeeId} • {driver.department} • {driver.licenseType}
                           </p>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                             <div>
                               <p className="text-muted-foreground">Safety Score</p>
-                              <p className={`font-semibold text-lg ${getScoreColor(driver.safetyScore)}`}>
+                              <p className={`font-semibold text-sm ${getScoreColor(driver.safetyScore)}`}>
                                 {driver.safetyScore}
                               </p>
                             </div>
                             <div>
                               <p className="text-muted-foreground">Total Trips</p>
-                              <p className="font-semibold text-lg">{(driver as any).trips}</p>
+                              <p className="font-semibold text-sm">{(driver as any).trips}</p>
                             </div>
                             <div>
                               <p className="text-muted-foreground">Miles Driven</p>
-                              <p className="font-semibold text-lg">{((driver as any).miles || 0).toLocaleString()}</p>
+                              <p className="font-semibold text-sm">{((driver as any).miles || 0).toLocaleString()}</p>
                             </div>
                             <div>
                               <p className="text-muted-foreground">Incidents</p>
-                              <p className={`font-semibold text-lg ${(driver as any).incidents > 2 ? "text-destructive" : ""}`}>
+                              <p className={`font-semibold text-sm ${(driver as any).incidents > 2 ? "text-destructive" : ""}`}>
                                 {(driver as any).incidents}
                               </p>
                             </div>
                           </div>
-                          <div className="mt-4">
+                          <div className="mt-2">
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-xs text-muted-foreground">On-Time Delivery</span>
                               <span className="text-xs font-medium">{(driver as any).onTimeDelivery}%</span>
@@ -324,15 +324,15 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
           </div>
         </TabsContent>
 
-        <TabsContent value="top" className="space-y-4 mt-6">
-          <div className="grid grid-cols-1 gap-4">
+        <TabsContent value="top" className="space-y-2 mt-3">
+          <div className="grid grid-cols-1 gap-2">
             {topPerformers.map((driver, index) => {
               const badge = getScoreBadge(driver.safetyScore)
               return (
                 <Card key={driver.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl ${
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-12 h-9 rounded-full flex items-center justify-center font-bold text-base ${
                         index === 0 ? "bg-warning/20 text-warning" :
                         index === 1 ? "bg-muted-foreground/20 text-muted-foreground" :
                         "bg-accent/20 text-accent"
@@ -341,7 +341,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-1">
-                          <h3 className="font-semibold text-lg">{driver.name}</h3>
+                          <h3 className="font-semibold text-sm">{driver.name}</h3>
                           <Badge className={badge.color}>{badge.label}</Badge>
                         </div>
                         <p className="text-sm text-muted-foreground">
@@ -350,7 +350,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                           </span> • {(driver as any).trips} trips • {((driver as any).miles || 0).toLocaleString()} miles
                         </p>
                       </div>
-                      <Trophy className="w-8 h-8 text-warning" weight="fill" />
+                      <Trophy className="w-4 h-4 text-warning" weight="fill" />
                     </div>
                   </CardContent>
                 </Card>
@@ -359,26 +359,26 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
           </div>
         </TabsContent>
 
-        <TabsContent value="attention" className="space-y-4 mt-6">
+        <TabsContent value="attention" className="space-y-2 mt-3">
           {needsAttention.length === 0 ? (
             <Card>
               <CardContent className="p-12 text-center">
-                <CheckCircle className="w-12 h-12 mx-auto text-success mb-4" />
+                <CheckCircle className="w-12 h-9 mx-auto text-success mb-2" />
                 <p className="text-muted-foreground">All drivers are performing well!</p>
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-2">
               {needsAttention.map((driver) => (
                 <Card key={driver.id}>
-                  <CardContent className="p-6">
+                  <CardContent className="p-3">
                     <div className="flex items-start justify-between">
-                      <div className="flex gap-4 flex-1">
-                        <div className="w-12 h-12 rounded-full bg-destructive/10 text-destructive flex items-center justify-center">
-                          <Warning className="w-6 h-6" weight="fill" />
+                      <div className="flex gap-2 flex-1">
+                        <div className="w-12 h-9 rounded-full bg-destructive/10 text-destructive flex items-center justify-center">
+                          <Warning className="w-4 h-4" weight="fill" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-semibold text-lg mb-1">{driver.name}</h3>
+                          <h3 className="font-semibold text-sm mb-1">{driver.name}</h3>
                           <p className="text-sm text-muted-foreground mb-3">{driver.department}</p>
                           <div className="space-y-2">
                             {/* Content for needs attention */}

@@ -312,7 +312,7 @@ export function DialogForm({
             {description && <DialogDescription>{description}</DialogDescription>}
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <div className="space-y-2 py-2">
             {fields.map(renderField)}
           </div>
 

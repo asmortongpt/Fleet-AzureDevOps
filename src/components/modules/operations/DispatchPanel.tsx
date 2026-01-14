@@ -78,10 +78,10 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                 // Override default bg to allow glass effect
                 style={{ backgroundColor: 'transparent' }}
             >
-                <SheetHeader className="p-6 border-b border-white/10 bg-black/20">
+                <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
                     <div className="flex items-center justify-between">
-                        <SheetTitle className="text-xl font-semibold flex items-center gap-2 text-white">
-                            <Radio className="w-6 h-6 text-emerald-400" weight="fill" />
+                        <SheetTitle className="text-base font-semibold flex items-center gap-2 text-white">
+                            <Radio className="w-4 h-4 text-emerald-400" weight="fill" />
                             Dispatch Radio
                         </SheetTitle>
                         <div className={`w-3 h-3 rounded-full ${dispatch.isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
@@ -93,13 +93,13 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
 
                 <div className="flex-1 flex flex-col min-h-0">
                     {/* PTT Section */}
-                    <div className="p-6 flex flex-col items-center gap-4 border-b bg-card">
+                    <div className="p-3 flex flex-col items-center gap-2 border-b bg-card">
                         <div className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
                             {channels.find(c => c.id === selectedChannelId)?.name || 'Select Channel'}
                         </div>
 
                         <Button
-                            className={`h-24 w-full rounded-2xl relative overflow-hidden transition-all duration-300 flex flex-col items-center justify-center gap-2 ${(ptt.isTransmitting || isPressing)
+                            className={`h-24 w-full rounded-lg relative overflow-hidden transition-all duration-300 flex flex-col items-center justify-center gap-2 ${(ptt.isTransmitting || isPressing)
                                 ? "bg-red-500/20 border-red-500/50 text-red-500 shadow-[0_0_30px_rgba(239,68,68,0.3)]"
                                 : "bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20 hover:border-emerald-500/40"
                                 } border-2`}
@@ -124,7 +124,7 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                             )}
 
                             <div className="relative z-10 flex flex-col items-center">
-                                <Microphone className={`w-8 h-8 mb-1 ${(ptt.isTransmitting || isPressing) ? "animate-pulse" : ""}`} weight="fill" />
+                                <Microphone className={`w-4 h-4 mb-1 ${(ptt.isTransmitting || isPressing) ? "animate-pulse" : ""}`} weight="fill" />
                                 <span className="font-bold tracking-wider font-mono">
                                     {(ptt.isTransmitting || isPressing) ? "TRANSMITTING" : "PUSH TO TALK"}
                                 </span>
@@ -195,9 +195,9 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                 </div>
 
                 {/* Emergency Footer */}
-                <div className="p-4 border-t bg-destructive/5">
+                <div className="p-2 border-t bg-destructive/5">
                     <Button variant="destructive" className="w-full font-bold" size="lg">
-                        <Warning className="w-5 h-5 mr-2" />
+                        <Warning className="w-3 h-3 mr-2" />
                         EMERGENCY ALERT
                     </Button>
                 </div>

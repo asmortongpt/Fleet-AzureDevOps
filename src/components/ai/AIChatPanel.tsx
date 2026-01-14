@@ -249,12 +249,12 @@ export function AIChatPanel({ hubType = 'general', onClose }: AIChatPanelProps) 
           </div>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col p-0">
-          <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-            <div className="space-y-4">
+          <ScrollArea className="flex-1 p-2" ref={scrollRef}>
+            <div className="space-y-2">
               {messages.map(msg => (
                 <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
                   {msg.role === 'assistant' && (
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <div className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                       <Bot className="h-4 w-4 text-primary" />
                     </div>
                   )}
@@ -285,7 +285,7 @@ export function AIChatPanel({ hubType = 'general', onClose }: AIChatPanelProps) 
                     </div>
                   </div>
                   {msg.role === 'user' && (
-                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                    <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                       <User className="h-4 w-4 text-primary-foreground" />
                     </div>
                   )}
@@ -295,7 +295,7 @@ export function AIChatPanel({ hubType = 'general', onClose }: AIChatPanelProps) 
               {/* Streaming message */}
               {streamingContent && (
                 <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <div className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <Bot className="h-4 w-4 text-primary" />
                   </div>
                   <div className="max-w-[80%] rounded-lg p-3 bg-muted">
@@ -312,7 +312,7 @@ export function AIChatPanel({ hubType = 'general', onClose }: AIChatPanelProps) 
               {/* Loading indicator */}
               {isLoading && !streamingContent && (
                 <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <div className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <Bot className="h-4 w-4 text-primary" />
                   </div>
                   <div className="bg-muted rounded-lg p-3">
@@ -326,7 +326,7 @@ export function AIChatPanel({ hubType = 'general', onClose }: AIChatPanelProps) 
               )}
             </div>
           </ScrollArea>
-          <div className="p-4 border-t">
+          <div className="p-2 border-t">
             <div className="flex items-center gap-2 mb-2">
               <AlertCircle className="h-3 w-3 text-muted-foreground" />
               <p className="text-xs text-muted-foreground">

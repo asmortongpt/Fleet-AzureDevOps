@@ -54,10 +54,10 @@ export function ChartCard({
   } = props
   return (
     <Card className={cn("h-full flex flex-col", className)} {...cardProps}>
-      <CardHeader className="pb-4">
-        <div className="flex items-start justify-between gap-4">
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-sm flex items-center gap-2">
               {title}
               {helpText && (
                 <button
@@ -122,7 +122,7 @@ export function ChartCard({
         )}
       </CardHeader>
 
-      <CardContent className="flex-1 flex flex-col gap-4">
+      <CardContent className="flex-1 flex flex-col gap-2">
         {/* Chart */}
         <div className="flex-1 min-h-[200px] w-full" role="img" aria-label={title}>
           {loading ? (
@@ -136,14 +136,14 @@ export function ChartCard({
 
         {/* Legend */}
         {showLegend && legend && (
-          <div className="border-t pt-4">
+          <div className="border-t pt-2">
             {legend}
           </div>
         )}
 
         {/* Statistics Summary */}
         {metadata && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t pt-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 border-t pt-2">
             {metadata.min !== undefined && (
               <div>
                 <div className="text-xs text-muted-foreground font-medium">Min</div>

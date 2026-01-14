@@ -183,7 +183,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
       </CardHeader>
       <CardContent>
         {error && (
-          <Alert variant="destructive" className="mb-4">
+          <Alert variant="destructive" className="mb-2">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
@@ -192,14 +192,14 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
         {loading && (
           <div className="flex items-center justify-center" style={{ height }}>
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
               <p className="text-sm text-slate-700">Loading Google Maps...</p>
             </div>
           </div>
         )}
 
         {!loading && vehiclesWithCoords.length === 0 && !error && (
-          <Alert className="mb-4">
+          <Alert className="mb-2">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
               No vehicles with valid GPS coordinates found. Vehicles will appear on the map once location data is
@@ -212,7 +212,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
 
         {/* Legend */}
         {vehiclesWithCoords.length > 0 && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+          <div className="mt-2 p-2 bg-gray-50 rounded-lg">
             <h4 className="text-sm font-semibold mb-2">Status Legend</h4>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
               <div className="flex items-center gap-2">

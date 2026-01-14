@@ -94,18 +94,18 @@ function MessageDetailDrilldown() {
   const data = currentLevel?.data || {}
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="space-y-2">
-        <h2 className="text-xl font-bold">{data.content || 'Message'}</h2>
+        <h2 className="text-base font-bold">{data.content || 'Message'}</h2>
         <div className="text-sm text-muted-foreground">
           {data.channel && <span className="font-medium">{data.channel}</span>}
           {data.author && <span> • {data.author}</span>}
         </div>
       </div>
-      <div className="bg-muted/30 rounded-lg p-4">
+      <div className="bg-muted/30 rounded-lg p-2">
         <p className="text-sm">{data.content || 'Message content not available'}</p>
       </div>
-      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
         {data.time && <span>Sent: {new Date(data.time).toLocaleString()}</span>}
         {data.reactions !== undefined && <span>Reactions: {data.reactions}</span>}
       </div>
@@ -130,10 +130,10 @@ function ConversationDetailDrilldown() {
   ]
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold">Conversation with {data.user || 'User'}</h2>
+          <h2 className="text-base font-bold">Conversation with {data.user || 'User'}</h2>
           <p className="text-sm text-muted-foreground">{data.topic}</p>
         </div>
         <span className={`px-2 py-1 text-xs rounded ${
@@ -168,13 +168,13 @@ function EmailTemplateDrilldown() {
   const data = currentLevel?.data || {}
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div>
-        <h2 className="text-xl font-bold">{data.name || 'Email Template'}</h2>
+        <h2 className="text-base font-bold">{data.name || 'Email Template'}</h2>
         <p className="text-sm text-muted-foreground">Used {data.usageCount || 0} times</p>
       </div>
-      <div className="border rounded-lg p-4">
-        <div className="mb-4">
+      <div className="border rounded-lg p-2">
+        <div className="mb-2">
           <label className="text-sm font-medium text-muted-foreground">Subject Line</label>
           <p className="mt-1">[{data.name}] - [Date]</p>
         </div>
@@ -184,7 +184,7 @@ function EmailTemplateDrilldown() {
             <p>Dear [Recipient],</p>
             <p className="mt-2">This is the template content for {data.name}.</p>
             <p className="mt-2">Please review the attached information and respond at your earliest convenience.</p>
-            <p className="mt-4">Best regards,<br/>Fleet Management Team</p>
+            <p className="mt-2">Best regards,<br/>Fleet Management Team</p>
           </div>
         </div>
       </div>
@@ -203,22 +203,22 @@ function CampaignDetailDrilldown() {
   const campaign = data.campaign || {}
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div>
-        <h2 className="text-xl font-bold">{campaign.name || 'Campaign'}</h2>
+        <h2 className="text-base font-bold">{campaign.name || 'Campaign'}</h2>
         <p className="text-sm text-muted-foreground">Email Campaign Performance</p>
       </div>
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-muted/30 rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold">{campaign.sent || 0}</div>
+      <div className="grid grid-cols-3 gap-2">
+        <div className="bg-muted/30 rounded-lg p-2 text-center">
+          <div className="text-sm font-bold">{campaign.sent || 0}</div>
           <div className="text-sm text-muted-foreground">Sent</div>
         </div>
-        <div className="bg-muted/30 rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold">{campaign.opened || 0}</div>
+        <div className="bg-muted/30 rounded-lg p-2 text-center">
+          <div className="text-sm font-bold">{campaign.opened || 0}</div>
           <div className="text-sm text-muted-foreground">Opened</div>
         </div>
-        <div className="bg-muted/30 rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-green-600">{campaign.rate || 0}%</div>
+        <div className="bg-muted/30 rounded-lg p-2 text-center">
+          <div className="text-sm font-bold text-green-600">{campaign.rate || 0}%</div>
           <div className="text-sm text-muted-foreground">Open Rate</div>
         </div>
       </div>
@@ -256,9 +256,9 @@ function MaintenanceRequestsDrilldown() {
   ]
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">{data.title || 'Maintenance Requests'}</h2>
+        <h2 className="text-base font-bold">{data.title || 'Maintenance Requests'}</h2>
         <span className="px-2 py-1 text-xs rounded bg-primary/20 text-primary">{mockRequests.length} requests</span>
       </div>
       <div className="space-y-2">
@@ -310,9 +310,9 @@ function SafetyAlertsDrilldown() {
     : mockAlerts
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">{data.title || 'Safety Alerts'}</h2>
+        <h2 className="text-base font-bold">{data.title || 'Safety Alerts'}</h2>
         <span className="px-2 py-1 text-xs rounded bg-warning/20 text-warning">{filtered.length} alerts</span>
       </div>
       <div className="space-y-2">
@@ -354,9 +354,9 @@ function OperationsCalendarDrilldown() {
   ]
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">{data.title || 'Operations Calendar'}</h2>
+        <h2 className="text-base font-bold">{data.title || 'Operations Calendar'}</h2>
         <span className="text-sm text-muted-foreground">{mockEvents.length} scheduled</span>
       </div>
       <div className="space-y-2">
@@ -368,7 +368,7 @@ function OperationsCalendarDrilldown() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="text-lg font-mono text-muted-foreground">{evt.time}</span>
+                <span className="text-sm font-mono text-muted-foreground">{evt.time}</span>
                 <div>
                   <p className="font-medium">{evt.title}</p>
                   <p className="text-sm text-muted-foreground">{evt.driver} • {evt.type}</p>
@@ -400,9 +400,9 @@ function DriverShiftsDrilldown() {
   ]
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Driver Shifts</h2>
+        <h2 className="text-base font-bold">Driver Shifts</h2>
         <span className="text-sm text-muted-foreground">{mockShifts.length} shifts today</span>
       </div>
       <div className="space-y-2">
@@ -414,7 +414,7 @@ function DriverShiftsDrilldown() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center font-bold">
+                <div className="w-10 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold">
                   {shift.driver.split(' ').map(n => n[0]).join('')}
                 </div>
                 <div>
@@ -448,22 +448,22 @@ function AssetValueDrilldown() {
   ]
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div>
-        <h2 className="text-xl font-bold">Asset Value Analysis</h2>
+        <h2 className="text-base font-bold">Asset Value Analysis</h2>
         <p className="text-sm text-muted-foreground">Total portfolio value and depreciation breakdown</p>
       </div>
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-muted/30 rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold">${((data.totalValue || 4200000) / 1000000).toFixed(1)}M</div>
+      <div className="grid grid-cols-3 gap-2">
+        <div className="bg-muted/30 rounded-lg p-2 text-center">
+          <div className="text-sm font-bold">${((data.totalValue || 4200000) / 1000000).toFixed(1)}M</div>
           <div className="text-sm text-muted-foreground">Total Value</div>
         </div>
-        <div className="bg-muted/30 rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-red-600">${((data.depreciation || 320000) / 1000).toFixed(0)}K</div>
+        <div className="bg-muted/30 rounded-lg p-2 text-center">
+          <div className="text-sm font-bold text-red-600">${((data.depreciation || 320000) / 1000).toFixed(0)}K</div>
           <div className="text-sm text-muted-foreground">YTD Depreciation</div>
         </div>
-        <div className="bg-muted/30 rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold">{data.avgAge || 3.4} yrs</div>
+        <div className="bg-muted/30 rounded-lg p-2 text-center">
+          <div className="text-sm font-bold">{data.avgAge || 3.4} yrs</div>
           <div className="text-sm text-muted-foreground">Avg Age</div>
         </div>
       </div>
@@ -930,7 +930,7 @@ function DrilldownContent() {
     // ============================================
     default:
       return (
-        <div className="p-6 text-center">
+        <div className="p-3 text-center">
           <p className="text-muted-foreground">
             Unknown drilldown type: {currentLevel.type}
           </p>

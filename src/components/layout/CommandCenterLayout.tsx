@@ -84,7 +84,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): Rea
             {/* Skip Link for Accessibility */}
             <a
                 href="#main-content"
-                className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:shadow-lg focus:ring-2 focus:ring-primary/50"
+                className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-2 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:shadow-sm focus:ring-2 focus:ring-primary/50"
             >
                 Skip to main content
             </a>
@@ -105,7 +105,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): Rea
                     "z-50 shrink-0",
                     (isMobile || isTablet) ? cn(
                         "fixed inset-y-0 left-0 transform transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                        mobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
+                        mobileMenuOpen ? "translate-x-0 shadow-sm" : "-translate-x-full"
                     ) : "relative transition-all duration-300 ease-out"
                 )}
             >
@@ -125,7 +125,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): Rea
                     onClick={toggleMobileMenu}
                     aria-label="Close navigation menu"
                 >
-                    <X className="w-5 h-5" />
+                    <X className="w-3 h-3" />
                 </Button>
             </aside>
 
@@ -145,7 +145,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): Rea
                             aria-label="Open navigation menu"
                             aria-expanded={mobileMenuOpen}
                         >
-                            <PanelLeft className="w-5 h-5" />
+                            <PanelLeft className="w-3 h-3" />
                         </Button>
                     )}
                     <CommandCenterHeader isMobile={isMobile || isTablet} />

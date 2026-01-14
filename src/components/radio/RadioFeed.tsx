@@ -43,7 +43,7 @@ export function RadioFeed({ channelId, onChannelSelect, transmissions }: RadioFe
   };
 
   return (
-    <div className="grid gap-4 lg:grid-cols-3">
+    <div className="grid gap-2 lg:grid-cols-3">
       {/* Channel Selector */}
       <Card>
         <CardHeader>
@@ -92,13 +92,13 @@ export function RadioFeed({ channelId, onChannelSelect, transmissions }: RadioFe
             {transmissions.length === 0 ? (
               <div className="flex h-[400px] items-center justify-center text-muted-foreground">
                 <div className="text-center">
-                  <RadioIcon className="mx-auto h-12 w-12 mb-4 opacity-50" />
+                  <RadioIcon className="mx-auto h-9 w-12 mb-2 opacity-50" />
                   <p>No transmissions yet</p>
                   <p className="text-sm">Waiting for radio activity...</p>
                 </div>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {transmissions.map((transmission) => (
                   <Card key={transmission.id} className={cn(
                     "border-l-4",

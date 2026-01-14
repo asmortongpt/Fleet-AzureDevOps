@@ -137,88 +137,88 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
   }, [criticalAlerts, alertFilter]);
 
   const renderOverviewCards = () => (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-3">
       {/* Real-time Metrics */}
       <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-        <CardContent className="p-4">
+        <CardContent className="p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-blue-700">Active Drivers</p>
-              <p className="text-2xl font-bold text-blue-900">
+              <p className="text-sm font-bold text-blue-900">
                 {dashboardMetrics.realTime.activeDrivers}
               </p>
             </div>
-            <Users className="w-8 h-8 text-blue-800" />
+            <Users className="w-4 h-4 text-blue-800" />
           </div>
         </CardContent>
       </Card>
 
       <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
-        <CardContent className="p-4">
+        <CardContent className="p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-red-700">Critical Alerts</p>
-              <p className="text-2xl font-bold text-red-900">
+              <p className="text-sm font-bold text-red-900">
                 {dashboardMetrics.realTime.criticalAlerts}
               </p>
             </div>
-            <AlertTriangle className="w-8 h-8 text-red-600" />
+            <AlertTriangle className="w-4 h-4 text-red-600" />
           </div>
         </CardContent>
       </Card>
 
       <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-        <CardContent className="p-4">
+        <CardContent className="p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-orange-700">Interventions</p>
-              <p className="text-2xl font-bold text-orange-900">
+              <p className="text-sm font-bold text-orange-900">
                 {dashboardMetrics.realTime.activeSafetyInterventions}
               </p>
             </div>
-            <Shield className="w-8 h-8 text-orange-600" />
+            <Shield className="w-4 h-4 text-orange-600" />
           </div>
         </CardContent>
       </Card>
 
       <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-        <CardContent className="p-4">
+        <CardContent className="p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-green-700">Safety Score</p>
-              <p className="text-2xl font-bold text-green-900">
+              <p className="text-sm font-bold text-green-900">
                 {Math.round(dashboardMetrics.realTime.averageFleetSafetyScore)}
               </p>
             </div>
-            <Gauge className="w-8 h-8 text-green-600" />
+            <Gauge className="w-4 h-4 text-green-600" />
           </div>
         </CardContent>
       </Card>
 
       <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-        <CardContent className="p-4">
+        <CardContent className="p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-purple-700">Fatigue Alerts</p>
-              <p className="text-2xl font-bold text-purple-900">
+              <p className="text-sm font-bold text-purple-900">
                 {dashboardMetrics.realTime.fatigueAlerts}
               </p>
             </div>
-            <Coffee className="w-8 h-8 text-purple-600" />
+            <Coffee className="w-4 h-4 text-purple-600" />
           </div>
         </CardContent>
       </Card>
 
       <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-200">
-        <CardContent className="p-4">
+        <CardContent className="p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-indigo-700">Distraction</p>
-              <p className="text-2xl font-bold text-indigo-900">
+              <p className="text-sm font-bold text-indigo-900">
                 {dashboardMetrics.realTime.distractionAlerts}
               </p>
             </div>
-            <Eye className="w-8 h-8 text-indigo-600" />
+            <Eye className="w-4 h-4 text-indigo-600" />
           </div>
         </CardContent>
       </Card>
@@ -239,24 +239,24 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
         key={analysis.driverId}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-4"
+        className="mb-2"
       >
         <Card
-          className={`border-l-4 ${riskColors[riskLevel]} hover:shadow-lg transition-all duration-200`}
+          className={`border-l-4 ${riskColors[riskLevel]} hover:shadow-sm transition-all duration-200`}
         >
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                    <Car className="w-6 h-6 text-slate-700" />
+                  <div className="w-12 h-9 bg-gray-200 rounded-full flex items-center justify-center">
+                    <Car className="w-4 h-4 text-slate-700" />
                   </div>
                   {analysis.risk.prediction?.timeToIntervention && (
                     <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-pulse" />
                   )}
                 </div>
                 <div>
-                  <CardTitle className="text-lg">
+                  <CardTitle className="text-sm">
                     {driver.firstName} {driver.lastName}
                   </CardTitle>
                   <p className="text-sm text-slate-700">
@@ -275,13 +275,13 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-bold">{Math.round(analysis.safetyScore)}</div>
+                <div className="text-base font-bold">{Math.round(analysis.safetyScore)}</div>
                 <div className="text-xs text-gray-500">Safety Score</div>
               </div>
             </div>
           </CardHeader>
 
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-2">
             {/* Real-time Status indicators */}
             <div className="grid grid-cols-4 gap-3">
               <div className="text-center p-2 bg-gray-50 rounded-lg">
@@ -475,7 +475,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
   };
 
   const renderAlertsView = () => (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Alert filters */}
       <div className="flex flex-wrap gap-2 items-center">
         <span className="text-sm font-medium">Filter by severity:</span>
@@ -497,9 +497,9 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
           filteredAlerts.map((alert) => {
             const driver = drivers.find((d) => d.id === alert.driverId);
             const severityIcon = {
-              critical: <AlertCircle className="w-5 h-5 text-red-600" />,
-              high: <AlertTriangle className="w-5 h-5 text-orange-600" />,
-              medium: <Bell className="w-5 h-5 text-yellow-600" />
+              critical: <AlertCircle className="w-3 h-3 text-red-600" />,
+              high: <AlertTriangle className="w-3 h-3 text-orange-600" />,
+              medium: <Bell className="w-3 h-3 text-yellow-600" />
             }[alert.severity];
 
             return (
@@ -511,7 +511,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                 <Card
                   className={`border-l-4 ${riskColors[alert.severity as keyof typeof riskColors]}`}
                 >
-                  <CardContent className="p-4">
+                  <CardContent className="p-2">
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-3">
                         {severityIcon}
@@ -554,9 +554,9 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
           })
         ) : (
           <Card>
-            <CardContent className="p-8 text-center">
-              <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-600" />
-              <h3 className="text-lg font-semibold mb-2">No Active Alerts</h3>
+            <CardContent className="p-3 text-center">
+              <CheckCircle className="w-12 h-9 mx-auto mb-2 text-green-600" />
+              <h3 className="text-sm font-semibold mb-2">No Active Alerts</h3>
               <p className="text-slate-700">All drivers are operating within safe parameters.</p>
             </CardContent>
           </Card>
@@ -566,53 +566,53 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
   );
 
   const renderCoachingView = () => (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Coaching overview */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2">
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-2">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-700">Drivers in Program</p>
-                <p className="text-2xl font-bold">{dashboardMetrics.coaching.driversInProgram}</p>
+                <p className="text-sm font-bold">{dashboardMetrics.coaching.driversInProgram}</p>
               </div>
-              <Users className="w-8 h-8 text-blue-800" />
+              <Users className="w-4 h-4 text-blue-800" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-2">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-700">Avg Improvement</p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-sm font-bold text-green-600">
                   +{Math.round(dashboardMetrics.coaching.averageImprovement)}%
                 </p>
               </div>
-              <TrendingUp className="w-8 h-8 text-green-600" />
+              <TrendingUp className="w-4 h-4 text-green-600" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-2">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-700">Completion Rate</p>
-                <p className="text-2xl font-bold text-purple-600">
+                <p className="text-sm font-bold text-purple-600">
                   {Math.round(dashboardMetrics.coaching.completionRate)}%
                 </p>
               </div>
-              <Award className="w-8 h-8 text-purple-600" />
+              <Award className="w-4 h-4 text-purple-600" />
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Driver coaching cards */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Active Coaching Programs</h3>
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold">Active Coaching Programs</h3>
         {activeAnalyses
           .filter((analysis) => analysis.coaching.goalProgress.length > 0)
           .map((analysis) => {
@@ -623,11 +623,11 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
               <Card key={analysis.driverId} className="border-blue-200 bg-blue-50">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Target className="w-5 h-5 text-blue-800" />
+                    <Target className="w-3 h-3 text-blue-800" />
                     {driver.firstName} {driver.lastName} - Coaching Progress
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                   {analysis.coaching.goalProgress.map((goal) => (
                     <div key={goal.goal} className="space-y-2">
                       <div className="flex items-center justify-between">
@@ -669,11 +669,11 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
   );
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`space-y-2 ${className}`}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Driver Safety Dashboard</h1>
+          <h1 className="text-base font-bold text-gray-900">Driver Safety Dashboard</h1>
           <p className="text-slate-700">Tesla Autopilot-grade AI monitoring & coaching</p>
         </div>
 
@@ -725,11 +725,11 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
           {selectedView === 'overview' && (
             <div>
               {renderOverviewCards()}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <LineChart className="w-5 h-5" />
+                      <LineChart className="w-3 h-3" />
                       Safety Trends
                     </CardTitle>
                   </CardHeader>
@@ -743,7 +743,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Brain className="w-5 h-5" />
+                      <Brain className="w-3 h-3" />
                       AI Predictions
                     </CardTitle>
                   </CardHeader>
@@ -774,14 +774,14 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
 
           {selectedView === 'drivers' && (
             <div>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {activeAnalyses.length > 0 ? (
                   activeAnalyses.map(renderDriverAnalysisCard)
                 ) : (
                   <Card>
-                    <CardContent className="p-8 text-center">
-                      <Car className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                      <h3 className="text-lg font-semibold mb-2">No Active Drivers</h3>
+                    <CardContent className="p-3 text-center">
+                      <Car className="w-12 h-9 mx-auto mb-2 text-gray-400" />
+                      <h3 className="text-sm font-semibold mb-2">No Active Drivers</h3>
                       <p className="text-slate-700">No drivers are currently being monitored.</p>
                     </CardContent>
                   </Card>

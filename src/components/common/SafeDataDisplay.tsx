@@ -251,7 +251,7 @@ export function SafeDataWrapper<T>({
 }: SafeDataWrapperProps<T>) {
   if (isLoading) {
     return loadingFallback || (
-      <div className="space-y-4">
+      <div className="space-y-2">
         <Skeleton className="h-8 w-1/3" />
         <Skeleton className="h-32 w-full" />
       </div>
@@ -260,7 +260,7 @@ export function SafeDataWrapper<T>({
 
   if (error) {
     return errorFallback || (
-      <div className="p-4 border border-destructive/50 bg-destructive/10 rounded-md">
+      <div className="p-2 border border-destructive/50 bg-destructive/10 rounded-md">
         <p className="text-destructive font-medium">Error loading data</p>
         <p className="text-sm text-muted-foreground">{error.message}</p>
       </div>
@@ -269,7 +269,7 @@ export function SafeDataWrapper<T>({
 
   if (!data) {
     return emptyFallback || (
-      <div className="p-8 text-center text-muted-foreground">
+      <div className="p-3 text-center text-muted-foreground">
         No data available
       </div>
     )

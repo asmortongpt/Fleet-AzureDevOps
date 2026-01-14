@@ -126,7 +126,7 @@ export function DamageAnalysisResults({
     .reduce((sum, item) => sum + item.laborCost + item.partsCost, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Vehicle Info */}
       <Card>
         <CardHeader>
@@ -138,7 +138,7 @@ export function DamageAnalysisResults({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
             <div>
               <p className="text-gray-500">Make</p>
               <p className="font-medium">{analysis.vehicleInfo.make || 'Unknown'}</p>
@@ -212,7 +212,7 @@ export function DamageAnalysisResults({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold text-gray-900">
+          <div className="text-base font-bold text-gray-900">
             ${selectedCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
           <p className="text-sm text-gray-500 mt-1">
@@ -222,9 +222,9 @@ export function DamageAnalysisResults({
       </Card>
 
       {/* Damage List */}
-      <div className="space-y-4">
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Detected Damage ({analysis.damages.length})</h3>
+          <h3 className="text-sm font-semibold">Detected Damage ({analysis.damages.length})</h3>
           <div className="text-sm text-slate-700">
             Click to select/deselect damage items
           </div>
@@ -274,14 +274,14 @@ export function DamageAnalysisResults({
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-2">
                 {/* Description */}
                 <div>
                   <p className="text-sm text-gray-700">{damage.description}</p>
                 </div>
 
                 {/* Measurements */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                   <div>
                     <p className="text-gray-500">Estimated Size</p>
                     <p className="font-medium">{damage.estimatedSize}</p>
@@ -316,7 +316,7 @@ export function DamageAnalysisResults({
 
                 {/* Cost Breakdown */}
                 {costBreakdown && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
                     <div>
                       <p className="text-gray-500">Labor</p>
                       <p className="font-medium">
@@ -345,7 +345,7 @@ export function DamageAnalysisResults({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-4 sticky bottom-4 bg-white p-4 rounded-lg shadow-lg border">
+      <div className="flex gap-2 sticky bottom-4 bg-white p-2 rounded-lg shadow-sm border">
         {onMap3D && (
           <Button variant="outline" onClick={onMap3D} className="flex-1">
             <MapPin className="mr-2 h-4 w-4" />

@@ -47,7 +47,7 @@ export function TrafficCameraLayer({
     className: 'custom-camera-marker',
     html: `
       <div class="relative">
-        <div class="bg-blue-600 text-white rounded-full p-2 shadow-lg border-2 border-white">
+        <div class="bg-blue-600 text-white rounded-full p-2 shadow-sm border-2 border-white">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
           </svg>
@@ -110,7 +110,7 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
             {camera.road} {camera.direction}
           </p>
         </div>
-        <Camera className="w-5 h-5 text-blue-800" />
+        <Camera className="w-3 h-3 text-blue-800" />
       </div>
 
       {camera.description && (
@@ -179,17 +179,17 @@ function CameraFeedModal({
 }) {
   return (
     <div
-      className="fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-75 p-4"
+      className="fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-75 p-2"
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col"
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-sm max-w-4xl w-full max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-2 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-base font-bold text-gray-900 dark:text-white">
               {camera.name}
             </h2>
             <p className="text-sm text-slate-700 dark:text-gray-400">
@@ -200,7 +200,7 @@ function CameraFeedModal({
             onClick={onClose}
             className="text-gray-400 hover:text-slate-700 dark:hover:text-gray-300 transition-colors"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -212,7 +212,7 @@ function CameraFeedModal({
         </div>
 
         {/* Camera Feed */}
-        <div className="flex-1 overflow-auto p-4 bg-gray-100 dark:bg-gray-900">
+        <div className="flex-1 overflow-auto p-2 bg-gray-100 dark:bg-gray-900">
           <div className="aspect-video bg-black rounded overflow-hidden">
             {camera.feedUrl ? (
               <iframe
@@ -224,7 +224,7 @@ function CameraFeedModal({
             ) : (
               <div className="w-full h-full flex items-center justify-center text-white">
                 <div className="text-center">
-                  <Camera className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                  <Camera className="w-16 h-16 mx-auto mb-2 opacity-50" />
                   <p>Live feed unavailable</p>
                 </div>
               </div>
@@ -233,7 +233,7 @@ function CameraFeedModal({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+        <div className="p-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
           <div className="flex items-center justify-between">
             <div className="text-sm text-slate-700 dark:text-gray-400">
               <p>{camera.description}</p>
@@ -246,7 +246,7 @@ function CameraFeedModal({
                 href={camera.feedUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-2"
+                className="px-2 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-2"
               >
                 Open in New Tab
                 <ExternalLink className="w-4 h-4" />

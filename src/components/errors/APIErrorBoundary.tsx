@@ -220,7 +220,7 @@ export class APIErrorBoundary extends Component<Props, State> {
     const canStillRetry = retryCount < this.maxRetries && canRetry
 
     return (
-      <div className="flex items-center justify-center min-h-[400px] p-4">
+      <div className="flex items-center justify-center min-h-[400px] p-2">
         <Card className="w-full max-w-lg">
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -258,11 +258,11 @@ export class APIErrorBoundary extends Component<Props, State> {
             )}
 
             {import.meta.env.DEV && this.state.error && (
-              <details className="mt-4">
+              <details className="mt-2">
                 <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
                   Technical Details (Dev Mode)
                 </summary>
-                <pre className="mt-2 rounded-lg bg-muted p-4 text-xs overflow-auto max-h-60">
+                <pre className="mt-2 rounded-lg bg-muted p-2 text-xs overflow-auto max-h-60">
                   {this.state.error.stack}
                 </pre>
               </details>

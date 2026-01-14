@@ -56,7 +56,7 @@ export const OutlookEmailButton: React.FC<{
     <button
       onClick={sendEmail}
       disabled={sending}
-      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+      className="flex items-center gap-2 px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
     >
       <Mail className="w-4 h-4" />
       {sending ? 'Sending...' : 'Send Email'}
@@ -119,7 +119,7 @@ export const TeamsChatButton: React.FC<{
   return (
     <button
       onClick={startChat}
-      className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+      className="flex items-center gap-2 px-2 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
     >
       <MessageSquare className="w-4 h-4" />
       Teams Chat
@@ -177,7 +177,7 @@ export const CalendarEventButton: React.FC<{
     <button
       onClick={createEvent}
       disabled={creating}
-      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+      className="flex items-center gap-2 px-2 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
     >
       <Calendar className="w-4 h-4" />
       {creating ? 'Creating...' : 'Add to Calendar'}
@@ -194,9 +194,9 @@ export const CommunicationPanel: React.FC<{
   };
 }> = ({ context }) => {
   return (
-    <div className="border border-border rounded-lg p-4 space-y-3">
+    <div className="border border-border rounded-lg p-2 space-y-3">
       <h3 className="font-semibold flex items-center gap-2">
-        <Send className="w-5 h-5" />
+        <Send className="w-3 h-3" />
         Communication
       </h3>
 

@@ -61,17 +61,17 @@ export function FleetOverviewDrilldown() {
     }
 
     return (
-        <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
                 <Card className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 border-blue-800/50 backdrop-blur-sm">
-                    <CardContent className="pt-4">
-                        <div className="text-3xl font-bold text-blue-800">{vehicles.length}</div>
+                    <CardContent className="pt-2">
+                        <div className="text-base font-bold text-blue-800">{vehicles.length}</div>
                         <div className="text-sm text-blue-400">Total Fleet Size</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
-                    <CardContent className="pt-4">
-                        <div className="text-3xl font-bold text-emerald-500">
+                    <CardContent className="pt-2">
+                        <div className="text-base font-bold text-emerald-500">
                             {Math.round((byStatus.active.length / vehicles.length) * 100)}%
                         </div>
                         <div className="text-sm text-emerald-400">Utilization Rate</div>
@@ -131,7 +131,7 @@ export function FleetOverviewDrilldown() {
                                     data: { vehicles: list, filter: type }
                                 })}
                             >
-                                <span className="text-lg font-bold">{list.length}</span>
+                                <span className="text-sm font-bold">{list.length}</span>
                                 <span className="text-xs text-muted-foreground capitalize">{type}s</span>
                             </Button>
                         ))}
@@ -161,7 +161,7 @@ export function ActiveVehiclesDrilldown() {
     const vehicles = generateDemoVehicles(100).filter(v => v.status === 'active')
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-2">
             <div className="flex items-center justify-between">
                 <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
                     {vehicles.length} Active Vehicles
@@ -181,10 +181,10 @@ export function ActiveVehiclesDrilldown() {
                             data: { vehicleId: vehicle.id }
                         })}
                     >
-                        <CardContent className="p-4">
+                        <CardContent className="p-2">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                                    <div className="w-10 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
                                         <Truck className="h-5 w-5 text-emerald-400" />
                                     </div>
                                     <div>
@@ -200,7 +200,7 @@ export function ActiveVehiclesDrilldown() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="mt-2 flex gap-4 text-xs text-muted-foreground">
+                            <div className="mt-2 flex gap-2 text-xs text-muted-foreground">
                                 <span>Fuel: {vehicle.fuelLevel}%</span>
                                 <span>|</span>
                                 <span>{vehicle.mileage.toLocaleString()} mi</span>
@@ -211,7 +211,7 @@ export function ActiveVehiclesDrilldown() {
             </div>
 
             {vehicles.length > 20 && (
-                <div className="text-center text-sm text-muted-foreground py-4">
+                <div className="text-center text-sm text-muted-foreground py-2">
                     Showing 20 of {vehicles.length} active vehicles
                 </div>
             )}
@@ -239,48 +239,48 @@ export function MaintenanceDrilldown() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-2">
             {/* Status Summary */}
             <div className="grid grid-cols-2 gap-3">
                 <Card className="border-red-500/30 bg-red-500/10">
-                    <CardContent className="pt-4 pb-3">
+                    <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
                             <AlertCircle className="h-5 w-5 text-red-500" />
                             <div>
-                                <div className="text-2xl font-bold text-red-700">{byStatus.overdue.length}</div>
+                                <div className="text-sm font-bold text-red-700">{byStatus.overdue.length}</div>
                                 <div className="text-xs text-red-600">Overdue</div>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
                 <Card className="border-amber-500/30 bg-amber-500/10">
-                    <CardContent className="pt-4 pb-3">
+                    <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
                             <Wrench className="h-5 w-5 text-amber-500" />
                             <div>
-                                <div className="text-2xl font-bold text-amber-700">{byStatus.inProgress.length}</div>
+                                <div className="text-sm font-bold text-amber-700">{byStatus.inProgress.length}</div>
                                 <div className="text-xs text-amber-600">In Progress</div>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
                 <Card className="border-blue-500/30 bg-blue-500/10">
-                    <CardContent className="pt-4 pb-3">
+                    <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
                             <Calendar className="h-5 w-5 text-blue-800" />
                             <div>
-                                <div className="text-2xl font-bold text-blue-700">{byStatus.scheduled.length}</div>
+                                <div className="text-sm font-bold text-blue-700">{byStatus.scheduled.length}</div>
                                 <div className="text-xs text-blue-800">Scheduled</div>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
                 <Card className="border-emerald-500/30 bg-emerald-500/10">
-                    <CardContent className="pt-4 pb-3">
+                    <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
                             <CheckCircle className="h-5 w-5 text-emerald-500" />
                             <div>
-                                <div className="text-2xl font-bold text-emerald-700">{byStatus.completed.length}</div>
+                                <div className="text-sm font-bold text-emerald-700">{byStatus.completed.length}</div>
                                 <div className="text-xs text-emerald-600">Completed</div>
                             </div>
                         </div>
@@ -349,37 +349,37 @@ export function FuelManagementDrilldown() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-2">
             {/* Summary Cards */}
             <div className="grid grid-cols-3 gap-3">
                 <Card className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 border-blue-800/50 backdrop-blur-sm">
-                    <CardContent className="pt-4 pb-3">
+                    <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
                             <Fuel className="h-5 w-5 text-blue-800" />
                             <div>
-                                <div className="text-2xl font-bold text-blue-800">{transactions.length}</div>
+                                <div className="text-sm font-bold text-blue-800">{transactions.length}</div>
                                 <div className="text-xs text-blue-400">Total Transactions</div>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
-                    <CardContent className="pt-4 pb-3">
+                    <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
                             <Fuel className="h-5 w-5 text-emerald-500" />
                             <div>
-                                <div className="text-2xl font-bold text-emerald-500">${totalCost.toFixed(2)}</div>
+                                <div className="text-sm font-bold text-emerald-500">${totalCost.toFixed(2)}</div>
                                 <div className="text-xs text-emerald-400">Total Cost</div>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-amber-900/20 to-amber-800/10 border-amber-800/50 backdrop-blur-sm">
-                    <CardContent className="pt-4 pb-3">
+                    <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
                             <Fuel className="h-5 w-5 text-amber-500" />
                             <div>
-                                <div className="text-2xl font-bold text-amber-500">${avgCostPerGallon}</div>
+                                <div className="text-sm font-bold text-amber-500">${avgCostPerGallon}</div>
                                 <div className="text-xs text-amber-400">Avg. Cost/Gallon</div>
                             </div>
                         </div>
@@ -396,7 +396,7 @@ export function FuelManagementDrilldown() {
                     {Object.entries(byVehicleType).map(([type, list]) => (
                         <div key={type} className="flex items-center justify-between py-2 border-b last:border-0">
                             <span className="capitalize">{type}</span>
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
                                 <span className="font-semibold">{list.length}</span>
                                 <span className="text-sm text-muted-foreground">
                                     ${(list.reduce((sum, t) => sum + (t.cost ?? 0), 0)).toFixed(2)}
@@ -604,11 +604,11 @@ export function VehicleListDrilldown() {
     ]
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-2">
             {/* Header with summary */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold">
+                    <h2 className="text-sm font-bold">
                         {filter ? `${filter.charAt(0).toUpperCase() + filter.slice(1)} Vehicles` : 'All Vehicles'}
                     </h2>
                     <p className="text-sm text-muted-foreground mt-1">
@@ -620,22 +620,22 @@ export function VehicleListDrilldown() {
             {/* Summary Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <Card>
-                    <CardContent className="pt-4 pb-3">
+                    <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
                             <Truck className="h-4 w-4 text-muted-foreground" />
                             <div>
-                                <div className="text-2xl font-bold">{filteredVehicles.length}</div>
+                                <div className="text-sm font-bold">{filteredVehicles.length}</div>
                                 <div className="text-xs text-muted-foreground">Total</div>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardContent className="pt-4 pb-3">
+                    <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
                             <CheckCircle className="h-4 w-4 text-emerald-500" />
                             <div>
-                                <div className="text-2xl font-bold text-emerald-600">
+                                <div className="text-sm font-bold text-emerald-600">
                                     {filteredVehicles.filter((v: any) => v.status === 'active').length}
                                 </div>
                                 <div className="text-xs text-muted-foreground">Active</div>
@@ -644,11 +644,11 @@ export function VehicleListDrilldown() {
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardContent className="pt-4 pb-3">
+                    <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
                             <AlertTriangle className="h-4 w-4 text-amber-500" />
                             <div>
-                                <div className="text-2xl font-bold text-amber-600">
+                                <div className="text-sm font-bold text-amber-600">
                                     {filteredVehicles.filter((v: any) => v.status === 'maintenance' || v.status === 'service').length}
                                 </div>
                                 <div className="text-xs text-muted-foreground">Maintenance</div>
@@ -657,11 +657,11 @@ export function VehicleListDrilldown() {
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardContent className="pt-4 pb-3">
+                    <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
                             <Gauge className="h-4 w-4 text-muted-foreground" />
                             <div>
-                                <div className="text-2xl font-bold">
+                                <div className="text-sm font-bold">
                                     {Math.round(filteredVehicles.reduce((sum: number, v: any) => sum + (v.fuelLevel || 0), 0) / filteredVehicles.length)}%
                                 </div>
                                 <div className="text-xs text-muted-foreground">Avg Fuel</div>
@@ -674,14 +674,14 @@ export function VehicleListDrilldown() {
             {/* Vehicle Table */}
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-lg">Vehicle Details</CardTitle>
+                    <CardTitle className="text-sm">Vehicle Details</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-2">
                         {filteredVehicles.map((vehicle: any) => (
                             <div
                                 key={vehicle.id}
-                                className="p-4 border rounded-lg cursor-pointer hover:bg-accent transition-colors"
+                                className="p-2 border rounded-lg cursor-pointer hover:bg-accent transition-colors"
                                 onClick={() => push({
                                     id: `vehicle-${vehicle.id}`,
                                     type: 'vehicle',
@@ -691,7 +691,7 @@ export function VehicleListDrilldown() {
                             >
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3 flex-1">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${vehicle.status === 'active' ? 'bg-emerald-100 dark:bg-emerald-900/30' :
+                                        <div className={`w-10 h-8 rounded-full flex items-center justify-center ${vehicle.status === 'active' ? 'bg-emerald-100 dark:bg-emerald-900/30' :
                                             vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'bg-amber-100 dark:bg-amber-900/30' :
                                                 'bg-slate-100 dark:bg-slate-800'
                                             }`}>
@@ -709,7 +709,7 @@ export function VehicleListDrilldown() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-2">
                                         <div className="text-right hidden sm:block">
                                             <div className="text-sm font-medium">{vehicle.mileage?.toLocaleString() || '0'} mi</div>
                                             <div className="text-xs text-muted-foreground">Fuel: {vehicle.fuelLevel}%</div>
@@ -723,7 +723,7 @@ export function VehicleListDrilldown() {
 
                     {filteredVehicles.length === 0 && (
                         <div className="text-center py-12 text-muted-foreground">
-                            <XCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                            <XCircle className="h-9 w-12 mx-auto mb-3 opacity-50" />
                             <p>No vehicles found matching the filter</p>
                         </div>
                     )}

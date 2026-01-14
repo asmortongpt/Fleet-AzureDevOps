@@ -292,11 +292,11 @@ export function DataDrilldown({
     if (!currentRecord) return null;
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-2">
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" onClick={handleBack} aria-label="Go back">
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
@@ -332,7 +332,7 @@ export function DataDrilldown({
             </div>
           </CardHeader>
           <CardContent>
-            <dl className="grid grid-cols-2 gap-4">
+            <dl className="grid grid-cols-2 gap-2">
               <div className="col-span-2 border-b pb-2">
                 <dt className="text-sm font-medium text-muted-foreground">Record ID</dt>
                 <dd className="font-mono text-sm mt-1">{currentRecord.id}</dd>
@@ -385,7 +385,7 @@ export function DataDrilldown({
             <CardContent>
               <div className="space-y-3">
                 {currentRecord.auditTrail.map((entry, idx) => (
-                  <div key={idx} className="flex gap-4 text-sm border-b pb-3">
+                  <div key={idx} className="flex gap-2 text-sm border-b pb-3">
                     <div className="text-muted-foreground w-32">
                       {entry.timestamp.toLocaleString()}
                     </div>
@@ -414,7 +414,7 @@ export function DataDrilldown({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <Button variant="ghost" size="sm" onClick={() => setViewMode('detail')} aria-label="Cancel editing and go back">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
@@ -431,7 +431,7 @@ export function DataDrilldown({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-2">
             {Object.entries(editFormData).map(([key, value]) => (
               <div key={key}>
                 <label className="text-sm font-medium capitalize">

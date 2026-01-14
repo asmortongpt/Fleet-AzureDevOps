@@ -66,10 +66,10 @@ export default function ModuleAdminPage() {
     };
 
     return (
-        <div className="p-6 space-y-6 max-w-7xl mx-auto">
+        <div className="p-3 space-y-2 max-w-7xl mx-auto">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Module Management</h1>
+                    <h1 className="text-base font-bold tracking-tight">Module Management</h1>
                     <p className="text-muted-foreground mt-2">
                         Enable or disable system modules to customize the experience.
                     </p>
@@ -103,8 +103,8 @@ export default function ModuleAdminPage() {
                     <TabsTrigger value="tools">Tools</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="all" className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <TabsContent value="all" className="space-y-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                         {navigationItems.map((item) => {
                             const packageId = manager.getAllPackages().find(p => p.modules.includes(item.id))?.id;
                             const isEnabled = enabledModules.has(item.id);
@@ -116,7 +116,7 @@ export default function ModuleAdminPage() {
                                 <Card key={item.id} className={!isEnabled ? "opacity-75 bg-muted/50" : ""}>
                                     <CardHeader className="pb-3">
                                         <div className="flex justify-between items-start">
-                                            <CardTitle className="text-lg font-medium flex items-center gap-2">
+                                            <CardTitle className="text-sm font-medium flex items-center gap-2">
                                                 <span className="p-1.5 bg-primary/10 rounded-md text-primary">
                                                     {item.icon}
                                                 </span>

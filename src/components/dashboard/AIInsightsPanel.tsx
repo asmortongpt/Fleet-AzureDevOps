@@ -89,7 +89,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
 
   return (
     <Card className="shadow-sm border-border/50">
-      <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30">
+      <CardHeader className="px-2 py-3 border-b border-border/50 bg-muted/30">
         <CardTitle className="text-sm font-semibold flex items-center gap-2">
           <Sparkle className="w-4 h-4 text-primary" weight="fill" />
           AI Insights & Predictions
@@ -100,10 +100,10 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="px-4 pb-4 pt-3">
+      <CardContent className="px-2 pb-2 pt-3">
         {sortedInsights.length === 0 ? (
-          <div className="text-center py-6">
-            <CheckCircle className="w-8 h-8 mx-auto mb-2 text-green-600 dark:text-green-400" weight="fill" />
+          <div className="text-center py-3">
+            <CheckCircle className="w-4 h-4 mx-auto mb-2 text-green-600 dark:text-green-400" weight="fill" />
             <p className="text-xs text-muted-foreground">
               No active insights
             </p>

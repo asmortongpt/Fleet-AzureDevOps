@@ -86,9 +86,9 @@ export const LoginPage = () => {
   if (!msalReady) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <Card className="w-full max-w-md p-8">
+        <Card className="w-full max-w-md p-3">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
             <p className="text-slate-700">Initializing authentication...</p>
           </div>
         </Card>
@@ -98,10 +98,10 @@ export const LoginPage = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <Card className="w-full max-w-md p-8 shadow-xl">
+      <Card className="w-full max-w-md p-3 shadow-sm">
         {/* Logo and Title */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
+        <div className="text-center mb-3">
+          <div className="flex items-center justify-center mb-2">
             <svg
               className="w-16 h-16 text-blue-800"
               fill="none"
@@ -116,7 +116,7 @@ export const LoginPage = () => {
               />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-base font-bold text-gray-900 mb-2">
             Fleet Management System
           </h1>
           <p className="text-slate-700">
@@ -126,9 +126,9 @@ export const LoginPage = () => {
 
         {/* Error Alert */}
         {error && (
-          <Alert variant="destructive" className="mb-6">
+          <Alert variant="destructive" className="mb-3">
             <svg
-              className="w-5 h-5 mr-2"
+              className="w-3 h-3 mr-2"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -145,12 +145,12 @@ export const LoginPage = () => {
         )}
 
         {/* Login Methods */}
-        <div className="space-y-4">
+        <div className="space-y-2">
           {/* Primary Login Button (Redirect) */}
           <Button
             onClick={handleLoginRedirect}
             disabled={isLoading}
-            className="w-full h-12 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white"
+            className="w-full h-9 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white"
           >
             {isLoading ? (
               <div className="flex items-center justify-center">
@@ -159,7 +159,7 @@ export const LoginPage = () => {
               </div>
             ) : (
               <div className="flex items-center justify-center">
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M5.85 3.5h12.3c1.35 0 2.45 1.1 2.45 2.45v12.3c0 1.35-1.1 2.45-2.45 2.45H5.85c-1.35 0-2.45-1.1-2.45-2.45V5.95c0-1.35 1.1-2.45 2.45-2.45zm6.15 2.85c-3.45 0-6.3 2.85-6.3 6.3s2.85 6.3 6.3 6.3 6.3-2.85 6.3-6.3-2.85-6.3-6.3-6.3zm0 1.8c2.55 0 4.5 2.1 4.5 4.5s-2.1 4.5-4.5 4.5-4.5-2.1-4.5-4.5 2.1-4.5 4.5-4.5z" />
                 </svg>
                 Sign in with Microsoft
@@ -172,17 +172,17 @@ export const LoginPage = () => {
             onClick={handleLoginPopup}
             disabled={isLoading}
             variant="outline"
-            className="w-full h-12 text-lg font-semibold border-2 border-blue-600 text-blue-800 hover:bg-blue-50"
+            className="w-full h-9 text-sm font-semibold border-2 border-blue-600 text-blue-800 hover:bg-blue-50"
           >
             Sign in with Popup
           </Button>
         </div>
 
         {/* Security Notice */}
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-start">
             <svg
-              className="w-5 h-5 text-blue-800 mr-2 mt-0.5 flex-shrink-0"
+              className="w-3 h-3 text-blue-800 mr-2 mt-0.5 flex-shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -207,7 +207,7 @@ export const LoginPage = () => {
         </div>
 
         {/* Footer */}
-        <div className="mt-6 text-center text-sm text-gray-500">
+        <div className="mt-3 text-center text-sm text-gray-500">
           <p>By signing in, you agree to our Terms of Service and Privacy Policy</p>
           <p className="mt-2">
             Need help?{' '}

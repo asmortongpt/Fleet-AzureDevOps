@@ -168,12 +168,12 @@ export function OSHAComplianceDashboard() {
     const trirStatus = getTRIRStatus(metrics.trir)
 
     return (
-        <div className="space-y-6 p-6">
+        <div className="space-y-2 p-3">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <ShieldCheck className="w-6 h-6" />
+                    <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4" />
                         OSHA Compliance Dashboard
                     </h2>
                     <p className="text-slate-400 mt-1">OSHA 300 Log and regulatory compliance metrics</p>
@@ -191,7 +191,7 @@ export function OSHAComplianceDashboard() {
             </div>
 
             {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
                 <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border-blue-500/30">
                     <CardHeader className="pb-3">
                         <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
@@ -204,7 +204,7 @@ export function OSHAComplianceDashboard() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-baseline gap-2 mb-2">
-                            <span className="text-3xl font-bold text-white">{metrics.trir}</span>
+                            <span className="text-base font-bold text-white">{metrics.trir}</span>
                             <Badge variant={trirStatus.variant} className="text-xs">
                                 {trirStatus.label}
                             </Badge>
@@ -231,7 +231,7 @@ export function OSHAComplianceDashboard() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-baseline gap-2 mb-2">
-                            <span className="text-3xl font-bold text-white">{metrics.dart_rate}</span>
+                            <span className="text-base font-bold text-white">{metrics.dart_rate}</span>
                         </div>
                         <div className="flex items-center gap-1 text-xs text-slate-400">
                             <TrendDown className="w-3 h-3 text-green-400" />
@@ -255,7 +255,7 @@ export function OSHAComplianceDashboard() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-baseline gap-2 mb-2">
-                            <span className="text-3xl font-bold text-white">{metrics.compliance_score}%</span>
+                            <span className="text-base font-bold text-white">{metrics.compliance_score}%</span>
                         </div>
                         <Progress value={metrics.compliance_score} className="h-2 mb-2" />
                         <div className="flex items-center gap-1 text-xs text-slate-400">
@@ -277,7 +277,7 @@ export function OSHAComplianceDashboard() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-baseline gap-2 mb-2">
-                            <span className="text-3xl font-bold text-white">{metrics.total_recordable_incidents}</span>
+                            <span className="text-base font-bold text-white">{metrics.total_recordable_incidents}</span>
                         </div>
                         <div className="text-xs text-slate-400 space-y-1">
                             <div>Lost Time: {entries.filter(e => e.days_away_from_work > 0).length}</div>
@@ -293,7 +293,7 @@ export function OSHAComplianceDashboard() {
                     <div className="flex items-center justify-between">
                         <div>
                             <CardTitle className="text-white flex items-center gap-2">
-                                <FileText className="w-5 h-5" />
+                                <FileText className="w-3 h-3" />
                                 OSHA 300 Log - Year {new Date().getFullYear()}
                             </CardTitle>
                             <CardDescription className="text-slate-400 mt-1">
@@ -367,7 +367,7 @@ export function OSHAComplianceDashboard() {
             </Card>
 
             {/* Compliance Requirements */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                 <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border-blue-500/30">
                     <CardHeader>
                         <CardTitle className="text-white text-sm">OSHA Recordkeeping Requirements</CardTitle>

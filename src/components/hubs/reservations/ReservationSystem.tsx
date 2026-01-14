@@ -142,18 +142,18 @@ export const ReservationSystem: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Vehicle Reservations</h1>
+          <h1 className="text-base font-bold">Vehicle Reservations</h1>
           <p className="text-muted-foreground mt-1">
             Book vehicles, manage reservations, sync with Outlook Calendar
           </p>
         </div>
         <button
           onClick={() => setShowNewReservation(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+          className="flex items-center gap-2 px-2 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
         >
           <Plus className="w-4 h-4" />
           New Reservation
@@ -165,14 +165,14 @@ export const ReservationSystem: React.FC = () => {
         <div className="flex gap-2">
           <button
             onClick={() => setView('calendar')}
-            className={`px-4 py-2 rounded-lg ${view === 'calendar' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
+            className={`px-2 py-2 rounded-lg ${view === 'calendar' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
           >
             <CalendarIcon className="w-4 h-4 inline mr-2" />
             Calendar
           </button>
           <button
             onClick={() => setView('list')}
-            className={`px-4 py-2 rounded-lg ${view === 'list' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
+            className={`px-2 py-2 rounded-lg ${view === 'list' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
           >
             List View
           </button>
@@ -201,12 +201,12 @@ export const ReservationSystem: React.FC = () => {
           <table className="w-full">
             <thead className="bg-muted">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Vehicle</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Driver</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Start Date</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">End Date</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Status</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Actions</th>
+                <th className="px-2 py-3 text-left text-sm font-semibold">Vehicle</th>
+                <th className="px-2 py-3 text-left text-sm font-semibold">Driver</th>
+                <th className="px-2 py-3 text-left text-sm font-semibold">Start Date</th>
+                <th className="px-2 py-3 text-left text-sm font-semibold">End Date</th>
+                <th className="px-2 py-3 text-left text-sm font-semibold">Status</th>
+                <th className="px-2 py-3 text-left text-sm font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -216,30 +216,30 @@ export const ReservationSystem: React.FC = () => {
                   onClick={() => setSelectedReservation(reservation)}
                   className="border-t border-border hover:bg-muted/50 cursor-pointer"
                 >
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-3">
                     <div className="flex items-center gap-2">
                       <Car className="w-4 h-4 text-muted-foreground" />
                       <span className="font-medium">{reservation.vehicleName || reservation.vehicleId}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-3">
                     <div className="flex items-center gap-2">
                       <User className="w-4 h-4 text-muted-foreground" />
                       <span>{reservation.driverName || reservation.driverId}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-2 py-3 text-sm">
                     {new Date(reservation.startDate).toLocaleString()}
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-2 py-3 text-sm">
                     {new Date(reservation.endDate).toLocaleString()}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-3">
                     <span className={`px-2 py-1 text-xs font-medium rounded-full border ${statusColors[reservation.status]}`}>
                       {reservation.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-3">
                     <div className="flex gap-2">
                       {reservation.status === 'pending' && (
                         <>
@@ -334,16 +334,16 @@ const ReservationCalendar: React.FC<{
   const days = getDaysInMonth();
 
   return (
-    <div className="border border-border rounded-lg p-4">
+    <div className="border border-border rounded-lg p-2">
       {/* Month navigation */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-2">
         <button
           onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
           className="px-3 py-1 bg-muted rounded hover:bg-muted/80"
         >
           ← Previous
         </button>
-        <h2 className="text-xl font-semibold">
+        <h2 className="text-base font-semibold">
           {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
         </h2>
         <button
@@ -443,7 +443,7 @@ const NewReservationForm: React.FC<{
 
   return (
     <Dialog open={true} onClose={onClose} title="New Vehicle Reservation" variant="center" size="lg">
-      <div className="space-y-4">
+      <div className="space-y-2">
         {/* Vehicle Selector */}
         <div>
           <label className="block text-sm font-medium mb-1">Vehicle</label>
@@ -462,7 +462,7 @@ const NewReservationForm: React.FC<{
         </div>
 
         {/* Date Range */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-2">
           <div>
             <label className="block text-sm font-medium mb-1">Start Date/Time</label>
             <input
@@ -537,17 +537,17 @@ const NewReservationForm: React.FC<{
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2 justify-end pt-4">
+        <div className="flex gap-2 justify-end pt-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-muted rounded-lg hover:bg-muted/80"
+            className="px-2 py-2 bg-muted rounded-lg hover:bg-muted/80"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={!availability?.available}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50"
+            className="px-2 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50"
           >
             Submit for Approval
           </button>
@@ -571,7 +571,7 @@ const ReservationDetails: React.FC<{
       variant="drawer"
       size="xl"
     >
-      <div className="space-y-6">
+      <div className="space-y-2">
         {/* Status Badge */}
         <div className="flex items-center gap-2">
           <span className={`px-3 py-1 text-sm font-medium rounded-full border ${statusColors[reservation.status]}`}>
@@ -585,22 +585,22 @@ const ReservationDetails: React.FC<{
         </div>
 
         {/* Details Grid */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-2">
           <div>
             <label className="text-sm font-medium text-muted-foreground">Vehicle</label>
-            <p className="text-lg">{reservation.vehicleName || reservation.vehicleId}</p>
+            <p className="text-sm">{reservation.vehicleName || reservation.vehicleId}</p>
           </div>
           <div>
             <label className="text-sm font-medium text-muted-foreground">Driver</label>
-            <p className="text-lg">{reservation.driverName || reservation.driverId}</p>
+            <p className="text-sm">{reservation.driverName || reservation.driverId}</p>
           </div>
           <div>
             <label className="text-sm font-medium text-muted-foreground">Start Date</label>
-            <p className="text-lg">{new Date(reservation.startDate).toLocaleString()}</p>
+            <p className="text-sm">{new Date(reservation.startDate).toLocaleString()}</p>
           </div>
           <div>
             <label className="text-sm font-medium text-muted-foreground">End Date</label>
-            <p className="text-lg">{new Date(reservation.endDate).toLocaleString()}</p>
+            <p className="text-sm">{new Date(reservation.endDate).toLocaleString()}</p>
           </div>
           <div className="col-span-2">
             <label className="text-sm font-medium text-muted-foreground">Purpose</label>
@@ -609,7 +609,7 @@ const ReservationDetails: React.FC<{
         </div>
 
         {/* Outlook Integration */}
-        <div className="border-t border-border pt-4">
+        <div className="border-t border-border pt-2">
           <h3 className="font-semibold mb-3">Calendar Integration</h3>
           <div className="flex gap-2">
             <CalendarEventButton

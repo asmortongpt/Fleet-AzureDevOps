@@ -98,18 +98,18 @@ export const DataWorkbench: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Toolbar */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">Data Workbench</h2>
+        <h2 className="text-sm font-semibold">Data Workbench</h2>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg">
+          <button className="flex items-center gap-2 px-2 py-2 bg-muted hover:bg-muted/80 rounded-lg">
             <Filter className="w-4 h-4" />
             Filters
           </button>
           <button
             onClick={exportToExcel}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg"
+            className="flex items-center gap-2 px-2 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg"
           >
             <Download className="w-4 h-4" />
             Export to Excel

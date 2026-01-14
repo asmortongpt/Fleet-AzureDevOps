@@ -37,9 +37,9 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
   if (variant === 'card') {
     return (
-      <div className="rounded-lg border p-6 space-y-4 animate-pulse">
+      <div className="rounded-lg border p-3 space-y-2 animate-pulse">
         <div className="flex items-center gap-3">
-          <div className="rounded-full bg-muted h-12 w-12" />
+          <div className="rounded-full bg-muted h-9 w-12" />
           <div className="flex-1 space-y-2">
             <div className="h-4 bg-muted rounded w-1/2" />
             <div className="h-3 bg-muted rounded w-3/4" />
@@ -59,8 +59,8 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
 export const SkeletonRow: React.FC = () => {
   return (
-    <div className="animate-pulse flex space-x-4 p-4 border-b">
-      <div className="rounded-full bg-muted h-12 w-12" style={{ minHeight: '48px', minWidth: '48px' }}></div>
+    <div className="animate-pulse flex space-x-2 p-2 border-b">
+      <div className="rounded-full bg-muted h-9 w-12" style={{ minHeight: '48px', minWidth: '48px' }}></div>
       <div className="flex-1 space-y-2 py-1">
         <div className="h-4 bg-muted rounded w-3/4"></div>
         <div className="h-4 bg-muted rounded w-1/2"></div>

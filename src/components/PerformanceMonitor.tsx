@@ -96,7 +96,7 @@ function MetricCard({
   return (
     <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-2 min-w-[80px]">
       <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">{label}</div>
-      <div className={`text-lg font-semibold ${statusColor}`}>
+      <div className={`text-sm font-semibold ${statusColor}`}>
         {value}
         {unit && <span className="text-xs ml-1">{unit}</span>}
       </div>
@@ -252,7 +252,7 @@ export function PerformanceMonitor({
       role="complementary"
       aria-label="Performance Monitor"
     >
-      <div className="bg-white dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-700 rounded-lg shadow-2xl overflow-hidden max-w-md">
+      <div className="bg-white dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden max-w-md">
         {/* Header */}
         <button
           onClick={() => setExpanded(!expanded)}

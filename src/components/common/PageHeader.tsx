@@ -86,11 +86,11 @@ export function PageHeader({
   className = ""
 }: PageHeaderProps) {
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`space-y-2 ${className}`}>
       {/* Header section */}
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">{title}</h2>
+          <h2 className="text-sm font-semibold">{title}</h2>
           {subtitle && (
             <p className="text-muted-foreground mt-1">{subtitle}</p>
           )}
@@ -104,7 +104,7 @@ export function PageHeader({
 
       {/* Stats section */}
       {stats && stats.length > 0 && (
-        <div className={`grid gap-4 ${
+        <div className={`grid gap-2 ${
           stats.length === 1 ? "grid-cols-1" :
           stats.length === 2 ? "grid-cols-2" :
           stats.length === 3 ? "grid-cols-3" :
@@ -156,7 +156,7 @@ function StatCardComponent({
           <Skeleton className="h-8 w-24" />
         ) : (
           <>
-            <div className={`text-2xl font-bold ${valueColor || ""}`}>
+            <div className={`text-sm font-bold ${valueColor || ""}`}>
               {formattedValue}
             </div>
             {trend && (

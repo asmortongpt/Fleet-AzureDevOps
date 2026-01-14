@@ -91,14 +91,14 @@ class TabErrorBoundary extends Component<{ children: ReactNode; tabName: string 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col items-center justify-center h-full p-8 bg-slate-900"
+                    className="flex flex-col items-center justify-center h-full p-3 bg-slate-900"
                     role="alert"
                     aria-live="assertive"
                 >
-                    <div className="bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-amber-500/30 p-8 text-center max-w-md shadow-[0_0_30px_rgba(251,191,36,0.2)]">
-                        <Warning className="w-16 h-16 text-amber-400 mx-auto mb-4" aria-hidden="true" />
-                        <h3 className="text-2xl font-bold text-white mb-2">Tab Temporarily Unavailable</h3>
-                        <p className="text-base text-slate-300 mb-6 leading-relaxed">
+                    <div className="bg-slate-800/80 backdrop-blur-xl rounded-lg border border-amber-500/30 p-3 text-center max-w-md shadow-[0_0_30px_rgba(251,191,36,0.2)]">
+                        <Warning className="w-16 h-16 text-amber-400 mx-auto mb-2" aria-hidden="true" />
+                        <h3 className="text-sm font-bold text-white mb-2">Tab Temporarily Unavailable</h3>
+                        <p className="text-base text-slate-300 mb-3 leading-relaxed">
                             The {this.props.tabName} feature is currently unavailable. Our team has been notified.
                         </p>
                         <Button
@@ -126,17 +126,17 @@ const TabLoadingFallback = memo(function TabLoadingFallback() {
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="p-8 space-y-6 bg-slate-900 min-h-screen"
+            className="p-3 space-y-2 bg-slate-900 min-h-screen"
             role="status"
             aria-label="Loading tab content"
             aria-busy="true"
         >
-            <Skeleton className="h-10 w-1/4 bg-slate-800 rounded-2xl" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Skeleton className="h-8 w-1/4 bg-slate-800 rounded-lg" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
                 {[...Array(4)].map((_, i) => (
                     <Skeleton
                         key={i}
-                        className="h-40 rounded-2xl bg-slate-800 animate-pulse"
+                        className="h-40 rounded-lg bg-slate-800 animate-pulse"
                         style={{ animationDelay: `${i * 0.1}s` }}
                     />
                 ))}
@@ -204,8 +204,8 @@ const MetricCard = memo(function MetricCard({ title, value, subtitle, icon, tren
             transition={{ delay, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
             whileHover={{ scale: 1.02, y: -4 }}
             className={cn(
-                "group relative bg-slate-800/50 backdrop-blur-xl rounded-3xl border p-6",
-                "shadow-lg transition-all duration-300 overflow-hidden",
+                "group relative bg-slate-800/50 backdrop-blur-xl rounded-3xl border p-3",
+                "shadow-sm transition-all duration-300 overflow-hidden",
                 `ring-2 ${colors.ring} ${colors.glow} ${colors.hover}`
             )}
         >
@@ -215,16 +215,16 @@ const MetricCard = memo(function MetricCard({ title, value, subtitle, icon, tren
 
             {/* Content */}
             <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-semibold text-slate-400 uppercase tracking-wider">{title}</span>
-                    <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", colors.bg)}>
-                        {React.cloneElement(icon as React.ReactElement, { className: "w-6 h-6 text-slate-900", weight: "bold" })}
+                    <div className={cn("w-12 h-9 rounded-md flex items-center justify-center", colors.bg)}>
+                        {React.cloneElement(icon as React.ReactElement, { className: "w-4 h-4 text-slate-900", weight: "bold" })}
                     </div>
                 </div>
 
                 <div className={cn(
                     "font-black text-white mb-2 leading-none",
-                    large ? "text-6xl" : "text-4xl"
+                    large ? "text-6xl" : "text-sm"
                 )}>
                     {value}
                 </div>
@@ -323,7 +323,7 @@ const CircularProgress = memo(function CircularProgress({
                     y="50%"
                     textAnchor="middle"
                     dy=".3em"
-                    className="text-2xl font-black fill-white transform rotate-90"
+                    className="text-sm font-black fill-white transform rotate-90"
                     style={{ transformOrigin: 'center' }}
                 >
                     {percentage}%
@@ -357,7 +357,7 @@ const HeatmapCell = memo(function HeatmapCell({ id, status, onClick }: HeatmapCe
             whileTap={{ scale: 0.95 }}
             onClick={onClick}
             className={cn(
-                "w-8 h-8 rounded-lg transition-all duration-200 cursor-pointer",
+                "w-4 h-4 rounded-lg transition-all duration-200 cursor-pointer",
                 statusColors[status]
             )}
             title={`Vehicle ${id} - ${status}`}
@@ -444,21 +444,21 @@ function FleetOverviewContent() {
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative z-50 bg-slate-800/50 backdrop-blur-xl border-b border-cyan-400/20 px-6 py-4
+                className="relative z-50 bg-slate-800/50 backdrop-blur-xl border-b border-cyan-400/20 px-3 py-2
                          shadow-[0_0_30px_rgba(34,211,238,0.1)]"
             >
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                    <div className="flex items-center gap-4">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2">
+                    <div className="flex items-center gap-2">
                         <motion.div
                             whileHover={{ rotate: 360, scale: 1.1 }}
                             transition={{ duration: 0.5 }}
-                            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-400 to-violet-500
+                            className="w-16 h-16 rounded-lg bg-gradient-to-br from-cyan-400 to-violet-500
                                      flex items-center justify-center shadow-[0_0_30px_rgba(34,211,238,0.4)]"
                         >
-                            <FleetIcon className="w-8 h-8 text-slate-900" weight="bold" />
+                            <FleetIcon className="w-4 h-4 text-slate-900" weight="bold" />
                         </motion.div>
                         <div>
-                            <h1 className="text-3xl font-black text-white leading-none mb-1">Fleet Command</h1>
+                            <h1 className="text-base font-black text-white leading-none mb-1">Fleet Command</h1>
                             <p className="text-sm text-cyan-400 font-medium">Real-time monitoring and analytics</p>
                         </div>
                     </div>
@@ -468,7 +468,7 @@ function FleetOverviewContent() {
                         <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-400/10
+                            className="flex items-center gap-2 px-2 py-2 rounded-md bg-emerald-400/10
                                      shadow-[0_0_15px_rgba(52,211,153,0.3)] ring-1 ring-emerald-400/30"
                         >
                             <motion.div
@@ -480,7 +480,7 @@ function FleetOverviewContent() {
                         </motion.div>
 
                         {/* Last Updated */}
-                        <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-700/50 ring-1 ring-slate-600">
+                        <div className="hidden md:flex items-center gap-2 px-2 py-2 rounded-md bg-slate-700/50 ring-1 ring-slate-600">
                             <Calendar className="w-4 h-4 text-slate-400" />
                             <span className="text-xs font-medium text-slate-300">
                                 {lastUpdate.toLocaleTimeString()}
@@ -494,9 +494,9 @@ function FleetOverviewContent() {
             </motion.div>
 
             {/* Content Container */}
-            <div className="relative z-10 p-6 space-y-6">
+            <div className="relative z-10 p-3 space-y-2">
                 {/* ASYMMETRIC HERO METRICS - Bold Layout */}
-                <div className="grid grid-cols-12 gap-6">
+                <div className="grid grid-cols-12 gap-2">
                     {/* Large Feature Card - 7 columns */}
                     <div className="col-span-12 lg:col-span-7">
                         <MetricCard
@@ -512,7 +512,7 @@ function FleetOverviewContent() {
                     </div>
 
                     {/* Stacked Smaller Cards - 5 columns */}
-                    <div className="col-span-12 lg:col-span-5 space-y-6">
+                    <div className="col-span-12 lg:col-span-5 space-y-2">
                         <MetricCard
                             title="Health Score"
                             value={`${avgHealthScore}%`}
@@ -538,15 +538,15 @@ function FleetOverviewContent() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="bg-slate-800/50 backdrop-blur-xl rounded-3xl border border-violet-500/20 p-6
+                    className="bg-slate-800/50 backdrop-blur-xl rounded-3xl border border-violet-500/20 p-3
                              shadow-[0_0_30px_rgba(139,92,246,0.1)] ring-2 ring-violet-500/20"
                 >
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center justify-between mb-3">
                         <div>
-                            <h3 className="text-xl font-black text-white mb-1">Fleet Status Heatmap</h3>
+                            <h3 className="text-base font-black text-white mb-1">Fleet Status Heatmap</h3>
                             <p className="text-sm text-slate-400">Real-time vehicle status overview</p>
                         </div>
-                        <div className="flex gap-4 text-xs">
+                        <div className="flex gap-2 text-xs">
                             <div className="flex items-center gap-2">
                                 <div className="w-3 h-3 rounded bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
                                 <span className="text-slate-400">Active</span>
@@ -595,17 +595,17 @@ function FleetOverviewContent() {
                 </motion.div>
 
                 {/* Circular Progress Rings & Activity Feed */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
                     {/* Circular Metrics */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.4 }}
-                        className="bg-slate-800/50 backdrop-blur-xl rounded-3xl border border-cyan-400/20 p-6
+                        className="bg-slate-800/50 backdrop-blur-xl rounded-3xl border border-cyan-400/20 p-3
                                  shadow-[0_0_30px_rgba(34,211,238,0.1)] ring-2 ring-cyan-400/20"
                     >
-                        <h3 className="text-lg font-bold text-white mb-6">Performance Metrics</h3>
-                        <div className="grid grid-cols-2 gap-6">
+                        <h3 className="text-sm font-bold text-white mb-3">Performance Metrics</h3>
+                        <div className="grid grid-cols-2 gap-2">
                             <CircularProgress percentage={avgHealthScore} color="emerald" label="Health" />
                             <CircularProgress percentage={avgFuelLevel} color="cyan" label="Fuel" />
                             <CircularProgress percentage={Math.round((activeVehicles / totalVehicles) * 100)} color="violet" label="Active" />
@@ -618,11 +618,11 @@ function FleetOverviewContent() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
-                        className="lg:col-span-2 bg-slate-800/50 backdrop-blur-xl rounded-3xl border border-violet-500/20 p-6
+                        className="lg:col-span-2 bg-slate-800/50 backdrop-blur-xl rounded-3xl border border-violet-500/20 p-3
                                  shadow-[0_0_30px_rgba(139,92,246,0.1)] ring-2 ring-violet-500/20"
                     >
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-lg font-bold text-white">Recent Activity</h3>
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-sm font-bold text-white">Recent Activity</h3>
                             <Button
                                 variant="ghost"
                                 size="sm"
@@ -632,7 +632,7 @@ function FleetOverviewContent() {
                             </Button>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="space-y-2">
                             {[
                                 { icon: CheckCircle, color: 'emerald', text: 'Vehicle FL-2847 completed route', time: '2m ago' },
                                 { icon: Warning, color: 'amber', text: 'Low fuel alert for TX-9201', time: '15m ago' },
@@ -654,10 +654,10 @@ function FleetOverviewContent() {
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.6 + i * 0.1 }}
-                                        className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-700/30 transition-colors cursor-pointer"
+                                        className="flex items-center gap-2 p-3 rounded-md hover:bg-slate-700/30 transition-colors cursor-pointer"
                                     >
-                                        <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", style.bg, style.glow)}>
-                                            <activity.icon className={cn("w-5 h-5", style.icon)} weight="bold" />
+                                        <div className={cn("w-10 h-8 rounded-lg flex items-center justify-center", style.bg, style.glow)}>
+                                            <activity.icon className={cn("w-3 h-3", style.icon)} weight="bold" />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-medium text-white truncate">{activity.text}</p>
@@ -678,17 +678,17 @@ function FleetOverviewContent() {
                     className="bg-slate-800/50 backdrop-blur-xl rounded-3xl border border-slate-700/50
                              shadow-[0_0_30px_rgba(0,0,0,0.3)] overflow-hidden"
                 >
-                    <div className="px-6 py-4 border-b border-slate-700/50 bg-gradient-to-r from-slate-800 to-slate-900">
-                        <h3 className="text-lg font-bold text-white">Fleet Inventory</h3>
+                    <div className="px-3 py-2 border-b border-slate-700/50 bg-gradient-to-r from-slate-800 to-slate-900">
+                        <h3 className="text-sm font-bold text-white">Fleet Inventory</h3>
                         <p className="text-sm text-slate-400 mt-1">Click any vehicle for detailed telemetry</p>
                     </div>
 
                     {isLoading ? (
-                        <div className="p-12 text-center flex flex-col items-center justify-center gap-4">
+                        <div className="p-12 text-center flex flex-col items-center justify-center gap-2">
                             <motion.div
                                 animate={{ rotate: 360 }}
                                 transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                                className="w-12 h-12 rounded-full border-4 border-slate-700 border-t-cyan-400
+                                className="w-12 h-9 rounded-full border-4 border-slate-700 border-t-cyan-400
                                          shadow-[0_0_20px_rgba(34,211,238,0.5)]"
                             />
                             <p className="text-sm text-slate-400 font-medium">Loading fleet data...</p>
@@ -698,12 +698,12 @@ function FleetOverviewContent() {
                             <table className="w-full" role="grid" aria-label="Fleet vehicles inventory">
                                 <thead className="bg-slate-800/80 border-b border-slate-700">
                                     <tr>
-                                        <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">Vehicle</th>
-                                        <th scope="col" className="hidden sm:table-cell px-6 py-4 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">Type</th>
-                                        <th scope="col" className="hidden md:table-cell px-6 py-4 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">Mileage</th>
-                                        <th scope="col" className="hidden lg:table-cell px-6 py-4 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">Fuel</th>
-                                        <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">Status</th>
-                                        <th scope="col" className="px-6 py-4"><span className="sr-only">Actions</span></th>
+                                        <th scope="col" className="px-3 py-2 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">Vehicle</th>
+                                        <th scope="col" className="hidden sm:table-cell px-3 py-2 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">Type</th>
+                                        <th scope="col" className="hidden md:table-cell px-3 py-2 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">Mileage</th>
+                                        <th scope="col" className="hidden lg:table-cell px-3 py-2 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">Fuel</th>
+                                        <th scope="col" className="px-3 py-2 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">Status</th>
+                                        <th scope="col" className="px-3 py-2"><span className="sr-only">Actions</span></th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-700/50">
@@ -720,7 +720,7 @@ function FleetOverviewContent() {
                                                     )}
                                                     onClick={() => setExpandedRow(expandedRow === vehicle.id ? null : vehicle.id)}
                                                 >
-                                                    <td className="px-6 py-4">
+                                                    <td className="px-3 py-2">
                                                         <div className="flex items-center gap-3">
                                                             <EntityAvatar entity={vehicle} size={40} className="ring-2 ring-cyan-400/30" />
                                                             <div className="min-w-0">
@@ -733,13 +733,13 @@ function FleetOverviewContent() {
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="hidden sm:table-cell px-6 py-4 text-sm font-medium text-slate-300">
+                                                    <td className="hidden sm:table-cell px-3 py-2 text-sm font-medium text-slate-300">
                                                         {vehicle.kind}
                                                     </td>
-                                                    <td className="hidden md:table-cell px-6 py-4 text-sm text-slate-300">
+                                                    <td className="hidden md:table-cell px-3 py-2 text-sm text-slate-300">
                                                         {vehicle.odometer.toLocaleString()} mi
                                                     </td>
-                                                    <td className="hidden lg:table-cell px-6 py-4">
+                                                    <td className="hidden lg:table-cell px-3 py-2">
                                                         <div className="flex items-center gap-2">
                                                             <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden max-w-[100px]">
                                                                 <motion.div
@@ -759,13 +759,13 @@ function FleetOverviewContent() {
                                                             </span>
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-4">
+                                                    <td className="px-3 py-2">
                                                         <StatusChip
                                                             status={vehicle.alerts > 0 ? vehicle.status : "good"}
                                                             label={vehicle.alerts > 0 ? `${vehicle.alerts} alerts` : "OK"}
                                                         />
                                                     </td>
-                                                    <td className="px-6 py-4 text-right">
+                                                    <td className="px-3 py-2 text-right">
                                                         <Button
                                                             onClick={(e) => {
                                                                 e.stopPropagation()
@@ -790,7 +790,7 @@ function FleetOverviewContent() {
                                                             animate={{ opacity: 1 }}
                                                             exit={{ opacity: 0 }}
                                                         >
-                                                            <td colSpan={7} className="px-6 py-6 bg-slate-900/50">
+                                                            <td colSpan={7} className="px-3 py-3 bg-slate-900/50">
                                                                 <RowExpandPanel
                                                                     anomalies={[
                                                                         { status: 'good', label: 'Engine Temp: Normal' },
@@ -868,8 +868,8 @@ function VideoPlayer({ camera }: { camera: CameraFeed }) {
     if (!camera.streamUrl || camera.status === 'offline') {
         return (
             <div className="aspect-video bg-slate-800 flex items-center justify-center relative
-                          border border-slate-700 rounded-xl overflow-hidden">
-                <Video className="w-12 h-12 text-slate-600" />
+                          border border-slate-700 rounded-md overflow-hidden">
+                <Video className="w-12 h-9 text-slate-600" />
                 <div className="absolute top-3 left-3 flex items-center gap-2 bg-slate-700/90 backdrop-blur-sm px-3 py-1.5 rounded-lg">
                     <div className="w-2 h-2 rounded-full bg-slate-500" />
                     <span className="text-xs text-slate-300 font-bold">OFFLINE</span>
@@ -880,10 +880,10 @@ function VideoPlayer({ camera }: { camera: CameraFeed }) {
     }
 
     return (
-        <div className="aspect-video bg-black relative overflow-hidden rounded-xl border-2 border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+        <div className="aspect-video bg-black relative overflow-hidden rounded-md border-2 border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,238,0.2)]">
             {error ? (
                 <div className="w-full h-full flex items-center justify-center text-slate-500">
-                    <Video className="w-12 h-12" />
+                    <Video className="w-12 h-9" />
                 </div>
             ) : (
                 <video
@@ -904,7 +904,7 @@ function VideoPlayer({ camera }: { camera: CameraFeed }) {
                     {camera.status === 'recording' ? 'LIVE' : 'BUFFERING'}
                 </span>
             </div>
-            <span className="absolute bottom-3 left-3 text-sm text-white font-semibold drop-shadow-lg">{camera.id}</span>
+            <span className="absolute bottom-3 left-3 text-sm text-white font-semibold drop-shadow-sm">{camera.id}</span>
         </div>
     )
 }
@@ -934,24 +934,24 @@ function VideoContent() {
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative z-50 bg-slate-800/50 backdrop-blur-xl border-b border-violet-500/20 px-6 py-4 shadow-[0_0_30px_rgba(139,92,246,0.1)]"
+                className="relative z-50 bg-slate-800/50 backdrop-blur-xl border-b border-violet-500/20 px-3 py-2 shadow-[0_0_30px_rgba(139,92,246,0.1)]"
             >
-                <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-pink-600
+                <div className="flex items-center gap-2">
+                    <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-violet-500 to-pink-600
                                   flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.4)]">
                         <Video className="w-7 h-7 text-white" weight="bold" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-white leading-none mb-1">Video Telematics</h1>
+                        <h1 className="text-sm font-bold text-white leading-none mb-1">Video Telematics</h1>
                         <p className="text-sm text-violet-400">Live camera feeds and event monitoring</p>
                     </div>
                 </div>
             </motion.div>
 
             {/* Content Container */}
-            <div className="relative z-10 p-6 space-y-6">
+            <div className="relative z-10 p-3 space-y-2">
                 {/* Summary Stats */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <MetricCard
                         title="Active Cameras"
                         value={recordingCameras}
@@ -986,8 +986,8 @@ function VideoContent() {
                     className="bg-slate-800/50 backdrop-blur-xl rounded-3xl border border-slate-700/50
                              shadow-[0_0_30px_rgba(0,0,0,0.3)] overflow-hidden"
                 >
-                    <div className="px-6 py-4 border-b border-slate-700/50 bg-gradient-to-r from-slate-800 to-slate-900">
-                        <h3 className="text-lg font-bold text-white">Camera Feeds</h3>
+                    <div className="px-3 py-2 border-b border-slate-700/50 bg-gradient-to-r from-slate-800 to-slate-900">
+                        <h3 className="text-sm font-bold text-white">Camera Feeds</h3>
                         <p className="text-sm text-slate-400 mt-1">Click any camera to view live feed</p>
                     </div>
 
@@ -995,12 +995,12 @@ function VideoContent() {
                         <table className="w-full">
                             <thead className="bg-slate-800/80 border-b border-slate-700">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-violet-400 uppercase tracking-wider">Camera ID</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-violet-400 uppercase tracking-wider">Location</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-violet-400 uppercase tracking-wider">Status</th>
-                                    <th className="hidden md:table-cell px-6 py-4 text-left text-xs font-bold text-violet-400 uppercase tracking-wider">Events (24h)</th>
-                                    <th className="hidden lg:table-cell px-6 py-4 text-left text-xs font-bold text-violet-400 uppercase tracking-wider">Storage</th>
-                                    <th className="px-6 py-4"><span className="sr-only">Actions</span></th>
+                                    <th className="px-3 py-2 text-left text-xs font-bold text-violet-400 uppercase tracking-wider">Camera ID</th>
+                                    <th className="px-3 py-2 text-left text-xs font-bold text-violet-400 uppercase tracking-wider">Location</th>
+                                    <th className="px-3 py-2 text-left text-xs font-bold text-violet-400 uppercase tracking-wider">Status</th>
+                                    <th className="hidden md:table-cell px-3 py-2 text-left text-xs font-bold text-violet-400 uppercase tracking-wider">Events (24h)</th>
+                                    <th className="hidden lg:table-cell px-3 py-2 text-left text-xs font-bold text-violet-400 uppercase tracking-wider">Storage</th>
+                                    <th className="px-3 py-2"><span className="sr-only">Actions</span></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-700/50">
@@ -1016,21 +1016,21 @@ function VideoContent() {
                                             )}
                                             onClick={() => setExpandedRow(expandedRow === camera.id ? null : camera.id)}
                                         >
-                                            <td className="px-6 py-4 text-sm font-semibold text-white">{camera.id}</td>
-                                            <td className="px-6 py-4 text-sm font-medium text-slate-300">{camera.location}</td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-3 py-2 text-sm font-semibold text-white">{camera.id}</td>
+                                            <td className="px-3 py-2 text-sm font-medium text-slate-300">{camera.location}</td>
+                                            <td className="px-3 py-2">
                                                 <StatusChip
                                                     status={camera.status === 'recording' ? 'good' : camera.status === 'buffering' ? 'warn' : 'bad'}
                                                     label={camera.status === 'recording' ? 'LIVE' : camera.status.toUpperCase()}
                                                 />
                                             </td>
-                                            <td className="hidden md:table-cell px-6 py-4 text-sm text-slate-300 font-medium">
+                                            <td className="hidden md:table-cell px-3 py-2 text-sm text-slate-300 font-medium">
                                                 {Math.floor(Math.random() * 15) + 2}
                                             </td>
-                                            <td className="hidden lg:table-cell px-6 py-4 text-sm text-slate-400">
+                                            <td className="hidden lg:table-cell px-3 py-2 text-sm text-slate-400">
                                                 {(Math.random() * 0.5 + 0.1).toFixed(2)} TB
                                             </td>
-                                            <td className="px-6 py-4 text-right">
+                                            <td className="px-3 py-2 text-right">
                                                 <Button
                                                     onClick={(e) => {
                                                         e.stopPropagation()
@@ -1055,14 +1055,14 @@ function VideoContent() {
                                                     animate={{ opacity: 1 }}
                                                     exit={{ opacity: 0 }}
                                                 >
-                                                    <td colSpan={6} className="px-6 py-6 bg-slate-900/50">
-                                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                                            <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 shadow-md">
+                                                    <td colSpan={6} className="px-3 py-3 bg-slate-900/50">
+                                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                                                            <div className="bg-slate-800 rounded-md border border-slate-700 p-2 shadow-md">
                                                                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Live Feed</h4>
                                                                 <VideoPlayer camera={camera} />
                                                             </div>
 
-                                                            <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 shadow-md">
+                                                            <div className="bg-slate-800 rounded-md border border-slate-700 p-2 shadow-md">
                                                                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Recent Events</h4>
                                                                 <div className="space-y-3">
                                                                     {[
@@ -1229,7 +1229,7 @@ export function FleetHub() {
     return (
         <HubPage
             title="Fleet Hub"
-            icon={<FleetIcon className="w-6 h-6" aria-hidden="true" />}
+            icon={<FleetIcon className="w-4 h-4" aria-hidden="true" />}
             description="Fleet vehicles, tracking, and telemetry"
             tabs={tabs}
             defaultTab="overview"

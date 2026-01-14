@@ -180,13 +180,13 @@ export function WebGLCompatibilityProvider({ children, fallback }: WebGLCompatib
   
   if (!capabilities) {
     return (
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-yellow-800">WebGL Not Supported</h3>
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+        <h3 className="text-sm font-semibold text-yellow-800">WebGL Not Supported</h3>
         <p className="mt-2 text-yellow-700">
           Your browser doesn't support WebGL, which is required for 3D graphics.
           Please try updating your browser or enabling hardware acceleration.
         </p>
-        {fallback && <div className="mt-4">{fallback}</div>}
+        {fallback && <div className="mt-2">{fallback}</div>}
       </div>
     );
   }
@@ -260,10 +260,10 @@ export function QualitySettingsPanel() {
   const { settings, updateSettings, capabilities } = useWebGLCapabilities();
   
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h3 className="text-lg font-semibold mb-4">Graphics Quality</h3>
+    <div className="bg-white rounded-lg shadow p-3">
+      <h3 className="text-sm font-semibold mb-2">Graphics Quality</h3>
       
-      <div className="space-y-4">
+      <div className="space-y-2">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Shadows</label>
           <select 
@@ -320,7 +320,7 @@ export function QualitySettingsPanel() {
         </div>
       </div>
       
-      <div className="mt-4 text-xs text-gray-500">
+      <div className="mt-2 text-xs text-gray-500">
         WebGL Version: {capabilities?.webgl2 ? '2.0' : '1.0'} | 
         Max Texture Size: {capabilities?.maxTextureSize}px
       </div>

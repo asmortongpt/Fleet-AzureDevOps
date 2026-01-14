@@ -138,7 +138,7 @@ const MessagePanel = ({ messages, onMessageSelect }: { messages: Message[]; onMe
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4 space-y-2">
+      <div className="p-2 space-y-2">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold">Messages</h3>
           <Button size="sm">
@@ -185,7 +185,7 @@ const MessagePanel = ({ messages, onMessageSelect }: { messages: Message[]; onMe
 const ChatPanel = ({ threads, onThreadSelect }: { threads: ChatThread[]; onThreadSelect: (thread: ChatThread) => void }) => {
   return (
     <ScrollArea className="h-full">
-      <div className="p-4 space-y-2">
+      <div className="p-2 space-y-2">
         <h3 className="font-semibold mb-3">Active Chats</h3>
         {threads.map(thread => (
           <Card
@@ -235,10 +235,10 @@ const BroadcastPanel = ({ zones }: { zones: BroadcastZone[] }) => {
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4 space-y-4">
+      <div className="p-2 space-y-2">
         <h3 className="font-semibold mb-3">Broadcast Control</h3>
 
-        <Card className="p-4">
+        <Card className="p-2">
           <div className="space-y-3">
             <div>
               <label className="text-sm font-medium">Select Zone</label>
@@ -338,7 +338,7 @@ const MessageThreadPanel = ({ message }: { message: Message | null }) => {
 
   if (!message) {
     return (
-      <div className="p-4 text-muted-foreground">
+      <div className="p-2 text-muted-foreground">
         Select a message to view thread
       </div>
     )
@@ -346,10 +346,10 @@ const MessageThreadPanel = ({ message }: { message: Message | null }) => {
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4 space-y-4">
+      <div className="p-2 space-y-2">
         <div>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-lg font-semibold">{message.subject}</h3>
+            <h3 className="text-sm font-semibold">{message.subject}</h3>
             <Badge variant="outline" className={
               message.priority === 'high' ? 'text-red-600' :
               message.priority === 'low' ? 'text-blue-800' :
@@ -362,7 +362,7 @@ const MessageThreadPanel = ({ message }: { message: Message | null }) => {
           <p className="text-xs text-muted-foreground">{message.timestamp}</p>
         </div>
 
-        <Card className="p-4">
+        <Card className="p-2">
           <p className="text-sm">{message.content}</p>
         </Card>
 
@@ -459,12 +459,12 @@ export function CommunicationHub() {
   return (
     <div className="flex h-full overflow-hidden">
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="p-4 border-b">
-          <h2 className="text-xl font-semibold">Communication Hub</h2>
+        <div className="p-2 border-b">
+          <h2 className="text-base font-semibold">Communication Hub</h2>
         </div>
         <div className="flex-1 overflow-hidden">
           <Tabs defaultValue="messages" value={activePanel} onValueChange={setActivePanel} className="w-full h-full">
-            <TabsList className="grid grid-cols-3 m-4">
+            <TabsList className="grid grid-cols-3 m-2">
               <TabsTrigger value="messages">Messages</TabsTrigger>
               <TabsTrigger value="chats">Chats</TabsTrigger>
               <TabsTrigger value="broadcast">Broadcast</TabsTrigger>
@@ -472,7 +472,7 @@ export function CommunicationHub() {
             <TabsContent value="messages" className="h-[calc(100%-60px)]">
               <div className="flex h-full">
                 <div className="w-1/3 border-r">
-                  <div className="p-4 border-b">
+                  <div className="p-2 border-b">
                     <Input
                       placeholder="Search messages..."
                       value={searchQuery}
@@ -509,7 +509,7 @@ export function CommunicationHub() {
                   />
                 </div>
                 <div className="w-2/3">
-                  <div className="p-4 text-muted-foreground">
+                  <div className="p-2 text-muted-foreground">
                     Chat thread details would be shown here
                   </div>
                 </div>

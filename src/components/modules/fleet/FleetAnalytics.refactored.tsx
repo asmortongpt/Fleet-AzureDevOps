@@ -30,10 +30,10 @@ export function FleetAnalytics({ data }: FleetAnalyticsProps) {
   const { monthlyFleetData, costAnalysis, utilizationByType } = useChartData(vehicles)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Fleet Analytics</h1>
+          <h1 className="text-base font-semibold tracking-tight">Fleet Analytics</h1>
           <p className="text-muted-foreground mt-1">Comprehensive analytics and performance insights</p>
         </div>
         <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
@@ -57,7 +57,7 @@ export function FleetAnalytics({ data }: FleetAnalyticsProps) {
           <TabsTrigger value="kpis">Key Metrics</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6 mt-6">
+        <TabsContent value="overview" className="space-y-2 mt-3">
           <OverviewTab
             totalFleet={metrics.totalFleet}
             utilization={metrics.utilization}
@@ -67,7 +67,7 @@ export function FleetAnalytics({ data }: FleetAnalyticsProps) {
           />
         </TabsContent>
 
-        <TabsContent value="financial" className="space-y-6 mt-6">
+        <TabsContent value="financial" className="space-y-2 mt-3">
           <FinancialTab
             totalFuelCost={metrics.totalFuelCost}
             totalMaintenanceCost={metrics.totalMaintenanceCost}
@@ -76,11 +76,11 @@ export function FleetAnalytics({ data }: FleetAnalyticsProps) {
           />
         </TabsContent>
 
-        <TabsContent value="utilization" className="space-y-6 mt-6">
+        <TabsContent value="utilization" className="space-y-2 mt-3">
           <UtilizationTab utilizationByType={utilizationByType} />
         </TabsContent>
 
-        <TabsContent value="kpis" className="space-y-6 mt-6">
+        <TabsContent value="kpis" className="space-y-2 mt-3">
           <KPIsTab
             costPerMile={kpis.costPerMile}
             fuelEfficiency={kpis.fuelEfficiency}

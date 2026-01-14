@@ -213,13 +213,13 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
     : activeCombos
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link className="w-6 h-6 text-blue-800" />
+          <Link className="w-4 h-4 text-blue-800" />
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Asset Combinations</h2>
+            <h2 className="text-sm font-bold text-gray-900">Asset Combinations</h2>
             <p className="text-sm text-slate-700">Manage tractor-trailer combos and equipment attachments</p>
           </div>
         </div>
@@ -227,7 +227,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
           {selectedAssetId && (
             <button
               onClick={() => setShowHistory(!showHistory)}
-              className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2 px-2 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
             >
               <Clock className="w-4 h-4" />
               {showHistory ? 'Hide' : 'Show'} History
@@ -235,7 +235,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
           )}
           <button
             onClick={() => setShowCreateDialog(true)}
-            className="flex items-center gap-2 px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-2 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Create Relationship
@@ -245,8 +245,8 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
 
       {/* Error Alert */}
       {error && (
-        <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-md text-red-700">
-          <Warning className="w-5 h-5 flex-shrink-0" />
+        <div className="flex items-center gap-2 p-2 bg-red-50 border border-red-200 rounded-md text-red-700">
+          <Warning className="w-3 h-3 flex-shrink-0" />
           <span>{error}</span>
           <button onClick={() => setError(null)} className="ml-auto">
             <X className="w-4 h-4" />
@@ -256,21 +256,21 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
 
       {/* Active Combinations */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">
+        <div className="px-3 py-2 border-b border-gray-200">
+          <h3 className="text-sm font-semibold text-gray-900">
             Active Combinations ({filteredCombos.length})
           </h3>
         </div>
         <div className="divide-y divide-gray-200">
           {loading ? (
-            <div className="p-8 text-center text-gray-500">Loading...</div>
+            <div className="p-3 text-center text-gray-500">Loading...</div>
           ) : filteredCombos.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
+            <div className="p-3 text-center text-gray-500">
               No active asset combinations found
             </div>
           ) : (
             filteredCombos.map(combo => (
-              <div key={combo.relationship_id} className="p-6 hover:bg-gray-50 transition-colors">
+              <div key={combo.relationship_id} className="p-3 hover:bg-gray-50 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
@@ -278,15 +278,15 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                         <div className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
                           {combo.relationship_type}
                         </div>
-                        <CheckCircle className="w-5 h-5 text-green-600" />
+                        <CheckCircle className="w-3 h-3 text-green-600" />
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 text-lg font-medium text-gray-900">
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
                       <span>{combo.parent_asset_name}</span>
                       <span className="text-gray-400">→</span>
                       <span>{combo.child_asset_name}</span>
                     </div>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-slate-700">
+                    <div className="flex items-center gap-2 mt-2 text-sm text-slate-700">
                       <div className="flex items-center gap-1">
                         <CalendarBlank className="w-4 h-4" />
                         <span>Effective from: {new Date(combo.effective_from).toLocaleDateString()}</span>
@@ -318,21 +318,21 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       {/* Relationship History */}
       {showHistory && selectedAssetId && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">
+          <div className="px-3 py-2 border-b border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-900">
               Relationship History ({relationshipHistory.length})
             </h3>
           </div>
           <div className="divide-y divide-gray-200">
             {relationshipHistory.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
+              <div className="p-3 text-center text-gray-500">
                 No relationship history found
               </div>
             ) : (
               relationshipHistory.map((entry, index) => (
-                <div key={index} className="p-6">
+                <div key={index} className="p-3">
                   <div className="flex items-start gap-3">
-                    <Clock className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <Clock className="w-3 h-3 text-gray-400 mt-0.5" />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded">
@@ -347,7 +347,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                       <div className="text-sm text-gray-900 mb-1">
                         <strong>{entry.parent_asset_name}</strong> → <strong>{entry.child_asset_name}</strong>
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-slate-700">
+                      <div className="flex items-center gap-2 text-xs text-slate-700">
                         <span>From: {new Date(entry.effective_from).toLocaleDateString()}</span>
                         {entry.effective_to && (
                           <span>To: {new Date(entry.effective_to).toLocaleDateString()}</span>
@@ -372,9 +372,9 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       {/* Create Relationship Dialog */}
       {showCreateDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-              <h3 className="text-xl font-semibold text-gray-900">Create Asset Relationship</h3>
+          <div className="bg-white rounded-lg shadow-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
+              <h3 className="text-base font-semibold text-gray-900">Create Asset Relationship</h3>
               <button
                 onClick={() => {
                   setShowCreateDialog(false)
@@ -382,11 +382,11 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                 }}
                 className="text-gray-400 hover:text-slate-700"
               >
-                <X className="w-5 h-5" />
+                <X className="w-3 h-3" />
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="p-3 space-y-2">
               {/* Relationship Type */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -470,16 +470,16 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-200">
+            <div className="flex justify-end gap-3 px-3 py-2 border-t border-gray-200">
               <button
                 onClick={() => setShowCreateDialog(false)}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                className="px-2 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateRelationship}
-                className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                className="px-2 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
               >
                 Create Relationship
               </button>

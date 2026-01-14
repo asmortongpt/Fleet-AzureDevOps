@@ -655,7 +655,7 @@ export function GoogleMap({
                 <div className="absolute -inset-2 border border-emerald-500/30 rounded-full opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300" />
 
                 {/* Tooltip */}
-                <div className="absolute left-4 top-0 bg-slate-900 border border-emerald-500/30 px-2 py-1 rounded text-[10px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none backdrop-blur-md shadow-xl">
+                <div className="absolute left-4 top-0 bg-slate-900 border border-emerald-500/30 px-2 py-1 rounded text-[10px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none backdrop-blur-md shadow-sm">
                   <div className="text-emerald-400 font-bold">{v.name}</div>
                   <div className="text-slate-400">{v.status.toUpperCase()}</div>
                   <div className="text-[9px] text-slate-500 mt-1">
@@ -678,19 +678,19 @@ export function GoogleMap({
       <div
         className={`w-full h-full min-h-[500px] flex items-center justify-center bg-destructive/5 ${className}`}
       >
-        <div className="text-center p-6 max-w-md">
-          <div className="text-4xl mb-4">⚠️</div>
+        <div className="text-center p-3 max-w-md">
+          <div className="text-sm mb-2">⚠️</div>
           <p className="text-destructive font-semibold mb-2">Map Error</p>
-          <p className="text-sm text-muted-foreground mb-4">{error}</p>
+          <p className="text-sm text-muted-foreground mb-2">{error}</p>
           <button
             onClick={retryLoad}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
+            className="px-2 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
           >
             Retry Loading
           </button>
           <button
             onClick={() => setForceFallback(true)}
-            className="ml-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 transition-colors text-sm font-medium"
+            className="ml-2 px-2 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 transition-colors text-sm font-medium"
           >
             Switch to Grid View
           </button>
@@ -715,7 +715,7 @@ export function GoogleMap({
       {isLoading && (
         <div data-testid="loading-indicator" className="absolute inset-0 w-full h-full flex items-center justify-center bg-background/95 backdrop-blur-sm">
           <div className="text-center">
-            <div className="relative w-16 h-16 mx-auto mb-4">
+            <div className="relative w-16 h-16 mx-auto mb-2">
               <div className="absolute inset-0 rounded-full border-4 border-muted"></div>
               <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
             </div>

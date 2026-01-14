@@ -299,38 +299,38 @@ export function ConfigurationHub() {
     <HubPage
       title="Configuration Hub"
       description="Complete system configuration for CTA owners"
-      icon={<Settings className="w-6 h-6" />}
+      icon={<Settings className="w-4 h-4" />}
     >
       {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-3">
         <StatCard
           title="Total Configurations"
           value={stats?.totalConfigs || 0}
-          icon={<Settings className="w-6 h-6" />}
+          icon={<Settings className="w-4 h-4" />}
           trend="neutral"
         />
         <StatCard
           title="CTA Owner Only"
           value={stats?.ctaOwnerOnly || 0}
-          icon={<Lock className="w-6 h-6" />}
+          icon={<Lock className="w-4 h-4" />}
           trend="neutral"
         />
         <StatCard
           title="Recent Changes"
           value={stats?.recentChanges || 0}
-          icon={<History className="w-6 h-6" />}
+          icon={<History className="w-4 h-4" />}
           trend="neutral"
         />
         <StatCard
           title="Categories"
           value={stats ? Object.keys(stats.byCategory).length : 0}
-          icon={<Filter className="w-6 h-6" />}
+          icon={<Filter className="w-4 h-4" />}
           trend="neutral"
         />
       </div>
 
       {/* Actions Bar */}
-      <div className="flex items-center justify-between mb-6 gap-4">
+      <div className="flex items-center justify-between mb-3 gap-2">
         <div className="flex-1 max-w-md">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -356,7 +356,7 @@ export function ConfigurationHub() {
         </div>
       </div>
 
-      <Tabs defaultValue="configurations" className="space-y-6">
+      <Tabs defaultValue="configurations" className="space-y-2">
         <TabsList>
           <TabsTrigger value="configurations">Configurations</TabsTrigger>
           <TabsTrigger value="history">Change History</TabsTrigger>
@@ -364,7 +364,7 @@ export function ConfigurationHub() {
         </TabsList>
 
         {/* Configurations Tab */}
-        <TabsContent value="configurations" className="space-y-6">
+        <TabsContent value="configurations" className="space-y-2">
           {categories.map(category => {
             const Icon = CATEGORY_ICONS[category] || Settings
             const colorClass = CATEGORY_COLORS[category] || 'text-slate-700 bg-gray-50'
@@ -387,7 +387,7 @@ export function ConfigurationHub() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     {configsByCategory[category].map(config => (
                       <ConfigItemRow
                         key={config.id}
@@ -406,14 +406,14 @@ export function ConfigurationHub() {
         </TabsContent>
 
         {/* Change History Tab */}
-        <TabsContent value="history" className="space-y-4">
+        <TabsContent value="history" className="space-y-2">
           <Card>
             <CardHeader>
               <CardTitle>Recent Changes</CardTitle>
               <CardDescription>Track all configuration modifications</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {changes.map(change => (
                   <ChangeHistoryRow
                     key={change.id}
@@ -435,7 +435,7 @@ export function ConfigurationHub() {
             </CardHeader>
             <CardContent>
               <div className="text-center py-12 text-gray-500">
-                <Settings className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <Settings className="h-9 w-12 mx-auto mb-2 opacity-50" />
                 <p>Profile management coming soon</p>
               </div>
             </CardContent>
@@ -484,7 +484,7 @@ function ConfigItemRow({ config, onEdit }: ConfigItemRowProps) {
   }
 
   return (
-    <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+    <div className="flex items-center justify-between p-2 border rounded-lg hover:bg-gray-50 transition-colors">
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-1">
           <h4 className="font-medium">{config.label}</h4>
@@ -499,7 +499,7 @@ function ConfigItemRow({ config, onEdit }: ConfigItemRowProps) {
           )}
         </div>
         <p className="text-sm text-slate-700 mb-2">{config.description}</p>
-        <div className="flex items-center gap-4 text-xs text-gray-500">
+        <div className="flex items-center gap-2 text-xs text-gray-500">
           <span>Value: {formatValue(config.value, config.type)}</span>
           {config.lastModified && (
             <span>Modified: {new Date(config.lastModified).toLocaleDateString()}</span>
@@ -531,7 +531,7 @@ function ChangeHistoryRow({ change, onRollback }: ChangeHistoryRowProps) {
   }
 
   return (
-    <div className="flex items-center justify-between p-4 border rounded-lg">
+    <div className="flex items-center justify-between p-2 border rounded-lg">
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-1">
           <h4 className="font-medium">{change.configKey}</h4>
@@ -540,7 +540,7 @@ function ChangeHistoryRow({ change, onRollback }: ChangeHistoryRowProps) {
         <p className="text-sm text-slate-700 mb-2">
           Changed by {change.changedBy} on {new Date(change.changedAt).toLocaleString()}
         </p>
-        <div className="flex items-center gap-4 text-xs text-gray-500">
+        <div className="flex items-center gap-2 text-xs text-gray-500">
           <span>Old: {String(change.oldValue)}</span>
           <ChevronRight className="h-3 w-3" />
           <span>New: {String(change.newValue)}</span>
@@ -579,9 +579,9 @@ function ConfigEditModal({ config, value, onChange, onSave, onCancel }: ConfigEd
           <CardTitle>Edit Configuration</CardTitle>
           <CardDescription>{config.label}</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div>
-            <p className="text-sm text-slate-700 mb-4">{config.description}</p>
+            <p className="text-sm text-slate-700 mb-2">{config.description}</p>
 
             {config.type === 'boolean' && (
               <label className="flex items-center gap-2">
@@ -637,7 +637,7 @@ function ConfigEditModal({ config, value, onChange, onSave, onCancel }: ConfigEd
             )}
           </div>
 
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" onClick={onCancel}>
               Cancel
             </Button>

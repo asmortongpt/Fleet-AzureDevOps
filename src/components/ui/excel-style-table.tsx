@@ -163,9 +163,9 @@ export function ExcelStyleTable<T extends Record<string, any>>({
   const hasActiveFilters = globalSearch || Object.values(filters).some(v => v)
 
   return (
-    <div className={cn('flex flex-col gap-4', className)}>
+    <div className={cn('flex flex-col gap-2', className)}>
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 flex-1">
           {showSearch && (
             <div className="relative flex-1 max-w-md">
@@ -211,7 +211,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
           )}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <div className="text-sm text-slate-400">
             Showing {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, filteredData.length)} of {filteredData.length}
             {filteredData.length !== data.length && ` (filtered from ${data.length})`}
@@ -245,7 +245,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                   <th
                     key={column.key}
                     className={cn(
-                      'px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider border-r border-slate-700 last:border-r-0',
+                      'px-2 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider border-r border-slate-700 last:border-r-0',
                       column.sortable && 'cursor-pointer hover:bg-slate-800 select-none'
                     )}
                     style={{ width: column.width || 'auto', minWidth: column.width || 100 }}
@@ -299,7 +299,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                     return (
                       <td
                         key={column.key}
-                        className="px-4 py-3 text-sm text-slate-200 border-r border-slate-700/30 last:border-r-0"
+                        className="px-2 py-3 text-sm text-slate-200 border-r border-slate-700/30 last:border-r-0"
                       >
                         {column.render ? column.render(value, row) : value}
                       </td>
@@ -312,7 +312,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                 <tr>
                   <td
                     colSpan={columns.length}
-                    className="px-4 py-12 text-center text-slate-400"
+                    className="px-2 py-12 text-center text-slate-400"
                   >
                     {hasActiveFilters ? 'No matching results found' : 'No data available'}
                   </td>
@@ -324,7 +324,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-700 bg-slate-900/50">
+          <div className="flex items-center justify-between px-2 py-3 border-t border-slate-700 bg-slate-900/50">
             <Button
               variant="outline"
               size="sm"
@@ -355,7 +355,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                     size="sm"
                     onClick={() => setCurrentPage(pageNum)}
                     className={cn(
-                      'w-8 h-8 p-0',
+                      'w-4 h-4 p-0',
                       currentPage === pageNum
                         ? 'bg-blue-500 border-blue-500'
                         : 'border-slate-700'

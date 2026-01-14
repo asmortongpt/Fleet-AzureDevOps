@@ -18,8 +18,8 @@ import { toast } from 'sonner'
 
 export function BasicExample() {
   return (
-    <div className="p-6 space-y-4">
-      <h2 className="text-2xl font-bold">Basic Hardware Configuration</h2>
+    <div className="p-3 space-y-2">
+      <h2 className="text-sm font-bold">Basic Hardware Configuration</h2>
       <HardwareConfigurationPanel vehicleId={123} />
     </div>
   )
@@ -52,15 +52,15 @@ export function WithEventHandlersExample() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Hardware Configuration with Events</h2>
+        <h2 className="text-sm font-bold">Hardware Configuration with Events</h2>
         <Badge variant="secondary">
           {providerCount} {providerCount === 1 ? 'Provider' : 'Providers'}
         </Badge>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
         <div className="lg:col-span-2">
           <HardwareConfigurationPanel
             vehicleId={456}
@@ -72,7 +72,7 @@ export function WithEventHandlersExample() {
         {/* Activity Log Sidebar */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Activity Log</CardTitle>
+            <CardTitle className="text-sm">Activity Log</CardTitle>
             <CardDescription>Recent provider changes</CardDescription>
           </CardHeader>
           <CardContent>
@@ -102,9 +102,9 @@ export function VehicleDetailsPageExample() {
   const [vehicleId] = useState(789)
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Vehicle #789</h1>
+    <div className="p-3">
+      <div className="mb-3">
+        <h1 className="text-base font-bold">Vehicle #789</h1>
         <p className="text-muted-foreground">2024 Ford F-150 • VIN: 1FTFW1E84NFA12345</p>
       </div>
 
@@ -118,7 +118,7 @@ export function VehicleDetailsPageExample() {
 
         <TabsContent value="overview">
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-3">
               <p>Vehicle overview content...</p>
             </CardContent>
           </Card>
@@ -140,7 +140,7 @@ export function VehicleDetailsPageExample() {
 
         <TabsContent value="telemetry">
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-3">
               <p>Telemetry data content...</p>
             </CardContent>
           </Card>
@@ -148,7 +148,7 @@ export function VehicleDetailsPageExample() {
 
         <TabsContent value="maintenance">
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-3">
               <p>Maintenance records content...</p>
             </CardContent>
           </Card>
@@ -179,10 +179,10 @@ export function MultiVehicleManagementExample() {
   const selectedVehicle = vehicles.find(v => v.id === selectedVehicleId)
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-6">Multi-Vehicle Hardware Management</h2>
+    <div className="p-3">
+      <h2 className="text-sm font-bold mb-3">Multi-Vehicle Hardware Management</h2>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
         {/* Vehicle Selector Sidebar */}
         <Card className="lg:col-span-1">
           <CardHeader>
@@ -210,8 +210,8 @@ export function MultiVehicleManagementExample() {
         <div className="lg:col-span-3">
           {selectedVehicle && (
             <>
-              <div className="mb-4">
-                <h3 className="text-xl font-semibold">{selectedVehicle.name}</h3>
+              <div className="mb-2">
+                <h3 className="text-base font-semibold">{selectedVehicle.name}</h3>
                 <p className="text-sm text-muted-foreground">VIN: {selectedVehicle.vin}</p>
               </div>
               <HardwareConfigurationPanel
@@ -241,10 +241,10 @@ export function ReadOnlyViewExample() {
   // or pass a readOnly prop. For now, we'll demonstrate with a note.
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Hardware Configuration (View Only)</h2>
+          <h2 className="text-sm font-bold">Hardware Configuration (View Only)</h2>
           <p className="text-sm text-muted-foreground">
             You don't have permission to modify hardware configurations
           </p>
@@ -286,8 +286,8 @@ export function TelemetryIntegrationExample() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <h2 className="text-2xl font-bold">Telemetry Dashboard</h2>
+    <div className="p-3 space-y-2">
+      <h2 className="text-sm font-bold">Telemetry Dashboard</h2>
 
       {/* Telemetry Status Card */}
       <Card>
@@ -301,26 +301,26 @@ export function TelemetryIntegrationExample() {
         </CardHeader>
         <CardContent>
           {hasProviders ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               <div className="text-center">
-                <div className="text-2xl font-bold">98%</div>
+                <div className="text-sm font-bold">98%</div>
                 <div className="text-xs text-muted-foreground">GPS Accuracy</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold">45 mph</div>
+                <div className="text-sm font-bold">45 mph</div>
                 <div className="text-xs text-muted-foreground">Current Speed</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold">127 mi</div>
+                <div className="text-sm font-bold">127 mi</div>
                 <div className="text-xs text-muted-foreground">Today's Mileage</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold">2.5 hrs</div>
+                <div className="text-sm font-bold">2.5 hrs</div>
                 <div className="text-xs text-muted-foreground">Engine Hours</div>
               </div>
             </div>
           ) : (
-            <div className="text-center text-muted-foreground py-8">
+            <div className="text-center text-muted-foreground py-3">
               <p>Configure hardware providers to start collecting telemetry data</p>
             </div>
           )}

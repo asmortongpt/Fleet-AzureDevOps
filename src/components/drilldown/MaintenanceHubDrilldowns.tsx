@@ -254,11 +254,11 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
   return (
     <DrilldownContent loading={isLoading} error={error}>
       {schedule && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-2">
-              <h3 className="text-2xl font-bold">{schedule.serviceType}</h3>
+              <h3 className="text-sm font-bold">{schedule.serviceType}</h3>
               <p className="text-sm text-muted-foreground">
                 {schedule.vehicleNumber} • {schedule.vehicleMake} {schedule.vehicleModel} ({schedule.vehicleYear})
               </p>
@@ -269,7 +269,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                 <Badge variant="outline">{schedule.frequency}</Badge>
               </div>
             </div>
-            <Calendar className="w-12 h-12 text-muted-foreground" />
+            <Calendar className="w-12 h-9 text-muted-foreground" />
           </div>
 
           {/* Quick Stats */}
@@ -277,21 +277,21 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
             <DrilldownCard
               title="Days Until Due"
               value={schedule.daysUntilDue > 0 ? schedule.daysUntilDue : 'Overdue'}
-              icon={<Clock className="w-5 h-5" />}
+              icon={<Clock className="w-3 h-3" />}
               color={schedule.daysUntilDue < 0 ? 'danger' : schedule.daysUntilDue <= 7 ? 'warning' : 'primary'}
               variant="compact"
             />
             <DrilldownCard
               title="Current Mileage"
               value={schedule.currentMileage.toLocaleString()}
-              icon={<Car className="w-5 h-5" />}
+              icon={<Car className="w-3 h-3" />}
               color="primary"
               variant="compact"
             />
             <DrilldownCard
               title="Est. Cost"
               value={`$${schedule.estimatedCost.toFixed(0)}`}
-              icon={<DollarSign className="w-5 h-5" />}
+              icon={<DollarSign className="w-3 h-3" />}
               color="success"
               variant="compact"
             />
@@ -307,13 +307,13 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
             </TabsList>
 
             {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-4">
+            <TabsContent value="overview" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm">Schedule Details</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <CardContent className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Service Type</p>
                       <p className="font-medium">{schedule.serviceType}</p>
@@ -335,9 +335,9 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                   </div>
 
                   {schedule.lastServiceDate && (
-                    <div className="pt-4 border-t">
+                    <div className="pt-2 border-t">
                       <p className="text-sm text-muted-foreground mb-2">Last Service</p>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-2">
                         <div>
                           <p className="text-xs text-muted-foreground">Date</p>
                           <p className="font-medium">{new Date(schedule.lastServiceDate).toLocaleDateString()}</p>
@@ -384,7 +384,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
             </TabsContent>
 
             {/* Service History Tab */}
-            <TabsContent value="history" className="space-y-4">
+            <TabsContent value="history" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -419,7 +419,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                                 </Badge>
                               </div>
                               <p className="text-sm">{record.description}</p>
-                              <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                                 <span className="flex items-center gap-1">
                                   <Calendar className="w-3 h-3" />
                                   {new Date(record.serviceDate).toLocaleDateString()}
@@ -455,7 +455,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                       )}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-4">
+                    <p className="text-sm text-muted-foreground text-center py-2">
                       No service history available
                     </p>
                   )}
@@ -464,7 +464,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
             </TabsContent>
 
             {/* Service Provider Tab */}
-            <TabsContent value="provider" className="space-y-4">
+            <TabsContent value="provider" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -472,9 +472,9 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                     Service Provider
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                   <div>
-                    <p className="font-medium text-lg">{schedule.serviceProvider}</p>
+                    <p className="font-medium text-sm">{schedule.serviceProvider}</p>
                     <p className="text-sm text-muted-foreground">{schedule.serviceProviderContact.address}</p>
                   </div>
 
@@ -529,7 +529,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
             </TabsContent>
 
             {/* Vehicle Tab */}
-            <TabsContent value="vehicle" className="space-y-4">
+            <TabsContent value="vehicle" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -537,8 +537,8 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                     Vehicle Information
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <CardContent className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Vehicle Number</p>
                       <p className="font-medium">{schedule.vehicleNumber}</p>
@@ -651,11 +651,11 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
   return (
     <DrilldownContent loading={isLoading} error={error}>
       {repair && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-2">
-              <h3 className="text-2xl font-bold">{repair.repairType}</h3>
+              <h3 className="text-sm font-bold">{repair.repairType}</h3>
               <p className="text-sm text-muted-foreground">
                 WO #{repair.workOrderNumber} • {repair.vehicleNumber}
               </p>
@@ -664,7 +664,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                 <Badge variant={getPriorityVariant(repair.priority)}>{repair.priority} Priority</Badge>
               </div>
             </div>
-            <Wrench className="w-12 h-12 text-muted-foreground" />
+            <Wrench className="w-12 h-9 text-muted-foreground" />
           </div>
 
           {/* Quick Stats */}
@@ -672,21 +672,21 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
             <DrilldownCard
               title="Estimated Cost"
               value={repair.estimatedCost ? `$${repair.estimatedCost.toFixed(2)}` : 'TBD'}
-              icon={<DollarSign className="w-5 h-5" />}
+              icon={<DollarSign className="w-3 h-3" />}
               color="primary"
               variant="compact"
             />
             <DrilldownCard
               title="Parts Cost"
               value={`$${repair.partsUsed.reduce((sum, p) => sum + p.unitCost * p.quantity, 0).toFixed(2)}`}
-              icon={<Package className="w-5 h-5" />}
+              icon={<Package className="w-3 h-3" />}
               color="warning"
               variant="compact"
             />
             <DrilldownCard
               title="Labor Cost"
               value={`$${repair.laborEntries.reduce((sum, l) => sum + l.hours * l.rate, 0).toFixed(2)}`}
-              icon={<Users className="w-5 h-5" />}
+              icon={<Users className="w-3 h-3" />}
               color="success"
               variant="compact"
             />
@@ -702,18 +702,18 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
             </TabsList>
 
             {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-4">
+            <TabsContent value="overview" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm">Repair Details</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Description</p>
                     <p className="text-sm">{repair.description}</p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Reported Date</p>
                       <p className="font-medium">{new Date(repair.reportedDate).toLocaleDateString()}</p>
@@ -745,7 +745,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                   </div>
 
                   {repair.diagnosisNotes && (
-                    <div className="pt-4 border-t">
+                    <div className="pt-2 border-t">
                       <p className="text-sm text-muted-foreground mb-1">Diagnosis Notes</p>
                       <p className="text-sm">{repair.diagnosisNotes}</p>
                     </div>
@@ -787,7 +787,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
             </TabsContent>
 
             {/* Parts Tab */}
-            <TabsContent value="parts" className="space-y-4">
+            <TabsContent value="parts" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -804,7 +804,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                             <div className="flex-1">
                               <p className="font-medium">{part.partName}</p>
                               <p className="text-sm text-muted-foreground">PN: {part.partNumber}</p>
-                              <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
+                              <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
                                 <span>Qty: {part.quantity}</span>
                                 <span>Unit: ${part.unitCost.toFixed(2)}</span>
                                 <span className="font-medium text-foreground">
@@ -826,7 +826,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                       <div className="pt-3 border-t">
                         <div className="flex justify-between items-center">
                           <span className="font-medium">Total Parts Cost:</span>
-                          <span className="text-lg font-bold">
+                          <span className="text-sm font-bold">
                             $
                             {repair.partsUsed
                               .reduce((sum, p) => sum + p.unitCost * p.quantity, 0)
@@ -836,14 +836,14 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                       </div>
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-4">No parts used</p>
+                    <p className="text-sm text-muted-foreground text-center py-2">No parts used</p>
                   )}
                 </CardContent>
               </Card>
             </TabsContent>
 
             {/* Labor Tab */}
-            <TabsContent value="labor" className="space-y-4">
+            <TabsContent value="labor" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -859,7 +859,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
-                                <Avatar className="w-8 h-8">
+                                <Avatar className="w-4 h-4">
                                   <AvatarFallback>
                                     {entry.technicianName
                                       .split(' ')
@@ -872,7 +872,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                                   <p className="text-xs text-muted-foreground">{entry.description}</p>
                                 </div>
                               </div>
-                              <div className="mt-2 flex items-center gap-4 text-sm">
+                              <div className="mt-2 flex items-center gap-2 text-sm">
                                 <span className="text-muted-foreground">
                                   {entry.hours} hrs @ ${entry.rate.toFixed(2)}/hr
                                 </span>
@@ -887,7 +887,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                       <div className="pt-3 border-t">
                         <div className="flex justify-between items-center">
                           <span className="font-medium">Total Labor Cost:</span>
-                          <span className="text-lg font-bold">
+                          <span className="text-sm font-bold">
                             $
                             {repair.laborEntries
                               .reduce((sum, l) => sum + l.hours * l.rate, 0)
@@ -897,7 +897,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                       </div>
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-4">
+                    <p className="text-sm text-muted-foreground text-center py-2">
                       No labor entries
                     </p>
                   )}
@@ -906,7 +906,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
             </TabsContent>
 
             {/* Contacts Tab */}
-            <TabsContent value="contact" className="space-y-4">
+            <TabsContent value="contact" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -914,7 +914,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                     Contact Information
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                   <div>
                     <p className="text-sm text-muted-foreground mb-2">Reported By</p>
                     <div className="space-y-2">
@@ -937,7 +937,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                   </div>
 
                   {repair.assignedTechnician && (
-                    <div className="pt-4 border-t">
+                    <div className="pt-2 border-t">
                       <p className="text-sm text-muted-foreground mb-2">Assigned Technician</p>
                       <div className="space-y-2">
                         <p className="font-medium">{repair.assignedTechnician}</p>
@@ -1080,11 +1080,11 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
   return (
     <DrilldownContent loading={isLoading} error={error}>
       {inspection && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-2">
-              <h3 className="text-2xl font-bold">{inspection.inspectionType} Inspection</h3>
+              <h3 className="text-sm font-bold">{inspection.inspectionType} Inspection</h3>
               <p className="text-sm text-muted-foreground">
                 {inspection.inspectionNumber} • {inspection.vehicleNumber}
               </p>
@@ -1100,7 +1100,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                 )}
               </div>
             </div>
-            <ClipboardList className="w-12 h-12 text-muted-foreground" />
+            <ClipboardList className="w-12 h-9 text-muted-foreground" />
           </div>
 
           {/* Quick Stats */}
@@ -1108,28 +1108,28 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
             <DrilldownCard
               title="Passed"
               value={inspection.itemsPassed}
-              icon={<CheckCircle className="w-5 h-5" />}
+              icon={<CheckCircle className="w-3 h-3" />}
               color="success"
               variant="compact"
             />
             <DrilldownCard
               title="Failed"
               value={inspection.itemsFailed}
-              icon={<XCircle className="w-5 h-5" />}
+              icon={<XCircle className="w-3 h-3" />}
               color="danger"
               variant="compact"
             />
             <DrilldownCard
               title="Advisory"
               value={inspection.itemsAdvisory}
-              icon={<AlertCircle className="w-5 h-5" />}
+              icon={<AlertCircle className="w-3 h-3" />}
               color="warning"
               variant="compact"
             />
             <DrilldownCard
               title="Total Items"
               value={inspection.itemsInspected}
-              icon={<ClipboardList className="w-5 h-5" />}
+              icon={<ClipboardList className="w-3 h-3" />}
               color="primary"
               variant="compact"
             />
@@ -1149,13 +1149,13 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
             </TabsList>
 
             {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-4">
+            <TabsContent value="overview" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm">Inspection Details</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <CardContent className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Inspection Date</p>
                       <p className="font-medium">
@@ -1181,7 +1181,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                   </div>
 
                   {inspection.expirationDate && (
-                    <div className="pt-4 border-t">
+                    <div className="pt-2 border-t">
                       <p className="text-sm text-muted-foreground">Expiration Date</p>
                       <p className="font-medium">
                         {new Date(inspection.expirationDate).toLocaleDateString()}
@@ -1219,19 +1219,19 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                       className="h-2"
                     />
                   </div>
-                  <div className="grid grid-cols-3 gap-4 text-center text-sm">
+                  <div className="grid grid-cols-3 gap-2 text-center text-sm">
                     <div>
-                      <p className="text-2xl font-bold text-green-600">{inspection.itemsPassed}</p>
+                      <p className="text-sm font-bold text-green-600">{inspection.itemsPassed}</p>
                       <p className="text-muted-foreground">Passed</p>
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-yellow-600">
+                      <p className="text-sm font-bold text-yellow-600">
                         {inspection.itemsAdvisory}
                       </p>
                       <p className="text-muted-foreground">Advisory</p>
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-red-600">{inspection.itemsFailed}</p>
+                      <p className="text-sm font-bold text-red-600">{inspection.itemsFailed}</p>
                       <p className="text-muted-foreground">Failed</p>
                     </div>
                   </div>
@@ -1240,7 +1240,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
             </TabsContent>
 
             {/* Items Tab */}
-            <TabsContent value="items" className="space-y-4">
+            <TabsContent value="items" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -1289,7 +1289,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
             </TabsContent>
 
             {/* Failures Tab */}
-            <TabsContent value="failures" className="space-y-4">
+            <TabsContent value="failures" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -1317,7 +1317,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                           <div className="mt-3 pt-3 border-t border-red-200">
                             <p className="text-sm font-medium mb-1">Corrective Action:</p>
                             <p className="text-sm">{item.correctiveAction}</p>
-                            <div className="flex items-center gap-4 mt-2">
+                            <div className="flex items-center gap-2 mt-2">
                               <Badge
                                 variant={
                                   item.actionStatus === 'completed'
@@ -1341,8 +1341,8 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8">
-                      <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-2" />
+                    <div className="text-center py-3">
+                      <CheckCircle className="w-12 h-9 text-green-500 mx-auto mb-2" />
                       <p className="text-muted-foreground">No failed items</p>
                     </div>
                   )}
@@ -1351,7 +1351,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
             </TabsContent>
 
             {/* Inspector Tab */}
-            <TabsContent value="inspector" className="space-y-4">
+            <TabsContent value="inspector" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -1359,9 +1359,9 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                     Inspector Information
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                   <div>
-                    <p className="font-medium text-lg">{inspection.inspector.name}</p>
+                    <p className="font-medium text-sm">{inspection.inspector.name}</p>
                     <p className="text-sm text-muted-foreground">
                       Cert. #{inspection.inspector.certificationNumber}
                     </p>
@@ -1475,17 +1475,17 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
   return (
     <DrilldownContent loading={isLoading} error={error}>
       {record && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-2">
-              <h3 className="text-2xl font-bold">{record.serviceType}</h3>
+              <h3 className="text-sm font-bold">{record.serviceType}</h3>
               <p className="text-sm text-muted-foreground">WO #{record.workOrderNumber}</p>
               <Badge variant={record.status === 'completed' ? 'outline' : 'destructive'}>
                 {record.status}
               </Badge>
             </div>
-            <FileText className="w-12 h-12 text-muted-foreground" />
+            <FileText className="w-12 h-9 text-muted-foreground" />
           </div>
 
           {/* Cost Breakdown */}
@@ -1493,21 +1493,21 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
             <DrilldownCard
               title="Labor Cost"
               value={`$${record.laborCost.toFixed(2)}`}
-              icon={<Users className="w-5 h-5" />}
+              icon={<Users className="w-3 h-3" />}
               color="primary"
               variant="compact"
             />
             <DrilldownCard
               title="Parts Cost"
               value={`$${record.partsCost.toFixed(2)}`}
-              icon={<Package className="w-5 h-5" />}
+              icon={<Package className="w-3 h-3" />}
               color="warning"
               variant="compact"
             />
             <DrilldownCard
               title="Total Cost"
               value={`$${record.totalCost.toFixed(2)}`}
-              icon={<DollarSign className="w-5 h-5" />}
+              icon={<DollarSign className="w-3 h-3" />}
               color="success"
               variant="compact"
             />
@@ -1522,18 +1522,18 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
             </TabsList>
 
             {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-4">
+            <TabsContent value="overview" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm">Service Details</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Description</p>
                     <p className="text-sm">{record.description}</p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Service Date</p>
                       <p className="font-medium">
@@ -1557,7 +1557,7 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
                   </div>
 
                   {record.notes && (
-                    <div className="pt-4 border-t">
+                    <div className="pt-2 border-t">
                       <p className="text-sm text-muted-foreground mb-1">Notes</p>
                       <p className="text-sm">{record.notes}</p>
                     </div>
@@ -1567,7 +1567,7 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
             </TabsContent>
 
             {/* Warranty Tab */}
-            <TabsContent value="warranty" className="space-y-4">
+            <TabsContent value="warranty" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -1577,13 +1577,13 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
                 </CardHeader>
                 <CardContent>
                   {record.warranty && record.warranty.active ? (
-                    <div className="space-y-4">
+                    <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="w-5 h-5 text-green-600" />
+                        <CheckCircle className="w-3 h-3 text-green-600" />
                         <p className="font-medium">Warranty Active</p>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-2">
                         <div>
                           <p className="text-sm text-muted-foreground">Provider</p>
                           <p className="font-medium">{record.warranty.provider}</p>
@@ -1611,8 +1611,8 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
                       </div>
                     </div>
                   ) : (
-                    <div className="text-center py-8">
-                      <XCircle className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                    <div className="text-center py-3">
+                      <XCircle className="w-12 h-9 text-gray-400 mx-auto mb-2" />
                       <p className="text-muted-foreground">No active warranty</p>
                     </div>
                   )}
@@ -1621,7 +1621,7 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
             </TabsContent>
 
             {/* Technician Tab */}
-            <TabsContent value="technician" className="space-y-4">
+            <TabsContent value="technician" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -1629,9 +1629,9 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
                     Technician Information
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                   <div>
-                    <p className="font-medium text-lg">{record.technician}</p>
+                    <p className="font-medium text-sm">{record.technician}</p>
                   </div>
 
                   <div className="space-y-2">
@@ -1687,11 +1687,11 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
   return (
     <DrilldownContent loading={isLoading} error={error}>
       {vendor && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-2">
-              <h3 className="text-2xl font-bold">{vendor.vendorName}</h3>
+              <h3 className="text-sm font-bold">{vendor.vendorName}</h3>
               <p className="text-sm text-muted-foreground">{vendor.vendorType}</p>
               <div className="flex items-center gap-2">
                 <Badge variant="outline">
@@ -1700,7 +1700,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                 <Badge variant="secondary">{vendor.activeContracts} Active Contracts</Badge>
               </div>
             </div>
-            <Building className="w-12 h-12 text-muted-foreground" />
+            <Building className="w-12 h-9 text-muted-foreground" />
           </div>
 
           {/* Quick Stats */}
@@ -1708,21 +1708,21 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
             <DrilldownCard
               title="Services YTD"
               value={vendor.totalServicesYTD}
-              icon={<Wrench className="w-5 h-5" />}
+              icon={<Wrench className="w-3 h-3" />}
               color="primary"
               variant="compact"
             />
             <DrilldownCard
               title="Total Cost YTD"
               value={`$${vendor.totalCostYTD.toLocaleString()}`}
-              icon={<DollarSign className="w-5 h-5" />}
+              icon={<DollarSign className="w-3 h-3" />}
               color="success"
               variant="compact"
             />
             <DrilldownCard
               title="Response Time"
               value={vendor.responseTime}
-              icon={<Clock className="w-5 h-5" />}
+              icon={<Clock className="w-3 h-3" />}
               color="warning"
               variant="compact"
             />
@@ -1737,7 +1737,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
             </TabsList>
 
             {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-4">
+            <TabsContent value="overview" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm">Specialties</CardTitle>
@@ -1782,7 +1782,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
             </TabsContent>
 
             {/* Contact Tab */}
-            <TabsContent value="contact" className="space-y-4">
+            <TabsContent value="contact" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -1790,7 +1790,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                     Contact Information
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Primary Contact</p>
                     <p className="font-medium">{vendor.contactPerson}</p>
@@ -1820,7 +1820,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                     </a>
                   </div>
 
-                  <div className="pt-4 border-t">
+                  <div className="pt-2 border-t">
                     <p className="text-sm text-muted-foreground mb-1">Address</p>
                     <p className="text-sm">{vendor.address}</p>
                   </div>
@@ -1843,13 +1843,13 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
             </TabsContent>
 
             {/* Details Tab */}
-            <TabsContent value="details" className="space-y-4">
+            <TabsContent value="details" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm">Contract Details</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <CardContent className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Active Contracts</p>
                       <p className="font-medium">{vendor.activeContracts}</p>
@@ -1874,15 +1874,15 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                 <CardHeader>
                   <CardTitle className="text-sm">Performance Metrics</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <CardContent className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Total Services YTD</p>
-                      <p className="text-2xl font-bold">{vendor.totalServicesYTD}</p>
+                      <p className="text-sm font-bold">{vendor.totalServicesYTD}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Total Cost YTD</p>
-                      <p className="text-2xl font-bold">
+                      <p className="text-sm font-bold">
                         ${vendor.totalCostYTD.toLocaleString()}
                       </p>
                     </div>
@@ -1890,7 +1890,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
 
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Average Cost per Service</p>
-                    <p className="text-lg font-medium">
+                    <p className="text-sm font-medium">
                       ${(vendor.totalCostYTD / vendor.totalServicesYTD).toFixed(2)}
                     </p>
                   </div>

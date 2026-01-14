@@ -349,11 +349,11 @@ export function AssetsHub() {
   return (
     <div className="h-screen overflow-hidden bg-background flex flex-col">
       {/* Header */}
-      <div className="border-b bg-card px-6 py-4">
+      <div className="border-b bg-card px-3 py-2">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Barcode className="w-6 h-6 text-blue-800" />
+            <h1 className="text-sm font-bold flex items-center gap-2">
+              <Barcode className="w-4 h-4 text-blue-800" />
               Assets Hub
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
@@ -374,8 +374,8 @@ export function AssetsHub() {
       </div>
 
       {/* Asset Metrics Cards */}
-      <div className="px-6 py-4 border-b bg-card">
-        <div className="grid grid-cols-4 gap-4">
+      <div className="px-3 py-2 border-b bg-card">
+        <div className="grid grid-cols-4 gap-2">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -384,10 +384,10 @@ export function AssetsHub() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
-                <div className="text-3xl font-bold">
+                <div className="text-base font-bold">
                   ${(demoAssetMetrics.totalValue / 1000000).toFixed(2)}M
                 </div>
-                <TrendUp className="w-5 h-5 text-green-500" />
+                <TrendUp className="w-3 h-3 text-green-500" />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 {demoAssetMetrics.totalAssets} total assets
@@ -402,7 +402,7 @@ export function AssetsHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-800">
+              <div className="text-base font-bold text-blue-800">
                 {demoAssetMetrics.utilizationRate}%
               </div>
               <Progress value={demoAssetMetrics.utilizationRate} className="mt-2" />
@@ -420,10 +420,10 @@ export function AssetsHub() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
-                <div className="text-3xl font-bold text-green-500">
+                <div className="text-base font-bold text-green-500">
                   {demoAssetMetrics.roi}%
                 </div>
-                <TrendUp className="w-5 h-5 text-green-500" />
+                <TrendUp className="w-3 h-3 text-green-500" />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 +2.4% from last quarter
@@ -438,7 +438,7 @@ export function AssetsHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-orange-500">
+              <div className="text-base font-bold text-orange-500">
                 ${(demoAssetMetrics.maintenanceCost / 1000).toFixed(0)}K
               </div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -568,10 +568,10 @@ export function AssetsHub() {
                 <TabsTrigger value="replacement">Replacement</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="inventory" className="m-0 p-4">
-                <div className="space-y-4">
+              <TabsContent value="inventory" className="m-0 p-2">
+                <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <h2 className="text-lg font-semibold">Asset Inventory</h2>
+                    <h2 className="text-sm font-semibold">Asset Inventory</h2>
                     <div className="w-64">
                       <Select value={statusFilter} onValueChange={setStatusFilter}>
                         <SelectTrigger>
@@ -628,9 +628,9 @@ export function AssetsHub() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="utilization" className="m-0 p-4">
-                <div className="space-y-4">
-                  <h2 className="text-lg font-semibold">Asset Utilization</h2>
+              <TabsContent value="utilization" className="m-0 p-2">
+                <div className="space-y-2">
+                  <h2 className="text-sm font-semibold">Asset Utilization</h2>
                   <Card>
                     <CardContent className="p-0">
                       <Table>
@@ -670,9 +670,9 @@ export function AssetsHub() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="replacement" className="m-0 p-4">
-                <div className="space-y-4">
-                  <h2 className="text-lg font-semibold">Replacement Planning</h2>
+              <TabsContent value="replacement" className="m-0 p-2">
+                <div className="space-y-2">
+                  <h2 className="text-sm font-semibold">Replacement Planning</h2>
                   <Card>
                     <CardContent className="p-0">
                       <Table>

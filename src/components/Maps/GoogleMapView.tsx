@@ -299,7 +299,7 @@ const RoutePolyline: React.FC<RoutePolylineProps> = ({ map, path, color = '#3b82
 const LoadingComponent: React.FC = () => (
   <div className="flex items-center justify-center w-full h-full bg-slate-900">
     <div className="text-center">
-      <Spinner className="w-8 h-8 text-blue-800 mb-4" />
+      <Spinner className="w-4 h-4 text-blue-800 mb-2" />
       <p className="text-slate-400">Loading Google Maps...</p>
     </div>
   </div>
@@ -307,10 +307,10 @@ const LoadingComponent: React.FC = () => (
 
 const ErrorComponent: React.FC<{ error: Error }> = ({ error }) => (
   <div className="flex items-center justify-center w-full h-full bg-slate-900">
-    <div className="text-center max-w-md p-8 bg-red-900/20 border border-red-500/30 rounded-lg">
-      <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-      <h3 className="text-xl font-bold text-white mb-2">Map Loading Error</h3>
-      <p className="text-sm text-slate-400 mb-4">{error.message}</p>
+    <div className="text-center max-w-md p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
+      <AlertCircle className="w-12 h-9 text-red-500 mx-auto mb-2" />
+      <h3 className="text-base font-bold text-white mb-2">Map Loading Error</h3>
+      <p className="text-sm text-slate-400 mb-2">{error.message}</p>
       <p className="text-xs text-slate-500">
         Please check your Google Maps API key configuration.
       </p>
@@ -393,7 +393,7 @@ export const GoogleMapView: React.FC<GoogleMapViewProps> = ({
       </Wrapper>
 
       {/* Map Controls Overlay */}
-      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur rounded-lg shadow-lg p-3 space-y-2">
+      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur rounded-lg shadow-sm p-3 space-y-2">
         <div className="flex items-center gap-2">
           <Navigation className="w-4 h-4 text-blue-800" />
           <span className="text-sm font-medium text-gray-900">

@@ -142,8 +142,8 @@ export function DetailTable({
   return (
     <Card className={`overflow-hidden ${className}`}>
       {/* Header */}
-      <div className="p-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+      <div className="p-2 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
         {onExport && (
           <div className="flex gap-2">
             <Button
@@ -175,7 +175,7 @@ export function DetailTable({
                 <th
                   key={column.field}
                   scope="col"
-                  className={`px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider ${column.sortable !== false ? 'cursor-pointer hover:bg-gray-100' : ''}`}
+                  className={`px-2 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider ${column.sortable !== false ? 'cursor-pointer hover:bg-gray-100' : ''}`}
                   style={{ width: column.width }}
                   onClick={() => column.sortable !== false && handleSort(column.field)}
                 >
@@ -196,7 +196,7 @@ export function DetailTable({
                 {columns.map((column) => (
                   <td
                     key={column.field}
-                    className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap"
+                    className="px-2 py-3 text-sm text-gray-900 whitespace-nowrap"
                   >
                     {formatValue(row[column.field], column.format)}
                   </td>
@@ -208,8 +208,8 @@ export function DetailTable({
       </div>
 
       {/* Pagination */}
-      <div className="p-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="p-2 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+        <div className="flex items-center gap-2">
           <div className="text-sm text-gray-700">
             Showing {(currentPage - 1) * rowsPerPage + 1} to{' '}
             {Math.min(currentPage * rowsPerPage, sortedData.length)} of{' '}

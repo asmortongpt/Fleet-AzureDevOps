@@ -638,9 +638,9 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg p-0 overflow-hidden">
-        <DialogHeader className="p-4 pb-2">
+        <DialogHeader className="p-2 pb-2">
           <DialogTitle className="flex items-center gap-2">
-            <Camera className="w-5 h-5" />
+            <Camera className="w-3 h-3" />
             {getScannerTitle()}
           </DialogTitle>
           <DialogDescription>
@@ -655,7 +655,7 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
                 type === 'plate' ? renderPlateScanner() : renderBarcodeScanner()
               ) : (
                 <div className="aspect-[4/3] flex items-center justify-center bg-background">
-                  <div className="text-center p-6 space-y-4">
+                  <div className="text-center p-3 space-y-2">
                     <Camera className="w-16 h-16 text-muted-foreground mx-auto" />
                     <p className="text-destructive">{error}</p>
                     <div className="flex gap-2 justify-center">
@@ -671,8 +671,8 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
               )}
             </>
           ) : (
-            <div className="p-6 bg-background">
-              <div className="text-center space-y-4">
+            <div className="p-3 bg-background">
+              <div className="text-center space-y-2">
                 {scanResult.confidence > 70 ? (
                   <CheckCircle className="w-16 h-16 text-green-500 mx-auto" weight="fill" />
                 ) : (
@@ -685,7 +685,7 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
                     {type === 'vin' && 'VIN Detected'}
                     {type === 'plate' && `License Plate Detected (${scanResult.confidence}% confidence)`}
                   </p>
-                  <p className="text-2xl font-mono font-bold tracking-wide">{scanResult.value}</p>
+                  <p className="text-sm font-mono font-bold tracking-wide">{scanResult.value}</p>
                   {type === 'vin' && !validateVIN(scanResult.value) && (
                     <p className="text-xs text-yellow-600 mt-2">VIN checksum validation failed</p>
                   )}
@@ -708,7 +708,7 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
         </div>
 
         {showManualInput && !scanResult && (
-          <div className="p-4 border-t bg-muted/50">
+          <div className="p-2 border-t bg-muted/50">
             <div className="space-y-3">
               <Label htmlFor="manual-input">
                 {type === 'qr' && 'Enter code manually'}
@@ -755,7 +755,7 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
           className="absolute top-2 right-2 text-muted-foreground hover:bg-accent"
           onClick={() => onOpenChange(false)}
         >
-          <X className="w-5 h-5" />
+          <X className="w-3 h-3" />
         </Button>
       </DialogContent>
     </Dialog>

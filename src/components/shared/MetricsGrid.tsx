@@ -37,7 +37,7 @@ export function MetricsGrid({ children, columns = 4, className }: MetricsGridPro
   return (
     <div
       className={cn(
-        "grid gap-4 md:gap-6",
+        "grid gap-2 md:gap-2",
         gridClasses[columns],
         className
       )}

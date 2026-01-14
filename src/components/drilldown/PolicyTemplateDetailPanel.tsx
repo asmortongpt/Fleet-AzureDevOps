@@ -292,11 +292,11 @@ export function PolicyTemplateDetailPanel({
 
   return (
     <DrilldownContent loading={false} error={null}>
-      <div className="space-y-6">
+      <div className="space-y-2">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="space-y-1 flex-1">
-            <h3 className="text-2xl font-bold">{templateData.name}</h3>
+            <h3 className="text-sm font-bold">{templateData.name}</h3>
             <p className="text-sm text-muted-foreground">{templateData.category}</p>
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               <Badge variant="outline" className="capitalize">
@@ -312,7 +312,7 @@ export function PolicyTemplateDetailPanel({
             </div>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <Shield className="h-12 w-12 text-primary" />
+            <Shield className="h-9 w-12 text-primary" />
             <Button onClick={handleUseTemplate} disabled={isLoading} size="lg">
               <Copy className="h-4 w-4 mr-2" />
               {isLoading ? 'Creating...' : 'Use Template'}
@@ -321,7 +321,7 @@ export function PolicyTemplateDetailPanel({
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -330,7 +330,7 @@ export function PolicyTemplateDetailPanel({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-sm font-bold text-green-600">
                 ${templateData.estimated_impact.cost_savings?.toLocaleString() || 0}
               </div>
               <p className="text-xs text-muted-foreground">Estimated annually</p>
@@ -345,7 +345,7 @@ export function PolicyTemplateDetailPanel({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-800">
+              <div className="text-sm font-bold text-blue-800">
                 +{templateData.estimated_impact.safety_improvement || 0}%
               </div>
               <p className="text-xs text-muted-foreground">Reduction in incidents</p>
@@ -360,7 +360,7 @@ export function PolicyTemplateDetailPanel({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">
+              <div className="text-sm font-bold text-purple-600">
                 +{templateData.estimated_impact.efficiency_gain || 0}%
               </div>
               <p className="text-xs text-muted-foreground">Operational improvement</p>
@@ -375,7 +375,7 @@ export function PolicyTemplateDetailPanel({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-sm font-bold">
                 {templateData.implementation_requirements.length}
               </div>
               <p className="text-xs text-muted-foreground">
@@ -400,7 +400,7 @@ export function PolicyTemplateDetailPanel({
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-4">
+          <TabsContent value="overview" className="space-y-2">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -408,7 +408,7 @@ export function PolicyTemplateDetailPanel({
                   Description
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-2">
                 <p className="text-sm">{templateData.description}</p>
 
                 <Separator />
@@ -490,10 +490,10 @@ export function PolicyTemplateDetailPanel({
           </TabsContent>
 
           {/* Conditions Tab */}
-          <TabsContent value="conditions" className="space-y-4">
+          <TabsContent value="conditions" className="space-y-2">
             {templateData.conditions.map((condition) => (
               <Card key={condition.id}>
-                <CardContent className="p-4 space-y-3">
+                <CardContent className="p-2 space-y-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -541,10 +541,10 @@ export function PolicyTemplateDetailPanel({
           </TabsContent>
 
           {/* Actions Tab */}
-          <TabsContent value="actions" className="space-y-4">
+          <TabsContent value="actions" className="space-y-2">
             {templateData.actions.map((action) => (
               <Card key={action.id}>
-                <CardContent className="p-4 space-y-3">
+                <CardContent className="p-2 space-y-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -593,7 +593,7 @@ export function PolicyTemplateDetailPanel({
           </TabsContent>
 
           {/* Sample Violations Tab */}
-          <TabsContent value="samples" className="space-y-4">
+          <TabsContent value="samples" className="space-y-2">
             <Card>
               <CardHeader>
                 <CardTitle>Sample Violation Scenarios</CardTitle>
@@ -605,7 +605,7 @@ export function PolicyTemplateDetailPanel({
 
             {templateData.sample_violations.map((violation) => (
               <Card key={violation.id}>
-                <CardContent className="p-4 space-y-3">
+                <CardContent className="p-2 space-y-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
@@ -635,7 +635,7 @@ export function PolicyTemplateDetailPanel({
           </TabsContent>
 
           {/* Implementation Tab */}
-          <TabsContent value="implementation" className="space-y-4">
+          <TabsContent value="implementation" className="space-y-2">
             <Card>
               <CardHeader>
                 <CardTitle>Implementation Requirements</CardTitle>
@@ -647,7 +647,7 @@ export function PolicyTemplateDetailPanel({
 
             {templateData.implementation_requirements.map((req) => (
               <Card key={req.id}>
-                <CardContent className="p-4 space-y-3">
+                <CardContent className="p-2 space-y-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -672,7 +672,7 @@ export function PolicyTemplateDetailPanel({
             ))}
 
             <Card className="border-primary/50 bg-primary/5">
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="flex items-start gap-3">
                   <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                   <div className="space-y-2">

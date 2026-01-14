@@ -22,9 +22,9 @@ const iconMap = {
 
 export function PageHeader({ title, description, actions = [] }: PageHeaderProps) {
   return (
-    <div className="flex justify-between items-start mb-6">
+    <div className="flex justify-between items-start mb-3">
       <div>
-        <h1 className="text-3xl font-bold">{title}</h1>
+        <h1 className="text-base font-bold">{title}</h1>
         {description && <p className="text-muted-foreground mt-2">{description}</p>}
       </div>
       {actions.length > 0 && (

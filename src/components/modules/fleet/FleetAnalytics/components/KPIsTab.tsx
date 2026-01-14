@@ -18,55 +18,55 @@ interface KPIsTabProps {
 export function KPIsTab({ costPerMile, fuelEfficiency, downtimeRate, utilization }: KPIsTabProps) {
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                <CurrencyDollar className="w-5 h-5" />
+                <CurrencyDollar className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">Cost per Mile</p>
             </div>
-            <p className="text-3xl font-semibold">${costPerMile}</p>
+            <p className="text-base font-semibold">${costPerMile}</p>
             <p className="text-sm text-muted-foreground mt-1">fleet average</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-accent/10 text-accent">
-                <GasPump className="w-5 h-5" />
+                <GasPump className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">Fuel Efficiency</p>
             </div>
-            <p className="text-3xl font-semibold">{fuelEfficiency} MPG</p>
+            <p className="text-base font-semibold">{fuelEfficiency} MPG</p>
             <p className="text-sm text-muted-foreground mt-1">fleet average</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-warning/10 text-warning">
-                <Clock className="w-5 h-5" />
+                <Clock className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">Downtime Rate</p>
             </div>
-            <p className="text-3xl font-semibold">{downtimeRate}%</p>
+            <p className="text-base font-semibold">{downtimeRate}%</p>
             <p className="text-sm text-muted-foreground mt-1">of total fleet</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-success/10 text-success">
-                <TrendUp className="w-5 h-5" />
+                <TrendUp className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">Utilization</p>
             </div>
-            <p className="text-3xl font-semibold">{utilization}%</p>
+            <p className="text-base font-semibold">{utilization}%</p>
             <p className="text-sm text-muted-foreground mt-1">fleet efficiency</p>
           </CardContent>
         </Card>
@@ -77,10 +77,10 @@ export function KPIsTab({ costPerMile, fuelEfficiency, downtimeRate, utilization
           <CardTitle>Performance Insights</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-start gap-4 p-4 border rounded-lg">
+          <div className="space-y-2">
+            <div className="flex items-start gap-2 p-2 border rounded-lg">
               <div className="p-2 rounded-lg bg-success/10 text-success">
-                <TrendUp className="w-5 h-5" />
+                <TrendUp className="w-3 h-3" />
               </div>
               <div className="flex-1">
                 <h4 className="font-semibold mb-1">Fleet Utilization Improving</h4>
@@ -90,9 +90,9 @@ export function KPIsTab({ costPerMile, fuelEfficiency, downtimeRate, utilization
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 border rounded-lg">
+            <div className="flex items-start gap-2 p-2 border rounded-lg">
               <div className="p-2 rounded-lg bg-warning/10 text-warning">
-                <GasPump className="w-5 h-5" />
+                <GasPump className="w-3 h-3" />
               </div>
               <div className="flex-1">
                 <h4 className="font-semibold mb-1">Fuel Costs Rising</h4>
@@ -102,9 +102,9 @@ export function KPIsTab({ costPerMile, fuelEfficiency, downtimeRate, utilization
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 border rounded-lg">
+            <div className="flex items-start gap-2 p-2 border rounded-lg">
               <div className="p-2 rounded-lg bg-success/10 text-success">
-                <Wrench className="w-5 h-5" />
+                <Wrench className="w-3 h-3" />
               </div>
               <div className="flex-1">
                 <h4 className="font-semibold mb-1">Maintenance Costs Decreasing</h4>

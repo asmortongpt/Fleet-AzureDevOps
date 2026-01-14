@@ -55,13 +55,13 @@ function SkeletonCard({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="skeleton-card"
       className={cn(
-        "rounded-xl border border-border/50 bg-card/50 p-4 sm:p-6 space-y-4",
+        "rounded-md border border-border/50 bg-card/50 p-2 sm:p-3 space-y-2",
         className
       )}
       {...props}
     >
       <div className="flex items-center gap-3">
-        <Skeleton className="h-10 w-10 rounded-lg shrink-0" />
+        <Skeleton className="h-8 w-10 rounded-lg shrink-0" />
         <div className="flex-1 space-y-2">
           <Skeleton className="h-4 w-1/3" />
           <Skeleton className="h-3 w-1/2" />
@@ -78,7 +78,7 @@ function SkeletonStatCard({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="skeleton-stat-card"
       className={cn(
-        "rounded-xl border border-border/50 bg-card/50 p-4 space-y-3",
+        "rounded-md border border-border/50 bg-card/50 p-2 space-y-3",
         className
       )}
       {...props}
@@ -105,8 +105,8 @@ function SkeletonAvatar({
 }: SkeletonAvatarProps) {
   const sizeClasses = {
     sm: "h-8 w-8",
-    default: "h-10 w-10",
-    lg: "h-12 w-12",
+    default: "h-8 w-10",
+    lg: "h-9 w-12",
     xl: "h-16 w-16",
   }
 
@@ -124,7 +124,7 @@ function SkeletonTableRow({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="skeleton-table-row"
       className={cn(
-        "flex items-center gap-4 py-3 px-4 border-b border-border/30",
+        "flex items-center gap-2 py-3 px-2 border-b border-border/30",
         className
       )}
       {...props}
@@ -163,7 +163,7 @@ function SkeletonList({
     <div
       data-slot="skeleton-list"
       className={cn(
-        variant === "row" ? "divide-y divide-border/30" : "space-y-3 sm:space-y-4",
+        variant === "row" ? "divide-y divide-border/30" : "space-y-3 sm:space-y-2",
         className
       )}
       {...props}
@@ -196,7 +196,7 @@ function SkeletonGrid({
   return (
     <div
       data-slot="skeleton-grid"
-      className={cn("grid gap-3 sm:gap-4", columnClasses[columns], className)}
+      className={cn("grid gap-3 sm:gap-2", columnClasses[columns], className)}
       {...props}
     >
       {Array.from({ length: count }).map((_, i) => (
@@ -212,12 +212,12 @@ function SkeletonChart({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="skeleton-chart"
       className={cn(
-        "rounded-xl border border-border/50 bg-card/50 p-4 sm:p-6",
+        "rounded-md border border-border/50 bg-card/50 p-2 sm:p-3",
         className
       )}
       {...props}
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-2">
         <Skeleton className="h-5 w-32" />
         <div className="flex gap-2">
           <Skeleton className="h-8 w-20 rounded-lg" />
@@ -234,7 +234,7 @@ function SkeletonHubPage({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="skeleton-hub-page"
-      className={cn("p-4 sm:p-6 space-y-4 sm:space-y-6", className)}
+      className={cn("p-2 sm:p-3 space-y-2 sm:space-y-2", className)}
       {...props}
     >
       {/* Header */}
@@ -257,7 +257,7 @@ function SkeletonHubPage({ className, ...props }: ComponentProps<"div">) {
       <SkeletonGrid count={4} columns={4} />
 
       {/* Content cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-2">
         <SkeletonChart />
         <SkeletonCard />
         <SkeletonChart />

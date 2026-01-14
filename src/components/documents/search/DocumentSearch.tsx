@@ -122,7 +122,7 @@ export function DocumentSearch({
           <CommandList>
             {/* Loading state */}
             {isPending && (
-              <div className="flex items-center justify-center p-8">
+              <div className="flex items-center justify-center p-3">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
             )}
@@ -145,7 +145,7 @@ export function DocumentSearch({
             {/* No results */}
             {query && !isPending && results.length === 0 && (
               <CommandEmpty>
-                <div className="text-center py-6">
+                <div className="text-center py-3">
                   <p className="text-sm text-muted-foreground mb-2">
                     No documents found
                   </p>

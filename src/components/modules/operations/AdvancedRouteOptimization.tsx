@@ -394,11 +394,11 @@ export function AdvancedRouteOptimization() {
   // ==================== Render ====================
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Advanced Route Optimization</h2>
+          <h2 className="text-base font-bold tracking-tight">Advanced Route Optimization</h2>
           <p className="text-muted-foreground">
             AI-powered route planning with EV awareness, traffic prediction, and multi-constraint optimization
           </p>
@@ -410,7 +410,7 @@ export function AdvancedRouteOptimization() {
         >
           {optimizing ? (
             <>
-              <div className="w-5 h-5 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              <div className="w-3 h-3 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin" />
               Optimizing...
             </>
           ) : (
@@ -431,14 +431,14 @@ export function AdvancedRouteOptimization() {
       )}
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-2 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Routes</CardTitle>
             <MapPin className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalRoutes}</div>
+            <div className="text-sm font-bold">{stats.totalRoutes}</div>
             <p className="text-xs text-muted-foreground">Active optimization</p>
           </CardContent>
         </Card>
@@ -449,7 +449,7 @@ export function AdvancedRouteOptimization() {
             <TrendingDown className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.avgOptimizationScore}%</div>
+            <div className="text-sm font-bold">{stats.avgOptimizationScore}%</div>
             <p className="text-xs text-muted-foreground">Efficiency score</p>
           </CardContent>
         </Card>
@@ -460,7 +460,7 @@ export function AdvancedRouteOptimization() {
             <Navigation className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalDistance.toFixed(1)} mi</div>
+            <div className="text-sm font-bold">{stats.totalDistance.toFixed(1)} mi</div>
             <p className="text-xs text-muted-foreground">Total planned</p>
           </CardContent>
         </Card>
@@ -471,7 +471,7 @@ export function AdvancedRouteOptimization() {
             <Zap className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.estimatedSavings.toFixed(2)}</div>
+            <div className="text-sm font-bold">${stats.estimatedSavings.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">Optimization impact</p>
           </CardContent>
         </Card>

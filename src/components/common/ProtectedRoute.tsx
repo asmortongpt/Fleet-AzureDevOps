@@ -41,7 +41,7 @@ export function ProtectedRoute({
   if (!hasAccess) {
     if (showDeniedMessage) {
       return (
-        <div className="container mx-auto p-6">
+        <div className="container mx-auto p-3">
           <Alert variant="destructive">
             <Shield className="h-4 w-4" />
             <AlertTitle>Access Denied</AlertTitle>

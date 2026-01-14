@@ -101,7 +101,7 @@ export function ReimbursementQueue() {
 
   if (!canAccessQueue) {
     return (
-      <div className="p-6">
+      <div className="p-3">
         <Card>
           <CardHeader>
             <CardTitle>Access Restricted</CardTitle>
@@ -281,10 +281,10 @@ export function ReimbursementQueue() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Reimbursement Queue</h1>
+        <h1 className="text-base font-bold">Reimbursement Queue</h1>
         <p className="text-muted-foreground">
           Review and process driver reimbursement requests
         </p>
@@ -292,14 +292,14 @@ export function ReimbursementQueue() {
 
       {/* Summary Cards */}
       {statusFilter === 'pending' && summary && (
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-2 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pending Requests</CardTitle>
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{summary.total_pending}</div>
+              <div className="text-sm font-bold">{summary.total_pending}</div>
               <p className="text-xs text-muted-foreground">Awaiting review</p>
             </CardContent>
           </Card>
@@ -310,7 +310,7 @@ export function ReimbursementQueue() {
               <Receipt className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${summary.total_amount.toFixed(2)}</div>
+              <div className="text-sm font-bold">${summary.total_amount.toFixed(2)}</div>
               <p className="text-xs text-muted-foreground">Pending approval</p>
             </CardContent>
           </Card>
@@ -321,7 +321,7 @@ export function ReimbursementQueue() {
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{summary.avg_days_pending?.toFixed(1) || '0.0'}</div>
+              <div className="text-sm font-bold">{summary.avg_days_pending?.toFixed(1) || '0.0'}</div>
               <p className="text-xs text-muted-foreground">Average wait time</p>
             </CardContent>
           </Card>
@@ -332,12 +332,12 @@ export function ReimbursementQueue() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Funnel className="w-5 h-5" />
+            <Funnel className="w-3 h-3" />
             Filters & Actions
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-4">
+        <CardContent className="space-y-2">
+          <div className="grid gap-2 md:grid-cols-4">
             <div className="space-y-2">
               <Label>Status</Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -422,9 +422,9 @@ export function ReimbursementQueue() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-8">Loading...</div>
+            <div className="text-center py-3">Loading...</div>
           ) : filteredRequests.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-3 text-muted-foreground">
               No reimbursement requests found
             </div>
           ) : (
@@ -513,7 +513,7 @@ export function ReimbursementQueue() {
                   : 'Provide a reason for rejecting this reimbursement.'}
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-2 py-2">
               <div className="space-y-2">
                 <Label>Driver</Label>
                 <Input value={reviewingRequest.driver_name} disabled />
@@ -574,7 +574,7 @@ export function ReimbursementQueue() {
             <DialogHeader>
               <DialogTitle>View Receipt</DialogTitle>
             </DialogHeader>
-            <div className="py-4">
+            <div className="py-2">
               <img
                 src={viewingReceipt}
                 alt="Receipt"

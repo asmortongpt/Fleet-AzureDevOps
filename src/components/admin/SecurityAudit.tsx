@@ -355,14 +355,14 @@ export function SecurityAudit() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-6">
+      <Card className="p-3">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <Shield className="h-8 w-8 text-blue-800" />
             <div>
-              <h2 className="text-2xl font-bold">Security Audit</h2>
+              <h2 className="text-sm font-bold">Security Audit</h2>
               <p className="text-sm text-muted-foreground">
                 {lastAudit
                   ? `Last audit: ${lastAudit.toLocaleString()}`
@@ -378,25 +378,25 @@ export function SecurityAudit() {
 
         {/* Score Display */}
         {lastAudit && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 border rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+            <div className="text-center p-2 border rounded-lg">
               <div className={`text-5xl font-bold ${getScoreColor(score.score)}`}>
                 {getScoreGrade(score.score)}
               </div>
-              <div className="text-3xl font-semibold mt-2">{score.score}%</div>
+              <div className="text-base font-semibold mt-2">{score.score}%</div>
               <div className="text-sm text-muted-foreground mt-1">Overall Score</div>
               <Progress value={score.score} className="mt-2" />
             </div>
-            <div className="text-center p-4 border rounded-lg">
-              <div className="text-4xl font-bold text-green-600">{score.passed}</div>
+            <div className="text-center p-2 border rounded-lg">
+              <div className="text-sm font-bold text-green-600">{score.passed}</div>
               <div className="text-sm text-muted-foreground mt-1">Passed</div>
             </div>
-            <div className="text-center p-4 border rounded-lg">
-              <div className="text-4xl font-bold text-yellow-600">{score.warnings}</div>
+            <div className="text-center p-2 border rounded-lg">
+              <div className="text-sm font-bold text-yellow-600">{score.warnings}</div>
               <div className="text-sm text-muted-foreground mt-1">Warnings</div>
             </div>
-            <div className="text-center p-4 border rounded-lg">
-              <div className="text-4xl font-bold text-red-600">{score.failed}</div>
+            <div className="text-center p-2 border rounded-lg">
+              <div className="text-sm font-bold text-red-600">{score.failed}</div>
               <div className="text-sm text-muted-foreground mt-1">Failed</div>
             </div>
           </div>
@@ -404,23 +404,23 @@ export function SecurityAudit() {
       </Card>
 
       {/* Security Checks */}
-      <Card className="p-6">
-        <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+      <Card className="p-3">
+        <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
           <Eye className="h-5 w-5" />
           Security Checks
         </h3>
 
         <div className="space-y-3">
           {checks.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Info className="h-12 w-12 mx-auto mb-2 opacity-50" />
+            <div className="text-center py-3 text-muted-foreground">
+              <Info className="h-9 w-12 mx-auto mb-2 opacity-50" />
               <p>No audit results yet. Click "Run Audit" to get started.</p>
             </div>
           ) : (
             checks.map((check, index) => (
               <div
                 key={index}
-                className="flex items-start justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-start justify-between p-2 border rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
@@ -479,8 +479,8 @@ export function SecurityAudit() {
 
       {/* Security Recommendations */}
       {score.failed > 0 && (
-        <Card className="p-6 border-red-200 bg-red-50">
-          <h3 className="text-xl font-semibold mb-4 flex items-center gap-2 text-red-700">
+        <Card className="p-3 border-red-200 bg-red-50">
+          <h3 className="text-base font-semibold mb-2 flex items-center gap-2 text-red-700">
             <AlertTriangle className="h-5 w-5" />
             Critical Security Issues
           </h3>

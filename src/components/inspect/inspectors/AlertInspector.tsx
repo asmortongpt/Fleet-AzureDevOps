@@ -120,7 +120,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
+      <div className="flex items-center justify-center p-3">
         <Loader2 className="h-8 w-8 animate-spin text-blue-800" />
         <span className="ml-2 text-slate-700">Loading alert data...</span>
       </div>
@@ -129,7 +129,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
 
   if (error) {
     return (
-      <div className="p-8">
+      <div className="p-3">
         <div className="flex items-center gap-2 text-red-600">
           <AlertCircle className="h-5 w-5" />
           <span>{error}</span>
@@ -140,7 +140,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
 
   if (!alert) {
     return (
-      <div className="p-8 text-gray-500">
+      <div className="p-3 text-gray-500">
         No alert data available
       </div>
     );
@@ -151,12 +151,12 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="border-b p-4">
+      <div className="border-b p-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <SeverityIcon className={`h-8 w-8 text-${severityConfig[alert.severity].color}-600`} />
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-sm font-bold text-gray-900 dark:text-white">
                 {alert.type}
               </h2>
               <p className="text-sm text-slate-700 dark:text-gray-400">
@@ -184,20 +184,20 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
         </TabsList>
 
         {/* Details Tab */}
-        <TabsContent value="details" className="p-4">
-          <div className="space-y-4">
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Alert Information</h3>
+        <TabsContent value="details" className="p-2">
+          <div className="space-y-2">
+            <Card className="p-2">
+              <h3 className="text-sm font-semibold mb-2">Alert Information</h3>
               <div className="space-y-3">
                 <div>
                   <p className="text-sm text-slate-700">Message</p>
-                  <p className="font-medium text-lg">{alert.message}</p>
+                  <p className="font-medium text-sm">{alert.message}</p>
                 </div>
                 <div>
                   <p className="text-sm text-slate-700">Description</p>
                   <p className="text-gray-800 dark:text-gray-200">{alert.description}</p>
                 </div>
-                <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="grid grid-cols-2 gap-2 pt-2">
                   <div>
                     <p className="text-sm text-slate-700">Alert Type</p>
                     <p className="font-medium">{alert.type}</p>
@@ -219,10 +219,10 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
             </Card>
 
             {alert.location && (
-              <Card className="p-4">
-                <h3 className="text-lg font-semibold mb-4">Location</h3>
+              <Card className="p-2">
+                <h3 className="text-sm font-semibold mb-2">Location</h3>
                 <div className="space-y-2">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-slate-700">Latitude</p>
                       <p className="font-mono">{alert.location.latitude.toFixed(6)}</p>
@@ -245,11 +245,11 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
         </TabsContent>
 
         {/* Related Events Tab */}
-        <TabsContent value="related" className="p-4">
-          <div className="space-y-4">
+        <TabsContent value="related" className="p-2">
+          <div className="space-y-2">
             {alert.vehicle && (
-              <Card className="p-4">
-                <h3 className="text-lg font-semibold mb-4">Associated Vehicle</h3>
+              <Card className="p-2">
+                <h3 className="text-sm font-semibold mb-2">Associated Vehicle</h3>
                 <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div>
                     <p className="font-medium">{alert.vehicle.name}</p>
@@ -261,8 +261,8 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
             )}
 
             {alert.driver && (
-              <Card className="p-4">
-                <h3 className="text-lg font-semibold mb-4">Associated Driver</h3>
+              <Card className="p-2">
+                <h3 className="text-sm font-semibold mb-2">Associated Driver</h3>
                 <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div>
                     <p className="font-medium">{alert.driver.name}</p>
@@ -273,8 +273,8 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
               </Card>
             )}
 
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Related Alerts</h3>
+            <Card className="p-2">
+              <h3 className="text-sm font-semibold mb-2">Related Alerts</h3>
               <div className="space-y-2">
                 <div className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                   <div>
@@ -296,10 +296,10 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
         </TabsContent>
 
         {/* Actions Tab */}
-        <TabsContent value="actions" className="p-4">
-          <div className="space-y-4">
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Available Actions</h3>
+        <TabsContent value="actions" className="p-2">
+          <div className="space-y-2">
+            <Card className="p-2">
+              <h3 className="text-sm font-semibold mb-2">Available Actions</h3>
               <div className="space-y-3">
                 {alert.status === 'active' && (
                   <Button
@@ -336,27 +336,27 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
               </div>
             </Card>
 
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Action History</h3>
+            <Card className="p-2">
+              <h3 className="text-sm font-semibold mb-2">Action History</h3>
               <div className="space-y-3">
-                <div className="flex gap-4">
+                <div className="flex gap-2">
                   <div className="flex flex-col items-center">
                     <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                     <div className="w-px h-full bg-gray-300"></div>
                   </div>
-                  <div className="flex-1 pb-4">
+                  <div className="flex-1 pb-2">
                     <p className="font-medium">Alert Created</p>
                     <p className="text-sm text-slate-700">{new Date(alert.timestamp).toLocaleString()}</p>
                     <p className="text-sm text-gray-500">System detected {alert.type.toLowerCase()}</p>
                   </div>
                 </div>
                 {alert.status !== 'active' && (
-                  <div className="flex gap-4">
+                  <div className="flex gap-2">
                     <div className="flex flex-col items-center">
                       <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                       <div className="w-px h-full bg-gray-300"></div>
                     </div>
-                    <div className="flex-1 pb-4">
+                    <div className="flex-1 pb-2">
                       <p className="font-medium">{alert.status === 'acknowledged' ? 'Acknowledged' : 'Status Updated'}</p>
                       <p className="text-sm text-slate-700">Status changed to {alert.status}</p>
                     </div>

@@ -50,10 +50,10 @@ function DashboardContent() {
         : 0
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
+        <div className="p-3 space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-white">Policy Management Dashboard</h2>
+                    <h2 className="text-sm font-bold text-white">Policy Management Dashboard</h2>
                     <p className="text-slate-400 mt-1">Centralized governance and compliance management</p>
                 </div>
                 <Button
@@ -66,12 +66,12 @@ function DashboardContent() {
             </div>
 
             {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <StatCard
                     title="Active Policies"
                     value={activePolicies.toString()}
                     variant="success"
-                    icon={<ShieldCheck className="w-6 h-6" />}
+                    icon={<ShieldCheck className="w-4 h-4" />}
                     onClick={() => push({ type: 'policies', data: { filter: 'active' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
@@ -90,24 +90,24 @@ function DashboardContent() {
                     title="Violations"
                     value={totalViolations.toString()}
                     variant={totalViolations > 0 ? "warning" : "success"}
-                    icon={<Warning className="w-6 h-6" />}
+                    icon={<Warning className="w-4 h-4" />}
                     onClick={() => push({ type: 'violations', data: { title: 'Policy Violations' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
             </div>
 
             {/* Status Overview */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:border-emerald-600 hover:shadow-lg transition-all duration-200"
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
+                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 cursor-pointer hover:border-emerald-600 hover:shadow-sm transition-all duration-200"
                      onClick={() => push({ type: 'policies', data: { title: 'Policy Status' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">Policy Status</h3>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">Policy Status</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={complianceRate} color="green" label={`${complianceRate}%`} sublabel="Compliance" />
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:border-blue-600 hover:shadow-lg transition-all duration-200"
+                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 cursor-pointer hover:border-blue-600 hover:shadow-sm transition-all duration-200"
                      onClick={() => push({ type: 'sop-library', data: { title: 'SOP Metrics' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">SOP Library</h3>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">SOP Library</h3>
                     <div className="space-y-1">
                         <QuickStat label="Total SOPs" value="24" />
                         <QuickStat label="Recently Updated" value="5" trend="up" />
@@ -115,9 +115,9 @@ function DashboardContent() {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:border-purple-600 hover:shadow-lg transition-all duration-200"
+                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 cursor-pointer hover:border-purple-600 hover:shadow-sm transition-all duration-200"
                      onClick={() => push({ type: 'training', data: { title: 'Training Status' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">Training Status</h3>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">Training Status</h3>
                     <div className="space-y-1">
                         <QuickStat label="Completed" value="156" trend="up" />
                         <QuickStat label="In Progress" value="23" />
@@ -127,28 +127,28 @@ function DashboardContent() {
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Quick Actions</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Quick Actions</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     <button
-                        className="flex items-center gap-3 p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+                        className="flex items-center gap-3 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
                         onClick={() => push({ type: 'create-policy', data: { title: 'Create Policy' } } as Omit<DrilldownLevel, "timestamp">)}
                     >
-                        <Lightbulb className="w-5 h-5 text-blue-800" />
+                        <Lightbulb className="w-3 h-3 text-blue-800" />
                         <span className="font-medium text-slate-700 dark:text-slate-300">Create Policy</span>
                     </button>
                     <button
-                        className="flex items-center gap-3 p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all"
+                        className="flex items-center gap-3 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all"
                         onClick={() => push({ type: 'gap-analysis', data: { title: 'Gap Analysis' } } as Omit<DrilldownLevel, "timestamp">)}
                     >
-                        <CheckCircle className="w-5 h-5 text-green-600" />
+                        <CheckCircle className="w-3 h-3 text-green-600" />
                         <span className="font-medium text-slate-700 dark:text-slate-300">Run Gap Analysis</span>
                     </button>
                     <button
-                        className="flex items-center gap-3 p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all"
+                        className="flex items-center gap-3 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all"
                         onClick={() => push({ type: 'training-assignment', data: { title: 'Assign Training' } } as Omit<DrilldownLevel, "timestamp">)}
                     >
-                        <GraduationCap className="w-5 h-5 text-purple-600" />
+                        <GraduationCap className="w-3 h-3 text-purple-600" />
                         <span className="font-medium text-slate-700 dark:text-slate-300">Assign Training</span>
                     </button>
                 </div>
@@ -175,10 +175,10 @@ function SOPsContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
+        <div className="p-3 space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-white">Standard Operating Procedures</h2>
+                    <h2 className="text-sm font-bold text-white">Standard Operating Procedures</h2>
                     <p className="text-slate-400 mt-1">Centralized repository of organizational procedures and best practices</p>
                 </div>
                 <Button
@@ -190,12 +190,12 @@ function SOPsContent() {
                 </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <StatCard
                     title="Total SOPs"
                     value="24"
                     variant="primary"
-                    icon={<FileText className="w-6 h-6" />}
+                    icon={<FileText className="w-4 h-4" />}
                     onClick={() => push({ type: 'sop-list', data: { title: 'All SOPs' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
@@ -214,25 +214,25 @@ function SOPsContent() {
                     title="Compliance Rate"
                     value="97%"
                     variant="success"
-                    icon={<CheckCircle className="w-6 h-6" />}
+                    icon={<CheckCircle className="w-4 h-4" />}
                     onClick={() => push({ type: 'sop-compliance', data: { title: 'SOP Compliance' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
             </div>
 
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">SOP Categories</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">SOP Categories</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                     {[
-                        { name: 'Safety Procedures', count: 8, icon: <ShieldCheck className="w-5 h-5" />, color: 'text-green-600' },
-                        { name: 'Maintenance', count: 6, icon: <FlowArrow className="w-5 h-5" />, color: 'text-blue-800' },
-                        { name: 'Dispatch', count: 4, icon: <ChartBar className="w-5 h-5" />, color: 'text-purple-600' },
-                        { name: 'Compliance', count: 3, icon: <CheckCircle className="w-5 h-5" />, color: 'text-orange-600' },
-                        { name: 'Emergency Response', count: 2, icon: <Warning className="w-5 h-5" />, color: 'text-red-600' },
-                        { name: 'Administrative', count: 1, icon: <FileText className="w-5 h-5" />, color: 'text-slate-600' },
+                        { name: 'Safety Procedures', count: 8, icon: <ShieldCheck className="w-3 h-3" />, color: 'text-green-600' },
+                        { name: 'Maintenance', count: 6, icon: <FlowArrow className="w-3 h-3" />, color: 'text-blue-800' },
+                        { name: 'Dispatch', count: 4, icon: <ChartBar className="w-3 h-3" />, color: 'text-purple-600' },
+                        { name: 'Compliance', count: 3, icon: <CheckCircle className="w-3 h-3" />, color: 'text-orange-600' },
+                        { name: 'Emergency Response', count: 2, icon: <Warning className="w-3 h-3" />, color: 'text-red-600' },
+                        { name: 'Administrative', count: 1, icon: <FileText className="w-3 h-3" />, color: 'text-slate-600' },
                     ].map((category) => (
                         <button
                             key={category.name}
-                            className="flex items-center justify-between p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+                            className="flex items-center justify-between p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
                             onClick={() => push({ type: 'sop-category', data: { category: category.name } } as Omit<DrilldownLevel, "timestamp">)}
                         >
                             <div className="flex items-center gap-3">
@@ -245,12 +245,12 @@ function SOPsContent() {
                 </div>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-xl border border-blue-500/20 p-6">
-                <div className="flex items-start gap-4">
-                    <Robot className="w-8 h-8 text-blue-800 flex-shrink-0" />
+            <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-md border border-blue-500/20 p-3">
+                <div className="flex items-start gap-2">
+                    <Robot className="w-4 h-4 text-blue-800 flex-shrink-0" />
                     <div>
-                        <h3 className="text-lg font-semibold text-white mb-2">AI SOP Generation</h3>
-                        <p className="text-slate-300 mb-4">
+                        <h3 className="text-sm font-semibold text-white mb-2">AI SOP Generation</h3>
+                        <p className="text-slate-300 mb-2">
                             Use AI to automatically generate SOPs based on your organization's processes, best practices,
                             and regulatory requirements. Our intelligent system can identify gaps and recommend improvements.
                         </p>
@@ -286,10 +286,10 @@ function TrainingContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
+        <div className="p-3 space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-white">Training Management</h2>
+                    <h2 className="text-sm font-bold text-white">Training Management</h2>
                     <p className="text-slate-400 mt-1">Assign, track, and manage training modules and certifications</p>
                 </div>
                 <Button
@@ -301,12 +301,12 @@ function TrainingContent() {
                 </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <StatCard
                     title="Completed"
                     value="156"
                     variant="success"
-                    icon={<CheckCircle className="w-6 h-6" />}
+                    icon={<CheckCircle className="w-4 h-4" />}
                     onClick={() => push({ type: 'completed-training', data: { title: 'Completed Training' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
@@ -319,7 +319,7 @@ function TrainingContent() {
                     title="Overdue"
                     value="4"
                     variant="warning"
-                    icon={<Warning className="w-6 h-6" />}
+                    icon={<Warning className="w-4 h-4" />}
                     onClick={() => push({ type: 'overdue-training', data: { title: 'Overdue Training' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
@@ -330,9 +330,9 @@ function TrainingContent() {
                 />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Training Categories</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Training Categories</h3>
                     <div className="space-y-3">
                         {[
                             { name: 'Safety Training', completed: 45, total: 50, progress: 90 },
@@ -361,8 +361,8 @@ function TrainingContent() {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Upcoming Training</h3>
+                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Upcoming Training</h3>
                     <div className="space-y-3">
                         {[
                             { title: 'DOT Compliance Update', date: '2024-01-15', attendees: 12 },
@@ -396,10 +396,10 @@ function ComplianceContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
+        <div className="p-3 space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-white">Compliance Management</h2>
+                    <h2 className="text-sm font-bold text-white">Compliance Management</h2>
                     <p className="text-slate-400 mt-1">Track regulatory requirements and ensure organizational compliance</p>
                 </div>
                 <Button
@@ -411,12 +411,12 @@ function ComplianceContent() {
                 </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <StatCard
                     title="Overall Compliance"
                     value="94%"
                     variant="success"
-                    icon={<CheckCircle className="w-6 h-6" />}
+                    icon={<CheckCircle className="w-4 h-4" />}
                     onClick={() => push({ type: 'overall-compliance', data: { title: 'Overall Compliance' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
@@ -429,7 +429,7 @@ function ComplianceContent() {
                     title="Items Overdue"
                     value="3"
                     variant="warning"
-                    icon={<Warning className="w-6 h-6" />}
+                    icon={<Warning className="w-4 h-4" />}
                     onClick={() => push({ type: 'overdue-items', data: { title: 'Overdue Items' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
@@ -440,34 +440,34 @@ function ComplianceContent() {
                 />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:border-emerald-600 hover:shadow-lg transition-all duration-200"
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
+                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 cursor-pointer hover:border-emerald-600 hover:shadow-sm transition-all duration-200"
                      onClick={() => push({ type: 'dot-compliance', data: { title: 'DOT Compliance' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">DOT Compliance</h3>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">DOT Compliance</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={98} color="green" label="98%" sublabel="Compliant" />
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:border-blue-600 hover:shadow-lg transition-all duration-200"
+                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 cursor-pointer hover:border-blue-600 hover:shadow-sm transition-all duration-200"
                      onClick={() => push({ type: 'osha-compliance', data: { title: 'OSHA Compliance' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">OSHA Compliance</h3>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">OSHA Compliance</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={92} color="green" label="92%" sublabel="Safety Score" />
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-8 cursor-pointer hover:border-purple-600 hover:shadow-lg transition-all duration-200"
+                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 cursor-pointer hover:border-purple-600 hover:shadow-sm transition-all duration-200"
                      onClick={() => push({ type: 'environmental-compliance', data: { title: 'Environmental' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-6">Environmental</h3>
+                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">Environmental</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={88} color="green" label="88%" sublabel="EPA Standards" />
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Recent Compliance Activities</h3>
+            <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Recent Compliance Activities</h3>
                 <div className="space-y-3">
                     {[
                         { activity: 'DOT Inspection Completed', date: '2024-01-05', status: 'passed' },
@@ -513,10 +513,10 @@ function WorkflowsContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
+        <div className="p-3 space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-white">Workflow Automation</h2>
+                    <h2 className="text-sm font-bold text-white">Workflow Automation</h2>
                     <p className="text-slate-400 mt-1">Design, automate, and monitor approval workflows and business processes</p>
                 </div>
                 <Button
@@ -528,12 +528,12 @@ function WorkflowsContent() {
                 </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <StatCard
                     title="Active Workflows"
                     value="12"
                     variant="primary"
-                    icon={<FlowArrow className="w-6 h-6" />}
+                    icon={<FlowArrow className="w-4 h-4" />}
                     onClick={() => push({ type: 'active-workflows', data: { title: 'Active Workflows' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
@@ -546,7 +546,7 @@ function WorkflowsContent() {
                     title="Completed This Month"
                     value="156"
                     variant="success"
-                    icon={<CheckCircle className="w-6 h-6" />}
+                    icon={<CheckCircle className="w-4 h-4" />}
                     onClick={() => push({ type: 'completed-workflows', data: { title: 'Completed' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
@@ -557,27 +557,27 @@ function WorkflowsContent() {
                 />
             </div>
 
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Workflow Templates</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Workflow Templates</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                     {[
-                        { name: 'Purchase Order Approval', steps: 4, users: 8, icon: <Receipt className="w-5 h-5" />, color: 'text-blue-800' },
-                        { name: 'Policy Review & Approval', steps: 5, users: 12, icon: <ShieldCheck className="w-5 h-5" />, color: 'text-green-600' },
-                        { name: 'Incident Investigation', steps: 6, users: 5, icon: <Warning className="w-5 h-5" />, color: 'text-red-600' },
-                        { name: 'Training Certification', steps: 3, users: 20, icon: <GraduationCap className="w-5 h-5" />, color: 'text-purple-600' },
-                        { name: 'Maintenance Approval', steps: 4, users: 6, icon: <FlowArrow className="w-5 h-5" />, color: 'text-orange-600' },
-                        { name: 'Document Review', steps: 3, users: 10, icon: <FileText className="w-5 h-5" />, color: 'text-indigo-600' },
+                        { name: 'Purchase Order Approval', steps: 4, users: 8, icon: <Receipt className="w-3 h-3" />, color: 'text-blue-800' },
+                        { name: 'Policy Review & Approval', steps: 5, users: 12, icon: <ShieldCheck className="w-3 h-3" />, color: 'text-green-600' },
+                        { name: 'Incident Investigation', steps: 6, users: 5, icon: <Warning className="w-3 h-3" />, color: 'text-red-600' },
+                        { name: 'Training Certification', steps: 3, users: 20, icon: <GraduationCap className="w-3 h-3" />, color: 'text-purple-600' },
+                        { name: 'Maintenance Approval', steps: 4, users: 6, icon: <FlowArrow className="w-3 h-3" />, color: 'text-orange-600' },
+                        { name: 'Document Review', steps: 3, users: 10, icon: <FileText className="w-3 h-3" />, color: 'text-indigo-600' },
                     ].map((workflow) => (
                         <button
                             key={workflow.name}
-                            className="flex flex-col gap-3 p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all text-left"
+                            className="flex flex-col gap-3 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all text-left"
                             onClick={() => push({ type: 'workflow-template', data: { workflow } } as Omit<DrilldownLevel, "timestamp">)}
                         >
                             <div className="flex items-center gap-3">
                                 <span className={workflow.color}>{workflow.icon}</span>
                                 <span className="font-medium text-slate-700 dark:text-slate-300">{workflow.name}</span>
                             </div>
-                            <div className="flex items-center gap-4 text-sm text-slate-500">
+                            <div className="flex items-center gap-2 text-sm text-slate-500">
                                 <span>{workflow.steps} steps</span>
                                 <span>•</span>
                                 <span>{workflow.users} users</span>
@@ -587,12 +587,12 @@ function WorkflowsContent() {
                 </div>
             </div>
 
-            <div className="bg-gradient-to-r from-indigo-600/10 to-purple-600/10 rounded-xl border border-indigo-500/20 p-6">
-                <div className="flex items-start gap-4">
-                    <Robot className="w-8 h-8 text-indigo-600 flex-shrink-0" />
+            <div className="bg-gradient-to-r from-indigo-600/10 to-purple-600/10 rounded-md border border-indigo-500/20 p-3">
+                <div className="flex items-start gap-2">
+                    <Robot className="w-4 h-4 text-indigo-600 flex-shrink-0" />
                     <div>
-                        <h3 className="text-lg font-semibold text-white mb-2">AI Workflow Optimization</h3>
-                        <p className="text-slate-300 mb-4">
+                        <h3 className="text-sm font-semibold text-white mb-2">AI Workflow Optimization</h3>
+                        <p className="text-slate-300 mb-2">
                             Leverage AI to identify bottlenecks, optimize approval routing, and predict workflow completion times.
                             Get intelligent suggestions for process improvements based on historical data.
                         </p>
@@ -631,7 +631,7 @@ export function PolicyHub() {
     return (
         <HubPage
             title="Policy Management Hub"
-            icon={<PolicyIcon className="w-6 h-6" />}
+            icon={<PolicyIcon className="w-4 h-4" />}
             description="Centralized governance, compliance, and process management"
             tabs={tabs}
             defaultTab="dashboard"

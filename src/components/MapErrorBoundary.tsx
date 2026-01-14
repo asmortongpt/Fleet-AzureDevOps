@@ -493,13 +493,13 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
       const errorDetails = getErrorDetails(categorizedError, provider)
 
       return (
-        <div className="flex items-center justify-center w-full h-full bg-gray-50 dark:bg-gray-900 p-6">
+        <div className="flex items-center justify-center w-full h-full bg-gray-50 dark:bg-gray-900 p-3">
           <Card className="max-w-2xl w-full">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <AlertTitle className="text-xl font-semibold m-0">
+                    <AlertTitle className="text-base font-semibold m-0">
                       {errorDetails.title}
                     </AlertTitle>
                     <Badge
@@ -520,7 +520,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
                     </div>
                   )}
                 </div>
-                <div className="ml-4">
+                <div className="ml-2">
                   {isRetrying ? (
                     <div className="flex items-center gap-2 text-sm text-blue-800 dark:text-blue-400">
                       <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
@@ -535,7 +535,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
               </div>
             </CardHeader>
 
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2">
               {/* Offline Warning */}
               {isOffline && (
                 <Alert variant="destructive">

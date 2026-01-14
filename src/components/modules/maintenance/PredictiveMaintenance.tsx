@@ -29,37 +29,37 @@ export function PredictiveMaintenance() {
     }))
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Predictive Maintenance</h1>
+        <h1 className="text-base font-semibold tracking-tight">Predictive Maintenance</h1>
         <p className="text-muted-foreground mt-2">
           AI-powered predictions to prevent vehicle downtime and optimize maintenance scheduling
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-warning/10 text-warning">
-                <Warning className="w-5 h-5" />
+                <Warning className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">At Risk</p>
             </div>
-            <p className="text-3xl font-semibold">{predictiveVehicles.length}</p>
+            <p className="text-base font-semibold">{predictiveVehicles.length}</p>
             <p className="text-sm text-muted-foreground mt-1">vehicles need attention</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-destructive/10 text-destructive">
-                <Lightning className="w-5 h-5" />
+                <Lightning className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">Critical</p>
             </div>
-            <p className="text-3xl font-semibold">
+            <p className="text-base font-semibold">
               {predictiveVehicles.filter(v => v.daysUntilFailure < 15).length}
             </p>
             <p className="text-sm text-muted-foreground mt-1">urgent attention required</p>
@@ -67,14 +67,14 @@ export function PredictiveMaintenance() {
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-success/10 text-success">
-                <TrendUp className="w-5 h-5" />
+                <TrendUp className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">Potential Savings</p>
             </div>
-            <p className="text-3xl font-semibold">
+            <p className="text-base font-semibold">
               ${Math.floor(predictiveVehicles.length * 450).toLocaleString()}
             </p>
             <p className="text-sm text-muted-foreground mt-1">vs reactive maintenance</p>
@@ -91,15 +91,15 @@ export function PredictiveMaintenance() {
             {predictiveVehicles.map(vehicle => (
               <div 
                 key={vehicle.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                className="flex items-center justify-between p-2 border rounded-lg hover:bg-muted/50 transition-colors"
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
                   <div className={`p-2 rounded-lg ${
                     vehicle.daysUntilFailure < 15 
                       ? "bg-destructive/10 text-destructive" 
                       : "bg-warning/10 text-warning"
                   }`}>
-                    <Wrench className="w-5 h-5" />
+                    <Wrench className="w-3 h-3" />
                   </div>
                   <div>
                     <p className="font-medium">{vehicle.number}</p>
@@ -109,7 +109,7 @@ export function PredictiveMaintenance() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
                   <div>
                     <p className="font-medium">{vehicle.predictedIssue}</p>
                     <p className="text-sm text-muted-foreground">
@@ -144,14 +144,14 @@ export function PredictiveMaintenance() {
           <CardTitle>Maintenance Recommendations</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="p-4 border rounded-lg bg-accent/5">
+          <div className="space-y-2">
+            <div className="p-2 border rounded-lg bg-accent/5">
               <h3 className="font-semibold mb-2">Proactive Scheduling</h3>
               <p className="text-sm text-muted-foreground">
                 Schedule maintenance for 8 vehicles before predicted issues occur, saving approximately $3,600 in emergency repairs.
               </p>
             </div>
-            <div className="p-4 border rounded-lg">
+            <div className="p-2 border rounded-lg">
               <h3 className="font-semibold mb-2">Parts Inventory Optimization</h3>
               <p className="text-sm text-muted-foreground">
                 Pre-order commonly needed parts based on predictions to reduce vehicle downtime by 40%.

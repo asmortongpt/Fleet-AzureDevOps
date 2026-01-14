@@ -56,7 +56,7 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
   // Show loading state
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-8">
+      <div className="flex items-center justify-center py-3">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         <span className="ml-2 text-sm text-muted-foreground">Loading relationships...</span>
       </div>
@@ -66,7 +66,7 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
   // Show error state (API not implemented yet)
   if (error) {
     return (
-      <Card className="p-4 bg-muted/50 border-dashed">
+      <Card className="p-2 bg-muted/50 border-dashed">
         <div className="flex items-start gap-3">
           <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5" />
           <div className="flex-1">
@@ -91,7 +91,7 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
   // No relationships found
   if (relationships.length === 0) {
     return (
-      <div className="text-center py-6">
+      <div className="text-center py-3">
         <Link2 className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
         <p className="text-sm text-muted-foreground">
           No attached assets
@@ -107,7 +107,7 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
   return (
     <div className="space-y-3">
       {relationships.map((relationship) => (
-        <Card key={relationship.id} className="p-4">
+        <Card key={relationship.id} className="p-2">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2">

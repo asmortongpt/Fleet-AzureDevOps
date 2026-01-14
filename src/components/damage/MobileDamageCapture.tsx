@@ -196,7 +196,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
   }, [capturedFiles, onAnalysisComplete]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Device Capabilities Info */}
       <Alert>
         <Info className="h-4 w-4" />
@@ -223,7 +223,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
 
       {/* Capture Mode Selection */}
       {!captureMode && !isAnalyzing && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           <Card
             className="cursor-pointer hover:border-blue-500 transition-colors"
             onClick={() => setCaptureMode('photo')}
@@ -303,8 +303,8 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
               Take photos from multiple angles: front, rear, both sides, and closeups of damage.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex gap-4">
+          <CardContent className="space-y-2">
+            <div className="flex gap-2">
               <Button onClick={handlePhotoCapture} variant="default" className="flex-1">
                 <Camera className="mr-2 h-4 w-4" />
                 Take Photo ({capturedFiles.length})
@@ -320,7 +320,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
             </div>
 
             {capturedFiles.length > 0 && (
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <div className="grid grid-cols-3 gap-2">
                   {capturedFiles.map((file, index) => (
                     <div key={index} className="relative aspect-video rounded-md overflow-hidden">
@@ -380,8 +380,8 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
               key frames.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex gap-4">
+          <CardContent className="space-y-2">
+            <div className="flex gap-2">
               <Button onClick={handleVideoCapture} variant="default" className="flex-1">
                 <Video className="mr-2 h-4 w-4" />
                 Record Video
@@ -397,7 +397,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
             </div>
 
             {capturedFiles.length > 0 && (
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <div className="aspect-video rounded-md overflow-hidden bg-black">
                   {capturedFiles[0] && (
                     <video src={URL.createObjectURL(capturedFiles[0])} controls className="w-full h-full" />
@@ -462,7 +462,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
               Processing your {captureMode === 'video' ? 'video' : 'photos'} with AI damage detection.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-2">
             <Progress value={analysisProgress} className="w-full" />
             <div className="flex justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-blue-800" />

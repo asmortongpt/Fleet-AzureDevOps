@@ -76,10 +76,10 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
                 side="left"
                 style={{ backgroundColor: 'transparent' }}
             >
-                <SheetHeader className="p-6 border-b border-white/10 bg-black/20">
+                <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
                     <div className="flex items-center justify-between">
-                        <SheetTitle className="text-xl font-semibold flex items-center gap-2 text-white">
-                            <Truck className="w-6 h-6 text-emerald-400" weight="fill" />
+                        <SheetTitle className="text-base font-semibold flex items-center gap-2 text-white">
+                            <Truck className="w-4 h-4 text-emerald-400" weight="fill" />
                             Vehicle Fleet
                         </SheetTitle>
                         <Badge variant="secondary" className="font-mono">
@@ -90,7 +90,7 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
                         Monitor and manage your entire fleet inventory.
                     </SheetDescription>
 
-                    <div className="mt-4 space-y-3">
+                    <div className="mt-2 space-y-3">
                         <div className="flex gap-2">
                             <div className="relative flex-1">
                                 <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -125,17 +125,17 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
                     </div>
                 </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                <div className="flex-1 overflow-y-auto p-2 space-y-3">
                     {filteredVehicles.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
-                            <Truck className="w-8 h-8 mb-2 opacity-50" />
+                            <Truck className="w-4 h-4 mb-2 opacity-50" />
                             <p>No vehicles found</p>
                         </div>
                     ) : (
                         filteredVehicles.map((vehicle) => (
                             <div
                                 key={vehicle.id}
-                                className="flex flex-col p-4 rounded-xl border bg-card hover:bg-accent/50 transition-all cursor-pointer group"
+                                className="flex flex-col p-2 rounded-md border bg-card hover:bg-accent/50 transition-all cursor-pointer group"
                                 onClick={() => handleVehicleClick(vehicle)}
                                 role="button"
                                 tabIndex={0}
@@ -143,8 +143,8 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
                             >
                                 <div className="flex justify-between items-start mb-2">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                                            <Truck className="w-6 h-6" />
+                                        <div className="w-10 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                            <Truck className="w-4 h-4" />
                                         </div>
                                         <div>
                                             <h4 className="font-bold text-base">{vehicle.name || vehicle.id}</h4>
@@ -158,7 +158,7 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
                                     </Badge>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4 mt-2">
+                                <div className="grid grid-cols-2 gap-2 mt-2">
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                         <Gauge className="w-4 h-4" />
                                         <span>{vehicle.fuelLevel || 0}% Fuel</span>
@@ -173,7 +173,7 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
                     )}
                 </div>
 
-                <div className="p-4 border-t bg-muted/10">
+                <div className="p-2 border-t bg-muted/10">
                     <Button className="w-full" onClick={() => addVehicle?.({} as any)}>
                         <Plus className="w-4 h-4 mr-2" />
                         Add New Vehicle

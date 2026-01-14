@@ -120,47 +120,47 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
   return (
     <div className="h-full overflow-y-auto bg-gray-50 dark:bg-gray-900">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-3">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Car className="w-8 h-8" />
+              <Car className="w-4 h-4" />
               <div>
-                <h1 className="text-2xl font-bold">{vehicle.make} {vehicle.model}</h1>
+                <h1 className="text-sm font-bold">{vehicle.make} {vehicle.model}</h1>
                 <p className="text-blue-100">VIN: {vehicle.vin || 'N/A'}</p>
               </div>
             </div>
-            <div className="flex gap-4 mt-4">
+            <div className="flex gap-2 mt-2">
               <div>
                 <p className="text-xs text-blue-200">Year</p>
-                <p className="text-lg font-semibold">{vehicle.year}</p>
+                <p className="text-sm font-semibold">{vehicle.year}</p>
               </div>
               <div>
                 <p className="text-xs text-blue-200">License Plate</p>
-                <p className="text-lg font-semibold">{vehicle.licensePlate || 'N/A'}</p>
+                <p className="text-sm font-semibold">{vehicle.licensePlate || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-xs text-blue-200">Mileage</p>
-                <p className="text-lg font-semibold">{vehicle.mileage?.toLocaleString() || 'N/A'}</p>
+                <p className="text-sm font-semibold">{vehicle.mileage?.toLocaleString() || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-xs text-blue-200">Status</p>
-                <p className="text-lg font-semibold">{vehicle.status}</p>
+                <p className="text-sm font-semibold">{vehicle.status}</p>
               </div>
             </div>
           </div>
           {onClose && (
             <Button variant="ghost" onClick={onClose} className="text-white hover:bg-blue-700">
-              <XCircle className="w-5 h-5" />
+              <XCircle className="w-3 h-3" />
             </Button>
           )}
         </div>
       </div>
 
       {/* Tabs for Detailed Information */}
-      <div className="p-6">
+      <div className="p-3">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-6 w-full mb-6">
+          <TabsList className="grid grid-cols-6 w-full mb-3">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="service">Service History</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
@@ -170,8 +170,8 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <TabsContent value="overview" className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm">Vehicle Information</CardTitle>
@@ -274,11 +274,11 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                 <CardDescription>{serviceHistory.length} service records</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {serviceHistory.map((service) => (
                     <div
                       key={service.id}
-                      className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
+                      className="border rounded-lg p-2 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
                       onClick={() => push({
                         id: `work-order-${service.id}`,
                         type: 'work-order',
@@ -294,7 +294,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                             {getStatusBadge(service.status)}
                           </div>
                           <p className="text-sm text-muted-foreground mb-2">{service.description}</p>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                             <div>
                               <span className="text-muted-foreground">Date:</span>
                               <p className="font-medium">{service.date}</p>
@@ -337,7 +337,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                       className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
                     >
                       <div className="flex items-center gap-3">
-                        <FileText className="w-5 h-5 text-blue-800" />
+                        <FileText className="w-3 h-3 text-blue-800" />
                         <div>
                           <p className="font-medium text-sm">{doc.name}</p>
                           <p className="text-xs text-muted-foreground">
@@ -363,11 +363,11 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                 <CardDescription>Last updated: {telemetryData.lastUpdate}</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Gauge className="w-5 h-5 text-blue-800" />
+                        <Gauge className="w-3 h-3 text-blue-800" />
                         <span>Speed</span>
                       </div>
                       <span className="font-mono font-medium">{telemetryData.speed} mph</span>
@@ -376,7 +376,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-blue-800" />
+                        <Activity className="w-3 h-3 text-blue-800" />
                         <span>Engine RPM</span>
                       </div>
                       <span className="font-mono font-medium">{telemetryData.rpm}</span>
@@ -385,7 +385,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Fuel className="w-5 h-5 text-blue-800" />
+                        <Fuel className="w-3 h-3 text-blue-800" />
                         <span>Fuel Level</span>
                       </div>
                       <span className="font-mono font-medium">{telemetryData.fuelLevel}%</span>
@@ -393,10 +393,10 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                     <Progress value={telemetryData.fuelLevel} max={100} className="w-full" />
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <ThermometerSun className="w-5 h-5 text-blue-800" />
+                        <ThermometerSun className="w-3 h-3 text-blue-800" />
                         <span>Engine Temperature</span>
                       </div>
                       <span className="font-mono font-medium">{telemetryData.engineTemp}°F</span>
@@ -405,7 +405,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Gauge className="w-5 h-5 text-blue-800" />
+                        <Gauge className="w-3 h-3 text-blue-800" />
                         <span>Oil Pressure</span>
                       </div>
                       <span className="font-mono font-medium">{telemetryData.oilPressure} psi</span>
@@ -414,7 +414,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-blue-800" />
+                        <Activity className="w-3 h-3 text-blue-800" />
                         <span>Battery Voltage</span>
                       </div>
                       <span className="font-mono font-medium">{telemetryData.batteryVoltage}V</span>
@@ -434,11 +434,11 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                 <CardDescription>Upcoming and overdue services</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {maintenanceSchedule.map((item, index) => (
                     <div
                       key={index}
-                      className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                      className="border rounded-lg p-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -447,7 +447,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                             <h4 className="font-semibold">{item.service}</h4>
                             {getStatusBadge(item.status)}
                           </div>
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-xs">
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
                             <div>
                               <span className="text-muted-foreground">Next Due:</span>
                               <p className="font-medium">{item.nextDue}</p>
@@ -474,10 +474,10 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                 <CardDescription>Lifetime costs and averages</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                  <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <DollarSign className="w-5 h-5 text-blue-800" />
+                      <DollarSign className="w-3 h-3 text-blue-800" />
                       <h3 className="font-semibold">Total Costs</h3>
                     </div>
                     <div className="space-y-2 text-sm">
@@ -496,9 +496,9 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                     </div>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5 text-blue-800" />
+                      <TrendingUp className="w-3 h-3 text-blue-800" />
                       <h3 className="font-semibold">Averages</h3>
                     </div>
                     <div className="space-y-2 text-sm">

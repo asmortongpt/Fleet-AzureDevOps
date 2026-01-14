@@ -452,11 +452,11 @@ export function RouteOptimizer() {
   // ==================== Render ====================
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+          <h2 className="text-base font-bold tracking-tight flex items-center gap-2">
             <Route className="h-8 w-8" />
             AI Route Optimization
           </h2>
@@ -493,9 +493,9 @@ export function RouteOptimizer() {
             Optimization Configuration
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-2">
           {/* Job Settings */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <div className="space-y-2">
               <Label htmlFor="jobName">Job Name *</Label>
               <Input

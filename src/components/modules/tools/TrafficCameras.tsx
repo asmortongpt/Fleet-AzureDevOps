@@ -378,8 +378,8 @@ export function TrafficCameras(): JSX.Element {
         aria-live="polite"
       >
         <div className="text-center">
-          <CircleDashed className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-lg font-medium text-foreground">Loading traffic cameras...</p>
+          <CircleDashed className="w-12 h-9 animate-spin text-primary mx-auto mb-2" />
+          <p className="text-sm font-medium text-foreground">Loading traffic cameras...</p>
           <p className="text-sm text-muted-foreground mt-2">
             Fetching camera data from sources
           </p>
@@ -397,9 +397,9 @@ export function TrafficCameras(): JSX.Element {
         aria-live="assertive"
       >
         <div className="text-center max-w-md">
-          <XCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-foreground mb-2">Failed to Load Cameras</h3>
-          <p className="text-sm text-muted-foreground mb-4">{state.error}</p>
+          <XCircle className="w-16 h-16 text-destructive mx-auto mb-2" />
+          <h3 className="text-sm font-semibold text-foreground mb-2">Failed to Load Cameras</h3>
+          <p className="text-sm text-muted-foreground mb-2">{state.error}</p>
           <Button onClick={reloadData}>
             <ArrowsClockwise className="w-4 h-4 mr-2" />
             Retry
@@ -410,11 +410,11 @@ export function TrafficCameras(): JSX.Element {
   }
 
   return (
-    <div className="space-y-6" role="main" aria-label="Traffic Cameras">
+    <div className="space-y-2" role="main" aria-label="Traffic Cameras">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Traffic Cameras</h1>
+          <h1 className="text-base font-semibold tracking-tight">Traffic Cameras</h1>
           <p className="text-muted-foreground mt-1">
             Real-time traffic camera monitoring across the region
           </p>
@@ -435,9 +435,9 @@ export function TrafficCameras(): JSX.Element {
       {/* Error Banner (with existing data) */}
       {state.error && state.cameras.length > 0 && (
         <Card className="border-destructive">
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-start gap-3">
-              <WarningCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+              <WarningCircle className="w-3 h-3 text-destructive flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <h4 className="font-medium text-destructive">Sync Error</h4>
                 <p className="text-sm text-muted-foreground mt-1">{state.error}</p>
@@ -451,51 +451,51 @@ export function TrafficCameras(): JSX.Element {
       )}
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Cameras</p>
-                <p className="text-3xl font-bold">{stats.total}</p>
+                <p className="text-base font-bold">{stats.total}</p>
               </div>
-              <VideoCamera className="w-8 h-8 text-primary" weight="fill" />
+              <VideoCamera className="w-4 h-4 text-primary" weight="fill" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Operational</p>
-                <p className="text-3xl font-bold text-green-600">{stats.operational}</p>
+                <p className="text-base font-bold text-green-600">{stats.operational}</p>
               </div>
-              <CheckCircle className="w-8 h-8 text-green-600" weight="fill" />
+              <CheckCircle className="w-4 h-4 text-green-600" weight="fill" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Offline</p>
-                <p className="text-3xl font-bold text-red-600">{stats.offline}</p>
+                <p className="text-base font-bold text-red-600">{stats.offline}</p>
               </div>
-              <WarningCircle className="w-8 h-8 text-red-600" weight="fill" />
+              <WarningCircle className="w-4 h-4 text-red-600" weight="fill" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Enabled</p>
-                <p className="text-3xl font-bold text-blue-800">{stats.enabled}</p>
+                <p className="text-base font-bold text-blue-800">{stats.enabled}</p>
               </div>
-              <CheckCircle className="w-8 h-8 text-blue-800" weight="fill" />
+              <CheckCircle className="w-4 h-4 text-blue-800" weight="fill" />
             </div>
           </CardContent>
         </Card>
@@ -503,8 +503,8 @@ export function TrafficCameras(): JSX.Element {
 
       {/* Filters */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <CardContent className="pt-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <div className="relative">
               <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
@@ -571,8 +571,8 @@ export function TrafficCameras(): JSX.Element {
             <CardTitle>{state.selectedCamera.name}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div>
                   <p className="text-sm text-muted-foreground">Location</p>
                   <p className="font-medium">{state.selectedCamera.address || 'N/A'}</p>
@@ -614,10 +614,10 @@ export function TrafficCameras(): JSX.Element {
       {/* Empty State for Filtered Results */}
       {filteredCameras.length === 0 && !state.isLoading && (
         <Card>
-          <CardContent className="pt-6 text-center">
-            <Info className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">No cameras found</h3>
-            <p className="text-sm text-muted-foreground mb-4">
+          <CardContent className="pt-3 text-center">
+            <Info className="w-12 h-9 text-muted-foreground mx-auto mb-2" />
+            <h3 className="text-sm font-medium mb-2">No cameras found</h3>
+            <p className="text-sm text-muted-foreground mb-2">
               No cameras match your current filters or search terms.
             </p>
             <Button

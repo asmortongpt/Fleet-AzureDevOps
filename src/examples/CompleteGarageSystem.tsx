@@ -85,16 +85,16 @@ export function CompleteGarageSystem() {
   return (
     <div className="min-h-screen bg-slate-950">
       {/* Header */}
-      <header className="bg-slate-900 border-b border-slate-800 p-4">
+      <header className="bg-slate-900 border-b border-slate-800 p-2">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="text-sm font-bold text-white">
             Vehicle Garage System
           </h1>
 
           <div className="flex gap-2">
             <button
               onClick={() => setActiveView('3d')}
-              className={`px-4 py-2 rounded-lg transition-colors $\{
+              className={`px-2 py-2 rounded-lg transition-colors $\{
                 activeView === '3d'
                   ? 'bg-blue-600 text-white'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -104,7 +104,7 @@ export function CompleteGarageSystem() {
             </button>
             <button
               onClick={() => setActiveView('photos')}
-              className={`px-4 py-2 rounded-lg transition-colors $\{
+              className={`px-2 py-2 rounded-lg transition-colors $\{
                 activeView === 'photos'
                   ? 'bg-blue-600 text-white'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -114,7 +114,7 @@ export function CompleteGarageSystem() {
             </button>
             <button
               onClick={() => setActiveView('condition')}
-              className={`px-4 py-2 rounded-lg transition-colors $\{
+              className={`px-2 py-2 rounded-lg transition-colors $\{
                 activeView === 'condition'
                   ? 'bg-blue-600 text-white'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -127,9 +127,9 @@ export function CompleteGarageSystem() {
       </header>
 
       {/* Main Content */}
-      <main className="p-6">
+      <main className="p-3">
         {activeView === '3d' && (
-          <div className="h-[600px] rounded-xl overflow-hidden bg-slate-900">
+          <div className="h-[600px] rounded-md overflow-hidden bg-slate-900">
             <Canvas>
               <PerspectiveCamera makeDefault position={[5, 2, 5]} />
               <OrbitControls />
@@ -166,9 +166,9 @@ export function CompleteGarageSystem() {
             {/* FAB for camera */}
             <button
               onClick={() => setShowCamera(true)}
-              className="absolute bottom-6 right-6 w-16 h-16 bg-blue-600 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 transition-colors"
+              className="absolute bottom-6 right-6 w-16 h-16 bg-blue-600 rounded-full shadow-sm flex items-center justify-center hover:bg-blue-700 transition-colors"
             >
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
@@ -178,54 +178,54 @@ export function CompleteGarageSystem() {
 
         {activeView === 'photos' && (
           <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-bold text-white">
                 Vehicle Photos
               </h2>
               <button
                 onClick={() => setShowCamera(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Capture Photos
               </button>
             </div>
 
             {damageReport && (
-              <div className="bg-slate-900 rounded-lg p-6 mb-6">
-                <h3 className="text-xl font-semibold text-white mb-4">
+              <div className="bg-slate-900 rounded-lg p-3 mb-3">
+                <h3 className="text-base font-semibold text-white mb-2">
                   AI Damage Analysis
                 </h3>
 
-                <div className="grid grid-cols-4 gap-4 mb-4">
+                <div className="grid grid-cols-4 gap-2 mb-2">
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-red-400">
+                    <p className="text-base font-bold text-red-400">
                       {damageReport.summary.bySeverity.critical}
                     </p>
                     <p className="text-slate-400 text-sm">Critical</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-orange-400">
+                    <p className="text-base font-bold text-orange-400">
                       {damageReport.summary.bySeverity.severe}
                     </p>
                     <p className="text-slate-400 text-sm">Severe</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-yellow-400">
+                    <p className="text-base font-bold text-yellow-400">
                       {damageReport.summary.bySeverity.moderate}
                     </p>
                     <p className="text-slate-400 text-sm">Moderate</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-green-400">
+                    <p className="text-base font-bold text-green-400">
                       {damageReport.summary.bySeverity.minor}
                     </p>
                     <p className="text-slate-400 text-sm">Minor</p>
                   </div>
                 </div>
 
-                <div className="border-t border-slate-700 pt-4">
+                <div className="border-t border-slate-700 pt-2">
                   <p className="text-slate-300 mb-2">Estimated Cost:</p>
-                  <p className="text-2xl font-bold text-green-400">
+                  <p className="text-sm font-bold text-green-400">
                     ${damageReport.summary.estimatedCost.min.toLocaleString()} - 
                     ${damageReport.summary.estimatedCost.max.toLocaleString()}
                   </p>

@@ -153,7 +153,7 @@ export function DateRangePicker({ value, onChange, className = '' }: DateRangePi
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
-        <div className="p-4 space-y-4">
+        <div className="p-2 space-y-2">
           {/* Preset ranges */}
           <div>
             <h4 className="text-sm font-medium mb-2 text-gray-700">Quick Select</h4>
@@ -173,7 +173,7 @@ export function DateRangePicker({ value, onChange, className = '' }: DateRangePi
           </div>
 
           {/* Custom range */}
-          <div className="border-t pt-4">
+          <div className="border-t pt-2">
             <h4 className="text-sm font-medium mb-2 text-gray-700">Custom Range</h4>
             <div className="space-y-2">
               <div>

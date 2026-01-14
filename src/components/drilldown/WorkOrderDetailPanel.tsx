@@ -222,11 +222,11 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {workOrder && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Work Order Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <h3 className="text-2xl font-bold">WO #{workOrder.wo_number}</h3>
+              <h3 className="text-sm font-bold">WO #{workOrder.wo_number}</h3>
               <p className="text-sm text-muted-foreground">{workOrder.title}</p>
               <div className="flex items-center gap-2 mt-2">
                 <Badge variant={getStatusColor(workOrder.status)}>
@@ -242,11 +242,11 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                 )}
               </div>
             </div>
-            <Wrench className="h-12 w-12 text-muted-foreground" />
+            <Wrench className="h-9 w-12 text-muted-foreground" />
           </div>
 
           {/* Cost Summary */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-2">
             <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleViewParts}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -255,7 +255,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-sm font-bold">
                   ${totalPartsCost.toFixed(2)}
                 </div>
                 {parts && parts.length > 0 && (
@@ -274,7 +274,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-sm font-bold">
                   ${totalLaborCost.toFixed(2)}
                 </div>
                 {labor && labor.length > 0 && (
@@ -293,7 +293,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-primary">
+                <div className="text-sm font-bold text-primary">
                   ${totalCost.toFixed(2)}
                 </div>
                 {workOrder.estimated_cost && (
@@ -316,14 +316,14 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
             </TabsList>
 
             {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-4">
+            <TabsContent value="overview" className="space-y-2">
               {/* Work Order Information */}
               <Card>
                 <CardHeader>
                   <CardTitle>Work Order Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Vehicle</p>
                       <div className="flex items-center gap-2">
@@ -490,13 +490,13 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
             </TabsContent>
 
             {/* Parts Tab */}
-            <TabsContent value="parts" className="space-y-4">
+            <TabsContent value="parts" className="space-y-2">
               {parts && parts.length > 0 ? (
                 <>
                   <div className="space-y-3">
                     {parts.map((part) => (
                       <Card key={part.id}>
-                        <CardContent className="p-4">
+                        <CardContent className="p-2">
                           <div className="space-y-3">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
@@ -516,7 +516,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                               </p>
                             )}
 
-                            <div className="grid grid-cols-3 gap-4 pt-2 border-t">
+                            <div className="grid grid-cols-3 gap-2 pt-2 border-t">
                               <div>
                                 <p className="text-xs text-muted-foreground">Quantity</p>
                                 <p className="font-medium">{part.quantity}</p>
@@ -534,7 +534,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                             </div>
 
                             {(part.supplier || part.delivery_date) && (
-                              <div className="grid grid-cols-2 gap-4 pt-2 border-t text-xs">
+                              <div className="grid grid-cols-2 gap-2 pt-2 border-t text-xs">
                                 {part.supplier && (
                                   <div>
                                     <p className="text-muted-foreground">Supplier</p>
@@ -561,10 +561,10 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                   </div>
 
                   <Card>
-                    <CardContent className="p-4">
+                    <CardContent className="p-2">
                       <div className="flex items-center justify-between">
                         <span className="font-semibold">Total Parts Cost</span>
-                        <span className="text-2xl font-bold text-primary">
+                        <span className="text-sm font-bold text-primary">
                           ${totalPartsCost.toFixed(2)}
                         </span>
                       </div>
@@ -574,7 +574,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <Package className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No parts recorded</p>
                   </CardContent>
                 </Card>
@@ -582,13 +582,13 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
             </TabsContent>
 
             {/* Labor Tab */}
-            <TabsContent value="labor" className="space-y-4">
+            <TabsContent value="labor" className="space-y-2">
               {labor && labor.length > 0 ? (
                 <>
                   <div className="space-y-3">
                     {labor.map((entry) => (
                       <Card key={entry.id}>
-                        <CardContent className="p-4">
+                        <CardContent className="p-2">
                           <div className="space-y-3">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
@@ -611,7 +611,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                               </p>
                             )}
 
-                            <div className="grid grid-cols-3 gap-4 pt-2 border-t">
+                            <div className="grid grid-cols-3 gap-2 pt-2 border-t">
                               <div>
                                 <p className="text-xs text-muted-foreground">Hours</p>
                                 <p className="font-medium">{entry.hours?.toFixed(1) || '0.0'}</p>
@@ -640,7 +640,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                   </div>
 
                   <Card>
-                    <CardContent className="p-4">
+                    <CardContent className="p-2">
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-sm">Total Hours</span>
@@ -650,7 +650,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                         </div>
                         <div className="flex items-center justify-between pt-2 border-t">
                           <span className="font-semibold">Total Labor Cost</span>
-                          <span className="text-2xl font-bold text-primary">
+                          <span className="text-sm font-bold text-primary">
                             ${totalLaborCost.toFixed(2)}
                           </span>
                         </div>
@@ -661,7 +661,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <Users className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No labor entries recorded</p>
                   </CardContent>
                 </Card>
@@ -669,7 +669,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
             </TabsContent>
 
             {/* Timeline Tab */}
-            <TabsContent value="timeline" className="space-y-4">
+            <TabsContent value="timeline" className="space-y-2">
               {timeline && timeline.length > 0 ? (
                 <Card>
                   <CardHeader>
@@ -679,9 +679,9 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
+                    <div className="space-y-2">
                       {timeline.map((event, index) => (
-                        <div key={event.id} className="flex gap-4">
+                        <div key={event.id} className="flex gap-2">
                           <div className="flex flex-col items-center">
                             <div className="rounded-full bg-primary/10 p-2">
                               {getStatusIcon(event.event_type)}
@@ -690,7 +690,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                               <div className="w-px h-full bg-border mt-2" />
                             )}
                           </div>
-                          <div className="flex-1 pb-4">
+                          <div className="flex-1 pb-2">
                             <div className="flex items-start justify-between">
                               <div>
                                 <p className="font-medium">{event.description}</p>
@@ -720,7 +720,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <History className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <History className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No timeline events recorded</p>
                   </CardContent>
                 </Card>
@@ -728,7 +728,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
             </TabsContent>
 
             {/* Related Tab */}
-            <TabsContent value="related" className="space-y-4">
+            <TabsContent value="related" className="space-y-2">
               {/* Related Records */}
               {relatedRecords && relatedRecords.length > 0 && (
                 <Card>
@@ -797,7 +797,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                                 {item.description}
                               </p>
                             </div>
-                            <div className="text-right ml-4">
+                            <div className="text-right ml-2">
                               <p className="text-sm font-medium">${item.cost.toFixed(2)}</p>
                               <p className="text-xs text-muted-foreground">
                                 {new Date(item.date).toLocaleDateString()}
@@ -820,7 +820,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                 (!maintenanceHistory || maintenanceHistory.length === 0) && (
                   <Card>
                     <CardContent className="py-12 text-center">
-                      <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <FileText className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                       <p className="text-sm text-muted-foreground">No related records found</p>
                     </CardContent>
                   </Card>

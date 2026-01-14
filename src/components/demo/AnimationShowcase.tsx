@@ -95,15 +95,15 @@ export function AnimationShowcase() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-gray-50 p-3">
+      <div className="max-w-7xl mx-auto space-y-2">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-2"
         >
-          <h1 className="text-4xl font-bold text-gray-900">
+          <h1 className="text-sm font-bold text-gray-900">
             Phase 4: Animation Showcase
           </h1>
           <p className="text-slate-700">
@@ -123,13 +123,13 @@ export function AnimationShowcase() {
 
           {/* Animated Markers */}
           <TabsContent value="markers">
-            <Card className="p-8">
-              <h2 className="text-2xl font-bold mb-6">Animated Markers</h2>
-              <div className="space-y-8">
+            <Card className="p-3">
+              <h2 className="text-sm font-bold mb-3">Animated Markers</h2>
+              <div className="space-y-2">
                 {/* Vehicle Status Markers */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Vehicle Status Markers</h3>
-                  <div className="flex gap-6 flex-wrap">
+                  <h3 className="text-sm font-semibold mb-2">Vehicle Status Markers</h3>
+                  <div className="flex gap-2 flex-wrap">
                     <div className="text-center">
                       <AnimatedMarker status="active" showPulse>
                         42
@@ -165,8 +165,8 @@ export function AnimationShowcase() {
 
                 {/* Cluster Markers */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Cluster Markers</h3>
-                  <div className="flex gap-6">
+                  <h3 className="text-sm font-semibold mb-2">Cluster Markers</h3>
+                  <div className="flex gap-2">
                     <AnimatedMarkerCluster count={5} />
                     <AnimatedMarkerCluster count={12} size="md" />
                     <AnimatedMarkerCluster count={25} size="lg" isActive />
@@ -175,8 +175,8 @@ export function AnimationShowcase() {
 
                 {/* Route Markers */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Route Markers</h3>
-                  <div className="flex gap-6">
+                  <h3 className="text-sm font-semibold mb-2">Route Markers</h3>
+                  <div className="flex gap-2">
                     <AnimatedMarkerRoute type="start" label="Warehouse" />
                     <AnimatedMarkerRoute type="waypoint" label="Stop 1" />
                     <AnimatedMarkerRoute type="waypoint" label="Stop 2" />
@@ -189,10 +189,10 @@ export function AnimationShowcase() {
 
           {/* Loading Skeletons */}
           <TabsContent value="skeletons">
-            <div className="space-y-6">
-              <Card className="p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">Loading Skeletons</h2>
+            <div className="space-y-2">
+              <Card className="p-3">
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-sm font-bold">Loading Skeletons</h2>
                   <Button
                     onClick={() => {
                       setShowLoading(!showLoading);
@@ -203,7 +203,7 @@ export function AnimationShowcase() {
                   </Button>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                   <div>
                     <h3 className="text-sm font-semibold mb-3 text-slate-700">Map Loading</h3>
                     <div className="h-64 border rounded-lg overflow-hidden">
@@ -246,13 +246,13 @@ export function AnimationShowcase() {
 
           {/* Interactive Tooltips */}
           <TabsContent value="tooltips">
-            <Card className="p-8">
-              <h2 className="text-2xl font-bold mb-6">Interactive Tooltips</h2>
-              <div className="space-y-8">
+            <Card className="p-3">
+              <h2 className="text-sm font-bold mb-3">Interactive Tooltips</h2>
+              <div className="space-y-2">
                 {/* Vehicle Tooltip */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Vehicle Data Tooltip</h3>
-                  <div className="flex gap-4">
+                  <h3 className="text-sm font-semibold mb-2">Vehicle Data Tooltip</h3>
+                  <div className="flex gap-2">
                     <InteractiveTooltip
                       data={vehicleData}
                       onViewDetails={(id) => console.log("View details:", id)}
@@ -272,8 +272,8 @@ export function AnimationShowcase() {
 
                 {/* Simple Tooltips */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Simple Tooltips</h3>
-                  <div className="flex gap-4">
+                  <h3 className="text-sm font-semibold mb-2">Simple Tooltips</h3>
+                  <div className="flex gap-2">
                     <SimpleTooltip content="This is a simple tooltip">
                       <Button variant="outline">Basic Tooltip</Button>
                     </SimpleTooltip>
@@ -289,14 +289,14 @@ export function AnimationShowcase() {
 
                 {/* Data Tooltips */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Data Visualization Tooltips</h3>
-                  <div className="flex gap-4">
+                  <h3 className="text-sm font-semibold mb-2">Data Visualization Tooltips</h3>
+                  <div className="flex gap-2">
                     <DataTooltip label="Revenue" value={12500} unit="USD" change={15}>
-                      <div className="w-12 h-12 bg-blue-500 rounded-lg cursor-pointer" />
+                      <div className="w-12 h-9 bg-blue-500 rounded-lg cursor-pointer" />
                     </DataTooltip>
 
                     <DataTooltip label="Efficiency" value="94.5" unit="%" change={-3}>
-                      <div className="w-12 h-12 bg-green-500 rounded-lg cursor-pointer" />
+                      <div className="w-12 h-9 bg-green-500 rounded-lg cursor-pointer" />
                     </DataTooltip>
                   </div>
                 </div>
@@ -306,13 +306,13 @@ export function AnimationShowcase() {
 
           {/* Gradient Overlays */}
           <TabsContent value="gradients">
-            <Card className="p-8">
-              <h2 className="text-2xl font-bold mb-6">Gradient Overlays</h2>
-              <div className="space-y-8">
+            <Card className="p-3">
+              <h2 className="text-sm font-bold mb-3">Gradient Overlays</h2>
+              <div className="space-y-2">
                 {/* Heatmaps */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Heatmap Gradients</h3>
-                  <div className="grid grid-cols-4 gap-4">
+                  <h3 className="text-sm font-semibold mb-2">Heatmap Gradients</h3>
+                  <div className="grid grid-cols-4 gap-2">
                     {[25, 50, 75, 95].map((intensity) => (
                       <div key={intensity} className="relative h-32 border rounded-lg overflow-hidden">
                         <HeatmapGradient
@@ -328,8 +328,8 @@ export function AnimationShowcase() {
 
                 {/* Zone Overlays */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Zone Overlays</h3>
-                  <div className="grid grid-cols-5 gap-4">
+                  <h3 className="text-sm font-semibold mb-2">Zone Overlays</h3>
+                  <div className="grid grid-cols-5 gap-2">
                     <div className="h-32 rounded-lg overflow-hidden">
                       <ZoneOverlay
                         status="safe"
@@ -380,8 +380,8 @@ export function AnimationShowcase() {
 
                 {/* Performance Gradients */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Performance Metrics</h3>
-                  <div className="space-y-4">
+                  <h3 className="text-sm font-semibold mb-2">Performance Metrics</h3>
+                  <div className="space-y-2">
                     <PerformanceGradient value={85} max={100} variant="success" />
                     <PerformanceGradient value={65} max={100} variant="warning" />
                     <PerformanceGradient value={35} max={100} variant="danger" />
@@ -391,10 +391,10 @@ export function AnimationShowcase() {
 
                 {/* Animated Background */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Animated Background</h3>
+                  <h3 className="text-sm font-semibold mb-2">Animated Background</h3>
                   <div className="h-64 rounded-lg overflow-hidden">
                     <AnimatedBackground className="w-full h-full flex items-center justify-center">
-                      <div className="text-white text-2xl font-bold bg-black/30 backdrop-blur-sm px-8 py-4 rounded-lg">
+                      <div className="text-white text-sm font-bold bg-black/30 backdrop-blur-sm px-3 py-2 rounded-lg">
                         Animated Gradient Background
                       </div>
                     </AnimatedBackground>
@@ -406,13 +406,13 @@ export function AnimationShowcase() {
 
           {/* Progress Indicators */}
           <TabsContent value="progress">
-            <Card className="p-8">
-              <h2 className="text-2xl font-bold mb-6">Progress Indicators</h2>
-              <div className="space-y-8">
+            <Card className="p-3">
+              <h2 className="text-sm font-bold mb-3">Progress Indicators</h2>
+              <div className="space-y-2">
                 {/* Linear Progress */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Linear Progress</h3>
-                  <div className="space-y-4">
+                  <h3 className="text-sm font-semibold mb-2">Linear Progress</h3>
+                  <div className="space-y-2">
                     <LinearProgress value={25} variant="primary" showLabel />
                     <LinearProgress value={50} variant="success" showLabel />
                     <LinearProgress value={75} variant="warning" showLabel />
@@ -423,8 +423,8 @@ export function AnimationShowcase() {
 
                 {/* Circular Progress */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Circular Progress</h3>
-                  <div className="flex gap-8">
+                  <h3 className="text-sm font-semibold mb-2">Circular Progress</h3>
+                  <div className="flex gap-2">
                     <CircularProgress value={25} variant="primary" />
                     <CircularProgress value={50} variant="success" />
                     <CircularProgress value={75} variant="warning" />
@@ -435,19 +435,19 @@ export function AnimationShowcase() {
 
                 {/* Step Progress */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Step Progress (Horizontal)</h3>
+                  <h3 className="text-sm font-semibold mb-2">Step Progress (Horizontal)</h3>
                   <StepProgress steps={steps} orientation="horizontal" />
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Step Progress (Vertical)</h3>
+                  <h3 className="text-sm font-semibold mb-2">Step Progress (Vertical)</h3>
                   <StepProgress steps={steps} orientation="vertical" />
                 </div>
 
                 {/* Upload Progress */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Upload Progress</h3>
-                  <div className="space-y-4">
+                  <h3 className="text-sm font-semibold mb-2">Upload Progress</h3>
+                  <div className="space-y-2">
                     <Button onClick={simulateUpload}>Simulate Upload</Button>
                     <UploadProgress
                       fileName="fleet-report-2025.pdf"
@@ -462,8 +462,8 @@ export function AnimationShowcase() {
 
                 {/* Spinners */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Loading Spinners</h3>
-                  <div className="flex gap-8">
+                  <h3 className="text-sm font-semibold mb-2">Loading Spinners</h3>
+                  <div className="flex gap-2">
                     <LoadingSpinner size={24} label="Small" />
                     <LoadingSpinner size={48} label="Medium" />
                     <LoadingSpinner size={64} label="Large" />

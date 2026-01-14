@@ -53,17 +53,17 @@ export function NotificationSettings() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Email Notifications */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Envelope className="w-5 h-5" />
+            <Envelope className="w-3 h-3" />
             <CardTitle>Email Notifications</CardTitle>
           </div>
           <CardDescription>Choose which emails you want to receive</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="email-maintenance">Maintenance Reminders</Label>
@@ -126,12 +126,12 @@ export function NotificationSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Bell className="w-5 h-5" />
+            <Bell className="w-3 h-3" />
             <CardTitle>In-App Notifications</CardTitle>
           </div>
           <CardDescription>Notifications within the application</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="in-app-notifications">Enable In-App Notifications</Label>
@@ -166,12 +166,12 @@ export function NotificationSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <DeviceMobile className="w-5 h-5" />
+            <DeviceMobile className="w-3 h-3" />
             <CardTitle>Push Notifications</CardTitle>
           </div>
           <CardDescription>Browser push notifications (requires permission)</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="push-notifications">Enable Push Notifications</Label>
@@ -204,7 +204,7 @@ export function NotificationSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Bell className="w-5 h-5" />
+            <Bell className="w-3 h-3" />
             <CardTitle>Notification Frequency</CardTitle>
           </div>
           <CardDescription>How often you receive notifications</CardDescription>
@@ -240,12 +240,12 @@ export function NotificationSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Moon className="w-5 h-5" />
+            <Moon className="w-3 h-3" />
             <CardTitle>Quiet Hours</CardTitle>
           </div>
           <CardDescription>Pause notifications during specific hours</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="quiet-hours-enabled">Enable Quiet Hours</Label>
@@ -261,7 +261,7 @@ export function NotificationSettings() {
           </div>
 
           {settings.quietHoursEnabled && (
-            <div className="grid grid-cols-2 gap-4 pt-2">
+            <div className="grid grid-cols-2 gap-2 pt-2">
               <div className="space-y-2">
                 <Label htmlFor="quiet-start">Start Time</Label>
                 <Input

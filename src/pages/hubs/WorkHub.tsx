@@ -116,7 +116,7 @@ const WorkHub: React.FC = () => {
     () => [
       {
         id: "active-tasks",
-        icon: <ListChecks className="w-5 h-5" />,
+        icon: <ListChecks className="w-3 h-3" />,
         label: "Active Tasks",
         value: 24,
         trend: { value: 12, direction: "up", isPositive: false },
@@ -124,7 +124,7 @@ const WorkHub: React.FC = () => {
       },
       {
         id: "in-progress",
-        icon: <Clock className="w-5 h-5" />,
+        icon: <Clock className="w-3 h-3" />,
         label: "In Progress",
         value: 12,
         trend: { value: 5, direction: "up", isPositive: true },
@@ -132,7 +132,7 @@ const WorkHub: React.FC = () => {
       },
       {
         id: "maintenance-due",
-        icon: <Wrench className="w-5 h-5" />,
+        icon: <Wrench className="w-3 h-3" />,
         label: "Maintenance Due",
         value: 15,
         trend: { value: 8, direction: "down", isPositive: true },
@@ -140,7 +140,7 @@ const WorkHub: React.FC = () => {
       },
       {
         id: "route-efficiency",
-        icon: <MapTrifold className="w-5 h-5" />,
+        icon: <MapTrifold className="w-3 h-3" />,
         label: "Route Efficiency",
         value: "94%",
         trend: { value: 3, direction: "up", isPositive: true },
@@ -252,7 +252,7 @@ const WorkHub: React.FC = () => {
 
   return (
     <HubLayout title="Work Management">
-      <div className="h-full flex flex-col gap-4 p-4">
+      <div className="h-full flex flex-col gap-2 p-2">
         {/* KPI Strip at the top */}
         <KPIStrip metrics={kpiMetrics} />
 
@@ -278,9 +278,9 @@ const WorkHub: React.FC = () => {
               </TabsTrigger>
             </TabsList>
 
-            <div className="flex-1 mt-4 min-h-0">
+            <div className="flex-1 mt-2 min-h-0">
               <TabsContent value="tasks" className="h-full mt-0">
-                <div className="h-full flex flex-col gap-4">
+                <div className="h-full flex flex-col gap-2">
                   {/* Sub-tabs for task views */}
                   <Tabs defaultValue="active" className="h-full flex flex-col">
                     <TabsList className="grid w-fit grid-cols-3">
@@ -289,7 +289,7 @@ const WorkHub: React.FC = () => {
                       <TabsTrigger value="analytics">Analytics</TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="active" className="flex-1 mt-4">
+                    <TabsContent value="active" className="flex-1 mt-2">
                       <DataGrid
                         data={taskData}
                         columns={taskColumns}
@@ -298,7 +298,7 @@ const WorkHub: React.FC = () => {
                       />
                     </TabsContent>
 
-                    <TabsContent value="completed" className="flex-1 mt-4">
+                    <TabsContent value="completed" className="flex-1 mt-2">
                       <DataGrid
                         data={taskData.filter((t) => t.status === "completed")}
                         columns={taskColumns}
@@ -307,7 +307,7 @@ const WorkHub: React.FC = () => {
                       />
                     </TabsContent>
 
-                    <TabsContent value="analytics" className="flex-1 mt-4">
+                    <TabsContent value="analytics" className="flex-1 mt-2">
                       <TaskManagement />
                     </TabsContent>
                   </Tabs>
@@ -315,7 +315,7 @@ const WorkHub: React.FC = () => {
               </TabsContent>
 
               <TabsContent value="maintenance" className="h-full mt-0">
-                <div className="h-full flex flex-col gap-4">
+                <div className="h-full flex flex-col gap-2">
                   {/* Sub-tabs for maintenance views */}
                   <Tabs defaultValue="schedule" className="h-full flex flex-col">
                     <TabsList className="grid w-fit grid-cols-3">
@@ -324,7 +324,7 @@ const WorkHub: React.FC = () => {
                       <TabsTrigger value="history">History</TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="schedule" className="flex-1 mt-4">
+                    <TabsContent value="schedule" className="flex-1 mt-2">
                       <DataGrid
                         data={maintenanceData}
                         columns={maintenanceColumns}
@@ -332,7 +332,7 @@ const WorkHub: React.FC = () => {
                       />
                     </TabsContent>
 
-                    <TabsContent value="requests" className="flex-1 mt-4">
+                    <TabsContent value="requests" className="flex-1 mt-2">
                       <DataGrid
                         data={maintenanceData.filter((m) => m.status === "scheduled")}
                         columns={maintenanceColumns}
@@ -340,7 +340,7 @@ const WorkHub: React.FC = () => {
                       />
                     </TabsContent>
 
-                    <TabsContent value="history" className="flex-1 mt-4">
+                    <TabsContent value="history" className="flex-1 mt-2">
                       <MaintenanceScheduling />
                     </TabsContent>
                   </Tabs>

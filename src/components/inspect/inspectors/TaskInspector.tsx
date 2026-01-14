@@ -135,7 +135,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
+      <div className="flex items-center justify-center p-3">
         <Loader2 className="h-8 w-8 animate-spin text-blue-800" />
         <span className="ml-2 text-slate-700">Loading task data...</span>
       </div>
@@ -144,7 +144,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
 
   if (error) {
     return (
-      <div className="p-8">
+      <div className="p-3">
         <div className="flex items-center gap-2 text-red-600">
           <AlertCircle className="h-5 w-5" />
           <span>{error}</span>
@@ -155,7 +155,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
 
   if (!task) {
     return (
-      <div className="p-8 text-gray-500">
+      <div className="p-3 text-gray-500">
         No task data available
       </div>
     );
@@ -166,10 +166,10 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="border-b p-4">
+      <div className="border-b p-2">
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-sm font-bold text-gray-900 dark:text-white">
               {task.title}
             </h2>
             <p className="text-sm text-slate-700 dark:text-gray-400 mt-1">
@@ -199,16 +199,16 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
         </TabsList>
 
         {/* Details Tab */}
-        <TabsContent value="details" className="p-4">
-          <div className="space-y-4">
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Task Information</h3>
+        <TabsContent value="details" className="p-2">
+          <div className="space-y-2">
+            <Card className="p-2">
+              <h3 className="text-sm font-semibold mb-2">Task Information</h3>
               <div className="space-y-3">
                 <div>
                   <p className="text-sm text-slate-700">Description</p>
                   <p className="text-gray-800 dark:text-gray-200 mt-1">{task.description}</p>
                 </div>
-                <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="grid grid-cols-2 gap-2 pt-2">
                   <div>
                     <p className="text-sm text-slate-700">Priority</p>
                     <p className="font-medium capitalize">{task.priority}</p>
@@ -229,8 +229,8 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
               </div>
             </Card>
 
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Timeline</h3>
+            <Card className="p-2">
+              <h3 className="text-sm font-semibold mb-2">Timeline</h3>
               <dl className="space-y-3">
                 <div className="flex justify-between">
                   <dt className="text-slate-700">Created</dt>
@@ -252,8 +252,8 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
             </Card>
 
             {task.assignedTo && (
-              <Card className="p-4">
-                <h3 className="text-lg font-semibold mb-4">Assignment</h3>
+              <Card className="p-2">
+                <h3 className="text-sm font-semibold mb-2">Assignment</h3>
                 <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div>
                     <p className="font-medium">{task.assignedTo.name}</p>
@@ -265,8 +265,8 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
             )}
 
             {task.relatedVehicle && (
-              <Card className="p-4">
-                <h3 className="text-lg font-semibold mb-4">Related Vehicle</h3>
+              <Card className="p-2">
+                <h3 className="text-sm font-semibold mb-2">Related Vehicle</h3>
                 <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div>
                     <p className="font-medium">{task.relatedVehicle.name}</p>
@@ -280,10 +280,10 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
         </TabsContent>
 
         {/* Progress Tab */}
-        <TabsContent value="progress" className="p-4">
-          <div className="space-y-4">
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Overall Progress</h3>
+        <TabsContent value="progress" className="p-2">
+          <div className="space-y-2">
+            <Card className="p-2">
+              <h3 className="text-sm font-semibold mb-2">Overall Progress</h3>
               <div className="space-y-3">
                 <div>
                   <div className="flex justify-between mb-2">
@@ -317,8 +317,8 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
               </div>
             </Card>
 
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Checklist</h3>
+            <Card className="p-2">
+              <h3 className="text-sm font-semibold mb-2">Checklist</h3>
               <div className="space-y-2">
                 {task.checklist.map((item) => (
                   <div
@@ -344,7 +344,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
             </Card>
 
             {isOverdue && task.status !== 'completed' && (
-              <Card className="p-4 bg-red-50 dark:bg-red-900/20 border-red-200">
+              <Card className="p-2 bg-red-50 dark:bg-red-900/20 border-red-200">
                 <div className="flex items-center gap-2 text-red-600">
                   <Clock className="h-5 w-5" />
                   <div>
@@ -358,16 +358,16 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
         </TabsContent>
 
         {/* History Tab */}
-        <TabsContent value="history" className="p-4">
-          <Card className="p-4">
-            <h3 className="text-lg font-semibold mb-4">Activity History</h3>
-            <div className="space-y-4">
-              <div className="flex gap-4">
+        <TabsContent value="history" className="p-2">
+          <Card className="p-2">
+            <h3 className="text-sm font-semibold mb-2">Activity History</h3>
+            <div className="space-y-2">
+              <div className="flex gap-2">
                 <div className="flex flex-col items-center">
                   <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                   <div className="w-px h-full bg-gray-300"></div>
                 </div>
-                <div className="flex-1 pb-4">
+                <div className="flex-1 pb-2">
                   <p className="font-medium">Task Created</p>
                   <p className="text-sm text-slate-700">{new Date(task.createdAt).toLocaleString()}</p>
                   <p className="text-sm text-gray-500">Priority set to {task.priority}</p>
@@ -375,12 +375,12 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
               </div>
 
               {task.assignedTo && (
-                <div className="flex gap-4">
+                <div className="flex gap-2">
                   <div className="flex flex-col items-center">
                     <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
                     <div className="w-px h-full bg-gray-300"></div>
                   </div>
-                  <div className="flex-1 pb-4">
+                  <div className="flex-1 pb-2">
                     <p className="font-medium">Task Assigned</p>
                     <p className="text-sm text-slate-700">{new Date(task.createdAt).toLocaleString()}</p>
                     <p className="text-sm text-gray-500">Assigned to {task.assignedTo.name}</p>
@@ -389,12 +389,12 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
               )}
 
               {task.status !== 'pending' && (
-                <div className="flex gap-4">
+                <div className="flex gap-2">
                   <div className="flex flex-col items-center">
                     <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                     <div className="w-px h-full bg-gray-300"></div>
                   </div>
-                  <div className="flex-1 pb-4">
+                  <div className="flex-1 pb-2">
                     <p className="font-medium">Status Updated</p>
                     <p className="text-sm text-slate-700">Status changed to {task.status}</p>
                   </div>
@@ -402,7 +402,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
               )}
 
               {task.completedAt && (
-                <div className="flex gap-4">
+                <div className="flex gap-2">
                   <div className="flex flex-col items-center">
                     <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                   </div>

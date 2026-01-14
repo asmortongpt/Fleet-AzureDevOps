@@ -45,12 +45,12 @@ export function FleetSettings() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Default View */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Car className="w-5 h-5" />
+            <Car className="w-3 h-3" />
             <CardTitle>Default Vehicle View</CardTitle>
           </div>
           <CardDescription>Choose how vehicles are displayed by default</CardDescription>
@@ -85,14 +85,14 @@ export function FleetSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <ArrowsClockwise className="w-5 h-5" />
+            <ArrowsClockwise className="w-3 h-3" />
             <CardTitle>Auto-Refresh Interval</CardTitle>
           </div>
           <CardDescription>
             How often to refresh vehicle data (in seconds)
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label>Refresh every {settings.autoRefreshInterval} seconds</Label>
@@ -117,12 +117,12 @@ export function FleetSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Ruler className="w-5 h-5" />
+            <Ruler className="w-3 h-3" />
             <CardTitle>Unit Preferences</CardTitle>
           </div>
           <CardDescription>Select your preferred measurement units</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="space-y-2">
             <Label htmlFor="distance-unit">Distance Unit</Label>
             <Select
@@ -177,12 +177,12 @@ export function FleetSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <MapTrifold className="w-5 h-5" />
+            <MapTrifold className="w-3 h-3" />
             <CardTitle>Map Settings</CardTitle>
           </div>
           <CardDescription>Map provider and geofence preferences</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="space-y-2">
             <Label htmlFor="map-provider">Map Provider</Label>
             <Select

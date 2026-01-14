@@ -169,13 +169,13 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
 
   return (
     <DrilldownContent loading={false} error={error} onRetry={() => mutate()}>
-      <div className="space-y-6">
+      <div className="space-y-2">
         {/* Alert Header */}
         <div className="flex items-start justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               {getSeverityIcon(alertData.severity)}
-              <h3 className="text-2xl font-bold">{alertData.title}</h3>
+              <h3 className="text-sm font-bold">{alertData.title}</h3>
             </div>
             <p className="text-sm text-muted-foreground">
               Alert #{alertData.alert_number} • {alertData.category}
@@ -187,11 +187,11 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
               </Badge>
             </div>
           </div>
-          <AlertTriangle className="h-12 w-12 text-muted-foreground" />
+          <AlertTriangle className="h-9 w-12 text-muted-foreground" />
         </div>
 
         {/* Quick Info */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-2">
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -240,17 +240,17 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
             <TabsTrigger value="history">History</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="details" className="space-y-4">
+          <TabsContent value="details" className="space-y-2">
             <Card>
               <CardHeader>
                 <CardTitle>Alert Details</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-2">
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Description</p>
                   <p className="text-sm">{alertData.description || 'No description provided'}</p>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <p className="text-sm text-muted-foreground">Type</p>
                     <p className="font-medium">{alertData.alert_type || 'N/A'}</p>
@@ -287,7 +287,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
             </Card>
           </TabsContent>
 
-          <TabsContent value="source" className="space-y-4">
+          <TabsContent value="source" className="space-y-2">
             <Card>
               <CardHeader>
                 <CardTitle>Source Information</CardTitle>
@@ -365,7 +365,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
             </Card>
           </TabsContent>
 
-          <TabsContent value="actions" className="space-y-4">
+          <TabsContent value="actions" className="space-y-2">
             <Card>
               <CardHeader>
                 <CardTitle>Actions Taken</CardTitle>
@@ -449,7 +449,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
             )}
           </TabsContent>
 
-          <TabsContent value="history" className="space-y-4">
+          <TabsContent value="history" className="space-y-2">
             <Card>
               <CardHeader>
                 <CardTitle>Alert History</CardTitle>
@@ -564,9 +564,9 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
 
   return (
     <DrilldownContent loading={isLoading} error={error}>
-      <div className="space-y-4">
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-bold">
+          <h3 className="text-sm font-bold">
             {status
               ? statusLabels[status]
               : severity
@@ -590,7 +590,7 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
                 })
               }
             >
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="flex items-start justify-between">
                   <div className="space-y-1 flex-1">
                     <div className="flex items-center gap-2">
@@ -632,8 +632,8 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
 
           {(!alerts || alerts.length === 0) && (
             <Card>
-              <CardContent className="p-8 text-center">
-                <CheckCircle className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+              <CardContent className="p-3 text-center">
+                <CheckCircle className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                 <p className="text-muted-foreground">
                   No {status ? statusLabels[status].toLowerCase() : 'alerts'} found
                 </p>

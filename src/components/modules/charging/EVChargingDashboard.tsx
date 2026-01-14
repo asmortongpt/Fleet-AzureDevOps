@@ -214,13 +214,13 @@ const EVChargingDashboard: React.FC = () => {
   const getStatusIcon = (status: string): JSX.Element => {
     switch (status) {
       case 'Available':
-        return <CheckCircleIcon className="w-5 h-5 text-green-500" />;
+        return <CheckCircleIcon className="w-3 h-3 text-green-500" />;
       case 'Charging':
-        return <BoltIcon className="w-5 h-5 text-blue-800 animate-pulse" />;
+        return <BoltIcon className="w-3 h-3 text-blue-800 animate-pulse" />;
       case 'Faulted':
-        return <XCircleIcon className="w-5 h-5 text-red-500" />;
+        return <XCircleIcon className="w-3 h-3 text-red-500" />;
       default:
-        return <ExclamationTriangleIcon className="w-5 h-5 text-yellow-500" />;
+        return <ExclamationTriangleIcon className="w-3 h-3 text-yellow-500" />;
     }
   };
 
@@ -296,7 +296,7 @@ const EVChargingDashboard: React.FC = () => {
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <BoltIcon className="w-16 h-16 mx-auto text-blue-800 animate-spin" />
-          <p className="mt-4 text-lg text-slate-700">Loading charging dashboard...</p>
+          <p className="mt-2 text-sm text-slate-700">Loading charging dashboard...</p>
         </div>
       </div>
     );
@@ -308,10 +308,10 @@ const EVChargingDashboard: React.FC = () => {
   const onlineStations = stations.filter(s => s.is_online).length;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">EV Charging Dashboard</h1>
+          <h1 className="text-base font-bold text-gray-900">EV Charging Dashboard</h1>
           <p className="text-slate-700 mt-1">Manage charging stations and monitor active sessions</p>
         </div>
         <Button onClick={handleRefresh} variant="outline" disabled={isLoading}>
@@ -322,14 +322,14 @@ const EVChargingDashboard: React.FC = () => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">Online Stations</CardTitle>
-            <CheckCircleIcon className="w-5 h-5 text-green-500" />
+            <CheckCircleIcon className="w-3 h-3 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{onlineStations}/{stations.length}</div>
+            <div className="text-base font-bold">{onlineStations}/{stations.length}</div>
             <p className="text-xs text-gray-500 mt-1">
               {availableStations} available
             </p>
@@ -339,10 +339,10 @@ const EVChargingDashboard: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">Active Sessions</CardTitle>
-            <BoltIcon className="w-5 h-5 text-blue-800" />
+            <BoltIcon className="w-3 h-3 text-blue-800" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{totalSessions}</div>
+            <div className="text-base font-bold">{totalSessions}</div>
             <p className="text-xs text-gray-500 mt-1">
               Currently charging
             </p>
@@ -352,10 +352,10 @@ const EVChargingDashboard: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">Energy Delivered</CardTitle>
-            <Battery0Icon className="w-5 h-5 text-yellow-500" />
+            <Battery0Icon className="w-3 h-3 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{formatEnergy(totalEnergyDelivered)}</div>
+            <div className="text-base font-bold">{formatEnergy(totalEnergyDelivered)}</div>
             <p className="text-xs text-gray-500 mt-1">
               Today's total
             </p>
@@ -365,10 +365,10 @@ const EVChargingDashboard: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">Avg Utilization</CardTitle>
-            <ChartBarIcon className="w-5 h-5 text-purple-500" />
+            <ChartBarIcon className="w-3 h-3 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">
+            <div className="text-base font-bold">
               {utilization.length > 0
                 ? Math.round(utilization.reduce((sum, u) => sum + (u.utilization_percent ?? 0), 0) / utilization.length)
                 : 0}%
@@ -388,14 +388,14 @@ const EVChargingDashboard: React.FC = () => {
           <TabsTrigger value="utilization">Utilization</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TabsContent value="overview" className="space-y-2">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
             <Card>
               <CardHeader>
                 <CardTitle>Charging Stations</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {stations.slice(0, 5).map((station) => (
                     <div key={station.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center space-x-3">

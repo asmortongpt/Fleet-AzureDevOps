@@ -104,13 +104,13 @@ export function GISCommandCenter() {
   const getFacilityIcon = (type: "office" | "depot" | "service-center" | "fueling-station") => {
     switch (type) {
       case "office":
-        return <Buildings className="w-5 h-5" />
+        return <Buildings className="w-3 h-3" />
       case "depot":
-        return <CarProfile className="w-5 h-5" />
+        return <CarProfile className="w-3 h-3" />
       case "service-center":
-        return <Wrench className="w-5 h-5" />
+        return <Wrench className="w-3 h-3" />
       case "fueling-station":
-        return <GasPump className="w-5 h-5" />
+        return <GasPump className="w-3 h-3" />
       default:
         const _exhaustive: never = type
         return _exhaustive
@@ -139,10 +139,10 @@ export function GISCommandCenter() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">GIS Command Center</h1>
+          <h1 className="text-base font-semibold tracking-tight">GIS Command Center</h1>
           <p className="text-muted-foreground mt-1">Geographic fleet monitoring and facility management</p>
         </div>
         <Select value={selectedRegion} onValueChange={setSelectedRegion}>
@@ -159,45 +159,45 @@ export function GISCommandCenter() {
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
         <MetricCard
           title="Total Vehicles"
           value={metrics.totalVehicles}
           subtitle="in region"
-          icon={<CarProfile className="w-5 h-5" />}
+          icon={<CarProfile className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
           title="Active"
           value={metrics.active}
           subtitle="on the move"
-          icon={<CheckCircle className="w-5 h-5" />}
+          icon={<CheckCircle className="w-3 h-3" />}
           status="success"
         />
         <MetricCard
           title="Facilities"
           value={metrics.facilities}
           subtitle="operational"
-          icon={<Buildings className="w-5 h-5" />}
+          icon={<Buildings className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
           title="Emergency"
           value={metrics.emergency}
           subtitle="urgent response"
-          icon={<Warning className="w-5 h-5" />}
+          icon={<Warning className="w-3 h-3" />}
           status="warning"
         />
         <MetricCard
           title="In Service"
           value={metrics.inService}
           subtitle="being serviced"
-          icon={<Wrench className="w-5 h-5" />}
+          icon={<Wrench className="w-3 h-3" />}
           status="info"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
         <Card className="lg:col-span-3">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -234,7 +234,7 @@ export function GISCommandCenter() {
                 <TabsTrigger value="satellite">Satellite</TabsTrigger>
                 <TabsTrigger value="terrain">Terrain</TabsTrigger>
               </TabsList>
-              <TabsContent value={activeTab || "map"} className="mt-4">
+              <TabsContent value={activeTab || "map"} className="mt-2">
                 <div className="aspect-video bg-muted rounded-lg overflow-hidden">
                   <UniversalMap
                     vehicles={filteredVehicles as unknown as Vehicle[]}
@@ -253,8 +253,8 @@ export function GISCommandCenter() {
               </TabsContent>
             </Tabs>
 
-            <div className="mt-4 flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex gap-4">
+            <div className="mt-2 flex items-center justify-between p-3 border rounded-lg">
+              <div className="flex gap-2">
                 <div className="flex items-center gap-2">
                   <Circle className="w-3 h-3 text-success" weight="fill" />
                   <span className="text-sm">Active ({metrics.active})</span>
@@ -272,7 +272,7 @@ export function GISCommandCenter() {
           </CardContent>
         </Card>
 
-        <div className="space-y-6">
+        <div className="space-y-2">
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Facilities</CardTitle>

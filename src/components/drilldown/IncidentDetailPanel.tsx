@@ -245,11 +245,11 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {incident && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Incident Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <h3 className="text-2xl font-bold">Incident #{incident.incident_number}</h3>
+              <h3 className="text-sm font-bold">Incident #{incident.incident_number}</h3>
               <p className="text-sm text-muted-foreground">{incident.title}</p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge variant={getSeverityColor(incident.severity)}>
@@ -268,11 +268,11 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                 )}
               </div>
             </div>
-            <AlertTriangle className="h-12 w-12 text-destructive" />
+            <AlertTriangle className="h-9 w-12 text-destructive" />
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -281,7 +281,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-bold">
+                <div className="text-sm font-bold">
                   {new Date(incident.date).toLocaleDateString()}
                 </div>
                 {incident.time && (
@@ -298,7 +298,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-bold">
+                <div className="text-sm font-bold">
                   ${incident.actual_cost?.toFixed(2) || incident.estimated_cost?.toFixed(2) || '0.00'}
                 </div>
                 {incident.estimated_cost && incident.actual_cost && incident.actual_cost !== incident.estimated_cost && (
@@ -317,7 +317,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-bold">{evidence?.length || 0}</div>
+                <div className="text-sm font-bold">{evidence?.length || 0}</div>
                 <p className="text-xs text-muted-foreground mt-1">files attached</p>
               </CardContent>
             </Card>
@@ -330,7 +330,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-bold">{involvedParties?.length || 0}</div>
+                <div className="text-sm font-bold">{involvedParties?.length || 0}</div>
                 <p className="text-xs text-muted-foreground mt-1">parties</p>
               </CardContent>
             </Card>
@@ -347,14 +347,14 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
             </TabsList>
 
             {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-4">
+            <TabsContent value="overview" className="space-y-2">
               {/* Incident Details */}
               <Card>
                 <CardHeader>
                   <CardTitle>Incident Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Type</p>
                       <p className="font-medium capitalize">{incident.type}</p>
@@ -407,7 +407,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                     )}
                   </div>
                   {(incident.weather_conditions || incident.road_conditions) && (
-                    <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t">
                       {incident.weather_conditions && (
                         <div>
                           <p className="text-sm text-muted-foreground">Weather</p>
@@ -426,7 +426,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
               </Card>
 
               {/* Vehicle and Driver */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 {incident.vehicle_id && (
                   <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleViewVehicle}>
                     <CardHeader>
@@ -524,9 +524,9 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
             </TabsContent>
 
             {/* Evidence Tab */}
-            <TabsContent value="evidence" className="space-y-4">
+            <TabsContent value="evidence" className="space-y-2">
               {evidence && evidence.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {evidence.map((item) => (
                     <Card key={item.id} className="overflow-hidden">
                       <CardContent className="p-0">
@@ -563,7 +563,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <Camera className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <Camera className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No evidence files attached</p>
                   </CardContent>
                 </Card>
@@ -571,12 +571,12 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
             </TabsContent>
 
             {/* Parties Tab */}
-            <TabsContent value="parties" className="space-y-4">
+            <TabsContent value="parties" className="space-y-2">
               {involvedParties && involvedParties.length > 0 ? (
                 <div className="space-y-3">
                   {involvedParties.map((party) => (
                     <Card key={party.id}>
-                      <CardContent className="p-4">
+                      <CardContent className="p-2">
                         <div className="space-y-3">
                           <div className="flex items-start justify-between">
                             <div>
@@ -593,7 +593,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                           </div>
 
                           {(party.contact_phone || party.contact_email) && (
-                            <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                            <div className="grid grid-cols-2 gap-2 pt-2 border-t">
                               {party.contact_phone && (
                                 <div className="flex items-center gap-2 text-sm">
                                   <Phone className="h-3 w-3 text-muted-foreground" />
@@ -630,7 +630,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <User className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <User className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No involved parties recorded</p>
                   </CardContent>
                 </Card>
@@ -638,7 +638,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
             </TabsContent>
 
             {/* Timeline Tab */}
-            <TabsContent value="timeline" className="space-y-4">
+            <TabsContent value="timeline" className="space-y-2">
               {timeline && timeline.length > 0 ? (
                 <Card>
                   <CardHeader>
@@ -648,9 +648,9 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
+                    <div className="space-y-2">
                       {timeline.map((event, index) => (
-                        <div key={event.id} className="flex gap-4">
+                        <div key={event.id} className="flex gap-2">
                           <div className="flex flex-col items-center">
                             <div className="rounded-full bg-primary/10 p-2">
                               {getStatusIcon(event.event_type)}
@@ -659,7 +659,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                               <div className="w-px h-full bg-border mt-2" />
                             )}
                           </div>
-                          <div className="flex-1 pb-4">
+                          <div className="flex-1 pb-2">
                             <div className="flex items-start justify-between">
                               <div>
                                 <p className="font-medium">{event.description}</p>
@@ -689,7 +689,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <History className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <History className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No timeline events recorded</p>
                   </CardContent>
                 </Card>
@@ -697,7 +697,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
             </TabsContent>
 
             {/* Related Tab */}
-            <TabsContent value="related" className="space-y-4">
+            <TabsContent value="related" className="space-y-2">
               {relatedRecords && relatedRecords.length > 0 ? (
                 <Card>
                   <CardHeader>
@@ -738,7 +738,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <FileText className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No related records found</p>
                   </CardContent>
                 </Card>

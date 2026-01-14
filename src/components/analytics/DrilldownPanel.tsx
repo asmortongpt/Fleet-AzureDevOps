@@ -85,8 +85,8 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
         switch (currentData.level) {
             case 'overview':
                 return (
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                             <CategoryCard
                                 title="Cost Analysis"
                                 value="$2.4M"
@@ -136,7 +136,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
             case 'category':
                 if (currentData.title === 'Cost Analysis') {
                     return (
-                        <div className="space-y-4">
+                        <div className="space-y-2">
                             <CostAnalyticsChart
                                 data={currentData.data || []}
                                 type="composed"
@@ -164,7 +164,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                     )
                 } else if (currentData.title === 'Efficiency Score') {
                     return (
-                        <div className="space-y-4">
+                        <div className="space-y-2">
                             <EfficiencyMetricsChart
                                 data={currentData.data || []}
                                 type="trend"
@@ -184,7 +184,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
 
             case 'vehicle':
                 return (
-                    <div className="space-y-6">
+                    <div className="space-y-2">
                         <VehicleDetailCard vehicle={currentData.data} />
                         <CostAnalyticsChart
                             data={currentData.data.costHistory || []}
@@ -199,7 +199,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
 
             case 'detail':
                 return (
-                    <div className="space-y-4">
+                    <div className="space-y-2">
                         <DetailView data={currentData.data} />
                     </div>
                 )
@@ -217,21 +217,21 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                     animate={{ x: 0 }}
                     exit={{ x: '100%' }}
                     transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                    className="fixed right-0 top-0 bottom-0 w-full md:w-2/3 lg:w-1/2 xl:w-2/5 bg-slate-900 border-l border-slate-700 shadow-2xl z-50 flex flex-col"
+                    className="fixed right-0 top-0 bottom-0 w-full md:w-2/3 lg:w-1/2 xl:w-2/5 bg-slate-900 border-l border-slate-700 shadow-sm z-50 flex flex-col"
                 >
                     {/* Header */}
-                    <div className="bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700 p-6">
-                        <div className="flex items-center justify-between mb-4">
+                    <div className="bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700 p-3">
+                        <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-3">
                                 {breadcrumbs.length > 1 && (
                                     <button
                                         onClick={() => handleDrillUp(breadcrumbs.length - 2)}
                                         className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
                                     >
-                                        <ArrowLeft className="w-5 h-5 text-slate-400" />
+                                        <ArrowLeft className="w-3 h-3 text-slate-400" />
                                     </button>
                                 )}
-                                <h2 className="text-2xl font-bold text-white">
+                                <h2 className="text-sm font-bold text-white">
                                     {currentData?.title || 'Analytics Drilldown'}
                                 </h2>
                             </div>
@@ -239,7 +239,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                                 onClick={onClose}
                                 className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
                             >
-                                <X className="w-6 h-6 text-slate-400" />
+                                <X className="w-4 h-4 text-slate-400" />
                             </button>
                         </div>
 
@@ -272,17 +272,17 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                         )}
 
                         {/* Actions */}
-                        <div className="flex items-center gap-2 mt-4">
+                        <div className="flex items-center gap-2 mt-2">
                             <button
                                 onClick={handleExport}
-                                className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors text-sm"
+                                className="flex items-center gap-2 px-2 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors text-sm"
                             >
                                 <Download className="w-4 h-4" />
                                 Export
                             </button>
                             <button
                                 onClick={handleShare}
-                                className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors text-sm"
+                                className="flex items-center gap-2 px-2 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors text-sm"
                             >
                                 <Share className="w-4 h-4" />
                                 Share
@@ -291,7 +291,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 overflow-y-auto p-6">
+                    <div className="flex-1 overflow-y-auto p-3">
                         {renderContent()}
                     </div>
                 </motion.div>
@@ -312,14 +312,14 @@ const CategoryCard = memo<{
 }>(({ title, value, change, trend, onClick }) => (
     <button
         onClick={onClick}
-        className="bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700 rounded-lg p-6 text-left transition-colors group"
+        className="bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700 rounded-lg p-3 text-left transition-colors group"
     >
         <h3 className="text-slate-400 text-sm font-medium mb-2">{title}</h3>
-        <p className="text-3xl font-bold text-white mb-1">{value}</p>
+        <p className="text-base font-bold text-white mb-1">{value}</p>
         <p className={`text-sm font-medium ${trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>
             {change}
         </p>
-        <div className="flex items-center gap-2 mt-4 text-blue-400 text-sm group-hover:translate-x-1 transition-transform">
+        <div className="flex items-center gap-2 mt-2 text-blue-400 text-sm group-hover:translate-x-1 transition-transform">
             <span>View details</span>
             <CaretRight className="w-4 h-4" />
         </div>
@@ -327,8 +327,8 @@ const CategoryCard = memo<{
 ))
 
 const VehicleList = memo<{ onVehicleClick: (vehicle: any) => void }>(({ onVehicleClick }) => (
-    <div className="bg-slate-800/40 rounded-lg p-4">
-        <h3 className="text-white font-semibold mb-4">Top Cost Vehicles</h3>
+    <div className="bg-slate-800/40 rounded-lg p-2">
+        <h3 className="text-white font-semibold mb-2">Top Cost Vehicles</h3>
         <div className="space-y-2">
             {[
                 { id: 1, name: 'Vehicle #1234', vin: '1HGBH41JXMN109186', cost: '$12,450' },
@@ -357,9 +357,9 @@ const VehicleList = memo<{ onVehicleClick: (vehicle: any) => void }>(({ onVehicl
 ))
 
 const VehicleDetailCard = memo<{ vehicle: any }>(({ vehicle }) => (
-    <div className="bg-slate-800/40 rounded-lg p-6">
-        <h3 className="text-white font-semibold text-xl mb-4">{vehicle.name}</h3>
-        <div className="grid grid-cols-2 gap-4">
+    <div className="bg-slate-800/40 rounded-lg p-3">
+        <h3 className="text-white font-semibold text-base mb-2">{vehicle.name}</h3>
+        <div className="grid grid-cols-2 gap-2">
             <div>
                 <p className="text-slate-400 text-sm">VIN</p>
                 <p className="text-white font-medium">{vehicle.vin}</p>
@@ -373,8 +373,8 @@ const VehicleDetailCard = memo<{ vehicle: any }>(({ vehicle }) => (
 ))
 
 const DetailView = memo<{ data: any }>(({ data }) => (
-    <div className="bg-slate-800/40 rounded-lg p-6">
-        <h3 className="text-white font-semibold text-xl mb-4">Detailed Breakdown</h3>
+    <div className="bg-slate-800/40 rounded-lg p-3">
+        <h3 className="text-white font-semibold text-base mb-2">Detailed Breakdown</h3>
         <pre className="text-slate-300 text-sm overflow-auto">
             {JSON.stringify(data, null, 2)}
         </pre>

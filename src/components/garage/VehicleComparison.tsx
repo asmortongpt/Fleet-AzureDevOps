@@ -119,8 +119,8 @@ export function VehicleComparison({ vehicles, onClose }: VehicleComparisonProps)
             <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <ArrowsLeftRight className="w-5 h-5 text-blue-400" />
-                        <CardTitle className="text-lg">Vehicle Comparison</CardTitle>
+                        <ArrowsLeftRight className="w-3 h-3 text-blue-400" />
+                        <CardTitle className="text-sm">Vehicle Comparison</CardTitle>
                     </div>
                     {onClose && (
                         <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close vehicle comparison">
@@ -129,9 +129,9 @@ export function VehicleComparison({ vehicles, onClose }: VehicleComparisonProps)
                     )}
                 </div>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-2">
                 {/* Vehicle Selectors */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                     <Select value={vehicle1Id} onValueChange={setVehicle1Id}>
                         <SelectTrigger className="bg-slate-800 border-slate-700">
                             <SelectValue placeholder="Select vehicle 1" />
@@ -162,15 +162,15 @@ export function VehicleComparison({ vehicles, onClose }: VehicleComparisonProps)
                 {/* Vehicle Headers */}
                 {vehicle1 && vehicle2 && (
                     <>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="text-center p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-                                <Car className="w-8 h-8 mx-auto mb-2 text-blue-400" />
+                        <div className="grid grid-cols-2 gap-2">
+                            <div className="text-center p-2 bg-slate-800/50 rounded-md border border-slate-700">
+                                <Car className="w-4 h-4 mx-auto mb-2 text-blue-400" />
                                 <h3 className="font-bold text-white">{vehicle1.year} {vehicle1.make}</h3>
                                 <p className="text-sm text-slate-400">{vehicle1.model}</p>
                                 <Badge variant="outline" className="mt-2">{vehicle1.licensePlate}</Badge>
                             </div>
-                            <div className="text-center p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-                                <Car className="w-8 h-8 mx-auto mb-2 text-purple-400" />
+                            <div className="text-center p-2 bg-slate-800/50 rounded-md border border-slate-700">
+                                <Car className="w-4 h-4 mx-auto mb-2 text-purple-400" />
                                 <h3 className="font-bold text-white">{vehicle2.year} {vehicle2.make}</h3>
                                 <p className="text-sm text-slate-400">{vehicle2.model}</p>
                                 <Badge variant="outline" className="mt-2">{vehicle2.licensePlate}</Badge>
@@ -179,7 +179,7 @@ export function VehicleComparison({ vehicles, onClose }: VehicleComparisonProps)
 
                         {/* Comparison Stats */}
                         <ScrollArea className="h-64">
-                            <div className="space-y-4 pr-4">
+                            <div className="space-y-2 pr-2">
                                 <ComparisonBar
                                     label="Mileage"
                                     value1={vehicle1.mileage ? vehicle1.mileage / 1000 : 0}

@@ -29,9 +29,9 @@ export function APILoader<T>({
 }: APILoaderProps<T>) {
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
+      <div className="flex items-center justify-center p-3">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
           <p className="text-muted-foreground">{loadingMessage}</p>
         </div>
       </div>

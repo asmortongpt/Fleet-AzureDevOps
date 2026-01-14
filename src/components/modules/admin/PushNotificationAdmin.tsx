@@ -357,13 +357,13 @@ const PushNotificationAdmin: React.FC = () => {
   ];
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-3 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-3">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+              <h1 className="text-base font-bold text-gray-900 flex items-center gap-3">
                 <Bell className="text-blue-800" size={32} />
                 Push Notification Admin
               </h1>
@@ -374,7 +374,7 @@ const PushNotificationAdmin: React.FC = () => {
             <button
               onClick={handleSendTest}
               disabled={testNotificationMutation.isPending}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2 disabled:opacity-50"
+              className="px-2 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2 disabled:opacity-50"
             >
               <Smartphone size={20} />
               {testNotificationMutation.isPending ? 'Sending...' : 'Send Test Notification'}
@@ -384,39 +384,39 @@ const PushNotificationAdmin: React.FC = () => {
 
         {/* Stats Overview */}
         {statsQuery.data && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-3">
+            <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-700">Total Sent</p>
-                  <p className="text-2xl font-bold text-gray-900">{statsQuery.data?.totalSent}</p>
+                  <p className="text-sm font-bold text-gray-900">{statsQuery.data?.totalSent}</p>
                 </div>
                 <Send className="text-blue-800" size={32} />
               </div>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-700">Delivery Rate</p>
-                  <p className="text-2xl font-bold text-green-600">{statsQuery.data?.deliveryRate.toFixed(1)}%</p>
+                  <p className="text-sm font-bold text-green-600">{statsQuery.data?.deliveryRate.toFixed(1)}%</p>
                 </div>
                 <CheckCircle className="text-green-600" size={32} />
               </div>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-700">Open Rate</p>
-                  <p className="text-2xl font-bold text-blue-800">{statsQuery.data?.openRate.toFixed(1)}%</p>
+                  <p className="text-sm font-bold text-blue-800">{statsQuery.data?.openRate.toFixed(1)}%</p>
                 </div>
                 <Eye className="text-blue-800" size={32} />
               </div>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-700">Click Rate</p>
-                  <p className="text-2xl font-bold text-purple-600">{statsQuery.data?.clickRate.toFixed(1)}%</p>
+                  <p className="text-sm font-bold text-purple-600">{statsQuery.data?.clickRate.toFixed(1)}%</p>
                 </div>
                 <TrendingUp className="text-purple-600" size={32} />
               </div>
@@ -425,12 +425,12 @@ const PushNotificationAdmin: React.FC = () => {
         )}
 
         {/* Tabs */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-3">
           <div className="border-b border-gray-200">
             <nav className="flex -mb-px">
               <button
                 onClick={() => setActiveTab('send')}
-                className={`px-6 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                className={`px-3 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
                   activeTab === 'send'
                     ? 'border-blue-600 text-blue-800'
                     : 'border-transparent text-slate-700 hover:text-gray-900 hover:border-gray-300'
@@ -441,7 +441,7 @@ const PushNotificationAdmin: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveTab('templates')}
-                className={`px-6 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                className={`px-3 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
                   activeTab === 'templates'
                     ? 'border-blue-600 text-blue-800'
                     : 'border-transparent text-slate-700 hover:text-gray-900 hover:border-gray-300'
@@ -452,7 +452,7 @@ const PushNotificationAdmin: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveTab('history')}
-                className={`px-6 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                className={`px-3 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
                   activeTab === 'history'
                     ? 'border-blue-600 text-blue-800'
                     : 'border-transparent text-slate-700 hover:text-gray-900 hover:border-gray-300'
@@ -463,7 +463,7 @@ const PushNotificationAdmin: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveTab('stats')}
-                className={`px-6 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                className={`px-3 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
                   activeTab === 'stats'
                     ? 'border-blue-600 text-blue-800'
                     : 'border-transparent text-slate-700 hover:text-gray-900 hover:border-gray-300'
@@ -475,11 +475,11 @@ const PushNotificationAdmin: React.FC = () => {
             </nav>
           </div>
 
-          <div className="p-6">
+          <div className="p-3">
             {/* Send Notification Tab */}
             {activeTab === 'send' && (
-              <div className="space-y-6">
-                <div className="flex items-center gap-4 mb-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-2">
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
@@ -492,7 +492,7 @@ const PushNotificationAdmin: React.FC = () => {
                 </div>
 
                 {notificationForm.useTemplate ? (
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Select Template
@@ -525,15 +525,15 @@ const PushNotificationAdmin: React.FC = () => {
                     <button
                       onClick={handleSendFromTemplate}
                       disabled={sendFromTemplateMutation.isPending || !notificationForm.selectedTemplate}
-                      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                      className="px-3 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
                     >
                       <Send size={20} />
                       {sendFromTemplateMutation.isPending ? 'Sending...' : 'Send from Template'}
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Category
@@ -632,7 +632,7 @@ const PushNotificationAdmin: React.FC = () => {
                     <button
                       onClick={handleSendNotification}
                       disabled={sendNotificationMutation.isPending || scheduleNotificationMutation.isPending || !notificationForm.title || !notificationForm.message}
-                      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                      className="px-3 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
                     >
                       {notificationForm.scheduledFor ? <Calendar size={20} /> : <Send size={20} />}
                       {sendNotificationMutation.isPending || scheduleNotificationMutation.isPending ? 'Sending...' : notificationForm.scheduledFor ? 'Schedule Notification' : 'Send Now'}
@@ -644,19 +644,19 @@ const PushNotificationAdmin: React.FC = () => {
 
             {/* Templates Tab */}
             {activeTab === 'templates' && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">Available Templates</h3>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-semibold">Available Templates</h3>
                   {templatesQuery.isRefetching && <span className="text-sm text-gray-500">Refreshing...</span>}
                 </div>
                 {templatesQuery.isLoading ? (
-                  <div className="text-center py-8 text-gray-500">Loading templates...</div>
+                  <div className="text-center py-3 text-gray-500">Loading templates...</div>
                 ) : templatesQuery.error ? (
-                  <div className="text-center py-8 text-red-500">Error loading templates</div>
+                  <div className="text-center py-3 text-red-500">Error loading templates</div>
                 ) : (
-                  <div className="grid gap-4">
+                  <div className="grid gap-2">
                     {templatesQuery.data?.map(template => (
-                      <div key={template.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div key={template.id} className="border border-gray-200 rounded-lg p-2 hover:shadow-md transition-shadow">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <h4 className="font-semibold text-gray-900">{template.template_name}</h4>
@@ -681,45 +681,45 @@ const PushNotificationAdmin: React.FC = () => {
 
             {/* History Tab */}
             {activeTab === 'history' && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">Notification History</h3>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-semibold">Notification History</h3>
                   <button
                     onClick={() => historyQuery.refetch()}
                     disabled={historyQuery.isRefetching}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+                    className="px-2 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50"
                   >
                     {historyQuery.isRefetching ? 'Refreshing...' : 'Refresh'}
                   </button>
                 </div>
                 {historyQuery.isLoading ? (
-                  <div className="text-center py-8 text-gray-500">Loading history...</div>
+                  <div className="text-center py-3 text-gray-500">Loading history...</div>
                 ) : historyQuery.error ? (
-                  <div className="text-center py-8 text-red-500">Error loading history</div>
+                  <div className="text-center py-3 text-red-500">Error loading history</div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Title</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Category</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Priority</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Recipients</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Delivered</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Opened</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Status</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Date</th>
+                          <th className="px-2 py-3 text-left text-xs font-medium text-slate-700 uppercase">Title</th>
+                          <th className="px-2 py-3 text-left text-xs font-medium text-slate-700 uppercase">Category</th>
+                          <th className="px-2 py-3 text-left text-xs font-medium text-slate-700 uppercase">Priority</th>
+                          <th className="px-2 py-3 text-left text-xs font-medium text-slate-700 uppercase">Recipients</th>
+                          <th className="px-2 py-3 text-left text-xs font-medium text-slate-700 uppercase">Delivered</th>
+                          <th className="px-2 py-3 text-left text-xs font-medium text-slate-700 uppercase">Opened</th>
+                          <th className="px-2 py-3 text-left text-xs font-medium text-slate-700 uppercase">Status</th>
+                          <th className="px-2 py-3 text-left text-xs font-medium text-slate-700 uppercase">Date</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
                         {historyQuery.data?.map(notification => (
                           <tr key={notification.id} className="hover:bg-gray-50">
-                            <td className="px-4 py-3 text-sm">
+                            <td className="px-2 py-3 text-sm">
                               <div className="font-medium text-gray-900">{notification.title}</div>
                               <div className="text-slate-700 text-xs mt-1">{notification.message.substring(0, 50)}...</div>
                             </td>
-                            <td className="px-4 py-3 text-sm">{notification.category}</td>
-                            <td className="px-4 py-3 text-sm">
+                            <td className="px-2 py-3 text-sm">{notification.category}</td>
+                            <td className="px-2 py-3 text-sm">
                               <span className={`px-2 py-1 rounded text-xs font-medium ${
                                 notification.priority === 'critical' ? 'bg-red-100 text-red-800' :
                                 notification.priority === 'high' ? 'bg-orange-100 text-orange-800' :
@@ -729,10 +729,10 @@ const PushNotificationAdmin: React.FC = () => {
                                 {notification.priority}
                               </span>
                             </td>
-                            <td className="px-4 py-3 text-sm">{notification.total_recipients}</td>
-                            <td className="px-4 py-3 text-sm">{notification.delivered}</td>
-                            <td className="px-4 py-3 text-sm">{notification.opened}</td>
-                            <td className="px-4 py-3 text-sm">
+                            <td className="px-2 py-3 text-sm">{notification.total_recipients}</td>
+                            <td className="px-2 py-3 text-sm">{notification.delivered}</td>
+                            <td className="px-2 py-3 text-sm">{notification.opened}</td>
+                            <td className="px-2 py-3 text-sm">
                               <span className={`px-2 py-1 rounded text-xs font-medium ${
                                 notification.delivery_status === 'sent' ? 'bg-green-100 text-green-800' :
                                 notification.delivery_status === 'sending' ? 'bg-yellow-100 text-yellow-800' :
@@ -742,7 +742,7 @@ const PushNotificationAdmin: React.FC = () => {
                                 {notification.delivery_status}
                               </span>
                             </td>
-                            <td className="px-4 py-3 text-sm text-slate-700">
+                            <td className="px-2 py-3 text-sm text-slate-700">
                               {new Date(notification.created_at).toLocaleString()}
                             </td>
                           </tr>
@@ -758,16 +758,16 @@ const PushNotificationAdmin: React.FC = () => {
             {activeTab === 'stats' && (
               <div>
                 {statsQuery.isLoading ? (
-                  <div className="text-center py-8 text-gray-500">Loading statistics...</div>
+                  <div className="text-center py-3 text-gray-500">Loading statistics...</div>
                 ) : statsQuery.error ? (
-                  <div className="text-center py-8 text-red-500">Error loading statistics</div>
+                  <div className="text-center py-3 text-red-500">Error loading statistics</div>
                 ) : statsQuery.data ? (
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-semibold mb-4">Delivery Statistics</h3>
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-semibold mb-2">Delivery Statistics</h3>
 
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="border border-gray-200 rounded-lg p-6">
-                        <h4 className="text-sm font-medium text-slate-700 mb-4">Delivery Performance</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="border border-gray-200 rounded-lg p-3">
+                        <h4 className="text-sm font-medium text-slate-700 mb-2">Delivery Performance</h4>
                         <div className="space-y-3">
                           <div>
                             <div className="flex justify-between text-sm mb-1">
@@ -796,8 +796,8 @@ const PushNotificationAdmin: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="border border-gray-200 rounded-lg p-6">
-                        <h4 className="text-sm font-medium text-slate-700 mb-4">Engagement Metrics</h4>
+                      <div className="border border-gray-200 rounded-lg p-3">
+                        <h4 className="text-sm font-medium text-slate-700 mb-2">Engagement Metrics</h4>
                         <div className="space-y-3">
                           <div>
                             <div className="flex justify-between text-sm mb-1">
@@ -827,30 +827,30 @@ const PushNotificationAdmin: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg border border-blue-200">
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-3 rounded-lg border border-blue-200">
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-sm text-blue-800 font-medium">Total Notifications</p>
-                            <p className="text-3xl font-bold text-blue-900 mt-2">{statsQuery.data?.totalSent}</p>
+                            <p className="text-base font-bold text-blue-900 mt-2">{statsQuery.data?.totalSent}</p>
                           </div>
                           <Bell className="text-blue-800" size={40} />
                         </div>
                       </div>
-                      <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg border border-green-200">
+                      <div className="bg-gradient-to-br from-green-50 to-green-100 p-3 rounded-lg border border-green-200">
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-sm text-green-800 font-medium">Successfully Delivered</p>
-                            <p className="text-3xl font-bold text-green-900 mt-2">{statsQuery.data?.delivered}</p>
+                            <p className="text-base font-bold text-green-900 mt-2">{statsQuery.data?.delivered}</p>
                           </div>
                           <CheckCircle className="text-green-600" size={40} />
                         </div>
                       </div>
-                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg border border-purple-200">
+                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-3 rounded-lg border border-purple-200">
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-sm text-purple-800 font-medium">User Interactions</p>
-                            <p className="text-3xl font-bold text-purple-900 mt-2">{statsQuery.data?.clicked}</p>
+                            <p className="text-base font-bold text-purple-900 mt-2">{statsQuery.data?.clicked}</p>
                           </div>
                           <TrendingUp className="text-purple-600" size={40} />
                         </div>

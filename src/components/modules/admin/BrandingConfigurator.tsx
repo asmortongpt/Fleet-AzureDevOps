@@ -151,10 +151,10 @@ export function BrandingConfigurator() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white">Document Branding Configuration</h2>
+          <h2 className="text-sm font-bold text-white">Document Branding Configuration</h2>
           <p className="text-slate-400 mt-1">Customize the appearance of exported policy and SOP documents</p>
         </div>
         <div className="flex gap-2">
@@ -177,21 +177,21 @@ export function BrandingConfigurator() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Palette className="w-5 h-5" />
+            <Palette className="w-3 h-3" />
             Quick Templates
           </CardTitle>
           <CardDescription>Apply pre-configured branding templates</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {Object.keys(brandingTemplates).map((templateName) => (
               <Button
                 key={templateName}
                 variant="outline"
                 onClick={() => handleApplyTemplate(templateName)}
-                className="h-auto py-4 flex flex-col items-center gap-2"
+                className="h-auto py-2 flex flex-col items-center gap-2"
               >
-                <FileText className="w-6 h-6" />
+                <FileText className="w-4 h-4" />
                 <span className="capitalize">{templateName}</span>
               </Button>
             ))}
@@ -200,7 +200,7 @@ export function BrandingConfigurator() {
       </Card>
 
       {/* Configuration Tabs */}
-      <Tabs defaultValue="organization" className="space-y-4">
+      <Tabs defaultValue="organization" className="space-y-2">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="organization">
             <Building className="w-4 h-4 mr-2" />
@@ -231,8 +231,8 @@ export function BrandingConfigurator() {
               <CardTitle>Organization Information</CardTitle>
               <CardDescription>Information displayed on documents</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <CardContent className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label>Organization Name</Label>
                   <Input
@@ -265,7 +265,7 @@ export function BrandingConfigurator() {
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-2">
                   <Label>City</Label>
                   <Input
@@ -289,7 +289,7 @@ export function BrandingConfigurator() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label>Phone</Label>
                   <Input
@@ -325,10 +325,10 @@ export function BrandingConfigurator() {
               <CardTitle>Logo Configuration</CardTitle>
               <CardDescription>Upload and configure your organization's logo</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2">
               <div className="space-y-2">
                 <Label>Upload Logo</Label>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
                   <Input
                     type="file"
                     accept="image/*"
@@ -341,17 +341,17 @@ export function BrandingConfigurator() {
                   </Button>
                 </div>
                 {config.logo.base64 && (
-                  <div className="mt-4">
+                  <div className="mt-2">
                     <img
                       src={config.logo.base64}
                       alt="Logo preview"
-                      className="max-w-xs border border-slate-700 rounded p-4 bg-white"
+                      className="max-w-xs border border-slate-700 rounded p-2 bg-white"
                     />
                   </div>
                 )}
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-2">
                   <Label>Position</Label>
                   <Select
@@ -397,7 +397,7 @@ export function BrandingConfigurator() {
               <CardDescription>Customize document colors and theme</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 {Object.entries(config.colors).map(([key, value]) => (
                   <div key={key} className="space-y-2">
                     <Label className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</Label>
@@ -406,7 +406,7 @@ export function BrandingConfigurator() {
                         type="color"
                         value={value}
                         onChange={(e) => updateConfig(`colors.${key}`, e.target.value)}
-                        className="w-16 h-10"
+                        className="w-16 h-8"
                       />
                       <Input
                         type="text"
@@ -429,7 +429,7 @@ export function BrandingConfigurator() {
               <CardTitle>Typography Settings</CardTitle>
               <CardDescription>Configure fonts and text sizing</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2">
               <div className="space-y-2">
                 <Label>Font Family</Label>
                 <Select
@@ -449,7 +449,7 @@ export function BrandingConfigurator() {
                 </Select>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2">
                 {Object.entries(config.typography.fontSize).map(([key, value]) => (
                   <div key={key} className="space-y-2">
                     <Label className="capitalize">{key}</Label>
@@ -486,11 +486,11 @@ export function BrandingConfigurator() {
               <CardTitle>Layout & Formatting</CardTitle>
               <CardDescription>Configure headers, footers, and document structure</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-2">
               {/* Header Settings */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Header</h3>
-                <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold">Header</h3>
+                <div className="grid grid-cols-2 gap-2">
                   <div className="flex items-center justify-between">
                     <Label>Show Logo</Label>
                     <Switch
@@ -524,9 +524,9 @@ export function BrandingConfigurator() {
               </div>
 
               {/* Footer Settings */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Footer</h3>
-                <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold">Footer</h3>
+                <div className="grid grid-cols-2 gap-2">
                   <div className="flex items-center justify-between">
                     <Label>Show Page Numbers</Label>
                     <Switch
@@ -562,16 +562,16 @@ export function BrandingConfigurator() {
               </div>
 
               {/* Watermark Settings */}
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Watermark</h3>
+                  <h3 className="text-sm font-semibold">Watermark</h3>
                   <Switch
                     checked={config.watermark?.enabled || false}
                     onCheckedChange={(checked) => updateConfig('watermark.enabled', checked)}
                   />
                 </div>
                 {config.watermark?.enabled && (
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-2">
                       <Label>Watermark Text</Label>
                       <Input

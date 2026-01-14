@@ -81,10 +81,10 @@ export function AdvancedSettings() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Warning Banner */}
-      <div className="flex items-start gap-3 p-4 bg-warning/10 border border-warning/20 rounded-lg">
-        <Warning className="w-5 h-5 text-warning mt-0.5" />
+      <div className="flex items-start gap-3 p-2 bg-warning/10 border border-warning/20 rounded-lg">
+        <Warning className="w-3 h-3 text-warning mt-0.5" />
         <div className="flex-1 text-sm">
           <p className="font-medium">Advanced Settings</p>
           <p className="text-muted-foreground mt-1">
@@ -98,12 +98,12 @@ export function AdvancedSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Code className="w-5 h-5" />
+            <Code className="w-3 h-3" />
             <CardTitle>Developer Mode</CardTitle>
           </div>
           <CardDescription>Enable developer tools and debugging features</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="developer-mode">Enable Developer Mode</Label>
@@ -136,12 +136,12 @@ export function AdvancedSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Cpu className="w-5 h-5" />
+            <Cpu className="w-3 h-3" />
             <CardTitle>API Configuration</CardTitle>
           </div>
           <CardDescription>Override the default API endpoint</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="space-y-2">
             <Label htmlFor="api-endpoint">API Endpoint URL</Label>
             <Input
@@ -162,7 +162,7 @@ export function AdvancedSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Flag className="w-5 h-5" />
+            <Flag className="w-3 h-3" />
             <CardTitle>Feature Flags</CardTitle>
           </div>
           <CardDescription>Enable or disable experimental features</CardDescription>
@@ -202,12 +202,12 @@ export function AdvancedSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Bug className="w-5 h-5" />
+            <Bug className="w-3 h-3" />
             <CardTitle>Debug Settings</CardTitle>
           </div>
           <CardDescription>Configure debugging and logging options</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="debug-logging">Debug Logging</Label>
@@ -243,7 +243,7 @@ export function AdvancedSettings() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <ChartBar className="w-5 h-5" />
+              <ChartBar className="w-3 h-3" />
               <CardTitle>Performance Metrics</CardTitle>
             </div>
             <CardDescription>Real-time application performance data</CardDescription>
@@ -283,7 +283,7 @@ export function AdvancedSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Cpu className="w-5 h-5" />
+            <Cpu className="w-3 h-3" />
             <CardTitle>System Information</CardTitle>
           </div>
           <CardDescription>Application and environment details</CardDescription>

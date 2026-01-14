@@ -181,9 +181,9 @@ export function SecurityCompliance() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       <div>
-        <h1 className="text-3xl font-bold">Security & Compliance</h1>
+        <h1 className="text-base font-bold">Security & Compliance</h1>
         <p className="text-muted-foreground mt-1">
           Monitor security posture and compliance status
         </p>
@@ -219,14 +219,14 @@ export function SecurityCompliance() {
 
       {/* Overview Tab */}
       {selectedTab === 'overview' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Compliance Score</CardTitle>
               <Shield className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{complianceScore}%</div>
+              <div className="text-sm font-bold">{complianceScore}%</div>
               <Progress value={complianceScore} className="mt-2" />
               <p className="text-xs text-muted-foreground mt-2">
                 {COMPLIANCE_ITEMS.filter(i => i.status === 'compliant').length} of {COMPLIANCE_ITEMS.length} checks passing
@@ -240,7 +240,7 @@ export function SecurityCompliance() {
               <AlertTriangle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{unresolvedAlerts}</div>
+              <div className="text-sm font-bold">{unresolvedAlerts}</div>
               <p className="text-xs text-muted-foreground mt-2">
                 {SECURITY_ALERTS.filter(a => a.severity === 'critical' && !a.resolved).length} critical unresolved
               </p>
@@ -253,7 +253,7 @@ export function SecurityCompliance() {
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{ACCESS_LOGS.length}</div>
+              <div className="text-sm font-bold">{ACCESS_LOGS.length}</div>
               <p className="text-xs text-muted-foreground mt-2">
                 {ACCESS_LOGS.filter(l => l.status === 'denied').length} denied attempts
               </p>
@@ -269,9 +269,9 @@ export function SecurityCompliance() {
             <CardTitle>Compliance Checklist</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-2">
               {COMPLIANCE_ITEMS.map(item => (
-                <div key={item.id} className="flex items-start gap-4 p-4 border rounded-lg">
+                <div key={item.id} className="flex items-start gap-2 p-2 border rounded-lg">
                   <div className="mt-1">{getStatusIcon(item.status)}</div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
@@ -304,7 +304,7 @@ export function SecurityCompliance() {
           <CardContent>
             <div className="space-y-3">
               {SECURITY_ALERTS.map(alert => (
-                <div key={alert.id} className="flex items-start gap-4 p-4 border rounded-lg">
+                <div key={alert.id} className="flex items-start gap-2 p-2 border rounded-lg">
                   <AlertTriangle className={`h-5 w-5 mt-0.5 ${
                     alert.severity === 'critical' ? 'text-red-500' :
                     alert.severity === 'high' ? 'text-orange-500' :

@@ -38,10 +38,10 @@ export function VirtualGarageControls({
   
   return (
     <div className="fixed top-20 right-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         {/* Header */}
         <div 
-          className="bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3 flex items-center justify-between cursor-pointer"
+          className="bg-gradient-to-r from-blue-600 to-blue-700 px-2 py-3 flex items-center justify-between cursor-pointer"
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex items-center gap-2 text-white">
@@ -54,7 +54,7 @@ export function VirtualGarageControls({
         </div>
         
         {expanded && (
-          <div className="p-4 space-y-4 max-h-[600px] overflow-y-auto">
+          <div className="p-2 space-y-2 max-h-[600px] overflow-y-auto">
             {/* Camera Presets */}
             <div>
               <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
@@ -72,7 +72,7 @@ export function VirtualGarageControls({
                         : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                     }`}
                   >
-                    <div className="text-lg mb-1">{preset.icon}</div>
+                    <div className="text-sm mb-1">{preset.icon}</div>
                     <div className="text-xs font-medium">{preset.label}</div>
                   </button>
                 ))}
@@ -111,7 +111,7 @@ export function VirtualGarageControls({
               </h3>
               <button
                 onClick={onToggleShowcase}
-                className="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-medium hover:shadow-lg transition-all"
+                className="w-full px-2 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-medium hover:shadow-sm transition-all"
               >
                 <div className="flex items-center justify-center gap-2">
                   <Maximize2 size={18} />

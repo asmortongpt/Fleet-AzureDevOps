@@ -177,13 +177,13 @@ export function SafetyNotificationSystem() {
     const getNotificationIcon = (type: SafetyNotification['type']) => {
         switch (type) {
             case 'critical':
-                return <Siren className="w-5 h-5 text-red-400" />
+                return <Siren className="w-3 h-3 text-red-400" />
             case 'warning':
-                return <Warning className="w-5 h-5 text-yellow-400" />
+                return <Warning className="w-3 h-3 text-yellow-400" />
             case 'info':
-                return <Info className="w-5 h-5 text-blue-400" />
+                return <Info className="w-3 h-3 text-blue-400" />
             case 'success':
-                return <CheckCircle className="w-5 h-5 text-green-400" />
+                return <CheckCircle className="w-3 h-3 text-green-400" />
         }
     }
 
@@ -216,12 +216,12 @@ export function SafetyNotificationSystem() {
     }
 
     return (
-        <div className="space-y-6 p-6">
+        <div className="space-y-2 p-3">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <Bell className="w-6 h-6" />
+                    <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                        <Bell className="w-4 h-4" />
                         Safety Notifications
                         {unreadCount > 0 && (
                             <Badge variant="destructive" className="ml-2">
@@ -260,8 +260,8 @@ export function SafetyNotificationSystem() {
 
             {/* Filters */}
             <Card className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border-slate-700/50">
-                <CardContent className="p-4">
-                    <div className="flex gap-4 items-center">
+                <CardContent className="p-2">
+                    <div className="flex gap-2 items-center">
                         <div className="flex gap-2 items-center">
                             <label className="text-sm text-slate-300">Filter:</label>
                             <Select value={filter} onValueChange={(value: any) => setFilter(value)}>
@@ -304,17 +304,17 @@ export function SafetyNotificationSystem() {
                 </CardHeader>
                 <CardContent className="p-0">
                     <ScrollArea className="h-[600px]">
-                        <div className="space-y-2 p-4">
+                        <div className="space-y-2 p-2">
                             {filteredNotifications.length === 0 ? (
                                 <div className="text-center py-12 text-slate-400">
-                                    <Bell className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                                    <Bell className="w-12 h-9 mx-auto mb-2 opacity-50" />
                                     <p>No notifications to display</p>
                                 </div>
                             ) : (
                                 filteredNotifications.map((notification) => (
                                     <div
                                         key={notification.id}
-                                        className={`p-4 rounded-lg border transition-all ${
+                                        className={`p-2 rounded-lg border transition-all ${
                                             getNotificationStyle(notification.type)
                                         } ${
                                             notification.read ? 'opacity-60' : ''

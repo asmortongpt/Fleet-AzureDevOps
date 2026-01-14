@@ -227,11 +227,11 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {policy && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Policy Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <h3 className="text-2xl font-bold">{policy.name}</h3>
+              <h3 className="text-sm font-bold">{policy.name}</h3>
               <p className="text-sm text-muted-foreground">Policy #{policy.policy_number}</p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge variant={getStatusColor(policy.status)}>
@@ -248,11 +248,11 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                 </Badge>
               </div>
             </div>
-            <Shield className="h-12 w-12 text-primary" />
+            <Shield className="h-9 w-12 text-primary" />
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -261,7 +261,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{policy.compliance_score || 0}%</div>
+                <div className="text-sm font-bold">{policy.compliance_score || 0}%</div>
                 <Progress value={policy.compliance_score || 0} className="mt-2" />
               </CardContent>
             </Card>
@@ -274,7 +274,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{policy.execution_count || 0}</div>
+                <div className="text-sm font-bold">{policy.execution_count || 0}</div>
                 {policy.success_rate !== undefined && (
                   <p className="text-xs text-muted-foreground mt-1">
                     {policy.success_rate.toFixed(1)}% success
@@ -291,7 +291,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-destructive">{openViolations}</div>
+                <div className="text-sm font-bold text-destructive">{openViolations}</div>
                 <p className="text-xs text-muted-foreground mt-1">
                   {resolvedViolations} resolved
                 </p>
@@ -306,7 +306,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-bold capitalize">{policy.applies_to}</div>
+                <div className="text-sm font-bold capitalize">{policy.applies_to}</div>
                 <p className="text-xs text-muted-foreground mt-1">
                   {affectedEntities?.length || 0} entities
                 </p>
@@ -325,14 +325,14 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
             </TabsList>
 
             {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-4">
+            <TabsContent value="overview" className="space-y-2">
               {/* Policy Information */}
               <Card>
                 <CardHeader>
                   <CardTitle>Policy Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Category</p>
                       <p className="font-medium capitalize">{policy.category}</p>
@@ -415,12 +415,12 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
             </TabsContent>
 
             {/* Executions Tab */}
-            <TabsContent value="executions" className="space-y-4">
+            <TabsContent value="executions" className="space-y-2">
               {executionHistory && executionHistory.length > 0 ? (
                 <div className="space-y-3">
                   {executionHistory.slice(0, 20).map((execution) => (
                     <Card key={execution.id}>
-                      <CardContent className="p-4">
+                      <CardContent className="p-2">
                         <div className="space-y-3">
                           <div className="flex items-start justify-between">
                             <div className="flex items-center gap-3">
@@ -478,7 +478,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <History className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <History className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No execution history</p>
                   </CardContent>
                 </Card>
@@ -486,7 +486,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
             </TabsContent>
 
             {/* Violations Tab */}
-            <TabsContent value="violations" className="space-y-4">
+            <TabsContent value="violations" className="space-y-2">
               {violations && violations.length > 0 ? (
                 <div className="space-y-3">
                   {violations.map((violation) => (
@@ -495,7 +495,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                       className="cursor-pointer hover:shadow-md transition-shadow"
                       onClick={() => handleViewViolation(violation)}
                     >
-                      <CardContent className="p-4">
+                      <CardContent className="p-2">
                         <div className="space-y-3">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -514,7 +514,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                                 {violation.description}
                               </p>
                             </div>
-                            <div className="text-right ml-4">
+                            <div className="text-right ml-2">
                               <p className="text-xs text-muted-foreground">
                                 {new Date(violation.date).toLocaleDateString()}
                               </p>
@@ -549,7 +549,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <CheckCircle2 className="h-12 w-12 mx-auto text-green-500 mb-4" />
+                    <CheckCircle2 className="h-9 w-12 mx-auto text-green-500 mb-2" />
                     <p className="text-sm text-muted-foreground">No violations recorded</p>
                   </CardContent>
                 </Card>
@@ -557,7 +557,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
             </TabsContent>
 
             {/* Compliance Tab */}
-            <TabsContent value="compliance" className="space-y-4">
+            <TabsContent value="compliance" className="space-y-2">
               {complianceMetrics && complianceMetrics.length > 0 ? (
                 <>
                   <Card>
@@ -568,7 +568,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-4">
+                      <div className="space-y-2">
                         {complianceMetrics.map((metric, index) => (
                           <div key={index} className="space-y-2">
                             <div className="flex items-center justify-between">
@@ -610,14 +610,14 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                           <span className="font-semibold">{policy.compliance_score || 0}%</span>
                         </div>
                         <Progress value={policy.compliance_score || 0} className="h-3" />
-                        <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                        <div className="grid grid-cols-2 gap-2 pt-2 border-t">
                           <div>
                             <p className="text-xs text-muted-foreground">Total Executions</p>
-                            <p className="text-lg font-bold">{policy.execution_count || 0}</p>
+                            <p className="text-sm font-bold">{policy.execution_count || 0}</p>
                           </div>
                           <div>
                             <p className="text-xs text-muted-foreground">Success Rate</p>
-                            <p className="text-lg font-bold">{policy.success_rate?.toFixed(1) || 0}%</p>
+                            <p className="text-sm font-bold">{policy.success_rate?.toFixed(1) || 0}%</p>
                           </div>
                         </div>
                       </div>
@@ -627,7 +627,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <BarChart3 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <BarChart3 className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No compliance data available</p>
                   </CardContent>
                 </Card>
@@ -635,7 +635,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
             </TabsContent>
 
             {/* Affected Entities Tab */}
-            <TabsContent value="affected" className="space-y-4">
+            <TabsContent value="affected" className="space-y-2">
               {affectedEntities && affectedEntities.length > 0 ? (
                 <div className="space-y-3">
                   {affectedEntities.map((entity) => (
@@ -644,7 +644,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                       className="cursor-pointer hover:shadow-md transition-shadow"
                       onClick={() => handleViewEntity(entity.type, entity.id, entity.name)}
                     >
-                      <CardContent className="p-4">
+                      <CardContent className="p-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             {entity.type === 'vehicle' && <Car className="h-5 w-5 text-muted-foreground" />}
@@ -672,7 +672,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <Users className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No affected entities</p>
                   </CardContent>
                 </Card>

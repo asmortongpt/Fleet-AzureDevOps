@@ -317,10 +317,10 @@ export function IncidentManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Incident Management</h2>
+          <h2 className="text-sm font-semibold">Incident Management</h2>
           <p className="text-muted-foreground">Track and investigate fleet incidents and safety events</p>
         </div>
         {hasPermission('incident:report') && (
@@ -338,8 +338,8 @@ export function IncidentManagement() {
                   Document an incident for investigation and resolution
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2 py-2">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="incident-title">Incident Title *</Label>
                     <Input
@@ -372,7 +372,7 @@ export function IncidentManagement() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="severity">Severity *</Label>
                     <Select
@@ -401,7 +401,7 @@ export function IncidentManagement() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="incident-time">Time</Label>
                     <Input
@@ -433,7 +433,7 @@ export function IncidentManagement() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="vehicle">Vehicle Involved</Label>
                     <Select
@@ -468,7 +468,7 @@ export function IncidentManagement() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="weather">Weather Conditions</Label>
                     <Select
@@ -508,7 +508,7 @@ export function IncidentManagement() {
                   </div>
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex gap-2">
                   <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -543,13 +543,13 @@ export function IncidentManagement() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Incidents</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalIncidents}</div>
+            <div className="text-sm font-bold">{totalIncidents}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <ClipboardText className="w-3 h-3" />
               All time
@@ -562,7 +562,7 @@ export function IncidentManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Open/Investigating</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-800">{openIncidents}</div>
+            <div className="text-sm font-bold text-blue-800">{openIncidents}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Warning className="w-3 h-3" />
               Active cases
@@ -575,7 +575,7 @@ export function IncidentManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Critical</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{criticalIncidents}</div>
+            <div className="text-sm font-bold text-red-600">{criticalIncidents}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Warning className="w-3 h-3" weight="fill" />
               High priority
@@ -588,7 +588,7 @@ export function IncidentManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Resolved</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{resolvedIncidents}</div>
+            <div className="text-sm font-bold text-green-600">{resolvedIncidents}</div>
             <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
               <CheckCircle className="w-3 h-3" />
               {totalIncidents > 0 ? Math.round((resolvedIncidents / totalIncidents) * 100) : 0}% closed
@@ -598,7 +598,7 @@ export function IncidentManagement() {
       </div>
 
       {/* Search and Filters */}
-      <div className="flex gap-4">
+      <div className="flex gap-2">
         <div className="relative flex-1">
           <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -657,7 +657,7 @@ export function IncidentManagement() {
             <TableBody>
               {filteredIncidents.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={8} className="text-center text-muted-foreground py-3">
                     No incidents found. Report your first incident to track and manage safety events.
                   </TableCell>
                 </TableRow>
@@ -753,8 +753,8 @@ export function IncidentManagement() {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="details" className="space-y-4">
-                <div className="grid grid-cols-2 gap-6">
+              <TabsContent value="details" className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <h3 className="text-sm font-semibold mb-3">Incident Information</h3>
                     <div className="space-y-2 text-sm">
@@ -826,7 +826,7 @@ export function IncidentManagement() {
                 </div>
 
                 {selectedIncident.status !== 'closed' && hasPermission('incident:close') && (
-                  <div className="pt-4">
+                  <div className="pt-2">
                     <Button onClick={() => {
                       setIsCloseDialogOpen(true)
                       setIsDetailsDialogOpen(false)
@@ -837,10 +837,10 @@ export function IncidentManagement() {
                 )}
               </TabsContent>
 
-              <TabsContent value="actions" className="space-y-4">
-                <div className="space-y-4">
+              <TabsContent value="actions" className="space-y-2">
+                <div className="space-y-2">
                   {correctiveActions.length === 0 ? (
-                    <div className="text-center text-muted-foreground py-8">
+                    <div className="text-center text-muted-foreground py-3">
                       No corrective actions yet. Add actions to track resolution.
                     </div>
                   ) : (
@@ -881,7 +881,7 @@ export function IncidentManagement() {
                   )}
                 </div>
 
-                <div className="pt-4 space-y-2">
+                <div className="pt-2 space-y-2">
                   <Label>Add Corrective Action</Label>
                   <Textarea
                     value={newAction.action_description}
@@ -915,14 +915,14 @@ export function IncidentManagement() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="timeline" className="space-y-4">
-                <div className="space-y-4">
+              <TabsContent value="timeline" className="space-y-2">
+                <div className="space-y-2">
                   {timeline.length === 0 ? (
-                    <div className="text-center text-muted-foreground py-8">
+                    <div className="text-center text-muted-foreground py-3">
                       No timeline events yet.
                     </div>
                   ) : (
-                    <div className="relative border-l-2 border-muted-foreground/20 pl-6 space-y-4">
+                    <div className="relative border-l-2 border-muted-foreground/20 pl-3 space-y-2">
                       {timeline.map((event, index) => (
                         <div key={event.id} className="relative">
                           <div className="absolute -left-[27px] top-0 w-4 h-4 rounded-full bg-blue-500 border-2 border-background" />
@@ -965,7 +965,7 @@ export function IncidentManagement() {
               Provide resolution details to close this incident
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-2 py-2">
             <div className="space-y-2">
               <Label htmlFor="resolution">Resolution Notes *</Label>
               <Textarea

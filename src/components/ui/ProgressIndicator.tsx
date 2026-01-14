@@ -277,7 +277,7 @@ export function StepProgress({
             className={cn(
               "flex items-center",
               isHorizontal ? "flex-row" : "flex-col",
-              !isLast && (isHorizontal ? "flex-1" : "mb-4")
+              !isLast && (isHorizontal ? "flex-1" : "mb-2")
             )}
           >
             {/* Step circle */}
@@ -289,7 +289,7 @@ export function StepProgress({
               onClick={() => onStepClick?.(step.id)}
               disabled={!onStepClick}
               className={cn(
-                "relative flex items-center justify-center w-10 h-10 rounded-full border-2 font-semibold text-sm transition-colors",
+                "relative flex items-center justify-center w-10 h-8 rounded-full border-2 font-semibold text-sm transition-colors",
                 config.bg,
                 config.text,
                 config.border,
@@ -302,7 +302,7 @@ export function StepProgress({
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
                   transition={{ duration: 0.3 }}
-                  className="w-5 h-5"
+                  className="w-3 h-3"
                   viewBox="0 0 20 20"
                   fill="none"
                 >
@@ -348,7 +348,7 @@ export function StepProgress({
               <div
                 className={cn(
                   "bg-gray-300 relative overflow-hidden",
-                  isHorizontal ? "flex-1 h-0.5 mx-4" : "w-0.5 h-8 mx-auto"
+                  isHorizontal ? "flex-1 h-0.5 mx-2" : "w-0.5 h-8 mx-auto"
                 )}
               >
                 {step.status === "completed" && (
@@ -409,13 +409,13 @@ export function UploadProgress({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className={cn("border rounded-lg p-4 bg-white shadow-sm", className)}
+      className={cn("border rounded-lg p-2 bg-white shadow-sm", className)}
     >
       <div className="flex items-start gap-3">
         {/* File icon */}
         <div
           className={cn(
-            "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0",
+            "w-10 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
             status === "success" && "bg-green-100 text-green-600",
             status === "error" && "bg-red-100 text-red-600",
             status === "uploading" && "bg-blue-100 text-blue-800"

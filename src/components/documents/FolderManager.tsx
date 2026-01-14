@@ -74,16 +74,16 @@ export function FolderManager({
   const getChildFolders = (parentId: string) => folders.filter(f => f.parentId === parentId);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Folders</h3>
+        <h3 className="text-sm font-semibold">Folders</h3>
         <Button onClick={() => setShowCreateDialog(true)}>
           <FolderPlus className="mr-2 h-4 w-4" />
           New folder
         </Button>
       </div>
 
-      <ScrollArea className="h-[600px] border rounded-lg p-4">
+      <ScrollArea className="h-[600px] border rounded-lg p-2">
         <div className="space-y-1">
           {rootFolders.map((folder) => (
             <FolderTreeNode
@@ -116,7 +116,7 @@ export function FolderManager({
             <DialogTitle>{editingFolder ? 'Edit Folder' : 'Create Folder'}</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div>
               <Label htmlFor="folder-name">Folder name</Label>
               <Input

@@ -7,8 +7,8 @@ import { Loader2 } from 'lucide-react'
 export function ModuleLoadingSpinner() {
   return (
     <div className="flex items-center justify-center h-full min-h-[400px] w-full">
-      <div className="flex flex-col items-center gap-4">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      <div className="flex flex-col items-center gap-2">
+        <Loader2 className="h-9 w-12 animate-spin text-primary" />
         <p className="text-sm text-muted-foreground">Loading module...</p>
       </div>
     </div>

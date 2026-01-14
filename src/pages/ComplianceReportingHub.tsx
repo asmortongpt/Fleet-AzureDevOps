@@ -11,7 +11,7 @@ export function ComplianceReportingHub() {
   return (
     <HubPage
       title="Compliance Reporting"
-      icon={<Shield className="w-6 h-6" />}
+      icon={<Shield className="w-4 h-4" />}
       description="FedRAMP and NIST 800-53 compliance management (full implementation in production)"
       tabs={[]}
       defaultTab="dashboard"

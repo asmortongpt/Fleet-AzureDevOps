@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton'
  */
 export function FleetDashboardSkeleton() {
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-2 w-full">
       {/* Header Section - Fixed Height */}
       <div className="h-24 flex items-center justify-between">
         <div className="space-y-2">
@@ -22,18 +22,18 @@ export function FleetDashboardSkeleton() {
           <Skeleton className="h-4 w-96" />
         </div>
         <div className="flex gap-3">
-          <Skeleton className="h-10 w-32" />
-          <Skeleton className="h-10 w-32" />
+          <Skeleton className="h-8 w-32" />
+          <Skeleton className="h-8 w-32" />
         </div>
       </div>
 
       {/* KPI Metrics Row - Fixed Height: 120px */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-[120px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 h-[120px]">
         {[...Array(4)].map((_, i) => (
           <Card key={i} className="h-[120px]">
-            <CardContent className="pt-6 h-full flex flex-col justify-between">
+            <CardContent className="pt-3 h-full flex flex-col justify-between">
               <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-10 w-32" />
+              <Skeleton className="h-8 w-32" />
               <Skeleton className="h-3 w-20" />
             </CardContent>
           </Card>
@@ -41,7 +41,7 @@ export function FleetDashboardSkeleton() {
       </div>
 
       {/* Charts Row - Fixed Height: 400px */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[400px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 h-[400px]">
         <Card className="h-[400px]">
           <CardHeader className="h-16">
             <Skeleton className="h-6 w-48" />
@@ -65,13 +65,13 @@ export function FleetDashboardSkeleton() {
         <CardHeader className="h-16">
           <div className="flex justify-between items-center">
             <Skeleton className="h-6 w-32" />
-            <Skeleton className="h-10 w-48" />
+            <Skeleton className="h-8 w-48" />
           </div>
         </CardHeader>
         <CardContent className="h-[calc(600px-4rem)]">
           <div className="space-y-3">
             {/* Table Header - Fixed Height: 48px */}
-            <div className="flex gap-4 h-12 items-center border-b">
+            <div className="flex gap-2 h-9 items-center border-b">
               {[...Array(6)].map((_, i) => (
                 <Skeleton key={i} className="h-6 flex-1" />
               ))}
@@ -79,7 +79,7 @@ export function FleetDashboardSkeleton() {
 
             {/* Table Rows - Fixed Height: 64px each */}
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="flex gap-4 h-16 items-center border-b">
+              <div key={i} className="flex gap-2 h-16 items-center border-b">
                 {[...Array(6)].map((_, j) => (
                   <Skeleton key={j} className="h-8 flex-1" />
                 ))}
@@ -98,7 +98,7 @@ export function FleetDashboardSkeleton() {
  */
 export function FleetMetricsBarSkeleton() {
   return (
-    <div className="h-20 flex gap-4 items-center bg-card rounded-lg p-4 border">
+    <div className="h-20 flex gap-2 items-center bg-card rounded-lg p-2 border">
       {[...Array(5)].map((_, i) => (
         <div key={i} className="flex-1 space-y-2">
           <Skeleton className="h-3 w-16" />
@@ -117,7 +117,7 @@ export function FleetTableSkeleton() {
   return (
     <div className="h-[600px] w-full overflow-hidden">
       {/* Table Header - Fixed Height: 48px */}
-      <div className="h-12 flex gap-4 items-center bg-muted/50 px-4 border-b">
+      <div className="h-9 flex gap-2 items-center bg-muted/50 px-2 border-b">
         <Skeleton className="h-6 w-32" /> {/* VIN */}
         <Skeleton className="h-6 w-40" /> {/* Make/Model */}
         <Skeleton className="h-6 w-24" /> {/* Year */}
@@ -129,7 +129,7 @@ export function FleetTableSkeleton() {
       {/* Table Rows - 10 rows, each 56px */}
       <div className="space-y-1">
         {[...Array(10)].map((_, i) => (
-          <div key={i} className="h-14 flex gap-4 items-center px-4 border-b">
+          <div key={i} className="h-14 flex gap-2 items-center px-2 border-b">
             <Skeleton className="h-8 w-32" />
             <Skeleton className="h-8 w-40" />
             <Skeleton className="h-8 w-24" />
@@ -157,13 +157,13 @@ export function FleetMapSkeleton() {
 
       {/* Map Controls - Top Right */}
       <div className="absolute top-4 right-4 space-y-2">
-        <Skeleton className="h-10 w-10 rounded-lg" />
-        <Skeleton className="h-10 w-10 rounded-lg" />
-        <Skeleton className="h-10 w-10 rounded-lg" />
+        <Skeleton className="h-8 w-10 rounded-lg" />
+        <Skeleton className="h-8 w-10 rounded-lg" />
+        <Skeleton className="h-8 w-10 rounded-lg" />
       </div>
 
       {/* Legend - Bottom Left */}
-      <div className="absolute bottom-4 left-4 bg-card/95 backdrop-blur-sm rounded-lg p-4 space-y-2">
+      <div className="absolute bottom-4 left-4 bg-card/95 backdrop-blur-sm rounded-lg p-2 space-y-2">
         <Skeleton className="h-4 w-32 mb-3" />
         {[...Array(4)].map((_, i) => (
           <div key={i} className="flex items-center gap-2">

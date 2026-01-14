@@ -83,7 +83,7 @@ export function CostAnalysisCenter() {
   // Check permission to view financial data
   if (!canViewFinancial && !isAdmin) {
     return (
-      <div className="p-6">
+      <div className="p-3">
         <Card>
           <CardHeader>
             <CardTitle>Access Restricted</CardTitle>
@@ -176,7 +176,7 @@ export function CostAnalysisCenter() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
           <p className="text-slate-700">Loading cost analysis...</p>
         </div>
       </div>
@@ -184,10 +184,10 @@ export function CostAnalysisCenter() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
+          <h1 className="text-base font-bold flex items-center gap-2">
             <CurrencyDollar className="h-8 w-8 text-green-600" weight="fill" />
             Cost Analysis Command Center
           </h1>
@@ -205,7 +205,7 @@ export function CostAnalysisCenter() {
 
       {/* Summary Cards */}
       {costSummary && (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 gap-2">
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -214,7 +214,7 @@ export function CostAnalysisCenter() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-sm font-bold">
                 ${costSummary.totalCost.toLocaleString()}
               </div>
               <div className="text-xs text-slate-700 mt-1">Current period</div>
@@ -229,7 +229,7 @@ export function CostAnalysisCenter() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-sm font-bold">
                 {costSummary.categoryBreakdown.length}
               </div>
               <div className="text-xs text-slate-700 mt-1">Active cost categories</div>
@@ -244,7 +244,7 @@ export function CostAnalysisCenter() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">
+              <div className="text-sm font-bold text-red-600">
                 {costSummary.anomalies.length}
               </div>
               <div className="text-xs text-slate-700 mt-1">Unusual spending detected</div>
@@ -259,7 +259,7 @@ export function CostAnalysisCenter() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-800">
+              <div className="text-sm font-bold text-blue-800">
                 {budgetStatus.filter(b => !b.isOverBudget).length}/{budgetStatus.length}
               </div>
               <div className="text-xs text-slate-700 mt-1">On track</div>
@@ -277,7 +277,7 @@ export function CostAnalysisCenter() {
           <TabsTrigger value="anomalies">Anomalies</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="overview" className="space-y-2">
           {costSummary && (
             <>
               {/* Category Breakdown Visualization */}
@@ -287,7 +287,7 @@ export function CostAnalysisCenter() {
                   <CardDescription>Breakdown by category</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     {costSummary.categoryBreakdown.map((category) => (
                       <div key={category.category} className="space-y-2">
                         <div className="flex items-center justify-between">
@@ -350,7 +350,7 @@ export function CostAnalysisCenter() {
           )}
         </TabsContent>
 
-        <TabsContent value="breakdown" className="space-y-6">
+        <TabsContent value="breakdown" className="space-y-2">
           {costSummary && (
             <Card>
               <CardHeader>
@@ -402,7 +402,7 @@ export function CostAnalysisCenter() {
           )}
         </TabsContent>
 
-        <TabsContent value="budget" className="space-y-6">
+        <TabsContent value="budget" className="space-y-2">
           <Card>
             <CardHeader>
               <CardTitle>Budget Tracking</CardTitle>
@@ -454,7 +454,7 @@ export function CostAnalysisCenter() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="forecast" className="space-y-6">
+        <TabsContent value="forecast" className="space-y-2">
           <Card>
             <CardHeader>
               <CardTitle>Cost Forecast</CardTitle>
@@ -487,7 +487,7 @@ export function CostAnalysisCenter() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="anomalies" className="space-y-6">
+        <TabsContent value="anomalies" className="space-y-2">
           {costSummary?.anomalies && (
             <Card>
               <CardHeader>
@@ -521,7 +521,7 @@ export function CostAnalysisCenter() {
                     </TableBody>
                   </Table>
                 ) : (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="text-center py-3 text-gray-500">
                     No anomalies detected for this period.
                   </div>
                 )}

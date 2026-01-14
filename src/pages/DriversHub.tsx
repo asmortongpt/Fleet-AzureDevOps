@@ -66,7 +66,7 @@ interface DriverMetrics {
 const StatCardSkeleton = memo(function StatCardSkeleton() {
     return (
         <div
-            className="animate-pulse bg-card/60 rounded-xl border border-border/30 p-4"
+            className="animate-pulse bg-card/60 rounded-md border border-border/30 p-2"
             role="status"
             aria-label="Loading statistic"
         >
@@ -80,10 +80,10 @@ const StatCardSkeleton = memo(function StatCardSkeleton() {
 const TableRowSkeleton = memo(function TableRowSkeleton() {
     return (
         <tr className="animate-pulse" role="status" aria-label="Loading row">
-            <td className="p-4"><div className="h-4 bg-muted/40 rounded w-32" /></td>
-            <td className="p-4"><div className="h-4 bg-muted/40 rounded w-20" /></td>
-            <td className="p-4"><div className="h-4 bg-muted/40 rounded w-16" /></td>
-            <td className="p-4"><div className="h-4 bg-muted/40 rounded w-24" /></td>
+            <td className="p-2"><div className="h-4 bg-muted/40 rounded w-32" /></td>
+            <td className="p-2"><div className="h-4 bg-muted/40 rounded w-20" /></td>
+            <td className="p-2"><div className="h-4 bg-muted/40 rounded w-16" /></td>
+            <td className="p-2"><div className="h-4 bg-muted/40 rounded w-24" /></td>
         </tr>
     )
 })
@@ -114,9 +114,9 @@ const InteractiveCard = memo(function InteractiveCard({
     return (
         <div
             className={cn(
-                "bg-card/80 backdrop-blur-xl rounded-xl border border-border/50 p-4 sm:p-6",
+                "bg-card/80 backdrop-blur-xl rounded-md border border-border/50 p-2 sm:p-3",
                 "cursor-pointer transition-all duration-300",
-                "hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5",
+                "hover:border-primary/40 hover:shadow-sm hover:-translate-y-0.5",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 className
             )}
@@ -215,7 +215,7 @@ const DriversListContent = memo(function DriversListContent() {
 
     return (
         <section
-            className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 min-h-full overflow-auto"
+            className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-background to-background/95 min-h-full overflow-auto"
             aria-labelledby={headingId}
             role="region"
         >
@@ -226,7 +226,7 @@ const DriversListContent = memo(function DriversListContent() {
                 <div>
                     <h2
                         id={headingId}
-                        className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground"
+                        className="text-sm sm:text-base lg:text-sm font-bold text-foreground"
                     >
                         Driver Roster
                     </h2>
@@ -249,7 +249,7 @@ const DriversListContent = memo(function DriversListContent() {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className={cn(
-                                "pl-9 pr-4 py-2 w-48 sm:w-64 rounded-lg",
+                                "pl-9 pr-2 py-2 w-48 sm:w-64 rounded-lg",
                                 "bg-background/50 border border-border/50",
                                 "text-sm placeholder:text-muted-foreground",
                                 "focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent",
@@ -268,7 +268,7 @@ const DriversListContent = memo(function DriversListContent() {
 
             {/* Metrics Grid */}
             <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-2"
                 role="list"
                 aria-label="Driver statistics"
             >
@@ -286,7 +286,7 @@ const DriversListContent = memo(function DriversListContent() {
                             value={metrics?.totalDrivers.toString() || '0'}
                             subtitle="3 new this month"
                             variant="primary"
-                            icon={<Users className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />}
+                            icon={<Users className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
                             onClick={() => handleStatClick('total-drivers', 'Total Drivers')}
                             aria-label={`Total drivers: ${metrics?.totalDrivers}. Click for details.`}
                         />
@@ -319,7 +319,7 @@ const DriversListContent = memo(function DriversListContent() {
 
             {/* Details Grid */}
             <div
-                className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4"
+                className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-2"
                 role="list"
                 aria-label="Driver metrics breakdown"
             >
@@ -328,7 +328,7 @@ const DriversListContent = memo(function DriversListContent() {
                     ariaLabel={`Certification rate: ${metrics?.certificationRate || 0}%. 46 of 48 drivers certified. Click for details.`}
                     className="hover:border-success/40"
                 >
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
                         Certification Rate
                     </h3>
                     <div className="flex items-center justify-center">
@@ -349,7 +349,7 @@ const DriversListContent = memo(function DriversListContent() {
                     onClick={() => handleStatClick('driver-performance-hub', 'Performance Metrics')}
                     ariaLabel="Driver performance metrics. Average rating 4.7 out of 5. On-time 94.2%. Safety score 92. Click for details."
                 >
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
                         Performance
                     </h3>
                     <div className="space-y-0.5">
@@ -376,7 +376,7 @@ const DriversListContent = memo(function DriversListContent() {
                     ariaLabel="Driver availability today: 88%. Click for details."
                     className="hover:border-primary/40"
                 >
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
                         Availability
                     </h3>
                     <div className="flex items-center justify-center">
@@ -391,13 +391,13 @@ const DriversListContent = memo(function DriversListContent() {
 
             {/* Quick Actions Footer */}
             <div
-                className="flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-border/30"
+                className="flex flex-wrap items-center justify-end gap-3 pt-2 border-t border-border/30"
                 role="toolbar"
                 aria-label="Quick actions"
             >
                 <button
                     className={cn(
-                        "inline-flex items-center gap-2 px-4 py-2 rounded-lg",
+                        "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
                         "bg-primary text-primary-foreground font-medium text-sm",
                         "hover:bg-primary/90 transition-colors duration-200",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
@@ -410,7 +410,7 @@ const DriversListContent = memo(function DriversListContent() {
                 </button>
                 <button
                     className={cn(
-                        "inline-flex items-center gap-2 px-4 py-2 rounded-lg",
+                        "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
                         "bg-background/50 border border-border/50 text-foreground font-medium text-sm",
                         "hover:bg-background hover:border-border transition-colors duration-200",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
@@ -450,7 +450,7 @@ const PerformanceContent = memo(function PerformanceContent() {
 
     return (
         <section
-            className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 overflow-auto"
+            className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-background to-background/95 overflow-auto"
             aria-labelledby={headingId}
             role="region"
         >
@@ -458,7 +458,7 @@ const PerformanceContent = memo(function PerformanceContent() {
 
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 id={headingId} className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
+                    <h2 id={headingId} className="text-sm sm:text-base lg:text-sm font-bold text-foreground">
                         Driver Performance
                     </h2>
                     <p className="text-sm text-muted-foreground mt-0.5">
@@ -472,7 +472,7 @@ const PerformanceContent = memo(function PerformanceContent() {
             </div>
 
             <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-2"
                 role="list"
                 aria-label="Performance statistics"
             >
@@ -489,7 +489,7 @@ const PerformanceContent = memo(function PerformanceContent() {
                             title="Top Performers"
                             value="12"
                             variant="success"
-                            icon={<Star className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />}
+                            icon={<Star className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
                             onClick={() => handleStatClick('top-performers', 'Top Performers')}
                             aria-label="Top performers: 12 drivers. Click to view details."
                         />
@@ -520,7 +520,7 @@ const PerformanceContent = memo(function PerformanceContent() {
 
             {/* Performance Legend */}
             <div
-                className="flex flex-wrap items-center gap-4 pt-4 text-sm"
+                className="flex flex-wrap items-center gap-2 pt-2 text-sm"
                 role="list"
                 aria-label="Performance tier legend"
             >
@@ -560,18 +560,18 @@ const ScorecardContent = memo(function ScorecardContent() {
 
     return (
         <section
-            className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 overflow-auto"
+            className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-background to-background/95 overflow-auto"
             aria-labelledby={headingId}
             role="region"
         >
             <AnnouncementRegion />
 
-            <h2 id={headingId} className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
+            <h2 id={headingId} className="text-sm sm:text-base lg:text-sm font-bold text-foreground">
                 Driver Scorecard
             </h2>
 
             <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-2"
                 role="list"
                 aria-label="Scorecard metrics"
             >
@@ -579,7 +579,7 @@ const ScorecardContent = memo(function ScorecardContent() {
                     title="Fleet Avg Score"
                     value="87"
                     variant="primary"
-                    icon={<Trophy className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />}
+                    icon={<Trophy className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
                     onClick={() => handleStatClick('fleet-avg-score', 'Fleet Average Score')}
                     aria-label="Fleet average score: 87. Click for details."
                 />
@@ -602,7 +602,7 @@ const ScorecardContent = memo(function ScorecardContent() {
                     title="Awards Given"
                     value="15"
                     variant="default"
-                    icon={<Medal className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />}
+                    icon={<Medal className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
                     onClick={() => handleStatClick('awards-given', 'Awards Given')}
                     aria-label="Awards given: 15. Click for details."
                 />
@@ -626,18 +626,18 @@ const PersonalUseContent = memo(function PersonalUseContent() {
 
     return (
         <section
-            className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 overflow-auto"
+            className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-background to-background/95 overflow-auto"
             aria-labelledby={headingId}
             role="region"
         >
             <AnnouncementRegion />
 
-            <h2 id={headingId} className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
+            <h2 id={headingId} className="text-sm sm:text-base lg:text-sm font-bold text-foreground">
                 Personal Use Tracking
             </h2>
 
             <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-2"
                 role="list"
                 aria-label="Personal use statistics"
             >
@@ -645,7 +645,7 @@ const PersonalUseContent = memo(function PersonalUseContent() {
                     title="Tracked Drivers"
                     value="34"
                     variant="primary"
-                    icon={<Car className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />}
+                    icon={<Car className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
                     onClick={() => handleStatClick('tracked-drivers', 'Tracked Drivers')}
                     aria-label="Tracked drivers: 34. Click for details."
                 />
@@ -683,18 +683,18 @@ const PolicyContent = memo(function PolicyContent() {
 
     return (
         <section
-            className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 overflow-auto"
+            className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-background to-background/95 overflow-auto"
             aria-labelledby={headingId}
             role="region"
         >
             <AnnouncementRegion />
 
-            <h2 id={headingId} className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
+            <h2 id={headingId} className="text-sm sm:text-base lg:text-sm font-bold text-foreground">
                 Personal Use Policy
             </h2>
 
             <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-2"
                 role="list"
                 aria-label="Policy statistics"
             >
@@ -702,7 +702,7 @@ const PolicyContent = memo(function PolicyContent() {
                     title="Active Policies"
                     value="3"
                     variant="primary"
-                    icon={<FileText className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />}
+                    icon={<FileText className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
                     onClick={() => handleStatClick('active-policies', 'Active Policies')}
                     aria-label="Active policies: 3. Click for details."
                 />
@@ -770,7 +770,7 @@ export function DriversHub() {
     return (
         <HubPage
             title="Drivers Hub"
-            icon={<DriversIcon className="w-6 h-6" aria-hidden="true" />}
+            icon={<DriversIcon className="w-4 h-4" aria-hidden="true" />}
             description="Driver management, performance, and compliance"
             tabs={tabs}
             defaultTab="list"

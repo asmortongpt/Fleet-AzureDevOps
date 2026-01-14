@@ -90,26 +90,26 @@ const sizeStyles = {
     sm: {
         padding: 'p-3',
         title: 'text-xs',
-        value: 'text-lg sm:text-xl',
+        value: 'text-sm sm:text-base',
         subtitle: 'text-xs',
         icon: 'p-1.5',
         iconSize: 'w-4 h-4'
     },
     default: {
-        padding: 'p-4',
+        padding: 'p-2',
         title: 'text-xs',
-        value: 'text-xl sm:text-2xl',
+        value: 'text-base sm:text-sm',
         subtitle: 'text-xs',
         icon: 'p-2.5',
-        iconSize: 'w-5 h-5'
+        iconSize: 'w-3 h-3'
     },
     lg: {
-        padding: 'p-5 sm:p-6',
+        padding: 'p-5 sm:p-3',
         title: 'text-xs sm:text-sm',
-        value: 'text-2xl sm:text-3xl',
+        value: 'text-sm sm:text-base',
         subtitle: 'text-xs sm:text-sm',
         icon: 'p-3',
-        iconSize: 'w-6 h-6'
+        iconSize: 'w-4 h-4'
     }
 }
 
@@ -152,7 +152,7 @@ export function StatCard({
             aria-label={isClickable ? `${title}: ${value}. ${drilldownLabel}` : undefined}
             className={cn(
                 // Base
-                'group relative overflow-hidden rounded-xl border',
+                'group relative overflow-hidden rounded-md border',
                 sizes.padding,
                 // Shadow and transitions
                 'shadow-sm transition-all duration-300 ease-out',
@@ -212,7 +212,7 @@ export function StatCard({
 
                 {icon && (
                     <div className={cn(
-                        'rounded-xl shrink-0 transition-transform duration-300',
+                        'rounded-md shrink-0 transition-transform duration-300',
                         sizes.icon,
                         styles.iconBg,
                         styles.iconColor,
@@ -308,7 +308,7 @@ export function ProgressRing({
                 />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-lg sm:text-xl font-bold text-foreground tabular-nums">{progress}%</span>
+                <span className="text-sm sm:text-base font-bold text-foreground tabular-nums">{progress}%</span>
                 {label && <span className="text-xs text-muted-foreground font-medium">{label}</span>}
                 {sublabel && <span className="text-xs text-muted-foreground/70">{sublabel}</span>}
             </div>

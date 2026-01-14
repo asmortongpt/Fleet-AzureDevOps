@@ -78,7 +78,7 @@ export function DrilldownSystem() {
         return renderCostAnalysisDrilldown(data);
 
       default:
-        return <div className="p-8 text-center text-slate-400">
+        return <div className="p-3 text-center text-slate-400">
           <p>Drilldown type "{type}" not yet implemented</p>
           <p className="text-sm mt-2">Check DrilldownSystem.tsx to add this view</p>
         </div>;
@@ -121,35 +121,35 @@ export function DrilldownSystem() {
                 label: `Vehicle ${vehicle.unit_number}`,
                 data: { vehicle }
               },
-              <div className="p-8 bg-slate-900/95 rounded-lg">
-                <h3 className="text-2xl font-bold text-white mb-6">Vehicle Details: {vehicle.unit_number}</h3>
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-4">
+              <div className="p-3 bg-slate-900/95 rounded-lg">
+                <h3 className="text-sm font-bold text-white mb-3">Vehicle Details: {vehicle.unit_number}</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-2">
                     <div>
                       <label className="text-sm text-slate-400">Make / Model</label>
-                      <p className="text-lg text-white">{vehicle.make} {vehicle.model} ({vehicle.year})</p>
+                      <p className="text-sm text-white">{vehicle.make} {vehicle.model} ({vehicle.year})</p>
                     </div>
                     <div>
                       <label className="text-sm text-slate-400">VIN</label>
-                      <p className="text-lg text-white font-mono">{vehicle.vin}</p>
+                      <p className="text-sm text-white font-mono">{vehicle.vin}</p>
                     </div>
                     <div>
                       <label className="text-sm text-slate-400">Status</label>
-                      <p className="text-lg text-white capitalize">{vehicle.status}</p>
+                      <p className="text-sm text-white capitalize">{vehicle.status}</p>
                     </div>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     <div>
                       <label className="text-sm text-slate-400">Mileage</label>
-                      <p className="text-lg text-white">{vehicle.mileage?.toLocaleString()} mi</p>
+                      <p className="text-sm text-white">{vehicle.mileage?.toLocaleString()} mi</p>
                     </div>
                     <div>
                       <label className="text-sm text-slate-400">Driver</label>
-                      <p className="text-lg text-white">{vehicle.assigned_driver || 'Unassigned'}</p>
+                      <p className="text-sm text-white">{vehicle.assigned_driver || 'Unassigned'}</p>
                     </div>
                     <div>
                       <label className="text-sm text-slate-400">Facility</label>
-                      <p className="text-lg text-white">{vehicle.home_facility}</p>
+                      <p className="text-sm text-white">{vehicle.home_facility}</p>
                     </div>
                   </div>
                 </div>
@@ -161,7 +161,7 @@ export function DrilldownSystem() {
       );
     } catch (err) {
       console.error('Failed to load vehicles:', err);
-      return <div className="p-8 text-center text-red-400">Failed to load vehicle data</div>;
+      return <div className="p-3 text-center text-red-400">Failed to load vehicle data</div>;
     }
   };
 
@@ -197,35 +197,35 @@ export function DrilldownSystem() {
                 label: `Maintenance ${record.id}`,
                 data: { record }
               },
-              <div className="p-8 bg-slate-900/95 rounded-lg">
-                <h3 className="text-2xl font-bold text-white mb-6">Maintenance Record: {record.id}</h3>
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-4">
+              <div className="p-3 bg-slate-900/95 rounded-lg">
+                <h3 className="text-sm font-bold text-white mb-3">Maintenance Record: {record.id}</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-2">
                     <div>
                       <label className="text-sm text-slate-400">Vehicle</label>
-                      <p className="text-lg text-white">{record.unit_number}</p>
+                      <p className="text-sm text-white">{record.unit_number}</p>
                     </div>
                     <div>
                       <label className="text-sm text-slate-400">Service Type</label>
-                      <p className="text-lg text-white">{record.service_type}</p>
+                      <p className="text-sm text-white">{record.service_type}</p>
                     </div>
                     <div>
                       <label className="text-sm text-slate-400">Status</label>
-                      <p className="text-lg text-white capitalize">{record.status}</p>
+                      <p className="text-sm text-white capitalize">{record.status}</p>
                     </div>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     <div>
                       <label className="text-sm text-slate-400">Cost</label>
-                      <p className="text-lg text-emerald-400 font-semibold">${record.cost.toLocaleString()}</p>
+                      <p className="text-sm text-emerald-400 font-semibold">${record.cost.toLocaleString()}</p>
                     </div>
                     <div>
                       <label className="text-sm text-slate-400">Technician</label>
-                      <p className="text-lg text-white">{record.technician}</p>
+                      <p className="text-sm text-white">{record.technician}</p>
                     </div>
                     <div>
                       <label className="text-sm text-slate-400">Facility</label>
-                      <p className="text-lg text-white">{record.facility}</p>
+                      <p className="text-sm text-white">{record.facility}</p>
                     </div>
                   </div>
                 </div>
@@ -236,7 +236,7 @@ export function DrilldownSystem() {
       );
     } catch (err) {
       console.error('Failed to load maintenance records:', err);
-      return <div className="p-8 text-center text-red-400">Failed to load maintenance data</div>;
+      return <div className="p-3 text-center text-red-400">Failed to load maintenance data</div>;
     }
   };
 
@@ -258,35 +258,35 @@ export function DrilldownSystem() {
                 label: `${driver.first_name} ${driver.last_name}`,
                 data: { driver }
               },
-              <div className="p-8 bg-slate-900/95 rounded-lg">
-                <h3 className="text-2xl font-bold text-white mb-6">Driver Profile: {driver.first_name} {driver.last_name}</h3>
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-4">
+              <div className="p-3 bg-slate-900/95 rounded-lg">
+                <h3 className="text-sm font-bold text-white mb-3">Driver Profile: {driver.first_name} {driver.last_name}</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-2">
                     <div>
                       <label className="text-sm text-slate-400">Email</label>
-                      <p className="text-lg text-white">{driver.email}</p>
+                      <p className="text-sm text-white">{driver.email}</p>
                     </div>
                     <div>
                       <label className="text-sm text-slate-400">Phone</label>
-                      <p className="text-lg text-white">{driver.phone}</p>
+                      <p className="text-sm text-white">{driver.phone}</p>
                     </div>
                     <div>
                       <label className="text-sm text-slate-400">License</label>
-                      <p className="text-lg text-white font-mono">{driver.license_number} ({driver.license_state})</p>
+                      <p className="text-sm text-white font-mono">{driver.license_number} ({driver.license_state})</p>
                     </div>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     <div>
                       <label className="text-sm text-slate-400">Status</label>
-                      <p className="text-lg text-white capitalize">{driver.status.replace('-', ' ')}</p>
+                      <p className="text-sm text-white capitalize">{driver.status.replace('-', ' ')}</p>
                     </div>
                     <div>
                       <label className="text-sm text-slate-400">Assigned Vehicle</label>
-                      <p className="text-lg text-white">{driver.assigned_vehicle || 'None'}</p>
+                      <p className="text-sm text-white">{driver.assigned_vehicle || 'None'}</p>
                     </div>
                     <div>
                       <label className="text-sm text-slate-400">Performance</label>
-                      <p className="text-lg text-emerald-400 font-semibold">{driver.performance_score}/100</p>
+                      <p className="text-sm text-emerald-400 font-semibold">{driver.performance_score}/100</p>
                     </div>
                   </div>
                 </div>
@@ -297,20 +297,20 @@ export function DrilldownSystem() {
       );
     } catch (err) {
       console.error('Failed to load drivers:', err);
-      return <div className="p-8 text-center text-red-400">Failed to load driver data</div>;
+      return <div className="p-3 text-center text-red-400">Failed to load driver data</div>;
     }
   };
 
   const renderUtilizationDrilldown = async (data: any) => {
-    return <div className="p-8 text-center text-slate-400">
-      <p className="text-xl">Utilization Data View</p>
+    return <div className="p-3 text-center text-slate-400">
+      <p className="text-base">Utilization Data View</p>
       <p className="text-sm mt-2">Excel-style utilization analytics coming soon</p>
     </div>;
   };
 
   const renderCostAnalysisDrilldown = async (data: any) => {
-    return <div className="p-8 text-center text-slate-400">
-      <p className="text-xl">Cost Analysis View</p>
+    return <div className="p-3 text-center text-slate-400">
+      <p className="text-base">Cost Analysis View</p>
       <p className="text-sm mt-2">Excel-style cost breakdown coming soon</p>
     </div>;
   };
@@ -322,8 +322,8 @@ export function DrilldownSystem() {
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div className="flex items-center gap-3 bg-slate-900/95 border border-slate-700/60 rounded-lg px-6 py-4">
-          <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
+        <div className="flex items-center gap-3 bg-slate-900/95 border border-slate-700/60 rounded-lg px-3 py-2">
+          <Loader2 className="w-3 h-3 text-blue-400 animate-spin" />
           <span className="text-white">Loading drilldown...</span>
         </div>
       </div>
@@ -333,12 +333,12 @@ export function DrilldownSystem() {
   if (error) {
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div className="bg-slate-900/95 border border-red-500/60 rounded-lg px-6 py-4 max-w-md">
+        <div className="bg-slate-900/95 border border-red-500/60 rounded-lg px-3 py-2 max-w-md">
           <p className="text-red-400 font-semibold">Error loading drilldown</p>
           <p className="text-slate-300 text-sm mt-2">{error}</p>
           <button
             onClick={close}
-            className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm font-medium"
+            className="mt-2 px-2 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm font-medium"
           >
             Close
           </button>

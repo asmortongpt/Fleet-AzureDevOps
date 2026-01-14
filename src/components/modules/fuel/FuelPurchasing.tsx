@@ -202,9 +202,9 @@ export function FuelPurchasing() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2">
+        <h1 className="text-base font-bold flex items-center gap-2">
           <GasPump className="h-8 w-8 text-blue-800" weight="fill" />
           Fuel Purchasing Intelligence
         </h1>
@@ -214,13 +214,13 @@ export function FuelPurchasing() {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Total Savings (30d)</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-sm font-bold text-green-600">
               ${savings?.totalSavings.toFixed(0) || '0'}
             </div>
             <div className="text-xs text-slate-700 mt-1">
@@ -234,7 +234,7 @@ export function FuelPurchasing() {
             <CardTitle className="text-sm font-medium">Avg Price Paid</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-sm font-bold">
               {formatPrice(savings?.averagePricePaid || 0)}
             </div>
             <div className="text-xs text-slate-700 mt-1">per gallon</div>
@@ -246,7 +246,7 @@ export function FuelPurchasing() {
             <CardTitle className="text-sm font-medium">Market Average</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-sm font-bold">
               {formatPrice(savings?.marketAveragePrice || 0)}
             </div>
             <div className="text-xs text-slate-700 mt-1">per gallon</div>
@@ -258,7 +258,7 @@ export function FuelPurchasing() {
             <CardTitle className="text-sm font-medium">Active Contracts</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-800">
+            <div className="text-sm font-bold text-blue-800">
               {contracts.length}
             </div>
             <div className="text-xs text-slate-700 mt-1">supplier agreements</div>
@@ -276,7 +276,7 @@ export function FuelPurchasing() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-2">
               <div className={`p-3 rounded-lg bg-gray-100 ${getRecommendationColor(purchaseRecommendation.recommendation)}`}>
                 {getRecommendationIcon(purchaseRecommendation.recommendation)}
               </div>
@@ -290,7 +290,7 @@ export function FuelPurchasing() {
                   </span>
                 </div>
                 <p className="text-sm mb-3">{purchaseRecommendation.reasoning}</p>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-4 gap-2">
                   <div>
                     <div className="text-xs text-gray-500">Current Price</div>
                     <div className="font-semibold">{formatPrice(purchaseRecommendation.currentPrice)}</div>
@@ -325,7 +325,7 @@ export function FuelPurchasing() {
           <TabsTrigger value="savings">Savings Calculator</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="map" className="space-y-6">
+        <TabsContent value="map" className="space-y-2">
           {/* Search Controls */}
           <Card>
             <CardHeader>
@@ -333,7 +333,7 @@ export function FuelPurchasing() {
               <CardDescription>Find the best fuel prices near you</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-5 gap-4 mb-4">
+              <div className="grid grid-cols-5 gap-2 mb-2">
                 <div>
                   <Label>Latitude</Label>
                   <Input
@@ -389,8 +389,8 @@ export function FuelPurchasing() {
             </CardHeader>
             <CardContent>
               {loading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <div className="text-center py-3">
+                  <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
                   <p className="text-slate-700">Loading stations...</p>
                 </div>
               ) : nearbyStations.length > 0 ? (
@@ -425,7 +425,7 @@ export function FuelPurchasing() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <div className="text-lg font-bold text-green-600">
+                          <div className="text-sm font-bold text-green-600">
                             {formatPrice(station.currentPrices[selectedFuelType] || 0)}
                           </div>
                         </TableCell>
@@ -444,7 +444,7 @@ export function FuelPurchasing() {
                   </TableBody>
                 </Table>
               ) : (
-                <div className="text-center py-8 text-slate-700">
+                <div className="text-center py-3 text-slate-700">
                   No stations found. Try adjusting your search criteria.
                 </div>
               )}

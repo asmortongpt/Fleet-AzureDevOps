@@ -244,14 +244,14 @@ function VehicleSelector({
           key={vehicle.id}
           onClick={() => onSelect(vehicle)}
           className={cn(
-            'flex items-center gap-3 px-4 py-2 rounded-lg shrink-0',
+            'flex items-center gap-3 px-2 py-2 rounded-lg shrink-0',
             'border transition-all',
             selectedId === vehicle.id
               ? 'bg-primary text-primary-foreground border-primary'
               : 'bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50'
           )}
         >
-          <Car className="w-5 h-5" />
+          <Car className="w-3 h-3" />
           <div className="text-left">
             <p className="font-medium text-sm">{vehicle.name}</p>
             <p className="text-xs opacity-70">{vehicle.licensePlate || vehicle.assetTag}</p>
@@ -270,7 +270,7 @@ function Viewer3DFallback() {
   return (
     <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-900 to-slate-800">
       <div className="text-center text-white">
-        <ArrowsClockwise className="w-12 h-12 mx-auto mb-3 animate-spin" />
+        <ArrowsClockwise className="w-12 h-9 mx-auto mb-3 animate-spin" />
         <p className="text-sm">Loading 3D viewer...</p>
       </div>
     </div>
@@ -354,12 +354,12 @@ export function VirtualGarage3D({ data: _data }: { data?: any }) {
   }, [selectedVehicle, telemetry])
 
   return (
-    <div className="relative w-full h-[calc(100vh-200px)] min-h-[600px] bg-slate-950 rounded-xl overflow-hidden">
+    <div className="relative w-full h-[calc(100vh-200px)] min-h-[600px] bg-slate-950 rounded-md overflow-hidden">
       {/* Header with vehicle selector */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-4 bg-gradient-to-b from-slate-950 to-transparent">
+      <div className="absolute top-0 left-0 right-0 z-20 p-2 bg-gradient-to-b from-slate-950 to-transparent">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold text-white">Virtual Garage</h2>
+            <h2 className="text-base font-bold text-white">Virtual Garage</h2>
             <Badge variant="secondary" className="text-xs">
               {vehicles.length} Vehicles
             </Badge>
@@ -413,12 +413,12 @@ export function VirtualGarage3D({ data: _data }: { data?: any }) {
       {/* Vehicle HUD (Left Panel) */}
       {vehicleStats && (
         <div className="absolute left-4 top-32 bottom-20 w-72 z-10">
-          <ScrollArea className="h-full pr-4">
-            <div className="space-y-4">
+          <ScrollArea className="h-full pr-2">
+            <div className="space-y-2">
               <VehicleHUD stats={vehicleStats} />
 
               {/* Deep Drilldowns Integration */}
-              <div className="space-y-3 pt-4 border-t border-slate-700/50">
+              <div className="space-y-3 pt-2 border-t border-slate-700/50">
                 <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] px-1">Deep Intel</h4>
                 <div className="grid grid-cols-2 gap-2">
                   <Button
@@ -490,7 +490,7 @@ export function VirtualGarage3D({ data: _data }: { data?: any }) {
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-slate-950/80 z-30">
           <div className="text-center">
-            <ArrowsClockwise className="w-8 h-8 mx-auto mb-2 animate-spin text-primary" />
+            <ArrowsClockwise className="w-4 h-4 mx-auto mb-2 animate-spin text-primary" />
             <p className="text-sm text-slate-400">Loading garage...</p>
           </div>
         </div>

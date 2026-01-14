@@ -115,7 +115,7 @@ function StatCard({
       </div>
       <div className="flex items-baseline gap-1">
         <span className={cn(
-          'text-xl font-bold tabular-nums',
+          'text-base font-bold tabular-nums',
           warning ? 'text-red-400' : 'text-white'
         )}>
           {typeof value === 'number' ? value.toLocaleString() : value}
@@ -188,7 +188,7 @@ function CircularGauge({
         {/* Center content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <Icon className={cn('w-4 h-4 mb-0.5', warning ? 'text-red-400' : 'text-blue-400')} />
-          <span className="text-lg font-bold text-white tabular-nums">{value}</span>
+          <span className="text-sm font-bold text-white tabular-nums">{value}</span>
           <span className="text-[10px] text-slate-500">{unit}</span>
         </div>
       </div>
@@ -238,10 +238,10 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
   }
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-2', className)}>
       {/* Vehicle Title */}
       <div className="p-3 rounded-lg bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30">
-        <h3 className="font-bold text-white text-lg">
+        <h3 className="font-bold text-white text-sm">
           {stats.name || `${stats.year} ${stats.make} ${stats.model}`}
         </h3>
         <div className="flex gap-2 mt-1">
@@ -262,7 +262,7 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
       {hasWarning && (
         <div className="p-3 rounded-lg bg-red-950/50 border border-red-500/50 animate-pulse">
           <div className="flex items-center gap-2">
-            <Warning className="w-5 h-5 text-red-400" />
+            <Warning className="w-3 h-3 text-red-400" />
             <span className="text-sm font-medium text-red-300">Check Engine Light Active</span>
           </div>
           {stats.dtcCodes && stats.dtcCodes.length > 0 && (

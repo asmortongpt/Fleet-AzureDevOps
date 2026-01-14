@@ -283,10 +283,10 @@ export function TaskManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Task Management</h2>
+          <h2 className="text-sm font-semibold">Task Management</h2>
           <p className="text-muted-foreground">Track and manage team tasks and workflows</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -303,7 +303,7 @@ export function TaskManagement() {
                 Add a new task to the workflow
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-2 py-2">
               <div className="space-y-2">
                 <Label htmlFor="task-title">Task Title *</Label>
                 <Input
@@ -325,7 +325,7 @@ export function TaskManagement() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="task-type">Task Type *</Label>
                   <Select
@@ -365,7 +365,7 @@ export function TaskManagement() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="assigned-to">Assign To</Label>
                   <Select
@@ -415,13 +415,13 @@ export function TaskManagement() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Tasks</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalTasks}</div>
+            <div className="text-sm font-bold">{totalTasks}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <ListChecks className="w-3 h-3" />
               All tasks
@@ -434,7 +434,7 @@ export function TaskManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">In Progress</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-800">{inProgressTasks}</div>
+            <div className="text-sm font-bold text-blue-800">{inProgressTasks}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Clock className="w-3 h-3" />
               Active work
@@ -447,7 +447,7 @@ export function TaskManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Completed</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{completedTasks}</div>
+            <div className="text-sm font-bold text-green-600">{completedTasks}</div>
             <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
               <CheckCircle className="w-3 h-3" />
               {totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0}% complete
@@ -460,7 +460,7 @@ export function TaskManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Overdue</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{overdueTasks}</div>
+            <div className="text-sm font-bold text-red-600">{overdueTasks}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <CalendarDots className="w-3 h-3" />
               Past due date

@@ -39,7 +39,7 @@ export function MapLoadingSkeleton({ className }: LoadingSkeletonProps) {
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center gap-4"
+          className="flex flex-col items-center gap-2"
         >
           {/* Animated map icon */}
           <motion.div
@@ -64,7 +64,7 @@ export function MapLoadingSkeleton({ className }: LoadingSkeletonProps) {
       {[...Array(5)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute w-8 h-8 bg-blue-300 rounded-full"
+          className="absolute w-4 h-4 bg-blue-300 rounded-full"
           style={{
             top: `${20 + i * 15}%`,
             left: `${15 + i * 18}%`,
@@ -89,12 +89,12 @@ export function MapLoadingSkeleton({ className }: LoadingSkeletonProps) {
  */
 export function VehicleListLoadingSkeleton({ className }: LoadingSkeletonProps) {
   return (
-    <div className={cn("space-y-3 p-4", className)}>
+    <div className={cn("space-y-3 p-2", className)}>
       {/* Search bar skeleton */}
-      <Skeleton className="h-10 w-full mb-4" />
+      <Skeleton className="h-8 w-full mb-2" />
 
       {/* Filter chips */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-2">
         {[...Array(4)].map((_, i) => (
           <Skeleton key={i} className="h-8 w-20" />
         ))}
@@ -107,10 +107,10 @@ export function VehicleListLoadingSkeleton({ className }: LoadingSkeletonProps) 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: i * 0.05 }}
-          className="flex items-center gap-4 p-3 border rounded-lg"
+          className="flex items-center gap-2 p-3 border rounded-lg"
         >
           {/* Avatar */}
-          <Skeleton className="h-12 w-12 rounded-full flex-shrink-0" />
+          <Skeleton className="h-9 w-12 rounded-full flex-shrink-0" />
 
           {/* Content */}
           <div className="flex-1 space-y-2">
@@ -131,14 +131,14 @@ export function VehicleListLoadingSkeleton({ className }: LoadingSkeletonProps) 
  */
 export function DashboardCardsLoadingSkeleton({ className }: LoadingSkeletonProps) {
   return (
-    <div className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6", className)}>
+    <div className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 p-3", className)}>
       {[...Array(4)].map((_, i) => (
         <motion.div
           key={i}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.1 }}
-          className="border rounded-lg p-6 space-y-4"
+          className="border rounded-lg p-3 space-y-2"
         >
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -147,7 +147,7 @@ export function DashboardCardsLoadingSkeleton({ className }: LoadingSkeletonProp
           </div>
 
           {/* Value */}
-          <Skeleton className="h-10 w-32" />
+          <Skeleton className="h-8 w-32" />
 
           {/* Trend */}
           <div className="flex items-center gap-2">
@@ -156,7 +156,7 @@ export function DashboardCardsLoadingSkeleton({ className }: LoadingSkeletonProp
           </div>
 
           {/* Chart preview */}
-          <div className="flex items-end gap-1 h-12">
+          <div className="flex items-end gap-1 h-9">
             {[...Array(7)].map((_, j) => (
               <Skeleton
                 key={j}
@@ -182,7 +182,7 @@ export function TableLoadingSkeleton({
   return (
     <div className={cn("border rounded-lg overflow-hidden", className)}>
       {/* Table header */}
-      <div className="grid gap-4 p-4 bg-gray-50 border-b" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+      <div className="grid gap-2 p-2 bg-gray-50 border-b" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
         {[...Array(columns)].map((_, i) => (
           <Skeleton key={i} className="h-4 w-full" />
         ))}
@@ -196,7 +196,7 @@ export function TableLoadingSkeleton({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: i * 0.02 }}
-            className="grid gap-4 p-4"
+            className="grid gap-2 p-2"
             style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
           >
             {[...Array(columns)].map((_, j) => (
@@ -214,7 +214,7 @@ export function TableLoadingSkeleton({
  */
 export function DetailPanelLoadingSkeleton({ className }: LoadingSkeletonProps) {
   return (
-    <div className={cn("space-y-6 p-6", className)}>
+    <div className={cn("space-y-2 p-3", className)}>
       {/* Header */}
       <div className="space-y-3">
         <Skeleton className="h-8 w-3/4" />
@@ -249,9 +249,9 @@ export function DetailPanelLoadingSkeleton({ className }: LoadingSkeletonProps) 
       ))}
 
       {/* Action buttons */}
-      <div className="flex gap-3 pt-4 border-t">
-        <Skeleton className="h-10 flex-1" />
-        <Skeleton className="h-10 flex-1" />
+      <div className="flex gap-3 pt-2 border-t">
+        <Skeleton className="h-8 flex-1" />
+        <Skeleton className="h-8 flex-1" />
       </div>
     </div>
   );
@@ -262,7 +262,7 @@ export function DetailPanelLoadingSkeleton({ className }: LoadingSkeletonProps) 
  */
 export function ChartLoadingSkeleton({ className }: LoadingSkeletonProps) {
   return (
-    <div className={cn("border rounded-lg p-6 space-y-4", className)}>
+    <div className={cn("border rounded-lg p-3 space-y-2", className)}>
       {/* Chart header */}
       <div className="flex items-center justify-between">
         <Skeleton className="h-6 w-32" />
@@ -300,7 +300,7 @@ export function ChartLoadingSkeleton({ className }: LoadingSkeletonProps) {
       </div>
 
       {/* Legend */}
-      <div className="flex gap-4 justify-center">
+      <div className="flex gap-2 justify-center">
         {[...Array(3)].map((_, i) => (
           <div key={i} className="flex items-center gap-2">
             <Skeleton className="h-3 w-3 rounded-full" />
@@ -317,7 +317,7 @@ export function ChartLoadingSkeleton({ className }: LoadingSkeletonProps) {
  */
 export function FormLoadingSkeleton({ className }: LoadingSkeletonProps) {
   return (
-    <div className={cn("space-y-6 p-6", className)}>
+    <div className={cn("space-y-2 p-3", className)}>
       {[...Array(5)].map((_, i) => (
         <motion.div
           key={i}
@@ -327,13 +327,13 @@ export function FormLoadingSkeleton({ className }: LoadingSkeletonProps) {
           className="space-y-2"
         >
           <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-8 w-full" />
         </motion.div>
       ))}
 
-      <div className="flex gap-3 pt-4">
-        <Skeleton className="h-10 w-24" />
-        <Skeleton className="h-10 w-24" />
+      <div className="flex gap-3 pt-2">
+        <Skeleton className="h-8 w-24" />
+        <Skeleton className="h-8 w-24" />
       </div>
     </div>
   );
@@ -349,7 +349,7 @@ export function GridLoadingSkeleton({
 }: LoadingSkeletonProps & { items?: number; columns?: number }) {
   return (
     <div
-      className={cn("grid gap-6", className)}
+      className={cn("grid gap-2", className)}
       style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
     >
       {[...Array(items)].map((_, i) => (
@@ -358,7 +358,7 @@ export function GridLoadingSkeleton({
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: i * 0.05 }}
-          className="border rounded-lg p-4 space-y-3"
+          className="border rounded-lg p-2 space-y-3"
         >
           <Skeleton className="h-32 w-full rounded-md" />
           <Skeleton className="h-5 w-3/4" />

@@ -65,7 +65,7 @@ export function OperationsHubMap({
   return (
     <div className="w-full h-full relative bg-gradient-to-br from-slate-100 to-blue-50" data-testid="operations-hub-map">
       {/* Map Legend */}
-      <div className="absolute top-4 left-4 z-20 bg-white rounded-lg shadow-lg p-4 max-w-xs">
+      <div className="absolute top-4 left-4 z-20 bg-white rounded-lg shadow-sm p-2 max-w-xs">
         <h3 className="font-semibold text-sm mb-3 text-slate-800">Operations Overview</h3>
         <div className="space-y-2 text-xs">
           <div className="flex items-center gap-2">
@@ -92,7 +92,7 @@ export function OperationsHubMap({
           variant="secondary"
           onClick={() => setZoom(Math.min(zoom + 1, 18))}
           data-testid="map-zoom-in"
-          className="shadow-lg"
+          className="shadow-sm"
         >
           +
         </Button>
@@ -101,7 +101,7 @@ export function OperationsHubMap({
           variant="secondary"
           onClick={() => setZoom(Math.max(zoom - 1, 1))}
           data-testid="map-zoom-out"
-          className="shadow-lg"
+          className="shadow-sm"
         >
           −
         </Button>
@@ -109,7 +109,7 @@ export function OperationsHubMap({
           size="icon"
           variant="secondary"
           data-testid="map-locate"
-          className="shadow-lg"
+          className="shadow-sm"
         >
           <MapPin className="h-4 w-4" />
         </Button>
@@ -117,7 +117,7 @@ export function OperationsHubMap({
 
       {/* Route Optimization Overlay */}
       {showRouteOptimization && (
-        <div className="absolute bottom-4 left-4 z-20 bg-white rounded-lg shadow-lg p-4 max-w-sm">
+        <div className="absolute bottom-4 left-4 z-20 bg-white rounded-lg shadow-sm p-2 max-w-sm">
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
             <div>
@@ -136,7 +136,7 @@ export function OperationsHubMap({
 
       {/* Dispatch Overlay */}
       {showDispatchOverlay && (
-        <div className="absolute top-20 left-4 z-10 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 max-w-xs">
+        <div className="absolute top-20 left-4 z-10 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm p-3 max-w-xs">
           <h4 className="font-semibold text-xs text-slate-700 mb-2 flex items-center gap-2">
             <Package className="h-4 w-4 text-blue-800" />
             Active Dispatches
@@ -198,9 +198,9 @@ export function OperationsHubMap({
       {/* Map Canvas - Interactive vehicle visualization */}
       <div className="w-full h-full flex items-center justify-center">
         <div className="relative w-full h-full max-w-6xl max-h-[800px]">
-          <div className="text-center space-y-4 absolute top-10 left-1/2 transform -translate-x-1/2 z-0">
+          <div className="text-center space-y-2 absolute top-10 left-1/2 transform -translate-x-1/2 z-0">
             <div className="text-6xl">🗺️</div>
-            <div className="text-lg font-semibold text-slate-700">
+            <div className="text-sm font-semibold text-slate-700">
               Live Operations Map
             </div>
             <div className="text-sm text-slate-500">
@@ -210,7 +210,7 @@ export function OperationsHubMap({
 
           {/* Vehicle markers grid layout for demo */}
           <div className="absolute inset-0 flex items-center justify-center mt-32">
-            <div className="grid grid-cols-6 gap-4 max-w-4xl">
+            <div className="grid grid-cols-6 gap-2 max-w-4xl">
               {vehiclesWithCoords.slice(0, 24).map((vehicle: Vehicle) => {
                 const isEnRoute = enRouteVehicles.includes(vehicle);
                 return (
@@ -220,7 +220,7 @@ export function OperationsHubMap({
                     className={`
                       cursor-pointer transition-all duration-200 transform hover:scale-125
                       ${getMarkerColor(vehicle.id, vehicle.status)}
-                      p-3 rounded-full shadow-lg relative group
+                      p-3 rounded-full shadow-sm relative group
                       ${isEnRoute ? 'animate-pulse' : ''}
                     `}
                     data-testid={`map-marker-${vehicle.id}`}
@@ -242,7 +242,7 @@ export function OperationsHubMap({
 
           {/* Load planning cargo overlay - shown on selected vehicle */}
           {selectedVehicleId && (
-            <div className="absolute bottom-4 right-4 z-20 bg-white rounded-lg shadow-xl p-4 max-w-xs">
+            <div className="absolute bottom-4 right-4 z-20 bg-white rounded-lg shadow-sm p-2 max-w-xs">
               <div className="flex items-start gap-3">
                 <Package className="h-5 w-5 text-blue-800 flex-shrink-0 mt-0.5" />
                 <div>

@@ -57,9 +57,9 @@ export function TrafficCameraControlPanel({
     if (!isVisible) return null;
 
     return (
-        <Card className="fixed top-24 right-6 w-80 shadow-2xl z-40 border border-white/20 bg-white/80 backdrop-blur-xl animate-in slide-in-from-right-10 rounded-2xl overflow-hidden ring-1 ring-black/5">
+        <Card className="fixed top-24 right-6 w-80 shadow-sm z-40 border border-white/20 bg-white/80 backdrop-blur-xl animate-in slide-in-from-right-10 rounded-lg overflow-hidden ring-1 ring-black/5">
             <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent pointer-events-none" />
-            <CardHeader className="pb-4 border-b border-black/5 flex flex-row items-center justify-between space-y-0 relative z-10 bg-white/40">
+            <CardHeader className="pb-2 border-b border-black/5 flex flex-row items-center justify-between space-y-0 relative z-10 bg-white/40">
                 <div>
                     <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800">
                         <div className="p-1.5 bg-blue-500/10 rounded-md border border-blue-500/20">
@@ -79,7 +79,7 @@ export function TrafficCameraControlPanel({
                     <X className="w-4 h-4 text-slate-500" />
                 </Button>
             </CardHeader>
-            <CardContent className="pt-4 space-y-4">
+            <CardContent className="pt-2 space-y-2">
 
                 {/* Sync Controls */}
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -104,7 +104,7 @@ export function TrafficCameraControlPanel({
                             placeholder="Search cameras..."
                             value={filters.search}
                             onChange={(e) => onFilterChange('search', e.target.value)}
-                            className="pl-8 h-8 text-sm"
+                            className="pl-3 h-8 text-sm"
                         />
                     </div>
 
@@ -139,7 +139,7 @@ export function TrafficCameraControlPanel({
                 </div>
 
                 {/* Legend */}
-                <div className="pt-2 border-t flex gap-4 justify-center">
+                <div className="pt-2 border-t flex gap-2 justify-center">
                     <div className="flex items-center gap-1.5">
                         <div className="w-2 h-2 rounded-full bg-green-500" />
                         <span className="text-xs text-muted-foreground">Active</span>

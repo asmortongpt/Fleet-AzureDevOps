@@ -81,19 +81,19 @@ export function GeneralSettings() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Language & Region */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Globe className="w-5 h-5" />
+            <Globe className="w-3 h-3" />
             <CardTitle>Language & Region</CardTitle>
           </div>
           <CardDescription>
             Set your preferred language and regional settings
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="space-y-2">
             <Label htmlFor="language">Language</Label>
             <Select
@@ -157,12 +157,12 @@ export function GeneralSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
+            <Calendar className="w-3 h-3" />
             <CardTitle>Date & Time Format</CardTitle>
           </div>
           <CardDescription>Choose how dates and times are displayed</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="space-y-2">
             <Label htmlFor="dateFormat">Date Format</Label>
             <Select
@@ -204,12 +204,12 @@ export function GeneralSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <House className="w-5 h-5" />
+            <House className="w-3 h-3" />
             <CardTitle>Default Preferences</CardTitle>
           </div>
           <CardDescription>Set your default dashboard and display options</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="space-y-2">
             <Label htmlFor="defaultDashboard">Default Dashboard</Label>
             <Select

@@ -227,7 +227,7 @@ export function DocumentQA() {
   ]
 
   return (
-    <div className="h-[calc(100vh-200px)] flex gap-4">
+    <div className="h-[calc(100vh-200px)] flex gap-2">
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col">
         <Card className="flex-1 flex flex-col">
@@ -235,7 +235,7 @@ export function DocumentQA() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-primary text-primary-foreground rounded-lg">
-                  <Robot className="w-6 h-6" weight="bold" />
+                  <Robot className="w-4 h-4" weight="bold" />
                 </div>
                 <div>
                   <CardTitle>Document Q&A Assistant</CardTitle>
@@ -260,27 +260,27 @@ export function DocumentQA() {
 
           <CardContent className="flex-1 flex flex-col p-0">
             {/* Messages Area */}
-            <ScrollArea className="flex-1 p-6" ref={scrollAreaRef}>
-              <div className="space-y-6">
+            <ScrollArea className="flex-1 p-3" ref={scrollAreaRef}>
+              <div className="space-y-2">
                 {messages.map(message => (
                   <div
                     key={message.id}
-                    className={`flex gap-4 ${message.type === 'question' ? 'flex-row-reverse' : ''}`}
+                    className={`flex gap-2 ${message.type === 'question' ? 'flex-row-reverse' : ''}`}
                   >
-                    <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                    <div className={`flex-shrink-0 w-10 h-8 rounded-full flex items-center justify-center ${
                       message.type === 'question'
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted'
                     }`}>
                       {message.type === 'question' ? (
-                        <ChatCircleDots className="w-5 h-5" weight="bold" />
+                        <ChatCircleDots className="w-3 h-3" weight="bold" />
                       ) : (
-                        <Robot className="w-5 h-5" weight="bold" />
+                        <Robot className="w-3 h-3" weight="bold" />
                       )}
                     </div>
 
                     <div className={`flex-1 ${message.type === 'question' ? 'text-right' : ''}`}>
-                      <div className={`inline-block max-w-[80%] rounded-lg p-4 ${
+                      <div className={`inline-block max-w-[80%] rounded-lg p-2 ${
                         message.type === 'question'
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-muted'
@@ -354,12 +354,12 @@ export function DocumentQA() {
                 ))}
 
                 {askQuestionMutation.isPending && (
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                      <CircleNotch className="w-5 h-5 animate-spin" weight="bold" />
+                  <div className="flex gap-2">
+                    <div className="flex-shrink-0 w-10 h-8 rounded-full bg-muted flex items-center justify-center">
+                      <CircleNotch className="w-3 h-3 animate-spin" weight="bold" />
                     </div>
                     <div className="flex-1">
-                      <div className="inline-block rounded-lg p-4 bg-muted">
+                      <div className="inline-block rounded-lg p-2 bg-muted">
                         <p className="text-muted-foreground">Thinking...</p>
                       </div>
                     </div>
@@ -369,7 +369,7 @@ export function DocumentQA() {
             </ScrollArea>
 
             {/* Input Area */}
-            <div className="border-t p-4 space-y-3">
+            <div className="border-t p-2 space-y-3">
               {messages.length === 1 && (
                 <div className="flex flex-wrap gap-2">
                   <p className="w-full text-sm text-muted-foreground mb-1">Suggested questions:</p>
@@ -401,9 +401,9 @@ export function DocumentQA() {
                   disabled={!inputValue.trim() || askQuestionMutation.isPending}
                 >
                   {askQuestionMutation.isPending ? (
-                    <CircleNotch className="w-5 h-5 animate-spin" />
+                    <CircleNotch className="w-3 h-3 animate-spin" />
                   ) : (
-                    <PaperPlaneRight className="w-5 h-5" weight="fill" />
+                    <PaperPlaneRight className="w-3 h-3" weight="fill" />
                   )}
                 </Button>
               </div>
@@ -415,14 +415,14 @@ export function DocumentQA() {
       {/* History Sidebar */}
       <Card className="w-80">
         <CardHeader>
-          <CardTitle className="text-lg">Recent Questions</CardTitle>
+          <CardTitle className="text-sm">Recent Questions</CardTitle>
           <CardDescription>Your query history</CardDescription>
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[calc(100vh-350px)]">
             <div className="space-y-2">
               {(queryHistoryData?.length ?? 0) === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">
+                <p className="text-sm text-muted-foreground text-center py-3">
                   No history yet. Start asking questions!
                 </p>
               ) : (

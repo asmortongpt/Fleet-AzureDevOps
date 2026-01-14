@@ -239,7 +239,7 @@ const ComplianceScorecard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Overall Score */}
       <Card data-testid="compliance-overall-score">
         <CardHeader className="pb-3">
@@ -248,23 +248,23 @@ const ComplianceScorecard: React.FC = () => {
               <Shield className="h-5 w-5" />
               Overall Compliance Score
             </span>
-            <span className={cn("text-3xl font-bold", getScoreColor(overallScore))}>
+            <span className={cn("text-base font-bold", getScoreColor(overallScore))}>
               {overallScore}%
             </span>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="grid grid-cols-3 gap-2 text-center">
             <div>
-              <div className="text-2xl font-bold text-red-600">{totalViolations}</div>
+              <div className="text-sm font-bold text-red-600">{totalViolations}</div>
               <div className="text-sm text-muted-foreground">Active Violations</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-yellow-600">{totalInspectionsDue}</div>
+              <div className="text-sm font-bold text-yellow-600">{totalInspectionsDue}</div>
               <div className="text-sm text-muted-foreground">Inspections Due</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-green-600">{mockMetrics.length}</div>
+              <div className="text-sm font-bold text-green-600">{mockMetrics.length}</div>
               <div className="text-sm text-muted-foreground">Categories</div>
             </div>
           </div>
@@ -272,7 +272,7 @@ const ComplianceScorecard: React.FC = () => {
       </Card>
 
       {/* Category Breakdown */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="compliance-categories">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2" data-testid="compliance-categories">
         {mockMetrics.map((metric) => (
           <Card key={metric.id}>
             <CardHeader className="pb-3">
@@ -363,12 +363,12 @@ const AlertPanel: React.FC = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[400px] pr-4">
+        <ScrollArea className="h-[400px] pr-2">
           <div className="space-y-3">
             {filteredAlerts.map((alert) => (
               <div
                 key={alert.id}
-                className={cn("p-4 rounded-lg border", getSeverityBgColor(alert.severity))}
+                className={cn("p-2 rounded-lg border", getSeverityBgColor(alert.severity))}
                 data-testid={`alert-${alert.id}`}
               >
                 <div className="flex items-start gap-3">
@@ -381,7 +381,7 @@ const AlertPanel: React.FC = () => {
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">{alert.description}</p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
                         {new Date(alert.timestamp).toLocaleString()}
@@ -458,19 +458,19 @@ const TimelineView: React.FC = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[400px] pr-4">
-          <div className="space-y-4">
+        <ScrollArea className="h-[400px] pr-2">
+          <div className="space-y-2">
             {filteredEvents.map((event, index) => (
-              <div key={event.id} className="flex gap-4" data-testid={`event-${event.id}`}>
+              <div key={event.id} className="flex gap-2" data-testid={`event-${event.id}`}>
                 <div className="flex flex-col items-center">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground">
+                  <div className="flex items-center justify-center w-4 h-4 rounded-full bg-primary text-primary-foreground">
                     {getEventIcon(event.type)}
                   </div>
                   {index < filteredEvents.length - 1 && (
                     <div className="w-0.5 h-full bg-border mt-2" />
                   )}
                 </div>
-                <div className="flex-1 pb-4">
+                <div className="flex-1 pb-2">
                   <div className="flex items-start justify-between mb-1">
                     <h4 className="font-semibold">{event.title}</h4>
                     <Badge variant="outline" className={cn("text-xs capitalize", getStatusColor(event.status))}>
@@ -536,7 +536,7 @@ const ReportingPanel: React.FC = () => {
         <div className="space-y-3">
           {reportTypes.map((report) => (
             <Card key={report.id} className="hover:bg-accent transition-colors cursor-pointer">
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
                     <div className="mt-1 text-primary">{report.icon}</div>
@@ -563,10 +563,10 @@ export function ComplianceDashboard() {
   return (
     <div className="h-screen flex flex-col" data-testid="compliance-dashboard">
       {/* Header */}
-      <div className="border-b px-6 py-4">
+      <div className="border-b px-3 py-2">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Compliance Dashboard</h1>
+            <h1 className="text-sm font-bold">Compliance Dashboard</h1>
             <p className="text-sm text-muted-foreground">
               Monitor compliance metrics, alerts, and reporting
             </p>
@@ -580,12 +580,12 @@ export function ComplianceDashboard() {
 
       {/* Main Content */}
       <ScrollArea className="flex-1">
-        <div className="p-6 space-y-6">
+        <div className="p-3 space-y-2">
           {/* Scorecard */}
           <ComplianceScorecard />
 
           {/* Two-column layout for Alerts and Timeline */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
             <AlertPanel />
             <TimelineView />
           </div>

@@ -58,10 +58,10 @@ export function MaintenanceRequest({ data }: MaintenanceRequestProps) {
 
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Maintenance Requests</h1>
+          <h1 className="text-base font-semibold tracking-tight">Maintenance Requests</h1>
           <p className="text-sm text-muted-foreground mt-1">Submit and track vehicle maintenance requests</p>
         </div>
         <Button onClick={() => setDialogOpen(true)}>
@@ -75,44 +75,44 @@ export function MaintenanceRequest({ data }: MaintenanceRequestProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-muted rounded-lg">
-                <Clock className="w-6 h-6" />
+                <Clock className="w-4 h-4" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Scheduled</p>
-                <p className="text-2xl font-semibold metric-number">{scheduledCount}</p>
+                <p className="text-sm font-semibold metric-number">{scheduledCount}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-warning/10 text-warning rounded-lg">
-                <Clock className="w-6 h-6" />
+                <Clock className="w-4 h-4" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Due</p>
-                <p className="text-2xl font-semibold metric-number">{dueCount}</p>
+                <p className="text-sm font-semibold metric-number">{dueCount}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-destructive/10 text-destructive rounded-lg">
-                <Wrench className="w-6 h-6" />
+                <Wrench className="w-4 h-4" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Overdue</p>
-                <p className="text-2xl font-semibold metric-number">{overdueCount}</p>
+                <p className="text-sm font-semibold metric-number">{overdueCount}</p>
               </div>
             </div>
           </CardContent>
@@ -126,18 +126,18 @@ export function MaintenanceRequest({ data }: MaintenanceRequestProps) {
         <CardContent>
           {requests.length === 0 ? (
             <div className="text-center py-12">
-              <Wrench className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <Wrench className="w-12 h-9 text-muted-foreground mx-auto mb-2" />
               <p className="text-muted-foreground">No maintenance requests yet</p>
               <p className="text-sm text-muted-foreground">Create your first request to get started</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-2">
               {requests.map(request => (
-                <div key={request.id} className="border rounded-lg p-4">
+                <div key={request.id} className="border rounded-lg p-2">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-start gap-3">
                       <div className="p-2 bg-muted rounded-lg">
-                        <Car className="w-5 h-5" />
+                        <Car className="w-3 h-3" />
                       </div>
                       <div>
                         <h4 className="font-semibold">{(request as any).vehicleNumber}</h4>

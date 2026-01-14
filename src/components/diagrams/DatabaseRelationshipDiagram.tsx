@@ -425,7 +425,7 @@ erDiagram
   )
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* View Mode Selector */}
       <div className="flex gap-3">
         <Button
@@ -489,7 +489,7 @@ erDiagram
               placeholder="Search tables..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border rounded-md text-sm"
+              className="w-full pl-10 pr-2 py-2 border rounded-md text-sm"
             />
           </div>
         </CardHeader>
@@ -503,10 +503,10 @@ erDiagram
               ))}
             </TabsList>
             {filteredTables.map(([name, info]) => (
-              <TabsContent key={name} value={name} className="space-y-4">
+              <TabsContent key={name} value={name} className="space-y-2">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-semibold text-lg">{info.name}</h3>
+                    <h3 className="font-semibold text-sm">{info.name}</h3>
                     <Badge variant="outline">
                       <TableIcon className="w-3 h-3 mr-1" />
                       {info.fields.length} fields
@@ -519,21 +519,21 @@ erDiagram
                   <table className="w-full text-sm">
                     <thead className="bg-muted">
                       <tr>
-                        <th className="px-4 py-2 text-left font-medium">Field Name</th>
-                        <th className="px-4 py-2 text-left font-medium">Data Type</th>
-                        <th className="px-4 py-2 text-left font-medium">Constraints</th>
+                        <th className="px-2 py-2 text-left font-medium">Field Name</th>
+                        <th className="px-2 py-2 text-left font-medium">Data Type</th>
+                        <th className="px-2 py-2 text-left font-medium">Constraints</th>
                       </tr>
                     </thead>
                     <tbody>
                       {info.fields.map(field => (
                         <tr key={field.name} className="border-t">
-                          <td className="px-4 py-2 font-mono text-xs">{field.name}</td>
-                          <td className="px-4 py-2">
+                          <td className="px-2 py-2 font-mono text-xs">{field.name}</td>
+                          <td className="px-2 py-2">
                             <Badge variant="secondary" className="font-mono text-xs">
                               {field.type}
                             </Badge>
                           </td>
-                          <td className="px-4 py-2">
+                          <td className="px-2 py-2">
                             <div className="flex gap-1">
                               {field.isPK && (
                                 <Badge variant="default" className="text-xs">
@@ -573,7 +573,7 @@ erDiagram
       </Card>
 
       {/* Database Statistics */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -581,7 +581,7 @@ erDiagram
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{Object.keys(POLICY_TABLES).length}</div>
+            <div className="text-sm font-bold">{Object.keys(POLICY_TABLES).length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -591,7 +591,7 @@ erDiagram
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-800">
+            <div className="text-sm font-bold text-blue-800">
               {Object.values(POLICY_TABLES).reduce((sum, t) => sum + t.relationships.length, 0)}
             </div>
           </CardContent>
@@ -603,7 +603,7 @@ erDiagram
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">
+            <div className="text-sm font-bold text-purple-600">
               {Object.values(POLICY_TABLES).reduce((sum, t) => sum + t.fields.length, 0)}
             </div>
           </CardContent>
@@ -615,7 +615,7 @@ erDiagram
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emerald-600">
+            <div className="text-sm font-bold text-emerald-600">
               {Object.values(POLICY_TABLES).reduce(
                 (sum, t) => sum + t.fields.filter(f => f.isFK).length,
                 0

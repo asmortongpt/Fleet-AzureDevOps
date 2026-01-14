@@ -209,7 +209,7 @@ export default function SystemStatus() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
           <p className="text-slate-700 dark:text-gray-400">Loading system status...</p>
         </div>
       </div>
@@ -217,16 +217,16 @@ export default function SystemStatus() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-3 space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">System Status</h1>
+          <h1 className="text-base font-bold tracking-tight">System Status</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">
             Comprehensive system health monitoring and emulator control
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             onClick={() => {
@@ -257,25 +257,25 @@ export default function SystemStatus() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               {getStatusIcon(systemHealth?.overall || 'unknown')}
               <div>
-                <p className="text-2xl font-bold capitalize">{systemHealth?.overall || 'Unknown'}</p>
+                <p className="text-sm font-bold capitalize">{systemHealth?.overall || 'Unknown'}</p>
                 <p className="text-sm text-gray-500">System Status</p>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-3 gap-2">
               <div>
                 <p className="text-sm text-gray-500">Uptime</p>
-                <p className="text-lg font-semibold">{formatUptime(systemHealth?.uptime || 0)}</p>
+                <p className="text-sm font-semibold">{formatUptime(systemHealth?.uptime || 0)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Memory</p>
-                <p className="text-lg font-semibold">{systemHealth?.memory.percentage || 0}%</p>
+                <p className="text-sm font-semibold">{systemHealth?.memory.percentage || 0}%</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Connections</p>
-                <p className="text-lg font-semibold">
+                <p className="text-sm font-semibold">
                   {systemHealth?.connections.filter(c => c.status === 'healthy').length || 0}/
                   {systemHealth?.connections.length || 0}
                 </p>
@@ -293,7 +293,7 @@ export default function SystemStatus() {
         </TabsList>
 
         {/* Connections Tab */}
-        <TabsContent value="connections" className="space-y-4">
+        <TabsContent value="connections" className="space-y-2">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -305,13 +305,13 @@ export default function SystemStatus() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {systemHealth?.connections.map((conn, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                    className="flex items-center justify-between p-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50"
                   >
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
                       {getStatusIcon(conn.status)}
                       <div>
                         <p className="font-medium">{conn.name}</p>
@@ -320,7 +320,7 @@ export default function SystemStatus() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
                       <Badge className={getStatusColor(conn.status)}>
                         {conn.status}
                       </Badge>
@@ -336,7 +336,7 @@ export default function SystemStatus() {
         </TabsContent>
 
         {/* Emulators Tab */}
-        <TabsContent value="emulators" className="space-y-4">
+        <TabsContent value="emulators" className="space-y-2">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -347,9 +347,9 @@ export default function SystemStatus() {
                 Start, stop, and monitor fleet emulators
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-2">
               {/* Control Buttons */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
                 <Button
                   onClick={handleStartEmulators}
                   disabled={emulatorStatus?.isRunning}
@@ -380,32 +380,32 @@ export default function SystemStatus() {
 
               {/* Status */}
               {emulatorStatus && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <div className="space-y-2">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                       <p className="text-sm text-slate-700 dark:text-gray-400">Total Vehicles</p>
-                      <p className="text-2xl font-bold text-blue-800">{emulatorStatus.stats.totalVehicles}</p>
+                      <p className="text-sm font-bold text-blue-800">{emulatorStatus.stats.totalVehicles}</p>
                     </div>
-                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
                       <p className="text-sm text-slate-700 dark:text-gray-400">Active</p>
-                      <p className="text-2xl font-bold text-green-600">{emulatorStatus.stats.activeVehicles}</p>
+                      <p className="text-sm font-bold text-green-600">{emulatorStatus.stats.activeVehicles}</p>
                     </div>
-                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                    <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                       <p className="text-sm text-slate-700 dark:text-gray-400">Events/sec</p>
-                      <p className="text-2xl font-bold text-purple-600">{emulatorStatus.stats.eventsPerSecond}</p>
+                      <p className="text-sm font-bold text-purple-600">{emulatorStatus.stats.eventsPerSecond}</p>
                     </div>
-                    <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                    <div className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
                       <p className="text-sm text-slate-700 dark:text-gray-400">Total Events</p>
-                      <p className="text-2xl font-bold text-orange-600">{emulatorStatus.stats.totalEvents.toLocaleString()}</p>
+                      <p className="text-sm font-bold text-orange-600">{emulatorStatus.stats.totalEvents.toLocaleString()}</p>
                     </div>
                   </div>
 
                   {/* Emulator Counts */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     {Object.entries(emulatorStatus.emulators).map(([type, count]) => (
                       <div key={type} className="p-3 border rounded-lg">
                         <p className="text-sm text-slate-700 dark:text-gray-400 capitalize">{type}</p>
-                        <p className="text-xl font-semibold">{count} active</p>
+                        <p className="text-base font-semibold">{count} active</p>
                       </div>
                     ))}
                   </div>
@@ -416,7 +416,7 @@ export default function SystemStatus() {
         </TabsContent>
 
         {/* Metrics Tab */}
-        <TabsContent value="metrics" className="space-y-4">
+        <TabsContent value="metrics" className="space-y-2">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -427,7 +427,7 @@ export default function SystemStatus() {
                 Real-time system performance metrics
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-2">
               {/* Memory Usage */}
               <div>
                 <div className="flex items-center justify-between mb-2">

@@ -15,7 +15,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         className={cn(
           // Base styles
-          "flex h-11 w-full min-w-0 rounded-xl border bg-background px-4 py-2.5 text-sm",
+          "flex h-11 w-full min-w-0 rounded-md border bg-background px-2 py-2.5 text-sm",
           // Typography
           "placeholder:text-muted-foreground/60",
           "selection:bg-primary/20 selection:text-foreground",
@@ -57,7 +57,7 @@ const SearchInput = forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         className={cn(
           // Base styles
-          "flex h-11 w-full min-w-0 rounded-xl border bg-background pl-10 pr-4 py-2.5 text-sm",
+          "flex h-11 w-full min-w-0 rounded-md border bg-background pl-10 pr-2 py-2.5 text-sm",
           // Typography
           "placeholder:text-muted-foreground/60",
           // Border and shadow

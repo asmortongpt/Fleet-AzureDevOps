@@ -111,9 +111,9 @@ export function UtilizationAnalytics({
     : 0
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -122,7 +122,7 @@ export function UtilizationAnalytics({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-sm font-bold text-green-600">
               {utilization.utilization_rate.toFixed(1)}%
             </div>
             <Progress value={utilization.utilization_rate} className="mt-2" />
@@ -137,7 +137,7 @@ export function UtilizationAnalytics({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-sm font-bold">
               {utilization.total_productive_hours.toFixed(1)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -154,7 +154,7 @@ export function UtilizationAnalytics({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-800">
+            <div className="text-sm font-bold text-blue-800">
               ${utilization.total_revenue.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -171,7 +171,7 @@ export function UtilizationAnalytics({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-sm font-bold">
               {utilization.total_billable_hours.toFixed(1)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -184,7 +184,7 @@ export function UtilizationAnalytics({
         </Card>
       </div>
 
-      <Tabs defaultValue="breakdown" className="space-y-4">
+      <Tabs defaultValue="breakdown" className="space-y-2">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="breakdown">Time Breakdown</TabsTrigger>
           <TabsTrigger value="details">Daily Details</TabsTrigger>
@@ -192,13 +192,13 @@ export function UtilizationAnalytics({
         </TabsList>
 
         {/* Time Breakdown Tab */}
-        <TabsContent value="breakdown" className="space-y-4">
+        <TabsContent value="breakdown" className="space-y-2">
           <Card>
             <CardHeader>
               <CardTitle>Hour Distribution</CardTitle>
               <CardDescription>How equipment time is allocated</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2">
               <div>
                 <div className="flex justify-between mb-2">
                   <span className="text-sm font-medium">Productive Hours</span>
@@ -251,7 +251,7 @@ export function UtilizationAnalytics({
                 />
               </div>
 
-              <div className="pt-4 border-t">
+              <div className="pt-2 border-t">
                 <div className="flex justify-between">
                   <span className="font-medium">Total Hours</span>
                   <span className="font-bold">{totalHours.toFixed(1)} hrs</span>
@@ -260,7 +260,7 @@ export function UtilizationAnalytics({
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -352,7 +352,7 @@ export function UtilizationAnalytics({
                 <TableBody>
                   {utilization.records.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                      <TableCell colSpan={7} className="text-center text-muted-foreground py-3">
                         No utilization records for this period
                       </TableCell>
                     </TableRow>
@@ -396,7 +396,7 @@ export function UtilizationAnalytics({
               <CardDescription>Utilization patterns over time</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center text-muted-foreground py-8">
+              <div className="text-center text-muted-foreground py-3">
                 Trend visualization would be displayed here
                 <br />
                 (Chart integration required)

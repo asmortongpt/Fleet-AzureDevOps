@@ -193,7 +193,7 @@ export function ZoneOverlay({
           className="absolute top-2 left-2"
         >
           <div
-            className="px-3 py-1 rounded-md text-white text-xs font-semibold shadow-lg"
+            className="px-3 py-1 rounded-md text-white text-xs font-semibold shadow-sm"
             style={{ backgroundColor: config.borderColor }}
           >
             {label}

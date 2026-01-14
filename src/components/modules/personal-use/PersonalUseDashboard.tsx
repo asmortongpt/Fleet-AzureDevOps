@@ -60,12 +60,12 @@ interface PendingApproval extends TripUsageClassification {
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center h-64">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-primary"></div>
   </div>
 )
 
 const ErrorDisplay = ({ error, onRetry }: { error: string; onRetry: () => void }) => (
-  <Alert variant="destructive" className="m-4">
+  <Alert variant="destructive" className="m-2">
     <XCircle className="h-4 w-4" />
     <AlertTitle>Error</AlertTitle>
     <AlertDescription className="flex items-center justify-between">
@@ -80,7 +80,7 @@ const ErrorDisplay = ({ error, onRetry }: { error: string; onRetry: () => void }
 
 const EmptyState = ({ message }: { message: string }) => (
   <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
-    <Car className="w-16 h-16 mb-4 opacity-50" />
+    <Car className="w-16 h-16 mb-2 opacity-50" />
     <p>{message}</p>
   </div>
 )
@@ -289,12 +289,12 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
   if (error && error instanceof Error) return <ErrorDisplay error={error.message} onRetry={() => queryClient.invalidateQueries({ queryKey: ['trip-usage-pending-approval'] })} />
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <div className="container mx-auto p-2 space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Car className="w-8 h-8" />
+          <h1 className="text-base font-bold flex items-center gap-2">
+            <Car className="w-4 h-4" />
             Personal Use Dashboard
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -338,7 +338,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
         </div>
       </div>
 
-      <Tabs defaultValue={userRole === 'driver' ? 'overview' : 'approvals'} className="space-y-4">
+      <Tabs defaultValue={userRole === 'driver' ? 'overview' : 'approvals'} className="space-y-2">
         <TabsList>
           {userRole === 'driver' ? (
             <>
@@ -359,21 +359,21 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
         {userRole === 'driver' && (
           <>
             {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-6">
+            <TabsContent value="overview" className="space-y-2">
               {/* Usage Meters */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {/* Monthly Usage */}
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span>Monthly Personal Use</span>
-                      <Calendar className="w-5 h-5 text-muted-foreground" />
+                      <Calendar className="w-3 h-3 text-muted-foreground" />
                     </CardTitle>
                     <CardDescription>
                       {usageLimits?.current_month?.period || new Date().toISOString().slice(0, 7)}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-2">
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span>
@@ -426,13 +426,13 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span>Annual Personal Use</span>
-                      <Calendar className="w-5 h-5 text-muted-foreground" />
+                      <Calendar className="w-3 h-3 text-muted-foreground" />
                     </CardTitle>
                     <CardDescription>
                       {usageLimits?.current_year?.period || new Date().getFullYear().toString()}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-2">
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span>
@@ -483,7 +483,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
 
               {/* Warnings/Alerts */}
               {usageLimits?.warnings?.length > 0 && (
-                <Alert variant="destructive" className="mb-6">
+                <Alert variant="destructive" className="mb-3">
                   <Warning className="h-4 w-4" />
                   <AlertTitle>Usage Alerts</AlertTitle>
                   <AlertDescription className="space-y-2">
@@ -576,8 +576,8 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
             </TabsContent>
 
             {/* Trips Tab */}
-            <TabsContent value="trips" className="space-y-6">
-              <div className="flex flex-wrap gap-4 mb-4">
+            <TabsContent value="trips" className="space-y-2">
+              <div className="flex flex-wrap gap-2 mb-2">
                 <div className="w-48">
                   <Select value={dateFilter} onValueChange={(value) => setDateFilter(value as '30days' | '90days' | 'year')}>
                     <SelectTrigger>
@@ -657,7 +657,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
             </TabsContent>
 
             {/* Charges Tab */}
-            <TabsContent value="charges" className="space-y-6">
+            <TabsContent value="charges" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Personal Use Charges</CardTitle>
@@ -700,7 +700,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
         {userRole !== 'driver' && (
           <>
             {/* Approvals Tab */}
-            <TabsContent value="approvals" className="space-y-6">
+            <TabsContent value="approvals" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Pending Approvals</CardTitle>
@@ -761,14 +761,14 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
             </TabsContent>
 
             {/* Team Overview Tab */}
-            <TabsContent value="team" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <TabsContent value="team" className="space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-3">
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium">Team Members</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{teamSummary?.total_members || 0}</div>
+                    <div className="text-sm font-bold">{teamSummary?.total_members || 0}</div>
                   </CardContent>
                 </Card>
                 <Card>
@@ -776,7 +776,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                     <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{teamSummary?.pending_approvals || 0}</div>
+                    <div className="text-sm font-bold">{teamSummary?.pending_approvals || 0}</div>
                   </CardContent>
                 </Card>
                 <Card>
@@ -784,7 +784,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                     <CardTitle className="text-sm font-medium">Drivers Near Limit</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{teamSummary?.drivers_near_limit || 0}</div>
+                    <div className="text-sm font-bold">{teamSummary?.drivers_near_limit || 0}</div>
                   </CardContent>
                 </Card>
                 <Card>
@@ -792,7 +792,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                     <CardTitle className="text-sm font-medium">Charges This Month</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">${(teamSummary?.total_charges_this_month || 0).toFixed(2)}</div>
+                    <div className="text-sm font-bold">${(teamSummary?.total_charges_this_month || 0).toFixed(2)}</div>
                   </CardContent>
                 </Card>
               </div>
@@ -809,7 +809,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
             </TabsContent>
 
             {/* Violations Tab */}
-            <TabsContent value="violations" className="space-y-6">
+            <TabsContent value="violations" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Policy Violations</CardTitle>

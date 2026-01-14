@@ -378,11 +378,11 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-2 p-3">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+          <h1 className="text-base font-bold text-slate-900 dark:text-white">
             Policy Violations
           </h1>
           <p className="text-slate-600 dark:text-slate-400 mt-1">
@@ -418,16 +418,16 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
         </TabsList>
 
         {/* Dashboard Tab */}
-        <TabsContent value="dashboard" className="space-y-6">
+        <TabsContent value="dashboard" className="space-y-2">
           {/* Statistics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Violations</CardTitle>
                 <AlertTriangle className="h-4 w-4 text-slate-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{statistics?.totalViolations || 0}</div>
+                <div className="text-sm font-bold">{statistics?.totalViolations || 0}</div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                   Last 30 days
                 </p>
@@ -440,7 +440,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 <XCircle className="h-4 w-4 text-red-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-red-600">
+                <div className="text-sm font-bold text-red-600">
                   {statistics?.openViolations || 0}
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -455,7 +455,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 <AlertOctagon className="h-4 w-4 text-red-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-red-700">
+                <div className="text-sm font-bold text-red-700">
                   {statistics?.criticalViolations || 0}
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -470,7 +470,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 <Clock className="h-4 w-4 text-blue-800" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-sm font-bold">
                   {statistics?.avgResolutionHours.toFixed(1) || '0'}h
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -481,7 +481,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
           </div>
 
           {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
             {/* Trend Chart */}
             <Card>
               <CardHeader>
@@ -556,7 +556,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 <CardTitle>Top Violators</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {statistics && (
                     <>
                       <div className="flex items-center justify-between">
@@ -593,14 +593,14 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
         </TabsContent>
 
         {/* Violations Tab */}
-        <TabsContent value="violations" className="space-y-4">
+        <TabsContent value="violations" className="space-y-2">
           {/* Filters */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Filters</CardTitle>
+              <CardTitle className="text-sm">Filters</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2">
                 <div>
                   <label className="text-sm font-medium mb-1 block">Search</label>
                   <div className="relative">
@@ -709,14 +709,14 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                   <TableBody>
                     {loading ? (
                       <TableRow>
-                        <TableCell colSpan={8} className="text-center py-8">
-                          <Activity className="w-6 h-6 animate-spin mx-auto mb-2" />
+                        <TableCell colSpan={8} className="text-center py-3">
+                          <Activity className="w-4 h-4 animate-spin mx-auto mb-2" />
                           Loading violations...
                         </TableCell>
                       </TableRow>
                     ) : filteredViolations.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={8} className="text-center py-8 text-slate-500">
+                        <TableCell colSpan={8} className="text-center py-3 text-slate-500">
                           No violations found
                         </TableCell>
                       </TableRow>
@@ -758,32 +758,32 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
         </TabsContent>
 
         {/* Compliance Tab */}
-        <TabsContent value="compliance" className="space-y-4">
+        <TabsContent value="compliance" className="space-y-2">
           <Card>
             <CardHeader>
               <CardTitle>Compliance Reporting</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2">
               <p className="text-slate-600 dark:text-slate-400">
                 Generate comprehensive compliance reports for audit and regulatory purposes.
               </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <Button variant="outline" className="h-24 flex flex-col gap-2">
-                  <FileText className="w-6 h-6" />
+                  <FileText className="w-4 h-4" />
                   <span>Monthly Summary</span>
                 </Button>
                 <Button variant="outline" className="h-24 flex flex-col gap-2">
-                  <Calendar className="w-6 h-6" />
+                  <Calendar className="w-4 h-4" />
                   <span>Quarterly Report</span>
                 </Button>
                 <Button variant="outline" className="h-24 flex flex-col gap-2">
-                  <TrendingUp className="w-6 h-6" />
+                  <TrendingUp className="w-4 h-4" />
                   <span>Policy Effectiveness</span>
                 </Button>
               </div>
 
-              <div className="border-t pt-4 mt-4">
+              <div className="border-t pt-2 mt-2">
                 <h3 className="font-semibold mb-2">Policy Recommendations</h3>
                 <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
                   <li className="flex items-start gap-2">
@@ -816,9 +816,9 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
           </DialogHeader>
 
           {selectedViolation && (
-            <div className="space-y-4">
+            <div className="space-y-2">
               {/* Summary */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-sm font-medium text-slate-500">Severity</label>
                   <div className="mt-1">{getSeverityBadge(selectedViolation.severity)}</div>
@@ -857,9 +857,9 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
 
               {/* Metrics */}
               {selectedViolation.thresholdValue && selectedViolation.actualValue && (
-                <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg">
+                <div className="bg-slate-50 dark:bg-slate-800 p-2 rounded-lg">
                   <h4 className="font-semibold mb-2">Violation Metrics</h4>
-                  <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div className="grid grid-cols-3 gap-2 text-sm">
                     <div>
                       <div className="text-slate-500">Threshold</div>
                       <div className="font-semibold">

@@ -54,11 +54,11 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
       <div className="flex items-start gap-3 mb-3">
         {/* File icon */}
         <div
-          className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center"
+          className="flex-shrink-0 w-10 h-8 rounded-lg flex items-center justify-center"
           style={{ backgroundColor: document.categoryColor || '#3B82F6' }}
         >
           <svg
-            className="w-6 h-6 text-white"
+            className="w-4 h-4 text-white"
             fill="currentColor"
             viewBox="0 0 20 20"
           >

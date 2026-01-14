@@ -31,14 +31,14 @@ export function FinancialTab({
 }: FinancialTabProps) {
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         <MetricCard
           title="Total Fuel Cost"
           value={`$${totalFuelCost.toLocaleString()}`}
           trend="up"
           change={8.5}
           subtitle="vs last period"
-          icon={<GasPump className="w-5 h-5" />}
+          icon={<GasPump className="w-3 h-3" />}
           status="warning"
         />
         <MetricCard
@@ -47,19 +47,19 @@ export function FinancialTab({
           trend="down"
           change={2.3}
           subtitle="vs last period"
-          icon={<Wrench className="w-5 h-5" />}
+          icon={<Wrench className="w-3 h-3" />}
           status="success"
         />
         <MetricCard
           title="Cost per Vehicle"
           value={`$${costPerVehicle.toLocaleString()}`}
           subtitle="average total cost"
-          icon={<CurrencyDollar className="w-5 h-5" />}
+          icon={<CurrencyDollar className="w-3 h-3" />}
           status="info"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
         <ChartCard
           title="Cost Analysis Breakdown"
           subtitle="Monthly operating costs by category"
@@ -73,7 +73,7 @@ export function FinancialTab({
             <CardTitle>Cost Distribution</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-2">
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium">Fuel</span>
@@ -102,10 +102,10 @@ export function FinancialTab({
                   />
                 </div>
               </div>
-              <div className="pt-4 border-t">
+              <div className="pt-2 border-t">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold">Total Operating Cost</span>
-                  <span className="font-semibold text-lg">
+                  <span className="font-semibold text-sm">
                     ${(totalFuelCost + totalMaintenanceCost).toLocaleString()}
                   </span>
                 </div>

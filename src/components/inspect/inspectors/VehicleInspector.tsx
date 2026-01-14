@@ -76,7 +76,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
+      <div className="flex items-center justify-center p-3">
         <Loader2 className="h-8 w-8 animate-spin text-blue-800" />
         <span className="ml-2 text-slate-700">Loading vehicle data...</span>
       </div>
@@ -85,7 +85,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
 
   if (error) {
     return (
-      <div className="p-8">
+      <div className="p-3">
         <div className="flex items-center gap-2 text-red-600">
           <AlertCircle className="h-5 w-5" />
           <span>{error}</span>
@@ -96,7 +96,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
 
   if (!vehicle) {
     return (
-      <div className="p-8 text-gray-500">
+      <div className="p-3 text-gray-500">
         No vehicle data available
       </div>
     );
@@ -105,10 +105,10 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="border-b p-4">
+      <div className="border-b p-2">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-sm font-bold text-gray-900 dark:text-white">
               {vehicle.name}
             </h2>
             <p className="text-sm text-slate-700 dark:text-gray-400">
@@ -132,10 +132,10 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
         </TabsList>
 
         {/* Overview Tab */}
-        <TabsContent value="overview" className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Vehicle Information</h3>
+        <TabsContent value="overview" className="p-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <Card className="p-2">
+              <h3 className="text-sm font-semibold mb-2">Vehicle Information</h3>
               <dl className="space-y-2">
                 <div className="flex justify-between">
                   <dt className="text-slate-700">VIN</dt>
@@ -152,8 +152,8 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
               </dl>
             </Card>
 
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Current Status</h3>
+            <Card className="p-2">
+              <h3 className="text-sm font-semibold mb-2">Current Status</h3>
               <dl className="space-y-2">
                 <div className="flex justify-between">
                   <dt className="text-slate-700">Odometer</dt>
@@ -179,12 +179,12 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
         </TabsContent>
 
         {/* Live Tab */}
-        <TabsContent value="live" className="p-4">
-          <Card className="p-4">
-            <h3 className="text-lg font-semibold mb-4">Live Vehicle Status</h3>
+        <TabsContent value="live" className="p-2">
+          <Card className="p-2">
+            <h3 className="text-sm font-semibold mb-2">Live Vehicle Status</h3>
             {vehicle.location ? (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <p className="text-sm text-slate-700">Latitude</p>
                     <p className="font-mono">{vehicle.location.latitude.toFixed(6)}</p>
@@ -211,10 +211,10 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
         </TabsContent>
 
         {/* Telemetry Tab */}
-        <TabsContent value="telemetry" className="p-4">
-          <Card className="p-4">
-            <h3 className="text-lg font-semibold mb-4">OBD2 Diagnostics</h3>
-            <div className="text-slate-700 mb-4">
+        <TabsContent value="telemetry" className="p-2">
+          <Card className="p-2">
+            <h3 className="text-sm font-semibold mb-2">OBD2 Diagnostics</h3>
+            <div className="text-slate-700 mb-2">
               Vehicle ID: {vehicle.id}
             </div>
             <OBD2Dashboard />
@@ -222,21 +222,21 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
         </TabsContent>
 
         {/* Maintenance Tab */}
-        <TabsContent value="maintenance" className="p-4">
-          <Card className="p-4">
-            <h3 className="text-lg font-semibold mb-4">Maintenance History</h3>
-            <div className="space-y-4">
-              <div className="border-l-4 border-blue-500 pl-4 py-2">
+        <TabsContent value="maintenance" className="p-2">
+          <Card className="p-2">
+            <h3 className="text-sm font-semibold mb-2">Maintenance History</h3>
+            <div className="space-y-2">
+              <div className="border-l-4 border-blue-500 pl-2 py-2">
                 <p className="font-medium">Oil Change</p>
                 <p className="text-sm text-slate-700">Last performed at {(vehicle.odometer - 3000).toLocaleString()} miles</p>
                 <p className="text-sm text-gray-500">Next due at {(vehicle.odometer + 2000).toLocaleString()} miles</p>
               </div>
-              <div className="border-l-4 border-green-500 pl-4 py-2">
+              <div className="border-l-4 border-green-500 pl-2 py-2">
                 <p className="font-medium">Tire Rotation</p>
                 <p className="text-sm text-slate-700">Last performed at {(vehicle.odometer - 5000).toLocaleString()} miles</p>
                 <p className="text-sm text-gray-500">Next due at {(vehicle.odometer + 1000).toLocaleString()} miles</p>
               </div>
-              <div className="border-l-4 border-yellow-500 pl-4 py-2">
+              <div className="border-l-4 border-yellow-500 pl-2 py-2">
                 <p className="font-medium">Inspection Due</p>
                 <p className="text-sm text-slate-700">Annual inspection required</p>
                 <p className="text-sm text-gray-500">Due in 45 days</p>
@@ -246,36 +246,36 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
         </TabsContent>
 
         {/* Timeline Tab */}
-        <TabsContent value="timeline" className="p-4">
-          <Card className="p-4">
-            <h3 className="text-lg font-semibold mb-4">Activity Timeline</h3>
-            <div className="space-y-4">
-              <div className="flex gap-4">
+        <TabsContent value="timeline" className="p-2">
+          <Card className="p-2">
+            <h3 className="text-sm font-semibold mb-2">Activity Timeline</h3>
+            <div className="space-y-2">
+              <div className="flex gap-2">
                 <div className="flex flex-col items-center">
                   <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                   <div className="w-px h-full bg-gray-300"></div>
                 </div>
-                <div className="flex-1 pb-4">
+                <div className="flex-1 pb-2">
                   <p className="font-medium">Vehicle started</p>
                   <p className="text-sm text-slate-700">2 hours ago</p>
                 </div>
               </div>
-              <div className="flex gap-4">
+              <div className="flex gap-2">
                 <div className="flex flex-col items-center">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                   <div className="w-px h-full bg-gray-300"></div>
                 </div>
-                <div className="flex-1 pb-4">
+                <div className="flex-1 pb-2">
                   <p className="font-medium">Trip completed</p>
                   <p className="text-sm text-slate-700">5 hours ago • 45.2 miles</p>
                 </div>
               </div>
-              <div className="flex gap-4">
+              <div className="flex gap-2">
                 <div className="flex flex-col items-center">
                   <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                   <div className="w-px h-full bg-gray-300"></div>
                 </div>
-                <div className="flex-1 pb-4">
+                <div className="flex-1 pb-2">
                   <p className="font-medium">Refueled</p>
                   <p className="text-sm text-slate-700">Yesterday • 14.5 gallons</p>
                 </div>

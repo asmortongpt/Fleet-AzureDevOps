@@ -267,10 +267,10 @@ export function PolicyEngineWorkbench() {
   const totalViolations = (policies || []).reduce((sum, p) => sum + p.violationCount, 0)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Policy Engine Workbench</h2>
+          <h2 className="text-sm font-semibold">Policy Engine Workbench</h2>
           <p className="text-muted-foreground">
             AI-driven compliance automation with Monitor, Human-in-Loop, and Autonomous modes
           </p>
@@ -297,8 +297,8 @@ export function PolicyEngineWorkbench() {
                 Define automated compliance rules with AI-powered execution
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2 py-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="policy-name">Policy Name *</Label>
                   <Input
@@ -348,7 +348,7 @@ export function PolicyEngineWorkbench() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="policy-mode">Execution Mode</Label>
                   <Select
@@ -391,7 +391,7 @@ export function PolicyEngineWorkbench() {
 
               <div className="space-y-2">
                 <Label htmlFor="confidence-score">AI Confidence Threshold</Label>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
                   <Input
                     id="confidence-score"
                     type="range"
@@ -481,7 +481,7 @@ export function PolicyEngineWorkbench() {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -489,7 +489,7 @@ export function PolicyEngineWorkbench() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalPolicies}</div>
+            <div className="text-sm font-bold">{totalPolicies}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Robot className="w-3 h-3" />
               All policies
@@ -504,7 +504,7 @@ export function PolicyEngineWorkbench() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{activePolicies}</div>
+            <div className="text-sm font-bold text-green-600">{activePolicies}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <CheckCircle className="w-3 h-3" />
               Enforcing
@@ -519,7 +519,7 @@ export function PolicyEngineWorkbench() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-800">{totalExecutions}</div>
+            <div className="text-sm font-bold text-blue-800">{totalExecutions}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Brain className="w-3 h-3" />
               All time
@@ -534,7 +534,7 @@ export function PolicyEngineWorkbench() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{totalViolations}</div>
+            <div className="text-sm font-bold text-orange-600">{totalViolations}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Warning className="w-3 h-3" />
               Flagged
@@ -543,7 +543,7 @@ export function PolicyEngineWorkbench() {
         </Card>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-2">
         <div className="relative flex-1">
           <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -579,7 +579,7 @@ export function PolicyEngineWorkbench() {
         </Select>
       </div>
 
-      <Tabs defaultValue="policies" className="space-y-6">
+      <Tabs defaultValue="policies" className="space-y-2">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="policies">
             <Robot className="w-4 h-4 mr-2" />
@@ -623,7 +623,7 @@ export function PolicyEngineWorkbench() {
                 <TableBody>
                   {filteredPolicies.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                      <TableCell colSpan={7} className="text-center text-muted-foreground py-3">
                         No policies found. Create your first policy to start automated compliance monitoring.
                       </TableCell>
                     </TableRow>

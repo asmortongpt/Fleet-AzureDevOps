@@ -396,15 +396,15 @@ export function MapSettings() {
 
   if (isValidating) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-2">
         <div>
           <Skeleton className="h-8 w-64 mb-2" />
           <Skeleton className="h-4 w-96" />
         </div>
-        <Card className="p-6">
-          <div className="space-y-4">
+        <Card className="p-3">
+          <div className="space-y-2">
             {[...Array(2)].map((_, i) => (
-              <div key={i} className="p-4 border rounded-lg">
+              <div key={i} className="p-2 border rounded-lg">
                 <Skeleton className="h-6 w-48 mb-2" />
                 <Skeleton className="h-4 w-full mb-2" />
                 <Skeleton className="h-4 w-32" />
@@ -417,10 +417,10 @@ export function MapSettings() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+        <h2 className="text-sm font-bold tracking-tight flex items-center gap-2">
           <Globe className="h-6 w-6" />
           Map Provider Settings
         </h2>
@@ -452,9 +452,9 @@ export function MapSettings() {
       )}
 
       {/* Provider Selection */}
-      <Card className="p-6">
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+      <Card className="p-3">
+        <div className="mb-3">
+          <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
             <Layers className="h-5 w-5" />
             Available Providers
           </h3>
@@ -466,7 +466,7 @@ export function MapSettings() {
         <RadioGroup
           value={selectedProvider}
           onValueChange={handleProviderChange}
-          className="space-y-4"
+          className="space-y-2"
           disabled={isSaving}
         >
           {MAP_PROVIDERS.map((provider) => {
@@ -481,7 +481,7 @@ export function MapSettings() {
                   isSelected ? "border-primary bg-primary/5 shadow-sm" : ""
                 } ${!validation?.isAvailable && !isCurrentProvider ? "opacity-60" : ""}`}
               >
-                <div className="flex items-start space-x-3 p-4">
+                <div className="flex items-start space-x-3 p-2">
                   <RadioGroupItem value={provider.id} id={provider.id} className="mt-1" />
                   <div className="flex-1">
                     <Label htmlFor={provider.id} className="font-medium cursor-pointer">
@@ -506,9 +506,9 @@ export function MapSettings() {
 
         {/* Confirmation and Save */}
         {showConfirmation && selectedValidation?.isAvailable && (
-          <div className="mt-6 p-4 border border-dashed border-primary rounded-md bg-primary/5">
+          <div className="mt-3 p-2 border border-dashed border-primary rounded-md bg-primary/5">
             <h4 className="font-medium text-primary mb-2">Confirm Provider Switch</h4>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm text-muted-foreground mb-2">
               Switching map providers will reload the application with the new mapping engine.
               Some features may work differently based on provider capabilities.
             </p>
@@ -535,15 +535,15 @@ export function MapSettings() {
 
       {/* Provider Details */}
       {selectedOption && (
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+        <Card className="p-3">
+          <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
             <Map className="h-5 w-5" />
             {selectedOption.name} Details
           </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <div className="md:col-span-2">
-              <div className="space-y-6">
+              <div className="space-y-2">
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
                     <Check className="h-4 w-4" />
@@ -576,7 +576,7 @@ export function MapSettings() {
               </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-2">
               <div>
                 <h4 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
                   <DollarSign className="h-4 w-4" />

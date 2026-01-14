@@ -41,7 +41,7 @@ export default function CalculationTooltip({
         <div className="space-y-3">
           <div>
             <h4 className="font-semibold text-sm mb-1">{metricName}</h4>
-            <p className="text-2xl font-bold">{value}</p>
+            <p className="text-sm font-bold">{value}</p>
           </div>
 
           <div className="border-t pt-2">
@@ -104,7 +104,7 @@ export function UtilizationMetric({ activeHours, totalHours }: { activeHours: nu
   
   return (
     <div className="flex items-center gap-2">
-      <span className="text-2xl font-bold">{utilization}%</span>
+      <span className="text-sm font-bold">{utilization}%</span>
       <CalculationTooltip
         metricName="Vehicle Utilization Rate"
         value={`${utilization}%`}

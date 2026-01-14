@@ -488,16 +488,16 @@ export default function DispatchConsole() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
+          <h1 className="text-base font-bold flex items-center gap-2">
             <Radio className="h-8 w-8" />
             Dispatch Radio Console
           </h1>
           <p className="text-muted-foreground">Real-time fleet communications</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <Badge variant={isConnected ? 'default' : 'destructive'}>
             {isConnected ? 'Connected' : 'Disconnected'}
           </Badge>

@@ -51,7 +51,7 @@ export function DocumentClassification({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b">
+      <div className="p-2 border-b">
         <h3 className="font-semibold flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-primary" />
           Classification
@@ -61,8 +61,8 @@ export function DocumentClassification({
         </p>
       </div>
 
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-6">
+      <ScrollArea className="flex-1 p-2">
+        <div className="space-y-2">
           {/* Current tags */}
           <Card>
             <CardHeader>
@@ -97,7 +97,7 @@ export function DocumentClassification({
                 <p className="text-sm text-muted-foreground">No tags yet</p>
               )}
 
-              <Separator className="my-4" />
+              <Separator className="my-2" />
 
               <div className="flex gap-2">
                 <Input

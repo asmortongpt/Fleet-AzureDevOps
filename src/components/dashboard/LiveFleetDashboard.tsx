@@ -204,29 +204,29 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
 
   // Side Panel Content
   const sidePanel = (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div>
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">Fleet Overview</h2>
+        <h2 className="text-base sm:text-sm font-bold text-slate-900 dark:text-slate-100">Fleet Overview</h2>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Real-time vehicle monitoring</p>
       </div>
 
       {/* Quick Stats - Responsive Grid */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
-          <CardContent className="pt-3 pb-2 px-2 sm:pt-4 sm:pb-3 sm:px-3">
-            <div className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">{activeCount}</div>
+          <CardContent className="pt-3 pb-2 px-2 sm:pt-2 sm:pb-3 sm:px-3">
+            <div className="text-base sm:text-sm font-bold text-emerald-600 dark:text-emerald-400">{activeCount}</div>
             <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Active</div>
           </CardContent>
         </Card>
         <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
-          <CardContent className="pt-3 pb-2 px-2 sm:pt-4 sm:pb-3 sm:px-3">
-            <div className="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400">{maintenanceCount}</div>
+          <CardContent className="pt-3 pb-2 px-2 sm:pt-2 sm:pb-3 sm:px-3">
+            <div className="text-base sm:text-sm font-bold text-amber-600 dark:text-amber-400">{maintenanceCount}</div>
             <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Maint.</div>
           </CardContent>
         </Card>
         <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
-          <CardContent className="pt-3 pb-2 px-2 sm:pt-4 sm:pb-3 sm:px-3">
-            <div className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">{totalVehicles}</div>
+          <CardContent className="pt-3 pb-2 px-2 sm:pt-2 sm:pb-3 sm:px-3">
+            <div className="text-base sm:text-sm font-bold text-slate-900 dark:text-slate-100">{totalVehicles}</div>
             <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Total</div>
           </CardContent>
         </Card>
@@ -234,9 +234,9 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
 
       {/* Selected Vehicle Info */}
       {selectedVehicle && (
-        <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-slate-200 dark:border-slate-700 shadow-lg">
+        <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-slate-200 dark:border-slate-700 shadow-sm">
           <CardHeader className="pb-3 border-b border-slate-100 dark:border-slate-800">
-            <CardTitle className="text-lg flex items-center justify-between">
+            <CardTitle className="text-sm flex items-center justify-between">
               <span className="font-mono text-slate-900 dark:text-slate-100">{selectedVehicle.vehicleNumber || selectedVehicle.number || 'N/A'}</span>
               <Badge
                 className={selectedVehicle.status === 'active' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-slate-500'}
@@ -371,8 +371,8 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
 
   // Drawer Content (for mobile detailed view)
   const drawerContent = selectedVehicle && (
-    <div className="space-y-4">
-      <h3 className="text-lg font-bold">
+    <div className="space-y-2">
+      <h3 className="text-sm font-bold">
         Vehicle Details: {selectedVehicle.vehicleNumber || selectedVehicle.number || 'N/A'}
       </h3>
       <div className="space-y-2">
@@ -400,8 +400,8 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <Gauge className="h-12 w-12 animate-spin mx-auto text-blue-800" />
-          <p className="mt-4 text-slate-600">Loading fleet data...</p>
+          <Gauge className="h-9 w-12 animate-spin mx-auto text-blue-800" />
+          <p className="mt-2 text-slate-600">Loading fleet data...</p>
         </div>
       </div>
     );

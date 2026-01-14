@@ -24,23 +24,23 @@ function ExecutiveContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 min-h-full overflow-auto">
+        <div className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-background to-background/95 min-h-full overflow-auto">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Executive Dashboard</h2>
+                    <h2 className="text-sm sm:text-base lg:text-sm font-bold text-foreground">Executive Dashboard</h2>
                     <p className="text-sm text-muted-foreground mt-0.5">High-level KPIs and business metrics</p>
                 </div>
                 <StatusDot status="online" label="Real-time" />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-2">
                 <StatCard
                     title="Fleet Utilization"
                     value="87%"
                     trend="up"
                     trendValue="+5%"
                     variant="success"
-                    icon={<Gauge className="w-5 h-5 sm:w-6 sm:h-6" />}
+                    icon={<Gauge className="w-3 h-3 sm:w-6 sm:h-6" />}
                     onClick={() => push({ type: 'fleet-kpis', data: { title: 'Fleet Utilization' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
@@ -49,7 +49,7 @@ function ExecutiveContent() {
                     trend="down"
                     trendValue="-3¢"
                     variant="success"
-                    icon={<CurrencyDollar className="w-5 h-5 sm:w-6 sm:h-6" />}
+                    icon={<CurrencyDollar className="w-3 h-3 sm:w-6 sm:h-6" />}
                     onClick={() => push({ type: 'cost-analysis', data: { title: 'Cost per Mile' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
@@ -70,26 +70,26 @@ function ExecutiveContent() {
                 />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-2">
                 <div
-                    className="bg-card/80 backdrop-blur-xl rounded-xl border border-border/50 p-4 sm:p-6 cursor-pointer hover:border-success/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                    className="bg-card/80 backdrop-blur-xl rounded-md border border-border/50 p-2 sm:p-3 cursor-pointer hover:border-success/40 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-300"
                     onClick={() => push({ type: 'executive-dashboard', data: { title: 'Revenue Trend' } } as Omit<DrilldownLevel, "timestamp">)}
                     role="button"
                     tabIndex={0}
                 >
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">Revenue Trend</h3>
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Revenue Trend</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={112} color="green" label="$1.2M" sublabel="MTD vs target" />
                     </div>
                 </div>
 
                 <div
-                    className="bg-card/80 backdrop-blur-xl rounded-xl border border-border/50 p-4 sm:p-6 cursor-pointer hover:border-border transition-all duration-300"
+                    className="bg-card/80 backdrop-blur-xl rounded-md border border-border/50 p-2 sm:p-3 cursor-pointer hover:border-border transition-all duration-300"
                     onClick={() => push({ type: 'executive-dashboard', data: { title: 'Key Metrics' } } as Omit<DrilldownLevel, "timestamp">)}
                     role="button"
                     tabIndex={0}
                 >
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">Key Metrics</h3>
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Key Metrics</h3>
                     <div className="space-y-0.5">
                         <QuickStat label="Total Revenue" value="$1.24M" trend="up" />
                         <QuickStat label="Operating Costs" value="$890K" trend="down" />
@@ -99,12 +99,12 @@ function ExecutiveContent() {
                 </div>
 
                 <div
-                    className="bg-card/80 backdrop-blur-xl rounded-xl border border-border/50 p-4 sm:p-6 cursor-pointer hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                    className="bg-card/80 backdrop-blur-xl rounded-md border border-border/50 p-2 sm:p-3 cursor-pointer hover:border-primary/40 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-300"
                     onClick={() => push({ type: 'executive-dashboard', data: { title: 'Goal Progress' } } as Omit<DrilldownLevel, "timestamp">)}
                     role="button"
                     tabIndex={0}
                 >
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">Goal Progress</h3>
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Goal Progress</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={78} color="blue" label="Q4 Goals" sublabel="12 of 15 complete" />
                     </div>
@@ -118,14 +118,14 @@ function DashboardContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 overflow-auto">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Analytics Dashboard</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-background to-background/95 overflow-auto">
+            <h2 className="text-sm sm:text-base lg:text-sm font-bold text-foreground">Analytics Dashboard</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-2">
                 <StatCard
                     title="Active Reports"
                     value="24"
                     variant="primary"
-                    icon={<ChartBar className="w-5 h-5 sm:w-6 sm:h-6" />}
+                    icon={<ChartBar className="w-3 h-3 sm:w-6 sm:h-6" />}
                     onClick={() => push({ type: 'executive-dashboard', data: { title: 'Active Reports' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
@@ -155,14 +155,14 @@ function WorkbenchContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 overflow-auto">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Data Workbench</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <div className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-background to-background/95 overflow-auto">
+            <h2 className="text-sm sm:text-base lg:text-sm font-bold text-foreground">Data Workbench</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-2">
                 <StatCard
                     title="Queries"
                     value="45"
                     variant="primary"
-                    icon={<Database className="w-5 h-5 sm:w-6 sm:h-6" />}
+                    icon={<Database className="w-3 h-3 sm:w-6 sm:h-6" />}
                     onClick={() => push({ type: 'executive-dashboard', data: { title: 'Saved Queries' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
@@ -186,14 +186,14 @@ function OptimizerContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 overflow-auto">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Fleet Optimizer</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-background to-background/95 overflow-auto">
+            <h2 className="text-sm sm:text-base lg:text-sm font-bold text-foreground">Fleet Optimizer</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-2">
                 <StatCard
                     title="Recommendations"
                     value="8"
                     variant="primary"
-                    icon={<TrendUp className="w-5 h-5 sm:w-6 sm:h-6" />}
+                    icon={<TrendUp className="w-3 h-3 sm:w-6 sm:h-6" />}
                     onClick={() => push({ type: 'optimization-recommendations', data: { title: 'Recommendations' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
@@ -223,14 +223,14 @@ function CostsContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 overflow-auto">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Cost Analysis</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-background to-background/95 overflow-auto">
+            <h2 className="text-sm sm:text-base lg:text-sm font-bold text-foreground">Cost Analysis</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-2">
                 <StatCard
                     title="Total TCO"
                     value="$2.4M"
                     variant="primary"
-                    icon={<CurrencyDollar className="w-5 h-5 sm:w-6 sm:h-6" />}
+                    icon={<CurrencyDollar className="w-3 h-3 sm:w-6 sm:h-6" />}
                     onClick={() => push({ type: 'total-tco', data: { title: 'Total Cost of Ownership' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
@@ -260,14 +260,14 @@ function ReportsContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-6 space-y-6 bg-gradient-to-b from-slate-900/50 to-transparent">
-            <h2 className="text-2xl font-bold text-white">Custom Reports</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="p-3 space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent">
+            <h2 className="text-sm font-bold text-white">Custom Reports</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <StatCard
                     title="Templates"
                     value="18"
                     variant="primary"
-                    icon={<FileText className="w-6 h-6" />}
+                    icon={<FileText className="w-4 h-4" />}
                     onClick={() => push({ type: 'report-templates', data: { title: 'Report Templates' } } as Omit<DrilldownLevel, "timestamp">)}
                 />
                 <StatCard
@@ -300,7 +300,7 @@ export function AnalyticsHub() {
     return (
         <HubPage
             title="Analytics Hub"
-            icon={<AnalyticsIcon className="w-6 h-6" />}
+            icon={<AnalyticsIcon className="w-4 h-4" />}
             description="Dashboards, reports, and fleet optimization"
             tabs={tabs}
             defaultTab="executive"

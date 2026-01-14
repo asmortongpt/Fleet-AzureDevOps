@@ -114,14 +114,14 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Header with Status */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Activity className="w-5 h-5" />
+                <Activity className="w-3 h-3" />
                 Live Telematics
               </CardTitle>
               <CardDescription>
@@ -135,7 +135,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
         </CardHeader>
       </Card>
 
-      <Tabs defaultValue="overview" className="space-y-4">
+      <Tabs defaultValue="overview" className="space-y-2">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="engine">Engine</TabsTrigger>
@@ -144,8 +144,8 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
         </TabsList>
 
         {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <TabsContent value="overview" className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -154,7 +154,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{telematicsData.engine_hours.toFixed(1)}</div>
+                <div className="text-sm font-bold">{telematicsData.engine_hours.toFixed(1)}</div>
                 <Progress value={(telematicsData.engine_hours % 100)} className="mt-2" />
               </CardContent>
             </Card>
@@ -167,7 +167,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{telematicsData.fuel_level_percent}%</div>
+                <div className="text-sm font-bold">{telematicsData.fuel_level_percent}%</div>
                 <Progress value={telematicsData.fuel_level_percent} className="mt-2" />
               </CardContent>
             </Card>
@@ -180,7 +180,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{telematicsData.engine_rpm}</div>
+                <div className="text-sm font-bold">{telematicsData.engine_rpm}</div>
                 <p className="text-xs text-muted-foreground mt-2">Current speed</p>
               </CardContent>
             </Card>
@@ -188,8 +188,8 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
         </TabsContent>
 
         {/* Engine Tab */}
-        <TabsContent value="engine" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <TabsContent value="engine" className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <Card>
               <CardHeader>
                 <CardTitle>Engine Diagnostics</CardTitle>
@@ -279,7 +279,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
         </TabsContent>
 
         {/* Location Tab */}
-        <TabsContent value="location" className="space-y-4">
+        <TabsContent value="location" className="space-y-2">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -309,10 +309,10 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
         </TabsContent>
 
         {/* Alerts Tab */}
-        <TabsContent value="alerts" className="space-y-4">
+        <TabsContent value="alerts" className="space-y-2">
           {telematicsData.alerts.length === 0 ? (
             <Card>
-              <CardContent className="text-center py-8 text-muted-foreground">
+              <CardContent className="text-center py-3 text-muted-foreground">
                 No active alerts
               </CardContent>
             </Card>
@@ -324,10 +324,10 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                   alert.severity === 'warning' ? 'border-yellow-200 bg-yellow-50' :
                   'border-blue-200 bg-blue-50'
                 }>
-                  <CardContent className="p-4">
+                  <CardContent className="p-2">
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-3">
-                        <AlertTriangle className={`w-5 h-5 mt-0.5 ${
+                        <AlertTriangle className={`w-3 h-3 mt-0.5 ${
                           alert.severity === 'critical' ? 'text-red-600' :
                           alert.severity === 'warning' ? 'text-yellow-600' :
                           'text-blue-800'

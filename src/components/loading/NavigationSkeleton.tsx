@@ -13,12 +13,12 @@ export function SidebarSkeleton() {
   return (
     <aside className="fixed left-0 top-0 h-full w-64 bg-card border-r z-50">
       {/* Logo/Header Area - Fixed Height: 80px */}
-      <div className="h-20 p-6 flex items-center border-b">
+      <div className="h-20 p-3 flex items-center border-b">
         <Skeleton className="h-8 w-40" />
       </div>
 
       {/* Navigation Sections */}
-      <div className="p-4 space-y-6 h-[calc(100vh-160px)] overflow-hidden">
+      <div className="p-2 space-y-2 h-[calc(100vh-160px)] overflow-hidden">
         {/* Section 1: Main */}
         <NavSectionSkeleton items={6} />
 
@@ -36,8 +36,8 @@ export function SidebarSkeleton() {
       </div>
 
       {/* Footer - Fixed Height: 80px */}
-      <div className="absolute bottom-0 left-0 right-0 h-20 p-4 border-t bg-card">
-        <Skeleton className="h-10 w-full" />
+      <div className="absolute bottom-0 left-0 right-0 h-20 p-2 border-t bg-card">
+        <Skeleton className="h-8 w-full" />
       </div>
     </aside>
   )
@@ -54,7 +54,7 @@ function NavSectionSkeleton({ items = 5 }: { items?: number }) {
 
       {/* Nav Items - Fixed Height: 40px each */}
       {[...Array(items)].map((_, i) => (
-        <div key={i} className="h-10 flex items-center gap-2 px-2">
+        <div key={i} className="h-8 flex items-center gap-2 px-2">
           <Skeleton className="h-5 w-5 rounded" />
           <Skeleton className="h-4 w-32 flex-1" />
         </div>
@@ -70,10 +70,10 @@ function NavSectionSkeleton({ items = 5 }: { items?: number }) {
 export function HeaderSkeleton() {
   return (
     <header className="h-16 border-b bg-card sticky top-0 z-40">
-      <div className="px-6 h-full flex items-center justify-between">
+      <div className="px-3 h-full flex items-center justify-between">
         {/* Left Side - Menu + Title */}
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-10 w-10 rounded" />
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-8 w-10 rounded" />
           <div className="space-y-1">
             <Skeleton className="h-5 w-48" />
             <Skeleton className="h-3 w-32" />
@@ -82,10 +82,10 @@ export function HeaderSkeleton() {
 
         {/* Right Side - Actions */}
         <div className="flex items-center gap-3">
-          <Skeleton className="h-10 w-10 rounded-full" />
-          <Skeleton className="h-10 w-10 rounded-full" />
-          <Skeleton className="h-10 w-10 rounded-full" />
-          <Skeleton className="h-10 w-10 rounded-full" />
+          <Skeleton className="h-8 w-10 rounded-full" />
+          <Skeleton className="h-8 w-10 rounded-full" />
+          <Skeleton className="h-8 w-10 rounded-full" />
+          <Skeleton className="h-8 w-10 rounded-full" />
         </div>
       </div>
     </header>
@@ -98,7 +98,7 @@ export function HeaderSkeleton() {
  */
 export function BreadcrumbSkeleton({ levels = 3 }: { levels?: number }) {
   return (
-    <div className="h-10 flex items-center gap-2">
+    <div className="h-8 flex items-center gap-2">
       {[...Array(levels)].map((_, i) => (
         <div key={i} className="flex items-center gap-2">
           <Skeleton className="h-4 w-24" />
@@ -115,9 +115,9 @@ export function BreadcrumbSkeleton({ levels = 3 }: { levels?: number }) {
  */
 export function TabNavigationSkeleton({ tabs = 5 }: { tabs?: number }) {
   return (
-    <div className="h-12 flex items-center gap-1 border-b">
+    <div className="h-9 flex items-center gap-1 border-b">
       {[...Array(tabs)].map((_, i) => (
-        <Skeleton key={i} className="h-10 w-32 rounded-t" />
+        <Skeleton key={i} className="h-8 w-32 rounded-t" />
       ))}
     </div>
   )
@@ -129,17 +129,17 @@ export function TabNavigationSkeleton({ tabs = 5 }: { tabs?: number }) {
  */
 export function PaginationSkeleton() {
   return (
-    <div className="h-12 flex items-center justify-between">
+    <div className="h-9 flex items-center justify-between">
       {/* Page Info */}
       <Skeleton className="h-4 w-48" />
 
       {/* Page Controls */}
       <div className="flex items-center gap-2">
-        <Skeleton className="h-10 w-24" />
-        <Skeleton className="h-10 w-10" />
-        <Skeleton className="h-10 w-10" />
-        <Skeleton className="h-10 w-10" />
-        <Skeleton className="h-10 w-24" />
+        <Skeleton className="h-8 w-24" />
+        <Skeleton className="h-8 w-10" />
+        <Skeleton className="h-8 w-10" />
+        <Skeleton className="h-8 w-10" />
+        <Skeleton className="h-8 w-24" />
       </div>
     </div>
   )
@@ -151,18 +151,18 @@ export function PaginationSkeleton() {
  */
 export function FilterBarSkeleton({ filters = 4 }: { filters?: number }) {
   return (
-    <div className="h-16 flex items-center gap-4 p-4 bg-muted/30 rounded-lg">
+    <div className="h-16 flex items-center gap-2 p-2 bg-muted/30 rounded-lg">
       {/* Search */}
-      <Skeleton className="h-10 flex-1 max-w-md" />
+      <Skeleton className="h-8 flex-1 max-w-md" />
 
       {/* Filter Dropdowns */}
       {[...Array(filters)].map((_, i) => (
-        <Skeleton key={i} className="h-10 w-32" />
+        <Skeleton key={i} className="h-8 w-32" />
       ))}
 
       {/* Action Buttons */}
-      <Skeleton className="h-10 w-10 rounded" />
-      <Skeleton className="h-10 w-10 rounded" />
+      <Skeleton className="h-8 w-10 rounded" />
+      <Skeleton className="h-8 w-10 rounded" />
     </div>
   )
 }
@@ -173,19 +173,19 @@ export function FilterBarSkeleton({ filters = 4 }: { filters?: number }) {
  */
 export function ToolbarSkeleton() {
   return (
-    <div className="h-14 flex items-center justify-between p-4 border-b">
+    <div className="h-14 flex items-center justify-between p-2 border-b">
       <div className="flex items-center gap-2">
-        <Skeleton className="h-10 w-10 rounded" />
-        <Skeleton className="h-10 w-10 rounded" />
-        <Skeleton className="h-10 w-10 rounded" />
+        <Skeleton className="h-8 w-10 rounded" />
+        <Skeleton className="h-8 w-10 rounded" />
+        <Skeleton className="h-8 w-10 rounded" />
         <div className="w-px h-6 bg-border mx-2" />
-        <Skeleton className="h-10 w-10 rounded" />
-        <Skeleton className="h-10 w-10 rounded" />
+        <Skeleton className="h-8 w-10 rounded" />
+        <Skeleton className="h-8 w-10 rounded" />
       </div>
 
       <div className="flex items-center gap-2">
-        <Skeleton className="h-10 w-24" />
-        <Skeleton className="h-10 w-32" />
+        <Skeleton className="h-8 w-24" />
+        <Skeleton className="h-8 w-32" />
       </div>
     </div>
   )
@@ -197,7 +197,7 @@ export function ToolbarSkeleton() {
  */
 export function ContextMenuSkeleton() {
   return (
-    <div className="w-50 bg-card border rounded-lg shadow-lg p-2 space-y-1">
+    <div className="w-50 bg-card border rounded-lg shadow-sm p-2 space-y-1">
       {[...Array(6)].map((_, i) => (
         <div key={i} className="h-8 flex items-center gap-2 px-2">
           <Skeleton className="h-4 w-4" />
@@ -215,7 +215,7 @@ export function ContextMenuSkeleton() {
  */
 export function DropdownMenuSkeleton({ items = 5 }: { items?: number }) {
   return (
-    <div className="w-48 bg-card border rounded-lg shadow-lg p-2">
+    <div className="w-48 bg-card border rounded-lg shadow-sm p-2">
       <div className="space-y-1">
         {[...Array(items)].map((_, i) => (
           <Skeleton key={i} className="h-8 w-full rounded" />
@@ -231,10 +231,10 @@ export function DropdownMenuSkeleton({ items = 5 }: { items?: number }) {
  */
 export function CommandPaletteSkeleton() {
   return (
-    <div className="w-full max-w-2xl bg-card border rounded-lg shadow-2xl overflow-hidden h-[400px]">
+    <div className="w-full max-w-2xl bg-card border rounded-lg shadow-sm overflow-hidden h-[400px]">
       {/* Search Input - Fixed Height: 64px */}
-      <div className="h-16 border-b p-4">
-        <Skeleton className="h-10 w-full" />
+      <div className="h-16 border-b p-2">
+        <Skeleton className="h-8 w-full" />
       </div>
 
       {/* Results */}
@@ -245,7 +245,7 @@ export function CommandPaletteSkeleton() {
             <div key={section} className="space-y-1">
               <Skeleton className="h-3 w-24 ml-2" />
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-10 flex items-center gap-3 px-2">
+                <div key={i} className="h-8 flex items-center gap-3 px-2">
                   <Skeleton className="h-5 w-5 rounded" />
                   <Skeleton className="h-4 flex-1" />
                   <Skeleton className="h-5 w-12" />
@@ -271,8 +271,8 @@ export function FullLayoutSkeleton() {
       <div className="flex-1 ml-64">
         <HeaderSkeleton />
 
-        <main className="p-6">
-          <div className="space-y-6">
+        <main className="p-3">
+          <div className="space-y-2">
             <BreadcrumbSkeleton />
             <FilterBarSkeleton />
             <Skeleton className="h-[600px] w-full" />

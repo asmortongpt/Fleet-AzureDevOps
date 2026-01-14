@@ -54,10 +54,10 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {telemetry && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Trip Summary */}
           <div>
-            <h3 className="text-lg font-semibold">Trip Telemetry</h3>
+            <h3 className="text-sm font-semibold">Trip Telemetry</h3>
             <p className="text-sm text-muted-foreground mt-1">
               Detailed data for trip #{tripId.slice(0, 8)}
             </p>
@@ -72,8 +72,8 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
             </TabsList>
 
             {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <TabsContent value="overview" className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -82,7 +82,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">
+                    <div className="text-sm font-bold">
                       {telemetry.gps_points?.length || 0}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -99,7 +99,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">
+                    <div className="text-sm font-bold">
                       {telemetry.duration || (trip as { duration?: string })?.duration || 'N/A'}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -116,7 +116,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">
+                    <div className="text-sm font-bold">
                       {telemetry.max_speed ? `${telemetry.max_speed.toFixed(0)} mph` : 'N/A'}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -133,7 +133,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">
+                    <div className="text-sm font-bold">
                       {telemetry.fuel_economy
                         ? `${telemetry.fuel_economy.toFixed(1)} mpg`
                         : 'N/A'}
@@ -176,7 +176,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
             </TabsContent>
 
             {/* GPS Tab */}
-            <TabsContent value="gps" className="space-y-4">
+            <TabsContent value="gps" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>GPS Tracking Points</CardTitle>
@@ -204,7 +204,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-8">
+                    <p className="text-sm text-muted-foreground text-center py-3">
                       No GPS data available
                     </p>
                   )}
@@ -213,12 +213,12 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
             </TabsContent>
 
             {/* Performance Tab */}
-            <TabsContent value="performance" className="space-y-4">
+            <TabsContent value="performance" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Speed Analysis</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Average Speed</span>
@@ -272,7 +272,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-4">
+                    <p className="text-sm text-muted-foreground text-center py-2">
                       No events recorded
                     </p>
                   )}
@@ -281,16 +281,16 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
             </TabsContent>
 
             {/* Fuel Tab */}
-            <TabsContent value="fuel" className="space-y-4">
+            <TabsContent value="fuel" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Fuel Consumption</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <CardContent className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Total Used</p>
-                      <p className="text-2xl font-bold">
+                      <p className="text-sm font-bold">
                         {telemetry.fuel_used
                           ? `${telemetry.fuel_used.toFixed(2)} gal`
                           : 'N/A'}
@@ -298,7 +298,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Economy</p>
-                      <p className="text-2xl font-bold">
+                      <p className="text-sm font-bold">
                         {telemetry.fuel_economy
                           ? `${telemetry.fuel_economy.toFixed(1)} mpg`
                           : 'N/A'}
@@ -306,7 +306,7 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t space-y-2">
+                  <div className="pt-2 border-t space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Start Level</span>
                       <span className="font-medium">

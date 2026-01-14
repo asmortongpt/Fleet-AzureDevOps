@@ -111,7 +111,7 @@ export function ResponsiveContainer({
     full: 'max-w-full',
   }
 
-  const paddingClass = padding ? 'px-4 md:px-6 lg:px-8' : ''
+  const paddingClass = padding ? 'px-2 md:px-3 lg:px-3' : ''
 
   return (
     <div className={`w-full mx-auto ${maxWidthClasses[maxWidth]} ${paddingClass} ${className}`}>
@@ -346,7 +346,7 @@ export function ResponsiveSidebarLayout({
   const sidebarContent = (
     <aside
       className={`
-        ${isMobile ? 'fixed inset-y-0 z-50 bg-white dark:bg-neutral-900 shadow-xl transition-transform' : `w-${sidebarWidth}`}
+        ${isMobile ? 'fixed inset-y-0 z-50 bg-white dark:bg-neutral-900 shadow-sm transition-transform' : `w-${sidebarWidth}`}
         ${isMobile && !isOpen ? '-translate-x-full' : 'translate-x-0'}
         ${sidebarPosition === 'right' ? 'right-0' : 'left-0'}
       `}
@@ -360,10 +360,10 @@ export function ResponsiveSidebarLayout({
       {isMobile && collapsible && (
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="p-2 mb-4 touch-target"
+          className="p-2 mb-2 touch-target"
           aria-label="Toggle sidebar"
         >
-          <span className="text-2xl">☰</span>
+          <span className="text-sm">☰</span>
         </button>
       )}
       {main}

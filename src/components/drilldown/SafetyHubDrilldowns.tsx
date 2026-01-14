@@ -193,28 +193,28 @@ export function IncidentListView({ filter }: { filter?: string }) {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-3 gap-3">
         <Card className="bg-red-900/30 border-red-700/50">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-red-400">
+          <CardContent className="p-2 text-center">
+            <div className="text-sm font-bold text-red-400">
               {filteredIncidents.filter(i => i.status === 'open' || i.status === 'investigating').length}
             </div>
             <div className="text-xs text-slate-400">Open/Investigating</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-amber-400">
+          <CardContent className="p-2 text-center">
+            <div className="text-sm font-bold text-amber-400">
               {filteredIncidents.filter(i => i.oshaRecordable).length}
             </div>
             <div className="text-xs text-slate-400">OSHA Recordable</div>
           </CardContent>
         </Card>
         <Card className="bg-emerald-900/30 border-emerald-700/50">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-emerald-400">
+          <CardContent className="p-2 text-center">
+            <div className="text-sm font-bold text-emerald-400">
               {filteredIncidents.reduce((sum, i) => sum + i.workDaysLost, 0)}
             </div>
             <div className="text-xs text-slate-400">Total Days Lost</div>
@@ -225,8 +225,8 @@ export function IncidentListView({ filter }: { filter?: string }) {
       {/* Incident Table */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
-          <CardTitle className="text-white text-lg flex items-center gap-2">
-            <Warning className="w-5 h-5 text-amber-400" />
+          <CardTitle className="text-white text-sm flex items-center gap-2">
+            <Warning className="w-3 h-3 text-amber-400" />
             {filter ? `Filtered Incidents (${filteredIncidents.length})` : `All Incidents (${filteredIncidents.length})`}
           </CardTitle>
         </CardHeader>
@@ -312,12 +312,12 @@ export function LostTimeIncidentsView() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Summary */}
       <Card className="bg-red-900/30 border-red-700/50">
-        <CardContent className="p-6 text-center">
-          <Warning className="w-10 h-10 text-red-400 mx-auto mb-2" />
-          <div className="text-4xl font-bold text-white">{totalDaysLost}</div>
+        <CardContent className="p-3 text-center">
+          <Warning className="w-10 h-8 text-red-400 mx-auto mb-2" />
+          <div className="text-sm font-bold text-white">{totalDaysLost}</div>
           <div className="text-sm text-slate-400">Total Work Days Lost</div>
           <div className="text-xs text-slate-500 mt-1">
             from {incidents?.length || 0} incidents
@@ -328,8 +328,8 @@ export function LostTimeIncidentsView() {
       {/* Table */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
-          <CardTitle className="text-white text-lg flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-red-400" />
+          <CardTitle className="text-white text-sm flex items-center gap-2">
+            <Calendar className="w-3 h-3 text-red-400" />
             Lost Time Incidents
           </CardTitle>
         </CardHeader>
@@ -354,12 +354,12 @@ export function LostTimeIncidentsView() {
 
 export function OSHAComplianceView() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Overall Score */}
       <Card className="bg-emerald-900/30 border-emerald-700/50">
-        <CardContent className="p-6 text-center">
-          <ShieldCheck className="w-10 h-10 text-emerald-400 mx-auto mb-2" />
-          <div className="text-4xl font-bold text-white">87%</div>
+        <CardContent className="p-3 text-center">
+          <ShieldCheck className="w-10 h-8 text-emerald-400 mx-auto mb-2" />
+          <div className="text-sm font-bold text-white">87%</div>
           <div className="text-sm text-slate-400">OSHA Compliance Score</div>
           <div className="text-xs text-emerald-400 mt-1">+3% from last month</div>
         </CardContent>
@@ -368,9 +368,9 @@ export function OSHAComplianceView() {
       {/* Component Breakdown */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
-          <CardTitle className="text-white text-lg">Compliance Components</CardTitle>
+          <CardTitle className="text-white text-sm">Compliance Components</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           {[
             { label: 'Recordkeeping', score: 92, color: 'bg-emerald-500' },
             { label: 'Hazard Communication', score: 88, color: 'bg-blue-500' },
@@ -397,7 +397,7 @@ export function OSHAComplianceView() {
       {/* Recent Activity */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
-          <CardTitle className="text-white text-lg">Recent OSHA Activity</CardTitle>
+          <CardTitle className="text-white text-sm">Recent OSHA Activity</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {[
@@ -430,25 +430,25 @@ export function DaysIncidentFreeView() {
   const target = 30
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Current Streak */}
       <Card className="bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 border-emerald-700/50">
-        <CardContent className="p-8 text-center">
-          <ShieldCheck className="w-12 h-12 text-emerald-400 mx-auto mb-4" />
+        <CardContent className="p-3 text-center">
+          <ShieldCheck className="w-12 h-9 text-emerald-400 mx-auto mb-2" />
           <div className="text-6xl font-bold text-white mb-2">{currentStreak}</div>
-          <div className="text-lg text-slate-300 mb-4">Days Without Incident</div>
-          <div className="flex justify-center gap-8 text-sm">
+          <div className="text-sm text-slate-300 mb-2">Days Without Incident</div>
+          <div className="flex justify-center gap-2 text-sm">
             <div>
               <div className="text-slate-400">Target</div>
-              <div className="text-xl font-bold text-white">{target}</div>
+              <div className="text-base font-bold text-white">{target}</div>
             </div>
             <div>
               <div className="text-slate-400">Record</div>
-              <div className="text-xl font-bold text-emerald-400">{longestStreak}</div>
+              <div className="text-base font-bold text-emerald-400">{longestStreak}</div>
             </div>
           </div>
           {/* Progress Bar */}
-          <div className="mt-6 h-3 bg-slate-700 rounded-full overflow-hidden">
+          <div className="mt-3 h-3 bg-slate-700 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all"
               style={{ width: `${Math.min((currentStreak / target) * 100, 100)}%` }}
@@ -463,7 +463,7 @@ export function DaysIncidentFreeView() {
       {/* Historical Data */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
-          <CardTitle className="text-white text-lg">Historical Streaks</CardTitle>
+          <CardTitle className="text-white text-sm">Historical Streaks</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {[

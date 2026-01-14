@@ -148,10 +148,10 @@ export function VendorManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Vendor Management</h2>
+          <h2 className="text-sm font-semibold">Vendor Management</h2>
           <p className="text-muted-foreground">Manage your fleet service providers and suppliers</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -168,8 +168,8 @@ export function VendorManagement() {
                 Enter vendor information to add them to your supplier network
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2 py-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="vendor-name">Vendor Name *</Label>
                   <Input
@@ -201,7 +201,7 @@ export function VendorManagement() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="contact-person">Contact Person *</Label>
                   <Input
@@ -223,7 +223,7 @@ export function VendorManagement() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="vendor-phone">Phone *</Label>
                   <Input
@@ -255,7 +255,7 @@ export function VendorManagement() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="payment-terms">Payment Terms</Label>
                   <Select
@@ -295,7 +295,7 @@ export function VendorManagement() {
         </Dialog>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-2">
         <div className="relative flex-1">
           <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -343,7 +343,7 @@ export function VendorManagement() {
             <TableBody>
               {filteredVendors.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-3">
                     No vendors found. Add your first vendor to get started.
                   </TableCell>
                 </TableRow>
@@ -441,8 +441,8 @@ export function VendorManagement() {
             </DialogDescription>
           </DialogHeader>
           {selectedVendor && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <h3 className="text-sm font-semibold mb-3">Basic Information</h3>
                   <div className="space-y-2 text-sm">
@@ -531,7 +531,7 @@ export function VendorManagement() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <h3 className="text-sm font-semibold mb-3">Financial Information</h3>
                   <div className="space-y-2 text-sm">
@@ -545,7 +545,7 @@ export function VendorManagement() {
                     </div>
                     <div>
                       <span className="text-muted-foreground">Total Spend:</span>
-                      <p className="font-medium text-lg">${selectedVendor.totalSpend.toLocaleString()}</p>
+                      <p className="font-medium text-sm">${selectedVendor.totalSpend.toLocaleString()}</p>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Invoice Count:</span>
@@ -560,8 +560,8 @@ export function VendorManagement() {
                     <div>
                       <span className="text-muted-foreground">Rating:</span>
                       <div className="flex items-center gap-2 mt-1">
-                        <Star className="w-5 h-5 text-yellow-500" weight="fill" />
-                        <span className="font-medium text-lg">{selectedVendor.rating.toFixed(1)}</span>
+                        <Star className="w-3 h-3 text-yellow-500" weight="fill" />
+                        <span className="font-medium text-sm">{selectedVendor.rating.toFixed(1)}</span>
                       </div>
                     </div>
                   </div>

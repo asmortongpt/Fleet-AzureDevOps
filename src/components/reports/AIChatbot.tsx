@@ -144,10 +144,10 @@ export function AIChatbot() {
       className={`fixed ${isExpanded
         ? 'bottom-4 right-4 top-4 left-4 md:left-auto md:w-[600px]'
         : 'bottom-20 right-4 w-96 h-[500px]'
-        } flex flex-col shadow-2xl z-50 transition-all duration-200`}
+        } flex flex-col shadow-sm z-50 transition-all duration-200`}
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-3 rounded-t-lg flex items-center justify-between">
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-2 py-3 rounded-t-lg flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5" />
           <span className="font-semibold">Fleet AI Assistant</span>
@@ -173,14 +173,14 @@ export function AIChatbot() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-2 space-y-2 bg-gray-50">
         {messages.map((message) => (
           <div
             key={message.id}
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[80%] rounded-lg px-4 py-2 ${message.role === 'user'
+              className={`max-w-[80%] rounded-lg px-2 py-2 ${message.role === 'user'
                 ? 'bg-indigo-600 text-white'
                 : 'bg-white text-gray-900 border border-gray-200'
                 }`}
@@ -202,7 +202,7 @@ export function AIChatbot() {
         ))}
         {sending && (
           <div className="flex justify-start">
-            <div className="bg-white border border-gray-200 rounded-lg px-4 py-2">
+            <div className="bg-white border border-gray-200 rounded-lg px-2 py-2">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" />
                 <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
@@ -216,7 +216,7 @@ export function AIChatbot() {
 
       {/* Example queries (show when no user messages) */}
       {messages.filter((m) => m.role === 'user').length === 0 && (
-        <div className="px-4 py-2 bg-white border-t border-gray-200">
+        <div className="px-2 py-2 bg-white border-t border-gray-200">
           <p className="text-xs text-slate-700 mb-2">Try asking:</p>
           <div className="space-y-1">
             {exampleQueries.slice(0, 3).map((query, index) => (
@@ -233,7 +233,7 @@ export function AIChatbot() {
       )}
 
       {/* Input */}
-      <div className="border-t border-gray-200 p-4 bg-white rounded-b-lg">
+      <div className="border-t border-gray-200 p-2 bg-white rounded-b-lg">
         <div className="flex gap-2">
           <Input
             value={input}
@@ -276,7 +276,7 @@ export function AIChatbot() {
       {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-4 right-4 h-14 w-14 rounded-full shadow-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 z-50"
+          className="fixed bottom-4 right-4 h-14 w-14 rounded-full shadow-sm bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 z-50"
           aria-label="Open AI Assistant"
         >
           <MessageCircle className="h-6 w-6" />

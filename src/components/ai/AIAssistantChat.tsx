@@ -126,12 +126,12 @@ export function AIAssistantChat() {
           </div>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col p-0">
-          <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-            <div className="space-y-4">
+          <ScrollArea className="flex-1 p-2" ref={scrollRef}>
+            <div className="space-y-2">
               {messages.map(msg => (
                 <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
                   {msg.role === 'assistant' && (
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <div className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                       <Bot className="h-4 w-4 text-primary" />
                     </div>
                   )}
@@ -146,7 +146,7 @@ export function AIAssistantChat() {
                     </p>
                   </div>
                   {msg.role === 'user' && (
-                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                    <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                       <User className="h-4 w-4 text-primary-foreground" />
                     </div>
                   )}
@@ -154,7 +154,7 @@ export function AIAssistantChat() {
               ))}
               {isLoading && (
                 <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <div className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <Bot className="h-4 w-4 text-primary" />
                   </div>
                   <div className="bg-muted rounded-lg p-3">
@@ -168,7 +168,7 @@ export function AIAssistantChat() {
               )}
             </div>
           </ScrollArea>
-          <div className="p-4 border-t">
+          <div className="p-2 border-t">
             <div className="flex gap-2">
               <Input
                 placeholder="Ask about fleet operations, maintenance, costs, routes..."

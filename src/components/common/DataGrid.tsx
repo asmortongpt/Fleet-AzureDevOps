@@ -145,7 +145,7 @@ export function DataGrid<TData extends { id?: string | number }>({
                   key={row.id}
                   className={cn(
                     "cursor-pointer transition-colors",
-                    compactMode ? "h-8" : "h-10",
+                    compactMode ? "h-8" : "h-8",
                     index % 2 === 0 ? "bg-background" : "bg-muted/20",
                     selectedRow === row.original.id?.toString() && "bg-primary/10",
                     "hover:bg-primary/5"

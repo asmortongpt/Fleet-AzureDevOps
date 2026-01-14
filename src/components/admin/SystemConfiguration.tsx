@@ -243,10 +243,10 @@ export function SystemConfiguration() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">System Configuration</h1>
+          <h1 className="text-base font-bold">System Configuration</h1>
           <p className="text-muted-foreground mt-1">
             Manage system settings, environment, and health
           </p>
@@ -347,9 +347,9 @@ export function SystemConfiguration() {
             <CardTitle>Feature Flags</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-2">
               {featureFlags.map(flag => (
-                <div key={flag.id} className="flex items-start gap-4 p-4 border rounded-lg">
+                <div key={flag.id} className="flex items-start gap-2 p-2 border rounded-lg">
                   <Switch
                     checked={flag.enabled}
                     onCheckedChange={() => handleFeatureFlagToggle(flag.id)}
@@ -423,12 +423,12 @@ export function SystemConfiguration() {
 
       {/* Backup & Restore Tab */}
       {selectedTab === 'backup' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <Card>
             <CardHeader>
               <CardTitle>Export Configuration</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2">
               <p className="text-sm text-muted-foreground">
                 Export current system configuration including environment variables and feature flags.
               </p>
@@ -443,7 +443,7 @@ export function SystemConfiguration() {
             <CardHeader>
               <CardTitle>Import Configuration</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2">
               <p className="text-sm text-muted-foreground">
                 Import a previously exported configuration file to restore settings.
               </p>
@@ -458,7 +458,7 @@ export function SystemConfiguration() {
             <CardHeader>
               <CardTitle>Database Backup</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2">
               <p className="text-sm text-muted-foreground">
                 Create a backup of the current database state.
               </p>
@@ -478,7 +478,7 @@ export function SystemConfiguration() {
             <CardHeader>
               <CardTitle>System Reset</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2">
               <p className="text-sm text-muted-foreground">
                 Reset system to default configuration. This action cannot be undone.
               </p>

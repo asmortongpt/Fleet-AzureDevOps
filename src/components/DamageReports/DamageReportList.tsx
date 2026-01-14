@@ -115,7 +115,7 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
 
   if (loading && damageReports.length === 0) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-2">
         <Skeleton className="h-24 w-full" />
         <Skeleton className="h-24 w-full" />
         <Skeleton className="h-24 w-full" />
@@ -124,11 +124,11 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Damage Reports</h2>
+          <h2 className="text-base font-bold tracking-tight">Damage Reports</h2>
           <p className="text-muted-foreground">
             {total} {total === 1 ? 'report' : 'reports'} found
           </p>
@@ -148,7 +148,7 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -207,7 +207,7 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
       {/* Error Message */}
       {error && (
         <Card className="border-destructive">
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="h-5 w-5" />
               <p>{error}</p>
@@ -217,11 +217,11 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
       )}
 
       {/* Reports List */}
-      <div className="space-y-4">
+      <div className="space-y-2">
         {filteredReports.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
-              <AlertTriangle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <AlertTriangle className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
               <p className="text-sm text-muted-foreground">
                 No damage reports found matching your filters
               </p>
@@ -242,8 +242,8 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
               }}
               aria-label={`View details for damage report ${report.id}`}
             >
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+              <CardContent className="p-3">
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2">
                   <div className="flex-1 space-y-3">
                     {/* Header with badges */}
                     <div className="flex flex-wrap items-center gap-2">
@@ -260,7 +260,7 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
 
                     {/* Description */}
                     <div>
-                      <p className="font-semibold text-lg">
+                      <p className="font-semibold text-sm">
                         {report.damage_description}
                       </p>
                       {report.damage_location && (
@@ -271,7 +271,7 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
                     </div>
 
                     {/* Metadata */}
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                       {report.vehicle_id && (
                         <div className="flex items-center gap-1">
                           <Car className="h-4 w-4" />

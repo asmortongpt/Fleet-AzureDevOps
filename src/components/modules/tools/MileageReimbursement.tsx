@@ -104,10 +104,10 @@ export function MileageReimbursement() {
   const totalPaid = requests.filter((r: MileageReimbursementType) => r.status === "paid").reduce((sum: number, r: MileageReimbursementType) => sum + r.amount, 0)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Mileage Reimbursement</h1>
+          <h1 className="text-base font-semibold tracking-tight">Mileage Reimbursement</h1>
           <p className="text-muted-foreground mt-1">Submit and manage mileage reimbursement requests</p>
         </div>
         <Button onClick={() => setShowForm(!showForm)}>
@@ -125,16 +125,16 @@ export function MileageReimbursement() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-warning/10 text-warning">
-                <Clock className="w-5 h-5" />
+                <Clock className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">Submitted</p>
             </div>
-            <p className="text-2xl font-semibold metric-number">${(totalSubmitted ?? 0).toFixed(2)}</p>
+            <p className="text-sm font-semibold metric-number">${(totalSubmitted ?? 0).toFixed(2)}</p>
             <p className="text-sm text-muted-foreground mt-1">
               {requests.filter((r: MileageReimbursementType) => r.status === "submitted").length} requests
             </p>
@@ -142,14 +142,14 @@ export function MileageReimbursement() {
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-success/10 text-success">
-                <CheckCircle className="w-5 h-5" />
+                <CheckCircle className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">Approved</p>
             </div>
-            <p className="text-2xl font-semibold metric-number">${(totalApproved ?? 0).toFixed(2)}</p>
+            <p className="text-sm font-semibold metric-number">${(totalApproved ?? 0).toFixed(2)}</p>
             <p className="text-sm text-muted-foreground mt-1">
               {requests.filter((r: MileageReimbursementType) => r.status === "approved").length} requests
             </p>
@@ -157,14 +157,14 @@ export function MileageReimbursement() {
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-accent/10 text-accent">
-                <CurrencyDollar className="w-5 h-5" />
+                <CurrencyDollar className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">Paid</p>
             </div>
-            <p className="text-2xl font-semibold metric-number">${(totalPaid ?? 0).toFixed(2)}</p>
+            <p className="text-sm font-semibold metric-number">${(totalPaid ?? 0).toFixed(2)}</p>
             <p className="text-sm text-muted-foreground mt-1">
               {requests.filter((r: MileageReimbursementType) => r.status === "paid").length} requests
             </p>
@@ -172,14 +172,14 @@ export function MileageReimbursement() {
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-muted">
-                <Receipt className="w-5 h-5" />
+                <Receipt className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">Standard Rate</p>
             </div>
-            <p className="text-2xl font-semibold metric-number">${REIMBURSEMENT_RATE}/mi</p>
+            <p className="text-sm font-semibold metric-number">${REIMBURSEMENT_RATE}/mi</p>
             <p className="text-sm text-muted-foreground mt-1">IRS standard rate</p>
           </CardContent>
         </Card>
@@ -191,7 +191,7 @@ export function MileageReimbursement() {
             <CardTitle>Submit Mileage Reimbursement Request</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <div className="space-y-2">
                 <Label htmlFor="employeeName">Employee Name</Label>
                 <Input
@@ -272,17 +272,17 @@ export function MileageReimbursement() {
             </div>
 
             {miles && (
-              <div className="mt-6 p-4 bg-accent/5 border border-accent/20 rounded-lg">
+              <div className="mt-3 p-2 bg-accent/5 border border-accent/20 rounded-lg">
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">Estimated Reimbursement:</p>
-                  <p className="text-2xl font-semibold metric-number">
+                  <p className="text-sm font-semibold metric-number">
                     ${((parseFloat(miles) || 0) * REIMBURSEMENT_RATE).toFixed(2)}
                   </p>
                 </div>
               </div>
             )}
 
-            <div className="mt-6 flex gap-3">
+            <div className="mt-3 flex gap-3">
               <Button onClick={handleSubmit}>
                 Submit Request
               </Button>
@@ -301,7 +301,7 @@ export function MileageReimbursement() {
         <CardContent>
           {requests.length === 0 ? (
             <div className="text-center py-12">
-              <Receipt className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <Receipt className="w-12 h-9 text-muted-foreground mx-auto mb-2" />
               <p className="text-muted-foreground">No reimbursement requests yet</p>
               <p className="text-sm text-muted-foreground">Click "New Request" to get started</p>
             </div>
@@ -310,15 +310,15 @@ export function MileageReimbursement() {
               {requests.map((request: MileageReimbursementType) => (
                 <div 
                   key={request.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
+                  className="flex items-center justify-between p-2 border rounded-lg"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
                     <div className="p-2 rounded-lg bg-muted">
-                      <Car className="w-5 h-5" />
+                      <Car className="w-3 h-3" />
                     </div>
                     <div>
                       <p className="font-medium">{request.employeeName}</p>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
                           {request.tripDate}
@@ -338,7 +338,7 @@ export function MileageReimbursement() {
                     </div>
                   </div>
                   <div className="text-right space-y-2">
-                    <p className="text-xl font-semibold metric-number">${(request?.amount ?? 0).toFixed(2)}</p>
+                    <p className="text-base font-semibold metric-number">${(request?.amount ?? 0).toFixed(2)}</p>
                     <Badge variant="outline" className={getStatusColor(request.status)}>
                       {request.status}
                     </Badge>

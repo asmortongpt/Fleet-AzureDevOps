@@ -309,11 +309,11 @@ export function ReportsHub() {
   return (
     <div className="h-screen overflow-hidden bg-background flex flex-col">
       {/* Header */}
-      <div className="border-b bg-card px-6 py-4">
+      <div className="border-b bg-card px-3 py-2">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <FileText className="w-6 h-6 text-primary" />
+            <h1 className="text-sm font-bold flex items-center gap-2">
+              <FileText className="w-4 h-4 text-primary" />
               Reports Hub
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
@@ -334,8 +334,8 @@ export function ReportsHub() {
       </div>
 
       {/* Stats Cards */}
-      <div className="px-6 py-4 border-b bg-card">
-        <div className="grid grid-cols-4 gap-4">
+      <div className="px-3 py-2 border-b bg-card">
+        <div className="grid grid-cols-4 gap-2">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -343,7 +343,7 @@ export function ReportsHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stats.totalTemplates}</div>
+              <div className="text-base font-bold">{stats.totalTemplates}</div>
               <p className="text-xs text-muted-foreground mt-1">Available templates</p>
             </CardContent>
           </Card>
@@ -355,7 +355,7 @@ export function ReportsHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-500">{stats.generatedThisMonth}</div>
+              <div className="text-base font-bold text-green-500">{stats.generatedThisMonth}</div>
               <p className="text-xs text-muted-foreground mt-1">Reports generated</p>
             </CardContent>
           </Card>
@@ -367,7 +367,7 @@ export function ReportsHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-800">{stats.scheduledActive}</div>
+              <div className="text-base font-bold text-blue-800">{stats.scheduledActive}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 of {stats.scheduledTotal} scheduled
               </p>
@@ -393,9 +393,9 @@ export function ReportsHub() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto p-6">
+      <div className="flex-1 overflow-auto p-3">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-2">
             <TabsList>
               <TabsTrigger value="templates">
                 <ChartBar className="w-4 h-4 mr-2" />
@@ -439,13 +439,13 @@ export function ReportsHub() {
           </div>
 
           <TabsContent value="templates" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
               {filteredTemplates.map(template => (
-                <Card key={template.id} className="hover:shadow-lg transition-shadow">
+                <Card key={template.id} className="hover:shadow-sm transition-shadow">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div>
-                        <CardTitle className="text-lg">{template.name}</CardTitle>
+                        <CardTitle className="text-sm">{template.name}</CardTitle>
                         <CardDescription className="mt-1">{template.description}</CardDescription>
                       </div>
                     </div>

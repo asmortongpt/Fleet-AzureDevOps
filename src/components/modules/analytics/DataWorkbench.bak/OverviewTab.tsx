@@ -56,7 +56,7 @@ export function OverviewTab({ vehicles, onAdvancedSearch }: OverviewTabProps) {
   })
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Search and Filters */}
       <div className="flex gap-3">
         <div className="relative flex-1">
@@ -126,32 +126,32 @@ export function OverviewTab({ vehicles, onAdvancedSearch }: OverviewTabProps) {
             <table className="w-full" role="table" aria-label="Fleet vehicles overview">
               <thead className="border-b bg-muted/50">
                 <tr>
-                  <th className="text-left p-4 font-medium" scope="col">Vehicle</th>
-                  <th className="text-left p-4 font-medium" scope="col">Status</th>
-                  <th className="text-left p-4 font-medium" scope="col">Mileage</th>
-                  <th className="text-left p-4 font-medium" scope="col">Fuel</th>
-                  <th className="text-left p-4 font-medium" scope="col">Driver</th>
-                  <th className="text-left p-4 font-medium" scope="col">Department</th>
-                  <th className="text-left p-4 font-medium" scope="col">Region</th>
-                  <th className="text-left p-4 font-medium" scope="col">Alerts</th>
+                  <th className="text-left p-2 font-medium" scope="col">Vehicle</th>
+                  <th className="text-left p-2 font-medium" scope="col">Status</th>
+                  <th className="text-left p-2 font-medium" scope="col">Mileage</th>
+                  <th className="text-left p-2 font-medium" scope="col">Fuel</th>
+                  <th className="text-left p-2 font-medium" scope="col">Driver</th>
+                  <th className="text-left p-2 font-medium" scope="col">Department</th>
+                  <th className="text-left p-2 font-medium" scope="col">Region</th>
+                  <th className="text-left p-2 font-medium" scope="col">Alerts</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredVehicles.slice(0, 15).map(vehicle => (
                   <tr key={vehicle.id} className="border-b hover:bg-muted/50 transition-colors">
-                    <td className="p-4">
+                    <td className="p-2">
                       <p className="font-medium">{vehicle.number}</p>
                       <p className="text-sm text-muted-foreground">
                         {vehicle.year} {vehicle.make} {vehicle.model}
                       </p>
                     </td>
-                    <td className="p-4">
+                    <td className="p-2">
                       <StatusBadge status={vehicle.status} />
                     </td>
-                    <td className="p-4">
+                    <td className="p-2">
                       <span className="font-medium">{vehicle.mileage.toLocaleString()} mi</span>
                     </td>
-                    <td className="p-4">
+                    <td className="p-2">
                       <div className="flex items-center gap-2">
                         <div
                           className="w-16 h-2 bg-muted rounded-full overflow-hidden"
@@ -175,20 +175,20 @@ export function OverviewTab({ vehicles, onAdvancedSearch }: OverviewTabProps) {
                         <span className="text-sm" aria-hidden="true">{vehicle.fuelLevel}%</span>
                       </div>
                     </td>
-                    <td className="p-4">
+                    <td className="p-2">
                       <span className="text-sm">
                         {vehicle.assignedDriver || "Unassigned"}
                       </span>
                     </td>
-                    <td className="p-4">
+                    <td className="p-2">
                       <Badge variant="outline" className="text-xs">
                         {vehicle.department}
                       </Badge>
                     </td>
-                    <td className="p-4">
+                    <td className="p-2">
                       <span className="text-sm">{vehicle.region}</span>
                     </td>
-                    <td className="p-4">
+                    <td className="p-2">
                       {((vehicle.alerts || [])).length > 0 ? (
                         <Badge
                           variant="outline"
@@ -218,7 +218,7 @@ export function OverviewTab({ vehicles, onAdvancedSearch }: OverviewTabProps) {
 
       {filteredVehicles.length === 0 && (
         <Card>
-          <CardContent className="p-8 text-center">
+          <CardContent className="p-3 text-center">
             <p className="text-muted-foreground">No vehicles found matching your search criteria.</p>
           </CardContent>
         </Card>

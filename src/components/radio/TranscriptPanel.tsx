@@ -74,7 +74,7 @@ export function TranscriptPanel({ transmissions }: TranscriptPanelProps) {
       </CardHeader>
       <CardContent>
         {/* Search */}
-        <div className="mb-4 relative">
+        <div className="mb-2 relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search transcripts..."
@@ -86,7 +86,7 @@ export function TranscriptPanel({ transmissions }: TranscriptPanelProps) {
 
         {/* Results */}
         <ScrollArea className="h-[600px]">
-          <div className="space-y-4">
+          <div className="space-y-2">
             {filteredTransmissions.map((transmission) => (
               <Card key={transmission.id}>
                 <CardHeader className="pb-3">
@@ -128,7 +128,7 @@ export function TranscriptPanel({ transmissions }: TranscriptPanelProps) {
 
             {filteredTransmissions.length === 0 && (
               <div className="text-center py-12 text-muted-foreground">
-                <FileText className="mx-auto h-12 w-12 mb-4 opacity-50" />
+                <FileText className="mx-auto h-9 w-12 mb-2 opacity-50" />
                 <p>No transcripts found</p>
                 {searchQuery && (
                   <p className="text-sm">Try adjusting your search query</p>

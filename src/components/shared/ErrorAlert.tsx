@@ -47,7 +47,7 @@ interface ErrorStateProps {
  */
 export function ErrorState({ error, onRetry, title = "Unable to Load Data" }: ErrorStateProps) {
   return (
-    <div className="flex items-center justify-center min-h-[400px] p-8">
+    <div className="flex items-center justify-center min-h-[400px] p-3">
       <div className="max-w-md w-full">
         <ErrorAlert error={error} onRetry={onRetry} title={title} />
       </div>
@@ -68,8 +68,8 @@ export function ErrorBanner({ error, onDismiss, onRetry }: ErrorBannerProps) {
   const errorMessage = error instanceof Error ? error.message : error
 
   return (
-    <Alert variant="destructive" className="mb-4" role="alert" aria-live="assertive">
-      <div className="flex items-start justify-between gap-4">
+    <Alert variant="destructive" className="mb-2" role="alert" aria-live="assertive">
+      <div className="flex items-start justify-between gap-2">
         <div className="flex items-start gap-2 flex-1">
           <Warning className="h-4 w-4 mt-0.5 flex-shrink-0" aria-hidden="true" />
           <div className="flex-1">

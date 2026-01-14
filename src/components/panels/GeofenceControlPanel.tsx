@@ -188,9 +188,9 @@ export function GeofenceControlPanel({
 
     return (
         <>
-            <Card className="fixed top-24 right-6 w-96 shadow-2xl z-40 border border-white/20 bg-white/80 backdrop-blur-xl animate-in slide-in-from-right-10 rounded-2xl overflow-hidden ring-1 ring-black/5 flex flex-col max-h-[calc(100vh-120px)]">
+            <Card className="fixed top-24 right-6 w-96 shadow-sm z-40 border border-white/20 bg-white/80 backdrop-blur-xl animate-in slide-in-from-right-10 rounded-lg overflow-hidden ring-1 ring-black/5 flex flex-col max-h-[calc(100vh-120px)]">
                 <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent pointer-events-none" />
-                <CardHeader className="pb-4 border-b border-black/5 flex flex-row items-center justify-between space-y-0 relative z-10 bg-white/40 shrink-0">
+                <CardHeader className="pb-2 border-b border-black/5 flex flex-row items-center justify-between space-y-0 relative z-10 bg-white/40 shrink-0">
                     <div>
                         <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800">
                             <div className="p-1.5 bg-blue-500/10 rounded-md border border-blue-500/20">
@@ -215,9 +215,9 @@ export function GeofenceControlPanel({
                     </div>
                 </CardHeader>
 
-                <CardContent className="pt-4 flex-1 overflow-hidden flex flex-col">
+                <CardContent className="pt-2 flex-1 overflow-hidden flex flex-col">
                     {/* Filters */}
-                    <div className="space-y-3 shrink-0 mb-4">
+                    <div className="space-y-3 shrink-0 mb-2">
                         <div className="flex gap-2">
                             <div className="relative flex-1">
                                 <MagnifyingGlass className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-muted-foreground" />
@@ -225,7 +225,7 @@ export function GeofenceControlPanel({
                                     placeholder="Search..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-8 h-8 text-sm"
+                                    className="pl-3 h-8 text-sm"
                                     aria-label="Search geofences"
                                 />
                             </div>
@@ -247,7 +247,7 @@ export function GeofenceControlPanel({
                     {/* Geofence List */}
                     <div className="space-y-2 overflow-y-auto pr-2 flex-1">
                         {filteredGeofences.length === 0 ? (
-                            <div className="text-center py-8 text-muted-foreground text-sm">
+                            <div className="text-center py-3 text-muted-foreground text-sm">
                                 No geofences found.
                             </div>
                         ) : (
@@ -315,8 +315,8 @@ export function GeofenceControlPanel({
                             Define a geographic boundary
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2 py-2">
+                        <div className="grid grid-cols-2 gap-2">
                             <div className="space-y-2">
                                 <Label htmlFor="geofence-name">Name *</Label>
                                 <Input
@@ -354,7 +354,7 @@ export function GeofenceControlPanel({
                         </div>
 
                         {newGeofence.type === "circle" && (
-                            <div className="grid grid-cols-3 gap-4 bg-slate-50 p-3 rounded-md border">
+                            <div className="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-md border">
                                 <div className="space-y-2">
                                     <Label htmlFor="center-lat" className="text-xs">Latitude</Label>
                                     <Input
@@ -396,7 +396,7 @@ export function GeofenceControlPanel({
                             </div>
                         )}
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-2">
                             <div className="space-y-2">
                                 <Label htmlFor="alert-priority">Priority</Label>
                                 <Select

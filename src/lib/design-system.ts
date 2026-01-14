@@ -197,7 +197,7 @@ export function meetsWCAG_AAA(
 <div className="bg-blue-500 text-blue-200">Low contrast - fails WCAG</div>
 
 // Typography examples:
-<h1 className="text-4xl font-bold">Hero Title</h1>       // 36px
+<h1 className="text-sm font-bold">Hero Title</h1>       // 36px
 <p className="text-base">Body paragraph</p>              // 16px
 <span className="text-xs">Small label (12px MIN)</span>  // 12px - MINIMUM
 

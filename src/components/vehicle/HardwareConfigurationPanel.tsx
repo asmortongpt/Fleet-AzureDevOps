@@ -175,15 +175,15 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
   const Icon = info.icon
 
   return (
-    <Card className="transition-all duration-200 hover:shadow-lg">
+    <Card className="transition-all duration-200 hover:shadow-sm">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className={cn('p-3 rounded-xl', info.bgColor)}>
-              <Icon className={cn('w-6 h-6', info.color)} />
+            <div className={cn('p-3 rounded-md', info.bgColor)}>
+              <Icon className={cn('w-4 h-4', info.color)} />
             </div>
             <div>
-              <CardTitle className="text-lg">{info.name}</CardTitle>
+              <CardTitle className="text-sm">{info.name}</CardTitle>
               {provider.deviceModel && (
                 <CardDescription className="mt-1">
                   {provider.deviceModel}
@@ -195,7 +195,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-2">
         {/* Capabilities */}
         <div>
           <Label className="text-xs text-muted-foreground mb-2">Capabilities</Label>
@@ -227,7 +227,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
 
         {/* Expandable Configuration */}
         {expanded && (
-          <div className="pt-4 border-t space-y-3">
+          <div className="pt-2 border-t space-y-3">
             <div className="text-sm">
               <Label className="text-xs text-muted-foreground">Configuration</Label>
               <pre className="mt-2 p-3 bg-muted rounded-lg text-xs overflow-auto max-h-40">
@@ -238,7 +238,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
         )}
       </CardContent>
 
-      <CardFooter className="flex justify-between border-t pt-4">
+      <CardFooter className="flex justify-between border-t pt-2">
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -323,10 +323,10 @@ const AddProviderDialog: React.FC<AddProviderDialogProps> = ({
     switch (selectedProvider) {
       case 'smartcar':
         return (
-          <div className="space-y-4">
-            <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+          <div className="space-y-2">
+            <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-blue-800 mt-0.5" />
+                <AlertCircle className="w-3 h-3 text-blue-800 mt-0.5" />
                 <div className="space-y-2">
                   <p className="text-sm font-medium">OAuth Connection Required</p>
                   <p className="text-xs text-muted-foreground">
@@ -345,7 +345,7 @@ const AddProviderDialog: React.FC<AddProviderDialogProps> = ({
 
       case 'samsara':
         return (
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div>
               <Label htmlFor="samsara-token">API Token</Label>
               <Input
@@ -378,7 +378,7 @@ const AddProviderDialog: React.FC<AddProviderDialogProps> = ({
 
       case 'teltonika':
         return (
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div>
               <Label htmlFor="teltonika-imei">IMEI Number</Label>
               <Input
@@ -441,10 +441,10 @@ const AddProviderDialog: React.FC<AddProviderDialogProps> = ({
 
       case 'obd2':
         return (
-          <div className="space-y-4">
-            <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+          <div className="space-y-2">
+            <div className="p-2 bg-orange-500/10 border border-orange-500/20 rounded-lg">
               <div className="flex items-start gap-3">
-                <Smartphone className="w-5 h-5 text-orange-500 mt-0.5" />
+                <Smartphone className="w-3 h-3 text-orange-500 mt-0.5" />
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Mobile App Pairing Required</p>
                   <div className="text-xs text-muted-foreground space-y-1">
@@ -474,7 +474,7 @@ const AddProviderDialog: React.FC<AddProviderDialogProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-2 py-2">
           {/* Provider Type Selection */}
           <div>
             <Label htmlFor="provider-type">Provider Type</Label>
@@ -662,8 +662,8 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
   if (error) {
     return (
       <Card className="border-destructive/50">
-        <CardContent className="flex items-center gap-3 p-6">
-          <AlertCircle className="w-5 h-5 text-destructive" />
+        <CardContent className="flex items-center gap-3 p-3">
+          <AlertCircle className="w-3 h-3 text-destructive" />
           <div>
             <p className="font-medium text-destructive">Error loading providers</p>
             <p className="text-sm text-muted-foreground">{error}</p>
@@ -677,11 +677,11 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Hardware Configuration</h2>
+          <h2 className="text-sm font-semibold">Hardware Configuration</h2>
           <p className="text-sm text-muted-foreground mt-1">
             Manage hardware providers for this vehicle
           </p>
@@ -696,11 +696,11 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
       {providers.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center p-12">
-            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-              <Cpu className="w-8 h-8 text-muted-foreground" />
+            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-2">
+              <Cpu className="w-4 h-4 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-medium mb-2">No providers configured</h3>
-            <p className="text-sm text-muted-foreground text-center mb-4">
+            <h3 className="text-sm font-medium mb-2">No providers configured</h3>
+            <p className="text-sm text-muted-foreground text-center mb-2">
               Add a hardware provider to start collecting telemetry data from this vehicle
             </p>
             <Button onClick={() => setIsAddDialogOpen(true)}>
@@ -710,7 +710,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-2">
           {providers.map((provider) => (
             <ProviderCard
               key={provider.id}

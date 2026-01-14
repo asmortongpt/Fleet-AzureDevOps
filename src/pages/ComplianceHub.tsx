@@ -24,31 +24,31 @@ function DashboardContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 min-h-full overflow-auto">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Compliance Dashboard</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                <StatCard title="Overall Score" value="94%" variant="success" icon={<CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />} onClick={() => push({ type: 'regulations', data: { title: 'Overall Score' } } as Omit<DrilldownLevel, "timestamp">)} />
+        <div className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-background to-background/95 min-h-full overflow-auto">
+            <h2 className="text-sm sm:text-base lg:text-sm font-bold text-foreground">Compliance Dashboard</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-2">
+                <StatCard title="Overall Score" value="94%" variant="success" icon={<CheckCircle className="w-3 h-3 sm:w-6 sm:h-6" />} onClick={() => push({ type: 'regulations', data: { title: 'Overall Score' } } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="DOT Compliance" value="98%" variant="success" onClick={() => push({ type: 'dot-compliance', data: { title: 'DOT Compliance' } } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="IFTA Compliance" value="100%" variant="success" onClick={() => push({ type: 'ifta-compliance', data: { title: 'IFTA Compliance' } } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Violations" value="2" variant="warning" icon={<Warning className="w-5 h-5 sm:w-6 sm:h-6" />} onClick={() => push({ type: 'regulations', data: { title: 'Violations' } } as Omit<DrilldownLevel, "timestamp">)} />
+                <StatCard title="Violations" value="2" variant="warning" icon={<Warning className="w-3 h-3 sm:w-6 sm:h-6" />} onClick={() => push({ type: 'regulations', data: { title: 'Violations' } } as Omit<DrilldownLevel, "timestamp">)} />
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
-                <div className="bg-card/80 backdrop-blur-xl rounded-xl border border-border/50 p-4 sm:p-6 cursor-pointer hover:border-success/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300" onClick={() => push({ type: 'dot-compliance', data: { title: 'DOT Status' } } as Omit<DrilldownLevel, "timestamp">)} role="button" tabIndex={0}>
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">DOT Status</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-2">
+                <div className="bg-card/80 backdrop-blur-xl rounded-md border border-border/50 p-2 sm:p-3 cursor-pointer hover:border-success/40 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-300" onClick={() => push({ type: 'dot-compliance', data: { title: 'DOT Status' } } as Omit<DrilldownLevel, "timestamp">)} role="button" tabIndex={0}>
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">DOT Status</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={98} color="green" label="98%" sublabel="Compliant" />
                     </div>
                 </div>
-                <div className="bg-card/80 backdrop-blur-xl rounded-xl border border-border/50 p-4 sm:p-6 cursor-pointer hover:border-border transition-all duration-300" onClick={() => push({ type: 'regulations', data: { title: 'Metrics' } } as Omit<DrilldownLevel, "timestamp">)} role="button" tabIndex={0}>
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">Compliance Metrics</h3>
+                <div className="bg-card/80 backdrop-blur-xl rounded-md border border-border/50 p-2 sm:p-3 cursor-pointer hover:border-border transition-all duration-300" onClick={() => push({ type: 'regulations', data: { title: 'Metrics' } } as Omit<DrilldownLevel, "timestamp">)} role="button" tabIndex={0}>
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Compliance Metrics</h3>
                     <div className="space-y-0.5">
                         <QuickStat label="Audits Passed" value="12/12" trend="up" />
                         <QuickStat label="Docs Current" value="156" />
                         <QuickStat label="Expiring Soon" value="4" />
                     </div>
                 </div>
-                <div className="bg-card/80 backdrop-blur-xl rounded-xl border border-border/50 p-4 sm:p-6 cursor-pointer hover:border-success/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300" onClick={() => push({ type: 'csa', data: { title: 'OSHA Status' } } as Omit<DrilldownLevel, "timestamp">)} role="button" tabIndex={0}>
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">OSHA Status</h3>
+                <div className="bg-card/80 backdrop-blur-xl rounded-md border border-border/50 p-2 sm:p-3 cursor-pointer hover:border-success/40 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-300" onClick={() => push({ type: 'csa', data: { title: 'OSHA Status' } } as Omit<DrilldownLevel, "timestamp">)} role="button" tabIndex={0}>
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">OSHA Status</h3>
                     <div className="flex items-center justify-center">
                         <ProgressRing progress={92} color="green" label="92%" sublabel="Safety Score" />
                     </div>
@@ -62,10 +62,10 @@ function MapContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 overflow-auto">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Compliance Map</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                <StatCard title="Regions" value="12" variant="primary" icon={<MapTrifold className="w-5 h-5 sm:w-6 sm:h-6" />} onClick={() => push({ type: 'geofence-compliance', data: { title: 'Regions' } } as Omit<DrilldownLevel, "timestamp">)} />
+        <div className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-background to-background/95 overflow-auto">
+            <h2 className="text-sm sm:text-base lg:text-sm font-bold text-foreground">Compliance Map</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-2">
+                <StatCard title="Regions" value="12" variant="primary" icon={<MapTrifold className="w-3 h-3 sm:w-6 sm:h-6" />} onClick={() => push({ type: 'geofence-compliance', data: { title: 'Regions' } } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="Compliant Zones" value="10" variant="success" onClick={() => push({ type: 'compliant-zones', data: { title: 'Compliant Zones' } } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="Attention Needed" value="2" variant="warning" onClick={() => push({ type: 'attention-zones', data: { title: 'Attention Needed' } } as Omit<DrilldownLevel, "timestamp">)} />
             </div>
@@ -77,10 +77,10 @@ function DOTContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 overflow-auto">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">DOT Compliance</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                <StatCard title="Vehicles Compliant" value="152" variant="success" icon={<Truck className="w-5 h-5 sm:w-6 sm:h-6" />} onClick={() => push({ type: 'inspections', data: { title: 'Vehicles Compliant' } } as Omit<DrilldownLevel, "timestamp">)} />
+        <div className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-background to-background/95 overflow-auto">
+            <h2 className="text-sm sm:text-base lg:text-sm font-bold text-foreground">DOT Compliance</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-2">
+                <StatCard title="Vehicles Compliant" value="152" variant="success" icon={<Truck className="w-3 h-3 sm:w-6 sm:h-6" />} onClick={() => push({ type: 'inspections', data: { title: 'Vehicles Compliant' } } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="Inspections Due" value="8" variant="warning" onClick={() => push({ type: 'inspections-due', data: { title: 'Inspections Due' } } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="HOS Violations" value="0" variant="success" onClick={() => push({ type: 'hos-violations', data: { title: 'HOS Violations' } } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="ELD Status" value="100%" variant="success" onClick={() => push({ type: 'eld-status', data: { title: 'ELD Status' } } as Omit<DrilldownLevel, "timestamp">)} />
@@ -93,10 +93,10 @@ function IFTAContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 overflow-auto">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">IFTA Compliance</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                <StatCard title="Quarters Filed" value="4/4" variant="success" icon={<Receipt className="w-5 h-5 sm:w-6 sm:h-6" />} onClick={() => push({ type: 'ifta', data: { title: 'Quarters Filed' } } as Omit<DrilldownLevel, "timestamp">)} />
+        <div className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-background to-background/95 overflow-auto">
+            <h2 className="text-sm sm:text-base lg:text-sm font-bold text-foreground">IFTA Compliance</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-2">
+                <StatCard title="Quarters Filed" value="4/4" variant="success" icon={<Receipt className="w-3 h-3 sm:w-6 sm:h-6" />} onClick={() => push({ type: 'ifta', data: { title: 'Quarters Filed' } } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="Miles Tracked" value="2.4M" variant="primary" onClick={() => push({ type: 'miles-tracked', data: { title: 'Miles Tracked' } } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="Fuel Tax Due" value="$12,450" variant="default" onClick={() => push({ type: 'fuel-tax-due', data: { title: 'Fuel Tax Due' } } as Omit<DrilldownLevel, "timestamp">)} />
             </div>
@@ -108,10 +108,10 @@ function OSHAContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-gradient-to-b from-background to-background/95 overflow-auto">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">OSHA Safety Forms</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                <StatCard title="Forms Complete" value="24" variant="success" icon={<FirstAid className="w-5 h-5 sm:w-6 sm:h-6" />} onClick={() => push({ type: 'csa', data: { title: 'Forms Complete' } } as Omit<DrilldownLevel, "timestamp">)} />
+        <div className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-background to-background/95 overflow-auto">
+            <h2 className="text-sm sm:text-base lg:text-sm font-bold text-foreground">OSHA Safety Forms</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-2">
+                <StatCard title="Forms Complete" value="24" variant="success" icon={<FirstAid className="w-3 h-3 sm:w-6 sm:h-6" />} onClick={() => push({ type: 'csa', data: { title: 'Forms Complete' } } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="Pending" value="3" variant="warning" onClick={() => push({ type: 'csa-pending', data: { title: 'Pending Forms' } } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="Incidents YTD" value="2" variant="warning" onClick={() => push({ type: 'incidents-ytd', data: { title: 'Incidents YTD' } } as Omit<DrilldownLevel, "timestamp">)} />
                 <StatCard title="Days Safe" value="47" variant="success" onClick={() => push({ type: 'days-safe', data: { title: 'Days Safe' } } as Omit<DrilldownLevel, "timestamp">)} />
@@ -132,7 +132,7 @@ export function ComplianceHub() {
     return (
         <HubPage
             title="Compliance Hub"
-            icon={<ComplianceIcon className="w-6 h-6" />}
+            icon={<ComplianceIcon className="w-4 h-4" />}
             description="DOT, IFTA, and safety compliance management"
             tabs={tabs}
             defaultTab="dashboard"

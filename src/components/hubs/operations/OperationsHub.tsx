@@ -128,20 +128,20 @@ export function OperationsHub() {
 
   // Side Panel Content - Operations Control
   const sidePanel = (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">Operations Hub</h2>
+        <h2 className="text-sm font-bold text-slate-900">Operations Hub</h2>
         <p className="text-sm text-slate-500 mt-1">Real-time fleet operations control center</p>
       </div>
 
       {/* Real-time Metrics Cards */}
       <div className="grid grid-cols-2 gap-3">
         <Card className="border-l-4 border-l-blue-500">
-          <CardContent className="pt-4 pb-3 px-4">
+          <CardContent className="pt-2 pb-3 px-2">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl font-bold text-blue-800">{metrics.activeJobs}</div>
+                <div className="text-sm font-bold text-blue-800">{metrics.activeJobs}</div>
                 <div className="text-xs text-slate-600 mt-1">Active Jobs</div>
               </div>
               <Package className="h-8 w-8 text-blue-800 opacity-20" />
@@ -150,10 +150,10 @@ export function OperationsHub() {
         </Card>
 
         <Card className="border-l-4 border-l-amber-500">
-          <CardContent className="pt-4 pb-3 px-4">
+          <CardContent className="pt-2 pb-3 px-2">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl font-bold text-amber-600">{metrics.pendingDispatch}</div>
+                <div className="text-sm font-bold text-amber-600">{metrics.pendingDispatch}</div>
                 <div className="text-xs text-slate-600 mt-1">Pending Dispatch</div>
               </div>
               <Clock className="h-8 w-8 text-amber-500 opacity-20" />
@@ -162,10 +162,10 @@ export function OperationsHub() {
         </Card>
 
         <Card className="border-l-4 border-l-green-500">
-          <CardContent className="pt-4 pb-3 px-4">
+          <CardContent className="pt-2 pb-3 px-2">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl font-bold text-green-600">{metrics.enRoute}</div>
+                <div className="text-sm font-bold text-green-600">{metrics.enRoute}</div>
                 <div className="text-xs text-slate-600 mt-1">En Route</div>
               </div>
               <Navigation className="h-8 w-8 text-green-500 opacity-20" />
@@ -174,10 +174,10 @@ export function OperationsHub() {
         </Card>
 
         <Card className="border-l-4 border-l-purple-500">
-          <CardContent className="pt-4 pb-3 px-4">
+          <CardContent className="pt-2 pb-3 px-2">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl font-bold text-purple-600">{metrics.completed}</div>
+                <div className="text-sm font-bold text-purple-600">{metrics.completed}</div>
                 <div className="text-xs text-slate-600 mt-1">Completed Today</div>
               </div>
               <CheckCircle className="h-8 w-8 text-purple-500 opacity-20" />
@@ -371,8 +371,8 @@ export function OperationsHub() {
 
   // Drawer Content for mobile
   const drawerContent = selectedVehicle && (
-    <div className="space-y-4">
-      <h3 className="text-lg font-bold">Operations Details: {selectedVehicle.vehicleNumber}</h3>
+    <div className="space-y-2">
+      <h3 className="text-sm font-bold">Operations Details: {selectedVehicle.vehicleNumber}</h3>
       <div className="space-y-3">
         <Card>
           <CardHeader>
@@ -420,8 +420,8 @@ export function OperationsHub() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <Package className="h-12 w-12 animate-spin mx-auto text-blue-800" />
-          <p className="mt-4 text-slate-600">Loading operations data...</p>
+          <Package className="h-9 w-12 animate-spin mx-auto text-blue-800" />
+          <p className="mt-2 text-slate-600">Loading operations data...</p>
         </div>
       </div>
     );

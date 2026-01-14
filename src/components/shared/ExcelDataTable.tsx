@@ -81,11 +81,11 @@ export function ExcelDataTable<T>({
   };
 
   return (
-    <div className={`flex flex-col h-full backdrop-blur-xl bg-slate-900/95 border border-slate-700/60 rounded-lg shadow-2xl ${className}`}>
+    <div className={`flex flex-col h-full backdrop-blur-xl bg-slate-900/95 border border-slate-700/60 rounded-lg shadow-sm ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/60">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-700/60">
         <div>
-          {title && <h3 className="text-lg font-semibold text-slate-100">{title}</h3>}
+          {title && <h3 className="text-sm font-semibold text-slate-100">{title}</h3>}
           <p className="text-sm text-slate-400 mt-0.5">
             {table.getFilteredRowModel().rows.length} of {data.length} records
           </p>
@@ -100,7 +100,7 @@ export function ExcelDataTable<T>({
               value={globalFilter}
               onChange={e => setGlobalFilter(e.target.value)}
               placeholder="Search all columns..."
-              className="pl-10 pr-4 py-2 bg-slate-800/80 border border-slate-600/50 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 w-64"
+              className="pl-10 pr-2 py-2 bg-slate-800/80 border border-slate-600/50 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 w-64"
             />
           </div>
 
@@ -108,7 +108,7 @@ export function ExcelDataTable<T>({
           {enableFilters && (
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`px-2 py-2 rounded-lg text-sm font-medium transition-all ${
                 showFilters
                   ? 'bg-blue-600 text-white'
                   : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80'
@@ -123,7 +123,7 @@ export function ExcelDataTable<T>({
           {enableExport && (
             <button
               onClick={handleExportCSV}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-all"
+              className="px-2 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-all"
             >
               <Download className="w-4 h-4 inline mr-2" />
               Export CSV
@@ -134,8 +134,8 @@ export function ExcelDataTable<T>({
 
       {/* Column Filters */}
       {showFilters && (
-        <div className="px-6 py-4 border-b border-slate-700/60 bg-slate-800/40">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="px-3 py-2 border-b border-slate-700/60 bg-slate-800/40">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
             {table.getAllColumns().filter(col => col.getCanFilter()).map(column => (
               <div key={column.id} className="flex flex-col gap-2">
                 <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">
@@ -165,7 +165,7 @@ export function ExcelDataTable<T>({
           {columnFilters.length > 0 && (
             <button
               onClick={() => setColumnFilters([])}
-              className="mt-4 px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 rounded-lg text-sm font-medium transition-all"
+              className="mt-2 px-2 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 rounded-lg text-sm font-medium transition-all"
             >
               Clear All Filters
             </button>
@@ -182,7 +182,7 @@ export function ExcelDataTable<T>({
                 {headerGroup.headers.map(header => (
                   <th
                     key={header.id}
-                    className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider"
+                    className="px-2 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider"
                   >
                     {header.isPlaceholder ? null : (
                       <div
@@ -217,7 +217,7 @@ export function ExcelDataTable<T>({
                 } transition-colors`}
               >
                 {row.getVisibleCells().map(cell => (
-                  <td key={cell.id} className="px-4 py-3 text-sm text-slate-300">
+                  <td key={cell.id} className="px-2 py-3 text-sm text-slate-300">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
@@ -228,8 +228,8 @@ export function ExcelDataTable<T>({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between px-6 py-4 border-t border-slate-700/60 bg-slate-800/40">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between px-3 py-2 border-t border-slate-700/60 bg-slate-800/40">
+        <div className="flex items-center gap-2">
           <select
             value={table.getState().pagination.pageSize}
             onChange={e => table.setPageSize(Number(e.target.value))}

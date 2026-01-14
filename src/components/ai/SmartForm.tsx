@@ -191,7 +191,7 @@ export function SmartForm({
       <CardContent>
         {/* Anomaly Alerts */}
         {validation && validation.anomalies.length > 0 && (
-          <Alert className="mb-4 border-orange-200 bg-orange-50">
+          <Alert className="mb-2 border-orange-200 bg-orange-50">
             <TrendingUp className="h-4 w-4 text-orange-600" />
             <AlertDescription>
               <p className="font-semibold text-orange-900 mb-2">Anomalies Detected:</p>
@@ -209,7 +209,7 @@ export function SmartForm({
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-2">
           {fields.map((field) => {
             const warning = getFieldWarning(field.name)
             const suggestion = getFieldSuggestion(field.name)
@@ -309,7 +309,7 @@ export function SmartForm({
           ))}
 
           {/* Actions */}
-          <div className="flex gap-2 pt-4">
+          <div className="flex gap-2 pt-2">
             <Button
               type="submit"
               disabled={isSubmitting || (validation?.isValid === false)}

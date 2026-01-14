@@ -61,10 +61,10 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {trips && (
-        <div className="space-y-4">
+        <div className="space-y-2">
           {/* Header */}
           <div>
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-sm font-semibold">
               Trip History {driverName && `for ${driverName}`}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
@@ -76,7 +76,7 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
           {trips.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <Route className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <Route className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground">No trips recorded</p>
               </CardContent>
             </Card>
@@ -86,8 +86,8 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                 const scoreBadge = getScoreBadge(trip.performance_score || 0)
                 return (
                   <Card key={trip.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="space-y-4">
+                    <CardContent className="p-2">
+                      <div className="space-y-2">
                         {/* Trip Header */}
                         <div className="flex items-start justify-between">
                           <div className="space-y-1">
@@ -109,7 +109,7 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                         </div>
 
                         {/* Time & Date */}
-                        <div className="flex items-center gap-4 text-sm">
+                        <div className="flex items-center gap-2 text-sm">
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-muted-foreground" />
                             <span>
@@ -144,7 +144,7 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                         </div>
 
                         {/* Stats */}
-                        <div className="grid grid-cols-3 gap-4 pt-3 border-t">
+                        <div className="grid grid-cols-3 gap-2 pt-3 border-t">
                           <div>
                             <p className="text-xs text-muted-foreground">Distance</p>
                             <p className="font-medium">

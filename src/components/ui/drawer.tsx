@@ -83,7 +83,7 @@ function DrawerContent({
         {...props}
       >
         {/* Drag handle for bottom drawer */}
-        <div className="mx-auto mt-4 hidden h-1.5 w-12 shrink-0 rounded-full bg-muted-foreground/20 group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
+        <div className="mx-auto mt-2 hidden h-1.5 w-12 shrink-0 rounded-full bg-muted-foreground/20 group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
 
         {/* Close button for side drawers */}
         {showClose && (
@@ -114,7 +114,7 @@ function DrawerHeader({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="drawer-header"
       className={cn(
-        "flex flex-col gap-1.5 p-4 sm:p-6",
+        "flex flex-col gap-1.5 p-2 sm:p-3",
         "border-b border-border/50",
         className
       )}
@@ -128,7 +128,7 @@ function DrawerFooter({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="drawer-footer"
       className={cn(
-        "mt-auto flex flex-col gap-2 p-4 sm:p-6",
+        "mt-auto flex flex-col gap-2 p-2 sm:p-3",
         "border-t border-border/50",
         className
       )}
@@ -144,7 +144,7 @@ function DrawerTitle({
   return (
     <DrawerPrimitive.Title
       data-slot="drawer-title"
-      className={cn("text-lg font-semibold text-foreground tracking-tight", className)}
+      className={cn("text-sm font-semibold text-foreground tracking-tight", className)}
       {...props}
     />
   )
@@ -169,7 +169,7 @@ function DrawerBody({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="drawer-body"
       className={cn(
-        "flex-1 overflow-y-auto p-4 sm:p-6",
+        "flex-1 overflow-y-auto p-2 sm:p-3",
         "overscroll-contain",
         className
       )}

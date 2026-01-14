@@ -117,7 +117,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
                 <Gauge className="h-5 w-5 text-green-600" />
                 <div>
                   <div className="text-xs text-muted-foreground">Avg MPG</div>
-                  <div className="text-lg font-bold">{metrics.avgMPG}</div>
+                  <div className="text-sm font-bold">{metrics.avgMPG}</div>
                 </div>
               </div>
             </CardContent>
@@ -128,7 +128,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
                 <Clock className="h-5 w-5 text-amber-600" />
                 <div>
                   <div className="text-xs text-muted-foreground">Idle Time</div>
-                  <div className="text-lg font-bold">{metrics.idleTime}%</div>
+                  <div className="text-sm font-bold">{metrics.idleTime}%</div>
                 </div>
               </div>
             </CardContent>
@@ -145,7 +145,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
                 <Fuel className="h-5 w-5 text-orange-600" />
                 <div>
                   <div className="text-xs text-muted-foreground">Avg Fuel Cost</div>
-                  <div className="text-lg font-bold">${metrics.fuelCost}/gal</div>
+                  <div className="text-sm font-bold">${metrics.fuelCost}/gal</div>
                 </div>
               </div>
             </CardContent>
@@ -157,9 +157,9 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
 
   // Filter Sidebar Panel
   const sidePanel = (
-    <div className="space-y-4" data-testid="analytics-filter-sidebar">
+    <div className="space-y-2" data-testid="analytics-filter-sidebar">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">Analytics Filters</h2>
+        <h2 className="text-sm font-bold text-slate-900">Analytics Filters</h2>
         <p className="text-sm text-muted-foreground mt-1">{getAnalyticsDescription()}</p>
       </div>
 
@@ -317,7 +317,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center space-y-2">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="w-4 h-4 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-sm text-muted-foreground">Loading analytics...</p>
         </div>
       </div>

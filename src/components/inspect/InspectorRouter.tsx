@@ -21,9 +21,9 @@ export const InspectorRouter: React.FC<Props> = ({ target }) => {
     };
 
     return (
-      <div className="p-6 space-y-6">
+      <div className="p-3 space-y-2">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
+          <h2 className="text-sm font-bold flex items-center gap-2">
             {entityTypeLabels[target.type] || target.type} Inspector
             <Badge variant="outline">ID: {target.id}</Badge>
           </h2>
@@ -37,25 +37,25 @@ export const InspectorRouter: React.FC<Props> = ({ target }) => {
             <CardTitle>Entity Information</CardTitle>
           </CardHeader>
           <CardContent>
-            <dl className="grid grid-cols-2 gap-4">
+            <dl className="grid grid-cols-2 gap-2">
               <div>
                 <dt className="text-sm font-medium text-muted-foreground">Type</dt>
-                <dd className="text-lg font-semibold">{entityTypeLabels[target.type] || target.type}</dd>
+                <dd className="text-sm font-semibold">{entityTypeLabels[target.type] || target.type}</dd>
               </div>
               <div>
                 <dt className="text-sm font-medium text-muted-foreground">ID</dt>
-                <dd className="text-lg font-semibold">{target.id}</dd>
+                <dd className="text-sm font-semibold">{target.id}</dd>
               </div>
               {target.tab && (
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground">Active Tab</dt>
-                  <dd className="text-lg">{target.tab}</dd>
+                  <dd className="text-sm">{target.tab}</dd>
                 </div>
               )}
               {target.focusMetric && (
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground">Focus Metric</dt>
-                  <dd className="text-lg">{target.focusMetric}</dd>
+                  <dd className="text-sm">{target.focusMetric}</dd>
                 </div>
               )}
             </dl>
@@ -87,7 +87,7 @@ export const InspectorRouter: React.FC<Props> = ({ target }) => {
       return renderEntityInspector();
     default:
       return (
-        <div className="p-4 bg-destructive/10 rounded-md">
+        <div className="p-2 bg-destructive/10 rounded-md">
           <p className="text-sm text-destructive">Unknown inspect type: {target.type}</p>
         </div>
       );

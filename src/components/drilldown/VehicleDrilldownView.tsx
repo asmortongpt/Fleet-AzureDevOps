@@ -21,7 +21,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       cell: ({ row }) => {
         const imageUrl = row.original.metadata?.image_url || `/api/placeholder-vehicle?unit=${row.original.number}`;
         return (
-          <div className="w-16 h-12 rounded-lg overflow-hidden bg-slate-800 flex items-center justify-center">
+          <div className="w-16 h-9 rounded-lg overflow-hidden bg-slate-800 flex items-center justify-center">
             <img
               src={imageUrl}
               alt={row.original.number}
@@ -29,7 +29,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
               onError={(e) => {
                 // Fallback to icon if image fails
                 e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.innerHTML = '<svg class="w-6 h-6 text-slate-600" fill="currentColor" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2zM12 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>';
+                e.currentTarget.parentElement!.innerHTML = '<svg class="w-4 h-4 text-slate-600" fill="currentColor" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2zM12 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>';
               }}
             />
           </div>

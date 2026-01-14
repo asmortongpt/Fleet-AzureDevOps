@@ -92,12 +92,12 @@ export function RecurringScheduleDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-2">
           {/* Basic Information */}
-          <div className="space-y-4">
+          <div className="space-y-2">
             <h3 className="text-sm font-semibold">Basic Information</h3>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <div className="space-y-2">
                 <Label htmlFor="vehicle">Vehicle</Label>
                 <Select
@@ -160,10 +160,10 @@ export function RecurringScheduleDialog({
           </div>
 
           {/* Recurrence Pattern */}
-          <div className="space-y-4">
+          <div className="space-y-2">
             <h3 className="text-sm font-semibold">Recurrence Pattern</h3>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-2">
               <div className="space-y-2">
                 <Label htmlFor="recurrence_type">Type</Label>
                 <Select
@@ -244,7 +244,7 @@ export function RecurringScheduleDialog({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <div className="space-y-2">
                 <Label htmlFor="lead_time">Lead Time (days before due)</Label>
                 <Input
@@ -284,7 +284,7 @@ export function RecurringScheduleDialog({
           </div>
 
           {/* Auto Work Order Settings */}
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-semibold">Automatic Work Order Generation</h3>
@@ -301,7 +301,7 @@ export function RecurringScheduleDialog({
             </div>
 
             {formData.auto_create_work_order && (
-              <div className="grid grid-cols-2 gap-4 pl-6 border-l-2">
+              <div className="grid grid-cols-2 gap-2 pl-3 border-l-2">
                 <div className="space-y-2">
                   <Label htmlFor="wo_priority">Work Order Priority</Label>
                   <Select
@@ -404,7 +404,7 @@ export function RecurringScheduleDialog({
           </div>
 
           {/* Parts & Notes */}
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div className="space-y-2">
               <Label>Required Parts</Label>
               <div className="flex gap-2">

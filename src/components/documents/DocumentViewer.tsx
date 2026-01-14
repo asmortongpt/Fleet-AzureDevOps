@@ -165,7 +165,7 @@ export function DocumentViewer({
         return (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <p className="text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-2">
                 Preview not available for this file type
               </p>
               <Button onClick={handleDownload}>
@@ -184,7 +184,7 @@ export function DocumentViewer({
         className={`max-w-7xl h-[90vh] p-0 ${isFullscreen ? 'max-w-full h-screen' : ''}`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b bg-background">
+        <div className="flex items-center justify-between p-2 border-b bg-background">
           <div className="flex items-center gap-3 min-w-0 flex-1">
             {/* Navigation */}
             {(onPrevious || onNext) && (
@@ -331,7 +331,7 @@ export function DocumentViewer({
 
         {/* Page indicator for PDFs */}
         {document.type === 'pdf' && document.pageCount && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/95 backdrop-blur-sm border rounded-full px-4 py-2 shadow-lg">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/95 backdrop-blur-sm border rounded-full px-2 py-2 shadow-sm">
             <span className="text-sm font-medium">
               Page {viewerState.currentPage} of {document.pageCount}
             </span>

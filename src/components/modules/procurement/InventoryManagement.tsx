@@ -385,7 +385,7 @@ export function InventoryManagement() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <ArrowsClockwise className="w-8 h-8 animate-spin mx-auto mb-2" />
+          <ArrowsClockwise className="w-4 h-4 animate-spin mx-auto mb-2" />
           <p className="text-muted-foreground">Loading permissions...</p>
         </div>
       </div>
@@ -409,11 +409,11 @@ export function InventoryManagement() {
   }
 
   return (
-    <div className="space-y-6" role="main" aria-label="Inventory Management">
+    <div className="space-y-2" role="main" aria-label="Inventory Management">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Inventory Management</h2>
+          <h2 className="text-sm font-semibold">Inventory Management</h2>
           <p className="text-muted-foreground">
             Comprehensive parts and supplies tracking with real-time stock alerts
           </p>
@@ -441,8 +441,8 @@ export function InventoryManagement() {
                   Enter part information to add to inventory
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2 py-2">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="part-number">Part Number *</Label>
                     <Input
@@ -498,7 +498,7 @@ export function InventoryManagement() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="manufacturer">Manufacturer</Label>
                     <Input
@@ -519,7 +519,7 @@ export function InventoryManagement() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="quantity">Current Quantity</Label>
                     <Input
@@ -543,7 +543,7 @@ export function InventoryManagement() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="min-stock">Min Stock</Label>
                     <Input
@@ -588,13 +588,13 @@ export function InventoryManagement() {
       </div>
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Parts</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.totalParts}</div>
+            <div className="text-sm font-bold">{metrics.totalParts}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Package className="w-3 h-3" />
               Unique SKUs
@@ -607,7 +607,7 @@ export function InventoryManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Value</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${metrics.totalValue.toLocaleString()}</div>
+            <div className="text-sm font-bold">${metrics.totalValue.toLocaleString()}</div>
             <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400 mt-1">
               <TrendUp className="w-3 h-3" />
               Asset value
@@ -620,7 +620,7 @@ export function InventoryManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Low Stock</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{metrics.lowStock}</div>
+            <div className="text-sm font-bold text-yellow-600 dark:text-yellow-400">{metrics.lowStock}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Warning className="w-3 h-3" />
               Below reorder
@@ -633,7 +633,7 @@ export function InventoryManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Out of Stock</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600 dark:text-red-400">{metrics.outOfStock}</div>
+            <div className="text-sm font-bold text-red-600 dark:text-red-400">{metrics.outOfStock}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <TrendDown className="w-3 h-3" />
               Critical
@@ -646,7 +646,7 @@ export function InventoryManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Overstocked</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-800 dark:text-blue-400">{metrics.overstocked}</div>
+            <div className="text-sm font-bold text-blue-800 dark:text-blue-400">{metrics.overstocked}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <TrendUp className="w-3 h-3" />
               Over max
@@ -659,7 +659,7 @@ export function InventoryManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Needs Reorder</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{metrics.needsReorder}</div>
+            <div className="text-sm font-bold text-orange-600 dark:text-orange-400">{metrics.needsReorder}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <ShoppingCart className="w-3 h-3" />
               Action needed
@@ -669,7 +669,7 @@ export function InventoryManagement() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-2">
         <div className="relative flex-1 min-w-[200px]">
           <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -752,7 +752,7 @@ export function InventoryManagement() {
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <ArrowsClockwise className="w-8 h-8 animate-spin text-muted-foreground" />
+              <ArrowsClockwise className="w-4 h-4 animate-spin text-muted-foreground" />
             </div>
           ) : (
             <Table>
@@ -773,7 +773,7 @@ export function InventoryManagement() {
               <TableBody>
                 {filteredParts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={10} className="text-center text-muted-foreground py-3">
                       No parts found. {filters.searchTerm || filters.category !== "all" || filters.status !== "all"
                         ? "Try adjusting your filters."
                         : "Add parts to manage your inventory."}
@@ -872,8 +872,8 @@ export function InventoryManagement() {
               Enter or scan a barcode to look up a part
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="flex items-center justify-center py-8">
+          <div className="space-y-2 py-2">
+            <div className="flex items-center justify-center py-3">
               <Barcode className="w-24 h-24 text-muted-foreground" />
             </div>
             <div className="space-y-2">
@@ -907,8 +907,8 @@ export function InventoryManagement() {
                 Update part information
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2 py-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label>Part Number</Label>
                   <Input
@@ -958,7 +958,7 @@ export function InventoryManagement() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label>Manufacturer</Label>
                   <Input
@@ -975,7 +975,7 @@ export function InventoryManagement() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label>Current Quantity</Label>
                   <Input
@@ -997,7 +997,7 @@ export function InventoryManagement() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-2">
                   <Label>Min Stock</Label>
                   <Input
@@ -1047,7 +1047,7 @@ export function InventoryManagement() {
                 Record inventory transaction for {selectedPart.name}
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="space-y-2 py-2">
               <div className="space-y-2">
                 <Label>Transaction Type</Label>
                 <Select

@@ -25,8 +25,8 @@ export function DocumentInsights({ document, insights }: DocumentInsightsProps) 
 
   if (insights.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-8">
-        <Sparkles className="h-12 w-12 text-muted-foreground opacity-30 mb-3" />
+      <div className="flex flex-col items-center justify-center h-full text-center p-3">
+        <Sparkles className="h-9 w-12 text-muted-foreground opacity-30 mb-3" />
         <p className="text-sm text-muted-foreground">No AI insights available</p>
         <p className="text-xs text-muted-foreground mt-1">
           Process this document to generate insights
@@ -37,7 +37,7 @@ export function DocumentInsights({ document, insights }: DocumentInsightsProps) 
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-6 space-y-6">
+      <div className="p-3 space-y-2">
         {/* Summary */}
         {summaryInsight && (
           <Card>
@@ -91,7 +91,7 @@ export function DocumentInsights({ document, insights }: DocumentInsightsProps) 
                 Detected Entities
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2">
               {/* People */}
               {entitiesInsight.metadata?.people && (
                 <div>
@@ -154,7 +154,7 @@ export function DocumentInsights({ document, insights }: DocumentInsightsProps) 
                 Sentiment Analysis
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2">
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Overall Sentiment</span>

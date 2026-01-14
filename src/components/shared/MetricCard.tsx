@@ -36,7 +36,7 @@ export function MetricCard({
 }: MetricCardProps) {
   return (
     <Card
-      className={`p-4 ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''} ${className}`}
+      className={`p-2 ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''} ${className}`}
       onClick={onClick}
     >
       <div className="flex items-center gap-3">
@@ -44,7 +44,7 @@ export function MetricCard({
           {icon}
         </div>
         <div>
-          <p className="text-2xl font-bold">{value}</p>
+          <p className="text-sm font-bold">{value}</p>
           <p className="text-xs text-muted-foreground">{label}</p>
         </div>
       </div>
@@ -97,14 +97,14 @@ export function MetricsBar({
  *     {
  *       label: "Total Vehicles",
  *       value: 120,
- *       icon: <Car className="w-5 h-5" />,
+ *       icon: <Car className="w-3 h-3" />,
  *       variant: "primary",
  *       onClick: () => handleClick("total")
  *     },
  *     {
  *       label: "Active",
  *       value: 95,
- *       icon: <Car className="w-5 h-5" />,
+ *       icon: <Car className="w-3 h-3" />,
  *       variant: "success"
  *     }
  *   ]}

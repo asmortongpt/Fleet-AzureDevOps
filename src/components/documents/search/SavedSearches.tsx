@@ -81,7 +81,7 @@ export function SavedSearches({
             <DialogTitle>Save search</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div>
               <Label htmlFor="search-name">Search name</Label>
               <Input
@@ -134,7 +134,7 @@ export function SavedSearches({
 
       {/* Saved searches list */}
       {savedSearches.length > 0 && (
-        <div className="mt-4 space-y-2">
+        <div className="mt-2 space-y-2">
           <h4 className="text-sm font-semibold text-muted-foreground">Saved Searches</h4>
           {savedSearches.map((search) => (
             <div

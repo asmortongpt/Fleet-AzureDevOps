@@ -12,7 +12,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   const sizeClasses = {
     sm: 'h-4 w-4',
     md: 'h-8 w-8',
-    lg: 'h-12 w-12'
+    lg: 'h-9 w-12'
   };
 
   return (

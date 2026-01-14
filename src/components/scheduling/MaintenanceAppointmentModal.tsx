@@ -259,7 +259,7 @@ export function MaintenanceAppointmentModal({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-2">
             {/* Vehicle Selection */}
             <FormField
               control={form.control}
@@ -338,7 +338,7 @@ export function MaintenanceAppointmentModal({
                     <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className="flex gap-4"
+                      className="flex gap-2"
                     >
                       {PRIORITY_OPTIONS.map((option) => (
                         <div key={option.value} className="flex items-center space-x-2">
@@ -359,7 +359,7 @@ export function MaintenanceAppointmentModal({
             />
 
             {/* Date and Time Selection */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-2">
               <FormField
                 control={form.control}
                 name="date"
@@ -449,7 +449,7 @@ export function MaintenanceAppointmentModal({
             </div>
 
             {/* Service Bay and Technician */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <FormField
                 control={form.control}
                 name="serviceBayId"
@@ -563,7 +563,7 @@ export function MaintenanceAppointmentModal({
               )}
             />
 
-            <DialogFooter className="pt-4">
+            <DialogFooter className="pt-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>

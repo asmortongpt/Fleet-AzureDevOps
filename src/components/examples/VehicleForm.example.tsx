@@ -57,7 +57,7 @@ export const VehicleFormExample: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl">
+    <form onSubmit={handleSubmit} className="space-y-2 max-w-2xl">
       {submitError && (
         <ErrorMessage message={submitError} onRetry={() => handleSubmit} />
       )}
@@ -78,7 +78,7 @@ export const VehicleFormExample: React.FC = () => {
         {touched.vin && errors.vin && <FieldError message={errors.vin} />}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-2">
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Make <span className="text-red-500">*</span>
@@ -111,7 +111,7 @@ export const VehicleFormExample: React.FC = () => {
       <button
         type="submit"
         disabled={loading}
-        className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
+        className="bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
       >
         {loading ? (
           <>
