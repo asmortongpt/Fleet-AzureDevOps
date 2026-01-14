@@ -404,7 +404,7 @@ export function DrilldownDataTable<T extends Record<string, any>>({
                 <TableCell className="w-10">
                   <ChevronRight
                     className={cn(
-                      'w-5 h-5 text-muted-foreground',
+                      'w-3 h-3 text-muted-foreground',
                       'opacity-0 group-hover:opacity-100 transition-opacity'
                     )}
                   />
@@ -417,7 +417,7 @@ export function DrilldownDataTable<T extends Record<string, any>>({
 
       {/* Pagination */}
       {pagination && (
-        <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center justify-between mt-2">
           <div className="text-sm text-muted-foreground">
             Showing {(pagination.page - 1) * pagination.pageSize + 1} to{' '}
             {Math.min(pagination.page * pagination.pageSize, pagination.total)} of{' '}

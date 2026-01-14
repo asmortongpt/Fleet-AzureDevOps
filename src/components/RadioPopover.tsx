@@ -113,11 +113,11 @@ export function RadioPopover({ className }: RadioPopoverProps): JSX.Element {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
-        <div className="space-y-4">
+        <div className="space-y-2">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Radio className="w-5 h-5" />
+              <Radio className="w-3 h-3" />
               <h3 className="font-semibold">Radio Console</h3>
             </div>
             <Button
@@ -152,19 +152,19 @@ export function RadioPopover({ className }: RadioPopoverProps): JSX.Element {
 
           {/* PTT Button */}
           <Button
-            className={`w-full h-12 ${isTransmitting ? 'bg-red-600 hover:bg-red-700' : ''}`}
+            className={`w-full h-9 ${isTransmitting ? 'bg-red-600 hover:bg-red-700' : ''}`}
             onMouseDown={handlePTT}
             onMouseUp={() => setIsTransmitting(false)}
             onMouseLeave={() => setIsTransmitting(false)}
           >
             {isTransmitting ? (
               <>
-                <Mic className="w-5 h-5 mr-2 animate-pulse" />
+                <Mic className="w-3 h-3 mr-2 animate-pulse" />
                 Transmitting...
               </>
             ) : (
               <>
-                <MicOff className="w-5 h-5 mr-2" />
+                <MicOff className="w-3 h-3 mr-2" />
                 Hold to Talk
               </>
             )}

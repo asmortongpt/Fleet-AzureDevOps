@@ -237,7 +237,7 @@ export function VideoPlayer({
       ref={containerRef}
       className={cn(
         'relative bg-black overflow-hidden group',
-        compact ? 'rounded-lg' : 'rounded-xl',
+        compact ? 'rounded-lg' : 'rounded-md',
         className
       )}
       onMouseEnter={() => setShowControls(true)}
@@ -257,7 +257,7 @@ export function VideoPlayer({
       {/* Loading State */}
       {isLoading && src && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-          <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
         </div>
       )}
 
@@ -265,7 +265,7 @@ export function VideoPlayer({
       {error && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/80">
           <div className="text-center">
-            <Warning className="w-8 h-8 text-red-400 mx-auto mb-2" />
+            <Warning className="w-4 h-4 text-red-400 mx-auto mb-2" />
             <p className="text-sm text-white/80">{error}</p>
           </div>
         </div>
@@ -274,7 +274,7 @@ export function VideoPlayer({
       {/* No Source - Demo Mode */}
       {!src && status !== 'offline' && (
         <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
-          <Camera className="w-12 h-12 text-slate-600" />
+          <Camera className="w-12 h-9 text-slate-600" />
         </div>
       )}
 
@@ -317,7 +317,7 @@ export function VideoPlayer({
               className="absolute inset-0 flex items-center justify-center"
             >
               <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors">
-                <Play className="w-8 h-8 text-white ml-1" weight="fill" />
+                <Play className="w-4 h-4 text-white ml-1" weight="fill" />
               </div>
             </button>
           )}

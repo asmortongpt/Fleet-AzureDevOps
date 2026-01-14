@@ -19,11 +19,11 @@ export default function RadioDispatchPage() {
   const { isConnected, transmissions, pendingApprovals } = useRadioSocket(selectedChannel);
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-2 p-3">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Radio Dispatch</h1>
+          <h1 className="text-base font-bold tracking-tight">Radio Dispatch</h1>
           <p className="text-muted-foreground">
             AI-powered radio monitoring and automated dispatch
           </p>
@@ -37,7 +37,7 @@ export default function RadioDispatchPage() {
       </div>
 
       {/* Stats Overview */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-2 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -46,7 +46,7 @@ export default function RadioDispatchPage() {
             <Radio className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3</div>
+            <div className="text-sm font-bold">3</div>
             <p className="text-xs text-muted-foreground">
               Monitoring in real-time
             </p>
@@ -61,7 +61,7 @@ export default function RadioDispatchPage() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{transmissions.length}</div>
+            <div className="text-sm font-bold">{transmissions.length}</div>
             <p className="text-xs text-muted-foreground">
               +12% from yesterday
             </p>
@@ -76,7 +76,7 @@ export default function RadioDispatchPage() {
             <Settings className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{pendingApprovals.length}</div>
+            <div className="text-sm font-bold">{pendingApprovals.length}</div>
             <p className="text-xs text-muted-foreground">
               Awaiting HITL review
             </p>
@@ -85,7 +85,7 @@ export default function RadioDispatchPage() {
       </div>
 
       {/* Main Content */}
-      <Tabs defaultValue="live" className="space-y-4">
+      <Tabs defaultValue="live" className="space-y-2">
         <TabsList>
           <TabsTrigger value="live">Live Feed</TabsTrigger>
           <TabsTrigger value="transcripts">Transcripts</TabsTrigger>
@@ -93,7 +93,7 @@ export default function RadioDispatchPage() {
           <TabsTrigger value="policies">Policies</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="live" className="space-y-4">
+        <TabsContent value="live" className="space-y-2">
           <RadioFeed
             channelId={selectedChannel}
             onChannelSelect={setSelectedChannel}
@@ -101,15 +101,15 @@ export default function RadioDispatchPage() {
           />
         </TabsContent>
 
-        <TabsContent value="transcripts" className="space-y-4">
+        <TabsContent value="transcripts" className="space-y-2">
           <TranscriptPanel transmissions={transmissions} />
         </TabsContent>
 
-        <TabsContent value="approvals" className="space-y-4">
+        <TabsContent value="approvals" className="space-y-2">
           <PolicyQueue pendingApprovals={pendingApprovals} />
         </TabsContent>
 
-        <TabsContent value="policies" className="space-y-4">
+        <TabsContent value="policies" className="space-y-2">
           <Card>
             <CardHeader>
               <CardTitle>Automation Policies</CardTitle>
@@ -117,14 +117,14 @@ export default function RadioDispatchPage() {
                 Configure dispatch automation rules and workflows
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2">
               {[
                 { name: 'Auto-Acknowledge Routine', description: 'Automatically acknowledge routine check-ins', enabled: true },
                 { name: 'Emergency Escalation', description: 'Escalate emergency keywords to supervisors', enabled: true },
                 { name: 'Fuel Request Auto-Dispatch', description: 'Auto-dispatch fuel requests to nearest driver', enabled: false },
                 { name: 'Break Request Approval', description: 'Auto-approve break requests under 30 minutes', enabled: true },
               ].map((policy, i) => (
-                <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
+                <div key={i} className="flex items-center justify-between p-2 border rounded-lg">
                   <div>
                     <p className="font-medium">{policy.name}</p>
                     <p className="text-sm text-muted-foreground">{policy.description}</p>

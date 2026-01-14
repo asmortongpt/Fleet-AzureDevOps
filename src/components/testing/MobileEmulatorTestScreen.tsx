@@ -115,20 +115,20 @@ export function MobileEmulatorTestScreen() {
   const dimensions = getDeviceDimensions()
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 p-3">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Mobile Emulator Test Screen</h1>
+        <div className="mb-3">
+          <h1 className="text-base font-bold text-gray-900 mb-2">Mobile Emulator Test Screen</h1>
           <p className="text-slate-700">Test the Fleet Management app with various mobile devices and emulators</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
           {/* Left Panel - Controls */}
-          <div className="space-y-4">
+          <div className="space-y-2">
             {/* Device Selection */}
-            <div className="bg-white rounded-lg shadow-sm p-4">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <div className="bg-white rounded-lg shadow-sm p-2">
+              <h2 className="text-sm font-semibold mb-2 flex items-center gap-2">
                 <DeviceMobile size={20} />
                 Select Device
               </h2>
@@ -153,12 +153,12 @@ export function MobileEmulatorTestScreen() {
             </div>
 
             {/* Orientation Toggle */}
-            <div className="bg-white rounded-lg shadow-sm p-4">
+            <div className="bg-white rounded-lg shadow-sm p-2">
               <h3 className="font-semibold mb-3">Orientation</h3>
               <div className="flex gap-2">
                 <button
                   onClick={() => setOrientation('portrait')}
-                  className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
+                  className={`flex-1 py-2 px-2 rounded-lg border transition-colors ${
                     orientation === 'portrait'
                       ? 'border-blue-500 bg-blue-50 text-blue-700'
                       : 'border-gray-200 hover:border-gray-300'
@@ -168,7 +168,7 @@ export function MobileEmulatorTestScreen() {
                 </button>
                 <button
                   onClick={() => setOrientation('landscape')}
-                  className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
+                  className={`flex-1 py-2 px-2 rounded-lg border transition-colors ${
                     orientation === 'landscape'
                       ? 'border-blue-500 bg-blue-50 text-blue-700'
                       : 'border-gray-200 hover:border-gray-300'
@@ -180,15 +180,15 @@ export function MobileEmulatorTestScreen() {
             </div>
 
             {/* API Testing */}
-            <div className="bg-white rounded-lg shadow-sm p-4">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <div className="bg-white rounded-lg shadow-sm p-2">
+              <h2 className="text-sm font-semibold mb-2 flex items-center gap-2">
                 <Database size={20} />
                 API Endpoints
               </h2>
               <button
                 onClick={testAllAPIs}
                 disabled={isTestingAPI}
-                className="w-full mb-4 py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
+                className="w-full mb-2 py-2 px-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
               >
                 <Play size={16} />
                 {isTestingAPI ? 'Testing...' : 'Test All APIs'}
@@ -210,7 +210,7 @@ export function MobileEmulatorTestScreen() {
                       <XCircle size={20} className="text-red-600" />
                     )}
                     {endpoint.status === 'pending' && (
-                      <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+                      <div className="w-3 h-3 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
                     )}
                   </div>
                 ))}
@@ -218,7 +218,7 @@ export function MobileEmulatorTestScreen() {
             </div>
 
             {/* URL Control */}
-            <div className="bg-white rounded-lg shadow-sm p-4">
+            <div className="bg-white rounded-lg shadow-sm p-2">
               <h3 className="font-semibold mb-3 flex items-center gap-2">
                 <Globe size={20} />
                 URL
@@ -235,7 +235,7 @@ export function MobileEmulatorTestScreen() {
                   const iframe = document.getElementById('mobile-emulator-frame') as HTMLIFrameElement | null
                   if (iframe) iframe.src = iframeUrl
                 }}
-                className="w-full mt-2 py-2 px-4 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                className="w-full mt-2 py-2 px-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
               >
                 Reload
               </button>
@@ -244,10 +244,10 @@ export function MobileEmulatorTestScreen() {
 
           {/* Center/Right - Device Preview */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <div className="mb-4 flex items-center justify-between">
+            <div className="bg-white rounded-lg shadow-sm p-3">
+              <div className="mb-2 flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-semibold">{selectedDevice.name}</h2>
+                  <h2 className="text-sm font-semibold">{selectedDevice.name}</h2>
                   <p className="text-sm text-gray-500">
                     {dimensions.width} × {dimensions.height} • {orientation}
                   </p>
@@ -261,7 +261,7 @@ export function MobileEmulatorTestScreen() {
               {/* Device Frame */}
               <div className="flex justify-center">
                 <div
-                  className="bg-gray-900 rounded-3xl p-4 shadow-2xl"
+                  className="bg-gray-900 rounded-3xl p-2 shadow-sm"
                   style={{
                     width: dimensions.width + 32,
                     height: dimensions.height + 32
@@ -269,7 +269,7 @@ export function MobileEmulatorTestScreen() {
                 >
                   {/* Screen */}
                   <div
-                    className="bg-white rounded-2xl overflow-hidden"
+                    className="bg-white rounded-lg overflow-hidden"
                     style={{
                       width: dimensions.width,
                       height: dimensions.height
@@ -286,7 +286,7 @@ export function MobileEmulatorTestScreen() {
               </div>
 
               {/* Device Info */}
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+              <div className="mt-2 p-2 bg-gray-50 rounded-lg">
                 <h3 className="font-semibold mb-2 text-sm">Device Information</h3>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>

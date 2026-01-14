@@ -55,7 +55,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
 
   if (isLoading) {
     return (
-      <div className="w-full h-full p-4 space-y-3 bg-gradient-to-b from-slate-900/50 to-transparent">
+      <div className="w-full h-full p-2 space-y-3 bg-gradient-to-b from-slate-900/50 to-transparent">
         <Skeleton className="h-8 w-1/4" />
         <Skeleton className="h-full w-full" />
       </div>
@@ -64,10 +64,10 @@ export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center w-full h-full bg-gradient-to-b from-slate-900/50 to-transparent p-8">
-        <div className="text-center max-w-md p-8 bg-red-900/20 border border-red-500/30 rounded-lg">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">Failed to Load Routes</h3>
+      <div className="flex items-center justify-center w-full h-full bg-gradient-to-b from-slate-900/50 to-transparent p-3">
+        <div className="text-center max-w-md p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
+          <AlertCircle className="w-12 h-9 text-red-500 mx-auto mb-2" />
+          <h3 className="text-base font-bold text-white mb-2">Failed to Load Routes</h3>
           <p className="text-sm text-slate-400">
             {error instanceof Error ? error.message : 'An unknown error occurred'}
           </p>
@@ -92,9 +92,9 @@ export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
       </div>
 
       {/* Route Info Overlay */}
-      <div className="absolute bottom-4 left-4 z-10 bg-white/90 backdrop-blur rounded-lg shadow-lg p-4 max-w-xs">
+      <div className="absolute bottom-4 left-4 z-10 bg-white/90 backdrop-blur rounded-lg shadow-sm p-2 max-w-xs">
         <div className="flex items-center gap-2 mb-2">
-          <MapPin className="w-5 h-5 text-blue-800" />
+          <MapPin className="w-3 h-3 text-blue-800" />
           <h3 className="font-semibold text-gray-900">Active Routes</h3>
         </div>
         <div className="space-y-1 text-sm text-slate-700">

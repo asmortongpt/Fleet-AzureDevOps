@@ -203,7 +203,7 @@ const MobileEmployeeDashboard: React.FC = () => {
       <div className="flex items-center justify-center h-screen bg-gray-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-slate-700">Loading your dashboard...</p>
+          <p className="mt-2 text-slate-700">Loading your dashboard...</p>
         </div>
       </div>
     );
@@ -212,8 +212,8 @@ const MobileEmployeeDashboard: React.FC = () => {
   if (!dashboardData) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-100">
-        <div className="text-center p-6">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+        <div className="text-center p-3">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-2" />
           <p className="text-slate-700">Unable to load dashboard. Please check your connection.</p>
         </div>
       </div>
@@ -221,18 +221,18 @@ const MobileEmployeeDashboard: React.FC = () => {
   }
 
   const renderAssignmentsTab = () => (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {dashboardData.assignments.length === 0 ? (
-        <div className="bg-white rounded-lg p-8 text-center">
-          <Car className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+        <div className="bg-white rounded-lg p-3 text-center">
+          <Car className="w-16 h-16 text-gray-400 mx-auto mb-2" />
           <p className="text-slate-700">No vehicle assignments</p>
         </div>
       ) : (
         dashboardData.assignments.map((assignment: Assignment) => (
-          <div key={assignment.id} className="bg-white rounded-lg shadow p-4">
+          <div key={assignment.id} className="bg-white rounded-lg shadow p-2">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h3 className="font-semibold text-lg text-gray-900">
+                <h3 className="font-semibold text-sm text-gray-900">
                   {assignment.unit_number}
                 </h3>
                 <p className="text-sm text-slate-700">
@@ -278,7 +278,7 @@ const MobileEmployeeDashboard: React.FC = () => {
                   {assignment.parking_latitude && (
                     <button
                       onClick={() => openNavigationToParking(assignment)}
-                      className="mt-2 w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
+                      className="mt-2 w-full flex items-center justify-center gap-2 px-2 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
                     >
                       <Navigation className="w-4 h-4" />
                       Navigate to Parking
@@ -294,11 +294,11 @@ const MobileEmployeeDashboard: React.FC = () => {
   );
 
   const renderOnCallTab = () => (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {dashboardData.notifications.unacknowledged_on_call > 0 && (
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-2 rounded">
           <div className="flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-yellow-600" />
+            <AlertCircle className="w-3 h-3 text-yellow-600" />
             <p className="text-sm font-medium text-yellow-800">
               You have {dashboardData.notifications.unacknowledged_on_call} unacknowledged on-call period(s)
             </p>
@@ -307,8 +307,8 @@ const MobileEmployeeDashboard: React.FC = () => {
       )}
 
       {dashboardData.on_call_periods.length === 0 ? (
-        <div className="bg-white rounded-lg p-8 text-center">
-          <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+        <div className="bg-white rounded-lg p-3 text-center">
+          <Clock className="w-16 h-16 text-gray-400 mx-auto mb-2" />
           <p className="text-slate-700">No upcoming on-call periods</p>
         </div>
       ) : (
@@ -318,7 +318,7 @@ const MobileEmployeeDashboard: React.FC = () => {
           const isActive = new Date() >= startDate && new Date() <= endDate;
 
           return (
-            <div key={period.id} className={`bg-white rounded-lg shadow p-4 ${
+            <div key={period.id} className={`bg-white rounded-lg shadow p-2 ${
               isActive ? 'border-2 border-blue-500' : ''
             }`}>
               <div className="flex items-start justify-between mb-3">
@@ -337,7 +337,7 @@ const MobileEmployeeDashboard: React.FC = () => {
                     Needs Ack
                   </span>
                 ) : (
-                  <CheckCircle className="w-6 h-6 text-green-500" />
+                  <CheckCircle className="w-4 h-4 text-green-500" />
                 )}
               </div>
 
@@ -356,7 +356,7 @@ const MobileEmployeeDashboard: React.FC = () => {
               {!period.acknowledged_by_driver && (
                 <button
                   onClick={() => acknowledgeOnCall(period.id)}
-                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
+                  className="w-full px-2 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
                 >
                   Acknowledge On-Call Period
                 </button>
@@ -368,7 +368,7 @@ const MobileEmployeeDashboard: React.FC = () => {
                     setCallbackForm({ ...callbackForm, on_call_period_id: period.id });
                     setShowCallbackForm(true);
                   }}
-                  className="w-full mt-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium"
+                  className="w-full mt-2 px-2 py-2 bg-green-600 text-white rounded-lg text-sm font-medium"
                 >
                   Log Callback Trip
                 </button>
@@ -381,12 +381,12 @@ const MobileEmployeeDashboard: React.FC = () => {
   );
 
   const renderTripsTab = () => (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {dashboardData.notifications.pending_reimbursements > 0 && (
-        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+        <div className="bg-blue-50 border-l-4 border-blue-400 p-2 rounded">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-blue-800" />
+              <DollarSign className="w-3 h-3 text-blue-800" />
               <div>
                 <p className="text-sm font-medium text-blue-800">
                   Pending Reimbursements
@@ -402,13 +402,13 @@ const MobileEmployeeDashboard: React.FC = () => {
       )}
 
       {dashboardData.recent_callback_trips.length === 0 ? (
-        <div className="bg-white rounded-lg p-8 text-center">
-          <Navigation className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+        <div className="bg-white rounded-lg p-3 text-center">
+          <Navigation className="w-16 h-16 text-gray-400 mx-auto mb-2" />
           <p className="text-slate-700">No recent callback trips</p>
         </div>
       ) : (
         dashboardData.recent_callback_trips.map((trip: CallbackTrip) => (
-          <div key={trip.id} className="bg-white rounded-lg shadow p-4">
+          <div key={trip.id} className="bg-white rounded-lg shadow p-2">
             <div className="flex items-start justify-between mb-2">
               <div>
                 <h3 className="font-semibold text-gray-900">
@@ -428,7 +428,7 @@ const MobileEmployeeDashboard: React.FC = () => {
             </div>
 
             <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
                 <span className="text-slate-700">
                   {trip.miles_driven} miles
                 </span>
@@ -455,18 +455,18 @@ const MobileEmployeeDashboard: React.FC = () => {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end z-50">
         <div className="bg-white rounded-t-3xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="p-6 space-y-4">
+          <div className="p-3 space-y-2">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold">Log Callback Trip</h2>
+              <h2 className="text-base font-bold">Log Callback Trip</h2>
               <button
                 onClick={() => setShowCallbackForm(false)}
-                className="text-gray-500 text-2xl"
+                className="text-gray-500 text-sm"
               >
                 ×
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-2">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Trip Date
@@ -475,7 +475,7 @@ const MobileEmployeeDashboard: React.FC = () => {
                   type="date"
                   value={callbackForm.trip_date}
                   onChange={(e) => setCallbackForm({ ...callbackForm, trip_date: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-2 py-2 border border-gray-300 rounded-lg"
                 />
               </div>
 
@@ -489,7 +489,7 @@ const MobileEmployeeDashboard: React.FC = () => {
                   value={callbackForm.miles_driven}
                   onChange={(e) => setCallbackForm({ ...callbackForm, miles_driven: e.target.value })}
                   placeholder="15.5"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-2 py-2 border border-gray-300 rounded-lg"
                 />
               </div>
 
@@ -502,7 +502,7 @@ const MobileEmployeeDashboard: React.FC = () => {
                   value={callbackForm.purpose}
                   onChange={(e) => setCallbackForm({ ...callbackForm, purpose: e.target.value })}
                   placeholder="Emergency response to incident"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-2 py-2 border border-gray-300 rounded-lg"
                 />
               </div>
 
@@ -514,7 +514,7 @@ const MobileEmployeeDashboard: React.FC = () => {
                   value={callbackForm.notes}
                   onChange={(e) => setCallbackForm({ ...callbackForm, notes: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-2 py-2 border border-gray-300 rounded-lg"
                 />
               </div>
 
@@ -534,7 +534,7 @@ const MobileEmployeeDashboard: React.FC = () => {
               <button
                 onClick={submitCallbackTrip}
                 disabled={!callbackForm.miles_driven || !callbackForm.purpose}
-                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-medium disabled:bg-gray-400"
+                className="w-full px-2 py-3 bg-blue-600 text-white rounded-lg font-medium disabled:bg-gray-400"
               >
                 Submit Callback Trip
               </button>
@@ -548,12 +548,12 @@ const MobileEmployeeDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100 pb-20">
       {/* Header */}
-      <div className="bg-blue-600 text-white p-6 pb-8">
-        <h1 className="text-2xl font-bold">My Fleet Dashboard</h1>
+      <div className="bg-blue-600 text-white p-3 pb-3">
+        <h1 className="text-sm font-bold">My Fleet Dashboard</h1>
         <p className="text-blue-100 mt-1">{user?.email}</p>
 
         {/* Status badges */}
-        <div className="mt-4 flex gap-2 flex-wrap">
+        <div className="mt-2 flex gap-2 flex-wrap">
           <div className="bg-blue-700 px-3 py-1 rounded-full text-sm flex items-center gap-1">
             <Car className="w-4 h-4" />
             {dashboardData.assignments.length} Assignment(s)
@@ -580,7 +580,7 @@ const MobileEmployeeDashboard: React.FC = () => {
       <div className="bg-white border-b border-gray-200 flex">
         <button
           onClick={() => setActiveTab('assignments')}
-          className={`flex-1 py-4 text-center font-medium ${
+          className={`flex-1 py-2 text-center font-medium ${
             activeTab === 'assignments'
               ? 'text-blue-800 border-b-2 border-blue-600'
               : 'text-slate-700'
@@ -590,7 +590,7 @@ const MobileEmployeeDashboard: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('on-call')}
-          className={`flex-1 py-4 text-center font-medium ${
+          className={`flex-1 py-2 text-center font-medium ${
             activeTab === 'on-call'
               ? 'text-blue-800 border-b-2 border-blue-600'
               : 'text-slate-700'
@@ -600,7 +600,7 @@ const MobileEmployeeDashboard: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('trips')}
-          className={`flex-1 py-4 text-center font-medium ${
+          className={`flex-1 py-2 text-center font-medium ${
             activeTab === 'trips'
               ? 'text-blue-800 border-b-2 border-blue-600'
               : 'text-slate-700'
@@ -611,7 +611,7 @@ const MobileEmployeeDashboard: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="p-2">
         {activeTab === 'assignments' && renderAssignmentsTab()}
         {activeTab === 'on-call' && renderOnCallTab()}
         {activeTab === 'trips' && renderTripsTab()}

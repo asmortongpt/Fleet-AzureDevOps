@@ -54,7 +54,7 @@ export const QueryErrorFallback: React.FC<QueryErrorFallbackProps> = ({
           </CardTitle>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-2">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Unable to load data</AlertTitle>
@@ -96,7 +96,7 @@ export const QueryErrorFallback: React.FC<QueryErrorFallbackProps> = ({
         </div>
 
         {import.meta.env.DEV && (
-          <details className="mt-4">
+          <details className="mt-2">
             <summary className="cursor-pointer text-sm font-semibold text-slate-700 dark:text-gray-400">
               Technical Details
             </summary>

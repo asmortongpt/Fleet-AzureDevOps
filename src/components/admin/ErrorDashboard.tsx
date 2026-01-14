@@ -174,14 +174,14 @@ export function ErrorDashboard() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-6">
+      <Card className="p-3">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <AlertCircle className="h-8 w-8 text-red-600" />
             <div>
-              <h2 className="text-2xl font-bold">Error Tracking</h2>
+              <h2 className="text-sm font-bold">Error Tracking</h2>
               <p className="text-sm text-muted-foreground">
                 Real-time error monitoring and analytics
               </p>
@@ -203,14 +203,14 @@ export function ErrorDashboard() {
 
         {/* Summary Cards */}
         {summary && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 border rounded-lg">
-              <div className="text-4xl font-bold text-red-600">{summary.total}</div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+            <div className="text-center p-2 border rounded-lg">
+              <div className="text-sm font-bold text-red-600">{summary.total}</div>
               <div className="text-sm text-muted-foreground mt-1">Total Errors</div>
             </div>
-            <div className="text-center p-4 border rounded-lg">
+            <div className="text-center p-2 border rounded-lg">
               <div className="flex items-center justify-center gap-2">
-                <div className="text-4xl font-bold">{summary.last24h}</div>
+                <div className="text-sm font-bold">{summary.last24h}</div>
                 {summary.trend === 'down' ? (
                   <TrendingDown className="h-6 w-6 text-green-500" />
                 ) : summary.trend === 'up' ? (
@@ -229,12 +229,12 @@ export function ErrorDashboard() {
                 )}
               </div>
             </div>
-            <div className="text-center p-4 border rounded-lg">
-              <div className="text-4xl font-bold">{summary.last7d}</div>
+            <div className="text-center p-2 border rounded-lg">
+              <div className="text-sm font-bold">{summary.last7d}</div>
               <div className="text-sm text-muted-foreground mt-1">Last 7 Days</div>
             </div>
-            <div className="text-center p-4 border rounded-lg">
-              <div className="text-4xl font-bold text-red-600">
+            <div className="text-center p-2 border rounded-lg">
+              <div className="text-sm font-bold text-red-600">
                 {summary.bySeverity.critical}
               </div>
               <div className="text-sm text-muted-foreground mt-1">Critical Errors</div>
@@ -244,8 +244,8 @@ export function ErrorDashboard() {
       </Card>
 
       {/* Error History Chart */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Error Trend (Last 7 Days)</h3>
+      <Card className="p-3">
+        <h3 className="text-sm font-semibold mb-2">Error Trend (Last 7 Days)</h3>
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={errorHistory}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -274,9 +274,9 @@ export function ErrorDashboard() {
 
       {/* Error Breakdown */}
       {summary && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Errors by Type</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <Card className="p-3">
+            <h3 className="text-sm font-semibold mb-2">Errors by Type</h3>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart
                 data={Object.entries(summary.byType).map(([type, count]) => ({
@@ -293,8 +293,8 @@ export function ErrorDashboard() {
             </ResponsiveContainer>
           </Card>
 
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Errors by Severity</h3>
+          <Card className="p-3">
+            <h3 className="text-sm font-semibold mb-2">Errors by Severity</h3>
             <div className="space-y-3">
               {Object.entries(summary.bySeverity).map(([severity, count]) => (
                 <div key={severity} className="flex items-center justify-between">
@@ -316,12 +316,12 @@ export function ErrorDashboard() {
       )}
 
       {/* Filters */}
-      <Card className="p-6">
-        <div className="flex items-center gap-4 mb-4">
+      <Card className="p-3">
+        <div className="flex items-center gap-2 mb-2">
           <Filter className="h-5 w-5" />
           <span className="font-semibold">Filters</span>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-2">
           <select
             value={selectedSeverity}
             onChange={(e) => setSelectedSeverity(e.target.value)}
@@ -350,19 +350,19 @@ export function ErrorDashboard() {
       </Card>
 
       {/* Error List */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Recent Errors</h3>
+      <Card className="p-3">
+        <h3 className="text-sm font-semibold mb-2">Recent Errors</h3>
         <div className="space-y-3">
           {filteredErrors.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Info className="h-12 w-12 mx-auto mb-2 opacity-50" />
+            <div className="text-center py-3 text-muted-foreground">
+              <Info className="h-9 w-12 mx-auto mb-2 opacity-50" />
               <p>No errors match the current filters.</p>
             </div>
           ) : (
             filteredErrors.map((error) => (
               <div
                 key={error.id}
-                className="flex items-start justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-start justify-between p-2 border rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">

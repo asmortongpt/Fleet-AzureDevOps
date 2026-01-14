@@ -98,13 +98,13 @@ export function TenantSwitcher() {
           <Button
             variant="default"
             size="lg"
-            className="shadow-lg rounded-full px-6 gap-3"
+            className="shadow-sm rounded-full px-3 gap-3"
             disabled={isLoading}
           >
             {isLoading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="w-3 h-3 animate-spin" />
             ) : (
-              <Building2 className="w-5 h-5" />
+              <Building2 className="w-3 h-3" />
             )}
             <div className="flex flex-col items-start">
               <span className="text-xs opacity-75">Current Tenant</span>
@@ -140,7 +140,7 @@ export function TenantSwitcher() {
 
           <div className="max-h-96 overflow-y-auto">
             {tenants.length === 0 ? (
-              <div className="p-4 text-sm text-muted-foreground text-center">
+              <div className="p-2 text-sm text-muted-foreground text-center">
                 No tenants available
               </div>
             ) : (
@@ -151,8 +151,8 @@ export function TenantSwitcher() {
                   className="flex items-start gap-3 p-3 cursor-pointer"
                   disabled={!tenant.active || isLoading}
                 >
-                  <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Building2 className="w-5 h-5 text-primary" />
+                  <div className="flex-shrink-0 w-10 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Building2 className="w-3 h-3 text-primary" />
                   </div>
 
                   <div className="flex-1 min-w-0">

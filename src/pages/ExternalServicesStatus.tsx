@@ -299,10 +299,10 @@ export function ExternalServicesStatus() {
   const healthPercentage = Math.round((connectedCount / totalCount) * 100);
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">External Services Status</h1>
+          <h1 className="text-base font-bold">External Services Status</h1>
           <p className="text-slate-700 mt-2">Monitor the health and connectivity of all external integrations</p>
         </div>
         <Button onClick={testAllServices} disabled={testing}>
@@ -318,13 +318,13 @@ export function ExternalServicesStatus() {
           <CardDescription>Last checked: {lastTestRun.toLocaleString()}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <div className="flex-1">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">
                   {connectedCount} of {totalCount} services operational
                 </span>
-                <span className="text-2xl font-bold">{healthPercentage}%</span>
+                <span className="text-sm font-bold">{healthPercentage}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div
@@ -344,14 +344,14 @@ export function ExternalServicesStatus() {
       </Card>
 
       {/* Services Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
         {services.map((service) => (
-          <Card key={service.name} className="hover:shadow-lg transition-shadow">
+          <Card key={service.name} className="hover:shadow-sm transition-shadow">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
                   {service.icon}
-                  <CardTitle className="text-lg">{service.name}</CardTitle>
+                  <CardTitle className="text-sm">{service.name}</CardTitle>
                 </div>
                 {getStatusBadge(service.status)}
               </div>
@@ -400,13 +400,13 @@ export function ExternalServicesStatus() {
           <CardTitle>Configuration Guide</CardTitle>
           <CardDescription>How to configure external services</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="prose prose-sm max-w-none">
             <h4 className="font-semibold">Environment Variables</h4>
             <p className="text-sm text-slate-700">
               Configure services by adding the following environment variables to your <code>.env.local</code> file:
             </p>
-            <pre className="bg-gray-100 p-4 rounded text-xs overflow-x-auto">
+            <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">
               {`# Google Maps
 VITE_GOOGLE_MAPS_API_KEY=your_api_key_here
 

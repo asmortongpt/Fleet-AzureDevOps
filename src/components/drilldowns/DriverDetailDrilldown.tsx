@@ -15,7 +15,7 @@ interface DriverDetailDrilldownProps {
 
 export function DriverDetailDrilldown({ driver }: DriverDetailDrilldownProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <Card>
         <CardHeader>
           <CardTitle>{driver?.name}</CardTitle>
@@ -29,23 +29,23 @@ export function DriverDetailDrilldown({ driver }: DriverDetailDrilldownProps) {
               <TabsTrigger value="compliance">Compliance</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="profile" className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <TabsContent value="profile" className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-sm font-medium">Email</p>
-                  <p className="text-lg">{driver?.email}</p>
+                  <p className="text-sm">{driver?.email}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">Phone</p>
-                  <p className="text-lg">{driver?.phone}</p>
+                  <p className="text-sm">{driver?.phone}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">License Number</p>
-                  <p className="text-lg">{driver?.licenseNumber}</p>
+                  <p className="text-sm">{driver?.licenseNumber}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">Status</p>
-                  <p className="text-lg capitalize">{driver?.status}</p>
+                  <p className="text-sm capitalize">{driver?.status}</p>
                 </div>
               </div>
             </TabsContent>

@@ -218,9 +218,9 @@ export function VehicleFleetTableExample() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-3 space-y-2">
       <div>
-        <h2 className="text-2xl font-bold">Fleet Vehicles</h2>
+        <h2 className="text-sm font-bold">Fleet Vehicles</h2>
         <p className="text-muted-foreground">
           Click on any row to view detailed vehicle information
         </p>
@@ -242,7 +242,7 @@ export function VehicleFleetTableExample() {
       />
 
       {selectedVehicles.length > 0 && (
-        <div className="p-4 bg-primary/10 rounded-md">
+        <div className="p-2 bg-primary/10 rounded-md">
           <p className="text-sm font-medium">
             Selected {selectedVehicles.length} vehicle(s):{' '}
             {selectedVehicles.map(v => v.number).join(', ')}
@@ -461,9 +461,9 @@ export function WorkOrderTableExample() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-3 space-y-2">
       <div>
-        <h2 className="text-2xl font-bold">Work Orders</h2>
+        <h2 className="text-sm font-bold">Work Orders</h2>
         <p className="text-muted-foreground">
           Manage and track all vehicle maintenance work orders
         </p>
@@ -547,9 +547,9 @@ export function VirtualizedTableExample() {
   ]
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-3 space-y-2">
       <div>
-        <h2 className="text-2xl font-bold">Virtualized Table (10,000 rows)</h2>
+        <h2 className="text-sm font-bold">Virtualized Table (10,000 rows)</h2>
         <p className="text-muted-foreground">
           Demonstrating performance with large datasets
         </p>

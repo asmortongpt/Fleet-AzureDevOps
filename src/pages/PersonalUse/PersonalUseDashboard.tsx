@@ -157,10 +157,10 @@ export function PersonalUseDashboard() {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="animate-pulse space-y-4">
+      <div className="p-3">
+        <div className="animate-pulse space-y-2">
           <div className="h-8 bg-muted rounded w-1/3" />
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-32 bg-muted rounded" />
             ))}
@@ -176,10 +176,10 @@ export function PersonalUseDashboard() {
   const yearlyExceeded = yearlyPercentage > 100
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Personal Use Dashboard</h1>
+        <h1 className="text-base font-bold">Personal Use Dashboard</h1>
         <p className="text-muted-foreground">
           Track your personal vehicle usage and manage reimbursements
         </p>
@@ -201,19 +201,19 @@ export function PersonalUseDashboard() {
       )}
 
       {/* Usage Meters */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-2 md:grid-cols-2">
         {/* Monthly Usage */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <CalendarDots className="w-5 h-5" />
+              <CalendarDots className="w-3 h-3" />
               This Month
             </CardTitle>
             <CardDescription>
               {dashboardData?.current_month}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-2">
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span>Personal Miles</span>
@@ -236,14 +236,14 @@ export function PersonalUseDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendUp className="w-5 h-5" />
+              <TrendUp className="w-3 h-3" />
               This Year
             </CardTitle>
             <CardDescription>
               Year-to-date usage
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-2">
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span>Personal Miles</span>
@@ -264,14 +264,14 @@ export function PersonalUseDashboard() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardData?.pending_approvals || 0}</div>
+            <div className="text-sm font-bold">{dashboardData?.pending_approvals || 0}</div>
             <p className="text-xs text-muted-foreground">
               Trips awaiting review
             </p>
@@ -284,7 +284,7 @@ export function PersonalUseDashboard() {
             <CurrencyDollar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-sm font-bold">
               ${dashboardData?.pending_charges_amount.toFixed(2) || '0.00'}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -299,7 +299,7 @@ export function PersonalUseDashboard() {
             <Receipt className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-sm font-bold">
               ${dashboardData?.pending_reimbursements_amount.toFixed(2) || '0.00'}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -314,7 +314,7 @@ export function PersonalUseDashboard() {
             <CalendarDots className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-sm font-bold">
               ${dashboardData?.next_payment_amount?.toFixed(2) || '0.00'}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -327,7 +327,7 @@ export function PersonalUseDashboard() {
       </div>
 
       {/* Tabs for Details */}
-      <Tabs defaultValue="trips" className="space-y-4">
+      <Tabs defaultValue="trips" className="space-y-2">
         <TabsList>
           <TabsTrigger value="trips">
             <Car className="w-4 h-4 mr-2" />
@@ -354,7 +354,7 @@ export function PersonalUseDashboard() {
             </CardHeader>
             <CardContent>
               {recentTrips.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-3 text-muted-foreground">
                   No personal trips recorded
                 </div>
               ) : (
@@ -419,7 +419,7 @@ export function PersonalUseDashboard() {
             </CardHeader>
             <CardContent>
               {pendingCharges.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-3 text-muted-foreground">
                   No pending charges
                 </div>
               ) : (
@@ -463,7 +463,7 @@ export function PersonalUseDashboard() {
             </CardHeader>
             <CardContent>
               {reimbursements.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-3 text-muted-foreground">
                   No reimbursement requests
                 </div>
               ) : (

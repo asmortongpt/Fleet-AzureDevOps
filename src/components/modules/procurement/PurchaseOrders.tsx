@@ -224,10 +224,10 @@ export function PurchaseOrders() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Purchase Orders</h2>
+          <h2 className="text-sm font-semibold">Purchase Orders</h2>
           <p className="text-muted-foreground">Manage parts and service purchase orders</p>
         </div>
         {hasPermission('po:create') && (
@@ -238,13 +238,13 @@ export function PurchaseOrders() {
         )}
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Orders</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(orders || []).length}</div>
+            <div className="text-sm font-bold">{(orders || []).length}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <ShoppingCart className="w-3 h-3" />
               All time
@@ -257,7 +257,7 @@ export function PurchaseOrders() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Spend</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalSpend.toLocaleString()}</div>
+            <div className="text-sm font-bold">${totalSpend.toLocaleString()}</div>
             <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
               <TrendUp className="w-3 h-3" />
               Cumulative
@@ -270,7 +270,7 @@ export function PurchaseOrders() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Pending Approval</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{pendingOrders}</div>
+            <div className="text-sm font-bold text-yellow-600">{pendingOrders}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Package className="w-3 h-3" />
               Awaiting review
@@ -283,7 +283,7 @@ export function PurchaseOrders() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Active Orders</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-800">{activeOrders}</div>
+            <div className="text-sm font-bold text-blue-800">{activeOrders}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <ShoppingCart className="w-3 h-3" />
               In progress
@@ -292,7 +292,7 @@ export function PurchaseOrders() {
         </Card>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-2">
         <div className="relative flex-1">
           <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -326,7 +326,7 @@ export function PurchaseOrders() {
             <TableBody>
               {filteredOrders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={8} className="text-center text-muted-foreground py-3">
                     No purchase orders found. Create your first order to get started.
                   </TableCell>
                 </TableRow>
@@ -386,8 +386,8 @@ export function PurchaseOrders() {
             </DialogDescription>
           </DialogHeader>
           {selectedOrder && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <h3 className="text-sm font-semibold mb-3">Order Information</h3>
                   <div className="space-y-2 text-sm">
@@ -463,7 +463,7 @@ export function PurchaseOrders() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <h3 className="text-sm font-semibold mb-3">Request Information</h3>
                   <div className="space-y-2 text-sm">
@@ -526,7 +526,7 @@ export function PurchaseOrders() {
               Provide a reason for rejecting PO #{selectedOrder?.poNumber}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div className="space-y-2">
               <Label htmlFor="rejectionReason">Rejection Reason</Label>
               <Textarea
@@ -556,9 +556,9 @@ export function PurchaseOrders() {
               Enter details for a new purchase order request
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-6">
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="vendorName">Vendor Name</Label>
                   <Input
@@ -591,7 +591,7 @@ export function PurchaseOrders() {
 
             <div>
               <h3 className="text-sm font-semibold mb-3">Items</h3>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {newPO.items.map((item, index) => (
                   <div key={index} className="border rounded-md p-3 space-y-3">
                     <div className="grid grid-cols-[2fr_1fr_1fr_1fr_0.5fr] gap-3 items-center">

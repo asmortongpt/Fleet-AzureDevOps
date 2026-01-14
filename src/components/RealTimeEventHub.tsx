@@ -398,15 +398,15 @@ export function RealTimeEventHub({
 
       <CardContent className="p-0">
         <ScrollArea className={compact ? "h-[300px]" : "h-[500px]"}>
-          <div className="p-4 space-y-2">
+          <div className="p-2 space-y-2">
             <AnimatePresence mode="popLayout">
               {filteredEvents.length === 0 ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="text-center py-8 text-muted-foreground"
+                  className="text-center py-3 text-muted-foreground"
                 >
-                  <Bell className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <Bell className="w-4 h-4 mx-auto mb-2 opacity-50" />
                   <p className="text-sm">No events to display</p>
                 </motion.div>
               ) : (

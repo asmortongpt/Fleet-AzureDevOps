@@ -43,7 +43,7 @@ export function ActionableError({
     <div
       data-slot="actionable-error"
       className={cn(
-        "rounded-lg border p-4 md:p-6",
+        "rounded-lg border p-2 md:p-3",
         variantStyles[variant],
         className
       )}
@@ -53,7 +53,7 @@ export function ActionableError({
     >
       <div className="flex gap-3">
         <AlertCircle
-          className={cn("w-5 h-5 flex-shrink-0 mt-0.5", iconStyles[variant])}
+          className={cn("w-3 h-3 flex-shrink-0 mt-0.5", iconStyles[variant])}
           aria-hidden="true"
         />
 

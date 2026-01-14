@@ -46,9 +46,9 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {labor && (
-        <div className="space-y-4">
+        <div className="space-y-2">
           <div>
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-sm font-semibold">
               Labor Details {workOrderNumber && `for WO #${workOrderNumber}`}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
@@ -59,7 +59,7 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
           {labor.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <Users className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground">No labor entries recorded</p>
               </CardContent>
             </Card>
@@ -67,7 +67,7 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
             <div className="space-y-3">
               {labor.map((entry: LaborEntry) => (
                 <Card key={entry.id}>
-                  <CardContent className="p-4">
+                  <CardContent className="p-2">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -91,7 +91,7 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
                         </p>
                       )}
 
-                      <div className="grid grid-cols-3 gap-4 pt-2 border-t">
+                      <div className="grid grid-cols-3 gap-2 pt-2 border-t">
                         <div>
                           <p className="text-xs text-muted-foreground">Hours</p>
                           <p className="font-medium">{entry.hours?.toFixed(1) || '0.0'}</p>
@@ -122,7 +122,7 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
           )}
 
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-2">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Total Hours</span>
@@ -130,7 +130,7 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t">
                   <span className="font-semibold">Total Labor Cost</span>
-                  <span className="text-2xl font-bold text-primary">
+                  <span className="text-sm font-bold text-primary">
                     ${totalCost.toFixed(2)}
                   </span>
                 </div>

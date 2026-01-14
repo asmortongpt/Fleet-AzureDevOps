@@ -67,10 +67,10 @@ export function FacilityDetailPanel({ facilityId }: FacilityDetailPanelProps) {
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {facility && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <h3 className="text-2xl font-bold">{facility.name}</h3>
+              <h3 className="text-sm font-bold">{facility.name}</h3>
               <p className="text-sm text-muted-foreground">{facility.type || 'Facility'}</p>
               <div className="flex items-center gap-2 mt-2">
                 <Badge variant="default">
@@ -78,10 +78,10 @@ export function FacilityDetailPanel({ facilityId }: FacilityDetailPanelProps) {
                 </Badge>
               </div>
             </div>
-            <Building2 className="h-12 w-12 text-muted-foreground" />
+            <Building2 className="h-9 w-12 text-muted-foreground" />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -90,7 +90,7 @@ export function FacilityDetailPanel({ facilityId }: FacilityDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-sm font-bold">
                   {facility.current_vehicles || 0} / {facility.capacity || 0}
                 </div>
                 <Progress value={utilizationPercentage} className="mt-2" />
@@ -105,7 +105,7 @@ export function FacilityDetailPanel({ facilityId }: FacilityDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{utilizationPercentage}%</div>
+                <div className="text-sm font-bold">{utilizationPercentage}%</div>
                 <Progress value={utilizationPercentage} className="mt-2" />
               </CardContent>
             </Card>
@@ -148,22 +148,22 @@ export function FacilityDetailPanel({ facilityId }: FacilityDetailPanelProps) {
                   Statistics
                 </CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-2 gap-4">
+              <CardContent className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-sm text-muted-foreground">Active Vehicles</p>
-                  <p className="text-xl font-bold">{facility.stats.active_vehicles || 0}</p>
+                  <p className="text-base font-bold">{facility.stats.active_vehicles || 0}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">In Maintenance</p>
-                  <p className="text-xl font-bold">{facility.stats.in_maintenance || 0}</p>
+                  <p className="text-base font-bold">{facility.stats.in_maintenance || 0}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Available</p>
-                  <p className="text-xl font-bold">{facility.stats.available || 0}</p>
+                  <p className="text-base font-bold">{facility.stats.available || 0}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Out of Service</p>
-                  <p className="text-xl font-bold">{facility.stats.out_of_service || 0}</p>
+                  <p className="text-base font-bold">{facility.stats.out_of_service || 0}</p>
                 </div>
               </CardContent>
             </Card>

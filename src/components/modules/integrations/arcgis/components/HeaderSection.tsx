@@ -21,7 +21,7 @@ export function HeaderSection({ enabledLayersCount, hasLayers, onExport, onRefre
   return (
     <div className="flex items-center justify-between">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight">ArcGIS Integration</h1>
+        <h1 className="text-base font-semibold tracking-tight">ArcGIS Integration</h1>
         <p className="text-muted-foreground mt-1">
           Plug and play custom ArcGIS map layers{hasLayers && ` • ${enabledLayersCount} active`}
         </p>

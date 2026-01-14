@@ -75,7 +75,7 @@ export function DrilldownPanel({ children, className }: DrilldownPanelProps) {
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className={cn(
               'fixed right-0 top-0 bottom-0 w-full md:w-2/3 lg:w-1/2 xl:w-2/5',
-              'bg-slate-950/95 backdrop-blur-2xl border-l border-slate-800 shadow-2xl z-50',
+              'bg-slate-950/95 backdrop-blur-2xl border-l border-slate-800 shadow-sm z-50',
               'flex flex-col',
               className
             )}
@@ -84,7 +84,7 @@ export function DrilldownPanel({ children, className }: DrilldownPanelProps) {
             aria-labelledby="drilldown-title"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-slate-800/50 bg-slate-900/20 backdrop-filter backdrop-blur-sm">
+            <div className="flex items-center justify-between p-2 border-b border-slate-800/50 bg-slate-900/20 backdrop-filter backdrop-blur-sm">
               <div className="flex items-center space-x-2">
                 {canGoBack && (
                   <Button
@@ -99,7 +99,7 @@ export function DrilldownPanel({ children, className }: DrilldownPanelProps) {
                 )}
                 <h2
                   id="drilldown-title"
-                  className="text-lg font-semibold truncate"
+                  className="text-sm font-semibold truncate"
                 >
                   {currentLevel.label}
                 </h2>
@@ -117,7 +117,7 @@ export function DrilldownPanel({ children, className }: DrilldownPanelProps) {
 
             {/* Content */}
             <ScrollArea className="flex-1">
-              <div className="p-4 md:p-6 pb-24 md:pb-6">
+              <div className="p-2 md:p-3 pb-24 md:pb-3">
                 {children}
               </div>
             </ScrollArea>
@@ -153,7 +153,7 @@ export function DrilldownContent({
 }: DrilldownContentProps) {
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 space-y-4">
+      <div className="flex flex-col items-center justify-center py-12 space-y-2">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <p className="text-sm text-muted-foreground">Loading data...</p>
       </div>
@@ -162,7 +162,7 @@ export function DrilldownContent({
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 space-y-4">
+      <div className="flex flex-col items-center justify-center py-12 space-y-2">
         <div className="text-center space-y-2">
           <p className="text-sm font-medium text-destructive">
             Error loading data

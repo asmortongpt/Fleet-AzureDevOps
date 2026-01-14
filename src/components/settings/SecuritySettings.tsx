@@ -124,17 +124,17 @@ export function SecuritySettings() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Change Password */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Key className="w-5 h-5" />
+            <Key className="w-3 h-3" />
             <CardTitle>Change Password</CardTitle>
           </div>
           <CardDescription>Update your password regularly for security</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="space-y-2">
             <Label htmlFor="current-password">Current Password</Label>
             <Input
@@ -193,12 +193,12 @@ export function SecuritySettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5" />
+            <ShieldCheck className="w-3 h-3" />
             <CardTitle>Two-Factor Authentication</CardTitle>
           </div>
           <CardDescription>Add an extra layer of security to your account</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="two-factor">Enable Two-Factor Authentication</Label>
@@ -214,7 +214,7 @@ export function SecuritySettings() {
           </div>
 
           {settings.twoFactorEnabled && (
-            <div className="p-4 bg-muted rounded-lg">
+            <div className="p-2 bg-muted rounded-lg">
               <p className="text-sm font-medium mb-2">Setup Instructions:</p>
               <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
                 <li>Download an authenticator app (Google Authenticator, Authy, etc.)</li>
@@ -233,7 +233,7 @@ export function SecuritySettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <ClockCounterClockwise className="w-5 h-5" />
+            <ClockCounterClockwise className="w-3 h-3" />
             <CardTitle>Session Timeout</CardTitle>
           </div>
           <CardDescription>Automatically log out after inactivity</CardDescription>
@@ -260,7 +260,7 @@ export function SecuritySettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Desktop className="w-5 h-5" />
+            <Desktop className="w-3 h-3" />
             <CardTitle>Active Sessions</CardTitle>
           </div>
           <CardDescription>Manage devices with access to your account</CardDescription>
@@ -273,7 +273,7 @@ export function SecuritySettings() {
                 className="flex items-center justify-between p-3 border rounded-lg"
               >
                 <div className="flex items-center gap-3">
-                  <DeviceMobile className="w-5 h-5 text-muted-foreground" />
+                  <DeviceMobile className="w-3 h-3 text-muted-foreground" />
                   <div>
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-sm">{session.device}</p>
@@ -309,7 +309,7 @@ export function SecuritySettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <ClockCounterClockwise className="w-5 h-5" />
+            <ClockCounterClockwise className="w-3 h-3" />
             <CardTitle>Login History</CardTitle>
           </div>
           <CardDescription>Recent login activity on your account</CardDescription>
@@ -342,13 +342,13 @@ export function SecuritySettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5" />
+            <Shield className="w-3 h-3" />
             <CardTitle>API Keys</CardTitle>
           </div>
           <CardDescription>Manage API keys for programmatic access</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-sm text-muted-foreground mb-4">
+          <div className="text-sm text-muted-foreground mb-2">
             API keys allow you to access Fleet Management data programmatically.
           </div>
           <Button variant="outline">

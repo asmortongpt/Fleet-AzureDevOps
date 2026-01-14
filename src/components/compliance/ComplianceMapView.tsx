@@ -147,8 +147,8 @@ const ComplianceDetailsPanel: React.FC<{
 
   if (!selectedZone) {
     return (
-      <div className="p-6 text-center text-muted-foreground">
-        <MapPin className="h-12 w-12 mx-auto mb-3 opacity-50" />
+      <div className="p-3 text-center text-muted-foreground">
+        <MapPin className="h-9 w-12 mx-auto mb-3 opacity-50" />
         <p className="text-sm">Select a compliance zone on the map to view details</p>
       </div>
     )
@@ -156,7 +156,7 @@ const ComplianceDetailsPanel: React.FC<{
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4 space-y-4">
+      <div className="p-2 space-y-2">
         {/* Zone Header */}
         <div className="space-y-3">
           <div className="flex items-start justify-between">
@@ -309,10 +309,10 @@ export function ComplianceMapView() {
   return (
     <div className="h-screen flex flex-col" data-testid="compliance-map-view">
       {/* Header */}
-      <div className="border-b px-6 py-4">
+      <div className="border-b px-3 py-2">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Compliance Map</h1>
+            <h1 className="text-sm font-bold">Compliance Map</h1>
             <p className="text-sm text-muted-foreground">
               Monitor compliance zones, inspections, and violations
             </p>
@@ -365,7 +365,7 @@ export function ComplianceMapView() {
 
           {/* Zone Statistics Overlay */}
           <div
-            className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg p-4 shadow-lg z-10"
+            className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg p-2 shadow-sm z-10"
             data-testid="compliance-stats-overlay"
           >
             <h3 className="font-semibold mb-3 flex items-center gap-2">
@@ -373,7 +373,7 @@ export function ComplianceMapView() {
               Compliance Zones
             </h3>
             <div className="space-y-2">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <div className="h-2 w-2 bg-green-500 rounded-full" />
                   <span className="text-sm">Compliant</span>
@@ -382,7 +382,7 @@ export function ComplianceMapView() {
                   {zoneStats.compliant}
                 </span>
               </div>
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <div className="h-2 w-2 bg-yellow-500 rounded-full animate-pulse" />
                   <span className="text-sm">Warning</span>
@@ -391,7 +391,7 @@ export function ComplianceMapView() {
                   {zoneStats.warning}
                 </span>
               </div>
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <div className="h-2 w-2 bg-red-500 rounded-full animate-pulse" />
                   <span className="text-sm">Violation</span>
@@ -404,7 +404,7 @@ export function ComplianceMapView() {
           </div>
 
           {/* Zone Markers on Map */}
-          <div className="absolute bottom-4 left-4 bg-background/95 backdrop-blur rounded-lg p-3 shadow-lg z-10">
+          <div className="absolute bottom-4 left-4 bg-background/95 backdrop-blur rounded-lg p-3 shadow-sm z-10">
             <div className="text-xs text-muted-foreground mb-2">Active Zones</div>
             <div className="flex flex-wrap gap-2">
               {filteredZones.map(zone => (

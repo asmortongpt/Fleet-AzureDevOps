@@ -14,7 +14,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`bg-red-50 border border-red-200 rounded-lg p-4 ${className}`}>
+    <div className={`bg-red-50 border border-red-200 rounded-lg p-2 ${className}`}>
       <div className="flex items-start">
         <div className="flex-shrink-0">
           <svg
@@ -36,10 +36,10 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
             <p>{message}</p>
           </div>
           {onRetry && (
-            <div className="mt-4">
+            <div className="mt-2">
               <button
                 onClick={onRetry}
-                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm font-medium"
+                className="bg-red-600 text-white px-2 py-2 rounded hover:bg-red-700 text-sm font-medium"
               >
                 Try Again
               </button>

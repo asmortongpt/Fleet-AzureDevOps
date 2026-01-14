@@ -216,21 +216,21 @@ export default function VideoTelematicsDashboard() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Video Telematics</h1>
+        <h1 className="text-base font-bold">Video Telematics</h1>
         <p className="text-muted-foreground">Real-time driver safety monitoring and AI-powered event analysis</p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-2">
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Events</p>
-                <p className="text-2xl font-bold">{stats.total}</p>
+                <p className="text-sm font-bold">{stats.total}</p>
               </div>
               <Video className="h-8 w-8 text-blue-800" />
             </div>
@@ -238,11 +238,11 @@ export default function VideoTelematicsDashboard() {
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Critical</p>
-                <p className="text-2xl font-bold text-red-600">{stats.critical}</p>
+                <p className="text-sm font-bold text-red-600">{stats.critical}</p>
               </div>
               <AlertCircle className="h-8 w-8 text-red-500" />
             </div>
@@ -250,11 +250,11 @@ export default function VideoTelematicsDashboard() {
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Needs Review</p>
-                <p className="text-2xl font-bold">{stats.needsReview}</p>
+                <p className="text-sm font-bold">{stats.needsReview}</p>
               </div>
               <Eye className="h-8 w-8 text-yellow-500" />
             </div>
@@ -262,11 +262,11 @@ export default function VideoTelematicsDashboard() {
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Needs Coaching</p>
-                <p className="text-2xl font-bold">{stats.needsCoaching}</p>
+                <p className="text-sm font-bold">{stats.needsCoaching}</p>
               </div>
               <Users className="h-8 w-8 text-orange-500" />
             </div>
@@ -274,11 +274,11 @@ export default function VideoTelematicsDashboard() {
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Cameras Online</p>
-                <p className="text-2xl font-bold text-green-600">{stats.camerasOnline}</p>
+                <p className="text-sm font-bold text-green-600">{stats.camerasOnline}</p>
               </div>
               <CheckCircle className="h-8 w-8 text-green-500" />
             </div>
@@ -286,11 +286,11 @@ export default function VideoTelematicsDashboard() {
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Cameras Offline</p>
-                <p className="text-2xl font-bold text-red-600">{stats.camerasOffline}</p>
+                <p className="text-sm font-bold text-red-600">{stats.camerasOffline}</p>
               </div>
               <XCircle className="h-8 w-8 text-red-500" />
             </div>
@@ -307,11 +307,11 @@ export default function VideoTelematicsDashboard() {
         </TabsList>
 
         {/* Safety Events Tab */}
-        <TabsContent value="events" className="space-y-4">
+        <TabsContent value="events" className="space-y-2">
           {/* Filters */}
           <Card>
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <CardContent className="pt-3">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Severity</label>
                   <Select value={filters.severity} onValueChange={(value) => setFilters({ ...filters, severity: value })}>
@@ -370,21 +370,21 @@ export default function VideoTelematicsDashboard() {
           <div className="space-y-3">
             {loading ? (
               <Card>
-                <CardContent className="pt-6 text-center">
+                <CardContent className="pt-3 text-center">
                   <p className="text-muted-foreground">Loading events...</p>
                 </CardContent>
               </Card>
             ) : events.length === 0 ? (
               <Card>
-                <CardContent className="pt-6 text-center">
+                <CardContent className="pt-3 text-center">
                   <p className="text-muted-foreground">No video events found</p>
                 </CardContent>
               </Card>
             ) : (
               (events || []).map((event) => (
                 <Card key={event.id}>
-                  <CardContent className="pt-6">
-                    <div className="flex items-start gap-4">
+                  <CardContent className="pt-3">
+                    <div className="flex items-start gap-2">
                       {/* Thumbnail */}
                       <div className="flex-shrink-0">
                         {event.video_thumbnail_url ? (
@@ -404,7 +404,7 @@ export default function VideoTelematicsDashboard() {
                       <div className="flex-grow">
                         <div className="flex items-start justify-between mb-2">
                           <div>
-                            <h3 className="font-semibold text-lg">{eventTypeLabels[event.event_type] || event.event_type}</h3>
+                            <h3 className="font-semibold text-sm">{eventTypeLabels[event.event_type] || event.event_type}</h3>
                             <p className="text-sm text-muted-foreground">
                               {event.vehicle_name} {event.driver_name && `• ${event.driver_name}`}
                             </p>
@@ -457,18 +457,18 @@ export default function VideoTelematicsDashboard() {
         </TabsContent>
 
         {/* Camera Health Tab */}
-        <TabsContent value="cameras" className="space-y-4">
+        <TabsContent value="cameras" className="space-y-2">
           <div className="space-y-3">
             {cameras.length === 0 ? (
               <Card>
-                <CardContent className="pt-6 text-center">
+                <CardContent className="pt-3 text-center">
                   <p className="text-muted-foreground">No camera health data available</p>
                 </CardContent>
               </Card>
             ) : (
               cameras.map((camera) => (
                 <Card key={camera.id}>
-                  <CardContent className="pt-6">
+                  <CardContent className="pt-3">
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-semibold">{camera.vehicle_name}</h3>
@@ -496,11 +496,11 @@ export default function VideoTelematicsDashboard() {
         </TabsContent>
 
         {/* Coaching Queue Tab */}
-        <TabsContent value="coaching" className="space-y-4">
+        <TabsContent value="coaching" className="space-y-2">
           <div className="space-y-3">
             {events.filter(e => e.coaching_required && !e.reviewed).length === 0 ? (
               <Card>
-                <CardContent className="pt-6 text-center">
+                <CardContent className="pt-3 text-center">
                   <p className="text-muted-foreground">No events in coaching queue</p>
                 </CardContent>
               </Card>
@@ -509,8 +509,8 @@ export default function VideoTelematicsDashboard() {
                 .filter(e => e.coaching_required && !e.reviewed)
                 .map((event) => (
                   <Card key={event.id}>
-                    <CardContent className="pt-6">
-                      <div className="flex items-start gap-4">
+                    <CardContent className="pt-3">
+                      <div className="flex items-start gap-2">
                         <div className="flex-shrink-0">
                           {event.video_thumbnail_url ? (
                             <img
@@ -528,7 +528,7 @@ export default function VideoTelematicsDashboard() {
                         <div className="flex-grow">
                           <div className="flex items-start justify-between mb-2">
                             <div>
-                              <h3 className="font-semibold text-lg">{eventTypeLabels[event.event_type] || event.event_type}</h3>
+                              <h3 className="font-semibold text-sm">{eventTypeLabels[event.event_type] || event.event_type}</h3>
                               <p className="text-sm text-muted-foreground">
                                 {event.vehicle_name} {event.driver_name && `• ${event.driver_name}`}
                               </p>

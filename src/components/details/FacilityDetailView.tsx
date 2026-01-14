@@ -103,17 +103,17 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
   return (
     <div className="h-full overflow-y-auto bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white p-6">
+      <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white p-3">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Building2 className="w-8 h-8" />
+              <Building2 className="w-4 h-4" />
               <div>
-                <h1 className="text-2xl font-bold">{facility.name}</h1>
+                <h1 className="text-sm font-bold">{facility.name}</h1>
                 <p className="text-purple-100">{facility.type || 'Service Facility'}</p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-4 mt-4">
+            <div className="flex flex-wrap gap-2 mt-2">
               <div>
                 <p className="text-xs text-purple-200">Location</p>
                 <p className="text-sm font-semibold">{facility.city ?? 'N/A'}, {facility.state ?? 'N/A'}</p>
@@ -134,16 +134,16 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
           </div>
           {onClose && (
             <Button variant="ghost" onClick={onClose} className="text-white hover:bg-purple-700">
-              <XCircle className="w-5 h-5" />
+              <XCircle className="w-3 h-3" />
             </Button>
           )}
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="p-6">
+      <div className="p-3">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-5 w-full mb-6">
+          <TabsList className="grid grid-cols-5 w-full mb-3">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="capacity">Capacity</TabsTrigger>
             <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
@@ -152,8 +152,8 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <TabsContent value="overview" className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -263,7 +263,7 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
 
           {/* Capacity Tab */}
           <TabsContent value="capacity">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -272,8 +272,8 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center mb-4">
-                    <p className="text-4xl font-bold text-purple-600">{capacityMetrics.currentVehicles}</p>
+                  <div className="text-center mb-2">
+                    <p className="text-sm font-bold text-purple-600">{capacityMetrics.currentVehicles}</p>
                     <p className="text-sm text-muted-foreground">of {capacityMetrics.vehicleCapacity} spaces</p>
                   </div>
                   <Progress value={capacityMetrics.utilizationRate} className="mb-2" />
@@ -292,8 +292,8 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center mb-4">
-                    <p className="text-4xl font-bold text-purple-600">{capacityMetrics.activeBays}</p>
+                  <div className="text-center mb-2">
+                    <p className="text-sm font-bold text-purple-600">{capacityMetrics.activeBays}</p>
                     <p className="text-sm text-muted-foreground">of {capacityMetrics.maintenanceBays} bays</p>
                   </div>
                   <Progress value={capacityMetrics.bayUtilization} className="mb-2" />
@@ -312,8 +312,8 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center mb-4">
-                    <p className="text-4xl font-bold text-purple-600">{capacityMetrics.currentStaff}</p>
+                  <div className="text-center mb-2">
+                    <p className="text-sm font-bold text-purple-600">{capacityMetrics.currentStaff}</p>
                     <p className="text-sm text-muted-foreground">of {capacityMetrics.staffCapacity} staff</p>
                   </div>
                   <Progress value={capacityMetrics.staffUtilization} className="mb-2" />

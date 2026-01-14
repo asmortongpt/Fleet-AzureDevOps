@@ -455,7 +455,7 @@ export function VehicleTelemetry() {
         </div>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-2">
         <div className="relative flex-1">
           <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -628,8 +628,8 @@ export function VehicleTelemetry() {
             </DialogDescription>
           </DialogHeader>
           {selectedVehicle && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 <Card>
                   <CardHeader>
                     <CardTitle>Vehicle Information</CardTitle>

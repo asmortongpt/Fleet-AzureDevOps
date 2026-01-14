@@ -133,7 +133,7 @@ export function InteractiveMetric({
     <Card
       className={cn(
         'relative transition-all duration-200',
-        isClickable && 'cursor-pointer hover:shadow-lg hover:scale-[1.02]',
+        isClickable && 'cursor-pointer hover:shadow-sm hover:scale-[1.02]',
         statusStyle.borderColor,
         className
       )}
@@ -181,8 +181,8 @@ export function InteractiveMetric({
       <CardContent>
         <div className="space-y-3">
           {/* Main Value */}
-          <div className="flex items-end justify-between gap-4">
-            <div className="text-3xl font-bold tracking-tight">
+          <div className="flex items-end justify-between gap-2">
+            <div className="text-base font-bold tracking-tight">
               {value}
             </div>
 
@@ -292,7 +292,7 @@ export function MetricGrid({
   return (
     <div
       className={cn(
-        'grid gap-4',
+        'grid gap-2',
         columns === 2 && 'grid-cols-1 md:grid-cols-2',
         columns === 3 && 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
         columns === 4 && 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',

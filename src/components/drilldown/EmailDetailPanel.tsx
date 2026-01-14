@@ -85,7 +85,7 @@ function EmailHeader({ email }: { email: EmailRecord }) {
     <div className="space-y-3">
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <h2 className="text-xl font-bold truncate pr-4">{email.subject}</h2>
+          <h2 className="text-base font-bold truncate pr-2">{email.subject}</h2>
           <div className="flex items-center gap-2 mt-1">
             {email.priority === 'high' && (
               <Badge variant="destructive" className="text-xs">High Priority</Badge>
@@ -233,7 +233,7 @@ function EmailAttachments({ email }: { email: EmailRecord }) {
               className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <span className="text-lg">{getFileIcon(attachment.type)}</span>
+                <span className="text-sm">{getFileIcon(attachment.type)}</span>
                 <div className="min-w-0">
                   <div className="font-medium text-sm truncate">{attachment.name}</div>
                   <div className="text-xs text-muted-foreground">
@@ -397,7 +397,7 @@ export function EmailDetailPanel({ emailId, email: providedEmail }: EmailDetailP
 
   return (
     <DrilldownContent>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {/* Header */}
         <EmailHeader email={email} />
 

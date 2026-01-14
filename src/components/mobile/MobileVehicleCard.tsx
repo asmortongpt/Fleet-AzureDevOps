@@ -114,7 +114,7 @@ export function MobileVehicleCard({
         )}
         data-testid={`vehicle-card-compact-${vehicle.id}`}
       >
-        <CardContent className="p-4">
+        <CardContent className="p-2">
           {/* Header */}
           <div className="flex items-start justify-between mb-3">
             <div className="flex-1 min-w-0">
@@ -178,9 +178,9 @@ export function MobileVehicleCard({
       )}
       data-testid={`vehicle-card-detailed-${vehicle.id}`}
     >
-      <CardContent className="p-4">
+      <CardContent className="p-2">
         {/* Header */}
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-2">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <Truck className="h-5 w-5 text-slate-600 flex-shrink-0" />
@@ -207,7 +207,7 @@ export function MobileVehicleCard({
         </div>
 
         {/* Detailed Info */}
-        <div className="space-y-2.5 mb-4">
+        <div className="space-y-2.5 mb-2">
           {vehicle.driver && (
             <div className="flex items-center gap-2 text-sm">
               <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -319,7 +319,7 @@ export function MobileVehicleCardSkeleton({ variant = 'compact' }: { variant?: '
 
   return (
     <Card className="overflow-hidden">
-      <CardContent className="p-4 animate-pulse">
+      <CardContent className="p-2 animate-pulse">
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1 space-y-2">
             <div className="h-4 bg-slate-200 rounded w-24" />

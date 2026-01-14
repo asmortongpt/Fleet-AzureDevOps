@@ -146,14 +146,14 @@ export const CompleteUXIntegrationExample: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="max-w-6xl mx-auto p-3 space-y-2">
       {/* Breadcrumb Navigation */}
       <Breadcrumb items={breadcrumbItems} />
 
       {/* Page Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Vehicle Management</h1>
+          <h1 className="text-base font-bold text-gray-900">Vehicle Management</h1>
           <p className="mt-2 text-slate-700">
             Manage your fleet vehicles and view detailed information
           </p>
@@ -161,7 +161,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
             Add Vehicle
           </button>
@@ -170,11 +170,11 @@ export const CompleteUXIntegrationExample: React.FC = () => {
 
       {/* Add Vehicle Form */}
       {showForm && (
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Add New Vehicle</h2>
+        <div className="bg-white rounded-lg shadow-md p-3">
+          <h2 className="text-base font-semibold mb-2">Add New Vehicle</h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={handleSubmit} className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {/* VIN Field */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -286,19 +286,19 @@ export const CompleteUXIntegrationExample: React.FC = () => {
             </div>
 
             {/* Form Actions */}
-            <div className="flex justify-end space-x-3 pt-4 border-t">
+            <div className="flex justify-end space-x-3 pt-2 border-t">
               <button
                 type="button"
                 onClick={handleCancelForm}
                 disabled={isSubmitting}
-                className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
+                className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
               >
                 {isSubmitting ? (
                   <>
@@ -316,11 +316,11 @@ export const CompleteUXIntegrationExample: React.FC = () => {
 
       {/* Vehicle List */}
       <div className="bg-white rounded-lg shadow-md">
-        <div className="px-6 py-4 border-b">
-          <h2 className="text-xl font-semibold">Vehicles</h2>
+        <div className="px-3 py-2 border-b">
+          <h2 className="text-base font-semibold">Vehicles</h2>
         </div>
 
-        <div className="p-6">
+        <div className="p-3">
           {/* Loading State */}
           {isLoadingVehicles && <SkeletonTable rows={5} />}
 
@@ -337,7 +337,7 @@ export const CompleteUXIntegrationExample: React.FC = () => {
           {!isLoadingVehicles && !loadError && vehicles.length === 0 && (
             <div className="text-center py-12 text-gray-500">
               <svg
-                className="mx-auto h-12 w-12 text-gray-400"
+                className="mx-auto h-9 w-12 text-gray-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -358,16 +358,16 @@ export const CompleteUXIntegrationExample: React.FC = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       VIN
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Make
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Model
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Year
                     </th>
                   </tr>
@@ -375,16 +375,16 @@ export const CompleteUXIntegrationExample: React.FC = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {vehicles.map((vehicle) => (
                     <tr key={vehicle.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                         {vehicle.vin}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                         {vehicle.make}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                         {vehicle.model}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                         {vehicle.year}
                       </td>
                     </tr>

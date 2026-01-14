@@ -65,7 +65,7 @@ function SimpleLoadingSkeleton({ minHeight }: { minHeight: number }) {
       aria-label="Loading map"
     >
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
+        <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-primary mx-auto mb-2" />
         <p className="text-sm text-muted-foreground">Loading map...</p>
       </div>
     </div>
@@ -97,17 +97,17 @@ function DetailedLoadingSkeleton({ minHeight }: { minHeight: number }) {
       aria-live="polite"
       aria-label="Loading map"
     >
-      <div className="text-center max-w-md px-6">
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/30 border-t-primary mx-auto mb-6" />
+      <div className="text-center max-w-md px-3">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/30 border-t-primary mx-auto mb-3" />
         <h3 className="text-base font-semibold text-foreground mb-2">Loading Map</h3>
-        <p className="text-sm text-muted-foreground mb-4">{stages[loadingStage]}</p>
+        <p className="text-sm text-muted-foreground mb-2">{stages[loadingStage]}</p>
         <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
           <div
             className="bg-primary h-full transition-all duration-300"
             style={{ width: `${((loadingStage + 1) / stages.length) * 100}%` }}
           />
         </div>
-        <p className="text-xs text-muted-foreground/70 mt-4">
+        <p className="text-xs text-muted-foreground/70 mt-2">
           {Math.round(((loadingStage + 1) / stages.length) * 100)}% complete
         </p>
       </div>
@@ -138,8 +138,8 @@ function AnimatedLoadingSkeleton({ minHeight }: { minHeight: number }) {
         />
       </div>
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="text-center bg-background/80 backdrop-blur-sm p-6 rounded-lg shadow-lg">
-          <div className="mb-4 flex justify-center">
+        <div className="text-center bg-background/80 backdrop-blur-sm p-3 rounded-lg shadow-sm">
+          <div className="mb-2 flex justify-center">
             <svg
               className="w-16 h-16 text-primary animate-bounce"
               fill="currentColor"
@@ -151,7 +151,7 @@ function AnimatedLoadingSkeleton({ minHeight }: { minHeight: number }) {
           </div>
           <h3 className="text-base font-semibold text-foreground mb-2">Loading Interactive Map</h3>
           <p className="text-sm text-muted-foreground">Preparing geographic interface...</p>
-          <div className="flex justify-center gap-1.5 mt-4">
+          <div className="flex justify-center gap-1.5 mt-2">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
@@ -171,7 +171,7 @@ function AnimatedLoadingSkeleton({ minHeight }: { minHeight: number }) {
         ].map((pos, i) => (
           <div
             key={i}
-            className="absolute w-8 h-8 bg-primary/20 rounded-full animate-pulse"
+            className="absolute w-4 h-4 bg-primary/20 rounded-full animate-pulse"
             style={{ ...pos, animationDelay: `${i * 200}ms` }}
           />
         ))}
@@ -207,8 +207,8 @@ function DefaultErrorFallback({
       role="alert"
       aria-live="assertive"
     >
-      <div className="text-center p-8 max-w-md">
-        <div className="mb-4">
+      <div className="text-center p-3 max-w-md">
+        <div className="mb-2">
           <svg
             className="mx-auto h-16 w-16 text-destructive"
             fill="none"
@@ -224,19 +224,19 @@ function DefaultErrorFallback({
             />
           </svg>
         </div>
-        <h3 className="text-lg font-semibold text-destructive mb-3">Failed to Load Map</h3>
+        <h3 className="text-sm font-semibold text-destructive mb-3">Failed to Load Map</h3>
         <p className="text-sm text-muted-foreground mb-1">{error.message}</p>
-        <p className="text-xs text-muted-foreground/70 mb-6">
+        <p className="text-xs text-muted-foreground/70 mb-3">
           This may be due to network issues or missing dependencies.
         </p>
         <button
           onClick={resetErrorBoundary}
-          className="px-6 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors font-medium text-sm"
+          className="px-3 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors font-medium text-sm"
         >
           Try Again
         </button>
         {process.env.NODE_ENV === 'development' && (
-          <details className="mt-6 text-left">
+          <details className="mt-3 text-left">
             <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
               Error Details (Dev Only)
             </summary>

@@ -44,14 +44,14 @@ export function ReportCard({ report, domainMeta, onClick }: ReportCardProps) {
           onClick();
         }
       }}
-      className="group relative overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+      className="group relative overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-sm hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
       aria-label={`Open ${report.title} report from ${domainMeta.label} domain`}
     >
       {/* Gradient header */}
       <div className={`h-2 bg-gradient-to-r ${domainMeta.color}`} />
 
       {/* Card content */}
-      <div className="p-4">
+      <div className="p-2">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className={`p-2 bg-gradient-to-br ${domainMeta.color} rounded-lg text-white shadow-sm`}>
@@ -80,7 +80,7 @@ export function ReportCard({ report, domainMeta, onClick }: ReportCardProps) {
         </h3>
 
         {/* Report ID and metadata */}
-        <div className="flex items-center gap-4 text-xs text-gray-500">
+        <div className="flex items-center gap-2 text-xs text-gray-500">
           <span className="font-mono bg-gray-100 px-2 py-1 rounded">{report.id}</span>
           <div className="flex items-center gap-1">
             <Clock className="h-3 w-3" />

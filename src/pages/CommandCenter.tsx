@@ -58,8 +58,8 @@ const CommandCenter: React.FC = () => {
 
             {/* 2. HUD - System Status (Top Right) */}
             <div className="absolute top-4 right-4 z-10 animate-fade-in-down pointer-events-none">
-                <div className="bg-slate-900/80 backdrop-blur-md border border-emerald-500/20 shadow-lg p-3 rounded-lg flex flex-col items-end gap-2 pointer-events-auto">
-                    <div className="font-mono text-2xl font-light text-white tracking-tighter">
+                <div className="bg-slate-900/80 backdrop-blur-md border border-emerald-500/20 shadow-sm p-3 rounded-lg flex flex-col items-end gap-2 pointer-events-auto">
+                    <div className="font-mono text-sm font-light text-white tracking-tighter">
                         {currentTime.toLocaleTimeString([], { hour12: false })}
                         <span className="text-xs text-slate-500 ml-1">UTC</span>
                     </div>

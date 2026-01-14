@@ -146,10 +146,10 @@ export function CustomFormBuilder() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Custom Form Builder</h2>
+          <h2 className="text-base font-bold tracking-tight">Custom Form Builder</h2>
           <p className="text-muted-foreground">
             Create custom inspection forms, OSHA reports, JSAs, and compliance documentation
           </p>
@@ -160,14 +160,14 @@ export function CustomFormBuilder() {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-2 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Forms</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalForms}</div>
+            <div className="text-sm font-bold">{stats.totalForms}</div>
             <p className="text-xs text-muted-foreground">All categories</p>
           </CardContent>
         </Card>
@@ -177,7 +177,7 @@ export function CustomFormBuilder() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.published}</div>
+            <div className="text-sm font-bold">{stats.published}</div>
             <p className="text-xs text-muted-foreground">In active use</p>
           </CardContent>
         </Card>
@@ -187,7 +187,7 @@ export function CustomFormBuilder() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.draft}</div>
+            <div className="text-sm font-bold">{stats.draft}</div>
             <p className="text-xs text-muted-foreground">In development</p>
           </CardContent>
         </Card>
@@ -197,7 +197,7 @@ export function CustomFormBuilder() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.archived}</div>
+            <div className="text-sm font-bold">{stats.archived}</div>
             <p className="text-xs text-muted-foreground">Legacy forms</p>
           </CardContent>
         </Card>
@@ -224,8 +224,8 @@ export function CustomFormBuilder() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2">
+          <CardContent className="space-y-2">
+            <div className="grid gap-2 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="formName">Form Name</Label>
                 <Input
@@ -261,7 +261,7 @@ export function CustomFormBuilder() {
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-base">Form Fields ({editingForm.fields.length})</Label>
                 <Button onClick={handleAddField} size="sm">
@@ -281,7 +281,7 @@ export function CustomFormBuilder() {
               ) : (
                 <div className="space-y-3">
                   {editingForm.fields.map((field, _index) => (
-                    <div key={field.id} className="flex items-start gap-3 p-4 border rounded-lg bg-muted/50">
+                    <div key={field.id} className="flex items-start gap-3 p-2 border rounded-lg bg-muted/50">
                       <div className="cursor-move pt-2">
                         <GripVertical className="h-5 w-5 text-muted-foreground" />
                       </div>
@@ -353,7 +353,7 @@ export function CustomFormBuilder() {
           </CardContent>
         </Card>
       ) : (
-        <Tabs defaultValue="all" className="space-y-4">
+        <Tabs defaultValue="all" className="space-y-2">
           <TabsList>
             <TabsTrigger value="all">All Forms</TabsTrigger>
             <TabsTrigger value="osha">OSHA</TabsTrigger>
@@ -361,14 +361,14 @@ export function CustomFormBuilder() {
             <TabsTrigger value="jsa">JSA</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="all" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <TabsContent value="all" className="space-y-2">
+            <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
               {forms.map((form) => (
                 <Card key={form.id} className="hover:border-primary transition-colors cursor-pointer">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div>
-                        <CardTitle className="text-lg">{form.name}</CardTitle>
+                        <CardTitle className="text-sm">{form.name}</CardTitle>
                         <CardDescription className="mt-1">{form.description}</CardDescription>
                       </div>
                       <Badge variant={form.status === "published" ? "default" : form.status === "draft" ? "secondary" : "outline"}>

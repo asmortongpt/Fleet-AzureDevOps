@@ -48,7 +48,7 @@ export function AIAssistantButton({
     <Button
       onClick={() => setOpen(true)}
       className={`${variant === 'floating'
-        ? 'fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-shadow z-50'
+        ? 'fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-sm hover:shadow-sm transition-shadow z-50'
         : 'gap-2'
       } ${className}`}
       size={variant === 'floating' ? 'icon' : 'default'}

@@ -100,8 +100,8 @@ export function AlertsFeed({
       <div className="scrollable-content" style={{ maxHeight }}>
         <div className="space-y-1 p-2">
           {sortedAlerts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <Circle className="w-8 h-8 text-muted-foreground/30 mb-2" />
+            <div className="flex flex-col items-center justify-center py-3 text-center">
+              <Circle className="w-4 h-4 text-muted-foreground/30 mb-2" />
               <p className="text-xs text-muted-foreground">No alerts</p>
               <p className="text-[10px] text-muted-foreground/70">All systems operational</p>
             </div>
@@ -209,7 +209,7 @@ export function ActivityFeed({ activities, maxHeight = "100%", maxItems }: Activ
       <div className="scrollable-content" style={{ maxHeight }}>
         <div className="space-y-0.5 p-2">
           {displayActivities.length === 0 ? (
-            <div className="text-center py-4">
+            <div className="text-center py-2">
               <p className="text-xs text-muted-foreground">No recent activity</p>
             </div>
           ) : (

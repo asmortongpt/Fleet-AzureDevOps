@@ -123,11 +123,11 @@ export function VehicleModelLibrary({
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">3D Model Library</h2>
+          <h2 className="text-base font-bold tracking-tight">3D Model Library</h2>
           <p className="text-muted-foreground">
             Browse and manage vehicle 3D models from multiple sources
           </p>
@@ -152,8 +152,8 @@ export function VehicleModelLibrary({
 
       {/* Search and Filters */}
       <Card>
-        <CardContent className="pt-6">
-          <form onSubmit={handleSearch} className="space-y-4">
+        <CardContent className="pt-3">
+          <form onSubmit={handleSearch} className="space-y-2">
             {/* Search Bar */}
             <div className="flex gap-2">
               <div className="relative flex-1">
@@ -170,7 +170,7 @@ export function VehicleModelLibrary({
             </div>
 
             {/* Filters */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
               <Select value={vehicleType} onValueChange={setVehicleType}>
                 <SelectTrigger>
                   <SelectValue placeholder="Vehicle Type" />
@@ -231,7 +231,7 @@ export function VehicleModelLibrary({
           <TabsTrigger value="popular">Popular</TabsTrigger>
         </TabsList>
 
-        <TabsContent value={activeTab} className="mt-6">
+        <TabsContent value={activeTab} className="mt-3">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <LoadingSpinner />
@@ -239,8 +239,8 @@ export function VehicleModelLibrary({
           ) : models.length === 0 ? (
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-12">
-                <Box className="h-16 w-16 text-muted-foreground mb-4" />
-                <p className="text-lg font-medium">No models found</p>
+                <Box className="h-16 w-16 text-muted-foreground mb-2" />
+                <p className="text-sm font-medium">No models found</p>
                 <p className="text-muted-foreground">
                   Try adjusting your search or filters
                 </p>
@@ -252,8 +252,8 @@ export function VehicleModelLibrary({
               <div
                 className={
                   viewMode === 'grid'
-                    ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
-                    : 'space-y-4'
+                    ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2'
+                    : 'space-y-2'
                 }
               >
                 {models.map((model) => (
@@ -271,7 +271,7 @@ export function VehicleModelLibrary({
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-8">
+                <div className="flex items-center justify-center gap-2 mt-3">
                   <Button
                     variant="outline"
                     size="sm"
@@ -326,13 +326,13 @@ function ModelCard({
   if (viewMode === 'list') {
     return (
       <Card
-        className={`cursor-pointer hover:shadow-lg transition-shadow ${
+        className={`cursor-pointer hover:shadow-sm transition-shadow ${
           isSelected ? 'ring-2 ring-primary' : ''
         }`}
         onClick={onSelect}
       >
-        <CardContent className="p-4">
-          <div className="flex items-center gap-4">
+        <CardContent className="p-2">
+          <div className="flex items-center gap-2">
             {/* Thumbnail */}
             <div className="w-24 h-24 bg-muted rounded-lg overflow-hidden flex-shrink-0">
               {model.thumbnailUrl ? (
@@ -370,7 +370,7 @@ function ModelCard({
 
             {/* Stats */}
             <div className="flex flex-col items-end gap-2">
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Eye className="h-4 w-4" />
                   {model.viewCount || 0}
@@ -387,7 +387,7 @@ function ModelCard({
             </div>
 
             {showSelection && isSelected && (
-              <div className="ml-4">
+              <div className="ml-2">
                 <Check className="h-6 w-6 text-primary" />
               </div>
             )}
@@ -400,7 +400,7 @@ function ModelCard({
   // Grid view
   return (
     <Card
-      className={`cursor-pointer hover:shadow-lg transition-shadow overflow-hidden ${
+      className={`cursor-pointer hover:shadow-sm transition-shadow overflow-hidden ${
         isSelected ? 'ring-2 ring-primary' : ''
       }`}
       onClick={onSelect}
@@ -435,7 +435,7 @@ function ModelCard({
         )}
       </div>
 
-      <CardContent className="p-4">
+      <CardContent className="p-2">
         <h3 className="font-semibold truncate" title={model.name}>
           {model.name}
         </h3>
@@ -454,7 +454,7 @@ function ModelCard({
           )}
         </div>
 
-        <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center justify-between mt-2">
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Eye className="h-3 w-3" />

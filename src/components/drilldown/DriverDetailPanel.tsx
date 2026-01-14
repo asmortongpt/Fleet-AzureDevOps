@@ -83,15 +83,15 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {driver && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Driver Header */}
-          <div className="flex items-start gap-4">
+          <div className="flex items-start gap-2">
             <Avatar className="h-20 w-20">
               <AvatarImage src={driver.avatar_url} alt={driver.name} />
               <AvatarFallback>{getInitials(driver.name)}</AvatarFallback>
             </Avatar>
             <div className="flex-1 space-y-1">
-              <h3 className="text-2xl font-bold">{driver.name}</h3>
+              <h3 className="text-sm font-bold">{driver.name}</h3>
               <p className="text-sm text-muted-foreground">
                 Employee ID: {driver.employee_id || 'N/A'}
               </p>
@@ -133,7 +133,7 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
           </Card>
 
           {/* Performance Score */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -142,7 +142,7 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{driver.safety_score || 0}%</div>
+                <div className="text-sm font-bold">{driver.safety_score || 0}%</div>
                 <Progress value={driver.safety_score || 0} className="mt-2" />
               </CardContent>
             </Card>
@@ -155,7 +155,7 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-sm font-bold">
                   {driver.performance_score || 0}%
                 </div>
                 <Progress value={driver.performance_score || 0} className="mt-2" />
@@ -168,29 +168,29 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
             <CardHeader>
               <CardTitle>Driver Statistics</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <CardContent className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Miles</p>
-                  <p className="text-xl font-bold">
+                  <p className="text-base font-bold">
                     {driver.total_miles?.toLocaleString() || '0'}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Total Trips</p>
-                  <p className="text-xl font-bold">
+                  <p className="text-base font-bold">
                     {driver.total_trips?.toLocaleString() || '0'}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Hours Driven</p>
-                  <p className="text-xl font-bold">
+                  <p className="text-base font-bold">
                     {driver.total_hours?.toLocaleString() || '0'}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Incidents</p>
-                  <p className="text-xl font-bold">{driver.incident_count || 0}</p>
+                  <p className="text-base font-bold">{driver.incident_count || 0}</p>
                 </div>
               </div>
             </CardContent>

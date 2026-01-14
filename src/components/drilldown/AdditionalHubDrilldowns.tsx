@@ -22,24 +22,24 @@ export function IncidentsDrilldown() {
     ]
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-2">
             {/* Summary */}
             <div className="grid grid-cols-3 gap-3">
                 <Card className="bg-red-900/30 border-red-700/50">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-red-400">3</div>
+                    <CardContent className="p-2 text-center">
+                        <div className="text-sm font-bold text-red-400">3</div>
                         <div className="text-xs text-slate-400">Open</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-amber-400">5</div>
+                    <CardContent className="p-2 text-center">
+                        <div className="text-sm font-bold text-amber-400">5</div>
                         <div className="text-xs text-slate-400">Under Review</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-emerald-400">12</div>
+                    <CardContent className="p-2 text-center">
+                        <div className="text-sm font-bold text-emerald-400">12</div>
                         <div className="text-xs text-slate-400">Resolved (30d)</div>
                     </CardContent>
                 </Card>
@@ -48,8 +48,8 @@ export function IncidentsDrilldown() {
             {/* Incident List */}
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-white text-lg flex items-center gap-2">
-                        <Warning className="w-5 h-5 text-amber-400" />
+                    <CardTitle className="text-white text-sm flex items-center gap-2">
+                        <Warning className="w-3 h-3 text-amber-400" />
                         Recent Incidents
                     </CardTitle>
                 </CardHeader>
@@ -76,12 +76,12 @@ export function IncidentsDrilldown() {
 
 export function SafetyScoreDetailDrilldown() {
     return (
-        <div className="space-y-6">
+        <div className="space-y-2">
             {/* Overall Score */}
             <Card className="bg-emerald-900/30 border-emerald-700/50">
-                <CardContent className="p-6 text-center">
-                    <ShieldCheck className="w-10 h-10 text-emerald-400 mx-auto mb-2" />
-                    <div className="text-4xl font-bold text-white">92</div>
+                <CardContent className="p-3 text-center">
+                    <ShieldCheck className="w-10 h-8 text-emerald-400 mx-auto mb-2" />
+                    <div className="text-sm font-bold text-white">92</div>
                     <div className="text-sm text-slate-400">Fleet Safety Score</div>
                 </CardContent>
             </Card>
@@ -89,9 +89,9 @@ export function SafetyScoreDetailDrilldown() {
             {/* Component Breakdown */}
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-white text-lg">Score Components</CardTitle>
+                    <CardTitle className="text-white text-sm">Score Components</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                     {[
                         { label: 'Safe Driving Behaviors', score: 94, color: 'bg-emerald-500' },
                         { label: 'Speed Compliance', score: 91, color: 'bg-blue-500' },
@@ -125,19 +125,19 @@ export function VideoTelematicsDrilldown() {
     ]
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-2">
             {/* Summary */}
             <div className="grid grid-cols-2 gap-3">
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
-                    <CardContent className="p-4 text-center">
-                        <VideoCamera className="w-6 h-6 text-emerald-400 mx-auto mb-2" />
-                        <div className="text-2xl font-bold text-white">148</div>
+                    <CardContent className="p-2 text-center">
+                        <VideoCamera className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
+                        <div className="text-sm font-bold text-white">148</div>
                         <div className="text-xs text-slate-400">Cameras Online</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-amber-400">23</div>
+                    <CardContent className="p-2 text-center">
+                        <div className="text-sm font-bold text-amber-400">23</div>
                         <div className="text-xs text-slate-400">Events Today</div>
                     </CardContent>
                 </Card>
@@ -146,13 +146,13 @@ export function VideoTelematicsDrilldown() {
             {/* Events List */}
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-white text-lg">Today's Events</CardTitle>
+                    <CardTitle className="text-white text-sm">Today's Events</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {events.map(event => (
                         <div key={event.id} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
                             <div className="flex items-center gap-3">
-                                <Play className="w-5 h-5 text-blue-400" />
+                                <Play className="w-3 h-3 text-blue-400" />
                                 <div>
                                     <div className="font-medium text-white">{event.type}</div>
                                     <div className="text-xs text-slate-400">{event.vehicle} • {event.time}</div>
@@ -188,30 +188,30 @@ export function DispatchDrilldown() {
     ]
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-2">
             {/* Summary */}
             <div className="grid grid-cols-4 gap-2">
                 <Card className="bg-blue-900/30 border-blue-700/50">
                     <CardContent className="p-3 text-center">
-                        <div className="text-xl font-bold text-blue-400">24</div>
+                        <div className="text-base font-bold text-blue-400">24</div>
                         <div className="text-xs text-slate-400">Active</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-3 text-center">
-                        <div className="text-xl font-bold text-emerald-400">18</div>
+                        <div className="text-base font-bold text-emerald-400">18</div>
                         <div className="text-xs text-slate-400">In Transit</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-purple-900/30 border-purple-700/50">
                     <CardContent className="p-3 text-center">
-                        <div className="text-xl font-bold text-purple-400">156</div>
+                        <div className="text-base font-bold text-purple-400">156</div>
                         <div className="text-xs text-slate-400">Completed</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-red-900/30 border-red-700/50">
                     <CardContent className="p-3 text-center">
-                        <div className="text-xl font-bold text-red-400">3</div>
+                        <div className="text-base font-bold text-red-400">3</div>
                         <div className="text-xs text-slate-400">Delayed</div>
                     </CardContent>
                 </Card>
@@ -220,8 +220,8 @@ export function DispatchDrilldown() {
             {/* Jobs List */}
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-white text-lg flex items-center gap-2">
-                        <Package className="w-5 h-5 text-blue-400" />
+                    <CardTitle className="text-white text-sm flex items-center gap-2">
+                        <Package className="w-3 h-3 text-blue-400" />
                         Active Jobs
                     </CardTitle>
                 </CardHeader>
@@ -229,7 +229,7 @@ export function DispatchDrilldown() {
                     {jobs.map(job => (
                         <div key={job.id} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
                             <div className="flex items-center gap-3">
-                                <Truck className={`w-5 h-5 ${job.status === 'in-transit' ? 'text-emerald-400' :
+                                <Truck className={`w-3 h-3 ${job.status === 'in-transit' ? 'text-emerald-400' :
                                         job.status === 'delayed' ? 'text-red-400' : 'text-slate-400'
                                     }`} />
                                 <div>
@@ -253,25 +253,25 @@ export function DispatchDrilldown() {
 
 export function RoutesDrilldown() {
     return (
-        <div className="space-y-6">
+        <div className="space-y-2">
             {/* Summary */}
             <div className="grid grid-cols-3 gap-3">
                 <Card className="bg-blue-900/30 border-blue-700/50">
-                    <CardContent className="p-4 text-center">
-                        <MapTrifold className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-                        <div className="text-2xl font-bold text-white">45</div>
+                    <CardContent className="p-2 text-center">
+                        <MapTrifold className="w-4 h-4 text-blue-400 mx-auto mb-2" />
+                        <div className="text-sm font-bold text-white">45</div>
                         <div className="text-xs text-slate-400">Active Routes</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-emerald-400">12</div>
+                    <CardContent className="p-2 text-center">
+                        <div className="text-sm font-bold text-emerald-400">12</div>
                         <div className="text-xs text-slate-400">Optimized Today</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-slate-800/50 border-slate-700">
-                    <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-slate-300">2.4h</div>
+                    <CardContent className="p-2 text-center">
+                        <div className="text-sm font-bold text-slate-300">2.4h</div>
                         <div className="text-xs text-slate-400">Avg Duration</div>
                     </CardContent>
                 </Card>
@@ -280,7 +280,7 @@ export function RoutesDrilldown() {
             {/* Route Optimization */}
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-white text-lg">Route Optimization</CardTitle>
+                    <CardTitle className="text-white text-sm">Route Optimization</CardTitle>
                 </CardHeader>
                 <CardContent>
                     {/* Content for route optimization would go here */}

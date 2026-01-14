@@ -51,15 +51,15 @@ export function VehicleForm({ initialData, onSubmit, onCancel }: VehicleFormProp
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-4xl mx-auto">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-2 max-w-4xl mx-auto">
       {/* Section 1: Basic Information */}
       <Card>
         <CardHeader>
           <CardTitle>Basic Information</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-2">
           {/* Row 1: VIN, Year */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <FormField
               label="VIN"
               name="vin"
@@ -84,7 +84,7 @@ export function VehicleForm({ initialData, onSubmit, onCancel }: VehicleFormProp
           </div>
 
           {/* Row 2: Make, Model */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <FormField
               label="Make"
               name="make"
@@ -107,7 +107,7 @@ export function VehicleForm({ initialData, onSubmit, onCancel }: VehicleFormProp
           </div>
 
           {/* Row 3: Color, License Plate */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <FormField
               label="Color"
               name="color"
@@ -130,7 +130,7 @@ export function VehicleForm({ initialData, onSubmit, onCancel }: VehicleFormProp
           </div>
 
           {/* Row 4: Vehicle Type, Department */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <SelectField
               label="Vehicle Type"
               name="vehicleType"
@@ -162,7 +162,7 @@ export function VehicleForm({ initialData, onSubmit, onCancel }: VehicleFormProp
           </div>
 
           {/* Row 5: Status, Location */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <SelectField
               label="Status"
               name="status"
@@ -190,7 +190,7 @@ export function VehicleForm({ initialData, onSubmit, onCancel }: VehicleFormProp
           </div>
 
           {/* Row 6: Purchase Date, Purchase Price */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <FormField
               label="Purchase Date"
               name="purchaseDate"
@@ -219,7 +219,7 @@ export function VehicleForm({ initialData, onSubmit, onCancel }: VehicleFormProp
       {/* Section 4: Telematics & GPS - 10 more fields */}
 
       {/* Form Actions */}
-      <div className="flex items-center justify-end gap-3 border-t pt-6">
+      <div className="flex items-center justify-end gap-3 border-t pt-3">
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
@@ -239,7 +239,7 @@ export function VehicleForm({ initialData, onSubmit, onCancel }: VehicleFormProp
 
       {/* Form-level errors */}
       {Object.keys(errors).length > 0 && (
-        <div className="bg-destructive/10 border border-destructive rounded-lg p-4">
+        <div className="bg-destructive/10 border border-destructive rounded-lg p-2">
           <div className="flex items-start gap-2">
             <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
             <div>
@@ -359,7 +359,7 @@ function SelectField({
         id={name}
         {...register(name)}
         className={cn(
-          'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all',
+          'flex h-8 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
           'disabled:cursor-not-allowed disabled:opacity-50',
           error && 'border-destructive focus:border-destructive',

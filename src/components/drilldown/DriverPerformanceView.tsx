@@ -55,10 +55,10 @@ export function DriverPerformanceView({
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {performance && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Header */}
           <div>
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-sm font-semibold">
               Performance Metrics {driverName && `for ${driverName}`}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
@@ -72,9 +72,9 @@ export function DriverPerformanceView({
               <CardTitle>Overall Performance Score</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-2">
                 <div>
-                  <div className={`text-4xl font-bold ${getScoreColor(performance.overall_score || 0)}`}>
+                  <div className={`text-sm font-bold ${getScoreColor(performance.overall_score || 0)}`}>
                     {performance.overall_score || 0}%
                   </div>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -86,9 +86,9 @@ export function DriverPerformanceView({
                   </p>
                 </div>
                 {performance.overall_score >= 90 ? (
-                  <CheckCircle className="h-12 w-12 text-green-600" />
+                  <CheckCircle className="h-9 w-12 text-green-600" />
                 ) : (
-                  <AlertTriangle className="h-12 w-12 text-yellow-600" />
+                  <AlertTriangle className="h-9 w-12 text-yellow-600" />
                 )}
               </div>
               <Progress value={performance.overall_score || 0} />
@@ -96,7 +96,7 @@ export function DriverPerformanceView({
           </Card>
 
           {/* Score Breakdown */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -105,7 +105,7 @@ export function DriverPerformanceView({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className={`text-2xl font-bold ${getScoreColor(performance.safety_score || 0)}`}>
+                <div className={`text-sm font-bold ${getScoreColor(performance.safety_score || 0)}`}>
                   {performance.safety_score || 0}%
                 </div>
                 <Progress value={performance.safety_score || 0} className="mt-2" />
@@ -120,7 +120,7 @@ export function DriverPerformanceView({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className={`text-2xl font-bold ${getScoreColor(performance.efficiency_score || 0)}`}>
+                <div className={`text-sm font-bold ${getScoreColor(performance.efficiency_score || 0)}`}>
                   {performance.efficiency_score || 0}%
                 </div>
                 <Progress value={performance.efficiency_score || 0} className="mt-2" />
@@ -135,7 +135,7 @@ export function DriverPerformanceView({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className={`text-2xl font-bold ${getScoreColor(performance.fuel_score || 0)}`}>
+                <div className={`text-sm font-bold ${getScoreColor(performance.fuel_score || 0)}`}>
                   {performance.fuel_score || 0}%
                 </div>
                 <Progress value={performance.fuel_score || 0} className="mt-2" />
@@ -150,7 +150,7 @@ export function DriverPerformanceView({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className={`text-2xl font-bold ${getScoreColor(performance.punctuality_score || 0)}`}>
+                <div className={`text-sm font-bold ${getScoreColor(performance.punctuality_score || 0)}`}>
                   {performance.punctuality_score || 0}%
                 </div>
                 <Progress value={performance.punctuality_score || 0} className="mt-2" />
@@ -166,7 +166,7 @@ export function DriverPerformanceView({
               <TabsTrigger value="violations">Violations</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="safety" className="space-y-4">
+            <TabsContent value="safety" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Safety Metrics</CardTitle>
@@ -202,7 +202,7 @@ export function DriverPerformanceView({
               </Card>
             </TabsContent>
 
-            <TabsContent value="efficiency" className="space-y-4">
+            <TabsContent value="efficiency" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Efficiency Metrics</CardTitle>
@@ -236,7 +236,7 @@ export function DriverPerformanceView({
               </Card>
             </TabsContent>
 
-            <TabsContent value="violations" className="space-y-4">
+            <TabsContent value="violations" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Recent Violations</CardTitle>
@@ -267,7 +267,7 @@ export function DriverPerformanceView({
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-8">
+                    <p className="text-sm text-muted-foreground text-center py-3">
                       No violations recorded
                     </p>
                   )}

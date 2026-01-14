@@ -260,11 +260,11 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {zone && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Hazard Zone Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <h3 className="text-2xl font-bold">{zone.name}</h3>
+              <h3 className="text-sm font-bold">{zone.name}</h3>
               <p className="text-sm text-muted-foreground capitalize">
                 {zone.type} Hazard Zone
               </p>
@@ -285,7 +285,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -294,7 +294,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-bold">{zone.radius}m</div>
+                <div className="text-sm font-bold">{zone.radius}m</div>
                 <p className="text-xs text-muted-foreground mt-1">coverage area</p>
               </CardContent>
             </Card>
@@ -307,7 +307,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-bold">{affectedVehicles?.length || 0}</div>
+                <div className="text-sm font-bold">{affectedVehicles?.length || 0}</div>
                 <p className="text-xs text-muted-foreground mt-1">affected</p>
               </CardContent>
             </Card>
@@ -320,7 +320,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-bold">
+                <div className="text-sm font-bold">
                   {new Date(zone.activeFrom).toLocaleDateString()}
                 </div>
               </CardContent>
@@ -334,7 +334,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-bold">{zoneEvents?.length || 0}</div>
+                <div className="text-sm font-bold">{zoneEvents?.length || 0}</div>
                 <p className="text-xs text-muted-foreground mt-1">total events</p>
               </CardContent>
             </Card>
@@ -350,7 +350,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
             </TabsList>
 
             {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-4">
+            <TabsContent value="overview" className="space-y-2">
               {/* Location */}
               <Card>
                 <CardHeader>
@@ -397,7 +397,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                   <CardTitle>Zone Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Type</p>
                       <p className="font-medium capitalize">{zone.type}</p>
@@ -429,7 +429,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
             </TabsContent>
 
             {/* Restrictions Tab */}
-            <TabsContent value="restrictions" className="space-y-4">
+            <TabsContent value="restrictions" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -441,7 +441,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                   <ul className="space-y-3">
                     {zone.restrictions.map((restriction, index) => (
                       <li key={index} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-medium text-sm mt-0.5">
+                        <div className="flex items-center justify-center w-4 h-4 rounded-full bg-primary/10 text-primary font-medium text-sm mt-0.5">
                           {index + 1}
                         </div>
                         <span className="flex-1">{restriction}</span>
@@ -453,7 +453,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
             </TabsContent>
 
             {/* Vehicles Tab */}
-            <TabsContent value="vehicles" className="space-y-4">
+            <TabsContent value="vehicles" className="space-y-2">
               {affectedVehicles && affectedVehicles.length > 0 ? (
                 <div className="space-y-3">
                   {affectedVehicles.map((vehicle) => (
@@ -462,7 +462,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                       className="cursor-pointer hover:shadow-md transition-shadow"
                       onClick={() => handleViewVehicle(vehicle.vehicle_id, vehicle.vehicle_name)}
                     >
-                      <CardContent className="p-4">
+                      <CardContent className="p-2">
                         <div className="flex items-start justify-between">
                           <div className="space-y-2 flex-1">
                             <div>
@@ -473,7 +473,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                                 </p>
                               )}
                             </div>
-                            <div className="grid grid-cols-3 gap-4 text-sm">
+                            <div className="grid grid-cols-3 gap-2 text-sm">
                               <div>
                                 <p className="text-muted-foreground">Last Entry</p>
                                 <p className="font-medium">
@@ -490,7 +490,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                               </div>
                             </div>
                           </div>
-                          <Car className="h-5 w-5 text-muted-foreground ml-4" />
+                          <Car className="h-5 w-5 text-muted-foreground ml-2" />
                         </div>
                       </CardContent>
                     </Card>
@@ -499,7 +499,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <Car className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <Car className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No vehicles affected</p>
                   </CardContent>
                 </Card>
@@ -507,7 +507,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
             </TabsContent>
 
             {/* Events Tab */}
-            <TabsContent value="events" className="space-y-4">
+            <TabsContent value="events" className="space-y-2">
               {zoneEvents && zoneEvents.length > 0 ? (
                 <Card>
                   <CardHeader>
@@ -517,9 +517,9 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
+                    <div className="space-y-2">
                       {zoneEvents.map((event, index) => (
-                        <div key={event.id} className="flex gap-4">
+                        <div key={event.id} className="flex gap-2">
                           <div className="flex flex-col items-center">
                             <div className="rounded-full bg-primary/10 p-2">
                               {getEventIcon(event.event_type)}
@@ -528,7 +528,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                               <div className="w-px h-full bg-border mt-2" />
                             )}
                           </div>
-                          <div className="flex-1 pb-4">
+                          <div className="flex-1 pb-2">
                             <div className="flex items-start justify-between">
                               <div>
                                 <p className="font-medium capitalize">
@@ -565,7 +565,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <Clock className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No events recorded</p>
                   </CardContent>
                 </Card>

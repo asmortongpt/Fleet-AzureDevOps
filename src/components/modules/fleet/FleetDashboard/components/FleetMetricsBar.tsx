@@ -20,9 +20,9 @@ export function FleetMetricsBar({
   onMetricClick
 }: FleetMetricsBarProps) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
       <Card
-        className="p-4 cursor-pointer hover:shadow-md transition-shadow"
+        className="p-2 cursor-pointer hover:shadow-md transition-shadow"
         onClick={() =>
           onMetricClick?.(
             "total",
@@ -33,17 +33,17 @@ export function FleetMetricsBar({
       >
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-primary/10">
-            <Car className="w-5 h-5 text-primary" />
+            <Car className="w-3 h-3 text-primary" />
           </div>
           <div>
-            <p className="text-2xl font-bold">{totalVehicles}</p>
+            <p className="text-sm font-bold">{totalVehicles}</p>
             <p className="text-xs text-muted-foreground">Total Vehicles</p>
           </div>
         </div>
       </Card>
 
       <Card
-        className="p-4 cursor-pointer hover:shadow-md transition-shadow"
+        className="p-2 cursor-pointer hover:shadow-md transition-shadow"
         onClick={() =>
           onMetricClick?.(
             "status",
@@ -54,17 +54,17 @@ export function FleetMetricsBar({
       >
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-success/10">
-            <Car className="w-5 h-5 text-success" />
+            <Car className="w-3 h-3 text-success" />
           </div>
           <div>
-            <p className="text-2xl font-bold">{activeVehicles}</p>
+            <p className="text-sm font-bold">{activeVehicles}</p>
             <p className="text-xs text-muted-foreground">Active</p>
           </div>
         </div>
       </Card>
 
       <Card
-        className="p-4 cursor-pointer hover:shadow-md transition-shadow"
+        className="p-2 cursor-pointer hover:shadow-md transition-shadow"
         onClick={() =>
           onMetricClick?.(
             "status",
@@ -75,17 +75,17 @@ export function FleetMetricsBar({
       >
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-warning/10">
-            <Wrench className="w-5 h-5 text-warning" />
+            <Wrench className="w-3 h-3 text-warning" />
           </div>
           <div>
-            <p className="text-2xl font-bold">{inService}</p>
+            <p className="text-sm font-bold">{inService}</p>
             <p className="text-xs text-muted-foreground">In Service</p>
           </div>
         </div>
       </Card>
 
       <Card
-        className="p-4 cursor-pointer hover:shadow-md transition-shadow"
+        className="p-2 cursor-pointer hover:shadow-md transition-shadow"
         onClick={() =>
           onMetricClick?.(
             "fuel",
@@ -96,17 +96,17 @@ export function FleetMetricsBar({
       >
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-destructive/10">
-            <BatteryLow className="w-5 h-5 text-destructive" />
+            <BatteryLow className="w-3 h-3 text-destructive" />
           </div>
           <div>
-            <p className="text-2xl font-bold">{lowFuelVehicles}</p>
+            <p className="text-sm font-bold">{lowFuelVehicles}</p>
             <p className="text-xs text-muted-foreground">Low Fuel</p>
           </div>
         </div>
       </Card>
 
       <Card
-        className="p-4 cursor-pointer hover:shadow-md transition-shadow"
+        className="p-2 cursor-pointer hover:shadow-md transition-shadow"
         onClick={() =>
           onMetricClick?.(
             "alerts",
@@ -117,10 +117,10 @@ export function FleetMetricsBar({
       >
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-destructive/10">
-            <Warning className="w-5 h-5 text-destructive" />
+            <Warning className="w-3 h-3 text-destructive" />
           </div>
           <div>
-            <p className="text-2xl font-bold">{criticalAlerts}</p>
+            <p className="text-sm font-bold">{criticalAlerts}</p>
             <p className="text-xs text-muted-foreground">Alerts</p>
           </div>
         </div>

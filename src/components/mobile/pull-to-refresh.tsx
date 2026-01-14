@@ -115,15 +115,15 @@ export function PullToRefresh({
         <div
           className={`
             flex items-center justify-center
-            w-10 h-10 rounded-full
+            w-10 h-8 rounded-full
             bg-blue-600 text-white
-            shadow-lg
+            shadow-sm
             transition-transform duration-200
             ${isPulling || isRefreshing ? 'scale-110' : 'scale-100'}
           `}
         >
           <RefreshCw
-            className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`}
+            className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`}
             style={{
               transform: `rotate(${spinnerRotation}deg)`,
             }}
@@ -178,7 +178,7 @@ export function RefreshButton({ onRefresh, className = '' }: RefreshButtonProps)
       onClick={handleClick}
       disabled={isRefreshing}
       className={`
-        flex items-center gap-2 px-4 py-2
+        flex items-center gap-2 px-2 py-2
         bg-blue-600 hover:bg-blue-700
         text-white rounded-lg
         disabled:opacity-50 disabled:cursor-not-allowed

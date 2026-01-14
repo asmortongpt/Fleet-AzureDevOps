@@ -59,10 +59,10 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {trips && (
-        <div className="space-y-4">
+        <div className="space-y-2">
           {/* Header */}
           <div>
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-sm font-semibold">
               Trip History {vehicleName && `for ${vehicleName}`}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
@@ -74,7 +74,7 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
           {trips.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <Route className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <Route className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground">No trips recorded</p>
               </CardContent>
             </Card>
@@ -86,7 +86,7 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
                   className="hover:shadow-md transition-shadow cursor-pointer group"
                   onClick={() => handleViewTelemetry(trip)}
                 >
-                  <CardContent className="p-4">
+                  <CardContent className="p-2">
                     <div className="flex items-start justify-between">
                       <div className="space-y-3 flex-1">
                         {/* Trip Header */}
@@ -142,7 +142,7 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
                         </div>
 
                         {/* Stats Grid */}
-                        <div className="grid grid-cols-3 gap-4 pt-2 border-t">
+                        <div className="grid grid-cols-3 gap-2 pt-2 border-t">
                           <div>
                             <p className="text-xs text-muted-foreground">Distance</p>
                             <p className="font-medium">

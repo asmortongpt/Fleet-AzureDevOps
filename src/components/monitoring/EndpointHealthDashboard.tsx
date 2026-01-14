@@ -176,7 +176,7 @@ export function EndpointHealthDashboard({
   const overallDisplay = getStatusDisplay(overallHealth as EndpointStatus)
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-2', className)}>
       {/* Summary Card */}
       <Card className="border-gray-200 dark:border-gray-800">
         <CardHeader className="pb-3">
@@ -204,7 +204,7 @@ export function EndpointHealthDashboard({
         </CardHeader>
         <CardContent>
           {/* Overall Health Score */}
-          <div className={cn('rounded-lg p-4 mb-4', overallDisplay.bgColor)}>
+          <div className={cn('rounded-lg p-2 mb-2', overallDisplay.bgColor)}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <overallDisplay.icon className={cn('h-6 w-6', overallDisplay.color)} />
@@ -358,7 +358,7 @@ export function EndpointHealthDashboard({
           </div>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[600px] pr-4">
+          <ScrollArea className="h-[600px] pr-2">
             <div className="space-y-2">
               {API_ENDPOINT_CATEGORIES.map(category => {
                 const isExpanded = expandedCategories.has(category.name)
@@ -488,7 +488,7 @@ function StatCard({
           {label}
         </span>
       </div>
-      <div className={cn('text-2xl font-bold', color)}>{value}</div>
+      <div className={cn('text-sm font-bold', color)}>{value}</div>
     </div>
   )
 }

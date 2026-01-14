@@ -148,12 +148,12 @@ export function Notifications() {
     switch (severity) {
       case 'emergency':
       case 'critical':
-        return <Warning className="w-5 h-5" weight="fill" />
+        return <Warning className="w-3 h-3" weight="fill" />
       case 'warning':
-        return <ArrowUp className="w-5 h-5" />
+        return <ArrowUp className="w-3 h-3" />
       case 'info':
       default:
-        return <Info className="w-5 h-5" />
+        return <Info className="w-3 h-3" />
     }
   }
 
@@ -202,9 +202,9 @@ export function Notifications() {
   })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -213,8 +213,8 @@ export function Notifications() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <Warning className="w-8 h-8 text-red-600" weight="fill" />
-              <div className="text-3xl font-bold">
+              <Warning className="w-4 h-4 text-red-600" weight="fill" />
+              <div className="text-base font-bold">
                 {stats?.unacknowledged_critical || 0}
               </div>
             </div>
@@ -229,8 +229,8 @@ export function Notifications() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <Bell className="w-8 h-8 text-blue-800" />
-              <div className="text-3xl font-bold">
+              <Bell className="w-4 h-4 text-blue-800" />
+              <div className="text-base font-bold">
                 {stats?.by_status.find(s => s.status === 'sent')?.count || 0}
               </div>
             </div>
@@ -245,8 +245,8 @@ export function Notifications() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <Check className="w-8 h-8 text-yellow-600" />
-              <div className="text-3xl font-bold">
+              <Check className="w-4 h-4 text-yellow-600" />
+              <div className="text-base font-bold">
                 {stats?.by_status.find(s => s.status === 'acknowledged')?.count || 0}
               </div>
             </div>
@@ -261,8 +261,8 @@ export function Notifications() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-8 h-8 text-green-600" weight="fill" />
-              <div className="text-3xl font-bold">
+              <CheckCircle className="w-4 h-4 text-green-600" weight="fill" />
+              <div className="text-base font-bold">
                 {stats?.by_status.find(s => s.status === 'resolved')?.count || 0}
               </div>
             </div>
@@ -277,7 +277,7 @@ export function Notifications() {
           <CardDescription>View and manage all system alerts and notifications</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-2 mb-3">
             <div className="flex-1 relative">
               <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
@@ -318,12 +318,12 @@ export function Notifications() {
           {/* Alert List */}
           <ScrollArea className="h-[600px]">
             {isLoading ? (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="text-center py-3 text-muted-foreground">
                 Loading alerts...
               </div>
             ) : filteredAlerts.length === 0 ? (
               <div className="text-center py-12">
-                <Bell className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <Bell className="w-16 h-16 mx-auto mb-2 text-muted-foreground opacity-50" />
                 <p className="text-muted-foreground">No alerts found</p>
               </div>
             ) : (
@@ -337,8 +337,8 @@ export function Notifications() {
                       openInspect({ type: 'alert', id: alert.id })
                     }}
                   >
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between gap-4">
+                    <CardContent className="p-2">
+                      <div className="flex items-start justify-between gap-2">
                         <div className="flex items-start gap-3 flex-1">
                           <div className={`p-2 rounded-lg ${getSeverityColor(alert.severity)}`}>
                             {getSeverityIcon(alert.severity)}
@@ -424,7 +424,7 @@ export function Notifications() {
               Provide details about how this alert was resolved.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div>
               <h4 className="font-semibold mb-1">{selectedAlert?.title}</h4>
               <p className="text-sm text-muted-foreground">{selectedAlert?.message}</p>

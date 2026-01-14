@@ -365,14 +365,14 @@ export default function SafetyAlertsPage() {
     <div className="h-screen flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       {/* Header */}
       <div className="flex-none border-b border-slate-800 bg-slate-900/50 backdrop-blur-xl">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="p-3">
+          <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20">
-                <Bell className="w-6 h-6 text-red-400" />
+                <Bell className="w-4 h-4 text-red-400" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Safety Alerts</h1>
+                <h1 className="text-sm font-bold text-white">Safety Alerts</h1>
                 <p className="text-sm text-slate-400">Real-time safety monitoring with OSHA compliance</p>
               </div>
             </div>
@@ -389,58 +389,58 @@ export default function SafetyAlertsPage() {
           </div>
 
           {/* Key Metrics */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-2">
             <Card className="bg-slate-800/50 border-slate-700">
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs text-slate-400 uppercase tracking-wide">Active Alerts</p>
-                    <p className="text-2xl font-bold text-white mt-1">{activeAlerts}</p>
+                    <p className="text-sm font-bold text-white mt-1">{activeAlerts}</p>
                   </div>
                   <div className="p-2 rounded-lg bg-red-500/10">
-                    <Bell className="w-5 h-5 text-red-400" />
+                    <Bell className="w-3 h-3 text-red-400" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-slate-800/50 border-slate-700">
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs text-slate-400 uppercase tracking-wide">Critical</p>
-                    <p className="text-2xl font-bold text-white mt-1">{criticalAlerts}</p>
+                    <p className="text-sm font-bold text-white mt-1">{criticalAlerts}</p>
                   </div>
                   <div className="p-2 rounded-lg bg-orange-500/10">
-                    <Warning className="w-5 h-5 text-orange-400" />
+                    <Warning className="w-3 h-3 text-orange-400" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-slate-800/50 border-slate-700">
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs text-slate-400 uppercase tracking-wide">OSHA Recordable</p>
-                    <p className="text-2xl font-bold text-white mt-1">{oshaRecordable}</p>
+                    <p className="text-sm font-bold text-white mt-1">{oshaRecordable}</p>
                   </div>
                   <div className="p-2 rounded-lg bg-purple-500/10">
-                    <FileText className="w-5 h-5 text-purple-400" />
+                    <FileText className="w-3 h-3 text-purple-400" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-slate-800/50 border-slate-700">
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs text-slate-400 uppercase tracking-wide">Avg Resolution</p>
-                    <p className="text-2xl font-bold text-white mt-1">{avgResolutionTime}</p>
+                    <p className="text-sm font-bold text-white mt-1">{avgResolutionTime}</p>
                   </div>
                   <div className="p-2 rounded-lg bg-green-500/10">
-                    <Clock className="w-5 h-5 text-green-400" />
+                    <Clock className="w-3 h-3 text-green-400" />
                   </div>
                 </div>
               </CardContent>
@@ -452,17 +452,17 @@ export default function SafetyAlertsPage() {
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
         <Tabs defaultValue="alerts" className="h-full flex flex-col">
-          <TabsList className="mx-6 mt-4">
+          <TabsList className="mx-3 mt-2">
             <TabsTrigger value="alerts">Alert Dashboard</TabsTrigger>
             <TabsTrigger value="osha">OSHA Compliance</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="alerts" className="flex-1 overflow-auto p-6 space-y-4">
+          <TabsContent value="alerts" className="flex-1 overflow-auto p-3 space-y-2">
             {/* Filters */}
             <Card className="bg-slate-800/50 border-slate-700">
-              <CardContent className="p-4">
-                <div className="grid grid-cols-5 gap-4">
+              <CardContent className="p-2">
+                <div className="grid grid-cols-5 gap-2">
                   <Input
                     placeholder="Search alerts..."
                     value={searchTerm}
@@ -602,34 +602,34 @@ export default function SafetyAlertsPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="osha" className="flex-1 overflow-auto p-6 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <TabsContent value="osha" className="flex-1 overflow-auto p-3 space-y-2">
+            <div className="grid grid-cols-2 gap-2">
               <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader>
                   <CardTitle className="text-white">OSHA Incident Rates</CardTitle>
                   <CardDescription>Rates per 100 full-time workers</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
+                <CardContent className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-slate-900/50 rounded-lg">
                     <div>
                       <p className="text-sm text-slate-400">Total Recordable Incident Rate (TRIR)</p>
-                      <p className="text-2xl font-bold text-white">{oshaMetrics.incidentRate}</p>
+                      <p className="text-sm font-bold text-white">{oshaMetrics.incidentRate}</p>
                     </div>
-                    <TrendDown className="w-6 h-6 text-green-400" />
+                    <TrendDown className="w-4 h-4 text-green-400" />
                   </div>
-                  <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
+                  <div className="flex items-center justify-between p-2 bg-slate-900/50 rounded-lg">
                     <div>
                       <p className="text-sm text-slate-400">Days Away/Restricted Case Rate (DART)</p>
-                      <p className="text-2xl font-bold text-white">{oshaMetrics.daysAwayFromWorkCaseRate}</p>
+                      <p className="text-sm font-bold text-white">{oshaMetrics.daysAwayFromWorkCaseRate}</p>
                     </div>
-                    <TrendUp className="w-6 h-6 text-red-400" />
+                    <TrendUp className="w-4 h-4 text-red-400" />
                   </div>
-                  <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
+                  <div className="flex items-center justify-between p-2 bg-slate-900/50 rounded-lg">
                     <div>
                       <p className="text-sm text-slate-400">Lost Workday Rate</p>
-                      <p className="text-2xl font-bold text-white">{oshaMetrics.lostWorkdayRate}</p>
+                      <p className="text-sm font-bold text-white">{oshaMetrics.lostWorkdayRate}</p>
                     </div>
-                    <TrendDown className="w-6 h-6 text-green-400" />
+                    <TrendDown className="w-4 h-4 text-green-400" />
                   </div>
                 </CardContent>
               </Card>
@@ -639,28 +639,28 @@ export default function SafetyAlertsPage() {
                   <CardTitle className="text-white">Year-to-Date Statistics</CardTitle>
                   <CardDescription>Total hours worked: {oshaMetrics.totalHoursWorked.toLocaleString()}</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="p-4 bg-slate-900/50 rounded-lg">
+                <CardContent className="space-y-2">
+                  <div className="p-2 bg-slate-900/50 rounded-lg">
                     <p className="text-sm text-slate-400 mb-2">Total Recordable Cases</p>
-                    <p className="text-3xl font-bold text-white">{oshaMetrics.totalRecordableIncidents}</p>
+                    <p className="text-base font-bold text-white">{oshaMetrics.totalRecordableIncidents}</p>
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="p-4 bg-slate-900/50 rounded-lg">
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="p-2 bg-slate-900/50 rounded-lg">
                       <p className="text-xs text-slate-400 mb-1">Injuries</p>
-                      <p className="text-xl font-bold text-white">{oshaMetrics.yearToDate.injuries}</p>
+                      <p className="text-base font-bold text-white">{oshaMetrics.yearToDate.injuries}</p>
                     </div>
-                    <div className="p-4 bg-slate-900/50 rounded-lg">
+                    <div className="p-2 bg-slate-900/50 rounded-lg">
                       <p className="text-xs text-slate-400 mb-1">Illnesses</p>
-                      <p className="text-xl font-bold text-white">{oshaMetrics.yearToDate.illnesses}</p>
+                      <p className="text-base font-bold text-white">{oshaMetrics.yearToDate.illnesses}</p>
                     </div>
-                    <div className="p-4 bg-slate-900/50 rounded-lg">
+                    <div className="p-2 bg-slate-900/50 rounded-lg">
                       <p className="text-xs text-slate-400 mb-1">Fatalities</p>
-                      <p className="text-xl font-bold text-white">{oshaMetrics.yearToDate.fatalities}</p>
+                      <p className="text-base font-bold text-white">{oshaMetrics.yearToDate.fatalities}</p>
                     </div>
                   </div>
-                  <div className="p-4 bg-slate-900/50 rounded-lg">
+                  <div className="p-2 bg-slate-900/50 rounded-lg">
                     <p className="text-sm text-slate-400 mb-2">Days Away/Restricted/Transfer</p>
-                    <p className="text-2xl font-bold text-white">{oshaMetrics.daysAwayRestrictedTransfer}</p>
+                    <p className="text-sm font-bold text-white">{oshaMetrics.daysAwayRestrictedTransfer}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -672,9 +672,9 @@ export default function SafetyAlertsPage() {
                 <CardDescription>Required forms for recordable incidents</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="p-6 bg-slate-900/50 rounded-lg border border-slate-700">
-                    <FileText className="w-8 h-8 text-blue-400 mb-2" />
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="p-3 bg-slate-900/50 rounded-lg border border-slate-700">
+                    <FileText className="w-4 h-4 text-blue-400 mb-2" />
                     <h3 className="font-semibold text-white mb-1">OSHA Form 300</h3>
                     <p className="text-sm text-slate-400 mb-3">Log of Work-Related Injuries and Illnesses</p>
                     <Button variant="outline" className="w-full" size="sm">
@@ -682,8 +682,8 @@ export default function SafetyAlertsPage() {
                       Generate Form
                     </Button>
                   </div>
-                  <div className="p-6 bg-slate-900/50 rounded-lg border border-slate-700">
-                    <FileText className="w-8 h-8 text-purple-400 mb-2" />
+                  <div className="p-3 bg-slate-900/50 rounded-lg border border-slate-700">
+                    <FileText className="w-4 h-4 text-purple-400 mb-2" />
                     <h3 className="font-semibold text-white mb-1">OSHA Form 300A</h3>
                     <p className="text-sm text-slate-400 mb-3">Summary of Work-Related Injuries and Illnesses</p>
                     <Button variant="outline" className="w-full" size="sm">
@@ -691,8 +691,8 @@ export default function SafetyAlertsPage() {
                       Generate Summary
                     </Button>
                   </div>
-                  <div className="p-6 bg-slate-900/50 rounded-lg border border-slate-700">
-                    <FileText className="w-8 h-8 text-green-400 mb-2" />
+                  <div className="p-3 bg-slate-900/50 rounded-lg border border-slate-700">
+                    <FileText className="w-4 h-4 text-green-400 mb-2" />
                     <h3 className="font-semibold text-white mb-1">OSHA Form 301</h3>
                     <p className="text-sm text-slate-400 mb-3">Injury and Illness Incident Report</p>
                     <Button variant="outline" className="w-full" size="sm">
@@ -705,8 +705,8 @@ export default function SafetyAlertsPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="analytics" className="flex-1 overflow-auto p-6 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <TabsContent value="analytics" className="flex-1 overflow-auto p-3 space-y-2">
+            <div className="grid grid-cols-2 gap-2">
               <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader>
                   <CardTitle className="text-white">Incident Trend Analysis</CardTitle>
@@ -755,16 +755,16 @@ export default function SafetyAlertsPage() {
                 <CardDescription>Key safety indicators over time</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-4 gap-2">
                   {[
                     { label: 'Days Since Last Injury', value: '47', trend: '+12', good: true },
                     { label: 'Safety Training Completion', value: '94%', trend: '+8%', good: true },
                     { label: 'Hazard Reports Resolved', value: '89%', trend: '+5%', good: true },
                     { label: 'Average Resolution Time', value: '4.2h', trend: '-1.3h', good: true },
                   ].map(metric => (
-                    <div key={metric.label} className="p-4 bg-slate-900/50 rounded-lg">
+                    <div key={metric.label} className="p-2 bg-slate-900/50 rounded-lg">
                       <p className="text-xs text-slate-400 mb-1">{metric.label}</p>
-                      <p className="text-2xl font-bold text-white">{metric.value}</p>
+                      <p className="text-sm font-bold text-white">{metric.value}</p>
                       <p className={`text-xs ${metric.good ? 'text-green-400' : 'text-red-400'}`}>{metric.trend}</p>
                     </div>
                   ))}
@@ -789,8 +789,8 @@ export default function SafetyAlertsPage() {
           </DialogHeader>
 
           {selectedAlert && (
-            <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2 py-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-sm font-medium text-slate-500">Severity</p>
                   <div className="mt-1">{getSeverityBadge(selectedAlert.severity)}</div>

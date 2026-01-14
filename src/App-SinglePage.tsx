@@ -38,26 +38,26 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       {/* Header - Fixed height */}
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 py-2">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-3">
-            <Truck className="w-8 h-8 text-primary" weight="duotone" />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <Truck className="w-4 h-4 text-primary" weight="duotone" />
+            <h1 className="text-sm font-bold text-slate-900 dark:text-white">
               Fleet Management
             </h1>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" aria-label="View notifications">
-              <Bell className="w-5 h-5" />
+              <Bell className="w-3 h-3" />
             </Button>
           </div>
         </div>
       </header>
 
       {/* Main Content - Single screen, no scroll */}
-      <main className="max-w-7xl mx-auto px-6 py-6">
+      <main className="max-w-7xl mx-auto px-3 py-3">
         {/* KPI Grid - 3x2 layout */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-3 gap-2 mb-3">
           {/* Vehicles */}
           <Card className="border-slate-200 dark:border-slate-800">
             <CardHeader className="pb-3">
@@ -67,7 +67,7 @@ export default function App() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-slate-900 dark:text-white">
+              <div className="text-base font-bold text-slate-900 dark:text-white">
                 {stats.totalVehicles}
               </div>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -85,7 +85,7 @@ export default function App() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-slate-900 dark:text-white">
+              <div className="text-base font-bold text-slate-900 dark:text-white">
                 {stats.activeDrivers}
               </div>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -103,7 +103,7 @@ export default function App() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-slate-900 dark:text-white">
+              <div className="text-base font-bold text-slate-900 dark:text-white">
                 {stats.maintenanceDue}
               </div>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -121,7 +121,7 @@ export default function App() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-slate-900 dark:text-white">
+              <div className="text-base font-bold text-slate-900 dark:text-white">
                 {stats.facilities}
               </div>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -139,7 +139,7 @@ export default function App() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-slate-900 dark:text-white">
+              <div className="text-base font-bold text-slate-900 dark:text-white">
                 ${stats.avgFuelCost.toLocaleString('en-US', {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2
@@ -160,7 +160,7 @@ export default function App() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-slate-900 dark:text-white">
+              <div className="text-base font-bold text-slate-900 dark:text-white">
                 {stats.alertsToday}
               </div>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -188,7 +188,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-6 py-3">
+      <footer className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-3 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Capital Tech Alliance Fleet Management System

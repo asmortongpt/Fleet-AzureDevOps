@@ -152,7 +152,7 @@ export default function SafetyEventsList({
   if (loading) {
     return (
       <Card>
-        <CardContent className="pt-6 text-center">
+        <CardContent className="pt-3 text-center">
           <p className="text-muted-foreground">Loading events...</p>
         </CardContent>
       </Card>
@@ -160,11 +160,11 @@ export default function SafetyEventsList({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Filters and Controls */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row gap-4">
+        <CardContent className="pt-3">
+          <div className="flex flex-col md:flex-row gap-2">
             {/* Search */}
             <div className="flex-1">
               <Input
@@ -203,7 +203,7 @@ export default function SafetyEventsList({
 
           {/* Bulk Actions */}
           {selectedEvents.length > 0 && (
-            <div className="mt-4 flex items-center gap-2">
+            <div className="mt-2 flex items-center gap-2">
               <span className="text-sm text-muted-foreground">
                 {selectedEvents.length} selected
               </span>
@@ -236,7 +236,7 @@ export default function SafetyEventsList({
       {/* Events List */}
       {filteredEvents.length === 0 ? (
         <Card>
-          <CardContent className="pt-6 text-center">
+          <CardContent className="pt-3 text-center">
             <p className="text-muted-foreground">No events found</p>
           </CardContent>
         </Card>
@@ -244,8 +244,8 @@ export default function SafetyEventsList({
         <div className="space-y-3">
           {filteredEvents.map((event) => (
             <Card key={event.id} className={cn(event.reviewed && 'opacity-60')}>
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
+              <CardContent className="pt-3">
+                <div className="flex items-start gap-2">
                   {/* Selection Checkbox */}
                   <Checkbox
                     checked={selectedEvents.includes(event.id)}
@@ -273,7 +273,7 @@ export default function SafetyEventsList({
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-lg">
+                          <h3 className="font-semibold text-sm">
                             {eventTypeLabels[event.event_type] || event.event_type}
                           </h3>
                           <Badge className={cn(severityColors[event.severity as keyof typeof severityColors])}>

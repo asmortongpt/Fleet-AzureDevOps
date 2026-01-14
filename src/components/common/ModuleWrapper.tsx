@@ -111,19 +111,19 @@ export class ModuleErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoun
         <Card className="border-destructive/50 bg-destructive/5">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Warning className="w-5 h-5 text-destructive" />
+              <Warning className="w-3 h-3 text-destructive" />
               <CardTitle className="text-destructive">Module Error</CardTitle>
             </div>
             <CardDescription>
               {moduleName} encountered an error and couldn't load properly.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-2">
             <div className="p-3 bg-muted rounded-md font-mono text-sm overflow-auto max-h-32">
               {error?.message || 'Unknown error occurred'}
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               {canRetry && (
                 <Button onClick={this.handleRetry} variant="outline" size="sm">
                   <ArrowClockwise className="w-4 h-4 mr-2" />
@@ -170,12 +170,12 @@ interface ModuleSkeletonProps {
 export function ModuleSkeleton({ type = 'default', className }: ModuleSkeletonProps) {
   const skeletons = {
     dashboard: (
-      <div className={cn('space-y-6', className)}>
+      <div className={cn('space-y-2', className)}>
         <div className="flex justify-between items-center">
           <Skeleton className="h-8 w-64" />
-          <Skeleton className="h-10 w-32" />
+          <Skeleton className="h-8 w-32" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
           {[1, 2, 3, 4].map(i => (
             <Skeleton key={i} className="h-32 w-full" />
           ))}
@@ -184,41 +184,41 @@ export function ModuleSkeleton({ type = 'default', className }: ModuleSkeletonPr
       </div>
     ),
     table: (
-      <div className={cn('space-y-4', className)}>
+      <div className={cn('space-y-2', className)}>
         <div className="flex justify-between items-center">
           <Skeleton className="h-8 w-48" />
           <div className="flex gap-2">
-            <Skeleton className="h-10 w-32" />
-            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-8 w-32" />
+            <Skeleton className="h-8 w-24" />
           </div>
         </div>
-        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-8 w-full" />
         {[1, 2, 3, 4, 5].map(i => (
           <Skeleton key={i} className="h-16 w-full" />
         ))}
       </div>
     ),
     form: (
-      <div className={cn('space-y-6', className)}>
+      <div className={cn('space-y-2', className)}>
         <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-2">
           {[1, 2, 3, 4, 5, 6].map(i => (
             <div key={i} className="space-y-2">
               <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-8 w-full" />
             </div>
           ))}
         </div>
         <div className="flex gap-2">
-          <Skeleton className="h-10 w-24" />
-          <Skeleton className="h-10 w-24" />
+          <Skeleton className="h-8 w-24" />
+          <Skeleton className="h-8 w-24" />
         </div>
       </div>
     ),
     cards: (
-      <div className={cn('space-y-6', className)}>
+      <div className={cn('space-y-2', className)}>
         <Skeleton className="h-8 w-64" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {[1, 2, 3, 4, 5, 6].map(i => (
             <Skeleton key={i} className="h-48 w-full" />
           ))}
@@ -226,13 +226,13 @@ export function ModuleSkeleton({ type = 'default', className }: ModuleSkeletonPr
       </div>
     ),
     chart: (
-      <div className={cn('space-y-6', className)}>
+      <div className={cn('space-y-2', className)}>
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-80 w-full" />
       </div>
     ),
     default: (
-      <div className={cn('space-y-4', className)}>
+      <div className={cn('space-y-2', className)}>
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-3/4" />
@@ -430,17 +430,17 @@ export function ModuleEmptyState({
 }: EmptyStateProps) {
   return (
     <div className={cn(
-      'flex flex-col items-center justify-center py-12 px-4 text-center',
+      'flex flex-col items-center justify-center py-12 px-2 text-center',
       className
     )}>
       {icon && (
-        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-2">
           {icon}
         </div>
       )}
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
+      <h3 className="text-sm font-semibold mb-2">{title}</h3>
       {description && (
-        <p className="text-sm text-muted-foreground max-w-md mb-4">{description}</p>
+        <p className="text-sm text-muted-foreground max-w-md mb-2">{description}</p>
       )}
       {action && (
         <Button onClick={action.onClick} variant="outline">

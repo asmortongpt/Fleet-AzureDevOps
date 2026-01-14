@@ -35,12 +35,12 @@ export const Toast: React.FC<ToastProps> = ({
   };
 
   return (
-    <div className={`fixed bottom-4 right-4 z-50 border rounded-lg p-4 shadow-lg ${bgColors[type]} animate-slide-up`}>
+    <div className={`fixed bottom-4 right-4 z-50 border rounded-lg p-2 shadow-sm ${bgColors[type]} animate-slide-up`}>
       <div className="flex items-center">
         <p className={`${textColors[type]} font-medium`}>{message}</p>
         <button
           onClick={onClose}
-          className={`ml-4 ${textColors[type]} hover:opacity-75`}
+          className={`ml-2 ${textColors[type]} hover:opacity-75`}
         >
           ✕
         </button>

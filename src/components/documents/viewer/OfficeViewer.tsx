@@ -104,17 +104,17 @@ export function OfficeViewer({ document }: OfficeViewerProps) {
   if (!isPublicUrl) {
     return (
       <div className="flex items-center justify-center h-full bg-muted/30">
-        <div className="text-center max-w-md p-8">
-          <div className={`w-20 h-20 mx-auto mb-6 rounded-full ${typeInfo.bgColor} flex items-center justify-center ${typeInfo.color}`}>
-            <FileText className="w-10 h-10" />
+        <div className="text-center max-w-md p-3">
+          <div className={`w-20 h-20 mx-auto mb-3 rounded-full ${typeInfo.bgColor} flex items-center justify-center ${typeInfo.color}`}>
+            <FileText className="w-10 h-8" />
           </div>
 
-          <h3 className="text-xl font-semibold mb-2">{document.name}</h3>
-          <p className="text-muted-foreground mb-4">{typeInfo.description}</p>
+          <h3 className="text-base font-semibold mb-2">{document.name}</h3>
+          <p className="text-muted-foreground mb-2">{typeInfo.description}</p>
 
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 mb-3">
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
+              <AlertCircle className="w-3 h-3 text-amber-600 mt-0.5" />
               <p className="text-sm text-amber-800">
                 This document is stored locally and cannot be previewed in the browser.
                 Download the file to view it in a compatible application.
@@ -134,9 +134,9 @@ export function OfficeViewer({ document }: OfficeViewerProps) {
   return (
     <div className="h-full flex flex-col bg-muted/30">
       {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-background border-b">
+      <div className="flex items-center justify-between px-2 py-2 bg-background border-b">
         <div className="flex items-center gap-3">
-          <div className={`w-8 h-8 rounded ${typeInfo.bgColor} flex items-center justify-center ${typeInfo.color}`}>
+          <div className={`w-4 h-4 rounded ${typeInfo.bgColor} flex items-center justify-center ${typeInfo.color}`}>
             <FileText className="w-4 h-4" />
           </div>
           <div>
@@ -180,7 +180,7 @@ export function OfficeViewer({ document }: OfficeViewerProps) {
       <div className="flex-1 relative">
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
-            <div className="text-center space-y-4">
+            <div className="text-center space-y-2">
               <Skeleton className="w-16 h-16 rounded-full mx-auto" />
               <p className="text-muted-foreground">Loading document preview...</p>
             </div>
@@ -189,13 +189,13 @@ export function OfficeViewer({ document }: OfficeViewerProps) {
 
         {error ? (
           <div className="flex items-center justify-center h-full">
-            <div className="text-center max-w-md p-8">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-                <AlertCircle className="w-8 h-8" />
+            <div className="text-center max-w-md p-3">
+              <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                <AlertCircle className="w-4 h-4" />
               </div>
 
-              <h3 className="text-lg font-semibold mb-2">Preview Unavailable</h3>
-              <p className="text-muted-foreground mb-6">
+              <h3 className="text-sm font-semibold mb-2">Preview Unavailable</h3>
+              <p className="text-muted-foreground mb-3">
                 Unable to load the document preview. The file may be too large, inaccessible,
                 or in an unsupported format.
               </p>

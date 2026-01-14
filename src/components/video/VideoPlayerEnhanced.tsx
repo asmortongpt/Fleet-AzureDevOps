@@ -214,7 +214,7 @@ export default function VideoPlayerEnhanced({
         {/* Loading Overlay */}
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="text-white text-lg">Loading video...</div>
+            <div className="text-white text-sm">Loading video...</div>
           </div>
         )}
 
@@ -250,7 +250,7 @@ export default function VideoPlayerEnhanced({
                 <div
                   key={idx}
                   className={cn(
-                    'px-4 py-2 rounded-lg text-white text-sm font-medium shadow-lg',
+                    'px-2 py-2 rounded-lg text-white text-sm font-medium shadow-sm',
                     annotation.color
                   )}
                 >
@@ -261,9 +261,9 @@ export default function VideoPlayerEnhanced({
         )}
 
         {/* Controls Overlay - Shows on hover */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
           {/* Timeline with Event Markers */}
-          <div className="relative mb-4">
+          <div className="relative mb-2">
             {/* Event Markers */}
             {events.map((event) => (
               <div
@@ -398,7 +398,7 @@ export default function VideoPlayerEnhanced({
 
         {/* Event Timeline Below Video */}
         {events.length > 0 && (
-          <div className="p-4 border-t">
+          <div className="p-2 border-t">
             <h4 className="font-semibold mb-3">Safety Events in Video</h4>
             <div className="space-y-2">
               {events.map((event) => (

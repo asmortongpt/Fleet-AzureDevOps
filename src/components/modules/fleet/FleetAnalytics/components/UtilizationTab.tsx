@@ -14,7 +14,7 @@ interface UtilizationTabProps {
 
 export function UtilizationTab({ utilizationByType }: UtilizationTabProps) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
       <ChartCard
         title="Utilization by Vehicle Type"
         subtitle="Average utilization percentage by category"
@@ -28,7 +28,7 @@ export function UtilizationTab({ utilizationByType }: UtilizationTabProps) {
           <CardTitle>Fleet Composition</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-2">
             {utilizationByType.map(type => (
               <div key={type.name}>
                 <div className="flex items-center justify-between mb-2">

@@ -126,7 +126,7 @@ export function ChartCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">{title}</CardTitle>
+        <CardTitle className="text-sm font-semibold">{title}</CardTitle>
         {subtitle && (
           <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
         )}

@@ -369,23 +369,23 @@ export function PolicyWorkbench() {
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-8 py-6 shadow-sm">
+      <div className="bg-white border-b border-slate-200 px-3 py-3 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
-              <Brain className="w-8 h-8 text-blue-800" />
+            <h1 className="text-base font-bold text-slate-900 flex items-center gap-3">
+              <Brain className="w-4 h-4 text-blue-800" />
               Policy Implementation Workbench
             </h1>
             <p className="text-slate-600 mt-1">
               AI-guided comprehensive policy system implementation
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <button className="flex items-center gap-2 px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+          <div className="flex items-center gap-2">
+            <button className="flex items-center gap-2 px-2 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
               <Download className="w-4 h-4" />
               Export Progress
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <button className="flex items-center gap-2 px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
               <Play className="w-4 h-4" />
               Resume
             </button>
@@ -393,7 +393,7 @@ export function PolicyWorkbench() {
         </div>
 
         {/* Progress Bar */}
-        <div className="mt-6">
+        <div className="mt-3">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-slate-700">Overall Progress</span>
             <span className="text-sm font-medium text-slate-700">
@@ -414,8 +414,8 @@ export function PolicyWorkbench() {
       <div className="flex-1 flex overflow-hidden">
         {/* Step Navigation Sidebar */}
         <div className="w-80 bg-white border-r border-slate-200 overflow-y-auto">
-          <div className="p-6">
-            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4">
+          <div className="p-3">
+            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-2">
               Implementation Steps
             </h2>
             <div className="space-y-2">
@@ -423,7 +423,7 @@ export function PolicyWorkbench() {
                 <button
                   key={step.id}
                   onClick={() => setCurrentStepIndex(index)}
-                  className={`w-full text-left p-4 rounded-lg transition-all ${
+                  className={`w-full text-left p-2 rounded-lg transition-all ${
                     currentStepIndex === index
                       ? 'bg-blue-50 border-2 border-blue-300 shadow-sm'
                       : 'bg-white border border-slate-200 hover:border-blue-200'
@@ -432,11 +432,11 @@ export function PolicyWorkbench() {
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
                       {step.status === 'completed' ? (
-                        <CheckCircle2 className="w-6 h-6 text-green-600" />
+                        <CheckCircle2 className="w-4 h-4 text-green-600" />
                       ) : step.status === 'in-progress' ? (
-                        <Circle className="w-6 h-6 text-blue-800 animate-pulse" />
+                        <Circle className="w-4 h-4 text-blue-800 animate-pulse" />
                       ) : (
-                        <Circle className="w-6 h-6 text-slate-300" />
+                        <Circle className="w-4 h-4 text-slate-300" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -470,27 +470,27 @@ export function PolicyWorkbench() {
 
         {/* Main Content Area */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-8">
+          <div className="p-3">
             {/* Current Step Header */}
             {currentStep && (
-              <div className="mb-8">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="p-3 bg-blue-100 rounded-xl">
-                    <currentStep.icon className="w-8 h-8 text-blue-800" />
+              <div className="mb-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-3 bg-blue-100 rounded-md">
+                    <currentStep.icon className="w-4 h-4 text-blue-800" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-slate-900">{currentStep.title}</h2>
+                    <h2 className="text-sm font-bold text-slate-900">{currentStep.title}</h2>
                     <p className="text-slate-600">{currentStep.description}</p>
                   </div>
                 </div>
 
                 {/* Substeps */}
                 {currentStep.substeps && (
-                  <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+                  <div className="bg-white rounded-md border border-slate-200 p-3 space-y-2">
                     {currentStep.substeps.map((substep) => (
                       <div
                         key={substep.id}
-                        className={`p-4 rounded-lg border-2 transition-all ${
+                        className={`p-2 rounded-lg border-2 transition-all ${
                           substep.status === 'completed'
                             ? 'bg-green-50 border-green-200'
                             : 'bg-slate-50 border-slate-200 hover:border-blue-200'
@@ -499,9 +499,9 @@ export function PolicyWorkbench() {
                         <div className="flex items-start justify-between">
                           <div className="flex items-start gap-3 flex-1">
                             {substep.status === 'completed' ? (
-                              <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                              <CheckCircle2 className="w-3 h-3 text-green-600 flex-shrink-0 mt-0.5" />
                             ) : (
-                              <Circle className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" />
+                              <Circle className="w-3 h-3 text-slate-400 flex-shrink-0 mt-0.5" />
                             )}
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
@@ -517,7 +517,7 @@ export function PolicyWorkbench() {
                             </div>
                           </div>
                           {substep.status !== 'completed' && (
-                            <button className="ml-4 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                            <button className="ml-2 px-2 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
                               {substep.aiAssisted && <Sparkles className="w-4 h-4" />}
                               Start
                             </button>
@@ -531,7 +531,7 @@ export function PolicyWorkbench() {
             )}
 
             {/* Dynamic Content Based on Current Step */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
               {/* Content will be rendered based on currentStep.id */}
               {renderStepContent(currentStep?.id)}
             </div>
@@ -541,10 +541,10 @@ export function PolicyWorkbench() {
         {/* AI Insights Sidebar */}
         {showInsights && (
           <div className="w-96 bg-gradient-to-br from-purple-50 to-blue-50 border-l border-purple-200 overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                  <Lightbulb className="w-5 h-5 text-yellow-500" />
+            <div className="p-3">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <Lightbulb className="w-3 h-3 text-yellow-500" />
                   AI Insights
                 </h3>
                 <button
@@ -555,7 +555,7 @@ export function PolicyWorkbench() {
                 </button>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <AIInsightCard
                   type="recommendation"
                   title="Quick Start Recommendation"
@@ -586,18 +586,18 @@ export function PolicyWorkbench() {
       </div>
 
       {/* Footer Navigation */}
-      <div className="bg-white border-t border-slate-200 px-8 py-4">
+      <div className="bg-white border-t border-slate-200 px-3 py-2">
         <div className="flex items-center justify-between">
           <button
             onClick={() => setCurrentStepIndex(Math.max(0, currentStepIndex - 1))}
             disabled={currentStepIndex === 0}
-            className="px-6 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
           </button>
 
-          <div className="flex items-center gap-4">
-            <button className="px-6 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+          <div className="flex items-center gap-2">
+            <button className="px-3 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
               Save Progress
             </button>
             <button
@@ -605,7 +605,7 @@ export function PolicyWorkbench() {
                 setCurrentStepIndex(Math.min(workbenchSteps.length - 1, currentStepIndex + 1))
               }
               disabled={currentStepIndex === workbenchSteps.length - 1}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               Next
               <ArrowRight className="w-4 h-4" />
@@ -660,9 +660,9 @@ function AIInsightCard({
   const { bg, border, icon: Icon, iconColor } = config[type]
 
   return (
-    <div className={`${bg} border-2 ${border} rounded-lg p-4`}>
+    <div className={`${bg} border-2 ${border} rounded-lg p-2`}>
       <div className="flex items-start gap-3">
-        <Icon className={`w-5 h-5 ${iconColor} flex-shrink-0 mt-0.5`} />
+        <Icon className={`w-3 h-3 ${iconColor} flex-shrink-0 mt-0.5`} />
         <div>
           <h4 className="font-semibold text-slate-900 text-sm mb-1">{title}</h4>
           <p className="text-xs text-slate-700">{description}</p>
@@ -700,33 +700,33 @@ function renderStepContent(stepId: string | undefined) {
 
 // Placeholder components for each step (to be fully implemented)
 function OrganizationProfileForm() {
-  return <div className="bg-white rounded-xl border border-slate-200 p-6">Organization Profile Form</div>
+  return <div className="bg-white rounded-md border border-slate-200 p-3">Organization Profile Form</div>
 }
 
 function CurrentStateAssessment() {
-  return <div className="bg-white rounded-xl border border-slate-200 p-6">Current State Assessment</div>
+  return <div className="bg-white rounded-md border border-slate-200 p-3">Current State Assessment</div>
 }
 
 function PolicyFrameworkDesigner() {
-  return <div className="bg-white rounded-xl border border-slate-200 p-6">Policy Framework Designer</div>
+  return <div className="bg-white rounded-md border border-slate-200 p-3">Policy Framework Designer</div>
 }
 
 function AIPolicyGenerator() {
-  return <div className="bg-white rounded-xl border border-slate-200 p-6">AI Policy Generator</div>
+  return <div className="bg-white rounded-md border border-slate-200 p-3">AI Policy Generator</div>
 }
 
 function PolicyReviewInterface() {
-  return <div className="bg-white rounded-xl border border-slate-200 p-6">Policy Review Interface</div>
+  return <div className="bg-white rounded-md border border-slate-200 p-3">Policy Review Interface</div>
 }
 
 function ImplementationPlanner() {
-  return <div className="bg-white rounded-xl border border-slate-200 p-6">Implementation Planner</div>
+  return <div className="bg-white rounded-md border border-slate-200 p-3">Implementation Planner</div>
 }
 
 function PolicyActivation() {
-  return <div className="bg-white rounded-xl border border-slate-200 p-6">Policy Activation</div>
+  return <div className="bg-white rounded-md border border-slate-200 p-3">Policy Activation</div>
 }
 
 function ContinuousMonitoring() {
-  return <div className="bg-white rounded-xl border border-slate-200 p-6">Continuous Monitoring</div>
+  return <div className="bg-white rounded-md border border-slate-200 p-3">Continuous Monitoring</div>
 }

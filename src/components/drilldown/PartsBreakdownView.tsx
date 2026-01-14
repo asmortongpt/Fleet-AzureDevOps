@@ -38,9 +38,9 @@ export function PartsBreakdownView({ workOrderId, workOrderNumber }: PartsBreakd
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {parts && (
-        <div className="space-y-4">
+        <div className="space-y-2">
           <div>
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-sm font-semibold">
               Parts Breakdown {workOrderNumber && `for WO #${workOrderNumber}`}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
@@ -51,7 +51,7 @@ export function PartsBreakdownView({ workOrderId, workOrderNumber }: PartsBreakd
           {parts.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <Package className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground">No parts recorded</p>
               </CardContent>
             </Card>
@@ -63,7 +63,7 @@ export function PartsBreakdownView({ workOrderId, workOrderNumber }: PartsBreakd
                   className="hover:shadow-md transition-shadow cursor-pointer group"
                   onClick={() => handleViewItemHistory(part)}
                 >
-                  <CardContent className="p-4">
+                  <CardContent className="p-2">
                     <div className="flex items-start justify-between">
                       <div className="flex-1 space-y-3">
                         <div className="flex items-center justify-between">
@@ -81,7 +81,7 @@ export function PartsBreakdownView({ workOrderId, workOrderNumber }: PartsBreakd
                           </div>
                         )}
 
-                        <div className="grid grid-cols-3 gap-4 pt-2 border-t">
+                        <div className="grid grid-cols-3 gap-2 pt-2 border-t">
                           <div>
                             <p className="text-xs text-muted-foreground">Quantity</p>
                             <p className="font-medium">{part.quantity}</p>
@@ -112,10 +112,10 @@ export function PartsBreakdownView({ workOrderId, workOrderNumber }: PartsBreakd
           )}
 
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-2">
               <div className="flex items-center justify-between">
                 <span className="font-semibold">Total Parts Cost</span>
-                <span className="text-2xl font-bold text-primary">
+                <span className="text-sm font-bold text-primary">
                   ${totalCost.toFixed(2)}
                 </span>
               </div>

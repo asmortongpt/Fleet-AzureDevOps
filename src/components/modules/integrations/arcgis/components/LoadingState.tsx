@@ -14,8 +14,8 @@ export function LoadingState() {
   return (
     <Card>
       <CardContent className="flex flex-col items-center justify-center py-12">
-        <ArrowClockwise className="w-16 h-16 text-muted-foreground mb-4 animate-spin" />
-        <h3 className="text-lg font-semibold mb-2">Loading Layers...</h3>
+        <ArrowClockwise className="w-16 h-16 text-muted-foreground mb-2 animate-spin" />
+        <h3 className="text-sm font-semibold mb-2">Loading Layers...</h3>
       </CardContent>
     </Card>
   )

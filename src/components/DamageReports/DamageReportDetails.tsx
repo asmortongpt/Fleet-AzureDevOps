@@ -94,8 +94,8 @@ export function DamageReportDetails() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-12 w-full" />
+      <div className="space-y-2">
+        <Skeleton className="h-9 w-full" />
         <Skeleton className="h-64 w-full" />
         <Skeleton className="h-48 w-full" />
       </div>
@@ -104,13 +104,13 @@ export function DamageReportDetails() {
 
   if (error || !report) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-2">
         <Button variant="ghost" onClick={() => navigate('/damage-reports')}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Reports
         </Button>
         <Card className="border-destructive">
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="h-5 w-5" />
               <p>{error || 'Damage report not found'}</p>
@@ -122,7 +122,7 @@ export function DamageReportDetails() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="space-y-1">
@@ -134,7 +134,7 @@ export function DamageReportDetails() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Reports
           </Button>
-          <h2 className="text-3xl font-bold tracking-tight">Damage Report</h2>
+          <h2 className="text-base font-bold tracking-tight">Damage Report</h2>
           <div className="flex items-center gap-2">
             <Badge variant={getSeverityVariant(report.damage_severity)}>
               {report.damage_severity}
@@ -163,19 +163,19 @@ export function DamageReportDetails() {
         </TabsList>
 
         {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="overview" className="space-y-2">
           {/* Description */}
           <Card>
             <CardHeader>
               <CardTitle>Damage Description</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-lg">{report.damage_description}</p>
+              <p className="text-sm">{report.damage_description}</p>
             </CardContent>
           </Card>
 
           {/* Details Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {/* Vehicle Information */}
             <Card>
               <CardHeader>
@@ -242,7 +242,7 @@ export function DamageReportDetails() {
         </TabsContent>
 
         {/* Media Tab */}
-        <TabsContent value="media" className="space-y-6">
+        <TabsContent value="media" className="space-y-2">
           {/* Photos */}
           {report.photos && report.photos.length > 0 && (
             <Card>
@@ -253,7 +253,7 @@ export function DamageReportDetails() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {/* Main Photo */}
                   <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
                     <img
@@ -310,7 +310,7 @@ export function DamageReportDetails() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {report.videos.map((video, index) => (
                     <div key={index} className="space-y-2">
                       <video
@@ -339,7 +339,7 @@ export function DamageReportDetails() {
           {!report.photos?.length && !report.videos?.length && (
             <Card>
               <CardContent className="py-12 text-center">
-                <ImageIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <ImageIcon className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground">No media files attached</p>
               </CardContent>
             </Card>
@@ -347,7 +347,7 @@ export function DamageReportDetails() {
         </TabsContent>
 
         {/* 3D Model Tab */}
-        <TabsContent value="3d-model" className="space-y-6">
+        <TabsContent value="3d-model" className="space-y-2">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -364,8 +364,8 @@ export function DamageReportDetails() {
             </CardHeader>
             <CardContent>
               {report.triposr_status === 'processing' && (
-                <div className="py-12 text-center space-y-4">
-                  <div className="animate-spin mx-auto h-12 w-12 border-4 border-primary border-t-transparent rounded-full" />
+                <div className="py-12 text-center space-y-2">
+                  <div className="animate-spin mx-auto h-9 w-12 border-4 border-primary border-t-transparent rounded-full" />
                   <p className="text-muted-foreground">Generating 3D model...</p>
                   <p className="text-sm text-muted-foreground">This may take several minutes</p>
                 </div>
@@ -377,9 +377,9 @@ export function DamageReportDetails() {
 
               {report.triposr_status === 'failed' && (
                 <div className="py-12 text-center">
-                  <AlertTriangle className="h-12 w-12 mx-auto text-destructive mb-4" />
+                  <AlertTriangle className="h-9 w-12 mx-auto text-destructive mb-2" />
                   <p className="text-destructive">3D model generation failed</p>
-                  <Button onClick={handleGenerateModel} variant="outline" className="mt-4">
+                  <Button onClick={handleGenerateModel} variant="outline" className="mt-2">
                     Retry Generation
                   </Button>
                 </div>
@@ -387,8 +387,8 @@ export function DamageReportDetails() {
 
               {!report.triposr_status && (
                 <div className="py-12 text-center">
-                  <Cube className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground mb-4">No 3D model available</p>
+                  <Cube className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
+                  <p className="text-muted-foreground mb-2">No 3D model available</p>
                   {report.photos && report.photos.length > 0 && (
                     <Button onClick={handleGenerateModel}>Generate 3D Model from Photos</Button>
                   )}
@@ -399,8 +399,8 @@ export function DamageReportDetails() {
         </TabsContent>
 
         {/* Linked Records Tab */}
-        <TabsContent value="linked" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <TabsContent value="linked" className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {/* Linked Work Order */}
             <Card>
               <CardHeader>

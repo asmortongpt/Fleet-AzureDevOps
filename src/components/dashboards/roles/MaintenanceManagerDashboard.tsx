@@ -146,11 +146,11 @@ export function MaintenanceManagerDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 p-4">
+    <div className="min-h-screen bg-slate-900 p-2">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-3 flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-bold text-white mb-1">Maintenance Dashboard</h1>
+          <h1 className="text-sm font-bold text-white mb-1">Maintenance Dashboard</h1>
           <p className="text-sm text-slate-400">Work Order Management & Preventive Maintenance</p>
         </div>
         <Button size="sm"
@@ -164,22 +164,22 @@ export function MaintenanceManagerDashboard() {
       </div>
 
       {/* Work Queue Summary */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-amber-500/30 p-4 mb-6">
+      <Card className="bg-slate-800/50 backdrop-blur-xl border-amber-500/30 p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
           <Wrench className="w-4 h-4 text-amber-400" />
-          <h2 className="text-lg font-bold text-white">Work Queue</h2>
+          <h2 className="text-sm font-bold text-white">Work Queue</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           {/* Open Work Orders */}
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className="bg-red-950/30 rounded-xl p-4 border border-red-500/30 hover:border-red-400/50 transition-all cursor-pointer"
+            className="bg-red-950/30 rounded-md p-2 border border-red-500/30 hover:border-red-400/50 transition-all cursor-pointer"
             onClick={handleViewQueue}
           >
             <div className="flex items-start justify-between mb-2">
-              <ListChecks className="w-6 h-6 text-red-400" />
-              <span className="text-2xl font-black text-white">{workOrderStats.open}</span>
+              <ListChecks className="w-4 h-4 text-red-400" />
+              <span className="text-sm font-black text-white">{workOrderStats.open}</span>
             </div>
             <p className="text-red-300 font-semibold mb-1">Open</p>
             <Button size="sm"
@@ -197,11 +197,11 @@ export function MaintenanceManagerDashboard() {
           {/* In Progress */}
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className="bg-blue-950/30 rounded-xl p-4 border border-blue-500/30 hover:border-blue-400/50 transition-all"
+            className="bg-blue-950/30 rounded-md p-2 border border-blue-500/30 hover:border-blue-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <Wrench className="w-6 h-6 text-blue-400" />
-              <span className="text-2xl font-black text-white">{workOrderStats.in_progress}</span>
+              <Wrench className="w-4 h-4 text-blue-400" />
+              <span className="text-sm font-black text-white">{workOrderStats.in_progress}</span>
             </div>
             <p className="text-blue-300 font-semibold">In Progress</p>
           </motion.div>
@@ -209,11 +209,11 @@ export function MaintenanceManagerDashboard() {
           {/* Completed This Week */}
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className="bg-green-950/30 rounded-xl p-4 border border-green-500/30 hover:border-green-400/50 transition-all"
+            className="bg-green-950/30 rounded-md p-2 border border-green-500/30 hover:border-green-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <CheckCircle className="w-6 h-6 text-green-400" />
-              <span className="text-2xl font-black text-white">{workOrderStats.completed_this_week}</span>
+              <CheckCircle className="w-4 h-4 text-green-400" />
+              <span className="text-sm font-black text-white">{workOrderStats.completed_this_week}</span>
             </div>
             <p className="text-green-300 font-semibold">Completed</p>
             <p className="text-xs text-green-400/70 mt-1">This Week</p>
@@ -222,11 +222,11 @@ export function MaintenanceManagerDashboard() {
           {/* Avg Repair Time */}
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className="bg-violet-950/30 rounded-xl p-4 border border-violet-500/30 hover:border-violet-400/50 transition-all"
+            className="bg-violet-950/30 rounded-md p-2 border border-violet-500/30 hover:border-violet-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <Clock className="w-6 h-6 text-violet-400" />
-              <span className="text-2xl font-black text-white">{workOrderStats.avg_repair_time_hours}</span>
+              <Clock className="w-4 h-4 text-violet-400" />
+              <span className="text-sm font-black text-white">{workOrderStats.avg_repair_time_hours}</span>
             </div>
             <p className="text-violet-300 font-semibold">Avg Hours</p>
             <p className="text-xs text-violet-400/70 mt-1">Per Repair</p>
@@ -235,7 +235,7 @@ export function MaintenanceManagerDashboard() {
       </Card>
 
       {/* Quick Actions */}
-      <div className="mb-6 flex flex-wrap gap-3">
+      <div className="mb-3 flex flex-wrap gap-3">
         <Button size="sm"
           onClick={() => handleCreateWorkOrder()}
           className="bg-cyan-600 hover:bg-cyan-700 text-white"
@@ -261,11 +261,11 @@ export function MaintenanceManagerDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Overdue Maintenance */}
-        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-4">
+        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Warning className="w-4 h-4 text-red-400" />
-              <h2 className="text-lg font-bold text-white">
+              <h2 className="text-sm font-bold text-white">
                 Overdue Maintenance ({overdueMaintenanceItems.length} Vehicles)
               </h2>
             </div>
@@ -276,7 +276,7 @@ export function MaintenanceManagerDashboard() {
               <motion.div
                 key={item.id}
                 whileHover={{ scale: 1.01 }}
-                className="bg-red-950/20 rounded-lg p-4 border border-red-500/30 hover:border-red-400/50 transition-all"
+                className="bg-red-950/20 rounded-lg p-2 border border-red-500/30 hover:border-red-400/50 transition-all"
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-3">
@@ -287,7 +287,7 @@ export function MaintenanceManagerDashboard() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-red-400 font-bold text-lg">
+                    <span className="text-red-400 font-bold text-sm">
                       {item.days_overdue} days
                     </span>
                     <p className="text-xs text-red-400/70">overdue</p>
@@ -307,12 +307,12 @@ export function MaintenanceManagerDashboard() {
         </Card>
 
         {/* Upcoming Maintenance & Parts Inventory */}
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Upcoming Maintenance */}
-          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-4">
+          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
             <div className="flex items-center gap-2 mb-3">
               <Calendar className="w-4 h-4 text-cyan-400" />
-              <h2 className="text-lg font-bold text-white">Upcoming Maintenance (Next 7 Days)</h2>
+              <h2 className="text-sm font-bold text-white">Upcoming Maintenance (Next 7 Days)</h2>
             </div>
 
             <div className="space-y-3">
@@ -322,7 +322,7 @@ export function MaintenanceManagerDashboard() {
                   className="flex items-center justify-between bg-slate-900/50 rounded-lg p-3 border border-slate-700"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-cyan-950/50 rounded-lg flex items-center justify-center border border-cyan-500/30">
+                    <div className="w-12 h-9 bg-cyan-950/50 rounded-lg flex items-center justify-center border border-cyan-500/30">
                       <Calendar className="w-4 h-4 text-cyan-400" />
                     </div>
                     <div>
@@ -343,17 +343,17 @@ export function MaintenanceManagerDashboard() {
             <Button size="sm"
               onClick={handleViewCalendar}
               variant="outline"
-              className="w-full mt-4 border-cyan-400 text-cyan-400 hover:bg-cyan-400/10"
+              className="w-full mt-2 border-cyan-400 text-cyan-400 hover:bg-cyan-400/10"
             >
               View Full Calendar
             </Button>
           </Card>
 
           {/* Parts Inventory Status */}
-          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-4">
+          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
             <div className="flex items-center gap-2 mb-3">
               <Package className="w-4 h-4 text-violet-400" />
-              <h2 className="text-lg font-bold text-white">Parts Inventory Status</h2>
+              <h2 className="text-sm font-bold text-white">Parts Inventory Status</h2>
             </div>
 
             <div className="space-y-3">
@@ -361,7 +361,7 @@ export function MaintenanceManagerDashboard() {
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 className={cn(
-                  "rounded-lg p-4 border transition-all cursor-pointer",
+                  "rounded-lg p-2 border transition-all cursor-pointer",
                   partsInventory.below_reorder > 0
                     ? "bg-amber-950/30 border-amber-500/30 hover:border-amber-400/50"
                     : "bg-slate-900/50 border-slate-700"
@@ -373,7 +373,7 @@ export function MaintenanceManagerDashboard() {
                     <Warning className="w-4 h-4 text-amber-400" />
                     <span className="text-sm text-slate-300">Below Reorder Level</span>
                   </div>
-                  <span className="text-lg font-bold text-white">
+                  <span className="text-sm font-bold text-white">
                     {partsInventory.below_reorder}
                   </span>
                 </div>
@@ -391,13 +391,13 @@ export function MaintenanceManagerDashboard() {
               </motion.div>
 
               {/* In Stock */}
-              <div className="bg-green-950/30 rounded-lg p-4 border border-green-500/30">
+              <div className="bg-green-950/30 rounded-lg p-2 border border-green-500/30">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-green-400" />
                     <span className="text-sm text-slate-300">In Stock</span>
                   </div>
-                  <span className="text-lg font-bold text-white">
+                  <span className="text-sm font-bold text-white">
                     {partsInventory.in_stock}
                   </span>
                 </div>
@@ -407,7 +407,7 @@ export function MaintenanceManagerDashboard() {
               <div className="bg-slate-900/50 rounded-lg p-3 border border-slate-700">
                 <div className="flex items-center justify-between">
                   <span className="text-slate-400 text-sm">Total Inventory Items</span>
-                  <span className="text-lg font-bold text-white">
+                  <span className="text-sm font-bold text-white">
                     {partsInventory.total_items}
                   </span>
                 </div>
@@ -417,7 +417,7 @@ export function MaintenanceManagerDashboard() {
             <Button size="sm"
               onClick={handleSearchParts}
               variant="outline"
-              className="w-full mt-4 border-violet-400 text-violet-400 hover:bg-violet-400/10"
+              className="w-full mt-2 border-violet-400 text-violet-400 hover:bg-violet-400/10"
             >
               <Package className="w-4 h-4 mr-2" />
               Search Parts Inventory

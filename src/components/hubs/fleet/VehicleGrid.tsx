@@ -33,7 +33,7 @@ export const VehicleGrid: React.FC = () => {
   });
 
   if (isLoading) {
-    return <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    return <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
       {[...Array(8)].map((_, i) => (
         <div key={i} className="h-48 bg-muted animate-pulse rounded-lg" />
       ))}
@@ -48,12 +48,12 @@ export const VehicleGrid: React.FC = () => {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
         {vehicles.map((vehicle: Vehicle) => (
           <div
             key={vehicle.id}
             onClick={() => setSelectedVehicle(vehicle)}
-            className="group cursor-pointer bg-card border border-border rounded-lg p-4 hover:border-primary/50 hover:shadow-lg transition-all duration-200"
+            className="group cursor-pointer bg-card border border-border rounded-lg p-2 hover:border-primary/50 hover:shadow-sm transition-all duration-200"
             role="button"
             tabIndex={0}
             onKeyDown={(e) => e.key === 'Enter' && setSelectedVehicle(vehicle)}
@@ -63,11 +63,11 @@ export const VehicleGrid: React.FC = () => {
               <span className={`px-2 py-1 text-xs font-medium rounded-full border ${statusColors[vehicle.status]}`}>
                 {vehicle.status}
               </span>
-              <Car className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              <Car className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
 
             {/* Vehicle Info */}
-            <h3 className="font-semibold text-lg mb-1">
+            <h3 className="font-semibold text-sm mb-1">
               {vehicle.make} {vehicle.model}
             </h3>
             <p className="text-sm text-muted-foreground mb-2">
@@ -99,34 +99,34 @@ export const VehicleGrid: React.FC = () => {
           variant="drawer"
           size="xl"
         >
-          <div className="space-y-6">
+          <div className="space-y-2">
             {/* Vehicle Details */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="text-sm font-medium text-muted-foreground">VIN</label>
-                <p className="text-lg font-mono">{selectedVehicle.vin}</p>
+                <p className="text-sm font-mono">{selectedVehicle.vin}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Year</label>
-                <p className="text-lg">{selectedVehicle.year}</p>
+                <p className="text-sm">{selectedVehicle.year}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Status</label>
-                <p className="text-lg capitalize">{selectedVehicle.status}</p>
+                <p className="text-sm capitalize">{selectedVehicle.status}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Mileage</label>
-                <p className="text-lg">{selectedVehicle.mileage?.toLocaleString()} mi</p>
+                <p className="text-sm">{selectedVehicle.mileage?.toLocaleString()} mi</p>
               </div>
             </div>
 
             {/* Maintenance History */}
             <div>
               <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <Wrench className="w-5 h-5" />
+                <Wrench className="w-3 h-3" />
                 Recent Maintenance
               </h3>
-              <div className="border border-border rounded-lg p-4 text-muted-foreground">
+              <div className="border border-border rounded-lg p-2 text-muted-foreground">
                 No maintenance records found
               </div>
             </div>
@@ -135,7 +135,7 @@ export const VehicleGrid: React.FC = () => {
             {selectedVehicle.location && (
               <div>
                 <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <MapPin className="w-5 h-5" />
+                  <MapPin className="w-3 h-3" />
                   Current Location
                 </h3>
                 <div className="border border-border rounded-lg h-64 bg-muted flex items-center justify-center">

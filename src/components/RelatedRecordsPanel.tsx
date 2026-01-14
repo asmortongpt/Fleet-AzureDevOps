@@ -241,8 +241,8 @@ export function RelatedRecordsPanel({
   if (activeSections.length === 0) {
     return (
       <Card className={cn("border-dashed", className)}>
-        <CardContent className="p-6 text-center">
-          <LinkIcon className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+        <CardContent className="p-3 text-center">
+          <LinkIcon className="w-4 h-4 mx-auto text-muted-foreground mb-2" />
           <p className="text-sm text-muted-foreground">No related records found</p>
         </CardContent>
       </Card>
@@ -267,7 +267,7 @@ export function RelatedRecordsPanel({
               <TooltipContent>
                 <div className="text-xs space-y-1">
                   {activeSections.map(config => (
-                    <div key={config.type} className="flex justify-between gap-4">
+                    <div key={config.type} className="flex justify-between gap-2">
                       <span>{config.label}:</span>
                       <span className="font-medium">{linkedEntities[config.key]?.length || 0}</span>
                     </div>
@@ -281,7 +281,7 @@ export function RelatedRecordsPanel({
 
       <CardContent className="p-0">
         <ScrollArea className={compact ? "h-[300px]" : "h-[400px]"}>
-          <div className="p-4 space-y-4">
+          <div className="p-2 space-y-2">
             {activeSections.map((config, index) => (
               <React.Fragment key={config.type}>
                 {index > 0 && <Separator />}

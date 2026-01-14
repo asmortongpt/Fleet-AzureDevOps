@@ -112,7 +112,7 @@ export function MobileQuickActions({
         {showLeftArrow && (
           <button
             onClick={() => handleScroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-sm"
             aria-label="Scroll left"
             data-testid="scroll-left"
           >
@@ -144,7 +144,7 @@ export function MobileQuickActions({
                 <button
                   onClick={action.onClick}
                   disabled={action.disabled}
-                  className="w-full h-full p-4 flex flex-col items-center justify-center gap-2 relative active:scale-95 transition-all touch-manipulation"
+                  className="w-full h-full p-2 flex flex-col items-center justify-center gap-2 relative active:scale-95 transition-all touch-manipulation"
                   data-testid={`quick-action-${action.id}`}
                   aria-label={action.badge ? `${action.label} (${action.badge} notifications)` : action.label}
                 >
@@ -167,7 +167,7 @@ export function MobileQuickActions({
         {showRightArrow && (
           <button
             onClick={() => handleScroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-sm"
             aria-label="Scroll right"
             data-testid="scroll-right"
           >

@@ -418,14 +418,14 @@ export function UniversalSearch({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={cn("sm:max-w-[600px] p-0", className)}>
-        <DialogHeader className="px-4 pt-4 pb-2">
+        <DialogHeader className="px-2 pt-2 pb-2">
           <div className="flex items-center gap-2">
-            <MagnifyingGlass className="w-5 h-5 text-muted-foreground" />
+            <MagnifyingGlass className="w-3 h-3 text-muted-foreground" />
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={placeholder}
-              className="border-0 focus-visible:ring-0 text-lg h-10"
+              className="border-0 focus-visible:ring-0 text-sm h-8"
               autoFocus
             />
             {isSearching && <Spinner className="w-4 h-4 animate-spin" />}
@@ -435,22 +435,22 @@ export function UniversalSearch({
         <Separator />
 
         <ScrollArea className="h-[400px]">
-          <div className="p-4">
+          <div className="p-2">
             {query.length < 2 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Keyboard className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <div className="text-center py-3 text-muted-foreground">
+                <Keyboard className="w-4 h-4 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">Type at least 2 characters to search</p>
                 <p className="text-xs mt-2">
                   Press <kbd className="px-1.5 py-0.5 bg-muted rounded">Cmd+K</kbd> or <kbd className="px-1.5 py-0.5 bg-muted rounded">Ctrl+K</kbd> anytime to open search
                 </p>
               </div>
             ) : results.length === 0 && !isSearching ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <MagnifyingGlass className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <div className="text-center py-3 text-muted-foreground">
+                <MagnifyingGlass className="w-4 h-4 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">No results found for "{query}"</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {Object.entries(groupedResults).map(([type, typeResults]) => {
                   const category = getCategoryForType(type as EntityType)
                   if (!category) return null

@@ -17,7 +17,7 @@ interface VehicleDetailDrilldownProps {
 
 export function VehicleDetailDrilldown({ vehicle }: VehicleDetailDrilldownProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-3">
@@ -36,23 +36,23 @@ export function VehicleDetailDrilldown({ vehicle }: VehicleDetailDrilldownProps)
               <TabsTrigger value="costs">Costs</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="overview" className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <TabsContent value="overview" className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-sm font-medium">Year</p>
-                  <p className="text-2xl">{vehicle.year}</p>
+                  <p className="text-sm">{vehicle.year}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">Mileage</p>
-                  <p className="text-2xl">{vehicle.mileage?.toLocaleString()} mi</p>
+                  <p className="text-sm">{vehicle.mileage?.toLocaleString()} mi</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">Status</p>
-                  <p className="text-2xl capitalize">{vehicle.status}</p>
+                  <p className="text-sm capitalize">{vehicle.status}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">License Plate</p>
-                  <p className="text-2xl">{vehicle.licensePlate}</p>
+                  <p className="text-sm">{vehicle.licensePlate}</p>
                 </div>
               </div>
             </TabsContent>

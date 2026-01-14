@@ -836,10 +836,10 @@ export function ArcGISIntegration() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">ArcGIS Integration</h2>
+        <h2 className="text-sm font-bold">ArcGIS Integration</h2>
         <div className="flex gap-2">
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
@@ -853,8 +853,8 @@ export function ArcGISIntegration() {
                 <DialogTitle>Add New ArcGIS Layer</DialogTitle>
                 <DialogDescription>Configure a new ArcGIS layer integration.</DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
+              <div className="grid gap-2 py-2">
+                <div className="grid grid-cols-4 items-center gap-2">
                   <Label htmlFor="name" className="text-right">
                     Name
                   </Label>
@@ -865,7 +865,7 @@ export function ArcGISIntegration() {
                     className="col-span-3"
                   />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
+                <div className="grid grid-cols-4 items-center gap-2">
                   <Label htmlFor="serviceUrl" className="text-right">
                     Service URL
                   </Label>
@@ -876,7 +876,7 @@ export function ArcGISIntegration() {
                     className="col-span-3"
                   />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
+                <div className="grid grid-cols-4 items-center gap-2">
                   <Label htmlFor="token" className="text-right">
                     Token
                   </Label>
@@ -888,7 +888,7 @@ export function ArcGISIntegration() {
                     className="col-span-3"
                   />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
+                <div className="grid grid-cols-4 items-center gap-2">
                   <Label className="text-right">Type</Label>
                   <div className="col-span-3">
                     <Tabs
@@ -907,7 +907,7 @@ export function ArcGISIntegration() {
                     </Tabs>
                   </div>
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
+                <div className="grid grid-cols-4 items-center gap-2">
                   <Label className="text-right">Opacity</Label>
                   <div className="col-span-3">
                     <Slider
@@ -921,7 +921,7 @@ export function ArcGISIntegration() {
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
+                <div className="grid grid-cols-4 items-center gap-2">
                   <Label htmlFor="description" className="text-right">
                     Description
                   </Label>
@@ -961,8 +961,8 @@ export function ArcGISIntegration() {
                 <DialogTitle>Import ArcGIS Layers</DialogTitle>
                 <DialogDescription>Paste your layer configuration JSON below.</DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
+              <div className="grid gap-2 py-2">
+                <div className="grid grid-cols-4 items-center gap-2">
                   <Label htmlFor="importData" className="text-right">
                     JSON Data
                   </Label>
@@ -993,14 +993,14 @@ export function ArcGISIntegration() {
       </div>
 
       {/* Status Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Healthy Layers</CardTitle>
             <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{healthyLayers.length}</div>
+            <div className="text-sm font-bold">{healthyLayers.length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -1009,7 +1009,7 @@ export function ArcGISIntegration() {
             <Warning className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{warningLayers.length}</div>
+            <div className="text-sm font-bold">{warningLayers.length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -1018,7 +1018,7 @@ export function ArcGISIntegration() {
             <XCircle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{errorLayers.length}</div>
+            <div className="text-sm font-bold">{errorLayers.length}</div>
           </CardContent>
         </Card>
       </div>
@@ -1045,8 +1045,8 @@ export function ArcGISIntegration() {
           </CardHeader>
           <CardContent>
             {layers.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <GlobeHemisphereWest className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+              <div className="text-center py-3 text-gray-500">
+                <GlobeHemisphereWest className="h-9 w-12 mx-auto mb-2 text-gray-400" />
                 <p>No ArcGIS layers added yet. Click "Add Layer" to get started.</p>
               </div>
             ) : (

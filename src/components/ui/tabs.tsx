@@ -26,7 +26,7 @@ function TabsList({
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "bg-muted/50 text-muted-foreground inline-flex min-h-10 h-auto w-fit items-center justify-center rounded-xl p-1 gap-0.5",
+        "bg-muted/50 text-muted-foreground inline-flex min-h-8 h-auto w-fit items-center justify-center rounded-md p-1 gap-0.5",
         "backdrop-blur-sm border border-border/30",
         className
       )}
@@ -44,7 +44,7 @@ function TabsTrigger({
       data-slot="tabs-trigger"
       className={cn(
         // Base styles
-        "inline-flex h-9 flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2",
+        "inline-flex h-9 flex-1 items-center justify-center gap-2 rounded-lg px-2 py-2",
         "text-sm font-medium whitespace-nowrap",
         "transition-all duration-200 ease-out",
         // Default state
@@ -92,7 +92,7 @@ function TabsListUnderline({
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "inline-flex h-12 items-center gap-6 border-b border-border/50",
+        "inline-flex h-9 items-center gap-2 border-b border-border/50",
         "overflow-x-auto no-scrollbar",
         className
       )}
@@ -160,7 +160,7 @@ function TabsTriggerPill({
       data-slot="tabs-trigger"
       className={cn(
         // Base styles
-        "inline-flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-full",
+        "inline-flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-full",
         "text-xs font-medium whitespace-nowrap",
         "transition-all duration-200",
         // Default state

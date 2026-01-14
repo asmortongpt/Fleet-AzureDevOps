@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils"
 const FacilityPanel = ({ facilities, onFacilitySelect }: { facilities: Facility[]; onFacilitySelect: (facility: Facility) => void }) => {
   if (!facilities || facilities.length === 0) {
     return (
-      <div className="p-4 text-center text-muted-foreground">
+      <div className="p-2 text-center text-muted-foreground">
         No facilities available
       </div>
     )
@@ -38,7 +38,7 @@ const FacilityPanel = ({ facilities, onFacilitySelect }: { facilities: Facility[
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4 space-y-2">
+      <div className="p-2 space-y-2">
         <h3 className="font-semibold mb-3">Maintenance Facilities</h3>
         {facilities.map(facility => (
           <Card
@@ -77,7 +77,7 @@ const FacilityPanel = ({ facilities, onFacilitySelect }: { facilities: Facility[
 const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Vehicle | null; _maintenanceHistory: unknown }) => {
   if (!vehicle) {
     return (
-      <div className="p-4 text-center text-muted-foreground">
+      <div className="p-2 text-center text-muted-foreground">
         Select a vehicle on the map to view maintenance details
       </div>
     )
@@ -89,10 +89,10 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4 space-y-4">
+      <div className="p-2 space-y-2">
         {/* Vehicle Header */}
         <div>
-          <h3 className="text-lg font-semibold">
+          <h3 className="text-sm font-semibold">
             {vehicle.year} {vehicle.make} {vehicle.model}
           </h3>
           <p className="text-sm text-muted-foreground">
@@ -214,7 +214,7 @@ const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }: { workOrders: WorkOr
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4 space-y-2">
+      <div className="p-2 space-y-2">
         <h3 className="font-semibold mb-3">Work Orders</h3>
         {workOrders && workOrders.length > 0 ? (
           workOrders.map((order: WorkOrder) => (
@@ -248,12 +248,12 @@ const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }: { workOrders: WorkOr
             </Card>
           ))
         ) : (
-          <div className="text-center text-muted-foreground py-8">
+          <div className="text-center text-muted-foreground py-3">
             No work orders available
           </div>
         )}
 
-        <Button className="w-full mt-4">
+        <Button className="w-full mt-2">
           <Wrench className="h-4 w-4 mr-2" />
           Create Work Order
         </Button>
@@ -334,12 +334,12 @@ const PartsPanel = ({ _parts }: { _parts: unknown }) => {
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4">
+      <div className="p-2">
         <h3 className="font-semibold mb-3">Parts Inventory</h3>
-        <div className="text-center text-muted-foreground py-8">
-          <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
+        <div className="text-center text-muted-foreground py-3">
+          <Package className="h-9 w-12 mx-auto mb-2 opacity-50" />
           <p>Parts inventory management</p>
-          <div className="space-y-4">
+          <div className="space-y-2">
             <p className="text-sm text-muted-foreground">Maintenance schedules and work orders are displayed in the main workspace.</p>
             <p className="text-sm text-muted-foreground">Use the tabs above to navigate between different views.</p>
           </div>
@@ -428,7 +428,7 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
         />
 
         {/* Maintenance Status Overlay */}
-        <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg shadow-lg z-10 flex gap-2">
+        <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg shadow-sm z-10 flex gap-2">
           {/* View Mode Toggle */}
           <div className="p-1 bg-muted rounded-md flex">
             <Button
@@ -466,9 +466,9 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
         </div>
 
         {/* Stats Bar */}
-        <div className="absolute bottom-4 left-4 right-[420px] bg-background/95 backdrop-blur rounded-lg shadow-lg p-3 z-10">
+        <div className="absolute bottom-4 left-4 right-[420px] bg-background/95 backdrop-blur rounded-lg shadow-sm p-3 z-10">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <div className="flex items-center gap-2">
                 <Truck className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">In Service: {stats.inService}</span>

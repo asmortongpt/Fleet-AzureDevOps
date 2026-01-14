@@ -100,7 +100,7 @@ function QRScannerView({
   }, [onScan])
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <h4 className="font-semibold">Camera Scanner</h4>
         <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close camera scanner">
@@ -111,7 +111,7 @@ function QRScannerView({
       <div id="qr-reader" className="w-full" />
 
       {!isInitialized && (
-        <div className="text-center py-8 text-muted-foreground">
+        <div className="text-center py-3 text-muted-foreground">
           Initializing camera...
         </div>
       )}
@@ -275,7 +275,7 @@ export function VehicleIdentification({
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Check className="w-5 h-5 text-green-600" weight="bold" />
+                <Check className="w-3 h-3 text-green-600" weight="bold" />
                 <CardTitle className="text-sm text-green-700">Vehicle Selected</CardTitle>
               </div>
               <Button
@@ -349,7 +349,7 @@ export function VehicleIdentification({
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="search" className="space-y-4">
+              <TabsContent value="search" className="space-y-2">
                 <div className="space-y-2">
                   <Label>Search Vehicles</Label>
                   <div className="flex gap-2">
@@ -375,7 +375,7 @@ export function VehicleIdentification({
                           className="cursor-pointer hover:bg-accent transition-colors"
                           onClick={() => selectVehicle(vehicle)}
                         >
-                          <CardContent className="p-4">
+                          <CardContent className="p-2">
                             <div className="flex items-start justify-between">
                               <div>
                                 <div className="font-semibold">{vehicle.vehicleNumber}</div>
@@ -389,7 +389,7 @@ export function VehicleIdentification({
                                   {vehicle.licensePlate && <div>Plate: {vehicle.licensePlate}</div>}
                                 </div>
                               </div>
-                              <CarProfile className="w-6 h-6 text-muted-foreground" />
+                              <CarProfile className="w-4 h-4 text-muted-foreground" />
                             </div>
                           </CardContent>
                         </Card>
@@ -399,20 +399,20 @@ export function VehicleIdentification({
                 )}
 
                 {searchInput && searchResults.length === 0 && !loading && (
-                  <div className="text-center text-muted-foreground py-8">
+                  <div className="text-center text-muted-foreground py-3">
                     No vehicles found matching "{searchInput}"
                   </div>
                 )}
               </TabsContent>
 
-              <TabsContent value="qr" className="space-y-4">
+              <TabsContent value="qr" className="space-y-2">
                 {showQRScanner ? (
                   <QRScannerView
                     onScan={handleQRScanResult}
                     onClose={() => setShowQRScanner(false)}
                   />
                 ) : (
-                  <div className="text-center py-8 space-y-4">
+                  <div className="text-center py-3 space-y-2">
                     <div className="flex justify-center">
                       <div className="w-32 h-32 bg-muted rounded-lg flex items-center justify-center">
                         <QrCode className="w-16 h-16 text-muted-foreground" />
@@ -420,7 +420,7 @@ export function VehicleIdentification({
                     </div>
                     <div>
                       <h3 className="font-semibold mb-2">Scan Vehicle QR Code</h3>
-                      <p className="text-sm text-muted-foreground mb-4">
+                      <p className="text-sm text-muted-foreground mb-2">
                         Use your device camera to scan the QR code affixed to the vehicle
                       </p>
                       <Button onClick={() => setShowQRScanner(true)} disabled={loading}>
@@ -432,15 +432,15 @@ export function VehicleIdentification({
                 )}
               </TabsContent>
 
-              <TabsContent value="vin" className="space-y-4">
+              <TabsContent value="vin" className="space-y-2">
                 {showVINScanner ? (
                   <QRScannerView
                     onScan={handleVINScanResult}
                     onClose={() => setShowVINScanner(false)}
                   />
                 ) : (
-                  <div className="space-y-4">
-                    <div className="text-center py-4">
+                  <div className="space-y-2">
+                    <div className="text-center py-2">
                       <Button variant="outline" onClick={() => setShowVINScanner(true)}>
                         <Barcode className="w-4 h-4 mr-2" />
                         Scan VIN Barcode
@@ -481,15 +481,15 @@ export function VehicleIdentification({
                 )}
               </TabsContent>
 
-              <TabsContent value="plate" className="space-y-4">
+              <TabsContent value="plate" className="space-y-2">
                 {showPlateScanner ? (
                   <QRScannerView
                     onScan={handlePlateScanResult}
                     onClose={() => setShowPlateScanner(false)}
                   />
                 ) : (
-                  <div className="space-y-4">
-                    <div className="text-center py-4">
+                  <div className="space-y-2">
+                    <div className="text-center py-2">
                       <Button variant="outline" onClick={() => setShowPlateScanner(true)}>
                         <Camera className="w-4 h-4 mr-2" />
                         Scan Plate Code

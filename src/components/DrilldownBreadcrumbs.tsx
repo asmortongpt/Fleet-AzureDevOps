@@ -19,7 +19,7 @@ export function DrilldownBreadcrumbs() {
 
   return (
     <nav
-      className="flex items-center space-x-2 px-4 py-3 bg-transparent border-b border-slate-800/50"
+      className="flex items-center space-x-2 px-2 py-3 bg-transparent border-b border-slate-800/50"
       aria-label="Breadcrumb navigation"
     >
       <Button

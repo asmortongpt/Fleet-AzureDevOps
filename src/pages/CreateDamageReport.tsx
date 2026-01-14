@@ -145,7 +145,7 @@ export function CreateDamageReport() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
+    <div className="container mx-auto py-3 px-2 max-w-4xl">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -188,7 +188,7 @@ export function CreateDamageReport() {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-2">
             {/* Vehicle Selection */}
             <FormFieldWithHelp
               label="Vehicle"
@@ -370,7 +370,7 @@ export function CreateDamageReport() {
 
               {/* Photo Preview */}
               {formData.photos.length > 0 && (
-                <div className="grid grid-cols-4 gap-2 mt-4">
+                <div className="grid grid-cols-4 gap-2 mt-2">
                   {formData.photos.map((photo, index) => (
                     <div key={index} className="relative group">
                       <img
@@ -396,7 +396,7 @@ export function CreateDamageReport() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-3 pt-2">
               <SmartTooltip
                 content="Save damage report and generate 3D model if photos available"
                 shortcut="Ctrl+S"

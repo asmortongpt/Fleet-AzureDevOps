@@ -73,7 +73,7 @@ export function OperationsWorkspace() {
         {/* Floating Toolbar */}
         <div className="absolute top-4 left-4 right-4 z-10 flex justify-between pointer-events-none">
           <div className="pointer-events-auto flex items-center gap-3">
-            <div className="glass-panel p-1.5 rounded-xl flex items-center gap-2 shadow-2xl backdrop-blur-xl border-white/10 bg-black/40">
+            <div className="glass-panel p-1.5 rounded-md flex items-center gap-2 shadow-sm backdrop-blur-xl border-white/10 bg-black/40">
               <Button
                 variant="ghost"
                 size="sm"
@@ -96,7 +96,7 @@ export function OperationsWorkspace() {
 
           {/* Global Search / Command Bar */}
           <div className="pointer-events-auto w-96">
-            <div className="glass-panel rounded-xl flex items-center px-4 h-12 shadow-2xl border-white/10 bg-black/40 focus-within:ring-1 focus-within:ring-blue-500/50 transition-all backdrop-blur-xl">
+            <div className="glass-panel rounded-md flex items-center px-2 h-9 shadow-sm border-white/10 bg-black/40 focus-within:ring-1 focus-within:ring-blue-500/50 transition-all backdrop-blur-xl">
               <Search className="h-4 w-4 text-slate-400 mr-3" />
               <input
                 className="bg-transparent border-none outline-none text-sm text-slate-200 placeholder:text-slate-500 w-full"
@@ -122,10 +122,10 @@ export function OperationsWorkspace() {
             animate={{ width: 400, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="h-full border-l border-white/5 bg-[#0d1221]/90 backdrop-blur-3xl relative z-20 flex flex-col shadow-2xl"
+            className="h-full border-l border-white/5 bg-[#0d1221]/90 backdrop-blur-3xl relative z-20 flex flex-col shadow-sm"
           >
             {/* Sidebar Header */}
-            <div className="p-5 border-b border-white/5 flex flex-col gap-4 bg-gradient-to-b from-white/5 to-transparent">
+            <div className="p-5 border-b border-white/5 flex flex-col gap-2 bg-gradient-to-b from-white/5 to-transparent">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-500/10 rounded-lg">
@@ -160,7 +160,7 @@ export function OperationsWorkspace() {
                   <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-500" />
                   <Input
                     placeholder="Filter queue..."
-                    className="bg-white/5 border-white/10 h-9 text-xs pl-8 focus-visible:ring-blue-500/50 rounded-lg placeholder:text-slate-600"
+                    className="bg-white/5 border-white/10 h-9 text-xs pl-3 focus-visible:ring-blue-500/50 rounded-lg placeholder:text-slate-600"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -184,7 +184,7 @@ export function OperationsWorkspace() {
 
             {/* Content Stream */}
             <ScrollArea className="flex-1 p-0 bg-[#0d1221]/50">
-              <div className="p-4 space-y-3">
+              <div className="p-2 space-y-3">
                 {tasks.map((task) => (
                   <TaskCard key={task.id} task={task} />
                 ))}
@@ -220,11 +220,11 @@ function TaskCard({ task }: { task: any }) {
   }[task.status as string] || { color: 'text-slate-400', bg: 'bg-slate-500/10', border: 'border-slate-500/20', solid: 'bg-slate-500' };
 
   return (
-    <Card className="glass-card border border-white/5 bg-[#161b2c]/80 hover:bg-[#1c2236] rounded-xl p-0 cursor-pointer transition-all group relative overflow-hidden shadow-sm hover:shadow-md hover:border-white/10">
+    <Card className="glass-card border border-white/5 bg-[#161b2c]/80 hover:bg-[#1c2236] rounded-md p-0 cursor-pointer transition-all group relative overflow-hidden shadow-sm hover:shadow-md hover:border-white/10">
       {/* Status Stripe */}
       <div className={cn("absolute left-0 top-0 bottom-0 w-1 transition-colors", statusConfig.solid)} />
 
-      <div className="p-3 pl-4">
+      <div className="p-3 pl-2">
         <div className="flex justify-between items-start mb-2">
           <Badge variant="outline" className={cn("text-[10px] h-5 border px-2 uppercase tracking-wider font-bold rounded-md", statusConfig.color, statusConfig.bg, statusConfig.border)}>
             {task.status}
@@ -234,7 +234,7 @@ function TaskCard({ task }: { task: any }) {
           </span>
         </div>
 
-        <h4 className="text-sm font-semibold text-slate-200 mb-1.5 leading-snug group-hover:text-blue-400 transition-colors pr-6">
+        <h4 className="text-sm font-semibold text-slate-200 mb-1.5 leading-snug group-hover:text-blue-400 transition-colors pr-3">
           {task.title}
         </h4>
 

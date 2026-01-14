@@ -442,21 +442,21 @@ const FleetTrainingAcademy: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-3">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+        <div className="mb-3">
+          <div className="flex items-center justify-between mb-2">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center">
+              <h1 className="text-sm font-bold text-gray-900 mb-2 flex items-center">
                 <BookOpen className="mr-3 text-blue-800" />
                 Fleet Training Academy
               </h1>
-              <p className="text-slate-700 text-lg">
+              <p className="text-slate-700 text-sm">
                 Professional development and certification for fleet management excellence
               </p>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
               <Badge variant="outline" className="px-3 py-1">
                 <Users className="w-4 h-4 mr-1" />
                 2,593 Active Learners
@@ -469,51 +469,51 @@ const FleetTrainingAcademy: React.FC = () => {
           </div>
 
           {/* Quick stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-3">
             <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-blue-100">Courses Completed</p>
-                    <p className="text-2xl font-bold">1,247</p>
+                    <p className="text-sm font-bold">1,247</p>
                   </div>
-                  <CheckCircle2 className="w-8 h-8 text-blue-200" />
+                  <CheckCircle2 className="w-4 h-4 text-blue-200" />
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-green-100">Certifications Earned</p>
-                    <p className="text-2xl font-bold">892</p>
+                    <p className="text-sm font-bold">892</p>
                   </div>
-                  <Award className="w-8 h-8 text-green-200" />
+                  <Award className="w-4 h-4 text-green-200" />
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-orange-100">Average Rating</p>
-                    <p className="text-2xl font-bold">4.7</p>
+                    <p className="text-sm font-bold">4.7</p>
                   </div>
-                  <Star className="w-8 h-8 text-orange-200" />
+                  <Star className="w-4 h-4 text-orange-200" />
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-purple-100">Learning Hours</p>
-                    <p className="text-2xl font-bold">15,420</p>
+                    <p className="text-sm font-bold">15,420</p>
                   </div>
-                  <Clock className="w-8 h-8 text-purple-200" />
+                  <Clock className="w-4 h-4 text-purple-200" />
                 </div>
               </CardContent>
             </Card>
@@ -521,9 +521,9 @@ const FleetTrainingAcademy: React.FC = () => {
         </div>
 
         {/* Search and filters */}
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
+        <Card className="mb-3">
+          <CardContent className="p-3">
+            <div className="flex flex-col md:flex-row gap-2">
               <div className="flex-1">
                 <Label htmlFor="search">Search Courses</Label>
                 <div className="relative">
@@ -560,13 +560,13 @@ const FleetTrainingAcademy: React.FC = () => {
         </Card>
 
         {/* Course catalog */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
           {filteredCourses.map((course) => {
             const progress = getUserProgress(course.id);
             const CategoryIcon = getCategoryIcon(course.category);
 
             return (
-              <Card key={course.id} className="hover:shadow-lg transition-shadow duration-200">
+              <Card key={course.id} className="hover:shadow-sm transition-shadow duration-200">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between mb-2">
                     <Badge className={getCategoryColor(course.category)}>
@@ -576,7 +576,7 @@ const FleetTrainingAcademy: React.FC = () => {
                     <Badge className={getLevelColor(course.level)}>{course.level}</Badge>
                   </div>
 
-                  <CardTitle className="text-lg leading-tight mb-2">
+                  <CardTitle className="text-sm leading-tight mb-2">
                     {course.title}
                     {course.isRequired && (
                       <Badge variant="destructive" className="ml-2 text-xs">
@@ -590,7 +590,7 @@ const FleetTrainingAcademy: React.FC = () => {
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                   {/* Progress bar (if enrolled) */}
                   {progress && (
                     <div className="space-y-2">
@@ -626,7 +626,7 @@ const FleetTrainingAcademy: React.FC = () => {
 
                   {/* Instructor */}
                   <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                    <div className="w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center">
                       <span className="text-xs font-semibold">
                         {course.instructor.name
                           .split(' ')
@@ -696,7 +696,7 @@ const FleetTrainingAcademy: React.FC = () => {
                       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle className="flex items-center">
-                            <CategoryIcon className="w-5 h-5 mr-2" />
+                            <CategoryIcon className="w-3 h-3 mr-2" />
                             {course.title}
                           </DialogTitle>
                           <DialogDescription className="text-base">
@@ -704,10 +704,10 @@ const FleetTrainingAcademy: React.FC = () => {
                           </DialogDescription>
                         </DialogHeader>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                           {/* Course modules */}
                           <div className="md:col-span-2">
-                            <h3 className="text-lg font-semibold mb-4">Course Modules</h3>
+                            <h3 className="text-sm font-semibold mb-2">Course Modules</h3>
                             <div className="space-y-3">
                               {course.modules.map((module, index) => {
                                 const ModuleIcon = getModuleIcon(module.type);
@@ -717,7 +717,7 @@ const FleetTrainingAcademy: React.FC = () => {
                                     className="flex items-center p-3 border rounded-lg"
                                   >
                                     <div className="flex items-center space-x-3 flex-1">
-                                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                      <div className="w-4 h-4 bg-blue-100 rounded-full flex items-center justify-center">
                                         <ModuleIcon className="w-4 h-4 text-blue-800" />
                                       </div>
                                       <div>
@@ -731,7 +731,7 @@ const FleetTrainingAcademy: React.FC = () => {
                                       </div>
                                     </div>
                                     {module.completed && (
-                                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                                      <CheckCircle2 className="w-3 h-3 text-green-500" />
                                     )}
                                   </div>
                                 );
@@ -740,7 +740,7 @@ const FleetTrainingAcademy: React.FC = () => {
                           </div>
 
                           {/* Course details */}
-                          <div className="space-y-4">
+                          <div className="space-y-2">
                             <div>
                               <h4 className="font-semibold mb-2">Course Details</h4>
                               <div className="space-y-2 text-sm">
@@ -838,7 +838,7 @@ const FleetTrainingAcademy: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="flex justify-end space-x-2 pt-4 border-t">
+                        <div className="flex justify-end space-x-2 pt-2 border-t">
                           <Button variant="outline" onClick={() => setShowCourseDetails(false)}>
                             Close
                           </Button>
@@ -867,9 +867,9 @@ const FleetTrainingAcademy: React.FC = () => {
         {filteredCourses.length === 0 && (
           <Card className="text-center py-12">
             <CardContent>
-              <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No courses found</h3>
-              <p className="text-slate-700 mb-4">
+              <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-2" />
+              <h3 className="text-sm font-semibold text-gray-900 mb-2">No courses found</h3>
+              <p className="text-slate-700 mb-2">
                 Try adjusting your search terms or selected category.
               </p>
               <Button

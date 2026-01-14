@@ -248,9 +248,9 @@ export function EnhancedDataTable<T extends { id: string | number }>({
         </CardHeader>
       )}
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-2">
         {/* Toolbar */}
-        <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           {/* Search */}
           {enableFiltering && (
             <div className="flex items-center gap-2 flex-1 max-w-sm">
@@ -354,7 +354,7 @@ export function EnhancedDataTable<T extends { id: string | number }>({
                   <tr>
                     <td
                       colSpan={tableColumns.length}
-                      className="p-8 text-center text-muted-foreground"
+                      className="p-3 text-center text-muted-foreground"
                     >
                       {emptyMessage}
                     </td>
@@ -388,7 +388,7 @@ export function EnhancedDataTable<T extends { id: string | number }>({
 
         {/* Pagination */}
         {enablePagination && !isEmpty && (
-          <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Rows per page:</span>
               <Select

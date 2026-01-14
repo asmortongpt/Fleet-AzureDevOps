@@ -20,7 +20,7 @@ export function LineChartSkeleton({ height = 400 }: { height?: number }) {
       <CardContent className={`h-[calc(${height}px-4rem)]`}>
         <div className="h-full flex flex-col">
           {/* Y-Axis Labels */}
-          <div className="flex-1 flex items-between flex-col justify-between py-4">
+          <div className="flex-1 flex items-between flex-col justify-between py-2">
             {[...Array(5)].map((_, i) => (
               <Skeleton key={i} className="h-3 w-12" />
             ))}
@@ -36,7 +36,7 @@ export function LineChartSkeleton({ height = 400 }: { height?: number }) {
           </div>
 
           {/* X-Axis Labels */}
-          <div className="flex justify-between mt-4">
+          <div className="flex justify-between mt-2">
             {[...Array(7)].map((_, i) => (
               <Skeleton key={i} className="h-3 w-16" />
             ))}
@@ -58,7 +58,7 @@ export function BarChartSkeleton({ height = 400 }: { height?: number }) {
         <Skeleton className="h-6 w-48" />
       </CardHeader>
       <CardContent className={`h-[calc(${height}px-4rem)]`}>
-        <div className="h-full flex items-end justify-around gap-4">
+        <div className="h-full flex items-end justify-around gap-2">
           {[...Array(8)].map((_, i) => (
             <div key={i} className="flex-1 flex flex-col items-center gap-2">
               <Skeleton
@@ -182,8 +182,8 @@ export function GaugeChartSkeleton() {
         {/* Gauge Arc */}
         <Skeleton className="h-32 w-48 rounded-t-full" />
         {/* Value Display */}
-        <div className="mt-4 space-y-2 text-center">
-          <Skeleton className="h-10 w-24 mx-auto" />
+        <div className="mt-2 space-y-2 text-center">
+          <Skeleton className="h-8 w-24 mx-auto" />
           <Skeleton className="h-4 w-32 mx-auto" />
         </div>
       </CardContent>
@@ -256,7 +256,7 @@ export function SparklineChartSkeleton({ width = 120 }: { width?: number }) {
 export function StatCardWithChartSkeleton() {
   return (
     <Card className="h-[160px]">
-      <CardContent className="pt-6 h-full flex flex-col justify-between">
+      <CardContent className="pt-3 h-full flex flex-col justify-between">
         <div className="space-y-1">
           <Skeleton className="h-4 w-32" />
           <Skeleton className="h-8 w-24" />
@@ -277,18 +277,18 @@ export function StatCardWithChartSkeleton() {
  */
 export function DashboardChartsGridSkeleton() {
   return (
-    <div className="space-y-6 h-[850px]">
+    <div className="space-y-2 h-[850px]">
       {/* Row 1: 2 columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[400px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 h-[400px]">
         <LineChartSkeleton />
         <BarChartSkeleton />
       </div>
 
       {/* Row 2: 3 columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[400px]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 h-[400px]">
         <PieChartSkeleton />
         <DonutChartSkeleton />
-        <div className="space-y-4">
+        <div className="space-y-2">
           <StatCardWithChartSkeleton />
           <StatCardWithChartSkeleton />
         </div>

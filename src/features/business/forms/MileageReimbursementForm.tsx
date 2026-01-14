@@ -21,10 +21,10 @@ const MileageReimbursementForm: React.FC = () => {
   };
   
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="p-6 bg-gray-800 rounded-lg">
-      <h2 className="text-xl font-bold text-white mb-4">Mileage Reimbursement</h2>
+    <form onSubmit={handleSubmit(onSubmit)} className="p-3 bg-gray-800 rounded-lg">
+      <h2 className="text-base font-bold text-white mb-2">Mileage Reimbursement</h2>
       
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-2">
         <div>
           <label className="block text-white mb-2">Start Mileage</label>
           <input 
@@ -44,7 +44,7 @@ const MileageReimbursementForm: React.FC = () => {
         </div>
       </div>
       
-      <div className="mt-4">
+      <div className="mt-2">
         <label className="block text-white mb-2">Purpose</label>
         <input 
           {...register('purpose', { required: true })}
@@ -53,14 +53,14 @@ const MileageReimbursementForm: React.FC = () => {
         />
       </div>
       
-      <div className="mt-4 p-4 bg-blue-900 rounded">
+      <div className="mt-2 p-2 bg-blue-900 rounded">
         <p className="text-white">Total Miles: {totalMiles}</p>
         <p className="text-white font-bold">Reimbursement: ${reimbursement.toFixed(2)}</p>
       </div>
       
       <button 
         type="submit"
-        className="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        className="mt-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
       >
         Submit Reimbursement Request
       </button>

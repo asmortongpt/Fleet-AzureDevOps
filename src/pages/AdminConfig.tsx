@@ -107,21 +107,21 @@ export default function AdminConfig() {
   }
 
   return (
-    <div className="container mx-auto p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Admin Configuration</h1>
+    <div className="container mx-auto p-3">
+      <div className="mb-3">
+        <h1 className="text-base font-bold">Admin Configuration</h1>
         <p className="text-muted-foreground mt-2">
           Manage all configurable settings for Fleet
         </p>
       </div>
 
       {message && (
-        <Alert className={`mb-4 ${message.type === 'success' ? 'border-green-500' : 'border-red-500'}`}>
+        <Alert className={`mb-2 ${message.type === 'success' ? 'border-green-500' : 'border-red-500'}`}>
           <AlertDescription>{message.text}</AlertDescription>
         </Alert>
       )}
 
-      <Tabs defaultValue="security" className="space-y-4">
+      <Tabs defaultValue="security" className="space-y-2">
         <TabsList>
           {Object.keys(groupedConfigs).map(category => (
             <TabsTrigger key={category} value={category} className="capitalize">
@@ -140,7 +140,7 @@ export default function AdminConfig() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {Object.entries(categoryConfigs).map(([key, value]) => (
                     <div key={key} className="space-y-2">
                       <Label htmlFor={key} className="text-sm font-medium">
@@ -163,7 +163,7 @@ export default function AdminConfig() {
         ))}
       </Tabs>
 
-      <div className="mt-6 flex gap-4">
+      <div className="mt-3 flex gap-2">
         <Button onClick={handleSave} disabled={saving}>
           {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
           Save Changes

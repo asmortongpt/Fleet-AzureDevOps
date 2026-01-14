@@ -6,7 +6,7 @@ import { DamageReportList } from '@/components/DamageReports/DamageReportList'
 
 export function DamageReportsPage() {
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
+    <div className="container mx-auto p-3 max-w-7xl">
       <Routes>
         {/* List view - default route */}
         <Route index element={<DamageReportList />} />
@@ -21,8 +21,8 @@ export function DamageReportsPage() {
         <Route
           path=":id/edit"
           element={
-            <div className="space-y-6">
-              <h2 className="text-3xl font-bold tracking-tight">Edit Damage Report</h2>
+            <div className="space-y-2">
+              <h2 className="text-base font-bold tracking-tight">Edit Damage Report</h2>
               <p className="text-muted-foreground">
                 Editing functionality coming soon. For now, please create a new report.
               </p>

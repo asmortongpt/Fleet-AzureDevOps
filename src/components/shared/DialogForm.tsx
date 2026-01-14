@@ -20,7 +20,7 @@ export function DialogForm({ open, onOpenChange, title, children, onSubmit }: Di
         </DialogHeader>
         <form onSubmit={async (e) => { e.preventDefault(); await onSubmit(); }}>
           {children}
-          <div className="flex justify-end gap-2 mt-4">
+          <div className="flex justify-end gap-2 mt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>

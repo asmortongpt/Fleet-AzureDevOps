@@ -73,11 +73,11 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {item && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Item Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <h3 className="text-2xl font-bold">{item.title}</h3>
+              <h3 className="text-sm font-bold">{item.title}</h3>
               <p className="text-sm text-muted-foreground">
                 {item.type} • {item.item_number}
               </p>
@@ -86,11 +86,11 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
                 <Badge variant={getTypeVariant(item.type)}>{item.type}</Badge>
               </div>
             </div>
-            <Calendar className="h-12 w-12 text-muted-foreground" />
+            <Calendar className="h-9 w-12 text-muted-foreground" />
           </div>
 
           {/* Quick Info */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -133,17 +133,17 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
               <TabsTrigger value="notes">Notes</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="details" className="space-y-4">
+            <TabsContent value="details" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Schedule Details</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Description</p>
                     <p className="text-sm">{item.description || 'No description provided'}</p>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Duration</p>
                       <p className="font-medium">{item.duration_hours || 0} hours</p>
@@ -169,7 +169,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
               </Card>
             </TabsContent>
 
-            <TabsContent value="assignments" className="space-y-4">
+            <TabsContent value="assignments" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Assigned Resources</CardTitle>
@@ -232,7 +232,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
               </Card>
             </TabsContent>
 
-            <TabsContent value="location" className="space-y-4">
+            <TabsContent value="location" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Location Information</CardTitle>
@@ -272,7 +272,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
               </Card>
             </TabsContent>
 
-            <TabsContent value="notes" className="space-y-4">
+            <TabsContent value="notes" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Notes & Instructions</CardTitle>
@@ -389,16 +389,16 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
 
   return (
     <DrilldownContent loading={isLoading} error={error}>
-      <div className="space-y-4">
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-bold">
+          <h3 className="text-sm font-bold">
             {timeframe ? timeframeLabels[timeframe] : typeLabels[type]}
           </h3>
           <Badge>{items?.length || 0} items</Badge>
         </div>
 
         {/* Group by date */}
-        <div className="space-y-4">
+        <div className="space-y-2">
           {items &&
             Object.entries(
               items.reduce((groups: any, item: any) => {
@@ -427,7 +427,7 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
                         })
                       }
                     >
-                      <CardContent className="p-4">
+                      <CardContent className="p-2">
                         <div className="flex items-start justify-between">
                           <div className="space-y-1 flex-1">
                             <div className="flex items-center gap-2">
@@ -473,8 +473,8 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
 
           {(!items || items.length === 0) && (
             <Card>
-              <CardContent className="p-8 text-center">
-                <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+              <CardContent className="p-3 text-center">
+                <Calendar className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                 <p className="text-muted-foreground">
                   No scheduled items found for this period
                 </p>

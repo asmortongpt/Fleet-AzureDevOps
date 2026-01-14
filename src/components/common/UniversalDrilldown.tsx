@@ -66,7 +66,7 @@ export function UniversalDrilldown({ records, config, level = 0 }: UniversalDril
   return (
     <div className="space-y-2">
       {records.map(record => (
-        <div key={record.id} className={`${level > 0 ? 'ml-6 border-l-2 border-muted pl-4' : ''}`}>
+        <div key={record.id} className={`${level > 0 ? 'ml-3 border-l-2 border-muted pl-2' : ''}`}>
           <Card className="hover:bg-muted/50 transition-colors">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
@@ -84,7 +84,7 @@ export function UniversalDrilldown({ records, config, level = 0 }: UniversalDril
                     </Button>
                   )}
                   <div className="flex-1">
-                    <CardTitle className="text-lg flex items-center gap-2">
+                    <CardTitle className="text-sm flex items-center gap-2">
                       {record.title}
                       {record.status && (
                         <Badge variant={

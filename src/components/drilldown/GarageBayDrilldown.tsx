@@ -251,11 +251,11 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {bay && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Bay Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <h3 className="text-2xl font-bold">Garage Bay {bay.bay_number}</h3>
+              <h3 className="text-sm font-bold">Garage Bay {bay.bay_number}</h3>
               <p className="text-sm text-muted-foreground">{bay.bay_name}</p>
               <div className="flex items-center gap-2 mt-2">
                 <Badge variant={getStatusColor(bay.status)} className="capitalize">
@@ -270,13 +270,13 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                 </Badge>
               </div>
             </div>
-            <Wrench className="h-12 w-12 text-muted-foreground" />
+            <Wrench className="h-9 w-12 text-muted-foreground" />
           </div>
 
           {currentWorkOrder ? (
             <>
               {/* Current Work Summary Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                 {/* What is being done */}
                 <Card>
                   <CardHeader className="pb-3">
@@ -286,7 +286,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="font-semibold text-lg mb-1">{currentWorkOrder.title}</p>
+                    <p className="font-semibold text-sm mb-1">{currentWorkOrder.title}</p>
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {currentWorkOrder.description}
                     </p>
@@ -337,7 +337,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="font-semibold text-lg">
+                    <p className="font-semibold text-sm">
                       {currentWorkOrder.vehicle.year} {currentWorkOrder.vehicle.make} {currentWorkOrder.vehicle.model}
                     </p>
                     <p className="text-sm text-muted-foreground">
@@ -362,15 +362,15 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-2">
                     <Avatar className="h-16 w-16">
                       <AvatarImage src={currentWorkOrder.primary_technician.avatar} alt={currentWorkOrder.primary_technician.name} />
-                      <AvatarFallback className="text-lg">
+                      <AvatarFallback className="text-sm">
                         {currentWorkOrder.primary_technician.name.split(' ').map((n) => n[0]).join('').toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
-                      <h4 className="text-lg font-semibold">{currentWorkOrder.primary_technician.name}</h4>
+                      <h4 className="text-sm font-semibold">{currentWorkOrder.primary_technician.name}</h4>
                       <p className="text-sm text-muted-foreground mb-3">{currentWorkOrder.primary_technician.role}</p>
                       <div className="flex flex-wrap gap-2">
                         <Button
@@ -407,7 +407,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
               </Card>
 
               {/* Cost Summary */}
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-4 gap-2">
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -416,7 +416,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">${totalPartsCost.toFixed(2)}</div>
+                    <div className="text-sm font-bold">${totalPartsCost.toFixed(2)}</div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {currentWorkOrder.parts.length} item{currentWorkOrder.parts.length !== 1 ? 's' : ''}
                     </p>
@@ -431,7 +431,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">${totalLaborCost.toFixed(2)}</div>
+                    <div className="text-sm font-bold">${totalLaborCost.toFixed(2)}</div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {totalHoursLogged.toFixed(1)} / {totalHoursEstimated.toFixed(1)} hrs
                     </p>
@@ -446,7 +446,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-primary">${totalCost.toFixed(2)}</div>
+                    <div className="text-sm font-bold text-primary">${totalCost.toFixed(2)}</div>
                     <p className="text-xs text-muted-foreground mt-1">
                       Current total
                     </p>
@@ -461,7 +461,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">${currentWorkOrder.estimated_cost.toFixed(2)}</div>
+                    <div className="text-sm font-bold">${currentWorkOrder.estimated_cost.toFixed(2)}</div>
                     <p className={`text-xs mt-1 ${totalCost > currentWorkOrder.estimated_cost ? 'text-destructive' : 'text-muted-foreground'}`}>
                       {totalCost > currentWorkOrder.estimated_cost ? 'Over budget' : 'On budget'}
                     </p>
@@ -479,7 +479,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                 </TabsList>
 
                 {/* Overview Tab */}
-                <TabsContent value="overview" className="space-y-4">
+                <TabsContent value="overview" className="space-y-2">
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -487,7 +487,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                         Work Order #{currentWorkOrder.wo_number}
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-2">
                       <div>
                         <h4 className="font-semibold mb-2">{currentWorkOrder.title}</h4>
                         <p className="text-sm text-muted-foreground whitespace-pre-wrap">
@@ -495,7 +495,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                         </p>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t">
                         <div>
                           <p className="text-sm text-muted-foreground">Work Order Status</p>
                           <div className="flex items-center gap-2 mt-1">
@@ -534,7 +534,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                       </div>
 
                       {currentWorkOrder.notes && currentWorkOrder.notes.length > 0 && (
-                        <div className="pt-4 border-t">
+                        <div className="pt-2 border-t">
                           <h5 className="font-semibold mb-2 flex items-center gap-2">
                             <AlertCircle className="h-4 w-4" />
                             Notes ({currentWorkOrder.notes.length})
@@ -557,10 +557,10 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                 </TabsContent>
 
                 {/* Parts Tab */}
-                <TabsContent value="parts" className="space-y-4">
+                <TabsContent value="parts" className="space-y-2">
                   {currentWorkOrder.parts.map((part) => (
                     <Card key={part.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewPart(part)}>
-                      <CardContent className="p-4">
+                      <CardContent className="p-2">
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -575,7 +575,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                             </Badge>
                           </div>
 
-                          <div className="grid grid-cols-4 gap-4 pt-2 border-t text-sm">
+                          <div className="grid grid-cols-4 gap-2 pt-2 border-t text-sm">
                             <div>
                               <p className="text-xs text-muted-foreground">Qty Needed</p>
                               <p className="font-medium">{part.quantity}</p>
@@ -639,20 +639,20 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                   ))}
 
                   <Card>
-                    <CardContent className="p-4">
+                    <CardContent className="p-2">
                       <div className="flex items-center justify-between">
                         <span className="font-semibold">Total Parts Cost</span>
-                        <span className="text-2xl font-bold text-primary">${totalPartsCost.toFixed(2)}</span>
+                        <span className="text-sm font-bold text-primary">${totalPartsCost.toFixed(2)}</span>
                       </div>
                     </CardContent>
                   </Card>
                 </TabsContent>
 
                 {/* Labor Tab */}
-                <TabsContent value="labor" className="space-y-4">
+                <TabsContent value="labor" className="space-y-2">
                   {currentWorkOrder.labor.map((entry) => (
                     <Card key={entry.id}>
-                      <CardContent className="p-4">
+                      <CardContent className="p-2">
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
@@ -672,7 +672,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                             </Badge>
                           </div>
 
-                          <div className="grid grid-cols-4 gap-4 pt-2 border-t text-sm">
+                          <div className="grid grid-cols-4 gap-2 pt-2 border-t text-sm">
                             <div>
                               <p className="text-xs text-muted-foreground">Hours Logged</p>
                               <p className="font-medium text-primary">{entry.hours_logged.toFixed(1)}</p>
@@ -702,7 +702,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                   ))}
 
                   <Card>
-                    <CardContent className="p-4">
+                    <CardContent className="p-2">
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
                           <span>Total Hours (Logged / Estimated)</span>
@@ -716,7 +716,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                         </div>
                         <div className="flex items-center justify-between pt-2 border-t">
                           <span className="font-semibold">Actual Labor Cost</span>
-                          <span className="text-2xl font-bold text-primary">${totalLaborCost.toFixed(2)}</span>
+                          <span className="text-sm font-bold text-primary">${totalLaborCost.toFixed(2)}</span>
                         </div>
                       </div>
                     </CardContent>
@@ -724,7 +724,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                 </TabsContent>
 
                 {/* Bay Equipment Tab */}
-                <TabsContent value="bay-equipment" className="space-y-4">
+                <TabsContent value="bay-equipment" className="space-y-2">
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -743,7 +743,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-muted-foreground text-center py-8">
+                        <p className="text-sm text-muted-foreground text-center py-3">
                           No equipment information available
                         </p>
                       )}
@@ -758,7 +758,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-2">
                         <div>
                           <p className="text-sm text-muted-foreground">Bay Number</p>
                           <p className="font-medium">{bay.bay_number}</p>
@@ -784,12 +784,12 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
           ) : (
             <Card>
               <CardContent className="py-12 text-center">
-                <Wrench className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Bay Available</h3>
+                <Wrench className="h-16 w-16 mx-auto text-muted-foreground mb-2" />
+                <h3 className="text-sm font-semibold mb-2">Bay Available</h3>
                 <p className="text-sm text-muted-foreground">
                   This garage bay is currently not in use
                 </p>
-                <Badge variant="outline" className="mt-4">
+                <Badge variant="outline" className="mt-2">
                   Status: {bay.status}
                 </Badge>
               </CardContent>

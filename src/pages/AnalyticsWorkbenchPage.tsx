@@ -328,10 +328,10 @@ export function AnalyticsWorkbenchPage() {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="border-b bg-background p-4">
+      <div className="border-b bg-background p-2">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Analytics Workbench</h1>
+            <h1 className="text-base font-bold tracking-tight">Analytics Workbench</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Build custom reports with drag-and-drop interface
             </p>
@@ -378,48 +378,48 @@ export function AnalyticsWorkbenchPage() {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-4 gap-4 mt-4">
+        <div className="grid grid-cols-4 gap-2 mt-2">
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-3">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total Records</p>
-                  <p className="text-2xl font-bold">{stats.totalRecords}</p>
+                  <p className="text-sm font-bold">{stats.totalRecords}</p>
                 </div>
-                <Database className="w-8 h-8 text-muted-foreground" />
+                <Database className="w-4 h-4 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-3">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Columns Selected</p>
-                  <p className="text-2xl font-bold">{stats.columnsSelected}</p>
+                  <p className="text-sm font-bold">{stats.columnsSelected}</p>
                 </div>
-                <Table className="w-8 h-8 text-muted-foreground" />
+                <Table className="w-4 h-4 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-3">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Filters Active</p>
-                  <p className="text-2xl font-bold">{stats.filtersApplied}</p>
+                  <p className="text-sm font-bold">{stats.filtersApplied}</p>
                 </div>
-                <FunnelSimple className="w-8 h-8 text-muted-foreground" />
+                <FunnelSimple className="w-4 h-4 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-3">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Saved Reports</p>
-                  <p className="text-2xl font-bold">{savedReports.length}</p>
+                  <p className="text-sm font-bold">{savedReports.length}</p>
                 </div>
-                <FileText className="w-8 h-8 text-muted-foreground" />
+                <FileText className="w-4 h-4 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
@@ -427,7 +427,7 @@ export function AnalyticsWorkbenchPage() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto p-6">
+      <div className="flex-1 overflow-auto p-3">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full max-w-md grid-cols-3">
             <TabsTrigger value="builder">
@@ -445,20 +445,20 @@ export function AnalyticsWorkbenchPage() {
           </TabsList>
 
           {/* Report Builder Tab */}
-          <TabsContent value="builder" className="space-y-6 mt-6">
-            <div className="grid grid-cols-2 gap-6">
+          <TabsContent value="builder" className="space-y-2 mt-3">
+            <div className="grid grid-cols-2 gap-2">
               {/* Column Selection */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Table className="w-5 h-5" />
+                    <Table className="w-3 h-3" />
                     Select Columns
                   </CardTitle>
                   <CardDescription>
                     Choose which fields to include in your report
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                   <Select onValueChange={addColumn}>
                     <SelectTrigger>
                       <SelectValue placeholder="Add a column..." />
@@ -479,7 +479,7 @@ export function AnalyticsWorkbenchPage() {
                   <div className="space-y-2">
                     <Label className="text-xs text-muted-foreground">Selected Columns</Label>
                     {selectedColumns.length === 0 ? (
-                      <div className="text-sm text-muted-foreground text-center py-8 border-2 border-dashed rounded-lg">
+                      <div className="text-sm text-muted-foreground text-center py-3 border-2 border-dashed rounded-lg">
                         No columns selected
                       </div>
                     ) : (
@@ -513,14 +513,14 @@ export function AnalyticsWorkbenchPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <FunnelSimple className="w-5 h-5" />
+                    <FunnelSimple className="w-3 h-3" />
                     Data Filters
                   </CardTitle>
                   <CardDescription>
                     Filter data based on specific criteria
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                   <Button
                     variant="outline"
                     className="w-full"
@@ -533,7 +533,7 @@ export function AnalyticsWorkbenchPage() {
                   <div className="space-y-2">
                     <Label className="text-xs text-muted-foreground">Active Filters</Label>
                     {filters.length === 0 ? (
-                      <div className="text-sm text-muted-foreground text-center py-8 border-2 border-dashed rounded-lg">
+                      <div className="text-sm text-muted-foreground text-center py-3 border-2 border-dashed rounded-lg">
                         No filters applied
                       </div>
                     ) : (
@@ -610,7 +610,7 @@ export function AnalyticsWorkbenchPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <ChartLine className="w-5 h-5" />
+                  <ChartLine className="w-3 h-3" />
                   Visualization Type
                 </CardTitle>
                 <CardDescription>
@@ -618,7 +618,7 @@ export function AnalyticsWorkbenchPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-5 gap-4">
+                <div className="grid grid-cols-5 gap-2">
                   {[
                     { type: "table" as ChartType, icon: Table, label: "Table" },
                     { type: "bar" as ChartType, icon: ChartBar, label: "Bar Chart" },
@@ -633,20 +633,20 @@ export function AnalyticsWorkbenchPage() {
                     <button
                       key={type}
                       onClick={() => setChartType(type)}
-                      className={`p-4 border-2 rounded-lg transition-all ${
+                      className={`p-2 border-2 rounded-lg transition-all ${
                         chartType === type
                           ? "border-primary bg-primary/5"
                           : "border-border hover:border-muted-foreground"
                       }`}
                     >
                       <Icon
-                        className={`w-8 h-8 mx-auto mb-2 ${
+                        className={`w-4 h-4 mx-auto mb-2 ${
                           chartType === type ? "text-primary" : "text-muted-foreground"
                         }`}
                       />
                       <p className="text-sm font-medium text-center">{label}</p>
                       {chartType === type && (
-                        <Check className="w-5 h-5 mx-auto mt-2 text-primary" />
+                        <Check className="w-3 h-3 mx-auto mt-2 text-primary" />
                       )}
                     </button>
                   ))}
@@ -656,7 +656,7 @@ export function AnalyticsWorkbenchPage() {
           </TabsContent>
 
           {/* Preview Tab */}
-          <TabsContent value="preview" className="mt-6">
+          <TabsContent value="preview" className="mt-3">
             <Card>
               <CardHeader>
                 <CardTitle>Report Preview</CardTitle>
@@ -667,7 +667,7 @@ export function AnalyticsWorkbenchPage() {
               <CardContent>
                 {reportData.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
-                    <Database className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <Database className="w-12 h-9 mx-auto mb-2 opacity-50" />
                     <p>No data to display</p>
                     <p className="text-sm mt-1">Add columns and apply filters to see results</p>
                   </div>
@@ -710,7 +710,7 @@ export function AnalyticsWorkbenchPage() {
           </TabsContent>
 
           {/* Saved Reports Tab */}
-          <TabsContent value="saved" className="mt-6">
+          <TabsContent value="saved" className="mt-3">
             <Card>
               <CardHeader>
                 <CardTitle>Saved Reports</CardTitle>
@@ -721,16 +721,16 @@ export function AnalyticsWorkbenchPage() {
               <CardContent>
                 {savedReports.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
-                    <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <FileText className="w-12 h-9 mx-auto mb-2 opacity-50" />
                     <p>No saved reports</p>
                     <p className="text-sm mt-1">Create and save a report to see it here</p>
                   </div>
                 ) : (
-                  <div className="grid gap-4">
+                  <div className="grid gap-2">
                     {savedReports.map((report) => (
                       <div
                         key={report.id}
-                        className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                        className="p-2 border rounded-lg hover:bg-muted/50 transition-colors"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
@@ -738,7 +738,7 @@ export function AnalyticsWorkbenchPage() {
                             <p className="text-sm text-muted-foreground mt-1">
                               {report.description || "No description"}
                             </p>
-                            <div className="flex gap-4 mt-3 text-xs text-muted-foreground">
+                            <div className="flex gap-2 mt-3 text-xs text-muted-foreground">
                               <span>{report.columns.length} columns</span>
                               <span>{report.filters.length} filters</span>
                               <span>Created: {new Date(report.createdAt).toLocaleDateString()}</span>
@@ -780,7 +780,7 @@ export function AnalyticsWorkbenchPage() {
               Save your current report configuration for future use
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-2 py-2">
             <div className="space-y-2">
               <Label htmlFor="report-name">Report Name</Label>
               <Input

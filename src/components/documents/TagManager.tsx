@@ -72,7 +72,7 @@ export function TagManager({ tags, onCreateTag, onUpdateTag, onDeleteTag }: TagM
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex-1 max-w-md">
           <div className="relative">
@@ -149,7 +149,7 @@ export function TagManager({ tags, onCreateTag, onUpdateTag, onDeleteTag }: TagM
             <DialogTitle>{editingTag ? 'Edit Tag' : 'Create Tag'}</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div>
               <Label htmlFor="tag-name">Tag name</Label>
               <Input

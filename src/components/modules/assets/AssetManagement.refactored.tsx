@@ -79,11 +79,11 @@ export function AssetManagement() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-2 p-3">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Asset Management</h1>
+          <h1 className="text-base font-semibold tracking-tight">Asset Management</h1>
           <p className="text-muted-foreground mt-1">Track and manage all organizational assets</p>
         </div>
         <Button>
@@ -188,7 +188,7 @@ export function AssetManagement() {
               ))}
               {filteredAssets.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-3 text-muted-foreground">
                     No assets found
                   </TableCell>
                 </TableRow>

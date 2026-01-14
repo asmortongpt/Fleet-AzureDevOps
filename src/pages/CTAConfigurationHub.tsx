@@ -70,65 +70,65 @@ function OverviewContent() {
   }, [])
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Configuration Overview</h2>
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">Configuration Overview</h2>
           <p className="text-slate-600 dark:text-slate-400 mt-1">Complete control over application behavior and appearance</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2">
-            <MagicWand className="w-5 h-5" />
+          <button className="px-2 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2">
+            <MagicWand className="w-3 h-3" />
             Auto-Configure from Policies
           </button>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
-            <Export className="w-5 h-5" />
+          <button className="px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+            <Export className="w-3 h-3" />
             Export Configuration
           </button>
-          <button className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-2">
-            <Upload className="w-5 h-5" />
+          <button className="px-2 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-2">
+            <Upload className="w-3 h-3" />
             Import Configuration
           </button>
         </div>
       </div>
 
       {/* Configuration Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <StatCard
           title="Total Settings"
           value={configStats.totalSettings.toString()}
-          icon={<Gear className="w-6 h-6" />}
+          icon={<Gear className="w-4 h-4" />}
         />
         <StatCard
           title="Configured"
           value={configStats.configured.toString()}
           variant="success"
-          icon={<CheckCircle className="w-6 h-6" />}
+          icon={<CheckCircle className="w-4 h-4" />}
         />
         <StatCard
           title="Policy-Driven"
           value={configStats.policyDriven.toString()}
           variant="info"
-          icon={<MagicWand className="w-6 h-6" />}
+          icon={<MagicWand className="w-4 h-4" />}
         />
         <StatCard
           title="Needs Approval"
           value={configStats.needsApproval.toString()}
           variant="warning"
-          icon={<WarningIcon className="w-6 h-6" />}
+          icon={<WarningIcon className="w-4 h-4" />}
         />
       </div>
 
       {/* Configuration Categories */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
         {CONFIGURATION_SCHEMA.categories.map((category) => (
           <CategoryCard key={category.id} category={category} />
         ))}
       </div>
 
       {/* Recent Configuration Changes */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Recent Configuration Changes</h3>
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Recent Configuration Changes</h3>
         <div className="space-y-3">
           <ConfigChangeItem
             setting="PM Interval - Light Duty"
@@ -167,15 +167,15 @@ function CategoryCard({ category }: { category: ConfigCategory }) {
   )
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 hover:border-blue-300 transition-all cursor-pointer">
-      <div className="flex items-start gap-4">
+    <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 hover:border-blue-300 transition-all cursor-pointer">
+      <div className="flex items-start gap-2">
         <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-          <Gear className="w-6 h-6 text-blue-800" />
+          <Gear className="w-4 h-4 text-blue-800" />
         </div>
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{category.name}</h3>
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{category.name}</h3>
           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{category.description}</p>
-          <div className="flex items-center gap-4 mt-3 text-sm">
+          <div className="flex items-center gap-2 mt-3 text-sm">
             <span className="text-slate-600 dark:text-slate-400">{totalSettings} settings</span>
             {policyDriven > 0 && (
               <span className="flex items-center gap-1 text-purple-600">
@@ -206,7 +206,7 @@ function ConfigChangeItem({
   source?: string
 }) {
   return (
-    <div className="flex items-start justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+    <div className="flex items-start justify-between p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
       <div className="flex-1">
         <p className="font-medium text-slate-900 dark:text-white">{setting}</p>
         <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
@@ -239,8 +239,8 @@ function ConfigChangeItem({
 
 function OrganizationBrandingContent() {
   return (
-    <div className="p-6 space-y-6">
-      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Organization & Branding</h2>
+    <div className="p-3 space-y-2">
+      <h2 className="text-sm font-bold text-slate-900 dark:text-white">Organization & Branding</h2>
 
       <ConfigSection
         title="Organization Identity"
@@ -264,8 +264,8 @@ function OrganizationBrandingContent() {
 
 function ModulesFeaturesContent() {
   return (
-    <div className="p-6 space-y-6">
-      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Modules & Features</h2>
+    <div className="p-3 space-y-2">
+      <h2 className="text-sm font-bold text-slate-900 dark:text-white">Modules & Features</h2>
 
       <ConfigSection
         title="Enabled Hubs"
@@ -288,14 +288,14 @@ function ModulesFeaturesContent() {
 
 function BusinessRulesContent() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Business Rules & Thresholds</h2>
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">Business Rules & Thresholds</h2>
           <p className="text-slate-600 dark:text-slate-400 mt-1">Most of these are automatically configured by policies</p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-          <MagicWand className="w-5 h-5 text-purple-600" />
+        <div className="flex items-center gap-2 px-2 py-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
+          <MagicWand className="w-3 h-3 text-purple-600" />
           <span className="text-sm font-medium text-purple-900 dark:text-purple-100">Policy-Driven</span>
         </div>
       </div>
@@ -330,22 +330,22 @@ function BusinessRulesContent() {
 
 function RBACConfiguration() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Role-Based Access Control</h2>
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">Role-Based Access Control</h2>
           <p className="text-slate-600 dark:text-slate-400 mt-1">Permissions automatically configured from SOPs and policies</p>
         </div>
-        <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2">
-          <MagicWand className="w-5 h-5" />
+        <button className="px-2 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2">
+          <MagicWand className="w-3 h-3" />
           Sync from SOPs
         </button>
       </div>
 
       {/* SOP-Driven RBAC Explanation */}
-      <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-800 p-6">
+      <div className="bg-purple-50 dark:bg-purple-900/20 rounded-md border-2 border-purple-200 dark:border-purple-800 p-3">
         <div className="flex items-start gap-3">
-          <Info className="w-6 h-6 text-purple-600 flex-shrink-0 mt-0.5" />
+          <Info className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
           <div>
             <h3 className="font-semibold text-purple-900 dark:text-purple-100 mb-2">SOP-Driven RBAC</h3>
             <p className="text-sm text-purple-800 dark:text-purple-200 mb-3">
@@ -362,22 +362,22 @@ function RBACConfiguration() {
       </div>
 
       {/* Role Permissions Matrix */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-200 dark:border-slate-700">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Role Permissions Matrix</h3>
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div className="p-3 border-b border-slate-200 dark:border-slate-700">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Role Permissions Matrix</h3>
           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Auto-generated from 47 SOPs</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-slate-50 dark:bg-slate-900">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Role</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">View Vehicles</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Dispatch</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Create Work Orders</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Approve Maintenance</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Manage Policies</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">SOP Source</th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Role</th>
+                <th className="px-3 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">View Vehicles</th>
+                <th className="px-3 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Dispatch</th>
+                <th className="px-3 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Create Work Orders</th>
+                <th className="px-3 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Approve Maintenance</th>
+                <th className="px-3 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Manage Policies</th>
+                <th className="px-3 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">SOP Source</th>
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
@@ -412,8 +412,8 @@ function RBACConfiguration() {
       </div>
 
       {/* SOP Sources */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">SOP Sources</h3>
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">SOP Sources</h3>
         <div className="space-y-2">
           <SOPSource
             sopNumber="SOP-OPS-001"
@@ -450,19 +450,19 @@ function RBACRow({
 }) {
   return (
     <tr>
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="px-3 py-2 whitespace-nowrap">
         <div className="text-sm font-medium text-slate-900 dark:text-white">{role}</div>
       </td>
       {permissions.map((hasPermission, index) => (
-        <td key={index} className="px-6 py-4 whitespace-nowrap text-center">
+        <td key={index} className="px-3 py-2 whitespace-nowrap text-center">
           {hasPermission ? (
-            <CheckCircle className="w-5 h-5 text-green-600 mx-auto" />
+            <CheckCircle className="w-3 h-3 text-green-600 mx-auto" />
           ) : (
             <span className="text-slate-300">—</span>
           )}
         </td>
       ))}
-      <td className="px-6 py-4 whitespace-nowrap text-center">
+      <td className="px-3 py-2 whitespace-nowrap text-center">
         <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 text-xs font-medium rounded">
           {sopCount} SOPs
         </span>
@@ -483,7 +483,7 @@ function SOPSource({
   permissionsGranted: string[]
 }) {
   return (
-    <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+    <div className="p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2">
@@ -538,10 +538,10 @@ function ConfigSection({
   showPreview?: boolean
 }) {
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-      <div className="flex items-start justify-between mb-4">
+    <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
+      <div className="flex items-start justify-between mb-2">
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{title}</h3>
           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{description}</p>
         </div>
         {policyDriven && (
@@ -552,19 +552,19 @@ function ConfigSection({
         )}
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-2">
         {settings.map((setting) => (
           <ConfigSettingInput key={setting.id} setting={setting} />
         ))}
       </div>
 
       {showPreview && (
-        <div className="mt-6 p-4 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
+        <div className="mt-3 p-2 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
           <div className="flex items-center gap-2 mb-3">
-            <Eye className="w-5 h-5 text-slate-600" />
+            <Eye className="w-3 h-3 text-slate-600" />
             <span className="text-sm font-medium text-slate-900 dark:text-white">Live Preview</span>
           </div>
-          <div className="p-4 bg-white dark:bg-slate-800 rounded-lg">
+          <div className="p-2 bg-white dark:bg-slate-800 rounded-lg">
             <p className="text-sm text-slate-600 dark:text-slate-400">Preview of changes will appear here</p>
           </div>
         </div>
@@ -582,7 +582,7 @@ function ConfigSettingInput({ setting }: { setting: ConfigSetting }) {
   }
 
   return (
-    <div className="flex items-start gap-4">
+    <div className="flex items-start gap-2">
       <div className="flex-1">
         <label className="block text-sm font-medium text-slate-900 dark:text-white mb-1">
           {setting.label}
@@ -644,7 +644,7 @@ function ConfigSettingInput({ setting }: { setting: ConfigSetting }) {
               type="color"
               value={value}
               onChange={(e) => handleChange(e.target.value)}
-              className="w-12 h-12 border-2 border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer"
+              className="w-12 h-9 border-2 border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer"
             />
             <input
               type="text"
@@ -685,8 +685,8 @@ function ConfigSettingInput({ setting }: { setting: ConfigSetting }) {
 
 function IntegrationsContent() {
   return (
-    <div className="p-6 space-y-6">
-      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Integrations & APIs</h2>
+    <div className="p-3 space-y-2">
+      <h2 className="text-sm font-bold text-slate-900 dark:text-white">Integrations & APIs</h2>
 
       <ConfigSection
         title="External Integrations"
@@ -709,8 +709,8 @@ function IntegrationsContent() {
 
 function NotificationsContent() {
   return (
-    <div className="p-6 space-y-6">
-      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Notifications & Alerts</h2>
+    <div className="p-3 space-y-2">
+      <h2 className="text-sm font-bold text-slate-900 dark:text-white">Notifications & Alerts</h2>
 
       <ConfigSection
         title="Notification Channels"
@@ -734,14 +734,14 @@ function NotificationsContent() {
 
 function SecurityContent() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Security & Access Control</h2>
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">Security & Access Control</h2>
           <p className="text-slate-600 dark:text-slate-400 mt-1">Critical security settings - changes require approval</p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
-          <WarningIcon className="w-5 h-5 text-red-600" />
+        <div className="flex items-center gap-2 px-2 py-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+          <WarningIcon className="w-3 h-3 text-red-600" />
           <span className="text-sm font-medium text-red-900 dark:text-red-100">High Impact</span>
         </div>
       </div>
@@ -773,10 +773,10 @@ function SecurityContent() {
 
 function AdvancedContent() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Advanced Configuration</h2>
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">Advanced Configuration</h2>
           <p className="text-slate-600 dark:text-slate-400 mt-1">Advanced settings for power users</p>
         </div>
       </div>
@@ -787,16 +787,16 @@ function AdvancedContent() {
         settings={CONFIGURATION_SCHEMA.categories.find(c => c.id === 'user-experience')?.sections[0]?.settings || []}
       />
 
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Configuration Export/Import</h3>
-        <div className="space-y-4">
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Configuration Export/Import</h3>
+        <div className="space-y-2">
           <div>
             <h4 className="text-sm font-medium text-slate-900 dark:text-white mb-2">Export Configuration</h4>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
               Download current configuration as JSON for backup or transfer to another environment
             </p>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
-              <Export className="w-5 h-5" />
+            <button className="px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+              <Export className="w-3 h-3" />
               Export as JSON
             </button>
           </div>
@@ -805,29 +805,29 @@ function AdvancedContent() {
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
               Upload a configuration JSON file to apply settings from another environment
             </p>
-            <button className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-2">
-              <Upload className="w-5 h-5" />
+            <button className="px-2 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-2">
+              <Upload className="w-3 h-3" />
               Import from JSON
             </button>
           </div>
         </div>
       </div>
 
-      <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border-2 border-yellow-200 dark:border-yellow-800 p-6">
+      <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-md border-2 border-yellow-200 dark:border-yellow-800 p-3">
         <div className="flex items-start gap-3">
-          <WarningIcon className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" />
+          <WarningIcon className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
           <div>
             <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">Dangerous Operations</h3>
-            <p className="text-sm text-yellow-800 dark:text-yellow-200 mb-4">
+            <p className="text-sm text-yellow-800 dark:text-yellow-200 mb-2">
               These operations can significantly impact the application. Use with caution.
             </p>
             <div className="space-y-2">
-              <button className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 justify-center">
-                <WarningIcon className="w-5 h-5" />
+              <button className="w-full px-2 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 justify-center">
+                <WarningIcon className="w-3 h-3" />
                 Reset All Configuration to Defaults
               </button>
-              <button className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2 justify-center">
-                <MagicWand className="w-5 h-5" />
+              <button className="w-full px-2 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2 justify-center">
+                <MagicWand className="w-3 h-3" />
                 Recalculate All Policy-Driven Settings
               </button>
             </div>
@@ -847,55 +847,55 @@ export default function CTAConfigurationHub() {
     {
       id: 'overview',
       label: 'Overview',
-      icon: <Gear className="w-5 h-5" />,
+      icon: <Gear className="w-3 h-3" />,
       content: <OverviewContent />
     },
     {
       id: 'organization',
       label: 'Organization & Branding',
-      icon: <Building className="w-5 h-5" />,
+      icon: <Building className="w-3 h-3" />,
       content: <OrganizationBrandingContent />
     },
     {
       id: 'modules',
       label: 'Modules & Features',
-      icon: <SquaresFour className="w-5 h-5" />,
+      icon: <SquaresFour className="w-3 h-3" />,
       content: <ModulesFeaturesContent />
     },
     {
       id: 'business-rules',
       label: 'Business Rules',
-      icon: <Sliders className="w-5 h-5" />,
+      icon: <Sliders className="w-3 h-3" />,
       content: <BusinessRulesContent />
     },
     {
       id: 'rbac',
       label: 'RBAC (SOP-Driven)',
-      icon: <Shield className="w-5 h-5" />,
+      icon: <Shield className="w-3 h-3" />,
       content: <RBACConfiguration />
     },
     {
       id: 'integrations',
       label: 'Integrations & APIs',
-      icon: <Plugs className="w-5 h-5" />,
+      icon: <Plugs className="w-3 h-3" />,
       content: <IntegrationsContent />
     },
     {
       id: 'notifications',
       label: 'Notifications & Alerts',
-      icon: <Bell className="w-5 h-5" />,
+      icon: <Bell className="w-3 h-3" />,
       content: <NotificationsContent />
     },
     {
       id: 'security',
       label: 'Security & Access',
-      icon: <Shield className="w-5 h-5" />,
+      icon: <Shield className="w-3 h-3" />,
       content: <SecurityContent />
     },
     {
       id: 'advanced',
       label: 'Advanced',
-      icon: <Code className="w-5 h-5" />,
+      icon: <Code className="w-3 h-3" />,
       content: <AdvancedContent />
     }
   ]
@@ -904,7 +904,7 @@ export default function CTAConfigurationHub() {
     <HubPage
       title="CTA Configuration"
       description="Complete control over every aspect of the Fleet application"
-      icon={<Gear className="w-6 h-6" />}
+      icon={<Gear className="w-4 h-4" />}
       tabs={tabs}
       defaultTab="overview"
       gradient="from-purple-900/20 via-blue-900/10 to-transparent"
