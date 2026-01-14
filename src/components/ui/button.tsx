@@ -5,35 +5,35 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-all duration-200 ease-out disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive active:scale-[0.98]",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all duration-150 ease-out disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
         default:
-          "bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-md hover:shadow-lg hover:shadow-primary/25 border border-primary/20",
+          "bg-[var(--minimalist-accent-blue)] hover:bg-blue-600 text-white border-0 rounded-md",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-md hover:bg-destructive/90 hover:shadow-lg hover:shadow-destructive/20 focus-visible:ring-destructive/30",
+          "bg-[var(--minimalist-accent-red)] text-white hover:bg-red-600 rounded-md",
         outline:
-          "border border-border/50 bg-background shadow-sm hover:bg-muted/50 hover:border-border hover:shadow-md dark:bg-card/50 dark:hover:bg-muted/50",
+          "border border-[var(--minimalist-border-medium)] bg-transparent hover:bg-[var(--minimalist-bg-tertiary)] text-[var(--minimalist-text-primary)] rounded-md",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 hover:shadow-md",
+          "bg-[var(--minimalist-bg-tertiary)] text-[var(--minimalist-text-primary)] hover:bg-[var(--minimalist-bg-elevated)] rounded-md",
         ghost:
-          "hover:bg-muted/70 hover:text-foreground active:bg-muted",
+          "hover:bg-[var(--minimalist-bg-tertiary)] hover:text-[var(--minimalist-text-primary)] rounded-md",
         link:
-          "text-primary underline-offset-4 hover:underline active:scale-100",
+          "text-primary underline-offset-4 hover:underline",
         success:
-          "bg-success text-white shadow-md hover:bg-success/90 hover:shadow-lg hover:shadow-success/20",
+          "bg-[var(--minimalist-accent-green)] text-white hover:bg-green-600 rounded-md",
         warning:
-          "bg-warning text-white shadow-md hover:bg-warning/90 hover:shadow-lg hover:shadow-warning/20",
+          "bg-[var(--minimalist-accent-amber)] text-white hover:bg-amber-600 rounded-md",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-lg gap-1.5 px-3 text-xs has-[>svg]:px-2",
-        lg: "h-10 rounded-xl px-5 text-sm has-[>svg]:px-4",
-        xl: "h-11 rounded-xl px-6 text-base has-[>svg]:px-5",
-        icon: "size-9 rounded-xl",
-        "icon-sm": "size-7 rounded-lg",
-        "icon-lg": "size-10 rounded-xl",
+        sm: "h-8 gap-1.5 px-3 text-xs has-[>svg]:px-2",
+        lg: "h-10 px-5 text-sm has-[>svg]:px-4",
+        xl: "h-11 px-6 text-base has-[>svg]:px-5",
+        icon: "size-9",
+        "icon-sm": "size-7",
+        "icon-lg": "size-10",
         touch: "h-11 px-5 py-2.5 has-[>svg]:px-4 min-h-[44px] min-w-[44px]",
       },
     },
