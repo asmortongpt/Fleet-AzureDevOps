@@ -123,6 +123,7 @@ import driverScorecardRouter from './routes/driver-scorecard.routes'
 import driversRouter from './routes/drivers'
 import evManagementRouter from './routes/ev-management.routes'
 import executiveDashboardRouter from './routes/executive-dashboard.routes'
+import dashboardRouter from './routes/dashboard.routes'
 import facilitiesRouter from './routes/facilities'
 import fleetDocumentsRouter from './routes/fleet-documents.routes'
 import fuelRouter from './routes/fuel-transactions'
@@ -431,6 +432,9 @@ app.use('/api/arcgis-layers', arcgisLayersRouter)
 app.use('/api/outlook', outlookRouter)
 app.use('/api/video-events', videoEventsRouter)
 app.use('/api/video-telematics', videoTelematicsRouter)
+
+// Dashboard API Routes (Role-Based Dashboards)
+app.use('/api/dashboard', dashboardRouter)
 
 // Emulator & Testing Routes
 app.use('/api/emulator', emulatorRouter)

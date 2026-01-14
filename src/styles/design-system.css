@@ -274,6 +274,60 @@
   --spacing-24: 6rem;
   --spacing-28: 7rem;
   --spacing-32: 8rem;
+
+  /* ==========================================
+     COMPACT DESIGN SCALE - 20% Size Reduction
+     ========================================== */
+
+  /* Compact Font Sizes */
+  --font-xs: 0.625rem;    /* 10px - reduced from 12px */
+  --font-sm: 0.75rem;     /* 12px - reduced from 14px */
+  --font-base: 0.875rem;  /* 14px - reduced from 16px */
+  --font-md: 1rem;        /* 16px - reduced from 18px */
+  --font-lg: 1.125rem;    /* 18px - reduced from 20px */
+  --font-xl: 1.25rem;     /* 20px - reduced from 24px */
+  --font-2xl: 1.5rem;     /* 24px - reduced from 30px */
+  --font-3xl: 1.875rem;   /* 30px - reduced from 36px */
+
+  /* Compact Spacing for UI Elements */
+  --space-xs: 0.25rem;    /* 4px */
+  --space-sm: 0.5rem;     /* 8px */
+  --space-md: 0.75rem;    /* 12px */
+  --space-lg: 1rem;       /* 16px */
+  --space-xl: 1.5rem;     /* 24px */
+  --space-2xl: 2rem;      /* 32px */
+
+  /* Compact Navigation */
+  --nav-width: 200px;        /* Reduced from 240px */
+  --nav-width-collapsed: 60px;
+  --nav-item-height: 36px;   /* Reduced from 48px */
+  --nav-padding: 0.5rem;     /* Reduced from 1rem */
+  --nav-gap: 0.25rem;        /* Reduced from 0.5rem */
+
+  /* Compact Component Sizes */
+  --button-height-sm: 2rem;     /* 32px - reduced from 36px */
+  --button-height-md: 2.25rem;  /* 36px - reduced from 40px */
+  --button-height-lg: 2.75rem;  /* 44px - reduced from 48px */
+  --button-padding-sm: 0.5rem 0.875rem;
+  --button-padding-md: 0.625rem 1.25rem;
+  --button-padding-lg: 0.75rem 1.75rem;
+
+  --card-padding-sm: 0.75rem;   /* 12px - reduced from 16px */
+  --card-padding-md: 1rem;      /* 16px - reduced from 24px */
+  --card-padding-lg: 1.5rem;    /* 24px - reduced from 32px */
+  --card-gap-sm: 0.75rem;       /* 12px */
+  --card-gap-md: 1rem;          /* 16px */
+  --card-gap-lg: 1.5rem;        /* 24px */
+
+  --header-height: 3.5rem;      /* 56px - reduced from 64px */
+  --header-height-mobile: 3rem; /* 48px - reduced from 56px */
+
+  /* Icon Sizes */
+  --icon-xs: 0.875rem;   /* 14px */
+  --icon-sm: 1rem;       /* 16px */
+  --icon-md: 1.25rem;    /* 20px */
+  --icon-lg: 1.5rem;     /* 24px */
+  --icon-xl: 2rem;       /* 32px */
 }
 
 /* ==========================================
