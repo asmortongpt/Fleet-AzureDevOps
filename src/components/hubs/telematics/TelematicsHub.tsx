@@ -58,12 +58,12 @@ export const TelematicsHub: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-2 p-3">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <MapPin className="w-8 h-8 text-primary" />
+          <h1 className="text-base font-bold flex items-center gap-3">
+            <MapPin className="w-4 h-4 text-primary" />
             Telematics Dashboard
           </h1>
           <p className="text-muted-foreground mt-2">
@@ -75,7 +75,7 @@ export const TelematicsHub: React.FC = () => {
         <div className="flex gap-2">
           <button
             onClick={() => setSelectedSource('geotab')}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-2 py-2 rounded-lg ${
               selectedSource === 'geotab'
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-secondary'
@@ -85,7 +85,7 @@ export const TelematicsHub: React.FC = () => {
           </button>
           <button
             onClick={() => setSelectedSource('samsara')}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-2 py-2 rounded-lg ${
               selectedSource === 'samsara'
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-secondary'
@@ -95,7 +95,7 @@ export const TelematicsHub: React.FC = () => {
           </button>
           <button
             onClick={() => setSelectedSource('obd')}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-2 py-2 rounded-lg ${
               selectedSource === 'obd'
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-secondary'
@@ -107,22 +107,22 @@ export const TelematicsHub: React.FC = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-card border border-border rounded-lg p-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+        <div className="bg-card border border-border rounded-lg p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Vehicles Tracked</p>
-              <p className="text-2xl font-bold">{vehicles.length}</p>
+              <p className="text-sm font-bold">{vehicles.length}</p>
             </div>
-            <Activity className="w-8 h-8 text-green-500" />
+            <Activity className="w-4 h-4 text-green-500" />
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-lg p-4">
+        <div className="bg-card border border-border rounded-lg p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Avg Speed</p>
-              <p className="text-2xl font-bold">
+              <p className="text-sm font-bold">
                 {vehicles.length > 0
                   ? Math.round(
                       vehicles.reduce((sum, v) => sum + (v.location?.speed || 0), 0) /
@@ -132,48 +132,48 @@ export const TelematicsHub: React.FC = () => {
                 km/h
               </p>
             </div>
-            <Zap className="w-8 h-8 text-blue-800" />
+            <Zap className="w-4 h-4 text-blue-800" />
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-lg p-4">
+        <div className="bg-card border border-border rounded-lg p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Active Alerts</p>
-              <p className="text-2xl font-bold">3</p>
+              <p className="text-sm font-bold">3</p>
             </div>
-            <AlertTriangle className="w-8 h-8 text-yellow-500" />
+            <AlertTriangle className="w-4 h-4 text-yellow-500" />
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-lg p-4">
+        <div className="bg-card border border-border rounded-lg p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Data Source</p>
-              <p className="text-2xl font-bold capitalize">{selectedSource}</p>
+              <p className="text-sm font-bold capitalize">{selectedSource}</p>
             </div>
-            <MapPin className="w-8 h-8 text-primary" />
+            <MapPin className="w-4 h-4 text-primary" />
           </div>
         </div>
       </div>
 
       {/* Vehicle List */}
-      <div className="bg-card border border-border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">Live Vehicle Locations</h2>
+      <div className="bg-card border border-border rounded-lg p-3">
+        <h2 className="text-base font-semibold mb-2">Live Vehicle Locations</h2>
 
         {loading ? (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-3 text-muted-foreground">
             Loading telematics data...
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-2">
             {vehicles.map((vehicle) => (
               <div
                 key={vehicle.id}
-                className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent cursor-pointer"
+                className="flex items-center justify-between p-2 border border-border rounded-lg hover:bg-accent cursor-pointer"
               >
-                <div className="flex items-center gap-4">
-                  <MapPin className="w-5 h-5 text-primary" />
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-3 h-3 text-primary" />
                   <div>
                     <p className="font-medium">{vehicle.name || vehicle.id}</p>
                     {vehicle.location && (
@@ -186,7 +186,7 @@ export const TelematicsHub: React.FC = () => {
                 </div>
 
                 {vehicle.location && (
-                  <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-2">
                     <div className="text-right">
                       <p className="text-sm text-muted-foreground">Speed</p>
                       <p className="font-medium">{Math.round(vehicle.location.speed)} km/h</p>

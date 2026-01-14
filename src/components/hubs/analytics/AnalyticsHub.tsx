@@ -8,12 +8,12 @@ import { DataWorkbench } from './DataWorkbench';
 
 export const AnalyticsHub: React.FC = () => {
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-2 p-3">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <BarChart3 className="w-8 h-8 text-primary" />
+          <h1 className="text-base font-bold flex items-center gap-3">
+            <BarChart3 className="w-4 h-4 text-primary" />
             Analytics Dashboard
           </h1>
           <p className="text-muted-foreground mt-2">
@@ -23,34 +23,34 @@ export const AnalyticsHub: React.FC = () => {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-card border border-border rounded-lg p-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div className="bg-card border border-border rounded-lg p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Total Records</p>
-              <p className="text-2xl font-bold">1,247</p>
+              <p className="text-sm font-bold">1,247</p>
             </div>
-            <Database className="w-8 h-8 text-blue-800" />
+            <Database className="w-4 h-4 text-blue-800" />
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-lg p-4">
+        <div className="bg-card border border-border rounded-lg p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Avg Cost/Vehicle</p>
-              <p className="text-2xl font-bold">$4,235</p>
+              <p className="text-sm font-bold">$4,235</p>
             </div>
-            <TrendingUp className="w-8 h-8 text-green-500" />
+            <TrendingUp className="w-4 h-4 text-green-500" />
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-lg p-4">
+        <div className="bg-card border border-border rounded-lg p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Data Points</p>
-              <p className="text-2xl font-bold">12,450</p>
+              <p className="text-sm font-bold">12,450</p>
             </div>
-            <BarChart3 className="w-8 h-8 text-primary" />
+            <BarChart3 className="w-4 h-4 text-primary" />
           </div>
         </div>
       </div>

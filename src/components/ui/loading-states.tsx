@@ -68,7 +68,7 @@ export const TableSkeleton: React.FC<{ rows?: number; columns?: number }> = ({
   return (
     <div className="w-full space-y-3" role="status" aria-label="Loading table data">
       {/* Header */}
-      <div className="flex gap-4 p-4 bg-slate-50 dark:bg-slate-900 rounded-t-lg">
+      <div className="flex gap-2 p-2 bg-slate-50 dark:bg-slate-900 rounded-t-lg">
         {Array.from({ length: columns }).map((_, i) => (
           <Skeleton key={i} className="h-4 flex-1" />
         ))}
@@ -81,7 +81,7 @@ export const TableSkeleton: React.FC<{ rows?: number; columns?: number }> = ({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: rowIndex * 0.05 }}
-          className="flex gap-4 p-4 border-b border-slate-100 dark:border-slate-800"
+          className="flex gap-2 p-2 border-b border-slate-100 dark:border-slate-800"
         >
           {Array.from({ length: columns }).map((_, colIndex) => (
             <Skeleton
@@ -100,7 +100,7 @@ export const TableSkeleton: React.FC<{ rows?: number; columns?: number }> = ({
 
 export const CardSkeleton: React.FC<{ showImage?: boolean }> = ({ showImage = false }) => {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-3 space-y-2">
       {showImage && <Skeleton className="h-48 w-full" />}
       <Skeleton className="h-6 w-3/4" />
       <Skeleton className="h-4 w-full" />
@@ -115,14 +115,14 @@ export const CardSkeleton: React.FC<{ showImage?: boolean }> = ({ showImage = fa
 
 export const StatCardSkeleton: React.FC = () => {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-6">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-3">
       <div className="flex items-start justify-between">
         <div className="space-y-2 flex-1">
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-8 w-32" />
           <Skeleton className="h-3 w-20" />
         </div>
-        <Skeleton className="h-12 w-12" rounded="lg" />
+        <Skeleton className="h-9 w-12" rounded="lg" />
       </div>
     </div>
   )
@@ -130,8 +130,8 @@ export const StatCardSkeleton: React.FC = () => {
 
 export const ChartSkeleton: React.FC<{ height?: string }> = ({ height = '300px' }) => {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-6">
-      <div className="space-y-4">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-3">
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Skeleton className="h-6 w-32" />
           <Skeleton className="h-8 w-24" rounded="full" />
@@ -165,9 +165,9 @@ export const ListSkeleton: React.FC<{ items?: number }> = ({ items = 5 }) => {
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: i * 0.05 }}
-          className="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800"
+          className="flex items-center gap-2 p-2 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800"
         >
-          <Skeleton className="h-10 w-10" rounded="full" />
+          <Skeleton className="h-8 w-10" rounded="full" />
           <div className="flex-1 space-y-2">
             <Skeleton className="h-4 w-1/3" />
             <Skeleton className="h-3 w-1/2" />
@@ -197,9 +197,9 @@ export const Spinner: React.FC<SpinnerProps> = ({
   const sizeClasses = {
     xs: 'w-3 h-3',
     sm: 'w-4 h-4',
-    md: 'w-6 h-6',
-    lg: 'w-8 h-8',
-    xl: 'w-12 h-12'
+    md: 'w-4 h-4',
+    lg: 'w-4 h-4',
+    xl: 'w-12 h-9'
   }
 
   return (
@@ -247,9 +247,9 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white dark:bg-slate-800 rounded-lg shadow-xl p-6 max-w-sm w-full mx-4"
+            className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-3 max-w-sm w-full mx-2"
           >
-            <div className="flex flex-col items-center space-y-4">
+            <div className="flex flex-col items-center space-y-2">
               <Spinner size="lg" />
               <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
                 {message}
@@ -335,16 +335,16 @@ export function AsyncState<T>({
 // ============================================================================
 
 const DefaultLoadingState: React.FC = () => (
-  <div className="flex flex-col items-center justify-center p-8 space-y-4">
+  <div className="flex flex-col items-center justify-center p-3 space-y-2">
     <Spinner size="lg" />
     <p className="text-sm text-slate-500 dark:text-slate-400">Loading data...</p>
   </div>
 )
 
 const DefaultErrorState: React.FC<{ error: Error }> = ({ error }) => (
-  <div className="flex flex-col items-center justify-center p-8 space-y-4">
+  <div className="flex flex-col items-center justify-center p-3 space-y-2">
     <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
-      <XCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
+      <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
     </div>
     <div className="text-center">
       <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
@@ -356,7 +356,7 @@ const DefaultErrorState: React.FC<{ error: Error }> = ({ error }) => (
     </div>
     <button
       onClick={() => window.location.reload()}
-      className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+      className="px-2 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
     >
       Try Again
     </button>
@@ -364,9 +364,9 @@ const DefaultErrorState: React.FC<{ error: Error }> = ({ error }) => (
 )
 
 const DefaultEmptyState: React.FC = () => (
-  <div className="flex flex-col items-center justify-center p-8 space-y-4">
+  <div className="flex flex-col items-center justify-center p-3 space-y-2">
     <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full">
-      <Clock className="w-8 h-8 text-slate-400" />
+      <Clock className="w-4 h-4 text-slate-400" />
     </div>
     <div className="text-center">
       <p className="text-sm font-medium text-slate-900 dark:text-slate-100">

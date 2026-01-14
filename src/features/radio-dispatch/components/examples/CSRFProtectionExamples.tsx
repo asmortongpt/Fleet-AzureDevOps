@@ -71,11 +71,11 @@ export function CreateIncidentExample() {
   };
 
   return (
-    <div className="p-4 border rounded">
-      <h3 className="text-lg font-semibold mb-4">
+    <div className="p-2 border rounded">
+      <h3 className="text-sm font-semibold mb-2">
         Example 1: Create Incident (useMutation)
       </h3>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-2">
         <div>
           <label className="block text-sm font-medium mb-1">Title</label>
           <input
@@ -115,7 +115,7 @@ export function CreateIncidentExample() {
         <button
           type="submit"
           disabled={createIncident.loading}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          className="px-2 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
         >
           {createIncident.loading ? 'Creating...' : 'Create Incident'}
         </button>
@@ -164,11 +164,11 @@ export function UpdateIncidentExample({ incidentId }: { incidentId: string }) {
   };
 
   return (
-    <div className="p-4 border rounded">
-      <h3 className="text-lg font-semibold mb-4">
+    <div className="p-2 border rounded">
+      <h3 className="text-sm font-semibold mb-2">
         Example 2: Update Incident (Direct API)
       </h3>
-      <div className="space-y-4">
+      <div className="space-y-2">
         <div>
           <label className="block text-sm font-medium mb-1">Status</label>
           <select
@@ -185,7 +185,7 @@ export function UpdateIncidentExample({ incidentId }: { incidentId: string }) {
         <button
           onClick={handleUpdate}
           disabled={loading}
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+          className="px-2 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
         >
           {loading ? 'Updating...' : 'Update Incident'}
         </button>
@@ -229,14 +229,14 @@ export function DeleteIncidentExample({ incidentId }: { incidentId: string }) {
   };
 
   return (
-    <div className="p-4 border rounded">
-      <h3 className="text-lg font-semibold mb-4">
+    <div className="p-2 border rounded">
+      <h3 className="text-sm font-semibold mb-2">
         Example 3: Delete Incident
       </h3>
       <button
         onClick={handleDelete}
         disabled={deleteIncident.loading}
-        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+        className="px-2 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
       >
         {deleteIncident.loading ? 'Deleting...' : 'Delete Incident'}
       </button>
@@ -262,11 +262,11 @@ export function DeleteIncidentExample({ incidentId }: { incidentId: string }) {
 
 export function HTMLFormExample() {
   return (
-    <div className="p-4 border rounded">
-      <h3 className="text-lg font-semibold mb-4">
+    <div className="p-2 border rounded">
+      <h3 className="text-sm font-semibold mb-2">
         Example 4: HTML Form with CSRF Token
       </h3>
-      <form method="POST" action="/api/submit" className="space-y-4">
+      <form method="POST" action="/api/submit" className="space-y-2">
         {/* CSRF token automatically included in form data */}
         <CSRFInput />
 
@@ -292,7 +292,7 @@ export function HTMLFormExample() {
 
         <button
           type="submit"
-          className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+          className="px-2 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
         >
           Submit Form
         </button>
@@ -309,8 +309,8 @@ export function CSRFTokenDisplay() {
   const csrfToken = useCSRFToken();
 
   return (
-    <div className="p-4 border rounded">
-      <h3 className="text-lg font-semibold mb-4">
+    <div className="p-2 border rounded">
+      <h3 className="text-sm font-semibold mb-2">
         Example 5: Display CSRF Token
       </h3>
       <div className="space-y-2">
@@ -359,11 +359,11 @@ export function BatchOperationsExample() {
   };
 
   return (
-    <div className="p-4 border rounded">
-      <h3 className="text-lg font-semibold mb-4">
+    <div className="p-2 border rounded">
+      <h3 className="text-sm font-semibold mb-2">
         Example 6: Batch Operations
       </h3>
-      <div className="space-y-4">
+      <div className="space-y-2">
         <div>
           <p className="text-sm text-slate-700 mb-2">
             Selected incidents: {selectedIds.length}
@@ -387,7 +387,7 @@ export function BatchOperationsExample() {
         <button
           onClick={handleBatchUpdate}
           disabled={loading || selectedIds.length === 0}
-          className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 disabled:opacity-50"
+          className="px-2 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 disabled:opacity-50"
         >
           {loading ? 'Updating...' : 'Close Selected Incidents'}
         </button>
@@ -408,13 +408,13 @@ export function BatchOperationsExample() {
 
 export function CSRFProtectionExamples() {
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-2">CSRF Protection Examples</h1>
-      <p className="text-slate-700 mb-8">
+    <div className="container mx-auto p-3">
+      <h1 className="text-base font-bold mb-2">CSRF Protection Examples</h1>
+      <p className="text-slate-700 mb-3">
         All examples automatically include CSRF tokens. No manual token handling required!
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         <CreateIncidentExample />
         <UpdateIncidentExample incidentId="example-123" />
         <DeleteIncidentExample incidentId="example-123" />
@@ -423,7 +423,7 @@ export function CSRFProtectionExamples() {
         <BatchOperationsExample />
       </div>
 
-      <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded">
+      <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded">
         <h2 className="font-semibold mb-2">How It Works</h2>
         <ul className="list-disc list-inside space-y-1 text-sm">
           <li>CSRF token is fetched when the app loads (in Providers component)</li>

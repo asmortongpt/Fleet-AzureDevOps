@@ -209,11 +209,11 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {vehicle && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Vehicle Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <h3 className="text-2xl font-bold">{vehicle.name}</h3>
+              <h3 className="text-sm font-bold">{vehicle.name}</h3>
               <p className="text-sm text-muted-foreground">
                 {vehicle.year} {vehicle.make} {vehicle.model}
               </p>
@@ -228,11 +228,11 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 )}
               </div>
             </div>
-            <Car className="h-12 w-12 text-muted-foreground" />
+            <Car className="h-9 w-12 text-muted-foreground" />
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -241,7 +241,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-sm font-bold">
                   {vehicle.mileage?.toLocaleString() || '0'} mi
                 </div>
               </CardContent>
@@ -255,7 +255,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{vehicle.fuel_level || 0}%</div>
+                <div className="text-sm font-bold">{vehicle.fuel_level || 0}%</div>
                 <Progress value={vehicle.fuel_level || 0} className="mt-2" />
               </CardContent>
             </Card>
@@ -268,7 +268,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{vehicle.health_score || 0}%</div>
+                <div className="text-sm font-bold">{vehicle.health_score || 0}%</div>
                 <Progress value={vehicle.health_score || 0} className="mt-2" />
               </CardContent>
             </Card>
@@ -281,7 +281,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{vehicle.uptime || 0}%</div>
+                <div className="text-sm font-bold">{vehicle.uptime || 0}%</div>
                 <Progress value={vehicle.uptime || 0} className="mt-2" />
               </CardContent>
             </Card>
@@ -299,14 +299,14 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             </TabsList>
 
             {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-4">
+            <TabsContent value="overview" className="space-y-2">
               {/* Vehicle Information */}
               <Card>
                 <CardHeader>
                   <CardTitle>Vehicle Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">VIN</p>
                       <p className="font-medium">{vehicle.vin || 'N/A'}</p>
@@ -337,7 +337,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-2">
                       {vehicle.asset_category && (
                         <div>
                           <p className="text-sm text-muted-foreground">Category</p>
@@ -402,7 +402,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                         {/* Odometer (from existing mileage field) */}
                         {(vehicle.odometer || vehicle.mileage) && (
                           <MetricCard
@@ -460,7 +460,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                       </div>
 
                       {vehicle.last_metric_update && (
-                        <p className="text-xs text-muted-foreground mt-4">
+                        <p className="text-xs text-muted-foreground mt-2">
                           Last updated:{' '}
                           {new Date(vehicle.last_metric_update).toLocaleString()}
                         </p>
@@ -484,11 +484,11 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {vehicle.capacity_tons && (
                           <div>
                             <p className="text-sm text-muted-foreground">Capacity</p>
-                            <p className="font-medium text-lg">
+                            <p className="font-medium text-sm">
                               {vehicle.capacity_tons} <span className="text-sm">tons</span>
                             </p>
                           </div>
@@ -496,7 +496,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                         {vehicle.lift_height_feet && (
                           <div>
                             <p className="text-sm text-muted-foreground">Lift Height</p>
-                            <p className="font-medium text-lg">
+                            <p className="font-medium text-sm">
                               {vehicle.lift_height_feet} <span className="text-sm">ft</span>
                             </p>
                           </div>
@@ -504,7 +504,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                         {vehicle.max_reach_feet && (
                           <div>
                             <p className="text-sm text-muted-foreground">Max Reach</p>
-                            <p className="font-medium text-lg">
+                            <p className="font-medium text-sm">
                               {vehicle.max_reach_feet} <span className="text-sm">ft</span>
                             </p>
                           </div>
@@ -512,7 +512,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                         {vehicle.bucket_capacity_yards && (
                           <div>
                             <p className="text-sm text-muted-foreground">Bucket Capacity</p>
-                            <p className="font-medium text-lg">
+                            <p className="font-medium text-sm">
                               {vehicle.bucket_capacity_yards} <span className="text-sm">yd³</span>
                             </p>
                           </div>
@@ -520,7 +520,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                         {vehicle.operating_weight_lbs && (
                           <div>
                             <p className="text-sm text-muted-foreground">Operating Weight</p>
-                            <p className="font-medium text-lg">
+                            <p className="font-medium text-sm">
                               {vehicle.operating_weight_lbs} <span className="text-sm">lbs</span>
                             </p>
                           </div>
@@ -531,7 +531,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 )}
 
               {/* Cost Summary */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm flex items-center gap-2">
@@ -540,7 +540,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">${totalMaintenanceCost.toFixed(2)}</div>
+                    <div className="text-sm font-bold">${totalMaintenanceCost.toFixed(2)}</div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {maintenanceHistory?.length || 0} records
                     </p>
@@ -555,7 +555,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-destructive">
+                    <div className="text-sm font-bold text-destructive">
                       ${totalIncidentCost.toFixed(2)}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -567,7 +567,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             </TabsContent>
 
             {/* Maintenance Tab */}
-            <TabsContent value="maintenance" className="space-y-4">
+            <TabsContent value="maintenance" className="space-y-2">
               {maintenanceHistory && maintenanceHistory.length > 0 ? (
                 <div className="space-y-3">
                   {maintenanceHistory.map((record) => (
@@ -576,7 +576,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                       className="cursor-pointer hover:shadow-md transition-shadow"
                       onClick={() => handleViewWorkOrder(record.id, record.work_order_number)}
                     >
-                      <CardContent className="p-4">
+                      <CardContent className="p-2">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
@@ -603,7 +603,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                               </p>
                             )}
                           </div>
-                          <div className="text-right ml-4">
+                          <div className="text-right ml-2">
                             <p className="text-sm font-medium">${record.cost.toFixed(2)}</p>
                             <p className="text-xs text-muted-foreground">
                               {new Date(record.date).toLocaleDateString()}
@@ -617,7 +617,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <Wrench className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <Wrench className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No maintenance records</p>
                   </CardContent>
                 </Card>
@@ -625,7 +625,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             </TabsContent>
 
             {/* Incidents Tab */}
-            <TabsContent value="incidents" className="space-y-4">
+            <TabsContent value="incidents" className="space-y-2">
               {incidents && incidents.length > 0 ? (
                 <div className="space-y-3">
                   {incidents.map((incident) => (
@@ -634,7 +634,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                       className="cursor-pointer hover:shadow-md transition-shadow"
                       onClick={() => handleViewIncident(incident.id, incident.incident_number)}
                     >
-                      <CardContent className="p-4">
+                      <CardContent className="p-2">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
@@ -656,7 +656,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                             </div>
                             <p className="text-sm text-muted-foreground">{incident.description}</p>
                           </div>
-                          <div className="text-right ml-4">
+                          <div className="text-right ml-2">
                             {incident.cost !== undefined && (
                               <p className="text-sm font-medium text-destructive">
                                 ${incident.cost.toFixed(2)}
@@ -674,7 +674,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <AlertTriangle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <AlertTriangle className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No incidents recorded</p>
                   </CardContent>
                 </Card>
@@ -682,20 +682,20 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             </TabsContent>
 
             {/* Trips Tab */}
-            <TabsContent value="trips" className="space-y-4">
+            <TabsContent value="trips" className="space-y-2">
               {trips && trips.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <Card>
-                      <CardContent className="pt-6">
+                      <CardContent className="pt-3">
                         <div className="text-sm text-muted-foreground">Total Trips</div>
-                        <div className="text-2xl font-bold">{totalTrips}</div>
+                        <div className="text-sm font-bold">{totalTrips}</div>
                       </CardContent>
                     </Card>
                     <Card>
-                      <CardContent className="pt-6">
+                      <CardContent className="pt-3">
                         <div className="text-sm text-muted-foreground">Total Distance</div>
-                        <div className="text-2xl font-bold">{totalDistance.toFixed(1)} mi</div>
+                        <div className="text-sm font-bold">{totalDistance.toFixed(1)} mi</div>
                       </CardContent>
                     </Card>
                   </div>
@@ -703,7 +703,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                   <div className="space-y-3">
                     {trips.slice(0, 10).map((trip) => (
                       <Card key={trip.id}>
-                        <CardContent className="p-4">
+                        <CardContent className="p-2">
                           <div className="space-y-2">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
@@ -744,7 +744,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <Route className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <Route className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No trips recorded</p>
                   </CardContent>
                 </Card>
@@ -752,12 +752,12 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             </TabsContent>
 
             {/* Inspections Tab */}
-            <TabsContent value="inspections" className="space-y-4">
+            <TabsContent value="inspections" className="space-y-2">
               {inspections && inspections.length > 0 ? (
                 <div className="space-y-3">
                   {inspections.map((inspection) => (
                     <Card key={inspection.id}>
-                      <CardContent className="p-4">
+                      <CardContent className="p-2">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
@@ -788,7 +788,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                               </p>
                             )}
                           </div>
-                          <div className="text-right ml-4">
+                          <div className="text-right ml-2">
                             <p className="text-xs text-muted-foreground">
                               {new Date(inspection.date).toLocaleDateString()}
                             </p>
@@ -801,7 +801,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <FileText className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No inspections recorded</p>
                   </CardContent>
                 </Card>
@@ -809,21 +809,21 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             </TabsContent>
 
             {/* Fuel Tab */}
-            <TabsContent value="fuel" className="space-y-4">
+            <TabsContent value="fuel" className="space-y-2">
               {fuelRecords && fuelRecords.length > 0 ? (
                 <>
                   <Card>
-                    <CardContent className="pt-6">
-                      <div className="grid grid-cols-2 gap-4">
+                    <CardContent className="pt-3">
+                      <div className="grid grid-cols-2 gap-2">
                         <div>
                           <p className="text-sm text-muted-foreground">Total Fuel</p>
-                          <p className="text-2xl font-bold">
+                          <p className="text-sm font-bold">
                             {fuelRecords.reduce((sum, record) => sum + record.gallons, 0).toFixed(1)} gal
                           </p>
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Total Cost</p>
-                          <p className="text-2xl font-bold">
+                          <p className="text-sm font-bold">
                             ${fuelRecords.reduce((sum, record) => sum + record.cost, 0).toFixed(2)}
                           </p>
                         </div>
@@ -834,7 +834,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                   <div className="space-y-3">
                     {fuelRecords.map((record) => (
                       <Card key={record.id}>
-                        <CardContent className="p-4">
+                        <CardContent className="p-2">
                           <div className="flex items-center justify-between">
                             <div className="flex-1">
                               <p className="font-medium">{record.gallons.toFixed(2)} gallons</p>
@@ -862,7 +862,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <Fuel className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <Fuel className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No fuel records</p>
                   </CardContent>
                 </Card>

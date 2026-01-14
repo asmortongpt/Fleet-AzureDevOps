@@ -11,11 +11,11 @@ import { Skeleton } from '@/components/ui/skeleton'
  */
 export function VehicleFormSkeleton() {
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-2 max-w-4xl mx-auto">
       {/* Form Header */}
       <div className="h-16 flex items-center justify-between">
         <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-10 w-24" />
+        <Skeleton className="h-8 w-24" />
       </div>
 
       {/* Section 1: Basic Information - 12 fields */}
@@ -23,39 +23,39 @@ export function VehicleFormSkeleton() {
         <CardHeader className="h-16">
           <Skeleton className="h-6 w-48" />
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-2">
           {/* Row 1: VIN, Year */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <FormFieldSkeleton label="VIN" required />
             <FormFieldSkeleton label="Year" required />
           </div>
 
           {/* Row 2: Make, Model */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <FormFieldSkeleton label="Make" required />
             <FormFieldSkeleton label="Model" required />
           </div>
 
           {/* Row 3: Color, License Plate */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <FormFieldSkeleton label="Color" />
             <FormFieldSkeleton label="License Plate" required />
           </div>
 
           {/* Row 4: Vehicle Type, Department */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <FormFieldSkeleton label="Vehicle Type" />
             <FormFieldSkeleton label="Department" />
           </div>
 
           {/* Row 5: Status, Location */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <FormFieldSkeleton label="Status" />
             <FormFieldSkeleton label="Location" />
           </div>
 
           {/* Row 6: Purchase Date, Purchase Price */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <FormFieldSkeleton label="Purchase Date" />
             <FormFieldSkeleton label="Purchase Price" />
           </div>
@@ -67,23 +67,23 @@ export function VehicleFormSkeleton() {
         <CardHeader className="h-16">
           <Skeleton className="h-6 w-48" />
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-2">
           {/* Engine, Transmission, Fuel Type */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <FormFieldSkeleton label="Engine" />
             <FormFieldSkeleton label="Transmission" />
             <FormFieldSkeleton label="Fuel Type" />
           </div>
 
           {/* Mileage, Tank Capacity, MPG */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <FormFieldSkeleton label="Mileage" />
             <FormFieldSkeleton label="Tank Capacity" />
             <FormFieldSkeleton label="MPG" />
           </div>
 
           {/* Weight, Capacity, Towing */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <FormFieldSkeleton label="Weight" />
             <FormFieldSkeleton label="Capacity" />
             <FormFieldSkeleton label="Towing Capacity" />
@@ -91,7 +91,7 @@ export function VehicleFormSkeleton() {
 
           {/* Additional specs... */}
           {[...Array(2)].map((_, i) => (
-            <div key={i} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div key={i} className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <FormFieldSkeleton />
               <FormFieldSkeleton />
               <FormFieldSkeleton />
@@ -105,9 +105,9 @@ export function VehicleFormSkeleton() {
         <CardHeader className="h-16">
           <Skeleton className="h-6 w-48" />
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-2">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <FormFieldSkeleton />
               <FormFieldSkeleton />
             </div>
@@ -121,12 +121,12 @@ export function VehicleFormSkeleton() {
         <CardHeader className="h-16">
           <Skeleton className="h-6 w-48" />
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <CardContent className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <FormFieldSkeleton label="GPS Device ID" />
             <FormFieldSkeleton label="Telematics Provider" />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <FormFieldSkeleton label="Last GPS Update" />
             <FormFieldSkeleton label="OBD2 Device ID" />
           </div>
@@ -134,9 +134,9 @@ export function VehicleFormSkeleton() {
       </Card>
 
       {/* Form Actions - Fixed Height: 80px */}
-      <div className="h-20 flex items-center justify-end gap-3 border-t pt-6">
-        <Skeleton className="h-10 w-24" />
-        <Skeleton className="h-10 w-32" />
+      <div className="h-20 flex items-center justify-end gap-3 border-t pt-3">
+        <Skeleton className="h-8 w-24" />
+        <Skeleton className="h-8 w-32" />
       </div>
     </div>
   )
@@ -148,10 +148,10 @@ export function VehicleFormSkeleton() {
  */
 export function DriverFormSkeleton() {
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-2 max-w-4xl mx-auto">
       <div className="h-16 flex items-center justify-between">
         <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-10 w-24" />
+        <Skeleton className="h-8 w-24" />
       </div>
 
       {/* Personal Information - 15 fields */}
@@ -159,9 +159,9 @@ export function DriverFormSkeleton() {
         <CardHeader className="h-16">
           <Skeleton className="h-6 w-48" />
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-2">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <FormFieldSkeleton />
               <FormFieldSkeleton />
             </div>
@@ -174,9 +174,9 @@ export function DriverFormSkeleton() {
         <CardHeader className="h-16">
           <Skeleton className="h-6 w-48" />
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-2">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <FormFieldSkeleton />
               <FormFieldSkeleton />
             </div>
@@ -189,9 +189,9 @@ export function DriverFormSkeleton() {
         <CardHeader className="h-16">
           <Skeleton className="h-6 w-48" />
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-2">
           {[...Array(2)].map((_, i) => (
-            <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <FormFieldSkeleton />
               <FormFieldSkeleton />
             </div>
@@ -199,9 +199,9 @@ export function DriverFormSkeleton() {
         </CardContent>
       </Card>
 
-      <div className="h-20 flex items-center justify-end gap-3 border-t pt-6">
-        <Skeleton className="h-10 w-24" />
-        <Skeleton className="h-10 w-32" />
+      <div className="h-20 flex items-center justify-end gap-3 border-t pt-3">
+        <Skeleton className="h-8 w-24" />
+        <Skeleton className="h-8 w-32" />
       </div>
     </div>
   )
@@ -213,10 +213,10 @@ export function DriverFormSkeleton() {
  */
 export function WorkOrderFormSkeleton() {
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-2 max-w-4xl mx-auto">
       <div className="h-16 flex items-center justify-between">
         <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-10 w-24" />
+        <Skeleton className="h-8 w-24" />
       </div>
 
       {/* Work Order Details */}
@@ -224,9 +224,9 @@ export function WorkOrderFormSkeleton() {
         <CardHeader className="h-16">
           <Skeleton className="h-6 w-48" />
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-2">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <FormFieldSkeleton />
               <FormFieldSkeleton />
             </div>
@@ -240,9 +240,9 @@ export function WorkOrderFormSkeleton() {
         <CardHeader className="h-16">
           <Skeleton className="h-6 w-48" />
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-2">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <FormFieldSkeleton />
               <FormFieldSkeleton />
             </div>
@@ -250,9 +250,9 @@ export function WorkOrderFormSkeleton() {
         </CardContent>
       </Card>
 
-      <div className="h-20 flex items-center justify-end gap-3 border-t pt-6">
-        <Skeleton className="h-10 w-24" />
-        <Skeleton className="h-10 w-32" />
+      <div className="h-20 flex items-center justify-end gap-3 border-t pt-3">
+        <Skeleton className="h-8 w-24" />
+        <Skeleton className="h-8 w-32" />
       </div>
     </div>
   )
@@ -264,27 +264,27 @@ export function WorkOrderFormSkeleton() {
  */
 export function UserManagementFormSkeleton() {
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
+    <div className="space-y-2 max-w-2xl mx-auto">
       <div className="h-16 flex items-center justify-between">
         <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-10 w-24" />
+        <Skeleton className="h-8 w-24" />
       </div>
 
       <Card className="min-h-[480px]">
         <CardHeader className="h-16">
           <Skeleton className="h-6 w-48" />
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-2">
           {/* User Details */}
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <FormFieldSkeleton />
               <FormFieldSkeleton />
             </div>
           ))}
 
           {/* Permissions */}
-          <div className="space-y-4">
+          <div className="space-y-2">
             <Skeleton className="h-5 w-32" />
             <div className="space-y-3">
               {[...Array(5)].map((_, i) => (
@@ -298,9 +298,9 @@ export function UserManagementFormSkeleton() {
         </CardContent>
       </Card>
 
-      <div className="h-20 flex items-center justify-end gap-3 border-t pt-6">
-        <Skeleton className="h-10 w-24" />
-        <Skeleton className="h-10 w-32" />
+      <div className="h-20 flex items-center justify-end gap-3 border-t pt-3">
+        <Skeleton className="h-8 w-24" />
+        <Skeleton className="h-8 w-32" />
       </div>
     </div>
   )
@@ -328,7 +328,7 @@ function FormFieldSkeleton({
       {type === 'textarea' ? (
         <Skeleton className="h-24 w-full" />
       ) : (
-        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-8 w-full" />
       )}
       {/* Space for error message */}
       <div className="h-4" />

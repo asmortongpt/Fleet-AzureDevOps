@@ -274,7 +274,7 @@ export function QualityControlPanel({
     }
 
     return (
-        <div className="absolute bottom-4 left-4 w-72 bg-slate-900/95 backdrop-blur-sm rounded-xl border border-slate-700 shadow-2xl z-50">
+        <div className="absolute bottom-4 left-4 w-72 bg-slate-900/95 backdrop-blur-sm rounded-md border border-slate-700 shadow-sm z-50">
             <div className="p-3 border-b border-slate-700 flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-white">Rendering Quality</h4>
                 <button onClick={onToggle} className="text-slate-400 hover:text-white">✕</button>

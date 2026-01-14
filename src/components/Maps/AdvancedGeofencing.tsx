@@ -548,7 +548,7 @@ export const AdvancedGeofencing: React.FC<AdvancedGeofencingProps> = ({
         <CardHeader className="border-b">
           <CardTitle className="flex items-center justify-between">
             <span className="flex items-center gap-2">
-              <MapPin className="w-5 h-5" />
+              <MapPin className="w-3 h-3" />
               Geofences ({geofences.length})
             </span>
             <div className="flex gap-1">
@@ -581,7 +581,7 @@ export const AdvancedGeofencing: React.FC<AdvancedGeofencingProps> = ({
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="p-4 space-y-4">
+        <CardContent className="p-2 space-y-2">
           {/* Drawing Controls */}
           <div>
             <h4 className="text-sm font-medium mb-2">Create New Geofence</h4>
@@ -592,7 +592,7 @@ export const AdvancedGeofencing: React.FC<AdvancedGeofencingProps> = ({
                 onClick={() => isDrawing ? cancelDrawing() : startDrawing('circle')}
                 className="flex flex-col gap-1 h-auto py-2"
               >
-                <CircleIcon className="w-5 h-5" />
+                <CircleIcon className="w-3 h-3" />
                 <span className="text-xs">Circle</span>
               </Button>
               <Button
@@ -601,7 +601,7 @@ export const AdvancedGeofencing: React.FC<AdvancedGeofencingProps> = ({
                 onClick={() => isDrawing ? cancelDrawing() : startDrawing('polygon')}
                 className="flex flex-col gap-1 h-auto py-2"
               >
-                <PolygonIcon className="w-5 h-5" />
+                <PolygonIcon className="w-3 h-3" />
                 <span className="text-xs">Polygon</span>
               </Button>
               <Button
@@ -610,7 +610,7 @@ export const AdvancedGeofencing: React.FC<AdvancedGeofencingProps> = ({
                 onClick={() => isDrawing ? cancelDrawing() : startDrawing('rectangle')}
                 className="flex flex-col gap-1 h-auto py-2"
               >
-                <Square className="w-5 h-5" />
+                <Square className="w-3 h-3" />
                 <span className="text-xs">Rectangle</span>
               </Button>
             </div>
@@ -719,8 +719,8 @@ export const AdvancedGeofencing: React.FC<AdvancedGeofencingProps> = ({
               ))}
 
               {filteredGeofences.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  <MapPin className="w-12 h-12 mx-auto mb-2 opacity-20" />
+                <div className="text-center py-3 text-muted-foreground">
+                  <MapPin className="w-12 h-9 mx-auto mb-2 opacity-20" />
                   <p className="text-sm">
                     {searchQuery ? 'No geofences found' : 'No geofences created yet'}
                   </p>

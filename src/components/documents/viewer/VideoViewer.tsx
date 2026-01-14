@@ -156,11 +156,11 @@ export function VideoViewer({ document: docMetadata }: VideoViewerProps) {
 
         {/* Audio placeholder */}
         {isAudio && (
-          <div className="flex flex-col items-center justify-center gap-4 text-white">
+          <div className="flex flex-col items-center justify-center gap-2 text-white">
             <div className="w-48 h-48 rounded-full bg-primary/20 flex items-center justify-center">
               <Volume2 className="w-24 h-24 text-primary" />
             </div>
-            <h3 className="text-xl font-semibold">{docMetadata.name}</h3>
+            <h3 className="text-base font-semibold">{docMetadata.name}</h3>
           </div>
         )}
 
@@ -170,7 +170,7 @@ export function VideoViewer({ document: docMetadata }: VideoViewerProps) {
             showControls ? 'opacity-100' : 'opacity-0'
           }`}
         >
-          <div className="p-4 space-y-3">
+          <div className="p-2 space-y-3">
             {/* Progress bar */}
             <Slider
               value={[currentTime]}
@@ -245,7 +245,7 @@ export function VideoViewer({ document: docMetadata }: VideoViewerProps) {
                 </div>
 
                 {/* Time */}
-                <span className="text-sm text-white ml-4">
+                <span className="text-sm text-white ml-2">
                   {formatTime(currentTime)} / {formatTime(duration)}
                 </span>
               </div>
@@ -299,7 +299,7 @@ export function VideoViewer({ document: docMetadata }: VideoViewerProps) {
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors flex items-center justify-center"
             aria-label="Play video"
           >
-            <Play className="h-10 w-10 text-white ml-1" />
+            <Play className="h-8 w-10 text-white ml-1" />
           </button>
         )}
       </div>

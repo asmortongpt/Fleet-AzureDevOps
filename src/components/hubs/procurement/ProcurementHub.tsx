@@ -58,7 +58,7 @@ const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO }: { supplier: any; 
 
   if (!supplier) {
     return (
-      <div className="p-4 text-muted-foreground">
+      <div className="p-2 text-muted-foreground">
         Select a supplier on the map to view details
       </div>
     )
@@ -66,9 +66,9 @@ const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO }: { supplier: any; 
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4 space-y-4">
+      <div className="p-2 space-y-2">
         <div>
-          <h3 className="text-lg font-semibold">{supplier.name}</h3>
+          <h3 className="text-sm font-semibold">{supplier.name}</h3>
           <Badge variant={supplier.status === 'active' ? 'default' : 'secondary'}>
             {supplier.status}
           </Badge>
@@ -77,17 +77,17 @@ const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO }: { supplier: any; 
         <div className="grid grid-cols-2 gap-2">
           <Card className="p-3">
             <div className="text-sm text-muted-foreground">Total Orders</div>
-            <div className="font-medium text-lg">{supplier.orderCount}</div>
+            <div className="font-medium text-sm">{supplier.orderCount}</div>
           </Card>
 
           <Card className="p-3">
             <div className="text-sm text-muted-foreground">Total Spend</div>
-            <div className="font-medium text-lg">${supplier.totalSpend.toLocaleString()}</div>
+            <div className="font-medium text-sm">${supplier.totalSpend.toLocaleString()}</div>
           </Card>
 
           <Card className="p-3">
             <div className="text-sm text-muted-foreground">Rating</div>
-            <div className="font-medium text-lg">⭐ {supplier.rating}</div>
+            <div className="font-medium text-sm">⭐ {supplier.rating}</div>
           </Card>
 
           <Card className="p-3">
@@ -130,7 +130,7 @@ const PurchaseOrdersPanel = ({ orders, onOrderSelect }: { orders: any[]; onOrder
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4 space-y-2">
+      <div className="p-2 space-y-2">
         <h3 className="font-semibold mb-3">Active Purchase Orders</h3>
         {orders.map(order => (
           <Card
@@ -179,7 +179,7 @@ const InventoryPanel = ({ inventory }: { inventory: any[] }) => {
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4 space-y-2">
+      <div className="p-2 space-y-2">
         <h3 className="font-semibold mb-3">Inventory Status</h3>
         {inventory.map(item => (
           <Card key={item.id} className="p-3">
@@ -224,50 +224,50 @@ const DashboardPanel = () => {
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4 space-y-4">
+      <div className="p-2 space-y-2">
         <h3 className="font-semibold mb-3">Procurement Dashboard</h3>
 
-        <Card className="p-4">
+        <Card className="p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Total Spend (30 days)</p>
-              <p className="text-2xl font-bold">${totalSpend.toLocaleString()}</p>
+              <p className="text-sm font-bold">${totalSpend.toLocaleString()}</p>
             </div>
             <DollarSign className="h-8 w-8 text-muted-foreground" />
           </div>
         </Card>
 
-        <Card className="p-4">
+        <Card className="p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Active Suppliers</p>
-              <p className="text-2xl font-bold">{mockSuppliers.filter(s => s.status === 'active').length}</p>
+              <p className="text-sm font-bold">{mockSuppliers.filter(s => s.status === 'active').length}</p>
             </div>
             <Building2 className="h-8 w-8 text-muted-foreground" />
           </div>
         </Card>
 
-        <Card className="p-4">
+        <Card className="p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Active Orders</p>
-              <p className="text-2xl font-bold">{activeOrders}</p>
+              <p className="text-sm font-bold">{activeOrders}</p>
             </div>
             <Package className="h-8 w-8 text-muted-foreground" />
           </div>
         </Card>
 
-        <Card className="p-4">
+        <Card className="p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Low Stock Items</p>
-              <p className="text-2xl font-bold text-red-600">{criticalItems}</p>
+              <p className="text-sm font-bold text-red-600">{criticalItems}</p>
             </div>
             <AlertCircle className="h-8 w-8 text-red-500" />
           </div>
         </Card>
 
-        <Card className="p-4">
+        <Card className="p-2">
           <CardHeader className="p-0 mb-3">
             <CardTitle className="text-sm">Spend by Category</CardTitle>
           </CardHeader>
@@ -409,7 +409,7 @@ export function ProcurementHub() {
         />
 
         {/* Map Controls Overlay */}
-        <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg shadow-lg z-10">
+        <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-lg shadow-sm z-10">
           <div className="p-3 space-y-2">
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-48" data-testid="procurement-category-filter">

@@ -91,22 +91,22 @@ const VARIANT_CONFIG: Record<
   }
 > = {
   danger: {
-    icon: <Warning className="w-6 h-6" />,
+    icon: <Warning className="w-4 h-4" />,
     iconColor: "text-red-600",
     confirmButtonVariant: "destructive"
   },
   warning: {
-    icon: <Warning className="w-6 h-6" />,
+    icon: <Warning className="w-4 h-4" />,
     iconColor: "text-orange-600",
     confirmButtonVariant: "default"
   },
   info: {
-    icon: <Info className="w-6 h-6" />,
+    icon: <Info className="w-4 h-4" />,
     iconColor: "text-blue-800",
     confirmButtonVariant: "default"
   },
   success: {
-    icon: <CheckCircle className="w-6 h-6" />,
+    icon: <CheckCircle className="w-4 h-4" />,
     iconColor: "text-green-600",
     confirmButtonVariant: "default"
   }
@@ -168,7 +168,7 @@ export function ConfirmDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <div className="flex items-start gap-4">
+          <div className="flex items-start gap-2">
             {displayIcon && (
               <div className={`${config.iconColor} mt-1`}>
                 {displayIcon}
@@ -185,7 +185,7 @@ export function ConfirmDialog({
 
         {/* Optional confirmation checkbox */}
         {requireConfirmation && (
-          <div className="flex items-center space-x-2 p-4 bg-muted rounded-lg">
+          <div className="flex items-center space-x-2 p-2 bg-muted rounded-lg">
             <Checkbox
               id="confirm-checkbox"
               checked={isConfirmed}

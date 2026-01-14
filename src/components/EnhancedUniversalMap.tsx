@@ -283,7 +283,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
       {isOffline && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
           <Card className="bg-yellow-50 dark:bg-yellow-900 border-yellow-300 dark:border-yellow-700">
-            <CardContent className="py-2 px-4">
+            <CardContent className="py-2 px-2">
               <div className="flex items-center gap-2 text-sm text-yellow-800 dark:text-yellow-200">
                 <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
                 <span className="font-medium">Offline Mode</span>
@@ -333,7 +333,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
       {showRecoveryControls && errorRecovery.error && (
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-50">
           <Card>
-            <CardContent className="py-3 px-4">
+            <CardContent className="py-3 px-2">
               <div className="flex items-center gap-3">
                 <div className="text-sm text-gray-700 dark:text-gray-300">
                   Map service issue detected

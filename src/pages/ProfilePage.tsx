@@ -171,7 +171,7 @@ export default function ProfilePage() {
   // Show message if no user after fetch attempt
   if (!currentUser) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-2">
         <p className="text-muted-foreground text-center max-w-md">
           {loadError || 'Unable to load user profile. Please ensure you are logged in.'}
         </p>
@@ -185,10 +185,10 @@ export default function ProfilePage() {
 
   return (
 
-    <div className="container mx-auto p-6 max-w-4xl">
-      <div className="flex items-center justify-between mb-6">
+    <div className="container mx-auto p-3 max-w-4xl">
+      <div className="flex items-center justify-between mb-3">
         <div>
-          <h1 className="text-3xl font-bold">My Profile</h1>
+          <h1 className="text-base font-bold">My Profile</h1>
           <p className="text-muted-foreground mt-1">Manage your personal information</p>
         </div>
 
@@ -211,7 +211,7 @@ export default function ProfilePage() {
         )}
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
         {/* Avatar Section */}
         <Card>
           <CardHeader>
@@ -219,16 +219,16 @@ export default function ProfilePage() {
             <CardDescription>Upload a profile picture (max 5MB)</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
               <Avatar className="h-24 w-24">
                 <AvatarImage src={avatarPreview || currentUser.avatar} alt={currentUser.displayName} />
-                <AvatarFallback className="text-2xl">{getUserInitials()}</AvatarFallback>
+                <AvatarFallback className="text-sm">{getUserInitials()}</AvatarFallback>
               </Avatar>
 
               {isEditing && (
                 <div>
                   <Label htmlFor="avatar" className="cursor-pointer">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-md hover:bg-secondary/80 transition-colors">
+                    <div className="flex items-center gap-2 px-2 py-2 bg-secondary rounded-md hover:bg-secondary/80 transition-colors">
                       <Upload className="h-4 w-4" />
                       <span className="text-sm font-medium">Upload Photo</span>
                     </div>
@@ -255,8 +255,8 @@ export default function ProfilePage() {
             <CardTitle>Personal Information</CardTitle>
             <CardDescription>Your basic profile information</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardContent className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
                 <Input
@@ -342,8 +342,8 @@ export default function ProfilePage() {
             <CardTitle>Professional Information</CardTitle>
             <CardDescription>Your job title and department</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardContent className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <div className="space-y-2">
                 <Label htmlFor="jobTitle">Job Title</Label>
                 <Input
@@ -388,7 +388,7 @@ export default function ProfilePage() {
             <CardTitle>Social Links</CardTitle>
             <CardDescription>Connect your social media profiles</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-2">
             <div className="space-y-2">
               <Label htmlFor="linkedin" className="flex items-center gap-2">
                 <LinkedinLogo className="h-4 w-4" />

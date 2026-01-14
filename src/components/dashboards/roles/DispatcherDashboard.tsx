@@ -145,38 +145,38 @@ export function DispatcherDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 p-4">
+    <div className="min-h-screen bg-slate-900 p-2">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-3 flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-bold text-white mb-1">Dispatch Console</h1>
+          <h1 className="text-sm font-bold text-white mb-1">Dispatch Console</h1>
           <p className="text-sm text-slate-400">Real-Time Operations & Coordination</p>
         </div>
         <Button size="sm"
           onClick={handleCreateEmergencyAlert}
           className="bg-red-600 hover:bg-red-700 text-white"
         >
-          <Siren className="w-5 h-5 mr-2" />
+          <Siren className="w-3 h-3 mr-2" />
           EMERGENCY
         </Button>
       </div>
 
       {/* Active Operations Summary */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-cyan-500/30 p-4 mb-6">
+      <Card className="bg-slate-800/50 backdrop-blur-xl border-cyan-500/30 p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
           <Lightning className="w-4 h-4 text-cyan-400" />
-          <h2 className="text-lg font-bold text-white">Active Operations</h2>
+          <h2 className="text-sm font-bold text-white">Active Operations</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           {/* Active Trips */}
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className="bg-cyan-950/30 rounded-xl p-4 border border-cyan-500/30 hover:border-cyan-400/50 transition-all"
+            className="bg-cyan-950/30 rounded-md p-2 border border-cyan-500/30 hover:border-cyan-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <CarSimple className="w-6 h-6 text-cyan-400" />
-              <span className="text-2xl font-black text-white">{operationStats.active_trips}</span>
+              <CarSimple className="w-4 h-4 text-cyan-400" />
+              <span className="text-sm font-black text-white">{operationStats.active_trips}</span>
             </div>
             <p className="text-cyan-300 font-semibold">Active Trips</p>
           </motion.div>
@@ -184,11 +184,11 @@ export function DispatcherDashboard() {
           {/* En Route */}
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className="bg-blue-950/30 rounded-xl p-4 border border-blue-500/30 hover:border-blue-400/50 transition-all"
+            className="bg-blue-950/30 rounded-md p-2 border border-blue-500/30 hover:border-blue-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <MapTrifold className="w-6 h-6 text-blue-400" />
-              <span className="text-2xl font-black text-white">{operationStats.en_route}</span>
+              <MapTrifold className="w-4 h-4 text-blue-400" />
+              <span className="text-sm font-black text-white">{operationStats.en_route}</span>
             </div>
             <p className="text-blue-300 font-semibold">En Route</p>
           </motion.div>
@@ -196,11 +196,11 @@ export function DispatcherDashboard() {
           {/* Delayed */}
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className="bg-red-950/30 rounded-xl p-4 border border-red-500/30 hover:border-red-400/50 transition-all"
+            className="bg-red-950/30 rounded-md p-2 border border-red-500/30 hover:border-red-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <Warning className="w-6 h-6 text-red-400" />
-              <span className="text-2xl font-black text-white">{operationStats.delayed}</span>
+              <Warning className="w-4 h-4 text-red-400" />
+              <span className="text-sm font-black text-white">{operationStats.delayed}</span>
             </div>
             <p className="text-red-300 font-semibold">Delayed</p>
           </motion.div>
@@ -208,11 +208,11 @@ export function DispatcherDashboard() {
           {/* Completed Today */}
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className="bg-green-950/30 rounded-xl p-4 border border-green-500/30 hover:border-green-400/50 transition-all"
+            className="bg-green-950/30 rounded-md p-2 border border-green-500/30 hover:border-green-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <CheckCircle className="w-6 h-6 text-green-400" />
-              <span className="text-2xl font-black text-white">{operationStats.completed_today}</span>
+              <CheckCircle className="w-4 h-4 text-green-400" />
+              <span className="text-sm font-black text-white">{operationStats.completed_today}</span>
             </div>
             <p className="text-green-300 font-semibold">Completed Today</p>
           </motion.div>
@@ -220,7 +220,7 @@ export function DispatcherDashboard() {
       </Card>
 
       {/* Quick Actions */}
-      <div className="mb-6 flex flex-wrap gap-3">
+      <div className="mb-3 flex flex-wrap gap-3">
         <Button size="sm"
           onClick={handleOpenRadio}
           className="bg-violet-600 hover:bg-violet-700 text-white"
@@ -246,11 +246,11 @@ export function DispatcherDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Live Fleet Map */}
-        <Card className="lg:col-span-2 bg-slate-800/50 backdrop-blur-xl border-slate-700 p-4">
+        <Card className="lg:col-span-2 bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <MapTrifold className="w-4 h-4 text-cyan-400" />
-              <h2 className="text-lg font-bold text-white">Live Fleet Map</h2>
+              <h2 className="text-sm font-bold text-white">Live Fleet Map</h2>
             </div>
             <div className="flex gap-2">
               <Button size="sm"
@@ -278,7 +278,7 @@ export function DispatcherDashboard() {
           </div>
 
           {/* Map Placeholder */}
-          <div className="bg-slate-900/50 rounded-xl border border-slate-700 aspect-video flex items-center justify-center mb-3">
+          <div className="bg-slate-900/50 rounded-md border border-slate-700 aspect-video flex items-center justify-center mb-3">
             <div className="text-center">
               <MapTrifold className="w-16 h-16 text-slate-600 mx-auto mb-3" />
               <p className="text-slate-400 mb-2">Interactive Fleet Map</p>
@@ -296,10 +296,10 @@ export function DispatcherDashboard() {
         </Card>
 
         {/* Active Trips List */}
-        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-4">
+        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
           <div className="flex items-center gap-2 mb-3">
             <Route className="w-4 h-4 text-violet-400" />
-            <h2 className="text-lg font-bold text-white">Active Trips</h2>
+            <h2 className="text-sm font-bold text-white">Active Trips</h2>
           </div>
 
           <div className="space-y-3">
@@ -345,10 +345,10 @@ export function DispatcherDashboard() {
       </div>
 
       {/* Dispatch Channels */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-4 mt-6">
+      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2 mt-3">
         <div className="flex items-center gap-2 mb-3">
           <Radio className="w-4 h-4 text-violet-400" />
-          <h2 className="text-lg font-bold text-white">Active Dispatch Channels</h2>
+          <h2 className="text-sm font-bold text-white">Active Dispatch Channels</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -357,7 +357,7 @@ export function DispatcherDashboard() {
               key={channel.id}
               whileHover={{ scale: 1.02 }}
               className={cn(
-                "rounded-xl p-4 border transition-all",
+                "rounded-md p-2 border transition-all",
                 channel.status === 'active'
                   ? channel.priority === 'high'
                     ? "bg-red-950/30 border-red-500/30"

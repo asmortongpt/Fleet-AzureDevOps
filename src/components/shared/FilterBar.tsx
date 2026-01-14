@@ -81,11 +81,11 @@ export function FilterBar({
 
   return (
     <Card className={cn('border-l-4 border-l-primary', className)}>
-      <CardContent className={cn('space-y-4', compact ? 'p-4' : 'p-6')}>
+      <CardContent className={cn('space-y-2', compact ? 'p-2' : 'p-3')}>
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Funnel className="w-5 h-5 text-primary" />
+            <Funnel className="w-3 h-3 text-primary" />
             <h3 className="font-semibold">Filters</h3>
             {showFilterCount && hasActiveFilters && (
               <Badge variant="secondary" className="ml-2">
@@ -102,7 +102,7 @@ export function FilterBar({
         </div>
 
         {/* Filter Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {/* Search */}
           {enableSearch && (
             <div className="space-y-2 lg:col-span-3">
@@ -267,7 +267,7 @@ export function FilterBar({
 
         {/* Quick Toggles */}
         {enableQuickToggles && (
-          <div className="flex items-center gap-6 pt-2">
+          <div className="flex items-center gap-2 pt-2">
             <div className="flex items-center gap-2">
               <Checkbox
                 id="assigned-only"

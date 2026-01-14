@@ -121,8 +121,8 @@ export function EmptyState({
 
   const sizeClasses = {
     sm: {
-      container: 'py-8',
-      icon: 'h-10 w-10',
+      container: 'py-3',
+      icon: 'h-8 w-10',
       iconContainer: 'p-2',
       title: 'text-base',
       description: 'text-xs',
@@ -133,18 +133,18 @@ export function EmptyState({
       container: 'py-12',
       icon: 'h-16 w-16',
       iconContainer: 'p-3',
-      title: 'text-xl',
+      title: 'text-base',
       description: 'text-sm',
-      button: 'px-4 py-2 text-sm',
+      button: 'px-2 py-2 text-sm',
       secondaryButton: 'text-sm',
     },
     lg: {
       container: 'py-16',
       icon: 'h-20 w-20',
-      iconContainer: 'p-4',
-      title: 'text-2xl',
+      iconContainer: 'p-2',
+      title: 'text-sm',
       description: 'text-base',
-      button: 'px-6 py-3 text-base',
+      button: 'px-3 py-3 text-base',
       secondaryButton: 'text-base',
     },
   };
@@ -160,7 +160,7 @@ export function EmptyState({
       {/* Icon */}
       <div
         className={cn(
-          'mb-4 rounded-full bg-muted',
+          'mb-2 rounded-full bg-muted',
           sizeClasses[size].iconContainer
         )}
       >
@@ -183,7 +183,7 @@ export function EmptyState({
       {description && (
         <p
           className={cn(
-            'mb-6 max-w-md text-muted-foreground',
+            'mb-3 max-w-md text-muted-foreground',
             sizeClasses[size].description
           )}
         >
@@ -192,7 +192,7 @@ export function EmptyState({
       )}
 
       {/* Custom children */}
-      {children && <div className="mb-6">{children}</div>}
+      {children && <div className="mb-3">{children}</div>}
 
       {/* Actions */}
       {(action || secondaryAction) && (
@@ -326,7 +326,7 @@ export function EmptyStateCompact({
   return (
     <div
       className={cn(
-        'flex items-center justify-center gap-3 py-8 text-muted-foreground',
+        'flex items-center justify-center gap-3 py-3 text-muted-foreground',
         className
       )}
     >

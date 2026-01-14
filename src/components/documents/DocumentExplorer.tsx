@@ -160,11 +160,11 @@ export function DocumentExplorer({
       <div className="flex-1 flex flex-col">
         {/* Toolbar */}
         <div className="border-b bg-card">
-          <div className="p-4 space-y-4">
+          <div className="p-2 space-y-2">
             {/* Top bar */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-semibold">Documents</h1>
+                <h1 className="text-sm font-semibold">Documents</h1>
                 <Badge variant="secondary" className="ml-2">
                   {filteredDocuments.length}
                 </Badge>

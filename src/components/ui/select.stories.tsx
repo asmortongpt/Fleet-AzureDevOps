@@ -101,7 +101,7 @@ export const WithGroups: Story = {
 
 export const FormCompatible: Story = {
     render: () => (
-        <form className="w-2/3 space-y-6">
+        <form className="w-2/3 space-y-2">
             <Select>
                 <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Theme" />

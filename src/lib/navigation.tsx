@@ -50,7 +50,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "fleet-hub-consolidated",
     label: "Fleet Hub",
-    icon: <MapTrifold className="w-5 h-5" />,
+    icon: <MapTrifold className="w-3 h-3" />,
     section: "hubs",
     category: "Operations",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Dispatcher', 'Driver', 'Analyst', 'Auditor']
@@ -58,7 +58,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "operations-hub-consolidated",
     label: "Operations Hub",
-    icon: <Broadcast className="w-5 h-5" />,
+    icon: <Broadcast className="w-3 h-3" />,
     section: "hubs",
     category: "Operations",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Dispatcher', 'Analyst', 'Auditor']
@@ -66,7 +66,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "maintenance-hub-consolidated",
     label: "Maintenance Hub",
-    icon: <Wrench className="w-5 h-5" />,
+    icon: <Wrench className="w-3 h-3" />,
     section: "hubs",
     category: "Operations",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Mechanic', 'Technician', 'Analyst', 'Auditor']
@@ -74,7 +74,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "drivers-hub-consolidated",
     label: "Drivers Hub",
-    icon: <Users className="w-5 h-5" />,
+    icon: <Users className="w-3 h-3" />,
     section: "hubs",
     category: "Operations",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Dispatcher', 'SafetyOfficer', 'Analyst', 'Auditor']
@@ -84,7 +84,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "analytics-hub-consolidated",
     label: "Analytics Hub",
-    icon: <ChartLine className="w-5 h-5" />,
+    icon: <ChartLine className="w-3 h-3" />,
     section: "hubs",
     category: "Analytics",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Analyst', 'Auditor']
@@ -92,7 +92,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "reports-hub",
     label: "Reports Hub",
-    icon: <ChartLine className="w-5 h-5" />,
+    icon: <ChartLine className="w-3 h-3" />,
     section: "hubs",
     category: "Analytics",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Analyst', 'Auditor']
@@ -102,7 +102,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "safety-compliance-hub",
     label: "Safety & Compliance",
-    icon: <Shield className="w-5 h-5" />,
+    icon: <Shield className="w-3 h-3" />,
     section: "hubs",
     category: "Safety & Compliance",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'SafetyOfficer', 'Auditor']
@@ -110,7 +110,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "policy-hub",
     label: "Policy Hub",
-    icon: <BookOpen className="w-5 h-5" />,
+    icon: <BookOpen className="w-3 h-3" />,
     section: "hubs",
     category: "Governance",
     roles: ['SuperAdmin', 'Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'SafetyOfficer', 'Auditor']
@@ -118,7 +118,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "documents-hub",
     label: "Documents Hub",
-    icon: <FileText className="w-5 h-5" />,
+    icon: <FileText className="w-3 h-3" />,
     section: "hubs",
     category: "Operations",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'SafetyOfficer', 'Analyst', 'Auditor']
@@ -128,7 +128,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "procurement-hub-consolidated",
     label: "Procurement Hub",
-    icon: <Package className="w-5 h-5" />,
+    icon: <Package className="w-3 h-3" />,
     section: "hubs",
     category: "Procurement",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Auditor']
@@ -136,7 +136,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "assets-hub-consolidated",
     label: "Assets Hub",
-    icon: <Barcode className="w-5 h-5" />,
+    icon: <Barcode className="w-3 h-3" />,
     section: "hubs",
     category: "Procurement",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Analyst', 'Auditor']
@@ -146,7 +146,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "admin-hub-consolidated",
     label: "Admin Hub",
-    icon: <Gear className="w-5 h-5" />,
+    icon: <Gear className="w-3 h-3" />,
     section: "hubs",
     category: "Admin",
     roles: ['SuperAdmin', 'Admin', 'FleetAdmin']
@@ -154,7 +154,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "services-status",
     label: "External Services",
-    icon: <Plugs className="w-5 h-5" />,
+    icon: <Plugs className="w-3 h-3" />,
     section: "tools",
     category: "Admin",
     roles: ['SuperAdmin', 'Admin', 'FleetAdmin']
@@ -162,7 +162,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "communication-hub-consolidated",
     label: "Communication Hub",
-    icon: <ChatsCircle className="w-5 h-5" />,
+    icon: <ChatsCircle className="w-3 h-3" />,
     section: "hubs",
     category: "Communication",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Dispatcher', 'SafetyOfficer']
@@ -172,7 +172,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "financial-hub-consolidated",
     label: "Financial Hub",
-    icon: <CurrencyDollar className="w-5 h-5" />,
+    icon: <CurrencyDollar className="w-3 h-3" />,
     section: "hubs",
     category: "Financial",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Analyst', 'Auditor']
@@ -180,7 +180,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "integrations-hub-consolidated",
     label: "Integrations Hub",
-    icon: <Plugs className="w-5 h-5" />,
+    icon: <Plugs className="w-3 h-3" />,
     section: "hubs",
     category: "Integrations",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'Finance']
@@ -190,7 +190,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "cta-configuration-hub",
     label: "CTA Configuration",
-    icon: <Gear className="w-5 h-5" />,
+    icon: <Gear className="w-3 h-3" />,
     section: "hubs",
     category: "CTA Admin",
     roles: ['SuperAdmin', 'CTAOwner']
@@ -198,7 +198,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "data-governance-hub",
     label: "Data Governance",
-    icon: <Database className="w-5 h-5" />,
+    icon: <Database className="w-3 h-3" />,
     section: "hubs",
     category: "CTA Admin",
     roles: ['SuperAdmin']

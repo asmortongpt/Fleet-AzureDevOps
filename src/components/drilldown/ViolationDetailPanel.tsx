@@ -255,11 +255,11 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {violation && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <h3 className="text-2xl font-bold">Violation #{violation.violation_number}</h3>
+              <h3 className="text-sm font-bold">Violation #{violation.violation_number}</h3>
               <p className="text-sm text-muted-foreground">{violation.violation_type}</p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge variant={getSeverityColor(violation.severity)}>
@@ -278,11 +278,11 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                 )}
               </div>
             </div>
-            <AlertTriangle className="h-12 w-12 text-destructive" />
+            <AlertTriangle className="h-9 w-12 text-destructive" />
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -291,7 +291,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-bold">
+                <div className="text-sm font-bold">
                   {new Date(violation.occurred_at).toLocaleDateString()}
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -308,7 +308,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-bold">
+                <div className="text-sm font-bold">
                   {Math.floor(
                     (new Date().getTime() - new Date(violation.occurred_at).getTime()) /
                       (1000 * 60 * 60 * 24)
@@ -329,7 +329,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
               <CardContent>
                 <Button
                   variant="link"
-                  className="h-auto p-0 text-left font-bold text-lg"
+                  className="h-auto p-0 text-left font-bold text-sm"
                   onClick={handleViewPolicy}
                 >
                   {violation.policy_number}
@@ -348,7 +348,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-bold">
+                <div className="text-sm font-bold">
                   {enforcementActions?.length || 0}
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -371,12 +371,12 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
             </TabsList>
 
             {/* Details Tab */}
-            <TabsContent value="details" className="space-y-4">
+            <TabsContent value="details" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Violation Information</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Description</p>
                     <p className="text-sm">{violation.description}</p>
@@ -384,7 +384,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
 
                   <Separator />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Occurred At</p>
                       <p className="font-medium">
@@ -422,7 +422,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                       <Separator />
                       <div>
                         <p className="text-sm text-muted-foreground mb-2">Violation Metrics</p>
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-3 gap-2">
                           <div>
                             <p className="text-xs text-muted-foreground">Threshold</p>
                             <p className="font-semibold">
@@ -474,7 +474,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                     {violation.override_approved !== undefined && (
                       <>
                         <Separator />
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-2">
                           <div>
                             <p className="text-sm text-muted-foreground">Status</p>
                             <Badge
@@ -516,7 +516,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                     Comments ({comments?.length || 0})
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                   <div className="space-y-3 max-h-60 overflow-y-auto">
                     {comments?.map((comment) => (
                       <div
@@ -555,13 +555,13 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
             </TabsContent>
 
             {/* Related Records Tab */}
-            <TabsContent value="related" className="space-y-4">
+            <TabsContent value="related" className="space-y-2">
               {violation.vehicle_id && (
                 <Card
                   className="cursor-pointer hover:shadow-md transition-shadow"
                   onClick={handleViewVehicle}
                 >
-                  <CardContent className="p-4 flex items-center justify-between">
+                  <CardContent className="p-2 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Car className="h-8 w-8 text-muted-foreground" />
                       <div>
@@ -583,7 +583,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                   className="cursor-pointer hover:shadow-md transition-shadow"
                   onClick={handleViewDriver}
                 >
-                  <CardContent className="p-4 flex items-center justify-between">
+                  <CardContent className="p-2 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <User className="h-8 w-8 text-muted-foreground" />
                       <div>
@@ -604,7 +604,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                 className="cursor-pointer hover:shadow-md transition-shadow"
                 onClick={handleViewPolicy}
               >
-                <CardContent className="p-4 flex items-center justify-between">
+                <CardContent className="p-2 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Shield className="h-8 w-8 text-muted-foreground" />
                     <div>
@@ -625,11 +625,11 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
             </TabsContent>
 
             {/* Acknowledgments Tab */}
-            <TabsContent value="acknowledgments" className="space-y-4">
+            <TabsContent value="acknowledgments" className="space-y-2">
               {acknowledgments && acknowledgments.length > 0 ? (
                 acknowledgments.map((ack) => (
                   <Card key={ack.id}>
-                    <CardContent className="p-4 space-y-3">
+                    <CardContent className="p-2 space-y-3">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
                           <CheckCircle2 className="h-6 w-6 text-green-500" />
@@ -672,7 +672,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <CheckCircle2 className="h-12 w-12 mx-auto text-muted-foreground mb-4 opacity-30" />
+                    <CheckCircle2 className="h-9 w-12 mx-auto text-muted-foreground mb-2 opacity-30" />
                     <p className="text-sm text-muted-foreground">No acknowledgments yet</p>
                   </CardContent>
                 </Card>
@@ -680,11 +680,11 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
             </TabsContent>
 
             {/* Enforcement Actions Tab */}
-            <TabsContent value="actions" className="space-y-4">
+            <TabsContent value="actions" className="space-y-2">
               {enforcementActions && enforcementActions.length > 0 ? (
                 enforcementActions.map((action) => (
                   <Card key={action.id}>
-                    <CardContent className="p-4 space-y-3">
+                    <CardContent className="p-2 space-y-3">
                       <div className="flex items-start justify-between">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
@@ -721,7 +721,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4 opacity-30" />
+                    <FileText className="h-9 w-12 mx-auto text-muted-foreground mb-2 opacity-30" />
                     <p className="text-sm text-muted-foreground">No enforcement actions</p>
                   </CardContent>
                 </Card>
@@ -729,15 +729,15 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
             </TabsContent>
 
             {/* Timeline Tab */}
-            <TabsContent value="timeline" className="space-y-4">
+            <TabsContent value="timeline" className="space-y-2">
               {timeline && timeline.length > 0 ? (
-                <div className="space-y-4 relative">
+                <div className="space-y-2 relative">
                   <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-border" />
                   {timeline.map((event, index) => (
                     <div key={event.id} className="relative pl-14">
                       <div className="absolute left-4 top-2 h-4 w-4 rounded-full bg-primary ring-4 ring-background" />
                       <Card>
-                        <CardContent className="p-4">
+                        <CardContent className="p-2">
                           <div className="flex items-start justify-between mb-2">
                             <div>
                               <p className="font-medium capitalize">
@@ -777,7 +777,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <History className="h-12 w-12 mx-auto text-muted-foreground mb-4 opacity-30" />
+                    <History className="h-9 w-12 mx-auto text-muted-foreground mb-2 opacity-30" />
                     <p className="text-sm text-muted-foreground">No timeline events</p>
                   </CardContent>
                 </Card>
@@ -785,11 +785,11 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
             </TabsContent>
 
             {/* Corrective Actions Tab */}
-            <TabsContent value="corrective" className="space-y-4">
+            <TabsContent value="corrective" className="space-y-2">
               {correctiveActions && correctiveActions.length > 0 ? (
                 correctiveActions.map((action) => (
                   <Card key={action.id}>
-                    <CardContent className="p-4 space-y-3">
+                    <CardContent className="p-2 space-y-3">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
@@ -817,7 +817,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
 
                       <Separator />
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-2">
                         <div>
                           <p className="text-xs text-muted-foreground">Assigned To</p>
                           <p className="text-sm font-medium">{action.assigned_to}</p>
@@ -862,7 +862,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
               ) : (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4 opacity-30" />
+                    <BookOpen className="h-9 w-12 mx-auto text-muted-foreground mb-2 opacity-30" />
                     <p className="text-sm text-muted-foreground">
                       No corrective actions assigned
                     </p>

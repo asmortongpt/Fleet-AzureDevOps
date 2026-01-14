@@ -100,11 +100,11 @@ const DocumentManagement = ({ _documents }: { _documents?: unknown }) => {
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-6 space-y-6">
+      <div className="p-3 space-y-2">
         {/* Header with Actions */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold">Document Management</h2>
+            <h2 className="text-sm font-bold">Document Management</h2>
             <p className="text-muted-foreground">Manage compliance documents and certificates</p>
           </div>
           <Button data-testid="upload-document-btn">
@@ -154,7 +154,7 @@ const DocumentManagement = ({ _documents }: { _documents?: unknown }) => {
         <div className="space-y-3">
           {filteredDocuments.map(doc => (
             <Card key={doc.id} data-testid={`document-card-${doc.id}`}>
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3 flex-1">
                     <div className="mt-1">
@@ -275,10 +275,10 @@ const IncidentTracking = () => {
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-6 space-y-6">
+      <div className="p-3 space-y-2">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold">Incident Tracking</h2>
+            <h2 className="text-sm font-bold">Incident Tracking</h2>
             <p className="text-muted-foreground">Track and manage safety incidents</p>
           </div>
           <Button data-testid="create-incident-btn">
@@ -307,7 +307,7 @@ const IncidentTracking = () => {
         <div className="space-y-3">
           {mockIncidents.map(incident => (
             <Card key={incident.id} data-testid={`incident-card-${incident.id}`}>
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
@@ -387,14 +387,14 @@ const SafetyCompliance = ({ vehicles, drivers }: { vehicles?: unknown[]; drivers
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-6 space-y-6">
+      <div className="p-3 space-y-2">
         <div>
-          <h2 className="text-2xl font-bold">Safety & Compliance</h2>
+          <h2 className="text-sm font-bold">Safety & Compliance</h2>
           <p className="text-muted-foreground">Monitor compliance status and safety metrics</p>
         </div>
 
         {/* Compliance Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="compliance-metrics">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2" data-testid="compliance-metrics">
           {complianceMetrics.map((metric, index) => (
             <Card key={index}>
               <CardHeader className="pb-3">
@@ -445,7 +445,7 @@ export function ComplianceWorkspace() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="p-4 border-b">
+      <div className="p-2 border-b">
         <Tabs value={activeView} onValueChange={(v) => setActiveView(v as 'documents' | 'safety')}>
           <TabsList>
             <TabsTrigger value="documents">Document Management</TabsTrigger>

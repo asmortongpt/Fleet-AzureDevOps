@@ -33,7 +33,7 @@ export function SearchHistory({
 }: SearchHistoryProps) {
   if (history.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
+      <div className="text-center py-3 text-muted-foreground">
         <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
         <p className="text-sm">No search history</p>
       </div>
@@ -43,7 +43,7 @@ export function SearchHistory({
   const displayedHistory = history.slice(0, maxItems);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-semibold flex items-center gap-2">
           <Clock className="h-4 w-4" />
@@ -106,7 +106,7 @@ export function SearchHistory({
       )}
 
       {/* Popular searches (optional feature) */}
-      <div className="pt-4 border-t">
+      <div className="pt-2 border-t">
         <h4 className="text-sm font-semibold flex items-center gap-2 mb-3">
           <TrendingUp className="h-4 w-4" />
           Popular Searches

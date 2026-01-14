@@ -26,7 +26,7 @@ export function DrilldownPanel({ levels, onClose, onNavigateToLevel, className =
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2"
         onClick={onClose}
       >
         <motion.div
@@ -34,13 +34,13 @@ export function DrilldownPanel({ levels, onClose, onNavigateToLevel, className =
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.95, y: 20 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className={`w-full h-full max-w-[95vw] max-h-[95vh] flex flex-col backdrop-blur-2xl bg-slate-900/98 border-2 border-slate-700/60 rounded-2xl shadow-2xl ${className}`}
+          className={`w-full h-full max-w-[95vw] max-h-[95vh] flex flex-col backdrop-blur-2xl bg-slate-900/98 border-2 border-slate-700/60 rounded-lg shadow-sm ${className}`}
           onClick={e => e.stopPropagation()}
         >
           {/* Header with Breadcrumbs */}
-          <div className="flex-shrink-0 px-6 py-4 border-b border-slate-700/60 bg-slate-800/60">
+          <div className="flex-shrink-0 px-3 py-2 border-b border-slate-700/60 bg-slate-800/60">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4 flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
                 {showBreadcrumbs && (
                   <nav className="flex items-center gap-2 text-sm overflow-x-auto">
                     <button
@@ -70,21 +70,21 @@ export function DrilldownPanel({ levels, onClose, onNavigateToLevel, className =
                 )}
 
                 {!showBreadcrumbs && (
-                  <h2 className="text-2xl font-bold text-slate-100">{currentLevel.title}</h2>
+                  <h2 className="text-sm font-bold text-slate-100">{currentLevel.title}</h2>
                 )}
               </div>
 
               <button
                 onClick={onClose}
-                className="flex-shrink-0 p-2 hover:bg-slate-700/50 rounded-lg text-slate-400 hover:text-slate-200 transition-all ml-4"
+                className="flex-shrink-0 p-2 hover:bg-slate-700/50 rounded-lg text-slate-400 hover:text-slate-200 transition-all ml-2"
               >
-                <X className="w-6 h-6" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-hidden p-6">
+          <div className="flex-1 overflow-hidden p-3">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentLevel.id}
@@ -100,21 +100,21 @@ export function DrilldownPanel({ levels, onClose, onNavigateToLevel, className =
           </div>
 
           {/* Footer */}
-          <div className="flex-shrink-0 px-6 py-4 border-t border-slate-700/60 bg-slate-800/40">
+          <div className="flex-shrink-0 px-3 py-2 border-t border-slate-700/60 bg-slate-800/40">
             <div className="flex items-center justify-between text-sm text-slate-400">
               <div>Level {levels.length} of drilldown</div>
               <div className="flex gap-2">
                 {levels.length > 1 && (
                   <button
                     onClick={() => onNavigateToLevel(levels.length - 2)}
-                    className="px-4 py-2 bg-slate-700/50 hover:bg-slate-700 text-slate-200 rounded-lg transition-all"
+                    className="px-2 py-2 bg-slate-700/50 hover:bg-slate-700 text-slate-200 rounded-lg transition-all"
                   >
                     ← Back
                   </button>
                 )}
                 <button
                   onClick={onClose}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-all"
+                  className="px-2 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-all"
                 >
                   Close
                 </button>

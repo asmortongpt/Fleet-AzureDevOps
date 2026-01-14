@@ -15,9 +15,9 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: ErrorFallbackProps)
   logger.error('[ErrorFallback] Caught error:', error);
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-2">
       <div className="w-full max-w-md">
-        <Alert variant="destructive" className="mb-6">
+        <Alert variant="destructive" className="mb-3">
           <AlertTriangleIcon />
           <AlertTitle>A runtime error has occurred</AlertTitle>
           <AlertDescription>
@@ -25,7 +25,7 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: ErrorFallbackProps)
           </AlertDescription>
         </Alert>
 
-        <div className="bg-card border rounded-lg p-4 mb-6">
+        <div className="bg-card border rounded-lg p-2 mb-3">
           <h3 className="font-semibold text-sm text-muted-foreground mb-2">Error Details:</h3>
           <pre className="text-xs text-destructive bg-muted/50 p-3 rounded border overflow-auto max-h-32">
             {error?.message}

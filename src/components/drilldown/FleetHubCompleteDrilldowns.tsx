@@ -251,11 +251,11 @@ export function VehicleDetailsDrilldown() {
   const [activeTab, setActiveTab] = useState('overview')
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-white">{vehicle.name}</h2>
+          <h2 className="text-base font-bold text-white">{vehicle.name}</h2>
           <p className="text-slate-400 mt-1">{vehicle.number} • VIN: {vehicle.vin}</p>
           <div className="flex gap-2 mt-3">
             <Badge variant={vehicle.status === 'active' ? 'default' : 'secondary'} className="bg-emerald-500">
@@ -268,35 +268,35 @@ export function VehicleDetailsDrilldown() {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center gap-3">
-              <Gauge className="w-8 h-8 text-blue-400" />
+              <Gauge className="w-4 h-4 text-blue-400" />
               <div>
                 <p className="text-sm text-slate-400">Mileage</p>
-                <p className="text-2xl font-bold text-white">{vehicle.mileage.toLocaleString()}</p>
+                <p className="text-sm font-bold text-white">{vehicle.mileage.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center gap-3">
-              <Fuel className="w-8 h-8 text-emerald-400" />
+              <Fuel className="w-4 h-4 text-emerald-400" />
               <div>
                 <p className="text-sm text-slate-400">Fuel Level</p>
-                <p className="text-2xl font-bold text-white">{vehicle.fuelLevel}%</p>
+                <p className="text-sm font-bold text-white">{vehicle.fuelLevel}%</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center gap-3">
-              <MapPin className="w-8 h-8 text-purple-400" />
+              <MapPin className="w-4 h-4 text-purple-400" />
               <div>
                 <p className="text-sm text-slate-400">Location</p>
                 <p className="text-sm font-medium text-white">{vehicle.location.address.split(',')[1]}</p>
@@ -306,12 +306,12 @@ export function VehicleDetailsDrilldown() {
         </Card>
 
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center gap-3">
-              <CheckCircle className="w-8 h-8 text-green-400" />
+              <CheckCircle className="w-4 h-4 text-green-400" />
               <div>
                 <p className="text-sm text-slate-400">Health</p>
-                <p className="text-2xl font-bold text-white">94%</p>
+                <p className="text-sm font-bold text-white">94%</p>
               </div>
             </div>
           </CardContent>
@@ -328,27 +328,27 @@ export function VehicleDetailsDrilldown() {
         </TabsList>
 
         {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-4">
+        <TabsContent value="overview" className="space-y-2">
           <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                <Truck className="w-5 h-5" />
+                <Truck className="w-3 h-3" />
                 Vehicle Information
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-sm text-slate-400">Make/Model/Year</p>
-                  <p className="text-lg font-semibold text-white">{vehicle.make} {vehicle.model} {vehicle.year}</p>
+                  <p className="text-sm font-semibold text-white">{vehicle.make} {vehicle.model} {vehicle.year}</p>
                 </div>
                 <div>
                   <p className="text-sm text-slate-400">VIN</p>
-                  <p className="text-lg font-mono text-white">{vehicle.vin}</p>
+                  <p className="text-sm font-mono text-white">{vehicle.vin}</p>
                 </div>
                 <div>
                   <p className="text-sm text-slate-400">License Plate</p>
-                  <p className="text-lg font-semibold text-white">{vehicle.licensePlate}</p>
+                  <p className="text-sm font-semibold text-white">{vehicle.licensePlate}</p>
                 </div>
                 <div>
                   <p className="text-sm text-slate-400">Current Location</p>
@@ -362,31 +362,31 @@ export function VehicleDetailsDrilldown() {
           <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                <User className="w-5 h-5" />
+                <User className="w-3 h-3" />
                 Assigned Driver
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-lg font-semibold text-white">{vehicle.assignedDriver.name}</p>
+                    <p className="text-sm font-semibold text-white">{vehicle.assignedDriver.name}</p>
                     <p className="text-sm text-slate-400">{vehicle.assignedDriver.employeeId} • {vehicle.assignedDriver.department}</p>
                   </div>
                   <div className="flex gap-3">
                     <a href={`tel:${vehicle.assignedDriver.phone}`}
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
+                      className="flex items-center gap-2 px-2 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
                       <Phone className="w-4 h-4" />
                       {vehicle.assignedDriver.phone}
                     </a>
                     <a href={`mailto:${vehicle.assignedDriver.email}`}
-                      className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
+                      className="flex items-center gap-2 px-2 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
                       <Mail className="w-4 h-4" />
                       Email
                     </a>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-700">
+                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-700">
                   <div>
                     <p className="text-sm text-slate-400">License Number</p>
                     <p className="text-white font-medium">{vehicle.assignedDriver.licenseNumber}</p>
@@ -410,29 +410,29 @@ export function VehicleDetailsDrilldown() {
         </TabsContent>
 
         {/* Contacts Tab */}
-        <TabsContent value="contacts" className="space-y-4">
+        <TabsContent value="contacts" className="space-y-2">
           {/* Fleet Manager */}
           <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                <Award className="w-5 h-5 text-amber-400" />
+                <Award className="w-3 h-3 text-amber-400" />
                 Fleet Manager
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-lg font-semibold text-white">{vehicle.fleetManager.name}</p>
+                  <p className="text-sm font-semibold text-white">{vehicle.fleetManager.name}</p>
                   <p className="text-sm text-slate-400">{vehicle.fleetManager.role} • {vehicle.fleetManager.department}</p>
                 </div>
                 <div className="flex gap-3">
                   <a href={`tel:${vehicle.fleetManager.phone}`}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
+                    className="flex items-center gap-2 px-2 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
                     <Phone className="w-4 h-4" />
                     {vehicle.fleetManager.phone}
                   </a>
                   <a href={`mailto:${vehicle.fleetManager.email}`}
-                    className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
+                    className="flex items-center gap-2 px-2 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
                     <Mail className="w-4 h-4" />
                     {vehicle.fleetManager.email}
                   </a>
@@ -445,24 +445,24 @@ export function VehicleDetailsDrilldown() {
           <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                <Wrench className="w-5 h-5 text-orange-400" />
+                <Wrench className="w-3 h-3 text-orange-400" />
                 Maintenance Supervisor
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-lg font-semibold text-white">{vehicle.maintenanceSupervisor.name}</p>
+                  <p className="text-sm font-semibold text-white">{vehicle.maintenanceSupervisor.name}</p>
                   <p className="text-sm text-slate-400">{vehicle.maintenanceSupervisor.role} • {vehicle.maintenanceSupervisor.department}</p>
                 </div>
                 <div className="flex gap-3">
                   <a href={`tel:${vehicle.maintenanceSupervisor.phone}`}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
+                    className="flex items-center gap-2 px-2 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
                     <Phone className="w-4 h-4" />
                     {vehicle.maintenanceSupervisor.phone}
                   </a>
                   <a href={`mailto:${vehicle.maintenanceSupervisor.email}`}
-                    className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
+                    className="flex items-center gap-2 px-2 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
                     <Mail className="w-4 h-4" />
                     {vehicle.maintenanceSupervisor.email}
                   </a>
@@ -475,24 +475,24 @@ export function VehicleDetailsDrilldown() {
           <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                <User className="w-5 h-5 text-blue-400" />
+                <User className="w-3 h-3 text-blue-400" />
                 Assigned Driver
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-lg font-semibold text-white">{vehicle.assignedDriver.name}</p>
+                  <p className="text-sm font-semibold text-white">{vehicle.assignedDriver.name}</p>
                   <p className="text-sm text-slate-400">{vehicle.assignedDriver.employeeId} • {vehicle.assignedDriver.department}</p>
                 </div>
                 <div className="flex gap-3">
                   <a href={`tel:${vehicle.assignedDriver.phone}`}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
+                    className="flex items-center gap-2 px-2 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
                     <Phone className="w-4 h-4" />
                     {vehicle.assignedDriver.phone}
                   </a>
                   <a href={`mailto:${vehicle.assignedDriver.email}`}
-                    className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
+                    className="flex items-center gap-2 px-2 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
                     <Mail className="w-4 h-4" />
                     {vehicle.assignedDriver.email}
                   </a>
@@ -503,12 +503,12 @@ export function VehicleDetailsDrilldown() {
         </TabsContent>
 
         {/* Maintenance Tab */}
-        <TabsContent value="maintenance" className="space-y-4">
+        <TabsContent value="maintenance" className="space-y-2">
           {/* Service Schedule */}
           <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
+                <Calendar className="w-3 h-3" />
                 Service Schedule
               </CardTitle>
             </CardHeader>
@@ -534,14 +534,14 @@ export function VehicleDetailsDrilldown() {
           <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                <Wrench className="w-5 h-5" />
+                <Wrench className="w-3 h-3" />
                 Maintenance History
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 {vehicle.maintenanceHistory.map((record) => (
-                  <div key={record.id} className="p-4 bg-slate-900/50 rounded-lg space-y-3">
+                  <div key={record.id} className="p-2 bg-slate-900/50 rounded-lg space-y-3">
                     <div className="flex items-start justify-between">
                       <div>
                         <p className="font-semibold text-white">{record.type}</p>
@@ -551,7 +551,7 @@ export function VehicleDetailsDrilldown() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-white">${record.cost.toFixed(2)}</p>
+                        <p className="text-sm font-bold text-white">${record.cost.toFixed(2)}</p>
                       </div>
                     </div>
                     <div className="flex items-center justify-between pt-3 border-t border-slate-700">
@@ -580,18 +580,18 @@ export function VehicleDetailsDrilldown() {
         </TabsContent>
 
         {/* Documents Tab */}
-        <TabsContent value="documents" className="space-y-4">
+        <TabsContent value="documents" className="space-y-2">
           {vehicle.documents.map((doc) => (
             <Card key={doc.id} className="bg-slate-800/50 border-slate-700">
-              <CardContent className="pt-6">
-                <div className="space-y-4">
+              <CardContent className="pt-3">
+                <div className="space-y-2">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
-                      <FileText className="w-8 h-8 text-blue-400" />
+                      <FileText className="w-4 h-4 text-blue-400" />
                       <div>
-                        <p className="font-semibold text-white text-lg">{doc.name}</p>
+                        <p className="font-semibold text-white text-sm">{doc.name}</p>
                         <p className="text-sm text-slate-400 mt-1">Issued by: {doc.issuer}</p>
-                        <div className="flex gap-4 mt-2 text-sm">
+                        <div className="flex gap-2 mt-2 text-sm">
                           <span className="text-slate-400">Issue: {new Date(doc.issueDate).toLocaleDateString()}</span>
                           <span className="text-slate-400">Expiry: {new Date(doc.expiryDate).toLocaleDateString()}</span>
                         </div>
@@ -606,7 +606,7 @@ export function VehicleDetailsDrilldown() {
                   </div>
 
                   {doc.contactPerson && (
-                    <div className="flex items-center justify-between pt-4 border-t border-slate-700">
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-700">
                       <div>
                         <p className="text-sm text-slate-400">Contact Person</p>
                         <p className="text-white font-medium">{doc.contactPerson.name}</p>
@@ -726,52 +726,52 @@ export function UtilizationDetailsDrilldown() {
     utilizationData.maintenanceTime + utilizationData.offlineTime
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-white">Fleet Utilization Analysis</h2>
+          <h2 className="text-base font-bold text-white">Fleet Utilization Analysis</h2>
           <p className="text-slate-400 mt-1">{utilizationData.vehicleName}</p>
         </div>
         <Activity className="w-16 h-16 text-blue-400" />
       </div>
 
       {/* Utilization Overview */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="text-center">
               <p className="text-sm text-slate-400">Current Utilization</p>
-              <p className="text-4xl font-bold text-emerald-400">{utilizationData.currentUtilization}%</p>
+              <p className="text-sm font-bold text-emerald-400">{utilizationData.currentUtilization}%</p>
               <p className="text-xs text-slate-500 mt-1">Target: {utilizationData.targetUtilization}%</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="text-center">
               <p className="text-sm text-slate-400">Daily Avg Hours</p>
-              <p className="text-4xl font-bold text-white">{utilizationData.dailyAverageHours}</p>
+              <p className="text-sm font-bold text-white">{utilizationData.dailyAverageHours}</p>
               <p className="text-xs text-slate-500 mt-1">8 hour target</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="text-center">
               <p className="text-sm text-slate-400">Weekly Avg Hours</p>
-              <p className="text-4xl font-bold text-white">{utilizationData.weeklyAverageHours}</p>
+              <p className="text-sm font-bold text-white">{utilizationData.weeklyAverageHours}</p>
               <p className="text-xs text-slate-500 mt-1">40 hour target</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="text-center">
               <p className="text-sm text-slate-400">Monthly Hours</p>
-              <p className="text-4xl font-bold text-white">{utilizationData.monthlyAverageHours}</p>
+              <p className="text-sm font-bold text-white">{utilizationData.monthlyAverageHours}</p>
               <p className="text-xs text-slate-500 mt-1">173 hour target</p>
             </div>
           </CardContent>
@@ -782,12 +782,12 @@ export function UtilizationDetailsDrilldown() {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
-            <Clock className="w-5 h-5" />
+            <Clock className="w-3 h-3" />
             Time Analysis (This Month)
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div>
               <div className="flex justify-between mb-2">
                 <span className="text-white font-medium">Active Time</span>
@@ -824,17 +824,17 @@ export function UtilizationDetailsDrilldown() {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
-            <User className="w-5 h-5" />
+            <User className="w-3 h-3" />
             Assignment History
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {utilizationData.assignmentHistory.map((assignment, idx) => (
-              <div key={idx} className="p-4 bg-slate-900/50 rounded-lg">
+              <div key={idx} className="p-2 bg-slate-900/50 rounded-lg">
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <p className="font-semibold text-white text-lg">{assignment.driver}</p>
+                    <p className="font-semibold text-white text-sm">{assignment.driver}</p>
                     <p className="text-sm text-slate-400">{assignment.department}</p>
                     <p className="text-xs text-slate-500 mt-1">
                       {new Date(assignment.startDate).toLocaleDateString()} - {assignment.endDate ? new Date(assignment.endDate).toLocaleDateString() : 'Present'}
@@ -844,7 +844,7 @@ export function UtilizationDetailsDrilldown() {
                     {assignment.endDate ? 'Past' : 'Current'}
                   </Badge>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mb-3">
+                <div className="grid grid-cols-2 gap-2 mb-3">
                   <div>
                     <p className="text-sm text-slate-400">Hours Logged</p>
                     <p className="text-white font-bold">{assignment.hoursLogged} hrs</p>
@@ -876,7 +876,7 @@ export function UtilizationDetailsDrilldown() {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
-            <Target className="w-5 h-5" />
+            <Target className="w-3 h-3" />
             Recommendations
           </CardTitle>
         </CardHeader>
@@ -885,12 +885,12 @@ export function UtilizationDetailsDrilldown() {
             {utilizationData.recommendations.map((rec, idx) => {
               const Icon = rec.icon
               return (
-                <div key={idx} className={`p-4 rounded-lg border ${rec.priority === 'high' ? 'bg-emerald-500/10 border-emerald-500/30' :
+                <div key={idx} className={`p-2 rounded-lg border ${rec.priority === 'high' ? 'bg-emerald-500/10 border-emerald-500/30' :
                     rec.priority === 'medium' ? 'bg-amber-500/10 border-amber-500/30' :
                       'bg-blue-500/10 border-blue-500/30'
                   }`}>
                   <div className="flex items-start gap-3">
-                    <Icon className={`w-6 h-6 ${rec.priority === 'high' ? 'text-emerald-400' :
+                    <Icon className={`w-4 h-4 ${rec.priority === 'high' ? 'text-emerald-400' :
                         rec.priority === 'medium' ? 'text-amber-400' :
                           'text-blue-400'
                       }`} />
@@ -914,21 +914,21 @@ export function UtilizationDetailsDrilldown() {
 
       {/* Contact Fleet Manager */}
       <Card className="bg-slate-800/50 border-slate-700">
-        <CardContent className="pt-6">
+        <CardContent className="pt-3">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-400">Need to discuss utilization?</p>
-              <p className="text-lg font-semibold text-white">{utilizationData.fleetManager.name}</p>
+              <p className="text-sm font-semibold text-white">{utilizationData.fleetManager.name}</p>
               <p className="text-sm text-slate-400">{utilizationData.fleetManager.role}</p>
             </div>
             <div className="flex gap-3">
               <a href={`tel:${utilizationData.fleetManager.phone}`}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
+                className="flex items-center gap-2 px-2 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
                 <Phone className="w-4 h-4" />
                 {utilizationData.fleetManager.phone}
               </a>
               <a href={`mailto:${utilizationData.fleetManager.email}`}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
+                className="flex items-center gap-2 px-2 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
                 <Mail className="w-4 w-4" />
                 Email
               </a>
@@ -1017,10 +1017,10 @@ export function CostDetailsDrilldown() {
   const depreciationRate = ((costData.totalDepreciation / costData.purchasePrice) * 100).toFixed(1)
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-2 p-3">
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-white">Cost Analysis</h2>
+          <h2 className="text-base font-bold text-white">Cost Analysis</h2>
           <p className="text-slate-400 mt-1">{costData.vehicleName}</p>
         </div>
         <DollarSign className="w-16 h-16 text-emerald-400" />
@@ -1030,27 +1030,27 @@ export function CostDetailsDrilldown() {
       <Card className="bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 border-emerald-700/50">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
-            <Database className="w-5 h-5" />
+            <Database className="w-3 h-3" />
             Total Cost of Ownership
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-2">
             <div>
               <p className="text-sm text-emerald-200">Lifetime Cost</p>
-              <p className="text-3xl font-bold text-white">${costData.totalCosts.lifetime.toLocaleString()}</p>
+              <p className="text-base font-bold text-white">${costData.totalCosts.lifetime.toLocaleString()}</p>
             </div>
             <div>
               <p className="text-sm text-emerald-200">Purchase Price</p>
-              <p className="text-3xl font-bold text-white">${costData.purchasePrice.toLocaleString()}</p>
+              <p className="text-base font-bold text-white">${costData.purchasePrice.toLocaleString()}</p>
             </div>
             <div>
               <p className="text-sm text-emerald-200">Current Value</p>
-              <p className="text-3xl font-bold text-white">${costData.currentValue.toLocaleString()}</p>
+              <p className="text-base font-bold text-white">${costData.currentValue.toLocaleString()}</p>
             </div>
             <div>
               <p className="text-sm text-emerald-200">Depreciation</p>
-              <p className="text-3xl font-bold text-red-400">${costData.totalDepreciation.toLocaleString()}</p>
+              <p className="text-base font-bold text-red-400">${costData.totalDepreciation.toLocaleString()}</p>
               <p className="text-xs text-emerald-300 mt-1">{depreciationRate}% over {costData.ageYears} years</p>
             </div>
           </div>
@@ -1061,15 +1061,15 @@ export function CostDetailsDrilldown() {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
-            <Fuel className="w-5 h-5" />
+            <Fuel className="w-3 h-3" />
             Fuel Costs
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="text-center p-4 bg-slate-900/50 rounded-lg">
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            <div className="text-center p-2 bg-slate-900/50 rounded-lg">
               <p className="text-sm text-slate-400">This Month</p>
-              <p className="text-2xl font-bold text-white">${costData.fuelCosts.thisMonth.toLocaleString()}</p>
+              <p className="text-sm font-bold text-white">${costData.fuelCosts.thisMonth.toLocaleString()}</p>
               <div className="flex items-center justify-center gap-1 mt-1">
                 {costData.fuelCosts.thisMonth > costData.fuelCosts.lastMonth ? (
                   <>
@@ -1084,23 +1084,23 @@ export function CostDetailsDrilldown() {
                 )}
               </div>
             </div>
-            <div className="text-center p-4 bg-slate-900/50 rounded-lg">
+            <div className="text-center p-2 bg-slate-900/50 rounded-lg">
               <p className="text-sm text-slate-400">Year to Date</p>
-              <p className="text-2xl font-bold text-white">${costData.fuelCosts.yearToDate.toLocaleString()}</p>
+              <p className="text-sm font-bold text-white">${costData.fuelCosts.yearToDate.toLocaleString()}</p>
             </div>
-            <div className="text-center p-4 bg-slate-900/50 rounded-lg">
+            <div className="text-center p-2 bg-slate-900/50 rounded-lg">
               <p className="text-sm text-slate-400">Cost Per Mile</p>
-              <p className="text-2xl font-bold text-white">${costData.fuelCosts.avgPerMile.toFixed(2)}</p>
+              <p className="text-sm font-bold text-white">${costData.fuelCosts.avgPerMile.toFixed(2)}</p>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <div>
               <p className="text-sm text-slate-400">Total Gallons (YTD)</p>
-              <p className="text-lg font-semibold text-white">{costData.fuelCosts.totalGallons.toLocaleString()} gal</p>
+              <p className="text-sm font-semibold text-white">{costData.fuelCosts.totalGallons.toLocaleString()} gal</p>
             </div>
             <div>
               <p className="text-sm text-slate-400">Average MPG</p>
-              <p className="text-lg font-semibold text-white">{costData.fuelCosts.avgMPG} mpg</p>
+              <p className="text-sm font-semibold text-white">{costData.fuelCosts.avgMPG} mpg</p>
             </div>
           </div>
         </CardContent>
@@ -1110,34 +1110,34 @@ export function CostDetailsDrilldown() {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
-            <Wrench className="w-5 h-5" />
+            <Wrench className="w-3 h-3" />
             Maintenance Costs
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="text-center p-4 bg-slate-900/50 rounded-lg">
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            <div className="text-center p-2 bg-slate-900/50 rounded-lg">
               <p className="text-sm text-slate-400">This Month</p>
-              <p className="text-2xl font-bold text-white">${costData.maintenanceCosts.thisMonth.toLocaleString()}</p>
+              <p className="text-sm font-bold text-white">${costData.maintenanceCosts.thisMonth.toLocaleString()}</p>
             </div>
-            <div className="text-center p-4 bg-slate-900/50 rounded-lg">
+            <div className="text-center p-2 bg-slate-900/50 rounded-lg">
               <p className="text-sm text-slate-400">Year to Date</p>
-              <p className="text-2xl font-bold text-white">${costData.maintenanceCosts.yearToDate.toLocaleString()}</p>
+              <p className="text-sm font-bold text-white">${costData.maintenanceCosts.yearToDate.toLocaleString()}</p>
             </div>
-            <div className="text-center p-4 bg-slate-900/50 rounded-lg">
+            <div className="text-center p-2 bg-slate-900/50 rounded-lg">
               <p className="text-sm text-slate-400">Cost Per Mile</p>
-              <p className="text-2xl font-bold text-white">${costData.maintenanceCosts.avgPerMile.toFixed(3)}</p>
+              <p className="text-sm font-bold text-white">${costData.maintenanceCosts.avgPerMile.toFixed(3)}</p>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
               <p className="text-sm text-blue-300">Preventive Maintenance</p>
-              <p className="text-xl font-bold text-white">${costData.maintenanceCosts.preventive.toLocaleString()}</p>
+              <p className="text-base font-bold text-white">${costData.maintenanceCosts.preventive.toLocaleString()}</p>
               <p className="text-xs text-blue-400 mt-1">{((costData.maintenanceCosts.preventive / costData.maintenanceCosts.yearToDate) * 100).toFixed(1)}% of total</p>
             </div>
             <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
               <p className="text-sm text-amber-300">Corrective Maintenance</p>
-              <p className="text-xl font-bold text-white">${costData.maintenanceCosts.corrective.toLocaleString()}</p>
+              <p className="text-base font-bold text-white">${costData.maintenanceCosts.corrective.toLocaleString()}</p>
               <p className="text-xs text-amber-400 mt-1">{((costData.maintenanceCosts.corrective / costData.maintenanceCosts.yearToDate) * 100).toFixed(1)}% of total</p>
             </div>
           </div>
@@ -1148,12 +1148,12 @@ export function CostDetailsDrilldown() {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
-            <BarChart3 className="w-5 h-5" />
+            <BarChart3 className="w-3 h-3" />
             Cost Per Mile Breakdown
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-2">
             {Object.entries(costData.costPerMile).filter(([key]) => key !== 'total').map(([category, cost]) => (
               <div key={category}>
                 <div className="flex justify-between mb-2">
@@ -1163,10 +1163,10 @@ export function CostDetailsDrilldown() {
                 <Progress value={((cost as number) / costData.costPerMile.total) * 100} className="h-2" />
               </div>
             ))}
-            <div className="pt-4 border-t border-slate-700">
+            <div className="pt-2 border-t border-slate-700">
               <div className="flex justify-between">
-                <span className="text-white font-bold text-lg">Total Cost Per Mile</span>
-                <span className="text-emerald-400 font-bold text-2xl">${costData.costPerMile.total.toFixed(2)}/mi</span>
+                <span className="text-white font-bold text-sm">Total Cost Per Mile</span>
+                <span className="text-emerald-400 font-bold text-sm">${costData.costPerMile.total.toFixed(2)}/mi</span>
               </div>
             </div>
           </div>
@@ -1174,7 +1174,7 @@ export function CostDetailsDrilldown() {
       </Card>
 
       {/* Contact Information */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-2">
         <Card className="bg-slate-800/50 border-slate-700">
           <CardHeader>
             <CardTitle className="text-white text-sm">Finance Manager</CardTitle>
@@ -1182,7 +1182,7 @@ export function CostDetailsDrilldown() {
           <CardContent>
             <div className="space-y-3">
               <div>
-                <p className="text-lg font-semibold text-white">{costData.financeManager.name}</p>
+                <p className="text-sm font-semibold text-white">{costData.financeManager.name}</p>
                 <p className="text-sm text-slate-400">{costData.financeManager.role}</p>
               </div>
               <div className="flex gap-2">
@@ -1208,7 +1208,7 @@ export function CostDetailsDrilldown() {
           <CardContent>
             <div className="space-y-3">
               <div>
-                <p className="text-lg font-semibold text-white">{costData.fleetManager.name}</p>
+                <p className="text-sm font-semibold text-white">{costData.fleetManager.name}</p>
                 <p className="text-sm text-slate-400">{costData.fleetManager.role}</p>
               </div>
               <div className="flex gap-2">
@@ -1313,13 +1313,13 @@ export function ActiveVehiclesExcelDrilldown() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-white">Active Vehicles</h2>
+          <h2 className="text-base font-bold text-white">Active Vehicles</h2>
           <p className="text-slate-400 mt-1">Full fleet vehicle matrix • Click row for details</p>
         </div>
-        <Badge variant="default" className="bg-emerald-500 text-lg px-4 py-2">
+        <Badge variant="default" className="bg-emerald-500 text-sm px-2 py-2">
           245 Vehicles
         </Badge>
       </div>
@@ -1388,10 +1388,10 @@ export function MaintenanceRecordsExcelDrilldown() {
   ]
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-white">Maintenance Records</h2>
+          <h2 className="text-base font-bold text-white">Maintenance Records</h2>
           <p className="text-slate-400 mt-1">Complete service history • Filter by date, type, or status</p>
         </div>
         <Wrench className="w-16 h-16 text-orange-400" />
@@ -1472,10 +1472,10 @@ export function CostAnalysisExcelDrilldown() {
   const totalAmount = Object.values(categoryTotals).reduce((sum, val) => sum + val, 0)
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-white">Cost Analysis</h2>
+          <h2 className="text-base font-bold text-white">Cost Analysis</h2>
           <p className="text-slate-400 mt-1">Full cost breakdown • Filter by category, vendor, or date range</p>
         </div>
         <DollarSign className="w-16 h-16 text-emerald-400" />
@@ -1485,9 +1485,9 @@ export function CostAnalysisExcelDrilldown() {
       <div className="grid grid-cols-6 gap-3">
         {Object.entries(categoryTotals).map(([category, total]) => (
           <Card key={category} className="bg-slate-800/50 border-slate-700">
-            <CardContent className="pt-4">
+            <CardContent className="pt-2">
               <p className="text-xs text-slate-400">{category}</p>
-              <p className="text-xl font-bold text-white">${total.toFixed(2)}</p>
+              <p className="text-base font-bold text-white">${total.toFixed(2)}</p>
               <p className="text-xs text-slate-500">{((total / totalAmount) * 100).toFixed(1)}%</p>
             </CardContent>
           </Card>
@@ -1550,10 +1550,10 @@ export function UtilizationDataExcelDrilldown() {
   ]
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-white">Utilization Data</h2>
+          <h2 className="text-base font-bold text-white">Utilization Data</h2>
           <p className="text-slate-400 mt-1">Daily usage matrix • Filter by vehicle, driver, or date</p>
         </div>
         <Activity className="w-16 h-16 text-blue-400" />
@@ -1689,10 +1689,10 @@ export function ComplianceDetailsDrilldown() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-2 p-3">
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-white">Compliance Status</h2>
+          <h2 className="text-base font-bold text-white">Compliance Status</h2>
           <p className="text-slate-400 mt-1">{complianceData.vehicleName}</p>
         </div>
         <Shield className="w-16 h-16 text-emerald-400" />
@@ -1700,18 +1700,18 @@ export function ComplianceDetailsDrilldown() {
 
       {/* Overall Status */}
       <Card className="bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 border-emerald-700/50">
-        <CardContent className="pt-6">
+        <CardContent className="pt-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <CheckCircle className="w-12 h-12 text-emerald-400" />
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-12 h-9 text-emerald-400" />
               <div>
                 <p className="text-sm text-emerald-200">Overall Compliance Status</p>
-                <p className="text-3xl font-bold text-white">COMPLIANT</p>
+                <p className="text-base font-bold text-white">COMPLIANT</p>
               </div>
             </div>
             <div className="text-right">
               <p className="text-sm text-emerald-200">Next Review</p>
-              <p className="text-lg font-semibold text-white">
+              <p className="text-sm font-semibold text-white">
                 {new Date(Math.min(...complianceData.items.map(i => new Date(i.nextDue).getTime()))).toLocaleDateString()}
               </p>
             </div>
@@ -1720,21 +1720,21 @@ export function ComplianceDetailsDrilldown() {
       </Card>
 
       {/* Compliance Items */}
-      <div className="space-y-4">
+      <div className="space-y-2">
         {complianceData.items.map((item, idx) => {
           const StatusIcon = getStatusIcon(item.status)
           const color = getStatusColor(item.status)
 
           return (
             <Card key={idx} className={`bg-slate-800/50 border-${color}-700/50`}>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
+              <CardContent className="pt-3">
+                <div className="space-y-2">
                   {/* Header */}
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
-                      <StatusIcon className={`w-8 h-8 text-${color}-400`} />
+                      <StatusIcon className={`w-4 h-4 text-${color}-400`} />
                       <div>
-                        <p className="text-xl font-bold text-white">{item.category}</p>
+                        <p className="text-base font-bold text-white">{item.category}</p>
                         <div className="flex gap-2 mt-2">
                           <Badge variant={item.status === 'compliant' ? 'default' : item.status === 'warning' ? 'secondary' : 'destructive'}
                             className={item.status === 'compliant' ? `bg-${color}-500` : ''}>
@@ -1749,7 +1749,7 @@ export function ComplianceDetailsDrilldown() {
                   </div>
 
                   {/* Dates */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-slate-400">Last Check</p>
                       <p className="text-white font-medium">{new Date(item.lastCheck).toLocaleDateString()}</p>
@@ -1775,7 +1775,7 @@ export function ComplianceDetailsDrilldown() {
 
                   {/* Inspector Contact */}
                   {item.inspector && (
-                    <div className="pt-4 border-t border-slate-700">
+                    <div className="pt-2 border-t border-slate-700">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm text-slate-400">Contact</p>
@@ -1808,44 +1808,44 @@ export function ComplianceDetailsDrilldown() {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
-            <User className="w-5 h-5" />
+            <User className="w-3 h-3" />
             Compliance Team
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between p-2 bg-slate-900/50 rounded-lg">
               <div>
-                <p className="text-lg font-semibold text-white">{complianceData.complianceManager.name}</p>
+                <p className="text-sm font-semibold text-white">{complianceData.complianceManager.name}</p>
                 <p className="text-sm text-slate-400">{complianceData.complianceManager.role} • {complianceData.complianceManager.department}</p>
               </div>
               <div className="flex gap-2">
                 <a href={`tel:${complianceData.complianceManager.phone}`}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
+                  className="flex items-center gap-2 px-2 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
                   <Phone className="w-4 h-4" />
                   {complianceData.complianceManager.phone}
                 </a>
                 <a href={`mailto:${complianceData.complianceManager.email}`}
-                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
+                  className="flex items-center gap-2 px-2 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
                   <Mail className="w-4 h-4" />
                   Email
                 </a>
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
+            <div className="flex items-center justify-between p-2 bg-slate-900/50 rounded-lg">
               <div>
-                <p className="text-lg font-semibold text-white">{complianceData.fleetManager.name}</p>
+                <p className="text-sm font-semibold text-white">{complianceData.fleetManager.name}</p>
                 <p className="text-sm text-slate-400">{complianceData.fleetManager.role}</p>
               </div>
               <div className="flex gap-2">
                 <a href={`tel:${complianceData.fleetManager.phone}`}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
+                  className="flex items-center gap-2 px-2 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors">
                   <Phone className="w-4 h-4" />
                   {complianceData.fleetManager.phone}
                 </a>
                 <a href={`mailto:${complianceData.fleetManager.email}`}
-                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
+                  className="flex items-center gap-2 px-2 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white transition-colors">
                   <Mail className="w-4 h-4" />
                   Email
                 </a>

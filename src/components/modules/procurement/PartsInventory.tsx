@@ -139,10 +139,10 @@ export function PartsInventory() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Parts Inventory</h2>
+          <h2 className="text-sm font-semibold">Parts Inventory</h2>
           <p className="text-muted-foreground">Manage vehicle parts and track stock levels</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -159,8 +159,8 @@ export function PartsInventory() {
                 Enter part information to add to inventory
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2 py-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="part-number">Part Number *</Label>
                   <Input
@@ -216,7 +216,7 @@ export function PartsInventory() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="manufacturer">Manufacturer</Label>
                   <Input
@@ -237,7 +237,7 @@ export function PartsInventory() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="quantity">Current Quantity</Label>
                   <Input
@@ -259,7 +259,7 @@ export function PartsInventory() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="min-stock">Min Stock</Label>
                   <Input
@@ -299,13 +299,13 @@ export function PartsInventory() {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Parts</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(parts || []).length}</div>
+            <div className="text-sm font-bold">{(parts || []).length}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Package className="w-3 h-3" />
               Unique SKUs
@@ -318,7 +318,7 @@ export function PartsInventory() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Inventory Value</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalInventoryValue.toLocaleString()}</div>
+            <div className="text-sm font-bold">${totalInventoryValue.toLocaleString()}</div>
             <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
               <TrendUp className="w-3 h-3" />
               Total assets
@@ -331,7 +331,7 @@ export function PartsInventory() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Low Stock Items</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{lowStockParts.length}</div>
+            <div className="text-sm font-bold text-yellow-600">{lowStockParts.length}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Warning className="w-3 h-3" />
               Need reorder
@@ -344,7 +344,7 @@ export function PartsInventory() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Out of Stock</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{outOfStockParts.length}</div>
+            <div className="text-sm font-bold text-red-600">{outOfStockParts.length}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <TrendDown className="w-3 h-3" />
               Critical
@@ -353,7 +353,7 @@ export function PartsInventory() {
         </Card>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-2">
         <div className="relative flex-1">
           <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -405,7 +405,7 @@ export function PartsInventory() {
             <TableBody>
               {filteredParts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={8} className="text-center text-muted-foreground py-3">
                     No parts found. Add parts to manage your inventory.
                   </TableCell>
                 </TableRow>

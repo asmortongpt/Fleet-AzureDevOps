@@ -138,11 +138,11 @@ export function DamageCreationPanel({
     const estimatedCost = calculateCost(config.damageType, config.severity)
 
     return (
-        <div className="absolute top-4 right-4 w-80 bg-slate-900/95 backdrop-blur-sm rounded-xl border border-slate-700 shadow-2xl z-50">
+        <div className="absolute top-4 right-4 w-80 bg-slate-900/95 backdrop-blur-sm rounded-md border border-slate-700 shadow-sm z-50">
             {/* Header */}
-            <div className="p-4 border-b border-slate-700">
+            <div className="p-2 border-b border-slate-700">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-white">Add Damage Point</h3>
+                    <h3 className="text-sm font-bold text-white">Add Damage Point</h3>
                     <button
                         onClick={onCancel}
                         className="text-slate-400 hover:text-white transition-colors"
@@ -158,7 +158,7 @@ export function DamageCreationPanel({
             </div>
 
             {/* Damage Type Selector */}
-            <div className="p-4 space-y-4">
+            <div className="p-2 space-y-2">
                 <div>
                     <label className="block text-xs text-slate-400 mb-2 uppercase tracking-wider">
                         Damage Type
@@ -174,7 +174,7 @@ export function DamageCreationPanel({
                                             : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
                                         }`}
                                 >
-                                    <span className="text-lg">{cfg.icon}</span>
+                                    <span className="text-sm">{cfg.icon}</span>
                                     <p className="text-[10px] mt-0.5">{cfg.label}</p>
                                 </button>
                             )
@@ -244,7 +244,7 @@ export function DamageCreationPanel({
                 <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700">
                     <div className="flex items-center justify-between">
                         <span className="text-slate-400 text-sm">Estimated Repair Cost</span>
-                        <span className="text-2xl font-bold text-green-400">
+                        <span className="text-sm font-bold text-green-400">
                             ${estimatedCost.toLocaleString()}
                         </span>
                     </div>
@@ -254,14 +254,14 @@ export function DamageCreationPanel({
                 <div className="flex gap-2">
                     <button
                         onClick={onCancel}
-                        className="flex-1 px-4 py-2 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-800 transition-colors"
+                        className="flex-1 px-2 py-2 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-800 transition-colors"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={onConfirm}
                         disabled={!pendingPosition}
-                        className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${pendingPosition
+                        className={`flex-1 px-2 py-2 rounded-lg font-medium transition-colors ${pendingPosition
                                 ? 'bg-blue-600 text-white hover:bg-blue-500'
                                 : 'bg-slate-700 text-slate-500 cursor-not-allowed'
                             }`}

@@ -192,12 +192,12 @@ export function TripUsageDialog({
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Car className="w-5 h-5" />
+            <Car className="w-3 h-3" />
             Personal vs Business Trip Classification
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-2 py-2">
           {/* Usage Type Selection */}
           <div className="space-y-3">
             <Label className="text-base font-semibold">Trip Usage Type *</Label>
@@ -251,7 +251,7 @@ export function TripUsageDialog({
 
           {/* Mixed Use Percentage Slider */}
           {formData.usage_type === 'mixed' && (
-            <div className="space-y-3 p-4 border rounded-lg bg-accent/50">
+            <div className="space-y-3 p-2 border rounded-lg bg-accent/50">
               <Label className="text-base font-semibold">Business Percentage: {formData.business_percentage ?? 50}%</Label>
               <Slider
                 value={[formData.business_percentage ?? 50]}
@@ -261,7 +261,7 @@ export function TripUsageDialog({
                 step={1}
                 className="w-full"
               />
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <div className="text-muted-foreground">Business Miles</div>
                   <div className="font-semibold">{businessMiles.toFixed(1)} mi</div>
@@ -274,7 +274,7 @@ export function TripUsageDialog({
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             {/* Trip Date */}
             <div className="space-y-2">
               <Label htmlFor="trip_date">Trip Date *</Label>
@@ -332,7 +332,7 @@ export function TripUsageDialog({
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             {/* Start Location */}
             <div className="space-y-2">
               <Label htmlFor="start_location">Start Location</Label>
@@ -356,7 +356,7 @@ export function TripUsageDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             {/* Start Odometer */}
             <div className="space-y-2">
               <Label htmlFor="start_odometer">Start Odometer (Optional)</Label>

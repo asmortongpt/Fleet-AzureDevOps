@@ -85,10 +85,10 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
         if (!active || !payload) return null
 
         return (
-            <div className="bg-slate-800/95 border border-slate-700 rounded-lg p-4 shadow-xl">
+            <div className="bg-slate-800/95 border border-slate-700 rounded-lg p-2 shadow-sm">
                 <p className="text-slate-300 font-medium mb-2">{label}</p>
                 {payload.map((entry: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between gap-4 text-sm">
+                    <div key={index} className="flex items-center justify-between gap-2 text-sm">
                         <span className="flex items-center gap-2">
                             <div
                                 className="w-3 h-3 rounded-full"
@@ -273,36 +273,36 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
     }
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-2">
             {/* Summary Stats */}
             {stats && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-slate-800/40 rounded-lg p-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <div className="bg-slate-800/40 rounded-lg p-2">
                         <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
                             <CurrencyDollar className="w-4 h-4" />
                             <span>Total Cost</span>
                         </div>
-                        <p className="text-2xl font-bold text-white">
+                        <p className="text-sm font-bold text-white">
                             {formatCurrency(stats.totalCost)}
                         </p>
                     </div>
-                    <div className="bg-slate-800/40 rounded-lg p-4">
+                    <div className="bg-slate-800/40 rounded-lg p-2">
                         <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
                             <span>Average</span>
                         </div>
-                        <p className="text-2xl font-bold text-white">
+                        <p className="text-sm font-bold text-white">
                             {formatCurrency(stats.avgCost)}
                         </p>
                     </div>
-                    <div className="bg-slate-800/40 rounded-lg p-4">
+                    <div className="bg-slate-800/40 rounded-lg p-2">
                         <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
                             <span>Peak</span>
                         </div>
-                        <p className="text-2xl font-bold text-white">
+                        <p className="text-sm font-bold text-white">
                             {formatCurrency(stats.maxCost)}
                         </p>
                     </div>
-                    <div className="bg-slate-800/40 rounded-lg p-4">
+                    <div className="bg-slate-800/40 rounded-lg p-2">
                         <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
                             {stats.trend === 'up' ? (
                                 <TrendUp className="w-4 h-4 text-red-400" />
@@ -311,7 +311,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                             )}
                             <span>Trend</span>
                         </div>
-                        <p className={`text-2xl font-bold ${stats.trend === 'up' ? 'text-red-400' : 'text-green-400'}`}>
+                        <p className={`text-sm font-bold ${stats.trend === 'up' ? 'text-red-400' : 'text-green-400'}`}>
                             {stats.trend === 'up' ? '+' : '-'}{stats.trendPercent}%
                         </p>
                     </div>
@@ -319,7 +319,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
             )}
 
             {/* Chart */}
-            <div className="bg-slate-800/40 rounded-lg p-6">
+            <div className="bg-slate-800/40 rounded-lg p-3">
                 <ResponsiveContainer width="100%" height={400}>
                     {renderChart()}
                 </ResponsiveContainer>

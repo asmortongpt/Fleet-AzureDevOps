@@ -269,23 +269,23 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
           exit={{ opacity: 0, scale: 0.95 }}
           className={`
             ${level === 'page' ? 'min-h-screen' : level === 'section' ? 'min-h-[400px]' : 'min-h-[200px]'}
-            flex items-center justify-center p-4 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800
+            flex items-center justify-center p-2 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800
           `}
         >
-          <Card className="w-full max-w-2xl shadow-2xl border-red-200 dark:border-red-800">
+          <Card className="w-full max-w-2xl shadow-sm border-red-200 dark:border-red-800">
             <CardHeader className="text-center">
               <motion.div
                 initial={{ rotate: 0 }}
                 animate={{ rotate: [0, -10, 10, -10, 10, 0] }}
                 transition={{ duration: 0.5 }}
-                className="inline-flex mx-auto mb-4"
+                className="inline-flex mx-auto mb-2"
               >
                 <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
-                  <Warning className="w-8 h-8 text-red-600 dark:text-red-400" />
+                  <Warning className="w-4 h-4 text-red-600 dark:text-red-400" />
                 </div>
               </motion.div>
 
-              <CardTitle className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+              <CardTitle className="text-sm font-bold text-slate-900 dark:text-slate-100">
                 {errorType === 'network' && 'Connection Problem'}
                 {errorType === 'loading' && 'Loading Error'}
                 {errorType === 'permission' && 'Access Denied'}
@@ -302,7 +302,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
               </CardDescription>
             </CardHeader>
 
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2">
               {retryCount > 0 && (
                 <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/30 dark:border-blue-800">
                   <AlertTitle className="text-sm font-medium">Auto-retry in progress</AlertTitle>
@@ -313,7 +313,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
               )}
 
               {showDetails && error && (
-                <details className="mt-4">
+                <details className="mt-2">
                   <summary className="cursor-pointer text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100">
                     Technical Details
                   </summary>
@@ -415,7 +415,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
             </CardFooter>
 
             {errorId && (
-              <div className="px-6 pb-4">
+              <div className="px-3 pb-2">
                 <p className="text-xs text-center text-slate-500 dark:text-slate-400">
                   Reference this ID when contacting support: <code className="font-mono">{errorId}</code>
                 </p>

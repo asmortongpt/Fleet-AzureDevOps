@@ -68,7 +68,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
+      <div className="flex items-center justify-center p-3">
         <Loader2 className="h-8 w-8 animate-spin text-blue-800" />
         <span className="ml-2 text-slate-700">Loading driver data...</span>
       </div>
@@ -77,7 +77,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
 
   if (error) {
     return (
-      <div className="p-8">
+      <div className="p-3">
         <div className="flex items-center gap-2 text-red-600">
           <AlertCircle className="h-5 w-5" />
           <span>{error}</span>
@@ -88,7 +88,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
 
   if (!driver) {
     return (
-      <div className="p-8 text-gray-500">
+      <div className="p-3 text-gray-500">
         No driver data available
       </div>
     );
@@ -97,9 +97,9 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="border-b p-4">
+      <div className="border-b p-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             {driver.photo ? (
               <img
                 src={driver.photo}
@@ -107,12 +107,12 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
                 className="w-16 h-16 rounded-full object-cover"
               />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center text-white text-2xl font-bold">
+              <div className="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold">
                 {driver.name.charAt(0)}
               </div>
             )}
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-sm font-bold text-gray-900 dark:text-white">
                 {driver.name}
               </h2>
               <p className="text-sm text-slate-700 dark:text-gray-400">
@@ -136,10 +136,10 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
         </TabsList>
 
         {/* Overview Tab */}
-        <TabsContent value="overview" className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Driver Information</h3>
+        <TabsContent value="overview" className="p-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <Card className="p-2">
+              <h3 className="text-sm font-semibold mb-2">Driver Information</h3>
               <dl className="space-y-2">
                 <div className="flex justify-between">
                   <dt className="text-slate-700">License Number</dt>
@@ -160,8 +160,8 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               </dl>
             </Card>
 
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Statistics</h3>
+            <Card className="p-2">
+              <h3 className="text-sm font-semibold mb-2">Statistics</h3>
               <dl className="space-y-2">
                 <div className="flex justify-between">
                   <dt className="text-slate-700">Total Trips</dt>
@@ -189,29 +189,29 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
         </TabsContent>
 
         {/* Performance Tab */}
-        <TabsContent value="performance" className="p-4">
-          <div className="space-y-4">
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Driving Performance</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <p className="text-3xl font-bold text-green-600">{driver.safetyScore}</p>
+        <TabsContent value="performance" className="p-2">
+          <div className="space-y-2">
+            <Card className="p-2">
+              <h3 className="text-sm font-semibold mb-2">Driving Performance</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <p className="text-base font-bold text-green-600">{driver.safetyScore}</p>
                   <p className="text-sm text-slate-700">Safety Score</p>
                   <div className="flex items-center justify-center mt-2 text-green-600">
                     <TrendingUp className="w-4 h-4 mr-1" />
                     <span className="text-xs">+5 this month</span>
                   </div>
                 </div>
-                <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <p className="text-3xl font-bold text-blue-800">98%</p>
+                <div className="text-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <p className="text-base font-bold text-blue-800">98%</p>
                   <p className="text-sm text-slate-700">On-Time Delivery</p>
                   <div className="flex items-center justify-center mt-2 text-blue-800">
                     <TrendingUp className="w-4 h-4 mr-1" />
                     <span className="text-xs">+2% this month</span>
                   </div>
                 </div>
-                <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                  <p className="text-3xl font-bold text-yellow-600">24.5</p>
+                <div className="text-center p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                  <p className="text-base font-bold text-yellow-600">24.5</p>
                   <p className="text-sm text-slate-700">Avg MPG</p>
                   <div className="flex items-center justify-center mt-2 text-slate-700">
                     <TrendingDown className="w-4 h-4 mr-1" />
@@ -221,8 +221,8 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               </div>
             </Card>
 
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Recent Metrics</h3>
+            <Card className="p-2">
+              <h3 className="text-sm font-semibold mb-2">Recent Metrics</h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-700">Hard Braking Events</span>
@@ -246,10 +246,10 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
         </TabsContent>
 
         {/* Compliance Tab */}
-        <TabsContent value="compliance" className="p-4">
-          <div className="space-y-4">
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Hours of Service</h3>
+        <TabsContent value="compliance" className="p-2">
+          <div className="space-y-2">
+            <Card className="p-2">
+              <h3 className="text-sm font-semibold mb-2">Hours of Service</h3>
               <div className="space-y-3">
                 <div>
                   <div className="flex justify-between mb-1">
@@ -281,8 +281,8 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               </div>
             </Card>
 
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Certifications & Documents</h3>
+            <Card className="p-2">
+              <h3 className="text-sm font-semibold mb-2">Certifications & Documents</h3>
               <div className="space-y-2">
                 <div className="flex justify-between items-center p-2 bg-green-50 dark:bg-green-900/20 rounded">
                   <span>Commercial Driver's License</span>
@@ -299,9 +299,9 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               </div>
             </Card>
 
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Violation History</h3>
-              <div className="text-center py-4 text-gray-500">
+            <Card className="p-2">
+              <h3 className="text-sm font-semibold mb-2">Violation History</h3>
+              <div className="text-center py-2 text-gray-500">
                 <p className="text-green-600 font-medium">Clean Record</p>
                 <p className="text-sm">No violations in the past 12 months</p>
               </div>
@@ -310,11 +310,11 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
         </TabsContent>
 
         {/* Schedule Tab */}
-        <TabsContent value="schedule" className="p-4">
-          <Card className="p-4">
-            <h3 className="text-lg font-semibold mb-4">Current Schedule</h3>
-            <div className="space-y-4">
-              <div className="border-l-4 border-blue-500 pl-4 py-2">
+        <TabsContent value="schedule" className="p-2">
+          <Card className="p-2">
+            <h3 className="text-sm font-semibold mb-2">Current Schedule</h3>
+            <div className="space-y-2">
+              <div className="border-l-4 border-blue-500 pl-2 py-2">
                 <p className="font-medium">Morning Route</p>
                 <p className="text-sm text-slate-700">7:00 AM - 11:30 AM</p>
                 <p className="text-sm text-gray-500">Route: Downtown Deliveries</p>
@@ -322,16 +322,16 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
                   <p className="text-sm text-gray-500">Vehicle: {driver.currentVehicle.name}</p>
                 )}
               </div>
-              <div className="border-l-4 border-green-500 pl-4 py-2">
+              <div className="border-l-4 border-green-500 pl-2 py-2">
                 <p className="font-medium">Lunch Break</p>
                 <p className="text-sm text-slate-700">11:30 AM - 12:30 PM</p>
               </div>
-              <div className="border-l-4 border-blue-500 pl-4 py-2">
+              <div className="border-l-4 border-blue-500 pl-2 py-2">
                 <p className="font-medium">Afternoon Route</p>
                 <p className="text-sm text-slate-700">12:30 PM - 5:00 PM</p>
                 <p className="text-sm text-gray-500">Route: Suburban Deliveries</p>
               </div>
-              <div className="border-l-4 border-gray-300 pl-4 py-2">
+              <div className="border-l-4 border-gray-300 pl-2 py-2">
                 <p className="font-medium text-gray-500">Off-Duty</p>
                 <p className="text-sm text-slate-700">After 5:00 PM</p>
               </div>

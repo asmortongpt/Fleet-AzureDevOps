@@ -10,7 +10,7 @@ export function HelpTab() {
       <CardHeader>
         <CardTitle>How to Use ArcGIS Integration</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4 prose prose-sm max-w-none">
+      <CardContent className="space-y-2 prose prose-sm max-w-none">
         <div>
           <h3 className="font-semibold text-base">Step 1: Find Your ArcGIS Service URL</h3>
           <p className="text-muted-foreground">

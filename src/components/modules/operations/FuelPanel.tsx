@@ -47,10 +47,10 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                 side="right"
                 style={{ backgroundColor: 'transparent' }}
             >
-                <SheetHeader className="p-6 border-b border-white/10 bg-black/20">
+                <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
                     <div className="flex items-center justify-between">
-                        <SheetTitle className="text-xl font-semibold flex items-center gap-2 text-white">
-                            <GasPump className="w-6 h-6 text-emerald-400" weight="fill" />
+                        <SheetTitle className="text-base font-semibold flex items-center gap-2 text-white">
+                            <GasPump className="w-4 h-4 text-emerald-400" weight="fill" />
                             Fuel Intelligence
                         </SheetTitle>
                     </div>
@@ -61,12 +61,12 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
 
                 <div className="flex-1 overflow-y-auto bg-muted/5">
                     {/* KPI Cards */}
-                    <div className="grid grid-cols-2 gap-4 p-4">
-                        <div className="bg-card p-4 rounded-xl border shadow-sm">
+                    <div className="grid grid-cols-2 gap-2 p-2">
+                        <div className="bg-card p-2 rounded-md border shadow-sm">
                             <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium uppercase tracking-wider mb-2">
                                 <CurrencyDollar className="w-4 h-4" /> Total Spend
                             </div>
-                            <div className="text-2xl font-bold font-mono">
+                            <div className="text-sm font-bold font-mono">
                                 ${totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                             </div>
                             <div className="text-xs text-green-500 flex items-center mt-1">
@@ -74,11 +74,11 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                             </div>
                         </div>
 
-                        <div className="bg-card p-4 rounded-xl border shadow-sm">
+                        <div className="bg-card p-2 rounded-md border shadow-sm">
                             <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium uppercase tracking-wider mb-2">
                                 <Drop className="w-4 h-4" /> Volume (Gal)
                             </div>
-                            <div className="text-2xl font-bold font-mono">
+                            <div className="text-sm font-bold font-mono">
                                 {Math.round(totalVolume).toLocaleString()}
                             </div>
                             <div className="text-xs text-muted-foreground mt-1">
@@ -88,13 +88,13 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                     </div>
 
                     {/* Recent Transactions List */}
-                    <div className="px-4 pb-4">
+                    <div className="px-2 pb-2">
                         <div className="text-sm font-semibold mb-3 px-1">Recent Transactions</div>
-                        <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
+                        <div className="bg-card rounded-md border shadow-sm overflow-hidden">
                             {transactions.map((tx, i) => (
                                 <div key={tx.id} className={`p-3 flex items-center justify-between border-b last:border-0 hover:bg-muted/50 transition-colors`}>
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-700">
+                                        <div className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center text-green-700">
                                             <GasPump className="w-4 h-4" />
                                         </div>
                                         <div>
@@ -118,7 +118,7 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                     </div>
 
                     {/* Efficiency Tip */}
-                    <div className="p-4">
+                    <div className="p-2">
                         <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
                             <h4 className="font-semibold text-blue-800 text-sm mb-1 flex items-center gap-2">
                                 <TrendUp className="w-4 h-4" /> Optimization Insight

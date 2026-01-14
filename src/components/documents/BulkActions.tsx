@@ -122,7 +122,7 @@ export function BulkActions({
   return (
     <>
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-        <div className="bg-card border shadow-lg rounded-lg p-4 flex items-center gap-4 min-w-[600px]">
+        <div className="bg-card border shadow-sm rounded-lg p-2 flex items-center gap-2 min-w-[600px]">
           <div className="flex items-center gap-2">
             <CheckSquare className="h-5 w-5 text-primary" />
             <span className="font-medium">{selectedDocuments.length} selected</span>
@@ -191,7 +191,7 @@ export function BulkActions({
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-2">
             {isExecuting ? (
               <div className="space-y-3">
                 <Progress value={progress} />

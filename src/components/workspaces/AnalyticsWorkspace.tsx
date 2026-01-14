@@ -107,10 +107,10 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
 
   return (
     <ScrollArea className="h-full bg-[#0a0f1c]">
-      <div className="p-4 sm:p-6 space-y-6">
+      <div className="p-2 sm:p-3 space-y-2">
         <div className="flex items-end justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-white tracking-tight">Executive Overview</h2>
+            <h2 className="text-sm font-bold text-white tracking-tight">Executive Overview</h2>
             <p className="text-sm text-slate-400 mt-1">Real-time fleet performance metrics</p>
           </div>
           <Button variant="outline" className="border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white">
@@ -119,11 +119,11 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" data-testid="analytics-kpi-grid">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2" data-testid="analytics-kpi-grid">
           {kpis.map((kpi, index) => (
             <Card key={index} data-testid={`analytics-kpi-${index}`} className={`bg-gradient-to-br ${kpi.bg} border-white/5 backdrop-blur-sm`}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between mb-2">
                   <div className={`p-2 rounded-lg bg-white/5 border ${kpi.border || 'border-white/10'}`}>
                     {kpi.icon}
                   </div>
@@ -137,7 +137,7 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
                 <div>
                   <span className="text-sm font-medium text-slate-400 block mb-1">{kpi.title}</span>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold text-white tracking-tight">{kpi.value}</span>
+                    <span className="text-base font-bold text-white tracking-tight">{kpi.value}</span>
                     {kpi.subtitle && (
                       <span className="text-xs text-slate-500">{kpi.subtitle}</span>
                     )}
@@ -149,10 +149,10 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
         </div>
 
         {/* Charts Placeholder */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
           <Card className="bg-[#0f1526]/50 border-white/5 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-lg font-semibold text-slate-200">Fleet Utilization Trend</CardTitle>
+              <CardTitle className="text-sm font-semibold text-slate-200">Fleet Utilization Trend</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-[250px] w-full bg-gradient-to-t from-blue-500/10 to-transparent rounded-lg border border-white/5 flex items-center justify-center text-slate-500">
@@ -166,7 +166,7 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
 
           <Card className="bg-[#0f1526]/50 border-white/5 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-lg font-semibold text-slate-200">Cost Distribution</CardTitle>
+              <CardTitle className="text-sm font-semibold text-slate-200">Cost Distribution</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-[250px] w-full bg-gradient-to-t from-purple-500/10 to-transparent rounded-lg border border-white/5 flex items-center justify-center text-slate-500">
@@ -190,10 +190,10 @@ const DataAnalysis = ({ vehicles, _workOrders, _facilities }: { vehicles: Vehicl
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-6 space-y-6">
+      <div className="p-3 space-y-2">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold">Data Analysis</h2>
+            <h2 className="text-sm font-bold">Data Analysis</h2>
             <p className="text-muted-foreground">Detailed fleet analytics and insights</p>
           </div>
           <div className="flex gap-2">
@@ -222,30 +222,30 @@ const DataAnalysis = ({ vehicles, _workOrders, _facilities }: { vehicles: Vehicl
             <TabsTrigger value="fuel">Fuel</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="utilization" className="space-y-4">
+          <TabsContent value="utilization" className="space-y-2">
             <Card>
               <CardHeader>
                 <CardTitle>Fleet Utilization Analysis</CardTitle>
                 <CardDescription>Vehicle usage patterns and efficiency metrics</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                    <BarChart3 className="h-12 w-12 mr-3" />
+                    <BarChart3 className="h-9 w-12 mr-3" />
                     <span>Utilization charts will appear here</span>
                   </div>
                   <Separator />
-                  <div className="grid grid-cols-3 gap-4 text-center">
+                  <div className="grid grid-cols-3 gap-2 text-center">
                     <div>
-                      <div className="text-2xl font-bold">{vehicles?.length || 0}</div>
+                      <div className="text-sm font-bold">{vehicles?.length || 0}</div>
                       <div className="text-sm text-muted-foreground">Total Vehicles</div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold">{vehicles?.filter((v: Vehicle) => v.status === 'active').length || 0}</div>
+                      <div className="text-sm font-bold">{vehicles?.filter((v: Vehicle) => v.status === 'active').length || 0}</div>
                       <div className="text-sm text-muted-foreground">Active Now</div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold">72%</div>
+                      <div className="text-sm font-bold">72%</div>
                       <div className="text-sm text-muted-foreground">Avg Utilization</div>
                     </div>
                   </div>
@@ -254,7 +254,7 @@ const DataAnalysis = ({ vehicles, _workOrders, _facilities }: { vehicles: Vehicl
             </Card>
           </TabsContent>
 
-          <TabsContent value="costs" className="space-y-4">
+          <TabsContent value="costs" className="space-y-2">
             <Card>
               <CardHeader>
                 <CardTitle>Cost Analysis</CardTitle>
@@ -262,14 +262,14 @@ const DataAnalysis = ({ vehicles, _workOrders, _facilities }: { vehicles: Vehicl
               </CardHeader>
               <CardContent>
                 <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                  <DollarSign className="h-12 w-12 mr-3" />
+                  <DollarSign className="h-9 w-12 mr-3" />
                   <span>Cost analysis charts will appear here</span>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="maintenance" className="space-y-4">
+          <TabsContent value="maintenance" className="space-y-2">
             <Card>
               <CardHeader>
                 <CardTitle>Maintenance Analytics</CardTitle>
@@ -277,14 +277,14 @@ const DataAnalysis = ({ vehicles, _workOrders, _facilities }: { vehicles: Vehicl
               </CardHeader>
               <CardContent>
                 <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                  <Wrench className="h-12 w-12 mr-3" />
+                  <Wrench className="h-9 w-12 mr-3" />
                   <span>Maintenance charts will appear here</span>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="fuel" className="space-y-4">
+          <TabsContent value="fuel" className="space-y-2">
             <Card>
               <CardHeader>
                 <CardTitle>Fuel Analytics</CardTitle>
@@ -292,7 +292,7 @@ const DataAnalysis = ({ vehicles, _workOrders, _facilities }: { vehicles: Vehicl
               </CardHeader>
               <CardContent>
                 <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                  <Fuel className="h-12 w-12 mr-3" />
+                  <Fuel className="h-9 w-12 mr-3" />
                   <span>Fuel charts will appear here</span>
                 </div>
               </CardContent>
@@ -310,9 +310,9 @@ const ReportBuilder = () => {
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-6 space-y-6">
+      <div className="p-3 space-y-2">
         <div>
-          <h2 className="text-2xl font-bold">Custom Report Builder</h2>
+          <h2 className="text-sm font-bold">Custom Report Builder</h2>
           <p className="text-muted-foreground">Create and export custom analytics reports</p>
         </div>
 
@@ -320,7 +320,7 @@ const ReportBuilder = () => {
           <CardHeader>
             <CardTitle>Report Configuration</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-2">
             <div className="space-y-2">
               <label className="text-sm font-medium">Report Type</label>
               <Select value={reportType} onValueChange={setReportType}>
@@ -400,7 +400,7 @@ export function AnalyticsWorkspace() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="p-4 border-b">
+      <div className="p-2 border-b">
         <Tabs value={activeView} onValueChange={(v) => setActiveView(v as 'executive' | 'analysis')}>
           <TabsList>
             <TabsTrigger value="executive">Executive Dashboard</TabsTrigger>

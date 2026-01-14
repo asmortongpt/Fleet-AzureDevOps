@@ -24,15 +24,15 @@ export function LoadingSkeleton({ className, count = 1 }: LoadingSkeletonProps) 
 export function TableSkeleton() {
   return (
     <div className="space-y-3">
-      <LoadingSkeleton className="h-12 w-full" />
-      <LoadingSkeleton className="h-10 w-full" count={5} />
+      <LoadingSkeleton className="h-9 w-full" />
+      <LoadingSkeleton className="h-8 w-full" count={5} />
     </div>
   )
 }
 
 export function CardSkeleton() {
   return (
-    <div className="space-y-4 p-6 border rounded-lg">
+    <div className="space-y-2 p-3 border rounded-lg">
       <LoadingSkeleton className="h-6 w-1/3" />
       <LoadingSkeleton className="h-4 w-full" count={3} />
     </div>

@@ -125,51 +125,51 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
   return (
     <div className="h-full overflow-y-auto bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <div className="bg-gradient-to-r from-cyan-600 to-cyan-800 text-white p-6">
+      <div className="bg-gradient-to-r from-cyan-600 to-cyan-800 text-white p-3">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Navigation className="w-8 h-8" />
+              <Navigation className="w-4 h-4" />
               <div>
-                <h1 className="text-2xl font-bold">{route.name || 'Route Details'}</h1>
+                <h1 className="text-sm font-bold">{route.name || 'Route Details'}</h1>
                 <p className="text-cyan-100">Route ID: {route.id}</p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-4 mt-4">
+            <div className="flex flex-wrap gap-2 mt-2">
               <div>
                 <p className="text-xs text-cyan-200">Distance</p>
-                <p className="text-lg font-semibold">{routeOverview.totalDistance} mi</p>
+                <p className="text-sm font-semibold">{routeOverview.totalDistance} mi</p>
               </div>
               <div>
                 <p className="text-xs text-cyan-200">Duration</p>
-                <p className="text-lg font-semibold">{routeOverview.totalDuration}</p>
+                <p className="text-sm font-semibold">{routeOverview.totalDuration}</p>
               </div>
               <div>
                 <p className="text-xs text-cyan-200">Avg Speed</p>
-                <p className="text-lg font-semibold">{routeOverview.avgSpeed} mph</p>
+                <p className="text-sm font-semibold">{routeOverview.avgSpeed} mph</p>
               </div>
               <div>
                 <p className="text-xs text-cyan-200">Stops</p>
-                <p className="text-lg font-semibold">{routeOverview.stops}</p>
+                <p className="text-sm font-semibold">{routeOverview.stops}</p>
               </div>
               <div>
                 <p className="text-xs text-cyan-200">Fuel Efficiency</p>
-                <p className="text-lg font-semibold">{routeOverview.fuelEfficiency} MPG</p>
+                <p className="text-sm font-semibold">{routeOverview.fuelEfficiency} MPG</p>
               </div>
             </div>
           </div>
           {onClose && (
             <Button variant="ghost" onClick={onClose} className="text-white hover:bg-cyan-700">
-              <XCircle className="w-5 h-5" />
+              <XCircle className="w-3 h-3" />
             </Button>
           )}
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="p-6">
+      <div className="p-3">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-5 w-full mb-6">
+          <TabsList className="grid grid-cols-5 w-full mb-3">
             <TabsTrigger value="playback">Playback</TabsTrigger>
             <TabsTrigger value="stops">Stops</TabsTrigger>
             <TabsTrigger value="events">Events</TabsTrigger>
@@ -178,7 +178,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
           </TabsList>
 
           {/* Playback Tab */}
-          <TabsContent value="playback" className="space-y-4">
+          <TabsContent value="playback" className="space-y-2">
             {/* Map Placeholder */}
             <Card>
               <CardHeader>
@@ -191,9 +191,9 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center mb-4">
+                <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center mb-2">
                   <div className="text-center">
-                    <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                    <MapPin className="w-12 h-9 text-gray-400 mx-auto mb-2" />
                     <p className="text-sm text-gray-500">Interactive map would display here</p>
                     <p className="text-xs text-gray-400 mt-1">
                       Route from {stops[0]?.name ?? 'Start'} to {stops[stops.length - 1]?.name ?? 'End'}
@@ -202,8 +202,8 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                 </div>
 
                 {/* Playback Controls */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
                     <Button size="sm" variant="outline" onClick={() => setPlaybackPosition([0])}>
                       <SkipBack className="w-4 h-4" />
                     </Button>
@@ -245,41 +245,41 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
             </Card>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               <Card>
-                <CardContent className="pt-6">
+                <CardContent className="pt-3">
                   <div className="flex items-center gap-2 mb-2">
                     <Clock className="w-4 h-4 text-cyan-600" />
                     <p className="text-xs text-muted-foreground">Total Time</p>
                   </div>
-                  <p className="text-2xl font-bold">{routeOverview.totalDuration}</p>
+                  <p className="text-sm font-bold">{routeOverview.totalDuration}</p>
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="pt-6">
+                <CardContent className="pt-3">
                   <div className="flex items-center gap-2 mb-2">
                     <Gauge className="w-4 h-4 text-cyan-600" />
                     <p className="text-xs text-muted-foreground">Max Speed</p>
                   </div>
-                  <p className="text-2xl font-bold">{routeOverview.maxSpeed} mph</p>
+                  <p className="text-sm font-bold">{routeOverview.maxSpeed} mph</p>
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="pt-6">
+                <CardContent className="pt-3">
                   <div className="flex items-center gap-2 mb-2">
                     <Fuel className="w-4 h-4 text-cyan-600" />
                     <p className="text-xs text-muted-foreground">Fuel Used</p>
                   </div>
-                  <p className="text-2xl font-bold">{routeOverview.fuelUsed} gal</p>
+                  <p className="text-sm font-bold">{routeOverview.fuelUsed} gal</p>
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="pt-6">
+                <CardContent className="pt-3">
                   <div className="flex items-center gap-2 mb-2">
                     <Clock className="w-4 h-4 text-cyan-600" />
                     <p className="text-xs text-muted-foreground">Idle Time</p>
                   </div>
-                  <p className="text-2xl font-bold">{routeOverview.idleTime}</p>
+                  <p className="text-sm font-bold">{routeOverview.idleTime}</p>
                 </CardContent>
               </Card>
             </div>
@@ -290,7 +290,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5" />
+                  <MapPin className="w-3 h-3" />
                   Route Stops
                 </CardTitle>
                 <CardDescription>{stops.length} stops along this route</CardDescription>
@@ -298,16 +298,16 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
               <CardContent>
                 <div className="relative space-y-3">
                   {stops.map((stop, index) => (
-                    <div key={stop.id} className="flex gap-4">
+                    <div key={stop.id} className="flex gap-2">
                       <div className="flex flex-col items-center">
-                        <div className="w-8 h-8 rounded-full bg-cyan-100 dark:bg-cyan-900 flex items-center justify-center">
+                        <div className="w-4 h-4 rounded-full bg-cyan-100 dark:bg-cyan-900 flex items-center justify-center">
                           {getStopIcon(stop.type)}
                         </div>
                         {index < stops.length - 1 && (
                           <div className="w-px h-full bg-cyan-200 dark:bg-cyan-800 my-1" />
                         )}
                       </div>
-                      <div className="flex-1 pb-4">
+                      <div className="flex-1 pb-2">
                         <div className="flex items-start justify-between mb-1">
                           <div>
                             <p className="font-semibold">{stop.name}</p>
@@ -346,13 +346,13 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5" />
+                  <AlertTriangle className="w-3 h-3" />
                   Route Events
                 </CardTitle>
                 <CardDescription>{events.length} events recorded during this route</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {events.map((event, index) => (
                     <div key={index} className="border-b border-gray-200 dark:border-gray-700 pb-3 last:border-b-0">
                       <div className="flex items-start justify-between mb-1">
@@ -362,7 +362,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                         </div>
                         {getEventBadge(event.severity)}
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span>{event.time}</span>
                         <span>{event.location}</span>
                       </div>
@@ -378,33 +378,33 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Gauge className="w-5 h-5" />
+                  <Gauge className="w-3 h-3" />
                   Performance Analytics
                 </CardTitle>
                 <CardDescription>Route performance metrics and insights</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div className="space-y-2">
+                    <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-lg">
                       <p className="text-sm font-medium mb-1">Fuel Efficiency</p>
-                      <p className="text-2xl font-bold">{routeOverview.fuelEfficiency} MPG</p>
+                      <p className="text-sm font-bold">{routeOverview.fuelEfficiency} MPG</p>
                       <p className="text-xs text-muted-foreground mt-1">Industry avg: 15.5 MPG</p>
                     </div>
-                    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                    <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-lg">
                       <p className="text-sm font-medium mb-1">Idle Time Ratio</p>
-                      <p className="text-2xl font-bold">12%</p>
+                      <p className="text-sm font-bold">12%</p>
                       <p className="text-xs text-muted-foreground mt-1">Target: &lt;10%</p>
                     </div>
-                    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                    <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-lg">
                       <p className="text-sm font-medium mb-1">Speed Compliance</p>
-                      <p className="text-2xl font-bold">94%</p>
+                      <p className="text-sm font-bold">94%</p>
                       <p className="text-xs text-muted-foreground mt-1">1 minor violation recorded</p>
                     </div>
                   </div>
-                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center p-4">
+                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center p-2">
                     <div className="text-center">
-                      <Gauge className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                      <Gauge className="w-12 h-9 text-gray-400 mx-auto mb-2" />
                       <p className="text-sm text-gray-500">Performance charts would display here</p>
                       <p className="text-xs text-gray-400 mt-1">Speed, fuel consumption, and RPM over time</p>
                     </div>
@@ -419,7 +419,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Navigation className="w-5 h-5" />
+                  <Navigation className="w-3 h-3" />
                   Geofence Interactions
                 </CardTitle>
                 <CardDescription>Route interactions with defined geofences</CardDescription>

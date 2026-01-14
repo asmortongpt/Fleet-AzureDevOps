@@ -133,11 +133,11 @@ export function DataWorkbench() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Enhanced Data Workbench</h1>
+          <h1 className="text-base font-semibold tracking-tight">Enhanced Data Workbench</h1>
           <p className="text-muted-foreground mt-1">
             Comprehensive fleet data management and analytics
           </p>
@@ -163,40 +163,40 @@ export function DataWorkbench() {
       </div>
 
       {/* Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
         <MetricCard
           title="Total Vehicles"
           value={metrics.total}
           subtitle="in fleet"
-          icon={<Database className="w-5 h-5" />}
+          icon={<Database className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
           title="Active"
           value={metrics.active}
           subtitle="on the road"
-          icon={<CheckCircle className="w-5 h-5" />}
+          icon={<CheckCircle className="w-3 h-3" />}
           status="success"
         />
         <MetricCard
           title="In Maintenance"
           value={metrics.maintenance}
           subtitle="being serviced"
-          icon={<Warning className="w-5 h-5" />}
+          icon={<Warning className="w-3 h-3" />}
           status="warning"
         />
         <MetricCard
           title="Avg Fuel"
           value={`${metrics.avgFuel}%`}
           subtitle="fleet average"
-          icon={<Database className="w-5 h-5" />}
+          icon={<Database className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
           title="Active Alerts"
           value={metrics.alerts}
           subtitle="need attention"
-          icon={<Warning className="w-5 h-5" />}
+          icon={<Warning className="w-3 h-3" />}
           status={metrics.alerts > 10 ? "warning" : "success"}
         />
       </div>
@@ -210,25 +210,25 @@ export function DataWorkbench() {
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
+        <TabsContent value="overview" className="space-y-2">
           <OverviewTab
             vehicles={vehicles}
             onAdvancedSearch={() => setIsAdvancedSearchOpen(true)}
           />
         </TabsContent>
 
-        <TabsContent value="maintenance" className="space-y-4">
+        <TabsContent value="maintenance" className="space-y-2">
           <MaintenanceTab
             maintenanceRecords={maintenanceRecords}
             onScheduleService={() => setIsScheduleServiceDialogOpen(true)}
           />
         </TabsContent>
 
-        <TabsContent value="fuel" className="space-y-4">
+        <TabsContent value="fuel" className="space-y-2">
           <FuelTab vehicles={vehicles} fuelRecords={fuelRecords} />
         </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-4">
+        <TabsContent value="analytics" className="space-y-2">
           <AnalyticsTab
             vehicles={vehicles}
             fuelRecords={fuelRecords}

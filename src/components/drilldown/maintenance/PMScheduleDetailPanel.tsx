@@ -67,11 +67,11 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
   return (
     <DrilldownContent loading={isLoading} error={error}>
       {schedule && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-2">
-              <h3 className="text-2xl font-bold">{schedule.serviceType}</h3>
+              <h3 className="text-sm font-bold">{schedule.serviceType}</h3>
               <p className="text-sm text-muted-foreground">
                 {schedule.vehicleNumber} • {schedule.vehicleMake} {schedule.vehicleModel} ({schedule.vehicleYear})
               </p>
@@ -82,7 +82,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                 <Badge variant="outline">{schedule.frequency}</Badge>
               </div>
             </div>
-            <Calendar className="w-12 h-12 text-muted-foreground" />
+            <Calendar className="w-12 h-9 text-muted-foreground" />
           </div>
 
           {/* Quick Stats */}
@@ -90,21 +90,21 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
             <DrilldownCard
               title="Days Until Due"
               value={schedule.daysUntilDue > 0 ? schedule.daysUntilDue : 'Overdue'}
-              icon={<Clock className="w-5 h-5" />}
+              icon={<Clock className="w-3 h-3" />}
               color={schedule.daysUntilDue < 0 ? 'danger' : schedule.daysUntilDue <= 7 ? 'warning' : 'primary'}
               variant="compact"
             />
             <DrilldownCard
               title="Current Mileage"
               value={schedule.currentMileage.toLocaleString()}
-              icon={<Car className="w-5 h-5" />}
+              icon={<Car className="w-3 h-3" />}
               color="primary"
               variant="compact"
             />
             <DrilldownCard
               title="Est. Cost"
               value={`$${schedule.estimatedCost.toFixed(0)}`}
-              icon={<DollarSign className="w-5 h-5" />}
+              icon={<DollarSign className="w-3 h-3" />}
               color="success"
               variant="compact"
             />
@@ -120,13 +120,13 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
             </TabsList>
 
             {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-4">
+            <TabsContent value="overview" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm">Schedule Details</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <CardContent className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Service Type</p>
                       <p className="font-medium">{schedule.serviceType}</p>
@@ -148,9 +148,9 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                   </div>
 
                   {schedule.lastServiceDate && (
-                    <div className="pt-4 border-t">
+                    <div className="pt-2 border-t">
                       <p className="text-sm text-muted-foreground mb-2">Last Service</p>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-2">
                         <div>
                           <p className="text-xs text-muted-foreground">Date</p>
                           <p className="font-medium">{new Date(schedule.lastServiceDate).toLocaleDateString()}</p>
@@ -197,7 +197,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
             </TabsContent>
 
             {/* Service History Tab */}
-            <TabsContent value="history" className="space-y-4">
+            <TabsContent value="history" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -232,7 +232,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                                 </Badge>
                               </div>
                               <p className="text-sm">{record.description}</p>
-                              <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                                 <span className="flex items-center gap-1">
                                   <Calendar className="w-3 h-3" />
                                   {new Date(record.serviceDate).toLocaleDateString()}
@@ -268,7 +268,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                       )}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-4">
+                    <p className="text-sm text-muted-foreground text-center py-2">
                       No service history available
                     </p>
                   )}
@@ -277,7 +277,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
             </TabsContent>
 
             {/* Service Provider Tab */}
-            <TabsContent value="provider" className="space-y-4">
+            <TabsContent value="provider" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -285,9 +285,9 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                     Service Provider
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-2">
                   <div>
-                    <p className="font-medium text-lg">{schedule.serviceProvider}</p>
+                    <p className="font-medium text-sm">{schedule.serviceProvider}</p>
                     <p className="text-sm text-muted-foreground">{schedule.serviceProviderContact.address}</p>
                   </div>
 
@@ -342,7 +342,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
             </TabsContent>
 
             {/* Vehicle Tab */}
-            <TabsContent value="vehicle" className="space-y-4">
+            <TabsContent value="vehicle" className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -350,8 +350,8 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                     Vehicle Information
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <CardContent className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Vehicle Number</p>
                       <p className="font-medium">{schedule.vehicleNumber}</p>

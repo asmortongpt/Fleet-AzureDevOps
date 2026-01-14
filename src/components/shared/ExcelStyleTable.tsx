@@ -472,7 +472,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
         <CardContent>
           <div className="space-y-2">
             {Array.from({ length: 10 }).map((_, i) => (
-              <Skeleton key={i} className="h-10 w-full" />
+              <Skeleton key={i} className="h-8 w-full" />
             ))}
           </div>
         </CardContent>
@@ -492,9 +492,9 @@ export function ExcelStyleTable<T extends Record<string, any>>({
         </CardHeader>
       )}
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-2">
         {/* Toolbar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           {/* Global Search */}
           {enableFiltering && (
             <div className="flex items-center gap-2 w-full sm:flex-1 sm:max-w-sm">
@@ -707,7 +707,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                   <tr>
                     <td
                       colSpan={visibleColumns.length + (enableRowSelection ? 1 : 0)}
-                      className="p-8 text-center text-muted-foreground"
+                      className="p-3 text-center text-muted-foreground"
                     >
                       {emptyMessage}
                     </td>

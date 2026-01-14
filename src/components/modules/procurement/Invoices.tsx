@@ -69,10 +69,10 @@ export function Invoices() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Invoices & Billing</h2>
+          <h2 className="text-sm font-semibold">Invoices & Billing</h2>
           <p className="text-muted-foreground">Track vendor invoices and payment status</p>
         </div>
         <Button>
@@ -81,13 +81,13 @@ export function Invoices() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Invoiced</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalInvoiced.toLocaleString()}</div>
+            <div className="text-sm font-bold">${totalInvoiced.toLocaleString()}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <FileText className="w-3 h-3" />
               {(invoices || []).length} invoices
@@ -100,7 +100,7 @@ export function Invoices() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Paid</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">${totalPaid.toLocaleString()}</div>
+            <div className="text-sm font-bold text-green-600">${totalPaid.toLocaleString()}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <CheckCircle className="w-3 h-3" />
               Completed
@@ -113,7 +113,7 @@ export function Invoices() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Outstanding</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">${totalOutstanding.toLocaleString()}</div>
+            <div className="text-sm font-bold text-yellow-600">${totalOutstanding.toLocaleString()}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <CurrencyDollar className="w-3 h-3" />
               Balance due
@@ -126,7 +126,7 @@ export function Invoices() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Overdue</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{overdueCount}</div>
+            <div className="text-sm font-bold text-red-600">{overdueCount}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Warning className="w-3 h-3" />
               Needs attention
@@ -135,7 +135,7 @@ export function Invoices() {
         </Card>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-2">
         <div className="relative flex-1">
           <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -170,7 +170,7 @@ export function Invoices() {
             <TableBody>
               {filteredInvoices.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={9} className="text-center text-muted-foreground py-3">
                     No invoices found.
                   </TableCell>
                 </TableRow>

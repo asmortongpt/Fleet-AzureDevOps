@@ -77,7 +77,7 @@ export function GeofenceLayer({ visible, geofences, onGeofenceSelect, breachedGe
                             />
 
                             {/* Tooltip */}
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none bg-slate-900 text-white text-xs py-1 px-2 rounded shadow-lg whitespace-nowrap z-30">
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none bg-slate-900 text-white text-xs py-1 px-2 rounded shadow-sm whitespace-nowrap z-30">
                                 <div className="font-semibold">{geofence.name}</div>
                                 <div className="text-[10px] text-slate-300">{geofence.type} • {geofence.radius}m</div>
                                 {isBreached && <div className="text-[10px] text-red-400 font-bold uppercase mt-1">⚠️ Breach Detected</div>}

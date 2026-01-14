@@ -202,11 +202,11 @@ export default function EvidenceLocker() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Evidence Locker</h1>
+          <h1 className="text-base font-bold">Evidence Locker</h1>
           <p className="text-muted-foreground">Secure storage for incident videos and documentation</p>
         </div>
         <Button onClick={() => setShowCreateDialog(true)}>
@@ -216,13 +216,13 @@ export default function EvidenceLocker() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Cases</p>
-                <p className="text-2xl font-bold">{stats.total}</p>
+                <p className="text-sm font-bold">{stats.total}</p>
               </div>
               <Folder className="h-8 w-8 text-blue-800" />
             </div>
@@ -230,11 +230,11 @@ export default function EvidenceLocker() {
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Open Cases</p>
-                <p className="text-2xl font-bold">{stats.open}</p>
+                <p className="text-sm font-bold">{stats.open}</p>
               </div>
               <FileText className="h-8 w-8 text-green-500" />
             </div>
@@ -242,11 +242,11 @@ export default function EvidenceLocker() {
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Legal Hold</p>
-                <p className="text-2xl font-bold text-red-600">{stats.legalHold}</p>
+                <p className="text-sm font-bold text-red-600">{stats.legalHold}</p>
               </div>
               <Lock className="h-8 w-8 text-red-500" />
             </div>
@@ -254,11 +254,11 @@ export default function EvidenceLocker() {
         </Card>
 
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Videos</p>
-                <p className="text-2xl font-bold">{stats.totalVideos}</p>
+                <p className="text-sm font-bold">{stats.totalVideos}</p>
               </div>
               <Video className="h-8 w-8 text-purple-500" />
             </div>
@@ -268,8 +268,8 @@ export default function EvidenceLocker() {
 
       {/* Search and Filters */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <CardContent className="pt-3">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -320,26 +320,26 @@ export default function EvidenceLocker() {
       </Card>
 
       {/* Evidence Locker List */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
         {loading ? (
           <Card className="col-span-full">
-            <CardContent className="pt-6 text-center">
+            <CardContent className="pt-3 text-center">
               <p className="text-muted-foreground">Loading evidence lockers...</p>
             </CardContent>
           </Card>
         ) : filteredLockers.length === 0 ? (
           <Card className="col-span-full">
-            <CardContent className="pt-6 text-center">
+            <CardContent className="pt-3 text-center">
               <p className="text-muted-foreground">No evidence lockers found</p>
             </CardContent>
           </Card>
         ) : (
           filteredLockers.map((locker) => (
-            <Card key={locker.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Card key={locker.id} className="hover:shadow-sm transition-shadow cursor-pointer">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-grow">
-                    <CardTitle className="text-lg">{locker.locker_name}</CardTitle>
+                    <CardTitle className="text-sm">{locker.locker_name}</CardTitle>
                     <CardDescription>
                       {lockerTypeLabels[locker.locker_type]} • Case #{locker.case_number}
                     </CardDescription>
@@ -405,7 +405,7 @@ export default function EvidenceLocker() {
             <DialogDescription>Create a new secure case for storing video evidence</DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div>
               <label className="text-sm font-medium mb-2 block">Case Name *</label>
               <Input
@@ -415,7 +415,7 @@ export default function EvidenceLocker() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="text-sm font-medium mb-2 block">Case Type *</label>
                 <Select value={newLocker.lockerType} onValueChange={(value) => setNewLocker({ ...newLocker, lockerType: value })}>
@@ -459,7 +459,7 @@ export default function EvidenceLocker() {
               />
             </div>
 
-            <div className="border rounded p-4 bg-red-50">
+            <div className="border rounded p-2 bg-red-50">
               <div className="flex items-center gap-2 mb-2">
                 <input
                   type="checkbox"
@@ -528,9 +528,9 @@ export default function EvidenceLocker() {
                 </div>
               </DialogHeader>
 
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {/* Case Information */}
-                <div className="border rounded p-4 space-y-2">
+                <div className="border rounded p-2 space-y-2">
                   <h3 className="font-semibold mb-2">Case Information</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
@@ -572,10 +572,10 @@ export default function EvidenceLocker() {
                   <h3 className="font-semibold mb-3">Video Evidence ({selectedLocker.videos.length})</h3>
                   <div className="space-y-2">
                     {selectedLocker.videos.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-8">No videos in this evidence locker</p>
+                      <p className="text-sm text-muted-foreground text-center py-3">No videos in this evidence locker</p>
                     ) : (
                       selectedLocker.videos.map((video) => (
-                        <div key={video.id} className="border rounded p-3 flex items-center gap-4">
+                        <div key={video.id} className="border rounded p-3 flex items-center gap-2">
                           {video.video_thumbnail_url && (
                             <img
                               src={video.video_thumbnail_url}

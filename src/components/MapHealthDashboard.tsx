@@ -171,9 +171,9 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-2">
         {/* Provider Status Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
           {providers.map((provider) => {
             const status = healthCheck.getStatus(provider)
             const stats = healthCheck.statistics.get(provider)
@@ -188,9 +188,9 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
                 }`}
                 onClick={() => handleProviderClick(provider)}
               >
-                <CardContent className="pt-6">
+                <CardContent className="pt-3">
                   {/* Header */}
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <div className={`w-3 h-3 rounded-full ${getStatusColor(status)}`} />
                       <h3 className="font-semibold">{getProviderName(provider)}</h3>
@@ -260,7 +260,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
         {showDetails && selectedProvider && (
           <Card className="bg-gray-50 dark:bg-gray-900">
             <CardHeader>
-              <CardTitle className="text-lg">
+              <CardTitle className="text-sm">
                 {getProviderName(selectedProvider)} Details
               </CardTitle>
             </CardHeader>
@@ -270,7 +270,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
                 if (!stats) return <div>No data available</div>
 
                 return (
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     {/* Recent Checks */}
                     <div>
                       <h4 className="font-semibold mb-2">Recent Health Checks</h4>
@@ -290,7 +290,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
                                 {new Date(check.timestamp).toLocaleTimeString()}
                               </span>
                             </div>
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
                               {check.rateLimited && (
                                 <Badge variant="destructive" className="text-xs">
                                   Rate Limited
@@ -309,20 +309,20 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
                     </div>
 
                     {/* Overall Statistics */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-2">
                       <div className="p-3 bg-white dark:bg-gray-800 rounded">
                         <div className="text-sm text-gray-500">Total Checks</div>
-                        <div className="text-2xl font-bold">{stats.totalChecks}</div>
+                        <div className="text-sm font-bold">{stats.totalChecks}</div>
                       </div>
                       <div className="p-3 bg-white dark:bg-gray-800 rounded">
                         <div className="text-sm text-gray-500">Failed Checks</div>
-                        <div className="text-2xl font-bold text-red-500">
+                        <div className="text-sm font-bold text-red-500">
                           {stats.failedChecks}
                         </div>
                       </div>
                       <div className="p-3 bg-white dark:bg-gray-800 rounded">
                         <div className="text-sm text-gray-500">Avg Response</div>
-                        <div className="text-2xl font-bold">
+                        <div className="text-sm font-bold">
                           {formatResponseTime(stats.averageResponseTime)}
                         </div>
                       </div>

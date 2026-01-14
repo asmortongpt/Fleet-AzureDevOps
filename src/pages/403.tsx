@@ -16,12 +16,12 @@ export function Forbidden403Page() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-2">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-lg shadow-xl p-8 text-center">
+        <div className="bg-white rounded-lg shadow-sm p-3 text-center">
           {/* Icon */}
-          <div className="flex justify-center mb-6">
-            <div className="rounded-full bg-red-100 p-4">
+          <div className="flex justify-center mb-3">
+            <div className="rounded-full bg-red-100 p-2">
               <ShieldX className="w-16 h-16 text-red-600" />
             </div>
           </div>
@@ -30,11 +30,11 @@ export function Forbidden403Page() {
           <h1 className="text-6xl font-bold text-gray-900 mb-2">403</h1>
 
           {/* Error Message */}
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          <h2 className="text-sm font-semibold text-gray-800 mb-2">
             Access Denied
           </h2>
 
-          <p className="text-slate-700 mb-6">
+          <p className="text-slate-700 mb-3">
             You don't have permission to access this resource.
             {user && (
               <span className="block mt-2 text-sm">
@@ -44,7 +44,7 @@ export function Forbidden403Page() {
           </p>
 
           {/* Help Text */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-sm text-left">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mb-3 text-sm text-left">
             <p className="font-medium text-blue-900 mb-2">What can I do?</p>
             <ul className="text-blue-800 space-y-1 list-disc list-inside">
               <li>Contact your administrator to request access</li>
@@ -57,14 +57,14 @@ export function Forbidden403Page() {
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => navigate(-1)}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+              className="flex items-center justify-center gap-2 px-2 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Go Back
             </button>
             <button
               onClick={() => navigate('/')}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              className="flex items-center justify-center gap-2 px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
             >
               <Home className="w-4 h-4" />
               Go to Home
@@ -72,7 +72,7 @@ export function Forbidden403Page() {
           </div>
 
           {/* Additional Info */}
-          <p className="text-xs text-gray-500 mt-6">
+          <p className="text-xs text-gray-500 mt-3">
             If you believe this is an error, please contact support with error code: 403
           </p>
         </div>

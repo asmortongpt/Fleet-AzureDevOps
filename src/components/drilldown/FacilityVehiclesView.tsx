@@ -39,9 +39,9 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {vehicles && (
-        <div className="space-y-4">
+        <div className="space-y-2">
           <div>
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-sm font-semibold">
               Vehicles {facilityName && `at ${facilityName}`}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
@@ -52,7 +52,7 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
           {vehicles.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <Car className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <Car className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground">No vehicles at this facility</p>
               </CardContent>
             </Card>
@@ -60,7 +60,7 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
             <div className="space-y-3">
               {vehicles.map((vehicle) => (
                 <Card key={vehicle.id}>
-                  <CardContent className="p-4">
+                  <CardContent className="p-2">
                     <div className="space-y-3">
                       <div className="flex items-start justify-between">
                         <div>
@@ -74,7 +74,7 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
                         </Badge>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-4">
+                      <div className="grid grid-cols-3 gap-2">
                         <div>
                           <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
                             <Gauge className="h-3 w-3" />

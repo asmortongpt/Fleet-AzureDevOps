@@ -180,13 +180,13 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
       const showDetails = this.props.showDetails ?? import.meta.env.DEV;
 
       return (
-        <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
-          <Card className="max-w-2xl w-full shadow-2xl">
+        <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-2">
+          <Card className="max-w-2xl w-full shadow-sm">
             <CardHeader className="text-center">
-              <div className="mx-auto mb-4 w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
-                <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
+              <div className="mx-auto mb-2 w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
               </div>
-              <CardTitle className="text-2xl font-bold text-red-600 dark:text-red-400">
+              <CardTitle className="text-sm font-bold text-red-600 dark:text-red-400">
                 Something Went Wrong
               </CardTitle>
               <CardDescription className="text-base mt-2">
@@ -195,7 +195,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
               </CardDescription>
             </CardHeader>
 
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-2">
               {/* Error Message */}
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
@@ -219,7 +219,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
               {/* Technical Details (Dev Mode) */}
               {showDetails && error && (
-                <details className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                <details className="bg-gray-50 dark:bg-gray-800 p-2 rounded-lg">
                   <summary className="cursor-pointer font-semibold mb-2 flex items-center gap-2">
                     <Bug className="w-4 h-4" />
                     Technical Details

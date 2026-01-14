@@ -374,11 +374,11 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
 
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
-      <div className="space-y-6">
+      <div className="space-y-2">
         {/* Header with Metrics */}
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="text-2xl font-bold flex items-center gap-2">
+            <h3 className="text-sm font-bold flex items-center gap-2">
               <Package className="h-7 w-7 text-blue-800" />
               Active Jobs Matrix
             </h3>
@@ -395,32 +395,32 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
         {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-blue-800">{metrics.active}</div>
+            <CardContent className="p-2 text-center">
+              <div className="text-sm font-bold text-blue-800">{metrics.active}</div>
               <div className="text-xs text-muted-foreground">Active</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-red-600">{metrics.delayed}</div>
+            <CardContent className="p-2 text-center">
+              <div className="text-sm font-bold text-red-600">{metrics.delayed}</div>
               <div className="text-xs text-muted-foreground">Delayed</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">{metrics.completed}</div>
+            <CardContent className="p-2 text-center">
+              <div className="text-sm font-bold text-green-600">{metrics.completed}</div>
               <div className="text-xs text-muted-foreground">Completed</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-amber-600">{metrics.pending}</div>
+            <CardContent className="p-2 text-center">
+              <div className="text-sm font-bold text-amber-600">{metrics.pending}</div>
               <div className="text-xs text-muted-foreground">Pending</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold">{metrics.total}</div>
+            <CardContent className="p-2 text-center">
+              <div className="text-sm font-bold">{metrics.total}</div>
               <div className="text-xs text-muted-foreground">Total Jobs</div>
             </CardContent>
           </Card>
@@ -432,7 +432,7 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
             <CardTitle className="text-base">Filters & Search</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <div>
                 <label className="text-sm font-medium mb-2 block">Search</label>
                 <Input

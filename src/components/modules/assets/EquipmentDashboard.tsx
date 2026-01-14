@@ -159,22 +159,22 @@ export function EquipmentDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div>
-        <h2 className="text-2xl font-semibold">Equipment Dashboard</h2>
+        <h2 className="text-sm font-semibold">Equipment Dashboard</h2>
         <p className="text-muted-foreground">
           Comprehensive view of heavy equipment utilization, maintenance, and certifications
         </p>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Equipment</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalEquipment}</div>
+            <div className="text-sm font-bold">{totalEquipment}</div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
               <Engine className="w-3 h-3" />
               <span>{availableEquipment} available</span>
@@ -187,7 +187,7 @@ export function EquipmentDashboard() {
             <CardTitle className="text-sm font-medium text-muted-foreground">In Use</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-800">{inUseEquipment}</div>
+            <div className="text-sm font-bold text-blue-800">{inUseEquipment}</div>
             <div className="text-xs text-muted-foreground mt-1">
               {totalEquipment > 0 ? Math.round((inUseEquipment / totalEquipment) * 100) : 0}% utilization
             </div>
@@ -199,7 +199,7 @@ export function EquipmentDashboard() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Maintenance Due</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{upcomingMaintenance}</div>
+            <div className="text-sm font-bold text-yellow-600">{upcomingMaintenance}</div>
             <div className="flex items-center gap-1 text-xs text-red-600 mt-1">
               <Warning className="w-3 h-3" />
               {overdueMaintenance} overdue
@@ -212,7 +212,7 @@ export function EquipmentDashboard() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Certifications</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{expiringCertifications}</div>
+            <div className="text-sm font-bold text-orange-600">{expiringCertifications}</div>
             <div className="flex items-center gap-1 text-xs text-red-600 mt-1">
               <Warning className="w-3 h-3" />
               {expiredCertifications} expired
@@ -222,7 +222,7 @@ export function EquipmentDashboard() {
       </div>
 
       {/* Main Dashboard Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-2">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
@@ -231,8 +231,8 @@ export function EquipmentDashboard() {
         </TabsList>
 
         {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <TabsContent value="overview" className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {/* Equipment by Status */}
             <Card>
               <CardHeader>
@@ -329,7 +329,7 @@ export function EquipmentDashboard() {
                 <TableBody>
                   {equipment.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-3">
                         No equipment data available
                       </TableCell>
                     </TableRow>
@@ -358,20 +358,20 @@ export function EquipmentDashboard() {
         </TabsContent>
 
         {/* Maintenance Tab */}
-        <TabsContent value="maintenance" className="space-y-6">
+        <TabsContent value="maintenance" className="space-y-2">
           {/* Maintenance Alerts */}
           {(overdueMaintenance > 0 || upcomingMaintenance > 0) && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {overdueMaintenance > 0 && (
                 <Card className="border-red-200 bg-red-50">
                   <CardHeader className="pb-3">
                     <div className="flex items-center gap-2">
-                      <Warning className="w-5 h-5 text-red-600" />
+                      <Warning className="w-3 h-3 text-red-600" />
                       <CardTitle className="text-red-700">Overdue Maintenance</CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-red-700">{overdueMaintenance}</div>
+                    <div className="text-base font-bold text-red-700">{overdueMaintenance}</div>
                     <p className="text-sm text-red-600 mt-1">Require immediate attention</p>
                   </CardContent>
                 </Card>
@@ -380,12 +380,12 @@ export function EquipmentDashboard() {
                 <Card className="border-yellow-200 bg-yellow-50">
                   <CardHeader className="pb-3">
                     <div className="flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-yellow-600" />
+                      <Clock className="w-3 h-3 text-yellow-600" />
                       <CardTitle className="text-yellow-700">Upcoming Maintenance</CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-yellow-700">{upcomingMaintenance}</div>
+                    <div className="text-base font-bold text-yellow-700">{upcomingMaintenance}</div>
                     <p className="text-sm text-yellow-600 mt-1">Scheduled within 30 days or 50 hours</p>
                   </CardContent>
                 </Card>
@@ -395,12 +395,12 @@ export function EquipmentDashboard() {
         </TabsContent>
 
         {/* Certifications Tab */}
-        <TabsContent value="certifications" className="space-y-6">
+        <TabsContent value="certifications" className="space-y-2">
           {/* Certification content would go here */}
         </TabsContent>
 
         {/* Utilization Tab */}
-        <TabsContent value="utilization" className="space-y-6">
+        <TabsContent value="utilization" className="space-y-2">
           {/* Utilization content would go here */}
         </TabsContent>
       </Tabs>

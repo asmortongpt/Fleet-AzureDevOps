@@ -186,9 +186,9 @@ export function MaintenanceHub() {
 
   // Side panel with metrics and work order queue
   const sidePanel = (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div>
-        <h2 className="text-2xl font-bold">Maintenance Hub</h2>
+        <h2 className="text-sm font-bold">Maintenance Hub</h2>
         <p className="text-sm text-muted-foreground mt-1">
           Service locations, work orders, and maintenance tracking
         </p>
@@ -197,48 +197,48 @@ export function MaintenanceHub() {
       {/* Metrics Cards */}
       <div className="grid grid-cols-2 gap-3">
         <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('workOrder', 'active')}>
-          <CardContent className="p-4">
+          <CardContent className="p-2">
             <div className="flex items-center gap-2">
-              <Wrench className="w-5 h-5 text-blue-800" />
+              <Wrench className="w-3 h-3 text-blue-800" />
               <div>
                 <p className="text-xs text-muted-foreground">Active</p>
-                <p className="text-2xl font-bold">{metrics.activeCount}</p>
+                <p className="text-sm font-bold">{metrics.activeCount}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('workOrder', 'urgent')}>
-          <CardContent className="p-4">
+          <CardContent className="p-2">
             <div className="flex items-center gap-2">
-              <Warning className="w-5 h-5 text-red-500" />
+              <Warning className="w-3 h-3 text-red-500" />
               <div>
                 <p className="text-xs text-muted-foreground">Urgent</p>
-                <p className="text-2xl font-bold">{metrics.urgentCount}</p>
+                <p className="text-sm font-bold">{metrics.urgentCount}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('workOrder', 'scheduled')}>
-          <CardContent className="p-4">
+          <CardContent className="p-2">
             <div className="flex items-center gap-2">
-              <CalendarDots className="w-5 h-5 text-amber-500" />
+              <CalendarDots className="w-3 h-3 text-amber-500" />
               <div>
                 <p className="text-xs text-muted-foreground">Scheduled</p>
-                <p className="text-2xl font-bold">{metrics.scheduledCount}</p>
+                <p className="text-sm font-bold">{metrics.scheduledCount}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('maintenance-costs', 'all')}>
-          <CardContent className="p-4">
+          <CardContent className="p-2">
             <div className="flex items-center gap-2">
-              <CurrencyDollar className="w-5 h-5 text-green-500" />
+              <CurrencyDollar className="w-3 h-3 text-green-500" />
               <div>
                 <p className="text-xs text-muted-foreground">Est. Cost</p>
-                <p className="text-lg font-bold">${metrics.totalCost.toFixed(0)}</p>
+                <p className="text-sm font-bold">${metrics.totalCost.toFixed(0)}</p>
               </div>
             </div>
           </CardContent>
@@ -298,7 +298,7 @@ export function MaintenanceHub() {
 
   // Drawer content with detailed tabs
   const drawerContent = (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <Tabs value={selectedTab} onValueChange={(value) => setSelectedTab(value as any)}>
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="queue">Queue</TabsTrigger>
@@ -307,11 +307,11 @@ export function MaintenanceHub() {
         </TabsList>
 
         {/* Work Order Queue Tab */}
-        <TabsContent value="queue" className="space-y-3 mt-4">
+        <TabsContent value="queue" className="space-y-3 mt-2">
           <div className="space-y-3">
             {workOrders.map((wo) => (
               <Card key={wo.id} className={selectedWorkOrder?.id === wo.id ? 'border-blue-500' : ''}>
-                <CardContent className="p-4">
+                <CardContent className="p-2">
                   <div className="space-y-3">
                     <div className="flex items-start justify-between">
                       <div>
@@ -365,7 +365,7 @@ export function MaintenanceHub() {
         </TabsContent>
 
         {/* Vehicle History Tab */}
-        <TabsContent value="history" className="space-y-3 mt-4">
+        <TabsContent value="history" className="space-y-3 mt-2">
           {vehicleHistory.map((vh) => (
             <Card
               key={vh.vehicleId}
@@ -375,11 +375,11 @@ export function MaintenanceHub() {
               tabIndex={0}
               onKeyDown={(e) => e.key === 'Enter' && handleVehicleHistoryClick(vh)}
             >
-              <CardContent className="p-4">
+              <CardContent className="p-2">
                 <div className="space-y-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
-                      <CarProfile className="w-5 h-5" />
+                      <CarProfile className="w-3 h-3" />
                       <div>
                         <p className="font-semibold">{vh.vehicleUnit}</p>
                         <p className="text-xs text-muted-foreground">{vh.vehicleId}</p>
@@ -420,7 +420,7 @@ export function MaintenanceHub() {
         </TabsContent>
 
         {/* Maintenance Schedule Tab */}
-        <TabsContent value="schedule" className="space-y-3 mt-4">
+        <TabsContent value="schedule" className="space-y-3 mt-2">
           <Card>
             <CardHeader>
               <CardTitle className="text-sm">Upcoming Maintenance</CardTitle>
@@ -432,7 +432,7 @@ export function MaintenanceHub() {
                   .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime())
                   .map((wo) => (
                     <div key={wo.id} className="flex items-start gap-3 p-3 border rounded-lg">
-                      <CalendarDots className="w-5 h-5 text-amber-500 mt-0.5" />
+                      <CalendarDots className="w-3 h-3 text-amber-500 mt-0.5" />
                       <div className="flex-1">
                         <p className="font-medium text-sm">{wo.vehicleUnit}</p>
                         <p className="text-xs text-muted-foreground">{wo.description}</p>

@@ -74,7 +74,7 @@ export function TrendChart({
     if (!active || !payload || !payload.length) return null;
 
     return (
-      <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-3">
         <p className="font-medium text-gray-900 mb-2">{label}</p>
         {payload.map((entry: any, index: number) => (
           <div key={index} className="flex items-center gap-2 text-sm">
@@ -105,8 +105,8 @@ export function TrendChart({
   };
 
   return (
-    <Card className={`p-6 ${className}`}>
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
+    <Card className={`p-3 ${className}`}>
+      <h3 className="text-sm font-semibold text-gray-900 mb-2">{title}</h3>
 
       <ResponsiveContainer width="100%" height={400}>
         <LineChart

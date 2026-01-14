@@ -112,15 +112,15 @@
     --minimalist-transition-slow: 200ms ease;
 
     /* ============================================
-       COMPONENT DIMENSIONS
+       COMPONENT DIMENSIONS - ULTRA COMPACT
        ============================================ */
 
-    --minimalist-nav-width: 220px;
-    --minimalist-header-height: 56px;
-    --minimalist-card-padding: var(--minimalist-space-4);
-    --minimalist-button-height-sm: 32px;
-    --minimalist-button-height-md: 36px;
-    --minimalist-button-height-lg: 40px;
+    --minimalist-nav-width: 176px;          /* 11rem - Ultra compact sidebar */
+    --minimalist-header-height: 48px;       /* Reduced from 56px */
+    --minimalist-card-padding: var(--minimalist-space-3);  /* 12px instead of 16px */
+    --minimalist-button-height-sm: 28px;    /* Reduced from 32px */
+    --minimalist-button-height-md: 32px;    /* Reduced from 36px */
+    --minimalist-button-height-lg: 36px;    /* Reduced from 40px */
   }
 }
 
@@ -442,5 +442,45 @@
   [class*="bg-gradient"] {
     background-image: none !important;
     background-clip: text !important;
+  }
+
+  /* AGGRESSIVE GLOBAL SIZE REDUCTIONS */
+  /* Force smaller sizes on common patterns */
+  [class*="text-2xl"] {
+    font-size: var(--minimalist-text-xl) !important;
+  }
+
+  [class*="text-3xl"] {
+    font-size: var(--minimalist-text-2xl) !important;
+  }
+
+  /* Compact all glass/card elements */
+  [class*="glass"] {
+    background: var(--minimalist-bg-secondary) !important;
+    border: 1px solid var(--minimalist-border-subtle) !important;
+    backdrop-filter: none !important;
+  }
+
+  /* Reduce all button heights globally */
+  button:not([class*="h-"]) {
+    height: var(--minimalist-button-height-md);
+  }
+
+  /* Compact all badges */
+  [class*="badge"] {
+    padding: 0.125rem 0.5rem;
+    font-size: var(--minimalist-text-xs);
+  }
+
+  /* Compact all inputs */
+  input:not([type="checkbox"]):not([type="radio"]) {
+    height: var(--minimalist-button-height-md);
+    font-size: var(--minimalist-text-sm);
+  }
+
+  /* Compact all select elements */
+  select {
+    height: var(--minimalist-button-height-md);
+    font-size: var(--minimalist-text-sm);
   }
 }

@@ -204,7 +204,7 @@ export default function ARModeExport({
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Camera className="w-5 h-5" />
+              <Camera className="w-3 h-3" />
               Augmented Reality View
             </DialogTitle>
             <DialogDescription>
@@ -212,9 +212,9 @@ export default function ARModeExport({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-2">
             {/* Vehicle Info */}
-            <div className="bg-muted p-4 rounded-lg">
+            <div className="bg-muted p-2 rounded-lg">
               <h3 className="font-semibold mb-1">
                 {vehicleData?.year} {vehicleData?.make} {vehicleData?.model}
               </h3>
@@ -268,9 +268,9 @@ export default function ARModeExport({
 
             {/* Generating State */}
             {isGenerating && (
-              <div className="flex items-center justify-center py-8">
+              <div className="flex items-center justify-center py-3">
                 <div className="text-center space-y-3">
-                  <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
+                  <Loader2 className="w-12 h-9 animate-spin text-primary mx-auto" />
                   <p className="text-sm text-muted-foreground">
                     Generating AR model...
                   </p>
@@ -280,7 +280,7 @@ export default function ARModeExport({
 
             {/* Generated - Show Actions */}
             {generatedUrl && !isGenerating && (
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <Alert>
                   <CheckCircle2 className="h-4 w-4 text-green-500" />
                   <AlertDescription>
@@ -290,8 +290,8 @@ export default function ARModeExport({
 
                 {/* QR Code for Desktop */}
                 {!isMobile && qrCodeUrl && (
-                  <div className="bg-white p-4 rounded-lg flex flex-col items-center gap-2">
-                    <QrCode className="w-5 h-5 text-muted-foreground" />
+                  <div className="bg-white p-2 rounded-lg flex flex-col items-center gap-2">
+                    <QrCode className="w-3 h-3 text-muted-foreground" />
                     <img
                       src={qrCodeUrl}
                       alt="AR QR Code"

@@ -72,7 +72,7 @@ export const WithIcon: Story = {
 
 export const FleetFormInputs: Story = {
   render: () => (
-    <div className="space-y-4 max-w-md">
+    <div className="space-y-2 max-w-md">
       <div>
         <label className="text-sm font-medium mb-1 block">VIN</label>
         <Input placeholder="1HGCM82633A123456" />
@@ -98,7 +98,7 @@ export const FleetFormInputs: Story = {
 
 export const AllTypes: Story = {
   render: () => (
-    <div className="space-y-4 max-w-md">
+    <div className="space-y-2 max-w-md">
       <Input type="text" placeholder="Text input" />
       <Input type="email" placeholder="email@example.com" />
       <Input type="password" placeholder="Password" />
@@ -113,7 +113,7 @@ export const AllTypes: Story = {
 
 export const WithValidation: Story = {
   render: () => (
-    <div className="space-y-4 max-w-md">
+    <div className="space-y-2 max-w-md">
       <div>
         <Input placeholder="Valid input" className="border-green-500" />
         <p className="text-sm text-green-600 mt-1">✓ Looks good!</p>
@@ -128,7 +128,7 @@ export const WithValidation: Story = {
 
 export const SearchVariants: Story = {
   render: () => (
-    <div className="space-y-4 max-w-md">
+    <div className="space-y-2 max-w-md">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input placeholder="Search vehicles..." className="pl-9" />

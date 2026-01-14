@@ -42,7 +42,7 @@ export function StatusIndicator({ status, label, uptime }: StatusIndicatorProps)
   const config = getStatusConfig()
 
   return (
-    <div className="flex items-center justify-between py-3 px-4 rounded-lg border bg-card">
+    <div className="flex items-center justify-between py-3 px-2 rounded-lg border bg-card">
       <div className="flex items-center gap-3">
         <motion.div
           animate={status === "healthy" ? {} : { scale: [1, 1.1, 1] }}

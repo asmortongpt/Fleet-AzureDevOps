@@ -293,7 +293,7 @@ const CarbonFootprintTracker: React.FC = () => {
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <CloudIcon className="w-16 h-16 mx-auto text-green-500 animate-pulse" />
-          <p className="mt-4 text-lg text-slate-700">Loading carbon data...</p>
+          <p className="mt-2 text-sm text-slate-700">Loading carbon data...</p>
         </div>
       </div>
     );
@@ -305,18 +305,18 @@ const CarbonFootprintTracker: React.FC = () => {
     : 0;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Carbon Footprint Tracker</h1>
+          <h1 className="text-base font-bold text-gray-900">Carbon Footprint Tracker</h1>
           <p className="text-slate-700 mt-1">Monitor environmental impact and ESG performance</p>
         </div>
         <div className="flex gap-2">
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value as any)}
-            className="px-4 py-2 border rounded-lg"
+            className="px-2 py-2 border rounded-lg"
           >
             <option value="7d">Last 7 Days</option>
             <option value="30d">Last 30 Days</option>
@@ -331,14 +331,14 @@ const CarbonFootprintTracker: React.FC = () => {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">CO₂ Emissions</CardTitle>
-            <CloudIcon className="w-5 h-5 text-gray-500" />
+            <CloudIcon className="w-3 h-3 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">
+            <div className="text-base font-bold">
               {formatLargeNumber(summary?.total_carbon_kg || 0)} kg
             </div>
             <p className="text-xs text-gray-500 mt-1">
@@ -350,10 +350,10 @@ const CarbonFootprintTracker: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">CO₂ Saved</CardTitle>
-            <ArrowTrendingDownIcon className="w-5 h-5 text-green-500" />
+            <ArrowTrendingDownIcon className="w-3 h-3 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-600">
+            <div className="text-base font-bold text-green-600">
               {formatLargeNumber(summary?.total_saved_kg || 0)} kg
             </div>
             <p className="text-xs text-gray-500 mt-1">
@@ -365,10 +365,10 @@ const CarbonFootprintTracker: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">Reduction</CardTitle>
-            <SparklesIcon className="w-5 h-5 text-blue-800" />
+            <SparklesIcon className="w-3 h-3 text-blue-800" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-800">
+            <div className="text-base font-bold text-blue-800">
               {formatNumber(summary?.avg_reduction_percent || 0, 1)}%
             </div>
             <p className="text-xs text-gray-500 mt-1">
@@ -380,12 +380,12 @@ const CarbonFootprintTracker: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">Trees Equivalent</CardTitle>
-            <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-3 h-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-600">
+            <div className="text-base font-bold text-green-600">
               {treesEquivalent}
             </div>
             <p className="text-xs text-gray-500 mt-1">
@@ -401,27 +401,27 @@ const CarbonFootprintTracker: React.FC = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl">ESG Performance Score</CardTitle>
+                <CardTitle className="text-base">ESG Performance Score</CardTitle>
                 <p className="text-sm text-slate-700 mt-1">
                   {esgReport.report_period} - {new Date(esgReport.report_year, (esgReport.report_month || 1) - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                 </p>
               </div>
-              <Badge variant={getESGBadgeVariant(esgReport.sustainability_rating)} className="text-2xl px-4 py-2">
+              <Badge variant={getESGBadgeVariant(esgReport.sustainability_rating)} className="text-sm px-2 py-2">
                 {esgReport.sustainability_rating}
               </Badge>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               <div>
                 <p className="text-sm text-slate-700 mb-1">Environmental Score</p>
-                <p className={`text-4xl font-bold ${getESGColor(esgReport.environmental_score)}`}>
+                <p className={`text-sm font-bold ${getESGColor(esgReport.environmental_score)}`}>
                   {formatNumber(esgReport.environmental_score, 0)}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-slate-700 mb-1">EV Adoption</p>
-                <p className="text-4xl font-bold text-blue-800">
+                <p className="text-sm font-bold text-blue-800">
                   {formatNumber(esgReport.ev_adoption_percent, 1)}%
                 </p>
               </div>

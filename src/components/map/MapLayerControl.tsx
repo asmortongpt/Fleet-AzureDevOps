@@ -33,7 +33,7 @@ export function MapLayerControl({ layers }: MapLayerControlProps) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
-                        className="mb-4 bg-white/90 backdrop-blur-md border border-white/20 shadow-xl rounded-2xl p-4 w-64 ring-1 ring-black/5"
+                        className="mb-2 bg-white/90 backdrop-blur-md border border-white/20 shadow-sm rounded-lg p-2 w-64 ring-1 ring-black/5"
                     >
                         <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
                             <span className="text-sm font-semibold text-slate-800">Map Layers</span>
@@ -68,7 +68,7 @@ export function MapLayerControl({ layers }: MapLayerControlProps) {
             <Button
                 size="icon"
                 onClick={() => setIsOpen(!isOpen)}
-                className={`h-12 w-12 rounded-full shadow-lg transition-all duration-300 ${isOpen ? 'bg-slate-900 rotate-90' : 'bg-white hover:bg-slate-50 text-slate-700'
+                className={`h-9 w-12 rounded-full shadow-sm transition-all duration-300 ${isOpen ? 'bg-slate-900 rotate-90' : 'bg-white hover:bg-slate-50 text-slate-700'
                     }`}
                 aria-label={isOpen ? 'Close map layers menu' : 'Open map layers menu'}
                 aria-expanded={isOpen}

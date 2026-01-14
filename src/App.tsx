@@ -157,7 +157,7 @@ const ExternalServicesStatus = lazy(() => import("@/pages/ExternalServicesStatus
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center min-h-[400px]">
     <div className="flex flex-col items-center gap-3">
-      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="w-4 h-4 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       <p className="text-sm text-muted-foreground">Loading module...</p>
     </div>
   </div>
@@ -216,10 +216,10 @@ function App() {
   const renderModule = () => {
     if (!hasAccessToModule) {
       return (
-        <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-gray-50 rounded-lg">
-          <Shield className="w-16 h-16 text-red-500 mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-slate-700 mb-6">
+        <div className="flex flex-col items-center justify-center h-full p-3 text-center bg-gray-50 rounded-lg">
+          <Shield className="w-16 h-16 text-red-500 mb-2" />
+          <h2 className="text-sm font-bold text-gray-900 mb-2">Access Denied</h2>
+          <p className="text-slate-700 mb-3">
             You do not have permission to view this module.
           </p>
           <Button onClick={() => setActiveModule('live-fleet-dashboard')}>

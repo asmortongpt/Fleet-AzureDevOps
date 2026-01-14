@@ -164,7 +164,7 @@ export default function VehicleShowroom3D() {
   if (!selectedVehicle) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-2">
           <Car className="w-16 h-16 text-muted-foreground mx-auto" />
           <p className="text-muted-foreground">Loading vehicle...</p>
         </div>
@@ -176,9 +176,9 @@ export default function VehicleShowroom3D() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-2 py-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
                 size="sm"
@@ -188,9 +188,9 @@ export default function VehicleShowroom3D() {
                 Back to Garage
               </Button>
               <div className="flex items-center gap-3">
-                <Car className="w-6 h-6 text-primary" />
+                <Car className="w-4 h-4 text-primary" />
                 <div>
-                  <h1 className="text-2xl font-bold">
+                  <h1 className="text-sm font-bold">
                     {selectedVehicle.year} {selectedVehicle.make} {selectedVehicle.model}
                   </h1>
                   {selectedVehicle.trim && (
@@ -217,11 +217,11 @@ export default function VehicleShowroom3D() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="container mx-auto px-2 py-3">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
           {/* Left Sidebar - Vehicle Selection */}
-          <div className="lg:col-span-1 space-y-4">
-            <Card className="p-4">
+          <div className="lg:col-span-1 space-y-2">
+            <Card className="p-2">
               <h2 className="font-semibold mb-3 flex items-center gap-2">
                 <Car className="w-4 h-4" />
                 Fleet Vehicles
@@ -252,7 +252,7 @@ export default function VehicleShowroom3D() {
             </Card>
 
             {/* Quick Stats */}
-            <Card className="p-4">
+            <Card className="p-2">
               <h3 className="font-semibold mb-3 text-sm">Vehicle Stats</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
@@ -298,8 +298,8 @@ export default function VehicleShowroom3D() {
           </div>
 
           {/* Right Sidebar - Customization */}
-          <div className="lg:col-span-1 space-y-4">
-            <Card className="p-4">
+          <div className="lg:col-span-1 space-y-2">
+            <Card className="p-2">
               <Tabs defaultValue="colors" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="colors">
@@ -313,7 +313,7 @@ export default function VehicleShowroom3D() {
                 </TabsList>
 
                 {/* Colors Tab */}
-                <TabsContent value="colors" className="space-y-4 mt-4">
+                <TabsContent value="colors" className="space-y-2 mt-2">
                   {/* Paint Type */}
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Paint Type</Label>
@@ -351,7 +351,7 @@ export default function VehicleShowroom3D() {
                         <button
                           key={name}
                           onClick={() => setExteriorColor(color)}
-                          className={`w-10 h-10 rounded-lg border-2 transition-all ${
+                          className={`w-10 h-8 rounded-lg border-2 transition-all ${
                             exteriorColor === color
                               ? 'border-primary ring-2 ring-primary ring-offset-2'
                               : 'border-border hover:border-primary/50'
@@ -373,7 +373,7 @@ export default function VehicleShowroom3D() {
                       type="color"
                       value={exteriorColor}
                       onChange={(e) => setExteriorColor(e.target.value)}
-                      className="w-full h-12 rounded-lg border cursor-pointer"
+                      className="w-full h-9 rounded-lg border cursor-pointer"
                     />
                   </div>
 
@@ -387,13 +387,13 @@ export default function VehicleShowroom3D() {
                       type="color"
                       value={interiorColor}
                       onChange={(e) => setInteriorColor(e.target.value)}
-                      className="w-full h-12 rounded-lg border cursor-pointer"
+                      className="w-full h-9 rounded-lg border cursor-pointer"
                     />
                   </div>
                 </TabsContent>
 
                 {/* Settings Tab */}
-                <TabsContent value="settings" className="space-y-4 mt-4">
+                <TabsContent value="settings" className="space-y-2 mt-2">
                   {/* Quality */}
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Render Quality</Label>
@@ -475,7 +475,7 @@ export default function VehicleShowroom3D() {
             </Card>
 
             {/* Action Buttons */}
-            <Card className="p-4 space-y-2">
+            <Card className="p-2 space-y-2">
               <Button variant="outline" className="w-full justify-start" size="sm">
                 <Download className="w-4 h-4 mr-2" />
                 Download Screenshot

@@ -120,22 +120,22 @@ class ErrorBoundary extends Component<Props, State> {
 
       // Default error UI
       return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+        <div className="flex items-center justify-center min-h-screen bg-gray-50 p-2">
           <Card className="w-full max-w-2xl">
             <CardHeader>
               <div className="flex items-center gap-3">
                 <AlertTriangle className="h-8 w-8 text-destructive" />
                 <div>
-                  <CardTitle className="text-2xl">Something went wrong</CardTitle>
+                  <CardTitle className="text-sm">Something went wrong</CardTitle>
                   <CardDescription>
                     An unexpected error occurred. Our team has been notified.
                   </CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2">
               {import.meta.env.DEV && this.state.error && (
-                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-2">
                   <p className="font-mono text-sm text-destructive mb-2">
                     {this.state.error.toString()}
                   </p>
@@ -237,7 +237,7 @@ export class RouteErrorBoundary extends Component<Props & { routeName: string },
       }
 
       return (
-        <div className="flex items-center justify-center p-8">
+        <div className="flex items-center justify-center p-3">
           <Card className="w-full max-w-lg">
             <CardHeader>
               <CardTitle>Error Loading {this.props.routeName}</CardTitle>
@@ -319,7 +319,7 @@ export class ComponentErrorBoundary extends Component<Props & { componentName: s
       }
 
       return (
-        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-2">
           <div className="flex items-center gap-2 mb-2">
             <AlertTriangle className="h-4 w-4 text-destructive" />
             <span className="font-medium text-sm">Component Error</span>

@@ -78,7 +78,7 @@ export function CollapsibleSection({
         variant="ghost"
         onClick={handleToggle}
         className={cn(
-          'w-full flex items-center justify-between p-4',
+          'w-full flex items-center justify-between p-2',
           'hover:bg-muted/50 transition-colors',
           'rounded-none'
         )}
@@ -104,7 +104,7 @@ export function CollapsibleSection({
         </div>
 
         {/* Expand/Collapse Icon */}
-        <div className="ml-4">
+        <div className="ml-2">
           {isExpanded ? (
             <ChevronUp className="h-5 w-5 text-muted-foreground" />
           ) : (
@@ -125,7 +125,7 @@ export function CollapsibleSection({
         role="region"
         aria-labelledby={`collapsible-header-${title.replace(/\s+/g, '-').toLowerCase()}`}
       >
-        <div className="p-4 pt-0 space-y-4 border-t">
+        <div className="p-2 pt-0 space-y-2 border-t">
           {children}
         </div>
       </div>

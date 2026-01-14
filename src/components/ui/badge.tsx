@@ -105,7 +105,7 @@ function DotBadge({
     <span
       data-slot="dot-badge"
       className={cn(
-        "inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-[10px] font-bold",
+        "inline-flex items-center justify-center min-w-3 h-3 px-1.5 rounded-full text-[10px] font-bold",
         "shadow-sm animate-scale-in",
         variants[variant],
         className

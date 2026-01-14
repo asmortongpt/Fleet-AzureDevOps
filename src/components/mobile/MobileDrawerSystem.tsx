@@ -119,7 +119,7 @@ export function MobileDrawerSystem({
 
         {/* Header */}
         {(title || description) && (
-          <SheetHeader className="px-4 pb-4 pt-2">
+          <SheetHeader className="px-2 pb-2 pt-2">
             {title && <SheetTitle>{title}</SheetTitle>}
             {description && <SheetDescription>{description}</SheetDescription>}
           </SheetHeader>
@@ -128,7 +128,7 @@ export function MobileDrawerSystem({
         {/* Content with scroll */}
         <div
           ref={contentRef}
-          className="overflow-y-auto px-4 pb-4"
+          className="overflow-y-auto px-2 pb-2"
           style={{
             height: showHandle || title || description
               ? `calc(${snapHeights[snapPoint]} - ${showHandle ? '3rem' : '0px'} - ${title || description ? '3rem' : '0px'})`
@@ -189,12 +189,12 @@ export function SimpleMobileDrawer({
         </div>
 
         {title && (
-          <SheetHeader className="px-4 pb-4">
+          <SheetHeader className="px-2 pb-2">
             <SheetTitle>{title}</SheetTitle>
           </SheetHeader>
         )}
 
-        <div className="overflow-y-auto px-4 pb-4" style={{ maxHeight: `calc(${height} - 5rem)` }}>
+        <div className="overflow-y-auto px-2 pb-2" style={{ maxHeight: `calc(${height} - 5rem)` }}>
           {children}
         </div>
       </SheetContent>

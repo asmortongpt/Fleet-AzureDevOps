@@ -102,7 +102,7 @@ export function AuthCallback() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-2">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -124,7 +124,7 @@ export function AuthCallback() {
           )}
 
           {status === 'success' && (
-            <div className="space-y-4">
+            <div className="space-y-2">
               <p className="text-muted-foreground">
                 You have been successfully authenticated. Redirecting to your dashboard...
               </p>
@@ -132,7 +132,7 @@ export function AuthCallback() {
           )}
 
           {status === 'error' && (
-            <div className="space-y-4">
+            <div className="space-y-2">
               <Alert variant="destructive">
                 <AlertTitle>Authentication Error</AlertTitle>
                 <AlertDescription>{errorMessage}</AlertDescription>

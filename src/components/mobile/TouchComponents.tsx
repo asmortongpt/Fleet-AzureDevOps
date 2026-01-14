@@ -48,7 +48,7 @@ export function SwipeableCard({
       {/* Left action background */}
       {leftAction && (
         <motion.div
-          className="absolute inset-0 bg-red-500 flex items-center justify-end px-6"
+          className="absolute inset-0 bg-red-500 flex items-center justify-end px-3"
           style={{ opacity: leftOpacity }}
         >
           {leftAction}
@@ -58,7 +58,7 @@ export function SwipeableCard({
       {/* Right action background */}
       {rightAction && (
         <motion.div
-          className="absolute inset-0 bg-green-500 flex items-center justify-start px-6"
+          className="absolute inset-0 bg-green-500 flex items-center justify-start px-3"
           style={{ opacity: rightOpacity }}
         >
           {rightAction}
@@ -144,7 +144,7 @@ export function PullToRefresh({ children, onRefresh, threshold = 80 }: PullToRef
         animate={{ opacity: pullDistance > 0 ? 1 : 0 }}
       >
         <motion.div
-          className="text-2xl"
+          className="text-sm"
           animate={{
             rotate: isRefreshing ? 360 : spinnerRotation,
           }}
@@ -223,7 +223,7 @@ export function InfiniteScroll({
     <div>
       {children}
       {hasMore && (
-        <div ref={sentinelRef} className="py-4 flex items-center justify-center">
+        <div ref={sentinelRef} className="py-2 flex items-center justify-center">
           {loader || (
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           )}
@@ -337,7 +337,7 @@ export function BottomSheet({
             onDragEnd={handleDragEnd}
             style={{ y }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl overflow-hidden"
+            className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-gray-900 rounded-t-3xl shadow-sm overflow-hidden"
           >
             {/* Drag handle */}
             <div className="flex justify-center pt-3 pb-2">
@@ -400,11 +400,11 @@ export function ActionSheet({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl p-4 safe-bottom"
+            className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-gray-900 rounded-t-3xl shadow-sm p-2 safe-bottom"
           >
             {title && (
-              <div className="text-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <div className="text-center mb-2">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                   {title}
                 </h3>
               </div>
@@ -419,7 +419,7 @@ export function ActionSheet({
                     onClose()
                   }}
                   className={`
-                    w-full flex items-center gap-3 px-4 py-3 rounded-lg
+                    w-full flex items-center gap-3 px-2 py-3 rounded-lg
                     touch-target transition-colors duration-200
                     ${
                       option.destructive
@@ -429,7 +429,7 @@ export function ActionSheet({
                   `}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {option.icon && <div className="text-xl">{option.icon}</div>}
+                  {option.icon && <div className="text-base">{option.icon}</div>}
                   <span className="flex-1 text-left font-medium">{option.label}</span>
                 </motion.button>
               ))}
@@ -437,7 +437,7 @@ export function ActionSheet({
               {/* Cancel button */}
               <motion.button
                 onClick={onClose}
-                className="w-full px-4 py-3 rounded-lg touch-target bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700"
+                className="w-full px-2 py-3 rounded-lg touch-target bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700"
                 whileTap={{ scale: 0.98 }}
               >
                 {cancelLabel}

@@ -124,9 +124,9 @@ export function TCOAnalysis({
   ].filter(item => item.value > 0)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Key Financial Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -135,7 +135,7 @@ export function TCOAnalysis({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
+            <div className="text-sm font-bold text-red-600">
               ${totalCost.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -152,7 +152,7 @@ export function TCOAnalysis({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-sm font-bold text-green-600">
               ${costAnalysis.revenue_generated.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -172,7 +172,7 @@ export function TCOAnalysis({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${costAnalysis.profit_loss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <div className={`text-sm font-bold ${costAnalysis.profit_loss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               {costAnalysis.profit_loss >= 0 ? '+' : ''}${costAnalysis.profit_loss.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -189,7 +189,7 @@ export function TCOAnalysis({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${costAnalysis.roi_percentage >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <div className={`text-sm font-bold ${costAnalysis.roi_percentage >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               {costAnalysis.roi_percentage >= 0 ? '+' : ''}{costAnalysis.roi_percentage.toFixed(1)}%
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -199,7 +199,7 @@ export function TCOAnalysis({
         </Card>
       </div>
 
-      <Tabs defaultValue="breakdown" className="space-y-4">
+      <Tabs defaultValue="breakdown" className="space-y-2">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="breakdown">Cost Breakdown</TabsTrigger>
           <TabsTrigger value="depreciation">Depreciation</TabsTrigger>
@@ -208,8 +208,8 @@ export function TCOAnalysis({
         </TabsList>
 
         {/* Cost Breakdown Tab */}
-        <TabsContent value="breakdown" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <TabsContent value="breakdown" className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -292,7 +292,7 @@ export function TCOAnalysis({
                     <span>Depreciation</span>
                     <span>${costAnalysis.depreciation.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between font-bold text-lg">
+                  <div className="flex justify-between font-bold text-sm">
                     <span>Total Cost</span>
                     <span className="text-red-600">${totalCost.toLocaleString()}</span>
                   </div>
@@ -303,14 +303,14 @@ export function TCOAnalysis({
         </TabsContent>
 
         {/* Depreciation Tab */}
-        <TabsContent value="depreciation" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <TabsContent value="depreciation" className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium">Acquisition Cost</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-sm font-bold">
                   ${costAnalysis.acquisition_cost.toLocaleString()}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">Original purchase price</p>
@@ -322,7 +322,7 @@ export function TCOAnalysis({
                 <CardTitle className="text-sm font-medium">Current Value</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-sm font-bold">
                   ${costAnalysis.current_value.toLocaleString()}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -339,7 +339,7 @@ export function TCOAnalysis({
                 <CardTitle className="text-sm font-medium">Depreciation</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-red-600">
+                <div className="text-sm font-bold text-red-600">
                   ${costAnalysis.depreciation.toLocaleString()}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -378,8 +378,8 @@ export function TCOAnalysis({
         </TabsContent>
 
         {/* Efficiency Tab */}
-        <TabsContent value="efficiency" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <TabsContent value="efficiency" className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -448,9 +448,9 @@ export function TCOAnalysis({
               <CardTitle>Financial Analysis</CardTitle>
               <CardDescription>Performance and recommendations</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 bg-muted rounded-lg">
+            <CardContent className="space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <div className="p-2 bg-muted rounded-lg">
                   <h4 className="font-semibold mb-2">Profitability</h4>
                   <div className="space-y-2 text-sm">
                     <p>Total Profit/Loss: <span className={`font-bold ${costAnalysis.profit_loss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -463,7 +463,7 @@ export function TCOAnalysis({
                   </div>
                 </div>
 
-                <div className="p-4 bg-muted rounded-lg">
+                <div className="p-2 bg-muted rounded-lg">
                   <h4 className="font-semibold mb-2">Cost Efficiency</h4>
                   <div className="space-y-2 text-sm">
                     <p>Operating Cost/Hour: <span className="font-semibold">${costAnalysis.cost_per_hour.toFixed(2)}</span></p>
@@ -477,7 +477,7 @@ export function TCOAnalysis({
                 </div>
               </div>
 
-              <div className="p-4 border rounded-lg">
+              <div className="p-2 border rounded-lg">
                 <h4 className="font-semibold mb-3">Recommendations</h4>
                 <ul className="space-y-2 text-sm">
                   {costAnalysis.utilization_rate < 70 && (

@@ -229,9 +229,9 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
         </DialogHeader>
         <div className="max-h-[calc(90vh-120px)] overflow-y-auto p-1">
           {/* Asset Classification Section */}
-          <div className="mb-6">
+          <div className="mb-3">
             <h3 className="text-sm font-semibold mb-3 text-blue-800 border-b pb-1">Asset Classification</h3>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-2">
               <div className="space-y-2">
                 <Label htmlFor="asset_category">Asset Category</Label>
                 <Select
@@ -287,9 +287,9 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
           </div>
 
           {/* Basic Information Section */}
-          <div className="mb-6">
+          <div className="mb-3">
             <h3 className="text-sm font-semibold mb-3 text-blue-800 border-b pb-1">Basic Information</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <div className="space-y-2">
                 <Label htmlFor="number">Vehicle Number *</Label>
                 <Input
@@ -396,7 +396,7 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t">
+        <div className="flex justify-end gap-3 pt-2 border-t">
           <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
           <Button onClick={handleSubmit}>Add Vehicle</Button>
         </div>

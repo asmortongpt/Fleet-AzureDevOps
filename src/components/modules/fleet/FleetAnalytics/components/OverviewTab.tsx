@@ -33,12 +33,12 @@ export function OverviewTab({
 }: OverviewTabProps) {
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
         <MetricCard
           title="Total Fleet Size"
           value={totalFleet}
           subtitle="vehicles"
-          icon={<CarProfile className="w-5 h-5" />}
+          icon={<CarProfile className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
@@ -47,26 +47,26 @@ export function OverviewTab({
           trend="up"
           change={3.2}
           subtitle="vs last period"
-          icon={<TrendUp className="w-5 h-5" />}
+          icon={<TrendUp className="w-3 h-3" />}
           status="success"
         />
         <MetricCard
           title="Avg Mileage"
           value={`${avgMileage.toLocaleString()}mi`}
           subtitle="per vehicle"
-          icon={<ChartLine className="w-5 h-5" />}
+          icon={<ChartLine className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
           title="Vehicles in Service"
           value={downtime}
           subtitle="requiring attention"
-          icon={<Wrench className="w-5 h-5" />}
+          icon={<Wrench className="w-3 h-3" />}
           status={downtime > 5 ? "warning" : "success"}
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
         <ChartCard
           title="Fleet Status Over Time"
           subtitle="Monthly vehicle status breakdown"

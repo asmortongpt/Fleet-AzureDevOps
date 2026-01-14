@@ -90,28 +90,28 @@ export function MaintenanceTab({ maintenanceRecords, onScheduleService }: Mainte
   }, [maintenanceRecords, maintenanceFilter, sortField, sortDirection])
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         <MetricCard
           title="Maintenance Cost"
           value={`$${maintenanceMetrics.totalCost.toLocaleString()}`}
           subtitle="this month"
-          icon={<Wrench className="w-5 h-5" />}
+          icon={<Wrench className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
           title="Overdue Services"
           value={maintenanceMetrics.overdue}
           subtitle="need immediate attention"
-          icon={<Warning className="w-5 h-5" />}
+          icon={<Warning className="w-3 h-3" />}
           status={maintenanceMetrics.overdue > 0 ? "warning" : "success"}
         />
         <MetricCard
           title="Upcoming Services"
           value={maintenanceMetrics.upcoming}
           subtitle="next 30 days"
-          icon={<Calendar className="w-5 h-5" />}
+          icon={<Calendar className="w-3 h-3" />}
           status="info"
         />
       </div>
@@ -166,7 +166,7 @@ export function MaintenanceTab({ maintenanceRecords, onScheduleService }: Mainte
               <thead className="border-b bg-muted/50">
                 <tr>
                   <th
-                    className="text-left p-4 font-medium cursor-pointer hover:bg-muted/70"
+                    className="text-left p-2 font-medium cursor-pointer hover:bg-muted/70"
                     onClick={() => handleSort("vehicleNumber")}
                     scope="col"
                     aria-sort={sortField === "vehicleNumber" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
@@ -175,7 +175,7 @@ export function MaintenanceTab({ maintenanceRecords, onScheduleService }: Mainte
                     <SortIcon field="vehicleNumber" currentField={sortField} direction={sortDirection} />
                   </th>
                   <th
-                    className="text-left p-4 font-medium cursor-pointer hover:bg-muted/70"
+                    className="text-left p-2 font-medium cursor-pointer hover:bg-muted/70"
                     onClick={() => handleSort("serviceType")}
                     scope="col"
                     aria-sort={sortField === "serviceType" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
@@ -184,7 +184,7 @@ export function MaintenanceTab({ maintenanceRecords, onScheduleService }: Mainte
                     <SortIcon field="serviceType" currentField={sortField} direction={sortDirection} />
                   </th>
                   <th
-                    className="text-left p-4 font-medium cursor-pointer hover:bg-muted/70"
+                    className="text-left p-2 font-medium cursor-pointer hover:bg-muted/70"
                     onClick={() => handleSort("date")}
                     scope="col"
                     aria-sort={sortField === "date" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
@@ -193,7 +193,7 @@ export function MaintenanceTab({ maintenanceRecords, onScheduleService }: Mainte
                     <SortIcon field="date" currentField={sortField} direction={sortDirection} />
                   </th>
                   <th
-                    className="text-left p-4 font-medium cursor-pointer hover:bg-muted/70"
+                    className="text-left p-2 font-medium cursor-pointer hover:bg-muted/70"
                     onClick={() => handleSort("cost")}
                     scope="col"
                     aria-sort={sortField === "cost" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
@@ -202,7 +202,7 @@ export function MaintenanceTab({ maintenanceRecords, onScheduleService }: Mainte
                     <SortIcon field="cost" currentField={sortField} direction={sortDirection} />
                   </th>
                   <th
-                    className="text-left p-4 font-medium cursor-pointer hover:bg-muted/70"
+                    className="text-left p-2 font-medium cursor-pointer hover:bg-muted/70"
                     onClick={() => handleSort("status")}
                     scope="col"
                     aria-sort={sortField === "status" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
@@ -210,24 +210,24 @@ export function MaintenanceTab({ maintenanceRecords, onScheduleService }: Mainte
                     Status
                     <SortIcon field="status" currentField={sortField} direction={sortDirection} />
                   </th>
-                  <th className="text-left p-4 font-medium" scope="col">Next Due</th>
+                  <th className="text-left p-2 font-medium" scope="col">Next Due</th>
                 </tr>
               </thead>
               <tbody>
                 {sortedMaintenanceRecords.slice(0, 20).map(record => (
                   <tr key={record.id} className="border-b hover:bg-muted/50 transition-colors">
-                    <td className="p-4">
+                    <td className="p-2">
                       <p className="font-medium">{record.vehicleNumber}</p>
                       <p className="text-sm text-muted-foreground">{record.vehicleName}</p>
                     </td>
-                    <td className="p-4">{record.serviceType}</td>
-                    <td className="p-4">
+                    <td className="p-2">{record.serviceType}</td>
+                    <td className="p-2">
                       {new Date(record.date).toLocaleDateString()}
                     </td>
-                    <td className="p-4 font-medium">
+                    <td className="p-2 font-medium">
                       ${record.cost.toLocaleString()}
                     </td>
-                    <td className="p-4">
+                    <td className="p-2">
                       <Badge
                         variant="outline"
                         className={
@@ -242,7 +242,7 @@ export function MaintenanceTab({ maintenanceRecords, onScheduleService }: Mainte
                         {record.status}
                       </Badge>
                     </td>
-                    <td className="p-4 text-sm text-muted-foreground">
+                    <td className="p-2 text-sm text-muted-foreground">
                       {record.nextDue ? new Date(record.nextDue).toLocaleDateString() : "-"}
                     </td>
                   </tr>
@@ -261,7 +261,7 @@ export function MaintenanceTab({ maintenanceRecords, onScheduleService }: Mainte
 
       {sortedMaintenanceRecords.length === 0 && (
         <Card>
-          <CardContent className="p-8 text-center">
+          <CardContent className="p-3 text-center">
             <p className="text-muted-foreground">
               No maintenance records found for the selected filter.
             </p>

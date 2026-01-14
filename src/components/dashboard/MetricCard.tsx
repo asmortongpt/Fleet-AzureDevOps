@@ -118,11 +118,11 @@ export function MetricCard({
           border-2 transition-all duration-300 ease-out
           bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm
           ${variantStyles[variant]}
-          ${onClick ? "hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-md" : "hover:shadow-md"}
+          ${onClick ? "hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 active:shadow-md" : "hover:shadow-md"}
           ${loading ? "animate-pulse" : ""}
         `}
       >
-        <CardHeader className="pb-2 pt-4 px-4">
+        <CardHeader className="pb-2 pt-2 px-2">
           <CardTitle className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
               {label}
@@ -137,7 +137,7 @@ export function MetricCard({
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="px-4 pb-4">
+        <CardContent className="px-2 pb-2">
           {loading ? (
             // Professional loading skeleton
             <div className="space-y-2.5 animate-pulse">
@@ -148,7 +148,7 @@ export function MetricCard({
             <>
               {/* Main value with smooth entry animation */}
               <div className="flex items-baseline gap-1.5 mb-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <span className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white tracking-tight tabular-nums">
+                <span className="text-base md:text-sm font-bold text-slate-900 dark:text-white tracking-tight tabular-nums">
                   {value}
                 </span>
                 {unit && (
@@ -206,10 +206,10 @@ export function MetricCard({
 export function MetricCardSkeleton() {
   return (
     <Card className="border-2 border-slate-200/80 dark:border-slate-700/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm">
-      <CardHeader className="pb-2 pt-4 px-4">
+      <CardHeader className="pb-2 pt-2 px-2">
         <div className="h-3 w-24 bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 rounded animate-pulse" />
       </CardHeader>
-      <CardContent className="px-4 pb-4 space-y-2.5">
+      <CardContent className="px-2 pb-2 space-y-2.5">
         <div className="h-9 w-28 bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 rounded-lg animate-pulse" />
         <div className="h-4 w-20 bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 rounded animate-pulse" />
       </CardContent>

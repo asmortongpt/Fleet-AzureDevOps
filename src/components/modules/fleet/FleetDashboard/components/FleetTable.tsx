@@ -37,13 +37,13 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
           <table className="w-full">
             <thead className="border-b bg-muted/50">
               <tr>
-                <th className="text-left p-4 font-medium">Vehicle</th>
-                <th className="text-left p-4 font-medium">Status</th>
-                <th className="text-left p-4 font-medium">Fuel</th>
-                <th className="text-left p-4 font-medium">Mileage</th>
-                <th className="text-left p-4 font-medium">Location</th>
-                <th className="text-left p-4 font-medium">Driver</th>
-                <th className="text-left p-4 font-medium">Alerts</th>
+                <th className="text-left p-2 font-medium">Vehicle</th>
+                <th className="text-left p-2 font-medium">Status</th>
+                <th className="text-left p-2 font-medium">Fuel</th>
+                <th className="text-left p-2 font-medium">Mileage</th>
+                <th className="text-left p-2 font-medium">Location</th>
+                <th className="text-left p-2 font-medium">Driver</th>
+                <th className="text-left p-2 font-medium">Alerts</th>
               </tr>
             </thead>
             <tbody>
@@ -53,7 +53,7 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                   className="border-b hover:bg-muted/50 cursor-pointer transition-colors"
                   onClick={() => onVehicleClick(vehicle)}
                 >
-                  <td className="p-4">
+                  <td className="p-2">
                     <div>
                       <p className="font-medium">{vehicle.number}</p>
                       <p className="text-sm text-muted-foreground">
@@ -61,7 +61,7 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                       </p>
                     </div>
                   </td>
-                  <td className="p-4">
+                  <td className="p-2">
                     <Badge
                       variant="outline"
                       className={
@@ -75,7 +75,7 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                       {vehicle.status}
                     </Badge>
                   </td>
-                  <td className="p-4">
+                  <td className="p-2">
                     <div className="flex items-center gap-2">
                       <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
                         <div
@@ -92,13 +92,13 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                       <span className="text-sm">{vehicle.fuelLevel}%</span>
                     </div>
                   </td>
-                  <td className="p-4">
+                  <td className="p-2">
                     <span className="font-medium">{vehicle.mileage.toLocaleString()} mi</span>
                   </td>
-                  <td className="p-4">
+                  <td className="p-2">
                     <span className="text-sm">{vehicle.region}</span>
                   </td>
-                  <td className="p-4">
+                  <td className="p-2">
                     <span
                       className={`text-sm ${vehicle.assignedDriver ? 'text-primary hover:underline cursor-pointer' : 'text-muted-foreground'}`}
                       onClick={(e) => handleDriverClick(e, vehicle.assignedDriver || '', vehicle.assignedDriverId)}
@@ -106,7 +106,7 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                       {vehicle.assignedDriver || "Unassigned"}
                     </span>
                   </td>
-                  <td className="p-4">
+                  <td className="p-2">
                     {vehicle.alerts && vehicle.alerts.length > 0 ? (
                       <Badge
                         variant="outline"

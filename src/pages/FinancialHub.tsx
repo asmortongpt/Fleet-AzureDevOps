@@ -109,10 +109,10 @@ const departmentComparisonData = [
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 shadow-xl">
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 shadow-sm">
                 <p className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-3">{label}</p>
                 {payload.map((entry: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between gap-6 text-sm mb-1">
+                    <div key={index} className="flex items-center justify-between gap-2 text-sm mb-1">
                         <span className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.color }} />
                             <span className="text-slate-700 dark:text-slate-300 font-medium">{entry.name}:</span>
@@ -137,11 +137,11 @@ function CostAnalysisContent() {
 
     return (
         <TooltipProvider>
-            <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
+            <div className="p-3 space-y-2 bg-slate-50 dark:bg-slate-900">
                 {/* Header Section - Clean and professional */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Cost Analysis & Control</h2>
+                        <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-2">Cost Analysis & Control</h2>
                         <p className="text-base text-slate-600 dark:text-slate-400">Real-time cost tracking and budget variance monitoring</p>
                     </div>
                     <div className="flex gap-3">
@@ -155,7 +155,7 @@ function CostAnalysisContent() {
                 </div>
 
                 {/* KPI Cards with Tooltips */}
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2">
                     <MetricTooltip
                         title="Total Monthly Costs"
                         currentValue="$284,500"
@@ -168,7 +168,7 @@ function CostAnalysisContent() {
                                 title="Total Monthly Costs"
                                 value="$284.5K"
                                 variant="primary"
-                                icon={<CurrencyDollar className="w-6 h-6" />}
+                                icon={<CurrencyDollar className="w-4 h-4" />}
                                 onClick={() => push({
                                     type: 'total-costs',
                                     data: { title: 'Monthly Cost Breakdown', period: 'current' },
@@ -236,7 +236,7 @@ function CostAnalysisContent() {
                                 title="Cost per Mile"
                                 value="$0.82"
                                 variant="default"
-                                icon={<Calculator className="w-6 h-6" />}
+                                icon={<Calculator className="w-4 h-4" />}
                                 onClick={() => push({
                                     type: 'cost-per-mile',
                                     data: { title: 'Cost per Mile Analysis' },
@@ -248,29 +248,29 @@ function CostAnalysisContent() {
                 </div>
 
                 {/* Detailed Analysis Cards - CLEAN WHITE CARDS */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                     {/* Budget Variance Card */}
-                    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-200"
+                    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3 cursor-pointer hover:border-blue-500 hover:shadow-sm transition-all duration-200"
                         onClick={() => push({ type: 'cost-variance', data: { title: 'Budget vs Actual Variance' }, id: 'variance-analysis' } as Omit<DrilldownLevel, "timestamp">)}>
-                        <div className="flex items-start justify-between mb-6">
-                            <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Budget Variance Analysis</h3>
+                        <div className="flex items-start justify-between mb-3">
+                            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">Budget Variance Analysis</h3>
                             <span className="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-lg text-sm font-semibold">On Track</span>
                         </div>
-                        <div className="flex items-center justify-center mb-8">
+                        <div className="flex items-center justify-center mb-3">
                             <ProgressRing progress={92} color="green" label="92%" sublabel="of budget utilized" />
                         </div>
                         <div className="space-y-3">
-                            <div className="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
+                            <div className="flex justify-between items-center p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
                                 <span className="text-base text-slate-600 dark:text-slate-400 font-medium">Monthly Budget</span>
-                                <span className="text-lg font-bold text-slate-900 dark:text-slate-100">$310,000</span>
+                                <span className="text-sm font-bold text-slate-900 dark:text-slate-100">$310,000</span>
                             </div>
-                            <div className="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
+                            <div className="flex justify-between items-center p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
                                 <span className="text-base text-slate-600 dark:text-slate-400 font-medium">Spent to Date</span>
-                                <span className="text-lg font-bold text-slate-900 dark:text-slate-100">$284,500</span>
+                                <span className="text-sm font-bold text-slate-900 dark:text-slate-100">$284,500</span>
                             </div>
-                            <div className="flex justify-between items-center p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                            <div className="flex justify-between items-center p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                                 <span className="text-base text-emerald-700 dark:text-emerald-400 font-semibold">Remaining</span>
-                                <span className="text-lg font-bold text-emerald-700 dark:text-emerald-400">$25,500</span>
+                                <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">$25,500</span>
                             </div>
                         </div>
                     </div>
@@ -294,11 +294,11 @@ function BillingReportsContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
+        <div className="p-3 space-y-2 bg-slate-50 dark:bg-slate-900">
             {/* Header Section */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Billing & Revenue Reports</h2>
+                    <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-2">Billing & Revenue Reports</h2>
                     <p className="text-base text-slate-600 dark:text-slate-400">Accounts receivable, invoice management, and revenue analytics</p>
                 </div>
                 <div className="flex gap-3">
@@ -312,12 +312,12 @@ function BillingReportsContent() {
             </div>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2">
                 <StatCard
                     title="Monthly Revenue"
                     value="$456.8K"
                     variant="success"
-                    icon={<ChartBar className="w-6 h-6" />}
+                    icon={<ChartBar className="w-4 h-4" />}
                     trend="up"
                     trendValue="+12.3%"
                     onClick={() => push({
@@ -340,7 +340,7 @@ function BillingReportsContent() {
                     title="Paid Invoices"
                     value="342"
                     variant="success"
-                    icon={<Receipt className="w-6 h-6" />}
+                    icon={<Receipt className="w-4 h-4" />}
                     onClick={() => push({
                         type: 'paid-invoices',
                         data: { title: 'Paid Invoices This Month' },
@@ -360,76 +360,76 @@ function BillingReportsContent() {
             </div>
 
             {/* Detailed Analysis Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
                 {/* Collection Performance */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-200"
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3 cursor-pointer hover:border-blue-500 hover:shadow-sm transition-all duration-200"
                     onClick={() => push({ type: 'billing-cycle', data: { title: 'Billing Cycle Performance' }, id: 'billing-cycle' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Collection Performance</h3>
-                        <Receipt className="w-6 h-6 text-slate-500 dark:text-slate-400" />
+                    <div className="flex items-start justify-between mb-3">
+                        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">Collection Performance</h3>
+                        <Receipt className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                     </div>
-                    <div className="flex items-center justify-center mb-6">
+                    <div className="flex items-center justify-center mb-3">
                         <ProgressRing progress={87} color="blue" label="87%" sublabel="collected on time" />
                     </div>
-                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                         <p className="text-sm text-blue-700 dark:text-blue-400 font-semibold">Above industry average of 75%</p>
                     </div>
                 </div>
 
                 {/* Revenue Growth */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-200"
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3 cursor-pointer hover:border-blue-500 hover:shadow-sm transition-all duration-200"
                     onClick={() => push({ type: 'revenue-trend', data: { title: 'Revenue Trends' }, id: 'revenue-trend' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Revenue Growth</h3>
-                        <TrendUp className="w-6 h-6 text-emerald-600" />
+                    <div className="flex items-start justify-between mb-3">
+                        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">Revenue Growth</h3>
+                        <TrendUp className="w-4 h-4 text-emerald-600" />
                     </div>
-                    <div className="space-y-4">
-                        <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
+                    <div className="space-y-2">
+                        <div className="p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
                             <div className="flex justify-between items-center mb-1">
                                 <span className="text-base text-slate-600 dark:text-slate-400 font-medium">This Quarter</span>
                                 <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">↑ 12%</span>
                             </div>
-                            <span className="text-3xl font-bold text-slate-900 dark:text-slate-100">$1.32M</span>
+                            <span className="text-base font-bold text-slate-900 dark:text-slate-100">$1.32M</span>
                         </div>
-                        <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
+                        <div className="p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
                             <span className="text-base text-slate-600 dark:text-slate-400 font-medium block mb-1">Last Quarter</span>
-                            <span className="text-3xl font-bold text-slate-700 dark:text-slate-300">$1.18M</span>
+                            <span className="text-base font-bold text-slate-700 dark:text-slate-300">$1.18M</span>
                         </div>
-                        <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                        <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                             <span className="text-base text-emerald-700 dark:text-emerald-400 font-semibold block mb-1">YoY Growth</span>
-                            <span className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">+15.8%</span>
+                            <span className="text-base font-bold text-emerald-600 dark:text-emerald-400">+15.8%</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Top Customers */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-200"
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3 cursor-pointer hover:border-blue-500 hover:shadow-sm transition-all duration-200"
                     onClick={() => push({ type: 'top-customers', data: { title: 'Top Revenue Customers' }, id: 'top-customers' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Top Customers</h3>
-                        <Users className="w-6 h-6 text-slate-500 dark:text-slate-400" />
+                    <div className="flex items-start justify-between mb-3">
+                        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">Top Customers</h3>
+                        <Users className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                     </div>
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border-l-4 border-amber-600">
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg border-l-4 border-amber-600">
                             <div>
                                 <div className="text-base font-semibold text-slate-900 dark:text-slate-100">Customer A</div>
                                 <div className="text-sm text-slate-600 dark:text-slate-400">42 invoices</div>
                             </div>
-                            <span className="text-xl font-bold text-amber-600">$89.2K</span>
+                            <span className="text-base font-bold text-amber-600">$89.2K</span>
                         </div>
-                        <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-blue-600">
+                        <div className="flex items-center justify-between p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-blue-600">
                             <div>
                                 <div className="text-base font-semibold text-slate-900 dark:text-slate-100">Customer B</div>
                                 <div className="text-sm text-slate-600 dark:text-slate-400">28 invoices</div>
                             </div>
-                            <span className="text-xl font-bold text-blue-800">$67.4K</span>
+                            <span className="text-base font-bold text-blue-800">$67.4K</span>
                         </div>
-                        <div className="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border-l-4 border-purple-600">
+                        <div className="flex items-center justify-between p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg border-l-4 border-purple-600">
                             <div>
                                 <div className="text-base font-semibold text-slate-900 dark:text-slate-100">Customer C</div>
                                 <div className="text-sm text-slate-600 dark:text-slate-400">19 invoices</div>
                             </div>
-                            <span className="text-xl font-bold text-purple-600">$54.1K</span>
+                            <span className="text-base font-bold text-purple-600">$54.1K</span>
                         </div>
                     </div>
                 </div>
@@ -446,11 +446,11 @@ function BudgetTrackingContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
+        <div className="p-3 space-y-2 bg-slate-50 dark:bg-slate-900">
             {/* Header Section */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Budget Tracking & Forecasting</h2>
+                    <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-2">Budget Tracking & Forecasting</h2>
                     <p className="text-base text-slate-600 dark:text-slate-400">Real-time budget monitoring, variance analysis, and predictive forecasting</p>
                 </div>
                 <div className="flex gap-3">
@@ -464,12 +464,12 @@ function BudgetTrackingContent() {
             </div>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2">
                 <StatCard
                     title="Annual Budget"
                     value="$3.72M"
                     variant="primary"
-                    icon={<Wallet className="w-6 h-6" />}
+                    icon={<Wallet className="w-4 h-4" />}
                     onClick={() => push({
                         type: 'annual-budget',
                         data: { title: 'Annual Budget Overview', fiscal_year: 2026 },
@@ -502,7 +502,7 @@ function BudgetTrackingContent() {
                     title="Remaining Budget"
                     value="$2.58M"
                     variant="default"
-                    icon={<Coins className="w-6 h-6" />}
+                    icon={<Coins className="w-4 h-4" />}
                     onClick={() => push({
                         type: 'remaining-budget',
                         data: { title: 'Budget Remaining by Category' },
@@ -512,14 +512,14 @@ function BudgetTrackingContent() {
             </div>
 
             {/* CHART 1: Budget vs Actual Line Chart - PROFESSIONAL REDESIGN */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 hover:border-blue-500 hover:shadow-lg transition-all duration-200">
-                <div className="flex items-start justify-between mb-6">
+            <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3 hover:border-blue-500 hover:shadow-sm transition-all duration-200">
+                <div className="flex items-start justify-between mb-3">
                     <div>
-                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-1">Budget vs Actual Spending Trend</h3>
+                        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Budget vs Actual Spending Trend</h3>
                         <p className="text-base text-slate-600 dark:text-slate-400">Monthly comparison of budgeted and actual expenditures</p>
                     </div>
                     <button
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                        className="px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
                         onClick={() => push({ type: 'budget-trend', data: { title: 'Budget Trend Analysis', period: 'ytd' }, id: 'budget-trend-detail' } as Omit<DrilldownLevel, "timestamp">)}
                     >
                         View Details
@@ -570,12 +570,12 @@ function BudgetTrackingContent() {
             </div>
 
             {/* CHART 2 & 3: Department Budget Allocation (Donut) + Monthly Spending (Area) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                 {/* Department Budget Donut Chart */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
-                    <div className="flex items-start justify-between mb-6">
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+                    <div className="flex items-start justify-between mb-3">
                         <div>
-                            <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-1">Department Budget Allocation</h3>
+                            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Department Budget Allocation</h3>
                             <p className="text-base text-slate-600 dark:text-slate-400">Annual budget distribution by department</p>
                         </div>
                     </div>
@@ -608,7 +608,7 @@ function BudgetTrackingContent() {
                             </PieChart>
                         </ResponsiveContainer>
                     </div>
-                    <div className="mt-6 grid grid-cols-2 gap-4">
+                    <div className="mt-3 grid grid-cols-2 gap-2">
                         {departmentBudgetData.map((dept, idx) => (
                             <div key={idx} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
                                 <div className="w-4 h-4 rounded" style={{ backgroundColor: dept.color }}></div>
@@ -622,10 +622,10 @@ function BudgetTrackingContent() {
                 </div>
 
                 {/* Monthly Spending Area Chart */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
-                    <div className="flex items-start justify-between mb-6">
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+                    <div className="flex items-start justify-between mb-3">
                         <div>
-                            <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-1">Monthly Spending Trends</h3>
+                            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Monthly Spending Trends</h3>
                             <p className="text-base text-slate-600 dark:text-slate-400">Department spending over time</p>
                         </div>
                     </div>
@@ -677,14 +677,14 @@ function BudgetTrackingContent() {
             </div>
 
             {/* CHART 4: Department Comparison Bar Chart */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
-                <div className="flex items-start justify-between mb-6">
+            <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+                <div className="flex items-start justify-between mb-3">
                     <div>
-                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-1">Department Budget Comparison</h3>
+                        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Department Budget Comparison</h3>
                         <p className="text-base text-slate-600 dark:text-slate-400">Budgeted vs spent amounts by department</p>
                     </div>
                     <button
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                        className="px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
                         onClick={() => push({ type: 'department-comparison', data: { title: 'Detailed Department Analysis' }, id: 'dept-comparison' } as Omit<DrilldownLevel, "timestamp">)}
                     >
                         View Details
@@ -721,15 +721,15 @@ function BudgetTrackingContent() {
             </div>
 
             {/* Budget Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
-                    <div className="flex items-center gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+                    <div className="flex items-center gap-2 mb-2">
                         <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
                             <Wallet className="w-7 h-7 text-blue-800" />
                         </div>
                         <div>
                             <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Total Allocated</p>
-                            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">$3.72M</p>
+                            <p className="text-sm font-bold text-slate-900 dark:text-slate-100">$3.72M</p>
                         </div>
                     </div>
                     <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
@@ -737,14 +737,14 @@ function BudgetTrackingContent() {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
-                    <div className="flex items-center gap-4 mb-4">
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+                    <div className="flex items-center gap-2 mb-2">
                         <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
                             <ChartBar className="w-7 h-7 text-emerald-600" />
                         </div>
                         <div>
                             <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Utilized</p>
-                            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">$1.14M</p>
+                            <p className="text-sm font-bold text-slate-900 dark:text-slate-100">$1.14M</p>
                         </div>
                     </div>
                     <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
@@ -753,14 +753,14 @@ function BudgetTrackingContent() {
                     <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">30.6% of annual budget</p>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
-                    <div className="flex items-center gap-4 mb-4">
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+                    <div className="flex items-center gap-2 mb-2">
                         <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
                             <Coins className="w-7 h-7 text-slate-600 dark:text-slate-400" />
                         </div>
                         <div>
                             <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Remaining</p>
-                            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">$2.58M</p>
+                            <p className="text-sm font-bold text-slate-900 dark:text-slate-100">$2.58M</p>
                         </div>
                     </div>
                     <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
@@ -781,11 +781,11 @@ function CostBenefitContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
+        <div className="p-3 space-y-2 bg-slate-50 dark:bg-slate-900">
             {/* Header Section */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Cost-Benefit Analysis & ROI</h2>
+                    <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-2">Cost-Benefit Analysis & ROI</h2>
                     <p className="text-base text-slate-600 dark:text-slate-400">Investment evaluation, return on investment, and efficiency metrics</p>
                 </div>
                 <div className="flex gap-3">
@@ -799,12 +799,12 @@ function CostBenefitContent() {
             </div>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2">
                 <StatCard
                     title="Average ROI"
                     value="18.4%"
                     variant="success"
-                    icon={<TrendUp className="w-6 h-6" />}
+                    icon={<TrendUp className="w-4 h-4" />}
                     trend="up"
                     trendValue="+3.2%"
                     onClick={() => push({
@@ -827,7 +827,7 @@ function CostBenefitContent() {
                     title="Projected Savings"
                     value="$156K"
                     variant="success"
-                    icon={<Coins className="w-6 h-6" />}
+                    icon={<Coins className="w-4 h-4" />}
                     onClick={() => push({
                         type: 'projected-savings',
                         data: { title: 'Projected Savings Analysis' },
@@ -847,15 +847,15 @@ function CostBenefitContent() {
             </div>
 
             {/* Analysis Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                 {/* Investment Performance */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
-                    <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Top Performing Investments</h3>
-                        <TrendUp className="w-6 h-6 text-emerald-600" />
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+                    <div className="flex items-start justify-between mb-3">
+                        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">Top Performing Investments</h3>
+                        <TrendUp className="w-4 h-4 text-emerald-600" />
                     </div>
-                    <div className="space-y-4">
-                        <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border-l-4 border-emerald-600">
+                    <div className="space-y-2">
+                        <div className="p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg border-l-4 border-emerald-600">
                             <div className="flex justify-between items-start mb-2">
                                 <div>
                                     <h4 className="font-semibold text-slate-900 dark:text-slate-100">Fleet Electrification</h4>
@@ -869,7 +869,7 @@ function CostBenefitContent() {
                             </div>
                         </div>
 
-                        <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border-l-4 border-blue-600">
+                        <div className="p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg border-l-4 border-blue-600">
                             <div className="flex justify-between items-start mb-2">
                                 <div>
                                     <h4 className="font-semibold text-slate-900 dark:text-slate-100">Telematics System</h4>
@@ -883,7 +883,7 @@ function CostBenefitContent() {
                             </div>
                         </div>
 
-                        <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border-l-4 border-amber-600">
+                        <div className="p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg border-l-4 border-amber-600">
                             <div className="flex justify-between items-start mb-2">
                                 <div>
                                     <h4 className="font-semibold text-slate-900 dark:text-slate-100">Preventive Maintenance Program</h4>
@@ -900,16 +900,16 @@ function CostBenefitContent() {
                 </div>
 
                 {/* Cost Savings Breakdown */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
-                    <div className="flex items-start justify-between mb-6">
-                        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Annual Cost Savings</h3>
-                        <Sparkle className="w-6 h-6 text-blue-800" />
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+                    <div className="flex items-start justify-between mb-3">
+                        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">Annual Cost Savings</h3>
+                        <Sparkle className="w-4 h-4 text-blue-800" />
                     </div>
                     <div className="space-y-5">
                         <div>
                             <div className="flex justify-between mb-2">
                                 <span className="text-base font-medium text-slate-700 dark:text-slate-300">Fuel Efficiency</span>
-                                <span className="text-lg font-bold text-slate-900 dark:text-slate-100">$89K</span>
+                                <span className="text-sm font-bold text-slate-900 dark:text-slate-100">$89K</span>
                             </div>
                             <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                                 <div className="h-full bg-emerald-600 rounded-full" style={{ width: '57%' }}></div>
@@ -918,7 +918,7 @@ function CostBenefitContent() {
                         <div>
                             <div className="flex justify-between mb-2">
                                 <span className="text-base font-medium text-slate-700 dark:text-slate-300">Maintenance Optimization</span>
-                                <span className="text-lg font-bold text-slate-900 dark:text-slate-100">$42K</span>
+                                <span className="text-sm font-bold text-slate-900 dark:text-slate-100">$42K</span>
                             </div>
                             <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                                 <div className="h-full bg-blue-600 rounded-full" style={{ width: '27%' }}></div>
@@ -927,17 +927,17 @@ function CostBenefitContent() {
                         <div>
                             <div className="flex justify-between mb-2">
                                 <span className="text-base font-medium text-slate-700 dark:text-slate-300">Route Optimization</span>
-                                <span className="text-lg font-bold text-slate-900 dark:text-slate-100">$25K</span>
+                                <span className="text-sm font-bold text-slate-900 dark:text-slate-100">$25K</span>
                             </div>
                             <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                                 <div className="h-full bg-purple-600 rounded-full" style={{ width: '16%' }}></div>
                             </div>
                         </div>
                     </div>
-                    <div className="mt-6 p-5 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div className="mt-3 p-5 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                         <div className="flex justify-between items-center">
                             <span className="text-base font-semibold text-blue-900 dark:text-blue-100">Total Annual Savings</span>
-                            <span className="text-2xl font-bold text-blue-800">$156K</span>
+                            <span className="text-sm font-bold text-blue-800">$156K</span>
                         </div>
                     </div>
                 </div>
@@ -981,11 +981,11 @@ function InvoicesContent() {
     }
 
     return (
-        <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
+        <div className="p-3 space-y-2 bg-slate-50 dark:bg-slate-900">
             {/* Header Section */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Invoice Management</h2>
+                    <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-2">Invoice Management</h2>
                     <p className="text-base text-slate-600 dark:text-slate-400">Processing, approval workflows, and payment tracking</p>
                 </div>
                 <div className="flex gap-3">
@@ -999,12 +999,12 @@ function InvoicesContent() {
             </div>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2">
                 <StatCard
                     title="Total Invoices"
                     value="1,247"
                     variant="primary"
-                    icon={<Invoice className="w-6 h-6" />}
+                    icon={<Invoice className="w-4 h-4" />}
                     onClick={() => push({
                         type: 'all-invoices',
                         data: { title: 'All Invoices' },
@@ -1025,7 +1025,7 @@ function InvoicesContent() {
                     title="Paid This Month"
                     value="$284.5K"
                     variant="success"
-                    icon={<CreditCard className="w-6 h-6" />}
+                    icon={<CreditCard className="w-4 h-4" />}
                     trend="up"
                     trendValue="+12.4%"
                     onClick={() => push({
@@ -1048,47 +1048,47 @@ function InvoicesContent() {
 
             {/* Invoice List Table */}
             <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-slate-200 dark:border-slate-700">
-                    <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Recent Invoices</h3>
+                <div className="p-3 border-b border-slate-200 dark:border-slate-700">
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">Recent Invoices</h3>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
                             <tr>
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Invoice ID</th>
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Vendor</th>
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Category</th>
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Amount</th>
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Date</th>
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Status</th>
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Actions</th>
+                                <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Invoice ID</th>
+                                <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Vendor</th>
+                                <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Category</th>
+                                <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Amount</th>
+                                <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Date</th>
+                                <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Status</th>
+                                <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                             {invoices.map((invoice) => (
                                 <tr key={invoice.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
-                                    <td className="px-6 py-4">
+                                    <td className="px-3 py-2">
                                         <span className="text-sm font-semibold text-blue-800 dark:text-blue-400">{invoice.id}</span>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-3 py-2">
                                         <span className="text-base text-slate-900 dark:text-slate-100 font-medium">{invoice.vendor}</span>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-3 py-2">
                                         <span className="text-base text-slate-700 dark:text-slate-300">{invoice.category}</span>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-3 py-2">
                                         <span className="text-base font-bold text-slate-900 dark:text-slate-100">${invoice.amount.toLocaleString()}</span>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-3 py-2">
                                         <span className="text-base text-slate-700 dark:text-slate-300">{invoice.date}</span>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-3 py-2">
                                         <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold border ${getStatusBadge(invoice.status)}`}>
                                             {getStatusIcon(invoice.status)}
                                             {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-3 py-2">
                                         <button
                                             className="text-blue-800 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium text-sm flex items-center gap-1"
                                             onClick={() => push({ type: 'invoice-detail', data: { invoice }, id: invoice.id } as Omit<DrilldownLevel, "timestamp">)}
@@ -1115,11 +1115,11 @@ function PaymentsContent() {
     const { push } = useDrilldown()
 
     return (
-        <div className="p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
+        <div className="p-3 space-y-2 bg-slate-50 dark:bg-slate-900">
             {/* Header Section */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Payment Tracking & Reconciliation</h2>
+                    <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-2">Payment Tracking & Reconciliation</h2>
                     <p className="text-base text-slate-600 dark:text-slate-400">Payment processing, bank reconciliation, and transaction history</p>
                 </div>
                 <div className="flex gap-3">
@@ -1133,12 +1133,12 @@ function PaymentsContent() {
             </div>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2">
                 <StatCard
                     title="Total Payments"
                     value="$1.24M"
                     variant="success"
-                    icon={<Bank className="w-6 h-6" />}
+                    icon={<Bank className="w-4 h-4" />}
                     trend="up"
                     trendValue="+8.1%"
                     onClick={() => push({
@@ -1161,7 +1161,7 @@ function PaymentsContent() {
                     title="Cleared"
                     value="892"
                     variant="success"
-                    icon={<CheckCircle className="w-6 h-6" />}
+                    icon={<CheckCircle className="w-4 h-4" />}
                     onClick={() => push({
                         type: 'cleared-payments',
                         data: { title: 'Cleared Payments' },
@@ -1181,15 +1181,15 @@ function PaymentsContent() {
             </div>
 
             {/* Payment Summary Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
-                    <div className="flex items-center gap-4 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+                    <div className="flex items-center gap-2 mb-3">
                         <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
                             <CreditCard className="w-7 h-7 text-emerald-600" />
                         </div>
                         <div>
                             <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Payments This Month</p>
-                            <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">$284.5K</p>
+                            <p className="text-base font-bold text-slate-900 dark:text-slate-100">$284.5K</p>
                         </div>
                     </div>
                     <div className="space-y-3">
@@ -1208,32 +1208,32 @@ function PaymentsContent() {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
-                    <div className="flex items-center gap-4 mb-6">
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+                    <div className="flex items-center gap-2 mb-3">
                         <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
                             <Bank className="w-7 h-7 text-blue-800" />
                         </div>
                         <div>
                             <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Bank Reconciliation</p>
-                            <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">98.4%</p>
+                            <p className="text-base font-bold text-slate-900 dark:text-slate-100">98.4%</p>
                         </div>
                     </div>
-                    <div className="flex items-center justify-center mb-4">
+                    <div className="flex items-center justify-center mb-2">
                         <ProgressRing progress={98} color="blue" label="98.4%" sublabel="reconciled" />
                     </div>
-                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                         <p className="text-sm text-blue-700 dark:text-blue-400 font-semibold">14 items need review</p>
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8">
-                    <div className="flex items-center gap-4 mb-6">
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+                    <div className="flex items-center gap-2 mb-3">
                         <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
                             <Receipt className="w-7 h-7 text-purple-600" />
                         </div>
                         <div>
                             <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Avg Payment Time</p>
-                            <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">3.2 days</p>
+                            <p className="text-base font-bold text-slate-900 dark:text-slate-100">3.2 days</p>
                         </div>
                     </div>
                     <div className="space-y-3">
@@ -1309,7 +1309,7 @@ function FinancialHub() {
         <HubPage
             title="Financial Management"
             description="Comprehensive financial operations, cost analysis, and budget management"
-            icon={<CurrencyDollar className="w-6 h-6" aria-hidden="true" />}
+            icon={<CurrencyDollar className="w-4 h-4" aria-hidden="true" />}
             tabs={tabs}
             defaultTab="cost-analysis"
         />

@@ -65,7 +65,7 @@ export function DocumentComments({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b">
+      <div className="p-2 border-b">
         <div className="flex items-center justify-between mb-2">
           <h3 className="font-semibold flex items-center gap-2">
             <MessageSquare className="h-5 w-5" />
@@ -75,11 +75,11 @@ export function DocumentComments({
         </div>
       </div>
 
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
+      <ScrollArea className="flex-1 p-2">
+        <div className="space-y-2">
           {topLevelComments.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-30" />
+            <div className="text-center py-3 text-muted-foreground">
+              <MessageSquare className="h-9 w-12 mx-auto mb-3 opacity-30" />
               <p className="text-sm">No comments yet</p>
               <p className="text-xs mt-1">Be the first to comment</p>
             </div>
@@ -103,7 +103,7 @@ export function DocumentComments({
         </div>
       </ScrollArea>
 
-      <div className="p-4 border-t">
+      <div className="p-2 border-t">
         <div className="space-y-2">
           <Textarea
             placeholder="Add a comment... (use @ to mention someone)"
@@ -266,7 +266,7 @@ function CommentThread({
 
           {/* Replies */}
           {replies.length > 0 && (
-            <div className="mt-3 space-y-3 pl-4 border-l-2">
+            <div className="mt-3 space-y-3 pl-2 border-l-2">
               {replies.map((reply) => (
                 <div key={reply.id} className="flex gap-2">
                   <Avatar className="h-6 w-6">

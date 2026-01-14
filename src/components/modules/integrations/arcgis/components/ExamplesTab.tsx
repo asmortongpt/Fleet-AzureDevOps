@@ -22,7 +22,7 @@ function ExampleService({ name, url, type, description }: ExampleServiceProps) {
   }, [url])
 
   return (
-    <div className="border rounded-lg p-4 space-y-2 hover:bg-muted/50 transition-colors">
+    <div className="border rounded-lg p-2 space-y-2 hover:bg-muted/50 transition-colors">
       <div className="flex items-start justify-between">
         <div>
           <h4 className="font-semibold">{name}</h4>
@@ -48,7 +48,7 @@ export function ExamplesTab() {
         <CardTitle>Example ArcGIS Services</CardTitle>
         <CardDescription>Public ArcGIS services you can use to test the integration</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-2">
         <ExampleService
           name="USA States"
           url="https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/2"

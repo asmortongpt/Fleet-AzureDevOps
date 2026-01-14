@@ -102,15 +102,15 @@ const MobileManagerView: React.FC = () => {
   }
 
   const renderPendingTab = () => (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {dashboardData.pending_approvals.length === 0 ? (
-        <div className="bg-white rounded-lg p-8 text-center">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+        <div className="bg-white rounded-lg p-3 text-center">
+          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-2" />
           <p className="text-slate-700">No pending approvals</p>
         </div>
       ) : (
         dashboardData.pending_approvals.map((assignment: PendingAssignment) => (
-          <div key={assignment.id} className="bg-white rounded-lg shadow p-4">
+          <div key={assignment.id} className="bg-white rounded-lg shadow p-2">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h3 className="font-semibold text-gray-900">{assignment.driver_name}</h3>
@@ -140,7 +140,7 @@ const MobileManagerView: React.FC = () => {
                   setSelectedAssignment(assignment);
                   setShowApprovalModal(true);
                 }}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2"
+                className="flex-1 px-2 py-2 bg-green-600 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2"
               >
                 <ThumbsUp className="w-4 h-4" />
                 Approve
@@ -150,7 +150,7 @@ const MobileManagerView: React.FC = () => {
                   setSelectedAssignment(assignment);
                   setShowApprovalModal(true);
                 }}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2"
+                className="flex-1 px-2 py-2 bg-red-600 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2"
               >
                 <ThumbsDown className="w-4 h-4" />
                 Deny
@@ -163,9 +163,9 @@ const MobileManagerView: React.FC = () => {
   );
 
   const renderActiveTab = () => (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {dashboardData.active_assignments.map((assignment: any) => (
-        <div key={assignment.id} className="bg-white rounded-lg shadow p-4">
+        <div key={assignment.id} className="bg-white rounded-lg shadow p-2">
           <div className="flex items-start justify-between mb-2">
             <div>
               <h3 className="font-semibold text-gray-900">{assignment.driver_name}</h3>
@@ -187,15 +187,15 @@ const MobileManagerView: React.FC = () => {
   );
 
   const renderOnCallTab = () => (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {dashboardData.current_on_call.length === 0 ? (
-        <div className="bg-white rounded-lg p-8 text-center">
-          <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+        <div className="bg-white rounded-lg p-3 text-center">
+          <Clock className="w-16 h-16 text-gray-400 mx-auto mb-2" />
           <p className="text-slate-700">No team members on-call</p>
         </div>
       ) : (
         dashboardData.current_on_call.map((period: any) => (
-          <div key={period.id} className="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+          <div key={period.id} className="bg-white rounded-lg shadow p-2 border-l-4 border-blue-500">
             <div className="flex items-start justify-between mb-2">
               <div>
                 <h3 className="font-semibold text-gray-900">{period.driver_name}</h3>
@@ -212,7 +212,7 @@ const MobileManagerView: React.FC = () => {
               </p>
             )}
 
-            <div className="flex items-center gap-4 text-sm text-slate-700">
+            <div className="flex items-center gap-2 text-sm text-slate-700">
               <div className="flex items-center gap-1">
                 <Phone className="w-4 h-4" />
                 <span>{period.driver_phone || 'N/A'}</span>
@@ -236,8 +236,8 @@ const MobileManagerView: React.FC = () => {
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end z-50">
-        <div className="bg-white rounded-t-3xl w-full p-6 space-y-4">
-          <h2 className="text-xl font-bold">Review Assignment</h2>
+        <div className="bg-white rounded-t-3xl w-full p-3 space-y-2">
+          <h2 className="text-base font-bold">Review Assignment</h2>
 
           <div className="space-y-2">
             <p className="text-sm text-slate-700">
@@ -260,20 +260,20 @@ const MobileManagerView: React.FC = () => {
               onChange={(e) => setApprovalNotes(e.target.value)}
               rows={3}
               placeholder="Add approval or denial notes..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-2 py-2 border border-gray-300 rounded-lg"
             />
           </div>
 
           <div className="flex gap-2">
             <button
               onClick={() => handleQuickApproval(selectedAssignment.id, 'approve')}
-              className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg font-medium"
+              className="flex-1 px-2 py-3 bg-green-600 text-white rounded-lg font-medium"
             >
               Approve
             </button>
             <button
               onClick={() => handleQuickApproval(selectedAssignment.id, 'deny')}
-              className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg font-medium"
+              className="flex-1 px-2 py-3 bg-red-600 text-white rounded-lg font-medium"
             >
               Deny
             </button>
@@ -285,7 +285,7 @@ const MobileManagerView: React.FC = () => {
               setSelectedAssignment(null);
               setApprovalNotes('');
             }}
-            className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg"
+            className="w-full px-2 py-2 bg-gray-200 text-gray-700 rounded-lg"
           >
             Cancel
           </button>
@@ -297,11 +297,11 @@ const MobileManagerView: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100 pb-20">
       {/* Header */}
-      <div className="bg-blue-600 text-white p-6 pb-8">
-        <h1 className="text-2xl font-bold">Manager Dashboard</h1>
+      <div className="bg-blue-600 text-white p-3 pb-3">
+        <h1 className="text-sm font-bold">Manager Dashboard</h1>
         <p className="text-blue-100 mt-1">{user?.email}</p>
 
-        <div className="mt-4 flex gap-2 flex-wrap">
+        <div className="mt-2 flex gap-2 flex-wrap">
           <div className="bg-yellow-500 px-3 py-1 rounded-full text-sm">
             {dashboardData.notifications.pending_approvals_count} Pending
           </div>
@@ -324,7 +324,7 @@ const MobileManagerView: React.FC = () => {
       <div className="bg-white border-b border-gray-200 flex">
         <button
           onClick={() => setActiveTab('pending')}
-          className={`flex-1 py-4 text-center font-medium ${
+          className={`flex-1 py-2 text-center font-medium ${
             activeTab === 'pending'
               ? 'text-blue-800 border-b-2 border-blue-600'
               : 'text-slate-700'
@@ -334,7 +334,7 @@ const MobileManagerView: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('active')}
-          className={`flex-1 py-4 text-center font-medium ${
+          className={`flex-1 py-2 text-center font-medium ${
             activeTab === 'active'
               ? 'text-blue-800 border-b-2 border-blue-600'
               : 'text-slate-700'
@@ -344,7 +344,7 @@ const MobileManagerView: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('on-call')}
-          className={`flex-1 py-4 text-center font-medium ${
+          className={`flex-1 py-2 text-center font-medium ${
             activeTab === 'on-call'
               ? 'text-blue-800 border-b-2 border-blue-600'
               : 'text-slate-700'
@@ -355,7 +355,7 @@ const MobileManagerView: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="p-2">
         {activeTab === 'pending' && renderPendingTab()}
         {activeTab === 'active' && renderActiveTab()}
         {activeTab === 'on-call' && renderOnCallTab()}

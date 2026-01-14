@@ -61,8 +61,8 @@ export function DocumentActivity({ activities }: DocumentActivityProps) {
 
   if (activities.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-8">
-        <Activity className="h-12 w-12 text-muted-foreground opacity-30 mb-3" />
+      <div className="flex flex-col items-center justify-center h-full text-center p-3">
+        <Activity className="h-9 w-12 text-muted-foreground opacity-30 mb-3" />
         <p className="text-sm text-muted-foreground">No activity yet</p>
       </div>
     );
@@ -78,7 +78,7 @@ export function DocumentActivity({ activities }: DocumentActivityProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b">
+      <div className="p-2 border-b">
         <h3 className="font-semibold flex items-center gap-2">
           <Activity className="h-5 w-5" />
           Activity
@@ -89,7 +89,7 @@ export function DocumentActivity({ activities }: DocumentActivityProps) {
       </div>
 
       <ScrollArea className="flex-1">
-        <div className="p-4 space-y-6">
+        <div className="p-2 space-y-2">
           {Object.entries(groupedActivities).map(([date, dateActivities]) => (
             <div key={date}>
               <div className="text-xs font-semibold text-muted-foreground mb-3">

@@ -151,14 +151,14 @@ export function DocumentUploader({
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh] p-0">
-        <DialogHeader className="p-6 pb-0">
+        <DialogHeader className="p-3 pb-0">
           <DialogTitle>Upload Documents</DialogTitle>
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden flex flex-col">
           {/* Drop zone */}
           {!hasFiles && (
-            <div className="p-6">
+            <div className="p-3">
               <div
                 {...getRootProps()}
                 className={cn(
@@ -170,21 +170,21 @@ export function DocumentUploader({
               >
                 <input {...getInputProps()} />
 
-                <div className="flex flex-col items-center gap-4">
+                <div className="flex flex-col items-center gap-2">
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Upload className="w-8 h-8 text-primary" />
+                    <Upload className="w-4 h-4 text-primary" />
                   </div>
 
                   {isDragActive ? (
                     <div>
-                      <p className="text-lg font-semibold">Drop files here</p>
+                      <p className="text-sm font-semibold">Drop files here</p>
                       <p className="text-sm text-muted-foreground mt-1">
                         Release to upload
                       </p>
                     </div>
                   ) : (
                     <div>
-                      <p className="text-lg font-semibold">
+                      <p className="text-sm font-semibold">
                         Drag and drop files here
                       </p>
                       <p className="text-sm text-muted-foreground mt-1">
@@ -210,7 +210,7 @@ export function DocumentUploader({
 
           {/* Upload queue */}
           {hasFiles && (
-            <ScrollArea className="flex-1 p-6">
+            <ScrollArea className="flex-1 p-3">
               <div className="space-y-3">
                 {Array.from(uploadQueue.entries()).map(([fileId, item]) => (
                   <UploadItem
@@ -225,8 +225,8 @@ export function DocumentUploader({
 
           {/* Rejected files */}
           {rejectedFiles.length > 0 && (
-            <div className="px-6 pb-4">
-              <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4">
+            <div className="px-3 pb-2">
+              <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-2">
                 <h4 className="text-sm font-medium text-destructive mb-2">
                   Failed to upload {rejectedFiles.length} file(s)
                 </h4>
@@ -245,7 +245,7 @@ export function DocumentUploader({
           )}
 
           {/* Actions */}
-          <div className="flex items-center justify-between gap-3 p-6 pt-0 border-t">
+          <div className="flex items-center justify-between gap-3 p-3 pt-0 border-t">
             <div
               {...getRootProps()}
               className="flex-1"

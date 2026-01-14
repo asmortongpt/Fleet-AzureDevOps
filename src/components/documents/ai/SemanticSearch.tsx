@@ -48,7 +48,7 @@ export function SemanticSearch({ onSearch }: SemanticSearchProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b space-y-4">
+      <div className="p-2 border-b space-y-2">
         <div>
           <h3 className="font-semibold flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
@@ -76,10 +76,10 @@ export function SemanticSearch({ onSearch }: SemanticSearchProps) {
 
       <ScrollArea className="flex-1">
         {results.length === 0 && !isPending ? (
-          <div className="p-6">
-            <div className="text-center py-8">
-              <Sparkles className="h-12 w-12 text-muted-foreground opacity-30 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground mb-4">
+          <div className="p-3">
+            <div className="text-center py-3">
+              <Sparkles className="h-9 w-12 text-muted-foreground opacity-30 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground mb-2">
                 Try searching with natural language
               </p>
             </div>
@@ -103,14 +103,14 @@ export function SemanticSearch({ onSearch }: SemanticSearchProps) {
         ) : isPending ? (
           <div className="flex items-center justify-center p-12">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4" />
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">
                 Analyzing documents with AI...
               </p>
             </div>
           </div>
         ) : (
-          <div className="p-4 space-y-4">
+          <div className="p-2 space-y-2">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-semibold">
                 {results.length} {results.length === 1 ? 'Result' : 'Results'}
@@ -136,7 +136,7 @@ export function SemanticSearch({ onSearch }: SemanticSearchProps) {
 
 function SearchResultCard({ result }: { result: SemanticSearchResult }) {
   return (
-    <div className="border rounded-lg p-4 hover:bg-accent/50 transition-colors cursor-pointer">
+    <div className="border rounded-lg p-2 hover:bg-accent/50 transition-colors cursor-pointer">
       <div className="flex items-start gap-3">
         <FileText className={`h-5 w-5 mt-0.5 ${getDocumentColor(result.type)}`} />
 

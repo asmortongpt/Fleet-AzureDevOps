@@ -175,7 +175,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
         {/* Map Legend (Styled for Dark Mode/Immersive) */}
         {showLegend && activeLegendItems.length > 0 && (
           <div className="absolute bottom-4 left-4 z-10">
-            <div className="shadow-lg bg-slate-900/90 backdrop-blur-md border border-white/10 rounded-lg p-3">
+            <div className="shadow-sm bg-slate-900/90 backdrop-blur-md border border-white/10 rounded-lg p-3">
               <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">
                 Vehicle Status
               </div>
@@ -204,7 +204,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
         {/* Facilities Legend (Immersive) */}
         {showLegend && facilities.length > 0 && (
           <div className="absolute bottom-4 right-4 z-10">
-            <div className="shadow-lg bg-slate-900/90 backdrop-blur-md border border-white/10 rounded-lg p-3 flex items-center gap-2">
+            <div className="shadow-sm bg-slate-900/90 backdrop-blur-md border border-white/10 rounded-lg p-3 flex items-center gap-2">
               <MapPin className="w-3 h-3 text-emerald-500" />
               <span className="text-xs font-medium text-slate-300">
                 {facilities.length} Locations
@@ -220,8 +220,8 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
     <Card className="w-full" data-testid="fleet-map">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <MapPin className="w-5 h-5 text-primary" />
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <MapPin className="w-3 h-3 text-primary" />
             Live Fleet Map
             {enableRealTime && (
               <Badge variant="outline" className="ml-2">
@@ -261,7 +261,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
           {/* Map Legend */}
           {showLegend && activeLegendItems.length > 0 && (
             <div className="absolute bottom-4 left-4 z-10">
-              <Card className="shadow-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/90">
+              <Card className="shadow-sm bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/90">
                 <CardHeader className="pb-2 pt-3 px-3">
                   <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                     Vehicle Status
@@ -296,7 +296,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
           {/* Facilities Legend (if facilities present) */}
           {showLegend && facilities.length > 0 && (
             <div className="absolute bottom-4 right-4 z-10">
-              <Card className="shadow-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/90">
+              <Card className="shadow-sm bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/90">
                 <CardHeader className="pb-2 pt-3 px-3">
                   <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                     Facilities

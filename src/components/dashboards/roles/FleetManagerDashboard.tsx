@@ -104,10 +104,10 @@ export function FleetManagerDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--minimalist-bg-primary)] p-4">
+    <div className="min-h-screen bg-[var(--minimalist-bg-primary)] p-2">
       {/* Header - Clean & Minimal */}
-      <header className="mb-6">
-        <h1 className="text-xl font-semibold text-[var(--minimalist-text-primary)] mb-1">
+      <header className="mb-3">
+        <h1 className="text-base font-semibold text-[var(--minimalist-text-primary)] mb-1">
           Fleet Manager Dashboard
         </h1>
         <p className="text-sm text-[var(--minimalist-text-secondary)]">
@@ -116,7 +116,7 @@ export function FleetManagerDashboard() {
       </header>
 
       {/* Attention Needed Section - Minimalist Alert Cards */}
-      <Card className="p-4 mb-4 border-[var(--minimalist-border-medium)]">
+      <Card className="p-2 mb-2 border-[var(--minimalist-border-medium)]">
         <div className="flex items-center gap-2 mb-3">
           <AlertCircle className="w-4 h-4 text-[var(--minimalist-text-secondary)]" />
           <h2 className="text-base font-medium text-[var(--minimalist-text-primary)]">
@@ -135,8 +135,8 @@ export function FleetManagerDashboard() {
             onClick={handleViewOverdue}
           >
             <div className="flex items-start justify-between mb-2">
-              <Warning className="w-5 h-5 text-red-400" />
-              <span className="text-2xl font-semibold text-[var(--minimalist-text-primary)]">
+              <Warning className="w-3 h-3 text-red-400" />
+              <span className="text-sm font-semibold text-[var(--minimalist-text-primary)]">
                 {overdueCount}
               </span>
             </div>
@@ -166,8 +166,8 @@ export function FleetManagerDashboard() {
             onClick={handleScheduleMaintenance}
           >
             <div className="flex items-start justify-between mb-2">
-              <Calendar className="w-5 h-5 text-amber-400" />
-              <span className="text-2xl font-semibold text-[var(--minimalist-text-primary)]">
+              <Calendar className="w-3 h-3 text-amber-400" />
+              <span className="text-sm font-semibold text-[var(--minimalist-text-primary)]">
                 {upcomingCount}
               </span>
             </div>
@@ -197,8 +197,8 @@ export function FleetManagerDashboard() {
             onClick={handleCreateWorkOrder}
           >
             <div className="flex items-start justify-between mb-2">
-              <Wrench className="w-5 h-5 text-blue-400" />
-              <span className="text-2xl font-semibold text-[var(--minimalist-text-primary)]">
+              <Wrench className="w-3 h-3 text-blue-400" />
+              <span className="text-sm font-semibold text-[var(--minimalist-text-primary)]">
                 {openWorkOrders}
               </span>
             </div>
@@ -221,7 +221,7 @@ export function FleetManagerDashboard() {
       </Card>
 
       {/* Quick Actions - Minimal Buttons */}
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="mb-2 flex flex-wrap gap-2">
         <Button
           size="sm"
           onClick={handleAssignDriver}
@@ -248,9 +248,9 @@ export function FleetManagerDashboard() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
         {/* Fleet Status - Minimal Design */}
-        <Card className="p-4">
+        <Card className="p-2">
           <div className="flex items-center gap-2 mb-3">
             <h3 className="text-base font-medium text-[var(--minimalist-text-primary)]">
               Fleet Status
@@ -262,7 +262,7 @@ export function FleetManagerDashboard() {
                 <div className="w-2 h-2 rounded-full bg-green-500"></div>
                 <span className="text-sm text-[var(--minimalist-text-secondary)]">Active</span>
               </div>
-              <span className="text-lg font-semibold text-[var(--minimalist-text-primary)]">
+              <span className="text-sm font-semibold text-[var(--minimalist-text-primary)]">
                 {fleetStats.active_vehicles}
               </span>
             </div>
@@ -271,7 +271,7 @@ export function FleetManagerDashboard() {
                 <div className="w-2 h-2 rounded-full bg-amber-500"></div>
                 <span className="text-sm text-[var(--minimalist-text-secondary)]">Maintenance</span>
               </div>
-              <span className="text-lg font-semibold text-[var(--minimalist-text-primary)]">
+              <span className="text-sm font-semibold text-[var(--minimalist-text-primary)]">
                 {fleetStats.maintenance_vehicles}
               </span>
             </div>
@@ -280,7 +280,7 @@ export function FleetManagerDashboard() {
                 <div className="w-2 h-2 rounded-full bg-[var(--minimalist-border-strong)]"></div>
                 <span className="text-sm text-[var(--minimalist-text-secondary)]">Idle</span>
               </div>
-              <span className="text-lg font-semibold text-[var(--minimalist-text-primary)]">
+              <span className="text-sm font-semibold text-[var(--minimalist-text-primary)]">
                 {fleetStats.idle_vehicles}
               </span>
             </div>
@@ -289,7 +289,7 @@ export function FleetManagerDashboard() {
                 <div className="w-2 h-2 rounded-full bg-red-500"></div>
                 <span className="text-sm text-[var(--minimalist-text-secondary)]">Out of Service</span>
               </div>
-              <span className="text-lg font-semibold text-[var(--minimalist-text-primary)]">
+              <span className="text-sm font-semibold text-[var(--minimalist-text-primary)]">
                 {fleetStats.out_of_service}
               </span>
             </div>
@@ -297,7 +297,7 @@ export function FleetManagerDashboard() {
         </Card>
 
         {/* Cost Summary - Minimal Design */}
-        <Card className="p-4">
+        <Card className="p-2">
           <div className="flex items-center gap-2 mb-3">
             <h3 className="text-base font-medium text-[var(--minimalist-text-primary)]">
               Cost Summary (This Month)
@@ -308,7 +308,7 @@ export function FleetManagerDashboard() {
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm text-[var(--minimalist-text-secondary)]">Fuel</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-semibold text-[var(--minimalist-text-primary)]">
+                  <span className="text-sm font-semibold text-[var(--minimalist-text-primary)]">
                     ${costSummary.fuel_cost.toLocaleString()}
                   </span>
                   <div className={cn(
@@ -324,7 +324,7 @@ export function FleetManagerDashboard() {
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm text-[var(--minimalist-text-secondary)]">Maintenance</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-semibold text-[var(--minimalist-text-primary)]">
+                  <span className="text-sm font-semibold text-[var(--minimalist-text-primary)]">
                     ${costSummary.maintenance_cost.toLocaleString()}
                   </span>
                   <div className={cn(
@@ -340,7 +340,7 @@ export function FleetManagerDashboard() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-[var(--minimalist-text-secondary)]">Cost per Mile</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-semibold text-[var(--minimalist-text-primary)]">
+                  <span className="text-sm font-semibold text-[var(--minimalist-text-primary)]">
                     ${costSummary.cost_per_mile.toFixed(2)}
                   </span>
                   {costSummary.cost_per_mile > costSummary.target_cost_per_mile && (

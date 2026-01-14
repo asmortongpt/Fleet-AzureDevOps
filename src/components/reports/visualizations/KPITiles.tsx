@@ -89,8 +89,8 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
   };
 
   const gridClass = layout === 'grid'
-    ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'
-    : 'flex flex-wrap gap-4';
+    ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2'
+    : 'flex flex-wrap gap-2';
 
   return (
     <div className={`${gridClass} ${className}`}>
@@ -101,7 +101,7 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
         return (
           <Card
             key={measure.id}
-            className="p-6 hover:shadow-md transition-shadow"
+            className="p-3 hover:shadow-md transition-shadow"
             role="article"
             aria-label={`${measure.label} KPI: ${formatValue(measure.value, measure.format)}`}
           >
@@ -123,7 +123,7 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
 
             {/* Value */}
             <div className="mb-3">
-              <div className="text-3xl font-bold text-gray-900">
+              <div className="text-base font-bold text-gray-900">
                 {formatValue(measure.value, measure.format)}
               </div>
               {measure.trend && (
@@ -155,7 +155,7 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
             )}
 
             {/* Drill-down indicator */}
-            <div className="mt-4 pt-3 border-t border-gray-100">
+            <div className="mt-2 pt-3 border-t border-gray-100">
               <button
                 className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
                 onClick={() => {

@@ -59,15 +59,15 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                 side="left" // Changed to Left to balance UI (or keep right? Fleet/Team usually left, Ops right)
                 style={{ backgroundColor: 'transparent' }}
             >
-                <SheetHeader className="p-6 border-b border-white/10 bg-black/20">
+                <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
                     <div className="flex items-center justify-between">
-                        <SheetTitle className="text-xl font-semibold text-white">Team Roster</SheetTitle>
+                        <SheetTitle className="text-base font-semibold text-white">Team Roster</SheetTitle>
                     </div>
                     <SheetDescription>
                         Manage drivers and fleet staff directly from operations.
                     </SheetDescription>
 
-                    <div className="mt-4 space-y-4">
+                    <div className="mt-2 space-y-2">
                         <div className="flex bg-muted/50 p-1 rounded-lg">
                             <button
                                 className={`flex-1 text-sm font-medium py-1.5 px-3 rounded-md transition-all ${activeTab === "drivers"
@@ -101,11 +101,11 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                     </div>
                 </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                <div className="flex-1 overflow-y-auto p-2 space-y-3">
                     {activeTab === "drivers" ? (
                         filteredDrivers.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
-                                <User className="w-8 h-8 mb-2 opacity-50" />
+                                <User className="w-4 h-4 mb-2 opacity-50" />
                                 <p>No drivers found</p>
                             </div>
                         ) : (
@@ -119,7 +119,7 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                     onKeyDown={(e) => e.key === 'Enter' && handleDriverClick(driver)}
                                 >
                                     <div className="flex items-start gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
+                                        <div className="w-10 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
                                             {driver.name ? driver.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2) : '??'}
                                         </div>
                                         <div>
@@ -166,7 +166,7 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                 className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors group"
                             >
                                 <div className="flex items-start gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center font-semibold text-sm">
+                                    <div className="w-10 h-8 rounded-full bg-muted flex items-center justify-center font-semibold text-sm">
                                         {member.name ? member.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2) : '??'}
                                     </div>
                                     <div>
@@ -201,7 +201,7 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                     )}
                 </div>
 
-                <div className="p-4 border-t bg-muted/10">
+                <div className="p-2 border-t bg-muted/10">
                     <Button className="w-full" variant="outline">
                         <Plus className="w-4 h-4 mr-2" />
                         Add New Person

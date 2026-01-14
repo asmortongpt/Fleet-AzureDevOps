@@ -102,47 +102,47 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
   return (
     <div className="h-full overflow-y-auto bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <div className="bg-gradient-to-r from-orange-600 to-orange-800 text-white p-6">
+      <div className="bg-gradient-to-r from-orange-600 to-orange-800 text-white p-3">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Wrench className="w-8 h-8" />
+              <Wrench className="w-4 h-4" />
               <div>
-                <h1 className="text-2xl font-bold">{workOrder.title}</h1>
+                <h1 className="text-sm font-bold">{workOrder.title}</h1>
                 <p className="text-orange-100">Work Order #{workOrder.id}</p>
               </div>
             </div>
-            <div className="flex gap-4 mt-4">
+            <div className="flex gap-2 mt-2">
               <div>
                 <p className="text-xs text-orange-200">Status</p>
-                <p className="text-lg font-semibold">{workOrder.status}</p>
+                <p className="text-sm font-semibold">{workOrder.status}</p>
               </div>
               <div>
                 <p className="text-xs text-orange-200">Priority</p>
-                <p className="text-lg font-semibold">{workOrder.priority}</p>
+                <p className="text-sm font-semibold">{workOrder.priority}</p>
               </div>
               <div>
                 <p className="text-xs text-orange-200">Created</p>
-                <p className="text-lg font-semibold">{workOrder.createdDate || 'N/A'}</p>
+                <p className="text-sm font-semibold">{workOrder.createdDate || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-xs text-orange-200">Due Date</p>
-                <p className="text-lg font-semibold">{workOrder.dueDate || 'N/A'}</p>
+                <p className="text-sm font-semibold">{workOrder.dueDate || 'N/A'}</p>
               </div>
             </div>
           </div>
           {onClose && (
             <Button variant="ghost" onClick={onClose} className="text-white hover:bg-orange-700">
-              <XCircle className="w-5 h-5" />
+              <XCircle className="w-3 h-3" />
             </Button>
           )}
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="p-6">
+      <div className="p-3">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-5 w-full mb-6">
+          <TabsList className="grid grid-cols-5 w-full mb-3">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="parts">Parts</TabsTrigger>
             <TabsTrigger value="labor">Labor</TabsTrigger>
@@ -151,8 +151,8 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
           </TabsList>
 
           {/* Overview */}
-          <TabsContent value="overview" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <TabsContent value="overview" className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm">Work Order Details</CardTitle>
@@ -198,7 +198,7 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                   </div>
                   <div className="flex justify-between pt-2 border-t font-bold">
                     <span>Total:</span>
-                    <span className="text-lg text-orange-600">${totals.totalCost.toFixed(2)}</span>
+                    <span className="text-sm text-orange-600">${totals.totalCost.toFixed(2)}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -259,9 +259,9 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 pt-4 border-t flex justify-between">
+                <div className="mt-2 pt-2 border-t flex justify-between">
                   <span className="font-semibold">Total Parts Cost:</span>
-                  <span className="text-xl font-bold text-orange-600">${totals.partsCost.toFixed(2)}</span>
+                  <span className="text-base font-bold text-orange-600">${totals.partsCost.toFixed(2)}</span>
                 </div>
               </CardContent>
             </Card>
@@ -297,9 +297,9 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 pt-4 border-t flex justify-between">
+                <div className="mt-2 pt-2 border-t flex justify-between">
                   <span className="font-semibold">Total Labor Cost:</span>
-                  <span className="text-xl font-bold text-orange-600">${totals.laborCost.toFixed(2)}</span>
+                  <span className="text-base font-bold text-orange-600">${totals.laborCost.toFixed(2)}</span>
                 </div>
               </CardContent>
             </Card>
@@ -313,9 +313,9 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                 <CardDescription>{timeline.length} events</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="relative space-y-4">
+                <div className="relative space-y-2">
                   {timeline.map((event, index) => (
-                    <div key={index} className="flex gap-4">
+                    <div key={index} className="flex gap-2">
                       <div className="flex flex-col items-center">
                         <div className="w-3 h-3 rounded-full bg-orange-600 border-4 border-orange-200" />
                         {index < timeline.length - 1 && (
@@ -346,11 +346,11 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                 <CardDescription>{photos.length} photos uploaded</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                   {photos.map((photo) => (
                     <div key={photo.id} className="border rounded-lg overflow-hidden">
                       <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                        <ImageIcon className="w-12 h-12 text-gray-400" />
+                        <ImageIcon className="w-12 h-9 text-gray-400" />
                       </div>
                       <div className="p-3">
                         <p className="text-sm font-medium mb-1">{photo.caption}</p>
