@@ -47,9 +47,9 @@ export function InfoPopover({
   }
 
   const iconColors = {
-    info: 'text-blue-600 dark:text-blue-400',
-    help: 'text-slate-600 dark:text-slate-400',
-    warning: 'text-amber-600 dark:text-amber-400',
+    info: 'text-[#1e40af] dark:text-blue-400',
+    help: 'text-[#334155] dark:text-slate-400',
+    warning: 'text-[#b45309] dark:text-amber-400',
   }
 
   return (
