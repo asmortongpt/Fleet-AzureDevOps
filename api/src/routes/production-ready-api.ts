@@ -63,6 +63,7 @@ const createWorkOrderSchema = z.object({
   scheduledStartDate: z.string().datetime().optional(),
   scheduledEndDate: z.string().datetime().optional(),
   estimatedCost: z.number().min(0).optional(),
+  laborHours: z.number().min(0).optional(),
 });
 
 const updateWorkOrderSchema = createWorkOrderSchema.partial().omit({ tenantId: true });
@@ -74,6 +75,7 @@ const createMaintenanceRecordSchema = z.object({
   title: z.string().min(1).max(255),
   description: z.string().min(1),
   actualCost: z.number().min(0).optional(),
+  estimatedCost: z.number().min(0).optional(),
   laborHours: z.number().min(0).optional(),
   odometerAtStart: z.number().int().min(0).optional(),
 });
@@ -89,6 +91,8 @@ const createFuelTransactionSchema = z.object({
   totalCost: z.number().min(0),
   odometer: z.number().int().min(0),
   location: z.string().max(255).optional(),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
   vendorName: z.string().max(255).optional(),
 });
 
@@ -133,7 +137,7 @@ const handleError = (res: Response, error: unknown, defaultMessage: string = 'In
   if (error instanceof z.ZodError) {
     return res.status(400).json({
       error: 'Validation error',
-      details: error.errors,
+      details: error.issues,
     });
   }
 
@@ -352,6 +356,8 @@ router.post('/work-orders', async (req: Request, res: Response) => {
       number,
       scheduledStartDate: validatedData.scheduledStartDate ? new Date(validatedData.scheduledStartDate) : undefined,
       scheduledEndDate: validatedData.scheduledEndDate ? new Date(validatedData.scheduledEndDate) : undefined,
+      estimatedCost: validatedData.estimatedCost ? validatedData.estimatedCost.toString() : undefined,
+      laborHours: validatedData.laborHours ? validatedData.laborHours.toString() : undefined,
     }).returning();
 
     res.status(201).json(newWorkOrder);
@@ -435,6 +441,9 @@ router.post('/maintenance-records', async (req: Request, res: Response) => {
       status: 'completed',
       actualStartDate: new Date(),
       actualEndDate: new Date(),
+      actualCost: validatedData.actualCost ? validatedData.actualCost.toString() : undefined,
+      estimatedCost: validatedData.estimatedCost ? validatedData.estimatedCost.toString() : undefined,
+      laborHours: validatedData.laborHours ? validatedData.laborHours.toString() : undefined,
     }).returning();
 
     res.status(201).json(newRecord);
@@ -457,6 +466,11 @@ router.post('/fuel-transactions', async (req: Request, res: Response) => {
       ...validatedData,
       tenantId,
       transactionDate: new Date(validatedData.transactionDate),
+      gallons: validatedData.gallons.toString(),
+      costPerGallon: validatedData.costPerGallon.toString(),
+      totalCost: validatedData.totalCost.toString(),
+      latitude: validatedData.latitude ? validatedData.latitude.toString() : undefined,
+      longitude: validatedData.longitude ? validatedData.longitude.toString() : undefined,
     }).returning();
 
     res.status(201).json(newTransaction);
@@ -539,6 +553,12 @@ router.post('/gps-position', async (req: Request, res: Response) => {
       ...validatedData,
       tenantId,
       timestamp: new Date(validatedData.timestamp),
+      latitude: validatedData.latitude.toString(),
+      longitude: validatedData.longitude.toString(),
+      altitude: validatedData.altitude ? validatedData.altitude.toString() : undefined,
+      speed: validatedData.speed ? validatedData.speed.toString() : undefined,
+      heading: validatedData.heading ? validatedData.heading.toString() : undefined,
+      accuracy: validatedData.accuracy ? validatedData.accuracy.toString() : undefined,
     }).returning();
 
     // Also update vehicle location

@@ -3,6 +3,7 @@
  * Basic server to get started quickly
  */
 
+import 'dotenv/config';
 import fs from 'fs';
 
 import cookieParser from 'cookie-parser';
@@ -10,6 +11,7 @@ import cors from 'cors';
 import { eq, and, SQL, desc } from 'drizzle-orm';
 import express from 'express';
 import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 
 import { db, checkDatabaseConnection } from './db/connection';
 import authRouter from './routes/auth';
@@ -17,7 +19,10 @@ import obd2EmulatorRouter, { setupOBD2WebSocket } from './routes/obd2-emulator.r
 import damageReportsRouter from './routes/damage-reports.routes';
 import scanSessionsRouter from './routes/scan-sessions.routes';
 import geospatialRouter from './routes/geospatial.routes';
+import emulatorsRouter from './routes/emulators.routes';
+import systemHealthRouter from './routes/system-health.routes';
 import { schema } from './schemas/production.schema';
+import { connectionHealthService } from './services/ConnectionHealthService';
 
 // Import OBD2 Emulator Components
 
@@ -25,8 +30,45 @@ import { schema } from './schemas/production.schema';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ============================================================================
+// PRODUCTION SECURITY MIDDLEWARE
+// ============================================================================
+
+// Rate limiting - Prevent DoS attacks
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+// Stricter rate limiting for authentication endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 login requests per windowMs
+  message: 'Too many login attempts, please try again later.',
+  skipSuccessfulRequests: true, // Don't count successful requests
+});
+
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:', 'https:'],
+    },
+  },
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true,
+  },
+}));
+app.use('/api/auth', authLimiter); // Apply stricter limit to auth routes
+app.use(limiter); // Apply to all other routes
 app.use(cookieParser());
 app.use(cors({
   origin: process.env.CORS_ORIGIN?.split(',') || [
@@ -50,12 +92,80 @@ app.use('/api/obd2-emulator', obd2EmulatorRouter);
 app.use('/api/damage-reports', damageReportsRouter);
 app.use('/api/scan-sessions', scanSessionsRouter);
 app.use('/api/geospatial', geospatialRouter);
+app.use('/api/emulators', emulatorsRouter);
+app.use('/api/system-health', systemHealthRouter);
 
-// Basic health check
+// ============================================================================
+// PRODUCTION HEALTH CHECKS & MONITORING
+// ============================================================================
+
+// Liveness probe - Basic uptime check (Kubernetes compatible)
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.status(200).json({
+    status: 'ok',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
 });
 
+// Readiness probe - Comprehensive health check (Kubernetes compatible)
+app.get('/health/ready', async (req, res) => {
+  const health = {
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    checks: {
+      database: 'unchecked',
+      memory: 'ok',
+    },
+    version: process.env.npm_package_version || '1.0.0',
+    environment: process.env.NODE_ENV || 'development',
+  };
+
+  try {
+    // Check database connectivity
+    const dbHealthy = await checkDatabaseConnection();
+    health.checks.database = dbHealthy ? 'ok' : 'unhealthy';
+
+    // Check memory usage
+    const memUsage = process.memoryUsage();
+    const memUsageMB = Math.round(memUsage.heapUsed / 1024 / 1024);
+    const memLimitMB = Math.round(memUsage.heapTotal / 1024 / 1024);
+    health.checks.memory = memUsageMB < memLimitMB * 0.9 ? 'ok' : 'warning';
+
+    // Return 200 if all checks pass, 503 if any check fails
+    const allHealthy = Object.values(health.checks).every(check => check === 'ok');
+    res.status(allHealthy ? 200 : 503).json(health);
+  } catch (error) {
+    health.status = 'unhealthy';
+    health.checks.database = 'error';
+    res.status(503).json(health);
+  }
+});
+
+// Metrics endpoint for monitoring (Prometheus compatible)
+app.get('/metrics', (req, res) => {
+  const memUsage = process.memoryUsage();
+  res.type('text/plain').send(`
+# HELP nodejs_heap_size_total_bytes Total heap size
+# TYPE nodejs_heap_size_total_bytes gauge
+nodejs_heap_size_total_bytes ${memUsage.heapTotal}
+
+# HELP nodejs_heap_size_used_bytes Used heap size
+# TYPE nodejs_heap_size_used_bytes gauge
+nodejs_heap_size_used_bytes ${memUsage.heapUsed}
+
+# HELP nodejs_external_memory_bytes External memory
+# TYPE nodejs_external_memory_bytes gauge
+nodejs_external_memory_bytes ${memUsage.external}
+
+# HELP process_uptime_seconds Process uptime
+# TYPE process_uptime_seconds gauge
+process_uptime_seconds ${process.uptime()}
+  `.trim());
+});
+
+// Legacy health endpoint for backward compatibility
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
@@ -1192,6 +1302,30 @@ app.get('/api/geofences', async (req, res) => {
   }
 });
 
+// Maintenance (alias for maintenance-records)
+app.get('/api/maintenance', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const records = await db
+      .select()
+      .from(schema.workOrders)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: records,
+      meta: {
+        page: Number(page),
+        limit: Number(limit),
+        total: records.length,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching maintenance:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Maintenance Records (Work Orders)
 app.get('/api/maintenance-records', async (req, res) => {
   try {
@@ -1481,6 +1615,206 @@ app.get('/api/auth/me', async (req, res) => {
   }
 });
 
+// Parts Inventory
+app.get('/api/parts-inventory', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const parts = await db
+      .select()
+      .from(schema.partsInventory)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: parts,
+      meta: { page: Number(page), limit: Number(limit), total: parts.length },
+    });
+  } catch (error) {
+    console.error('Error fetching parts inventory:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Certifications
+app.get('/api/certifications', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const certs = await db
+      .select()
+      .from(schema.certifications)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: certs,
+      meta: { page: Number(page), limit: Number(limit), total: certs.length },
+    });
+  } catch (error) {
+    console.error('Error fetching certifications:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Training Records
+app.get('/api/training-records', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const records = await db
+      .select()
+      .from(schema.trainingRecords)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: records,
+      meta: { page: Number(page), limit: Number(limit), total: records.length },
+    });
+  } catch (error) {
+    console.error('Error fetching training records:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Telemetry Data
+app.get('/api/telemetry-data', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const telemetry = await db
+      .select()
+      .from(schema.telemetryData)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: telemetry,
+      meta: { page: Number(page), limit: Number(limit), total: telemetry.length },
+    });
+  } catch (error) {
+    console.error('Error fetching telemetry data:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Dispatches
+app.get('/api/dispatches', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const dispatches = await db
+      .select()
+      .from(schema.dispatches)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: dispatches,
+      meta: { page: Number(page), limit: Number(limit), total: dispatches.length },
+    });
+  } catch (error) {
+    console.error('Error fetching dispatches:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Documents
+app.get('/api/documents', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const documents = await db
+      .select()
+      .from(schema.documents)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: documents,
+      meta: { page: Number(page), limit: Number(limit), total: documents.length },
+    });
+  } catch (error) {
+    console.error('Error fetching documents:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Announcements
+app.get('/api/announcements', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const announcements = await db
+      .select()
+      .from(schema.announcements)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: announcements,
+      meta: { page: Number(page), limit: Number(limit), total: announcements.length },
+    });
+  } catch (error) {
+    console.error('Error fetching announcements:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Notifications
+app.get('/api/notifications', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const notifications = await db
+      .select()
+      .from(schema.notifications)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: notifications,
+      meta: { page: Number(page), limit: Number(limit), total: notifications.length },
+    });
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Charging Stations
+app.get('/api/charging-stations', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const stations = await db
+      .select()
+      .from(schema.chargingStations)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: stations,
+      meta: { page: Number(page), limit: Number(limit), total: stations.length },
+    });
+  } catch (error) {
+    console.error('Error fetching charging stations:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Charging Sessions
+app.get('/api/charging-sessions', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const sessions = await db
+      .select()
+      .from(schema.chargingSessions)
+      .limit(Number(limit))
+      .offset((Number(page) - 1) * Number(limit));
+
+    res.json({
+      data: sessions,
+      meta: { page: Number(page), limit: Number(limit), total: sessions.length },
+    });
+  } catch (error) {
+    console.error('Error fetching charging sessions:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Start server
 async function startServer() {
   try {
@@ -1497,6 +1831,10 @@ async function startServer() {
     } else {
       console.log('⚠️  Running in MOCK DATA mode - Database connection skipped');
     }
+
+    // Initialize connection health service
+    await connectionHealthService.initialize();
+    console.log('✅ Connection health service initialized');
 
     const server = app.listen(Number(PORT), '0.0.0.0', () => {
       console.log('');
@@ -1550,10 +1888,17 @@ async function startServer() {
       console.log('   GET  /api/fuel-transactions     - List fuel transactions');
       console.log('   GET  /api/gps-tracks            - List GPS tracks');
       console.log('');
+      console.log('  System Monitoring:');
+      console.log('   GET  /api/system-health         - Comprehensive system health');
+      console.log('   GET  /api/emulators/status      - Emulator status');
+      console.log('   POST /api/emulators/start-all   - Start all emulators');
+      console.log('   POST /api/emulators/stop-all    - Stop all emulators');
+      console.log('');
       console.log('💡 Tips:');
       console.log('   - Add ?page=1&limit=10 for pagination');
       console.log('   - Use query params like ?status=active or ?filter=low-stock');
       console.log('   - All endpoints return real data from PostgreSQL');
+      console.log('   - Visit /system-status for comprehensive monitoring dashboard');
     });
 
     // Initialize WebSocket for OBD2 Emulator
@@ -1629,13 +1974,15 @@ app.get('/api/traffic-cameras/sources', async (req, res) => {
 });
 
 // Handle graceful shutdown
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully...');
+  await connectionHealthService.shutdown();
   process.exit(0);
 });
 
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
   console.log('\nSIGINT received, shutting down gracefully...');
+  await connectionHealthService.shutdown();
   process.exit(0);
 });
 
