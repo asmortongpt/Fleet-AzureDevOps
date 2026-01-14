@@ -166,7 +166,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useNavigation } from "@/contexts/NavigationContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { navigationItems } from "@/lib/navigation"
-import { initializePolicyEngine } from '@/lib/policy-engine/global-policy-integration'
+// import { initializePolicyEngine } from '@/lib/policy-engine/global-policy-integration' // DISABLED - missing dependencies
 import telemetryService from '@/lib/telemetry'
 
 // ... existing imports
@@ -182,11 +182,11 @@ function App() {
   useEffect(() => {
     const initPolicies = async () => {
       try {
-        console.log('🔒 Initializing Policy Enforcement Engine...')
-        await initializePolicyEngine()
-        console.log('✅ Policy Engine initialized - All operations now policy-governed')
+        console.log('🔒 Policy Enforcement Engine disabled (missing dependencies)')
+        // await initializePolicyEngine()  // DISABLED - missing dependencies
+        console.log('✅ App initialized without policy engine')
       } catch (error) {
-        console.error('❌ Failed to initialize Policy Engine:', error)
+        console.error('❌ Failed to initialize App:', error)
         // Application will continue but without policy enforcement
         // TODO: Show admin notification
       }

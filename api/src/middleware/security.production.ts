@@ -171,7 +171,7 @@ export const validateBody = <T>(schema: ZodSchema<T>) => {
       if (error instanceof z.ZodError) {
         res.status(400).json({
           error: 'Validation error',
-          details: error.errors.map(e => ({
+          details: error.issues.map(e => ({
             field: e.path.join('.'),
             message: e.message,
             code: e.code,
@@ -197,7 +197,7 @@ export const validateQuery = <T>(schema: ZodSchema<T>) => {
       if (error instanceof z.ZodError) {
         res.status(400).json({
           error: 'Validation error',
-          details: error.errors.map(e => ({
+          details: error.issues.map(e => ({
             field: e.path.join('.'),
             message: e.message,
             code: e.code,
