@@ -1,12 +1,25 @@
 // Fleet Hub - Main Fleet Management Dashboard
-// Displays: Vehicle grid with 50 vehicles, status indicators, drilldowns
+// Displays: Vehicle grid with 50 vehicles, status indicators, drilldowns, Google Maps
 
 import { Car, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 
+import { GoogleMap } from '@/components/GoogleMap';
 import { VehicleGrid } from './VehicleGrid';
+import type { Vehicle } from '@/lib/types';
 
 export const FleetHub: React.FC = () => {
+  // Fetch vehicles from API for map markers
+  const { data: vehicles = [] } = useQuery<Vehicle[]>({
+    queryKey: ['vehicles'],
+    queryFn: async () => {
+      const response = await fetch('http://localhost:3000/api/vehicles');
+      if (!response.ok) throw new Error('Failed to fetch vehicles');
+      return response.json();
+    },
+  });
+
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
@@ -62,6 +75,20 @@ export const FleetHub: React.FC = () => {
             </div>
             <Car className="w-8 h-8 text-primary" />
           </div>
+        </div>
+      </div>
+
+      {/* Google Maps with Vehicle Locations */}
+      <div className="bg-card border border-border rounded-lg p-4">
+        <h2 className="text-xl font-semibold mb-4">Fleet Location Map</h2>
+        <div className="w-full h-[600px] rounded-lg overflow-hidden">
+          <GoogleMap
+            vehicles={vehicles}
+            showVehicles={true}
+            mapStyle="roadmap"
+            center={[-84.2807, 30.4383]}
+            zoom={12}
+          />
         </div>
       </div>
 
