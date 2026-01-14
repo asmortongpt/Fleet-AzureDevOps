@@ -1,5 +1,5 @@
 /**
- * Fleet Manager Dashboard - Workflow-Optimized View
+ * Fleet Manager Dashboard - Minimalist Design
  * Role: fleet_manager (Level 7)
  *
  * Primary Focus:
@@ -7,6 +7,8 @@
  * - Fleet status overview
  * - Cost monitoring & trends
  * - Resource allocation tools
+ *
+ * Design Philosophy: Clean, minimal, focused
  */
 
 import React, { useState, useEffect } from 'react';
@@ -14,31 +16,15 @@ import { useNavigate } from 'react-router-dom';
 import {
   Warning,
   Wrench,
-  TrendUp,
-  Lightning,
   Users,
   FileText,
-  MapPin,
   Calendar,
-  DollarSign,
-  AlertCircle,
-  CheckCircle,
-  Clock
+  AlertCircle
 } from '@phosphor-icons/react';
-import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-
-interface MaintenanceAlert {
-  id: number;
-  vehicle_id: number;
-  vehicle_name: string;
-  type: string;
-  days_overdue?: number;
-  scheduled_date?: string;
-}
 
 interface FleetStats {
   active_vehicles: number;
@@ -79,38 +65,11 @@ export function FleetManagerDashboard() {
 
   // Load data on mount (API integration pattern)
   useEffect(() => {
-    // Example: Fetch real data from API
-    /*
-    const fetchDashboardData = async () => {
-      try {
-        const [maintenanceRes, fleetRes, costRes] = await Promise.all([
-          fetch('/api/maintenance/alerts'),
-          fetch('/api/fleet/stats'),
-          fetch('/api/costs/summary?period=monthly')
-        ]);
-
-        const maintenanceData = await maintenanceRes.json();
-        const fleetData = await fleetRes.json();
-        const costData = await costRes.json();
-
-        setOverdueCount(maintenanceData.overdue_count);
-        setUpcomingCount(maintenanceData.upcoming_count);
-        setOpenWorkOrders(maintenanceData.open_work_orders);
-        setFleetStats(fleetData);
-        setCostSummary(costData);
-      } catch (error) {
-        console.error('Failed to load dashboard data:', error);
-        toast.error('Failed to load dashboard data');
-      }
-    };
-
-    fetchDashboardData();
-    */
+    // API integration placeholder
   }, []);
 
   // Quick actions - Now with proper navigation
   const handleAssignDriver = () => {
-    // Navigate to drivers hub with assignment mode
     navigate('/drivers-hub-consolidated', {
       state: { action: 'assign-driver' }
     });
@@ -118,7 +77,6 @@ export function FleetManagerDashboard() {
   };
 
   const handleCreateWorkOrder = () => {
-    // Navigate to maintenance hub with create work order action
     navigate('/maintenance-hub-consolidated', {
       state: { action: 'create-work-order' }
     });
@@ -126,41 +84,12 @@ export function FleetManagerDashboard() {
   };
 
   const handleExportReport = async () => {
-    // Example: Export functionality with API call
     toast.loading('Generating daily report...');
-
-    try {
-      // Uncomment when API is ready:
-      /*
-      const response = await fetch('/api/reports/daily', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date: new Date().toISOString() })
-      });
-
-      if (!response.ok) throw new Error('Export failed');
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `fleet-report-${new Date().toISOString().split('T')[0]}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      */
-
-      // Mock delay for demo
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success('Report generated successfully!');
-    } catch (error) {
-      console.error('Export failed:', error);
-      toast.error('Failed to generate report');
-    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    toast.success('Report generated successfully!');
   };
 
   const handleViewOverdue = () => {
-    // Navigate to maintenance hub with overdue filter pre-applied
     navigate('/maintenance-hub-consolidated', {
       state: { filter: 'overdue' }
     });
@@ -168,7 +97,6 @@ export function FleetManagerDashboard() {
   };
 
   const handleScheduleMaintenance = () => {
-    // Navigate to maintenance hub with scheduler view
     navigate('/maintenance-hub-consolidated', {
       state: { view: 'schedule', filter: 'upcoming' }
     });
@@ -176,39 +104,49 @@ export function FleetManagerDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 p-4">
-      {/* Header */}
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold text-white mb-1">Fleet Manager Dashboard</h1>
-        <p className="text-sm text-slate-400">Operations Overview & Resource Management</p>
-      </div>
+    <div className="min-h-screen bg-[var(--minimalist-bg-primary)] p-4">
+      {/* Header - Clean & Minimal */}
+      <header className="mb-6">
+        <h1 className="text-xl font-semibold text-[var(--minimalist-text-primary)] mb-1">
+          Fleet Manager Dashboard
+        </h1>
+        <p className="text-sm text-[var(--minimalist-text-secondary)]">
+          Operations Overview & Resource Management
+        </p>
+      </header>
 
-      {/* Attention Needed Section */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-red-500/30 p-4 mb-4">
+      {/* Attention Needed Section - Minimalist Alert Cards */}
+      <Card className="p-4 mb-4 border-[var(--minimalist-border-medium)]">
         <div className="flex items-center gap-2 mb-3">
-          <AlertCircle className="w-5 h-5 text-red-400" />
-          <h2 className="text-lg font-bold text-white">Attention Needed</h2>
+          <AlertCircle className="w-4 h-4 text-[var(--minimalist-text-secondary)]" />
+          <h2 className="text-base font-medium text-[var(--minimalist-text-primary)]">
+            Attention Needed
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {/* Overdue Maintenance */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
+          {/* Overdue Maintenance - Minimal Red Indicator */}
+          <div
             className={cn(
-              "bg-red-950/30 rounded-xl p-3 border border-red-500/30",
-              "hover:border-red-400/50 transition-all cursor-pointer"
+              "bg-[var(--minimalist-bg-tertiary)] rounded-lg p-3",
+              "border border-red-500/20 hover:border-red-500/40",
+              "transition-colors cursor-pointer"
             )}
             onClick={handleViewOverdue}
           >
             <div className="flex items-start justify-between mb-2">
-              <Warning className="w-6 h-6 text-red-400" />
-              <span className="text-2xl font-black text-white">{overdueCount}</span>
+              <Warning className="w-5 h-5 text-red-400" />
+              <span className="text-2xl font-semibold text-[var(--minimalist-text-primary)]">
+                {overdueCount}
+              </span>
             </div>
-            <p className="text-sm text-red-300 font-semibold mb-1">Overdue Maintenance</p>
+            <p className="text-sm text-[var(--minimalist-text-secondary)] mb-2">
+              Overdue Maintenance
+            </p>
             <Button
               size="sm"
               variant="outline"
-              className="w-full border-red-400 text-red-400 hover:bg-red-400/10"
+              className="w-full text-red-400 border-red-400/30 hover:bg-red-500/10"
               onClick={(e) => {
                 e.stopPropagation();
                 handleViewOverdue();
@@ -216,26 +154,30 @@ export function FleetManagerDashboard() {
             >
               View Queue
             </Button>
-          </motion.div>
+          </div>
 
-          {/* Upcoming Maintenance */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
+          {/* Upcoming Maintenance - Minimal Amber Indicator */}
+          <div
             className={cn(
-              "bg-amber-950/30 rounded-xl p-3 border border-amber-500/30",
-              "hover:border-amber-400/50 transition-all cursor-pointer"
+              "bg-[var(--minimalist-bg-tertiary)] rounded-lg p-3",
+              "border border-amber-500/20 hover:border-amber-500/40",
+              "transition-colors cursor-pointer"
             )}
             onClick={handleScheduleMaintenance}
           >
             <div className="flex items-start justify-between mb-2">
-              <Calendar className="w-6 h-6 text-amber-400" />
-              <span className="text-2xl font-black text-white">{upcomingCount}</span>
+              <Calendar className="w-5 h-5 text-amber-400" />
+              <span className="text-2xl font-semibold text-[var(--minimalist-text-primary)]">
+                {upcomingCount}
+              </span>
             </div>
-            <p className="text-sm text-amber-300 font-semibold mb-1">Upcoming (Next 7 Days)</p>
+            <p className="text-sm text-[var(--minimalist-text-secondary)] mb-2">
+              Upcoming (Next 7 Days)
+            </p>
             <Button
               size="sm"
               variant="outline"
-              className="w-full border-amber-400 text-amber-400 hover:bg-amber-400/10"
+              className="w-full text-amber-400 border-amber-400/30 hover:bg-amber-500/10"
               onClick={(e) => {
                 e.stopPropagation();
                 handleScheduleMaintenance();
@@ -243,26 +185,30 @@ export function FleetManagerDashboard() {
             >
               Schedule
             </Button>
-          </motion.div>
+          </div>
 
-          {/* Open Work Orders */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
+          {/* Open Work Orders - Minimal Blue Indicator */}
+          <div
             className={cn(
-              "bg-blue-950/30 rounded-xl p-3 border border-blue-500/30",
-              "hover:border-blue-400/50 transition-all cursor-pointer"
+              "bg-[var(--minimalist-bg-tertiary)] rounded-lg p-3",
+              "border border-blue-500/20 hover:border-blue-500/40",
+              "transition-colors cursor-pointer"
             )}
             onClick={handleCreateWorkOrder}
           >
             <div className="flex items-start justify-between mb-2">
-              <Wrench className="w-6 h-6 text-blue-400" />
-              <span className="text-2xl font-black text-white">{openWorkOrders}</span>
+              <Wrench className="w-5 h-5 text-blue-400" />
+              <span className="text-2xl font-semibold text-[var(--minimalist-text-primary)]">
+                {openWorkOrders}
+              </span>
             </div>
-            <p className="text-sm text-blue-300 font-semibold mb-1">Open Work Orders</p>
+            <p className="text-sm text-[var(--minimalist-text-secondary)] mb-2">
+              Open Work Orders
+            </p>
             <Button
               size="sm"
               variant="outline"
-              className="w-full border-blue-400 text-blue-400 hover:bg-blue-400/10"
+              className="w-full text-blue-400 border-blue-400/30 hover:bg-blue-500/10"
               onClick={(e) => {
                 e.stopPropagation();
                 handleCreateWorkOrder();
@@ -270,87 +216,103 @@ export function FleetManagerDashboard() {
             >
               Assign
             </Button>
-          </motion.div>
+          </div>
         </div>
       </Card>
 
-      {/* Quick Actions */}
+      {/* Quick Actions - Minimal Buttons */}
       <div className="mb-4 flex flex-wrap gap-2">
         <Button
           size="sm"
           onClick={handleAssignDriver}
-          className="bg-cyan-600 hover:bg-cyan-700 text-white"
+          className="bg-[var(--minimalist-accent-blue)] hover:bg-blue-600"
         >
-          <Users className="w-4 h-4 mr-2" />
+          <Users className="w-4 h-4" />
           Assign Driver
         </Button>
         <Button
           size="sm"
           onClick={handleCreateWorkOrder}
-          className="bg-violet-600 hover:bg-violet-700 text-white"
+          variant="secondary"
         >
-          <Wrench className="w-4 h-4 mr-2" />
+          <Wrench className="w-4 h-4" />
           Create Work Order
         </Button>
         <Button
           size="sm"
           onClick={handleExportReport}
-          className="bg-slate-600 hover:bg-slate-700 text-white"
+          variant="outline"
         >
-          <FileText className="w-4 h-4 mr-2" />
+          <FileText className="w-4 h-4" />
           Daily Report
         </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Fleet Status */}
-        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-4">
-          <h3 className="text-lg font-bold text-white mb-3">Fleet Status</h3>
-          <div className="space-y-2">
+        {/* Fleet Status - Minimal Design */}
+        <Card className="p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <h3 className="text-base font-medium text-[var(--minimalist-text-primary)]">
+              Fleet Status
+            </h3>
+          </div>
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                <span className="text-sm text-slate-300">Active</span>
+                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                <span className="text-sm text-[var(--minimalist-text-secondary)]">Active</span>
               </div>
-              <span className="text-xl font-bold text-white">{fleetStats.active_vehicles}</span>
+              <span className="text-lg font-semibold text-[var(--minimalist-text-primary)]">
+                {fleetStats.active_vehicles}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
-                <span className="text-sm text-slate-300">Maintenance</span>
+                <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                <span className="text-sm text-[var(--minimalist-text-secondary)]">Maintenance</span>
               </div>
-              <span className="text-xl font-bold text-white">{fleetStats.maintenance_vehicles}</span>
+              <span className="text-lg font-semibold text-[var(--minimalist-text-primary)]">
+                {fleetStats.maintenance_vehicles}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-slate-500"></div>
-                <span className="text-sm text-slate-300">Idle</span>
+                <div className="w-2 h-2 rounded-full bg-[var(--minimalist-border-strong)]"></div>
+                <span className="text-sm text-[var(--minimalist-text-secondary)]">Idle</span>
               </div>
-              <span className="text-xl font-bold text-white">{fleetStats.idle_vehicles}</span>
+              <span className="text-lg font-semibold text-[var(--minimalist-text-primary)]">
+                {fleetStats.idle_vehicles}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-                <span className="text-sm text-slate-300">Out of Service</span>
+                <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                <span className="text-sm text-[var(--minimalist-text-secondary)]">Out of Service</span>
               </div>
-              <span className="text-xl font-bold text-white">{fleetStats.out_of_service}</span>
+              <span className="text-lg font-semibold text-[var(--minimalist-text-primary)]">
+                {fleetStats.out_of_service}
+              </span>
             </div>
           </div>
         </Card>
 
-        {/* Cost Summary */}
-        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-4">
-          <h3 className="text-lg font-bold text-white mb-3">Cost Summary (This Month)</h3>
+        {/* Cost Summary - Minimal Design */}
+        <Card className="p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <h3 className="text-base font-medium text-[var(--minimalist-text-primary)]">
+              Cost Summary (This Month)
+            </h3>
+          </div>
           <div className="space-y-3">
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm text-slate-300">Fuel</span>
+                <span className="text-sm text-[var(--minimalist-text-secondary)]">Fuel</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-white">
+                  <span className="text-lg font-semibold text-[var(--minimalist-text-primary)]">
                     ${costSummary.fuel_cost.toLocaleString()}
                   </span>
                   <div className={cn(
-                    "flex items-center gap-1 text-sm",
+                    "flex items-center gap-1 text-xs",
                     costSummary.fuel_trend > 0 ? "text-red-400" : "text-green-400"
                   )}>
                     {costSummary.fuel_trend > 0 ? "↑" : "↓"} {Math.abs(costSummary.fuel_trend)}%
@@ -360,13 +322,13 @@ export function FleetManagerDashboard() {
             </div>
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm text-slate-300">Maintenance</span>
+                <span className="text-sm text-[var(--minimalist-text-secondary)]">Maintenance</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-white">
+                  <span className="text-lg font-semibold text-[var(--minimalist-text-primary)]">
                     ${costSummary.maintenance_cost.toLocaleString()}
                   </span>
                   <div className={cn(
-                    "flex items-center gap-1 text-sm",
+                    "flex items-center gap-1 text-xs",
                     costSummary.maintenance_trend > 0 ? "text-red-400" : "text-green-400"
                   )}>
                     {costSummary.maintenance_trend > 0 ? "↑" : "↓"} {Math.abs(costSummary.maintenance_trend)}%
@@ -374,11 +336,11 @@ export function FleetManagerDashboard() {
                 </div>
               </div>
             </div>
-            <div className="pt-2 border-t border-slate-700">
+            <div className="pt-2 border-t border-[var(--minimalist-border-subtle)]">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-300">Cost per Mile</span>
+                <span className="text-sm text-[var(--minimalist-text-secondary)]">Cost per Mile</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-white">
+                  <span className="text-lg font-semibold text-[var(--minimalist-text-primary)]">
                     ${costSummary.cost_per_mile.toFixed(2)}
                   </span>
                   {costSummary.cost_per_mile > costSummary.target_cost_per_mile && (
@@ -386,7 +348,7 @@ export function FleetManagerDashboard() {
                   )}
                 </div>
               </div>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-[var(--minimalist-text-tertiary)] mt-1">
                 Target: ${costSummary.target_cost_per_mile.toFixed(2)}
               </p>
             </div>

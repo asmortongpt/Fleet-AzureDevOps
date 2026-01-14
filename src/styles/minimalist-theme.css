@@ -1,0 +1,446 @@
+/**
+ * Minimalist Design System for Fleet Management Platform
+ * Philosophy: Clarity, Consistency, Calm
+ *
+ * Core Principles:
+ * 1. Clarity over decoration - Remove unnecessary visual elements
+ * 2. Whitespace is content - Use spacing to create hierarchy
+ * 3. Subtle color palette - Muted colors with strategic accent colors
+ * 4. Typography as UI - Let text create structure
+ * 5. Functional animations only - Smooth, purposeful transitions
+ * 6. Consistent spacing scale - Mathematical progression (4, 8, 12, 16, 24, 32, 48)
+ * 7. Minimal borders - Use subtle dividers and shadows
+ */
+
+@layer theme {
+  :root {
+    /* ============================================
+       MINIMALIST COLOR PALETTE
+       ============================================ */
+
+    /* Background Colors - Deep, Subtle Progression */
+    --minimalist-bg-primary: #0f1419;        /* Deep slate - main background */
+    --minimalist-bg-secondary: #1a1f29;      /* Slightly lighter - cards */
+    --minimalist-bg-tertiary: #252b37;       /* Hover states */
+    --minimalist-bg-elevated: #2d3340;       /* Modals, dropdowns */
+
+    /* Text Colors - Clear Hierarchy */
+    --minimalist-text-primary: #e8eaed;      /* High contrast text */
+    --minimalist-text-secondary: #9ca3af;    /* Secondary text, labels */
+    --minimalist-text-tertiary: #6b7280;     /* Muted text, hints */
+
+    /* Border Colors - Subtle Separation */
+    --minimalist-border-subtle: #2d3340;     /* Very subtle borders */
+    --minimalist-border-medium: #374151;     /* Standard borders */
+    --minimalist-border-strong: #4b5563;     /* Emphasized borders */
+
+    /* Accent Colors - Strategic Use Only */
+    --minimalist-accent-blue: #3b82f6;       /* Blue - primary actions */
+    --minimalist-accent-green: #10b981;      /* Green - success states */
+    --minimalist-accent-amber: #f59e0b;      /* Amber - warnings */
+    --minimalist-accent-red: #ef4444;        /* Red - critical actions */
+
+    /* ============================================
+       TYPOGRAPHY - COMPACT & READABLE
+       ============================================ */
+
+    --minimalist-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --minimalist-font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+    /* Font Sizes - Compact Scale */
+    --minimalist-text-xs: 0.6875rem;         /* 11px - Small labels */
+    --minimalist-text-sm: 0.8125rem;         /* 13px - Body text, buttons */
+    --minimalist-text-base: 0.875rem;        /* 14px - Default */
+    --minimalist-text-md: 0.9375rem;         /* 15px - Emphasized text */
+    --minimalist-text-lg: 1rem;              /* 16px - Section headers */
+    --minimalist-text-xl: 1.125rem;          /* 18px - Subsection headers */
+    --minimalist-text-2xl: 1.375rem;         /* 22px - Page titles */
+    --minimalist-text-3xl: 1.75rem;          /* 28px - Hero text */
+
+    /* Font Weights */
+    --minimalist-font-normal: 400;
+    --minimalist-font-medium: 500;
+    --minimalist-font-semibold: 600;
+    --minimalist-font-bold: 700;
+
+    /* Line Heights */
+    --minimalist-leading-tight: 1.25;
+    --minimalist-leading-normal: 1.5;
+    --minimalist-leading-relaxed: 1.75;
+
+    /* ============================================
+       SPACING - MATHEMATICAL SCALE
+       ============================================ */
+
+    --minimalist-space-0: 0;
+    --minimalist-space-1: 0.25rem;           /* 4px */
+    --minimalist-space-2: 0.5rem;            /* 8px */
+    --minimalist-space-3: 0.75rem;           /* 12px */
+    --minimalist-space-4: 1rem;              /* 16px */
+    --minimalist-space-5: 1.25rem;           /* 20px */
+    --minimalist-space-6: 1.5rem;            /* 24px */
+    --minimalist-space-8: 2rem;              /* 32px */
+    --minimalist-space-10: 2.5rem;           /* 40px */
+    --minimalist-space-12: 3rem;             /* 48px */
+
+    /* ============================================
+       BORDER RADIUS - SUBTLE CURVES
+       ============================================ */
+
+    --minimalist-radius-none: 0;
+    --minimalist-radius-sm: 0.25rem;         /* 4px */
+    --minimalist-radius-md: 0.375rem;        /* 6px */
+    --minimalist-radius-lg: 0.5rem;          /* 8px */
+    --minimalist-radius-xl: 0.75rem;         /* 12px */
+    --minimalist-radius-full: 9999px;
+
+    /* ============================================
+       SHADOWS - MINIMAL ELEVATION
+       ============================================ */
+
+    --minimalist-shadow-none: none;
+    --minimalist-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+    --minimalist-shadow-md: 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+    --minimalist-shadow-lg: 0 4px 8px 0 rgba(0, 0, 0, 0.4);
+
+    /* ============================================
+       TRANSITIONS - SMOOTH & FAST
+       ============================================ */
+
+    --minimalist-transition-fast: 100ms ease;
+    --minimalist-transition-normal: 150ms ease;
+    --minimalist-transition-slow: 200ms ease;
+
+    /* ============================================
+       COMPONENT DIMENSIONS
+       ============================================ */
+
+    --minimalist-nav-width: 220px;
+    --minimalist-header-height: 56px;
+    --minimalist-card-padding: var(--minimalist-space-4);
+    --minimalist-button-height-sm: 32px;
+    --minimalist-button-height-md: 36px;
+    --minimalist-button-height-lg: 40px;
+  }
+}
+
+/* ============================================
+   BASE STYLES - MINIMALIST DEFAULTS
+   ============================================ */
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body.minimalist {
+    font-family: var(--minimalist-font-sans);
+    font-size: var(--minimalist-text-base);
+    line-height: var(--minimalist-leading-normal);
+    color: var(--minimalist-text-primary);
+    background: var(--minimalist-bg-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES - MINIMALIST COMPONENTS
+   ============================================ */
+
+@layer utilities {
+  /* Typography Utilities */
+  .text-minimalist-primary {
+    color: var(--minimalist-text-primary);
+  }
+
+  .text-minimalist-secondary {
+    color: var(--minimalist-text-secondary);
+  }
+
+  .text-minimalist-tertiary {
+    color: var(--minimalist-text-tertiary);
+  }
+
+  /* Background Utilities */
+  .bg-minimalist-primary {
+    background-color: var(--minimalist-bg-primary);
+  }
+
+  .bg-minimalist-secondary {
+    background-color: var(--minimalist-bg-secondary);
+  }
+
+  .bg-minimalist-tertiary {
+    background-color: var(--minimalist-bg-tertiary);
+  }
+
+  .bg-minimalist-elevated {
+    background-color: var(--minimalist-bg-elevated);
+  }
+
+  /* Border Utilities */
+  .border-minimalist-subtle {
+    border-color: var(--minimalist-border-subtle);
+  }
+
+  .border-minimalist-medium {
+    border-color: var(--minimalist-border-medium);
+  }
+
+  .border-minimalist-strong {
+    border-color: var(--minimalist-border-strong);
+  }
+
+  /* Accent Color Utilities */
+  .text-minimalist-blue {
+    color: var(--minimalist-accent-blue);
+  }
+
+  .text-minimalist-green {
+    color: var(--minimalist-accent-green);
+  }
+
+  .text-minimalist-amber {
+    color: var(--minimalist-accent-amber);
+  }
+
+  .text-minimalist-red {
+    color: var(--minimalist-accent-red);
+  }
+
+  .bg-minimalist-blue {
+    background-color: var(--minimalist-accent-blue);
+  }
+
+  .bg-minimalist-green {
+    background-color: var(--minimalist-accent-green);
+  }
+
+  .bg-minimalist-amber {
+    background-color: var(--minimalist-accent-amber);
+  }
+
+  .bg-minimalist-red {
+    background-color: var(--minimalist-accent-red);
+  }
+}
+
+/* ============================================
+   COMPONENT CLASSES - MINIMALIST PATTERNS
+   ============================================ */
+
+@layer components {
+  /* Minimalist Card */
+  .card-minimalist {
+    background: var(--minimalist-bg-secondary);
+    border: 1px solid var(--minimalist-border-subtle);
+    border-radius: var(--minimalist-radius-lg);
+    padding: var(--minimalist-card-padding);
+    transition: border-color var(--minimalist-transition-normal);
+  }
+
+  .card-minimalist:hover {
+    border-color: var(--minimalist-border-medium);
+  }
+
+  /* Minimalist Button */
+  .btn-minimalist {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--minimalist-space-2);
+    padding: 0 var(--minimalist-space-4);
+    height: var(--minimalist-button-height-md);
+    font-size: var(--minimalist-text-sm);
+    font-weight: var(--minimalist-font-medium);
+    border: 1px solid transparent;
+    border-radius: var(--minimalist-radius-md);
+    cursor: pointer;
+    transition: all var(--minimalist-transition-fast);
+    white-space: nowrap;
+  }
+
+  .btn-minimalist:hover {
+    transform: translateY(-1px);
+  }
+
+  .btn-minimalist:active {
+    transform: translateY(0);
+  }
+
+  .btn-minimalist-primary {
+    background-color: var(--minimalist-accent-blue);
+    color: white;
+  }
+
+  .btn-minimalist-primary:hover {
+    background-color: #2563eb;
+  }
+
+  .btn-minimalist-secondary {
+    background-color: var(--minimalist-bg-tertiary);
+    color: var(--minimalist-text-primary);
+  }
+
+  .btn-minimalist-secondary:hover {
+    background-color: var(--minimalist-bg-elevated);
+  }
+
+  .btn-minimalist-outline {
+    border: 1px solid var(--minimalist-border-medium);
+    background: transparent;
+    color: var(--minimalist-text-primary);
+  }
+
+  .btn-minimalist-outline:hover {
+    background-color: var(--minimalist-bg-tertiary);
+  }
+
+  .btn-minimalist-ghost {
+    background: transparent;
+    color: var(--minimalist-text-primary);
+  }
+
+  .btn-minimalist-ghost:hover {
+    background-color: var(--minimalist-bg-tertiary);
+  }
+
+  /* Minimalist Metric Display */
+  .metric-minimalist {
+    background: var(--minimalist-bg-tertiary);
+    border: 1px solid var(--minimalist-border-subtle);
+    border-radius: var(--minimalist-radius-lg);
+    padding: var(--minimalist-space-3);
+    transition: border-color var(--minimalist-transition-normal);
+  }
+
+  .metric-minimalist:hover {
+    border-color: var(--minimalist-border-medium);
+  }
+
+  .metric-minimalist-label {
+    font-size: var(--minimalist-text-sm);
+    color: var(--minimalist-text-secondary);
+    margin-bottom: var(--minimalist-space-1);
+  }
+
+  .metric-minimalist-value {
+    font-size: var(--minimalist-text-lg);
+    font-weight: var(--minimalist-font-semibold);
+    color: var(--minimalist-text-primary);
+  }
+
+  /* Minimalist Status Indicator */
+  .status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--minimalist-radius-full);
+  }
+
+  .status-indicator-success {
+    background-color: var(--minimalist-accent-green);
+  }
+
+  .status-indicator-warning {
+    background-color: var(--minimalist-accent-amber);
+  }
+
+  .status-indicator-error {
+    background-color: var(--minimalist-accent-red);
+  }
+
+  .status-indicator-info {
+    background-color: var(--minimalist-accent-blue);
+  }
+
+  .status-indicator-neutral {
+    background-color: var(--minimalist-border-strong);
+  }
+
+  /* Remove All Flashy Effects */
+  .no-decoration {
+    background-image: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    backdrop-filter: none !important;
+    background-blend-mode: normal !important;
+  }
+
+  /* Minimalist Page Container */
+  .page-minimalist {
+    min-height: 100vh;
+    background: var(--minimalist-bg-primary);
+    padding: var(--minimalist-space-4);
+  }
+
+  /* Minimalist Page Header */
+  .page-header-minimalist {
+    margin-bottom: var(--minimalist-space-6);
+  }
+
+  .page-title-minimalist {
+    font-size: var(--minimalist-text-xl);
+    font-weight: var(--minimalist-font-semibold);
+    color: var(--minimalist-text-primary);
+    margin-bottom: var(--minimalist-space-1);
+  }
+
+  .page-subtitle-minimalist {
+    font-size: var(--minimalist-text-sm);
+    color: var(--minimalist-text-secondary);
+  }
+
+  /* Minimalist Section */
+  .section-minimalist {
+    margin-bottom: var(--minimalist-space-4);
+  }
+
+  .section-header-minimalist {
+    display: flex;
+    align-items: center;
+    gap: var(--minimalist-space-2);
+    margin-bottom: var(--minimalist-space-3);
+  }
+
+  .section-title-minimalist {
+    font-size: var(--minimalist-text-base);
+    font-weight: var(--minimalist-font-medium);
+    color: var(--minimalist-text-primary);
+  }
+
+  .section-icon-minimalist {
+    width: 1rem;
+    height: 1rem;
+    color: var(--minimalist-text-secondary);
+  }
+}
+
+/* ============================================
+   ANTI-PATTERN OVERRIDES
+   Remove flashy elements from existing components
+   ============================================ */
+
+@layer components {
+  /* Override gradient backgrounds */
+  .glass-card,
+  .glass-panel,
+  .glass-overlay,
+  [class*="backdrop-blur"] {
+    backdrop-filter: none !important;
+    background-blend-mode: normal !important;
+  }
+
+  /* Override heavy shadows */
+  [class*="shadow-2xl"],
+  [class*="shadow-xl"] {
+    box-shadow: var(--minimalist-shadow-sm) !important;
+  }
+
+  /* Override gradient text */
+  [class*="bg-gradient"] {
+    background-image: none !important;
+    background-clip: text !important;
+  }
+}

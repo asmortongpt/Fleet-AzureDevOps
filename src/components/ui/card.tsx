@@ -12,10 +12,10 @@ const Card = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref
       ref={ref}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.2 }}
       data-slot="card"
       className={cn(
-        "glass-card flex flex-col gap-4 rounded-xl py-4",
+        "bg-[var(--minimalist-bg-secondary)] border border-[var(--minimalist-border-subtle)] rounded-lg flex flex-col gap-4 py-4 transition-colors duration-150 hover:border-[var(--minimalist-border-medium)]",
         className
       )}
       {...props}
@@ -91,14 +91,14 @@ function CardFooter({ className, ...props }: ComponentProps<"div">) {
   )
 }
 
-// Card variant for glass/frosted effect
+// Card variant for minimalist style (no glass effect)
 function CardGlass({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="card"
       className={cn(
-        "glass-panel flex flex-col gap-4 rounded-xl py-4",
-        "transition-all duration-300 ease-out",
+        "bg-[var(--minimalist-bg-secondary)] border border-[var(--minimalist-border-subtle)] rounded-lg flex flex-col gap-4 py-4",
+        "transition-colors duration-150 ease-out hover:border-[var(--minimalist-border-medium)]",
         className
       )}
       {...props}
@@ -106,15 +106,15 @@ function CardGlass({ className, ...props }: ComponentProps<"div">) {
   )
 }
 
-// Compact card for dashboard stats
+// Compact card for dashboard stats - minimalist version
 function CardCompact({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-3 rounded-xl border border-border/50 p-4 shadow-sm",
-        "transition-all duration-200 ease-out",
-        "hover:shadow-md hover:border-border/70",
+        "bg-[var(--minimalist-bg-secondary)] text-[var(--minimalist-text-primary)] flex flex-col gap-3 rounded-lg border border-[var(--minimalist-border-subtle)] p-4",
+        "transition-all duration-150 ease-out",
+        "hover:border-[var(--minimalist-border-medium)]",
         className
       )}
       {...props}

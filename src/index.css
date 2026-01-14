@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 @import "./styles/enterprise-design-system.css";
+@import "./styles/minimalist-theme.css";
 
 @layer base {
   * {
