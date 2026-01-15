@@ -1,0 +1,8 @@
+# Use existing working API image as base
+FROM fleetproductionacr.azurecr.io/fleet-api:v4-fixed
+
+# Copy only the updated auth routes with SSO callback
+COPY src/routes/auth.ts /app/dist/routes/auth.js
+
+# Container already has all dependencies, user, healthcheck from base image
+# No compilation needed - just overlay the fixed route file
