@@ -1,0 +1,278 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "default",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "Image",
+                  "url": "https://img.icons8.com/fluency/96/checklist.png",
+                  "size": "medium"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Daily Vehicle Inspection",
+                  "weight": "bolder",
+                  "size": "large"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "${inspectionType}",
+                  "spacing": "none",
+                  "color": "accent"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "medium",
+      "items": [
+        {
+          "type": "FactSet",
+          "facts": [
+            {
+              "title": "Driver:",
+              "value": "${driverName}"
+            },
+            {
+              "title": "Vehicle:",
+              "value": "${vehicleNumber} - ${vehicleMake} ${vehicleModel}"
+            },
+            {
+              "title": "Date:",
+              "value": "${inspectionDate}"
+            },
+            {
+              "title": "Location:",
+              "value": "${location}"
+            },
+            {
+              "title": "Odometer:",
+              "value": "${odometer} miles"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "medium",
+      "style": "emphasis",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Safety Inspection Checklist",
+          "weight": "bolder",
+          "size": "medium"
+        },
+        {
+          "type": "Input.Toggle",
+          "id": "tires",
+          "title": "Tires - Condition and pressure",
+          "value": "false"
+        },
+        {
+          "type": "Input.Toggle",
+          "id": "brakes",
+          "title": "Brakes - Function and response",
+          "value": "false"
+        },
+        {
+          "type": "Input.Toggle",
+          "id": "lights",
+          "title": "Lights - Headlights, taillights, signals",
+          "value": "false"
+        },
+        {
+          "type": "Input.Toggle",
+          "id": "mirrors",
+          "title": "Mirrors - Clean and properly adjusted",
+          "value": "false"
+        },
+        {
+          "type": "Input.Toggle",
+          "id": "windshield",
+          "title": "Windshield - No cracks, wipers working",
+          "value": "false"
+        },
+        {
+          "type": "Input.Toggle",
+          "id": "horn",
+          "title": "Horn - Working properly",
+          "value": "false"
+        },
+        {
+          "type": "Input.Toggle",
+          "id": "seatbelts",
+          "title": "Seatbelts - All functional",
+          "value": "false"
+        },
+        {
+          "type": "Input.Toggle",
+          "id": "fluids",
+          "title": "Fluids - Oil, coolant, washer fluid levels",
+          "value": "false"
+        },
+        {
+          "type": "Input.Toggle",
+          "id": "battery",
+          "title": "Battery - Connections and charge",
+          "value": "false"
+        },
+        {
+          "type": "Input.Toggle",
+          "id": "bodyDamage",
+          "title": "Body - No new damage or issues",
+          "value": "false"
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "medium",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Additional Checks",
+          "weight": "bolder"
+        },
+        {
+          "type": "Input.Toggle",
+          "id": "firstAidKit",
+          "title": "First aid kit present",
+          "value": "false"
+        },
+        {
+          "type": "Input.Toggle",
+          "id": "fireExtinguisher",
+          "title": "Fire extinguisher present and charged",
+          "value": "false"
+        },
+        {
+          "type": "Input.Toggle",
+          "id": "emergencyKit",
+          "title": "Emergency triangle/flares present",
+          "value": "false"
+        },
+        {
+          "type": "Input.Toggle",
+          "id": "cleanInterior",
+          "title": "Interior clean and organized",
+          "value": "false"
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "medium",
+      "items": [
+        {
+          "type": "Input.Text",
+          "id": "defects",
+          "label": "Defects or Issues Found",
+          "placeholder": "Describe any defects, issues, or concerns...",
+          "isMultiline": true
+        },
+        {
+          "type": "Input.ChoiceSet",
+          "id": "vehicleCondition",
+          "label": "Overall Vehicle Condition",
+          "style": "expanded",
+          "choices": [
+            {
+              "title": "Safe to Operate",
+              "value": "safe"
+            },
+            {
+              "title": "Safe with Minor Issues",
+              "value": "safe_minor"
+            },
+            {
+              "title": "Unsafe - Needs Immediate Repair",
+              "value": "unsafe"
+            }
+          ]
+        },
+        {
+          "type": "Input.Text",
+          "id": "driverSignature",
+          "label": "Driver Signature",
+          "placeholder": "Type your full name"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "Submit Inspection",
+      "data": {
+        "action": "submit_inspection",
+        "inspectionId": "${inspectionId}",
+        "vehicleId": "${vehicleId}",
+        "driverId": "${driverId}"
+      },
+      "style": "positive"
+    },
+    {
+      "type": "Action.Submit",
+      "title": "Report Critical Issue",
+      "data": {
+        "action": "report_critical_issue",
+        "inspectionId": "${inspectionId}",
+        "vehicleId": "${vehicleId}"
+      },
+      "style": "destructive"
+    },
+    {
+      "type": "Action.ShowCard",
+      "title": "Upload Photos",
+      "card": {
+        "type": "AdaptiveCard",
+        "body": [
+          {
+            "type": "TextBlock",
+            "text": "Take photos of any defects or damage",
+            "wrap": true
+          },
+          {
+            "type": "Input.Text",
+            "id": "photoUrls",
+            "placeholder": "Photo URLs (comma-separated)",
+            "isMultiline": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.Submit",
+            "title": "Attach Photos",
+            "data": {
+              "action": "attach_photos",
+              "inspectionId": "${inspectionId}"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
