@@ -1,0 +1,67 @@
+
+import { Pool } from 'pg';
+
+import { NotificationPreferences } from '../models/notification-preferences.model';
+
+import { BaseRepository } from './base/BaseRepository';
+
+export class NotificationPreferencesRepository extends BaseRepository<any> {
+
+  constructor(pool: Pool) {
+    super(pool, 'notification_preferences');
+  }
+
+  async getAll(tenantId: string): Promise<NotificationPreferences[]> {
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM notification_preferences WHERE tenant_id = $1';
+    const result = await this.pool.query(query, [tenantId]);
+    return result.rows as NotificationPreferences[];
+  }
+
+  async getById(id: string, tenantId: string): Promise<NotificationPreferences | null> {
+    const query = 'SELECT id, tenant_id, created_at, updated_at FROM notification_preferences WHERE id = $1 AND tenant_id = $2';
+    const result = await this.pool.query(query, [id, tenantId]);
+    return result.rows.length > 0 ? (result.rows[0] as NotificationPreferences) : null;
+  }
+
+  async create(notificationPreferences: NotificationPreferences): Promise<NotificationPreferences> {
+    const query = `
+      INSERT INTO notification_preferences (user_id, email_notifications, push_notifications, sms_notifications, tenant_id)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+    `;
+    const values = [
+      notificationPreferences.userId,
+      notificationPreferences.emailNotifications,
+      notificationPreferences.pushNotifications,
+      notificationPreferences.smsNotifications,
+      notificationPreferences.tenantId
+    ];
+    const result = await this.pool.query(query, values);
+    return result.rows[0] as NotificationPreferences;
+  }
+
+  async update(id: string, notificationPreferences: NotificationPreferences): Promise<NotificationPreferences | null> {
+    const query = `
+      UPDATE notification_preferences
+      SET user_id = $1, email_notifications = $2, push_notifications = $3, sms_notifications = $4
+      WHERE id = $5 AND tenant_id = $6
+      RETURNING *
+    `;
+    const values = [
+      notificationPreferences.userId,
+      notificationPreferences.emailNotifications,
+      notificationPreferences.pushNotifications,
+      notificationPreferences.smsNotifications,
+      id,
+      notificationPreferences.tenantId
+    ];
+    const result = await this.pool.query(query, values);
+    return result.rows.length > 0 ? (result.rows[0] as NotificationPreferences) : null;
+  }
+
+  async delete(id: string, tenantId: string): Promise<boolean> {
+    const query = 'DELETE FROM notification_preferences WHERE id = $1 AND tenant_id = $2';
+    const result = await this.pool.query(query, [id, tenantId]);
+    return (result.rowCount ?? 0) > 0;
+  }
+}
