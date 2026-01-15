@@ -213,7 +213,7 @@ const IntegrationsTruth: React.FC = () => {
           <ul className="list-disc pl-5 space-y-1 text-gray-700">
             <li>Check network connectivity and firewall settings for failed services.</li>
             <li>Verify API keys and credentials for external integrations.</li>
-            <li>Review error logs in Admin > Logs for detailed stack traces.</li>
+            <li>Review error logs in Admin &gt; Logs for detailed stack traces.</li>
             <li>Contact support with service name and error message if issues persist.</li>
           </ul>
         </motion.div>
