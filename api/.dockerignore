@@ -1,0 +1,24 @@
+# Ignore everything
+**
+# Except what we need for the API
+!src/
+!src/**
+!package*.json
+!tsconfig*.json
+!Dockerfile.production
+!.dockerignore
+
+# Specifically ignore node_modules and other large/temp dirs even within src (if any)
+node_modules/
+**/node_modules/
+dist/
+coverage/
+tmp/
+temp/
+logs/
+.git/
+.vscode/
+.idea/
+*.test.ts
+*.spec.ts
+__tests__/

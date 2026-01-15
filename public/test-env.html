@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><title>Env Test</title></head>
+<body>
+<h1>Vite Environment Variable Test</h1>
+<div id="result">Loading...</div>
+<script>
+// This won't work because import.meta.env only works in modules
+// Vite injects env vars at BUILD time, not runtime
+document.getElementById('result').innerHTML = `
+<p><strong>Note:</strong> import.meta.env only works in ES modules served by Vite</p>
+<p>To test env vars, check the browser console in the main app</p>
+<p><a href="/">Go to main app</a></p>
+`;
+</script>
+</body>
+</html>
