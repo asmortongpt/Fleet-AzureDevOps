@@ -1,800 +1,497 @@
 /**
- * MaintenanceHub - Premium Maintenance Management Hub (10/10 Production Quality)
- * Route: /maintenance
- * 
- * ARCHITECTURE:
- * - Fully accessible (WCAG 2.1 AA compliant)
- * - Optimized performance with memoization
- * - Keyboard-first navigation
- * - Screen reader announcements
- * - Real-time data with loading states
- * - Professional enterprise design
+ * MaintenanceHub - Modern Maintenance Management Dashboard
+ * Real-time maintenance tracking with responsive visualizations
  */
 
+import { motion } from 'framer-motion'
+import { Suspense } from 'react'
 import {
-    Wrench as MaintenanceIcon,
-    Wrench,
-    Warehouse,
-    ChartLine,
-    CalendarDots,
-    ClipboardText,
-    Plus,
-    Gear,
-    Lightning,
-    CurrencyDollar
+  Wrench,
+  Warehouse,
+  ChartLine,
+  CalendarDots,
+  ClipboardText,
+  Lightning,
+  CurrencyDollar,
+  Plus,
+  TrendUp,
 } from '@phosphor-icons/react'
-import { memo, useCallback, useId, useState, useEffect } from 'react'
+import HubPage from '@/components/ui/hub-page'
+import { useReactiveMaintenanceData } from '@/hooks/use-reactive-maintenance-data'
+import {
+  StatCard,
+  ResponsiveBarChart,
+  ResponsiveLineChart,
+  ResponsivePieChart,
+} from '@/components/visualizations'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 
-import { ErrorBoundary } from '@/components/common/ErrorBoundary'
-import { HubPage, HubTab } from '@/components/ui/hub-page'
-import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'
-import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
-import { cn } from '@/lib/utils'
-import { logger } from '@/utils/logger'
+/**
+ * Garage & Service Tab - Work orders and bay utilization
+ */
+function GarageOverview() {
+  const {
+    workOrders,
+    metrics,
+    statusDistribution,
+    priorityDistribution,
+    isLoading,
+    lastUpdate,
+  } = useReactiveMaintenanceData()
 
-// ============================================================================
-// TYPES
-// ============================================================================
-interface WorkOrder {
-    id: string
-    vehicleId: string
-    vehicleName: string
-    type: 'preventive' | 'corrective' | 'emergency'
-    status: 'pending' | 'in_progress' | 'parts_waiting' | 'completed'
-    priority: 'low' | 'medium' | 'high' | 'urgent'
-    technician?: string
-    bay?: number
-    estimatedHours: number
-    createdAt: string
-}
+  // Prepare chart data
+  const statusChartData = Object.entries(statusDistribution).map(([name, value]) => ({
+    name: name.charAt(0).toUpperCase() + name.slice(1).replace('_', ' '),
+    value,
+    fill:
+      name === 'completed'
+        ? 'hsl(var(--success))'
+        : name === 'in_progress'
+          ? 'hsl(var(--warning))'
+          : name === 'parts_waiting'
+            ? 'hsl(var(--destructive))'
+            : 'hsl(var(--primary))',
+  }))
 
-interface MaintenanceMetrics {
-    workOrders: number
-    urgentOrders: number
-    inProgress: number
-    completedToday: number
-    partsWaiting: number
-    bayUtilization: number
-    totalBays: number
-    usedBays: number
-    scheduledThisWeek: number
-    completedThisWeek: number
-    avgRepairTime: number
-    partsCost: number
-    efficiencyScore: number
-    lastMonthScore: number
-}
+  const priorityChartData = Object.entries(priorityDistribution)
+    .map(([name, value]) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      value,
+    }))
+    .sort((a, b) => {
+      const order = { urgent: 4, high: 3, medium: 2, low: 1 }
+      return (order[b.name.toLowerCase()] || 0) - (order[a.name.toLowerCase()] || 0)
+    })
 
-// ============================================================================
-// SKELETON LOADERS
-// ============================================================================
-const StatCardSkeleton = memo(function StatCardSkeleton() {
-    return (
-        <div
-            className="animate-pulse bg-card/60 rounded-md border border-border/30 p-2 sm:p-3"
-            role="status"
-            aria-label="Loading statistic"
-        >
-            <div className="h-4 bg-muted/40 rounded w-24 mb-3" />
-            <div className="h-8 bg-muted/40 rounded w-16 mb-2" />
-            <div className="h-3 bg-muted/20 rounded w-20" />
+  // Get urgent work orders
+  const urgentOrders = workOrders.filter((wo) => wo.priority === 'urgent').slice(0, 5)
+
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header with Last Update */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Garage & Service</h2>
+          <p className="text-muted-foreground">
+            Active work orders and bay status
+          </p>
         </div>
-    )
-})
+        <Badge variant="outline" className="w-fit">
+          Last updated: {lastUpdate.toLocaleTimeString()}
+        </Badge>
+      </div>
 
-const ProgressRingSkeleton = memo(function ProgressRingSkeleton() {
-    return (
-        <div
-            className="w-20 h-20 rounded-full bg-muted/40 animate-pulse"
-            role="status"
-            aria-label="Loading progress indicator"
+      {/* Key Metrics Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Work Orders"
+          value={metrics?.totalWorkOrders?.toString() || '0'}
+          icon={ClipboardText}
+          trend="neutral"
+          description="All orders"
+          loading={isLoading}
         />
-    )
-})
-
-// ============================================================================
-// ACCESSIBLE INTERACTIVE CARD COMPONENT
-// ============================================================================
-interface InteractiveCardProps {
-    children: React.ReactNode
-    onClick: () => void
-    ariaLabel: string
-    className?: string
-}
-
-const InteractiveCard = memo(function InteractiveCard({
-    children,
-    onClick,
-    ariaLabel,
-    className
-}: InteractiveCardProps) {
-    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            onClick()
-        }
-    }, [onClick])
-
-    return (
-        <div
-            className={cn(
-                "bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700",
-                "shadow-sm p-3 sm:p-3 cursor-pointer transition-all duration-300",
-                "hover:shadow-sm hover:-translate-y-0.5",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                className
-            )}
-            onClick={onClick}
-            onKeyDown={handleKeyDown}
-            role="button"
-            tabIndex={0}
-            aria-label={ariaLabel}
-        >
-            {children}
-        </div>
-    )
-})
-
-// ============================================================================
-// SCREEN READER ANNOUNCEMENT HOOK
-// ============================================================================
-function useAnnouncement() {
-    const [announcement, setAnnouncement] = useState('')
-
-    const announce = useCallback((message: string) => {
-        setAnnouncement('')
-        setTimeout(() => setAnnouncement(message), 100)
-    }, [])
-
-    const AnnouncementRegion = memo(() => (
-        <div
-            role="status"
-            aria-live="polite"
-            aria-atomic="true"
-            className="sr-only"
-        >
-            {announcement}
-        </div>
-    ))
-
-    return { announce, AnnouncementRegion }
-}
-
-// ============================================================================
-// GARAGE CONTENT - 10/10 Implementation
-// ============================================================================
-const GarageContent = memo(function GarageContent() {
-    const { push } = useDrilldown()
-    const headingId = useId()
-    const { announce, AnnouncementRegion } = useAnnouncement()
-    const [isLoading, setIsLoading] = useState(true)
-    const [metrics, setMetrics] = useState<MaintenanceMetrics | null>(null)
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setMetrics({
-                workOrders: 12,
-                urgentOrders: 4,
-                inProgress: 5,
-                completedToday: 8,
-                partsWaiting: 3,
-                bayUtilization: 75,
-                totalBays: 8,
-                usedBays: 5,
-                scheduledThisWeek: 24,
-                completedThisWeek: 18,
-                avgRepairTime: 3.2,
-                partsCost: 4250,
-                efficiencyScore: 88,
-                lastMonthScore: 82
-            })
-            setIsLoading(false)
-            announce('Garage overview loaded. 12 active work orders, 5 of 8 bays in use.')
-        }, 500)
-        return () => clearTimeout(timer)
-    }, [announce])
-
-    const handleStatClick = useCallback((type: string, title: string) => {
-        announce(`Opening ${title}`)
-        push({ type, data: { title }, id: type } as Omit<DrilldownLevel, "timestamp">)
-    }, [push, announce])
-
-    return (
-        <section
-            className="p-3 sm:p-3 space-y-2 sm:space-y-2 bg-slate-50 dark:bg-slate-900 min-h-full overflow-auto"
-            aria-labelledby={headingId}
-            role="region"
-        >
-            <AnnouncementRegion />
-
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                    <h2
-                        id={headingId}
-                        className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100"
-                    >
-                        Garage & Service
-                    </h2>
-                    <p className="text-base text-slate-700 dark:text-slate-300 mt-2">
-                        Maintenance bay status and work orders
-                    </p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <StatusDot
-                        status={isLoading ? "offline" : "online"}
-                        label={isLoading ? "Loading..." : "Shop Open"}
-                    />
-                    <button
-                        className={cn(
-                            "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
-                            "bg-primary text-primary-foreground font-medium text-sm",
-                            "hover:bg-primary/90 transition-colors duration-200",
-                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                        )}
-                        onClick={() => handleStatClick('create-work-order', 'Create Work Order')}
-                        aria-label="Create new work order"
-                    >
-                        <Plus className="w-4 h-4" aria-hidden="true" />
-                        New Work Order
-                    </button>
-                </div>
-            </div>
-
-            {/* Stats Grid */}
-            <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2"
-                role="list"
-                aria-label="Garage statistics"
-            >
-                {isLoading ? (
-                    <>
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                    </>
-                ) : (
-                    <>
-                        <StatCard
-                            title="Work Orders"
-                            value={metrics?.workOrders.toString() || '0'}
-                            subtitle={`${metrics?.urgentOrders || 0} urgent`}
-                            variant="primary"
-                            icon={<ClipboardText className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
-                            onClick={() => handleStatClick('work-orders', 'Work Orders')}
-                            aria-label={`Work orders: ${metrics?.workOrders}, ${metrics?.urgentOrders} urgent. Click for details.`}
-                        />
-                        <StatCard
-                            title="In Progress"
-                            value={metrics?.inProgress.toString() || '0'}
-                            subtitle="2 technicians"
-                            variant="warning"
-                            icon={<Wrench className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
-                            onClick={() => handleStatClick('in-progress', 'In Progress')}
-                            aria-label={`Work orders in progress: ${metrics?.inProgress}. Click for details.`}
-                        />
-                        <StatCard
-                            title="Completed Today"
-                            value={metrics?.completedToday.toString() || '0'}
-                            trend="up"
-                            trendValue="+3"
-                            variant="success"
-                            onClick={() => handleStatClick('garage-overview', 'Completed Today')}
-                            aria-label={`Completed today: ${metrics?.completedToday}, up 3 from yesterday. Click for details.`}
-                        />
-                        <StatCard
-                            title="Parts Waiting"
-                            value={metrics?.partsWaiting.toString() || '0'}
-                            variant="danger"
-                            onClick={() => handleStatClick('garage-overview', 'Parts Waiting')}
-                            aria-label={`Parts waiting: ${metrics?.partsWaiting}. Click for details.`}
-                        />
-                    </>
-                )}
-            </div>
-
-            {/* Details Grid */}
-            <div
-                className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-2"
-                role="list"
-                aria-label="Garage metrics breakdown"
-            >
-                <InteractiveCard
-                    onClick={() => handleStatClick('bay-utilization', 'Bay Utilization')}
-                    ariaLabel={`Bay utilization: ${metrics?.usedBays || 0} of ${metrics?.totalBays || 0} bays in use, ${metrics?.bayUtilization || 0}% capacity. Click for details.`}
-                >
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">
-                        Bay Utilization
-                    </h3>
-                    <div className="flex items-center justify-center">
-                        {isLoading ? (
-                            <ProgressRingSkeleton />
-                        ) : (
-                            <ProgressRing
-                                progress={metrics?.bayUtilization || 0}
-                                color="blue"
-                                label={`${metrics?.usedBays} of ${metrics?.totalBays}`}
-                                sublabel="bays in use"
-                            />
-                        )}
-                    </div>
-                </InteractiveCard>
-
-                <InteractiveCard
-                    onClick={() => handleStatClick('maintenance-calendar', 'Weekly Schedule')}
-                    ariaLabel={`This week: ${metrics?.scheduledThisWeek || 0} scheduled, ${metrics?.completedThisWeek || 0} completed, average repair time ${metrics?.avgRepairTime || 0} hours. Click for details.`}
-                >
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">
-                        This Week
-                    </h3>
-                    <div className="space-y-2">
-                        {isLoading ? (
-                            <>
-                                <div className="h-6 bg-muted/40 rounded animate-pulse" />
-                                <div className="h-6 bg-muted/40 rounded animate-pulse" />
-                                <div className="h-6 bg-muted/40 rounded animate-pulse" />
-                                <div className="h-6 bg-muted/40 rounded animate-pulse" />
-                            </>
-                        ) : (
-                            <>
-                                <QuickStat label="Scheduled" value={metrics?.scheduledThisWeek?.toString() || '0'} />
-                                <QuickStat label="Completed" value={metrics?.completedThisWeek?.toString() || '0'} trend="up" />
-                                <QuickStat label="Avg Repair Time" value={`${metrics?.avgRepairTime || 0} hrs`} trend="down" />
-                                <QuickStat label="Parts Cost" value={`$${(metrics?.partsCost || 0).toLocaleString()}`} />
-                            </>
-                        )}
-                    </div>
-                </InteractiveCard>
-
-                <InteractiveCard
-                    onClick={() => handleStatClick('garage-overview', 'Efficiency Score')}
-                    ariaLabel={`Efficiency score: ${metrics?.efficiencyScore || 0}%, versus ${metrics?.lastMonthScore || 0}% last month. Click for details.`}
-                >
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">
-                        Efficiency
-                    </h3>
-                    <div className="flex items-center justify-center">
-                        {isLoading ? (
-                            <ProgressRingSkeleton />
-                        ) : (
-                            <ProgressRing
-                                progress={metrics?.efficiencyScore || 0}
-                                color="green"
-                                label="Score"
-                                sublabel={`vs ${metrics?.lastMonthScore}% last month`}
-                            />
-                        )}
-                    </div>
-                </InteractiveCard>
-            </div>
-
-            {/* Quick Actions */}
-            <div
-                className="flex flex-wrap items-center justify-end gap-3 pt-2 border-t border-slate-200 dark:border-slate-700"
-                role="toolbar"
-                aria-label="Quick actions"
-            >
-                <button
-                    className={cn(
-                        "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
-                        "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium text-sm",
-                        "hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors duration-200",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                    )}
-                    onClick={() => handleStatClick('schedule-maintenance', 'Schedule Maintenance')}
-                    aria-label="Schedule preventive maintenance"
-                >
-                    <CalendarDots className="w-4 h-4" aria-hidden="true" />
-                    Schedule Maintenance
-                </button>
-                <button
-                    className={cn(
-                        "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
-                        "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium text-sm",
-                        "hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors duration-200",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                    )}
-                    onClick={() => handleStatClick('parts-inventory', 'Parts Inventory')}
-                    aria-label="View parts inventory"
-                >
-                    <Gear className="w-4 h-4" aria-hidden="true" />
-                    Parts Inventory
-                </button>
-            </div>
-        </section>
-    )
-})
-
-// ============================================================================
-// PREDICTIVE CONTENT - 10/10 Implementation
-// ============================================================================
-const PredictiveContent = memo(function PredictiveContent() {
-    const { push } = useDrilldown()
-    const headingId = useId()
-    const { announce, AnnouncementRegion } = useAnnouncement()
-    const [isLoading, setIsLoading] = useState(true)
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsLoading(false)
-            announce('Predictive maintenance loaded. 156 active predictions, 8 alerts requiring attention.')
-        }, 400)
-        return () => clearTimeout(timer)
-    }, [announce])
-
-    const handleStatClick = useCallback((type: string, title: string) => {
-        announce(`Opening ${title}`)
-        push({ type, data: { title }, id: type } as Omit<DrilldownLevel, "timestamp">)
-    }, [push, announce])
-
-    return (
-        <section
-            className="p-3 sm:p-3 space-y-2 sm:space-y-2 bg-slate-50 dark:bg-slate-900"
-            aria-labelledby={headingId}
-            role="region"
-        >
-            <AnnouncementRegion />
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                    <h2 id={headingId} className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
-                        Predictive Maintenance
-                    </h2>
-                    <p className="text-base text-slate-700 dark:text-slate-300 mt-2">
-                        AI-powered failure prediction and prevention
-                    </p>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                    <Lightning className="w-4 h-4 text-amber-500" aria-hidden="true" />
-                    <span>ML Model v2.4 • 94% Accuracy</span>
-                </div>
-            </div>
-
-            <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2"
-                role="list"
-                aria-label="Predictive maintenance statistics"
-            >
-                {isLoading ? (
-                    <>
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                    </>
-                ) : (
-                    <>
-                        <StatCard
-                            title="Predictions Active"
-                            value="156"
-                            variant="primary"
-                            icon={<ChartLine className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
-                            onClick={() => handleStatClick('predictions-active', 'Active Predictions')}
-                            aria-label="Active predictions: 156 vehicles being monitored. Click for details."
-                        />
-                        <StatCard
-                            title="Alerts"
-                            value="8"
-                            variant="warning"
-                            onClick={() => handleStatClick('predictive-maintenance', 'Alerts')}
-                            aria-label="Maintenance alerts: 8 requiring attention. Click for details."
-                        />
-                        <StatCard
-                            title="Prevented Failures"
-                            value="12"
-                            variant="success"
-                            trend="up"
-                            trendValue="this month"
-                            onClick={() => handleStatClick('predictive-maintenance', 'Prevented Failures')}
-                            aria-label="Prevented failures: 12 this month. Click for details."
-                        />
-                        <StatCard
-                            title="Savings"
-                            value="$28K"
-                            variant="success"
-                            icon={<CurrencyDollar className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
-                            onClick={() => handleStatClick('predictive-maintenance', 'Cost Savings')}
-                            aria-label="Cost savings: $28,000 this month. Click for details."
-                        />
-                    </>
-                )}
-            </div>
-
-            {/* AI Insights Panel */}
-            <div
-                className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-3"
-                role="region"
-                aria-label="AI-powered insights"
-            >
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2 flex items-center gap-2">
-                    <Lightning className="w-3 h-3 text-amber-500" aria-hidden="true" />
-                    AI Insights
-                </h3>
-                <ul className="space-y-3" role="list">
-                    <li className="flex items-start gap-3 text-sm">
-                        <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0" aria-hidden="true" />
-                        <span className="text-slate-700 dark:text-slate-300">
-                            <strong>3 vehicles</strong> showing early brake wear patterns - schedule inspection within 2 weeks
-                        </span>
-                    </li>
-                    <li className="flex items-start gap-3 text-sm">
-                        <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" aria-hidden="true" />
-                        <span className="text-slate-700 dark:text-slate-300">
-                            <strong>5 vehicles</strong> approaching oil change threshold based on driving conditions
-                        </span>
-                    </li>
-                    <li className="flex items-start gap-3 text-sm">
-                        <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5 flex-shrink-0" aria-hidden="true" />
-                        <span className="text-slate-700 dark:text-slate-300">
-                            Fleet-wide tire rotation schedule optimized - projected savings of <strong>$4,200</strong>
-                        </span>
-                    </li>
-                </ul>
-            </div>
-        </section>
-    )
-})
-
-// ============================================================================
-// CALENDAR CONTENT - 10/10 Implementation
-// ============================================================================
-const CalendarContent = memo(function CalendarContent() {
-    const { push } = useDrilldown()
-    const headingId = useId()
-    const { announce, AnnouncementRegion } = useAnnouncement()
-    const [isLoading, setIsLoading] = useState(true)
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsLoading(false)
-            announce('Maintenance calendar loaded. 4 appointments today, 18 this week.')
-        }, 400)
-        return () => clearTimeout(timer)
-    }, [announce])
-
-    const handleStatClick = useCallback((type: string, title: string) => {
-        announce(`Opening ${title}`)
-        push({ type, data: { title }, id: type } as Omit<DrilldownLevel, "timestamp">)
-    }, [push, announce])
-
-    return (
-        <section
-            className="p-3 sm:p-3 space-y-2 sm:space-y-2 bg-slate-50 dark:bg-slate-900"
-            aria-labelledby={headingId}
-            role="region"
-        >
-            <AnnouncementRegion />
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                    <h2 id={headingId} className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
-                        Maintenance Calendar
-                    </h2>
-                    <p className="text-base text-slate-700 dark:text-slate-300 mt-2">
-                        Scheduled maintenance and service planning
-                    </p>
-                </div>
-                <button
-                    className={cn(
-                        "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
-                        "bg-primary text-primary-foreground font-medium text-sm",
-                        "hover:bg-primary/90 transition-colors duration-200",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                    )}
-                    onClick={() => handleStatClick('schedule-appointment', 'Schedule Appointment')}
-                    aria-label="Schedule new appointment"
-                >
-                    <Plus className="w-4 h-4" aria-hidden="true" />
-                    Schedule Appointment
-                </button>
-            </div>
-
-            <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2"
-                role="list"
-                aria-label="Calendar statistics"
-            >
-                {isLoading ? (
-                    <>
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                    </>
-                ) : (
-                    <>
-                        <StatCard
-                            title="Today"
-                            value="4"
-                            variant="primary"
-                            icon={<CalendarDots className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
-                            onClick={() => handleStatClick('maintenance-today', "Today's Schedule")}
-                            aria-label="Appointments today: 4. Click for details."
-                        />
-                        <StatCard
-                            title="This Week"
-                            value="18"
-                            variant="default"
-                            onClick={() => handleStatClick('maintenance-calendar', 'Weekly Schedule')}
-                            aria-label="Appointments this week: 18. Click for details."
-                        />
-                        <StatCard
-                            title="Overdue"
-                            value="2"
-                            variant="danger"
-                            onClick={() => handleStatClick('maintenance-overdue', 'Overdue')}
-                            aria-label="Overdue maintenance: 2 items. Click for details."
-                        />
-                    </>
-                )}
-            </div>
-        </section>
-    )
-})
-
-// ============================================================================
-// REQUESTS CONTENT - 10/10 Implementation
-// ============================================================================
-const RequestsContent = memo(function RequestsContent() {
-    const { push } = useDrilldown()
-    const headingId = useId()
-    const { announce, AnnouncementRegion } = useAnnouncement()
-    const [isLoading, setIsLoading] = useState(true)
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsLoading(false)
-            announce('Maintenance requests loaded. 6 new requests awaiting review.')
-        }, 400)
-        return () => clearTimeout(timer)
-    }, [announce])
-
-    const handleStatClick = useCallback((type: string, title: string, filter?: string) => {
-        announce(`Opening ${title}`)
-        push({ type, data: { title, filter }, id: `${type}-${filter || 'all'}` } as Omit<DrilldownLevel, "timestamp">)
-    }, [push, announce])
-
-    return (
-        <section
-            className="p-3 sm:p-3 space-y-2 sm:space-y-2 bg-slate-50 dark:bg-slate-900"
-            aria-labelledby={headingId}
-            role="region"
-        >
-            <AnnouncementRegion />
-
-            <div>
-                <h2 id={headingId} className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
-                    Maintenance Requests
-                </h2>
-                <p className="text-base text-slate-700 dark:text-slate-300 mt-2">
-                    Driver and fleet maintenance request tracking
-                </p>
-            </div>
-
-            <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2"
-                role="list"
-                aria-label="Request statistics"
-            >
-                {isLoading ? (
-                    <>
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                    </>
-                ) : (
-                    <>
-                        <StatCard
-                            title="New Requests"
-                            value="6"
-                            variant="primary"
-                            onClick={() => handleStatClick('maintenance-requests', 'New Requests', 'new')}
-                            aria-label="New requests: 6. Click for details."
-                        />
-                        <StatCard
-                            title="In Review"
-                            value="4"
-                            variant="warning"
-                            onClick={() => handleStatClick('maintenance-requests', 'In Review', 'review')}
-                            aria-label="In review: 4. Click for details."
-                        />
-                        <StatCard
-                            title="Approved"
-                            value="8"
-                            variant="success"
-                            onClick={() => handleStatClick('maintenance-requests', 'Approved', 'approved')}
-                            aria-label="Approved requests: 8. Click for details."
-                        />
-                        <StatCard
-                            title="Completed"
-                            value="45"
-                            variant="default"
-                            onClick={() => handleStatClick('maintenance-requests', 'Completed', 'completed')}
-                            aria-label="Completed requests: 45. Click for details."
-                        />
-                    </>
-                )}
-            </div>
-
-            {/* Request Flow Indicator */}
-            <div
-                className="flex items-center justify-center gap-2 text-sm text-slate-600 dark:text-slate-400 py-2"
-                role="img"
-                aria-label="Request workflow: New to Review to Approved to Completed"
-            >
-                <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">New</span>
-                <CaretRight className="w-4 h-4" aria-hidden="true" />
-                <span className="px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">Review</span>
-                <CaretRight className="w-4 h-4" aria-hidden="true" />
-                <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full">Approved</span>
-                <CaretRight className="w-4 h-4" aria-hidden="true" />
-                <span className="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full">Completed</span>
-            </div>
-        </section>
-    )
-})
-
-// Missing icon import
-import { CaretRight } from '@phosphor-icons/react'
-
-// ============================================================================
-// MAIN HUB COMPONENT - 10/10 Implementation
-// ============================================================================
-export function MaintenanceHub() {
-    const tabs: HubTab[] = [
-        {
-            id: 'garage',
-            label: 'Garage',
-            icon: <Warehouse className="w-4 h-4" aria-hidden="true" />,
-            content: <GarageContent />,
-            ariaLabel: 'View garage and service bay status'
-        },
-        {
-            id: 'predictive',
-            label: 'Predictive',
-            icon: <ChartLine className="w-4 h-4" aria-hidden="true" />,
-            content: <PredictiveContent />,
-            ariaLabel: 'View AI-powered predictive maintenance'
-        },
-        {
-            id: 'calendar',
-            label: 'Calendar',
-            icon: <CalendarDots className="w-4 h-4" aria-hidden="true" />,
-            content: <CalendarContent />,
-            ariaLabel: 'View maintenance calendar and scheduling'
-        },
-        {
-            id: 'requests',
-            label: 'Requests',
-            icon: <ClipboardText className="w-4 h-4" aria-hidden="true" />,
-            content: <RequestsContent />,
-            ariaLabel: 'View and manage maintenance requests'
-        },
-    ]
-
-    return (
-        <HubPage
-            title="Maintenance Hub"
-            icon={<MaintenanceIcon className="w-4 h-4" aria-hidden="true" />}
-            description="Garage services and predictive maintenance"
-            tabs={tabs}
-            defaultTab="garage"
+        <StatCard
+          title="Urgent Orders"
+          value={metrics?.urgentOrders?.toString() || '0'}
+          icon={Lightning}
+          trend="down"
+          change="-2"
+          description="High priority"
+          loading={isLoading}
         />
-    )
+        <StatCard
+          title="In Progress"
+          value={metrics?.inProgress?.toString() || '0'}
+          icon={Wrench}
+          trend="neutral"
+          description="Being worked on"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Parts Waiting"
+          value={metrics?.partsWaiting?.toString() || '0'}
+          icon={Warehouse}
+          trend={metrics && metrics.partsWaiting > 5 ? 'down' : 'neutral'}
+          description="Awaiting parts"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Charts Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Work Order Status Distribution */}
+        <ResponsivePieChart
+          title="Work Order Status"
+          description="Distribution of orders by current status"
+          data={statusChartData}
+          innerRadius={60}
+          loading={isLoading}
+        />
+
+        {/* Priority Distribution */}
+        <ResponsiveBarChart
+          title="Priority Breakdown"
+          description="Work orders by priority level"
+          data={priorityChartData}
+          height={300}
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Urgent Orders Alert Section */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Lightning className="h-5 w-5 text-amber-500" />
+            <CardTitle>Urgent Work Orders</CardTitle>
+          </div>
+          <CardDescription>High-priority orders requiring immediate attention</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ) : urgentOrders.length > 0 ? (
+            <div className="space-y-2">
+              {urgentOrders.map((order) => (
+                <motion.div
+                  key={order.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50"
+                >
+                  <div>
+                    <p className="font-medium">Work Order #{order.id.slice(0, 8)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Type: {order.type} • Est: {order.estimatedHours}h
+                    </p>
+                  </div>
+                  <Badge variant="destructive">
+                    {order.priority.toUpperCase()}
+                  </Badge>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground">
+              No urgent work orders at this time
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
 }
 
-const WrappedMaintenanceHub = () => (
-    <ErrorBoundary
-        onError={(error, errorInfo) => {
-            logger.error('MaintenanceHub error', error, {
-                component: 'MaintenanceHub',
-                errorInfo
-            })
-        }}
-    >
-        <MaintenanceHub />
-    </ErrorBoundary>
-)
+/**
+ * Predictive Maintenance Tab - AI-powered insights
+ */
+function PredictiveContent() {
+  const { isLoading, lastUpdate } = useReactiveMaintenanceData()
 
-export default WrappedMaintenanceHub
+  // Mock predictive data (would come from ML API)
+  const predictions = [
+    { vehicle: 'Ford F-150 #1042', issue: 'Brake wear detected', confidence: 94, daysUntilFailure: 14 },
+    { vehicle: 'Toyota Camry #VEH-002', issue: 'Oil change needed', confidence: 89, daysUntilFailure: 7 },
+    { vehicle: 'Ford Transit #VEH-001', issue: 'Tire rotation recommended', confidence: 92, daysUntilFailure: 21 },
+  ]
+
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Predictive Maintenance</h2>
+          <p className="text-muted-foreground">
+            AI-powered failure prediction and prevention
+          </p>
+        </div>
+        <Badge variant="outline" className="w-fit">
+          Last updated: {lastUpdate.toLocaleTimeString()}
+        </Badge>
+      </div>
+
+      {/* Predictive Stats */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Active Predictions"
+          value="156"
+          icon={ChartLine}
+          trend="up"
+          change="+12"
+          description="Vehicles monitored"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Alerts"
+          value="8"
+          icon={Lightning}
+          trend="down"
+          change="-3"
+          description="Requiring attention"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Prevented Failures"
+          value="12"
+          icon={TrendUp}
+          trend="up"
+          description="This month"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Cost Savings"
+          value="$28K"
+          icon={CurrencyDollar}
+          trend="up"
+          description="YTD savings"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* AI Predictions List */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Lightning className="h-5 w-5 text-amber-500" />
+            <CardTitle>AI-Powered Insights</CardTitle>
+          </div>
+          <CardDescription>ML Model v2.4 • 94% Accuracy</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {predictions.map((prediction, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="flex items-center justify-between rounded-lg border p-4"
+                >
+                  <div className="flex-1">
+                    <p className="font-medium">{prediction.vehicle}</p>
+                    <p className="text-sm text-muted-foreground">{prediction.issue}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Confidence: {prediction.confidence}% • Est. {prediction.daysUntilFailure} days
+                    </p>
+                  </div>
+                  <Badge variant={prediction.daysUntilFailure < 10 ? 'destructive' : 'warning'}>
+                    {prediction.daysUntilFailure}d
+                  </Badge>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+/**
+ * Calendar Tab - Maintenance scheduling
+ */
+function CalendarContent() {
+  const { isLoading, lastUpdate } = useReactiveMaintenanceData()
+
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Maintenance Calendar</h2>
+          <p className="text-muted-foreground">
+            Scheduled maintenance and service planning
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline">Last updated: {lastUpdate.toLocaleTimeString()}</Badge>
+          <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
+            <Plus className="h-4 w-4" />
+            Schedule
+          </button>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <StatCard
+          title="Today"
+          value="4"
+          icon={CalendarDots}
+          description="Scheduled today"
+          loading={isLoading}
+        />
+        <StatCard
+          title="This Week"
+          value="18"
+          icon={CalendarDots}
+          trend="up"
+          description="7-day schedule"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Overdue"
+          value="2"
+          icon={Lightning}
+          trend="down"
+          description="Needs attention"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Calendar placeholder */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Weekly Schedule</CardTitle>
+          <CardDescription>Appointments and preventive maintenance</CardDescription>
+        </CardHeader>
+        <CardContent className="h-64 flex items-center justify-center text-muted-foreground">
+          Calendar view coming soon
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+/**
+ * Requests Tab - Maintenance request tracking
+ */
+function RequestsContent() {
+  const { requestMetrics, requestTrendData, isLoading, lastUpdate } = useReactiveMaintenanceData()
+
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Maintenance Requests</h2>
+          <p className="text-muted-foreground">
+            Driver and fleet maintenance request tracking
+          </p>
+        </div>
+        <Badge variant="outline">Last updated: {lastUpdate.toLocaleTimeString()}</Badge>
+      </div>
+
+      {/* Request Stats */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="New Requests"
+          value={requestMetrics?.newRequests?.toString() || '0'}
+          icon={ClipboardText}
+          trend="neutral"
+          description="Awaiting review"
+          loading={isLoading}
+        />
+        <StatCard
+          title="In Review"
+          value={requestMetrics?.inReview?.toString() || '0'}
+          icon={ChartLine}
+          trend="neutral"
+          description="Being evaluated"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Approved"
+          value={requestMetrics?.approved?.toString() || '0'}
+          icon={TrendUp}
+          trend="up"
+          description="Ready to schedule"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Completed"
+          value={requestMetrics?.completed?.toString() || '0'}
+          icon={Wrench}
+          trend="up"
+          change="+12"
+          description="This week"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Request Trend Chart */}
+      <ResponsiveLineChart
+        title="Request Volume Trend"
+        description="Daily maintenance request submissions over the past week"
+        data={requestTrendData}
+        height={300}
+        showArea
+        loading={isLoading}
+      />
+    </div>
+  )
+}
+
+/**
+ * Main MaintenanceHub Component
+ */
+export default function MaintenanceHub() {
+  const tabs = [
+    {
+      id: 'garage',
+      label: 'Garage',
+      icon: <Warehouse className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <GarageOverview />
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'predictive',
+      label: 'Predictive',
+      icon: <ChartLine className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading predictive maintenance...</div>}>
+            <PredictiveContent />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'calendar',
+      label: 'Calendar',
+      icon: <CalendarDots className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading calendar...</div>}>
+            <CalendarContent />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'requests',
+      label: 'Requests',
+      icon: <ClipboardText className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading requests...</div>}>
+            <RequestsContent />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+  ]
+
+  return (
+    <HubPage
+      title="Maintenance Hub"
+      description="Garage services and predictive maintenance"
+      icon={<Wrench className="h-8 w-8" />}
+      tabs={tabs}
+      defaultTab="garage"
+    />
+  )
+}

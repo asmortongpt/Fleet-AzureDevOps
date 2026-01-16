@@ -276,3 +276,6 @@ export function withErrorBoundary<P extends object>(
 
   return WrappedComponent;
 }
+
+// Default export for easier imports
+export default ErrorBoundary;
