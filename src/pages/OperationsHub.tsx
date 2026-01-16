@@ -1,827 +1,495 @@
 /**
- * OperationsHub - Premium Operations Management Hub (10/10 Production Quality)
- * Route: /operations
- * 
- * ARCHITECTURE:
- * - Fully accessible (WCAG 2.1 AA compliant)
- * - Optimized performance with memoization
- * - Keyboard-first navigation with shortcuts
- * - Screen reader announcements
- * - Real-time data with loading states
- * - Command center aesthetic
+ * OperationsHub - Modern Operations Management Dashboard
+ * Real-time dispatch, routing, and task tracking with responsive visualizations
  */
 
+import { motion } from 'framer-motion'
+import { Suspense } from 'react'
 import {
-    Broadcast as OperationsIcon,
-    MapTrifold,
-    RadioButton,
-    CheckSquare,
-    CalendarDots,
-    Truck,
-    Package,
-    Warning,
-    Plus,
-    Clock,
-    MapPin,
-    Path,
-    Timer,
-    Lightning
+  Broadcast as OperationsIcon,
+  MapTrifold,
+  RadioButton,
+  CheckSquare,
+  CalendarDots,
+  Truck,
+  Package,
+  Warning,
+  Plus,
+  Clock,
+  Lightning,
+  Path,
+  MapPin,
+  GasPump,
 } from '@phosphor-icons/react'
-import { memo, useCallback, useId, useState, useEffect } from 'react'
+import HubPage from '@/components/ui/hub-page'
+import { useReactiveOperationsData } from '@/hooks/use-reactive-operations-data'
+import {
+  StatCard,
+  ResponsiveBarChart,
+  ResponsiveLineChart,
+  ResponsivePieChart,
+} from '@/components/visualizations'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 
-import { ErrorBoundary } from '@/components/common/ErrorBoundary'
-import { HubPage, HubTab } from '@/components/ui/hub-page'
-import { StatCard, ProgressRing, StatusDot, QuickStat } from '@/components/ui/stat-card'
-import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
-import { cn } from '@/lib/utils'
-import { logger } from '@/utils/logger'
+/**
+ * Dispatch & Operations Tab - Active jobs and dispatch metrics
+ */
+function DispatchOverview() {
+  const {
+    routes,
+    metrics,
+    statusDistribution,
+    completionTrendData,
+    isLoading,
+    lastUpdate,
+  } = useReactiveOperationsData()
 
-// ============================================================================
-// TYPES
-// ============================================================================
-interface DispatchMetrics {
-    activeJobs: number
-    startingWithinHour: number
-    inTransit: number
-    completedToday: number
-    target: number
-    delayed: number
-    criticalDelayed: number
-    onTimeRate: number
-    yesterdayOnTimeRate: number
-    avgDeliveryTime: number
-    jobsPerDriver: number
-    distanceCovered: number
-    customerRating: number
-    driverCapacity: number
-    availableDrivers: number
-}
+  // Prepare chart data
+  const statusChartData = Object.entries(statusDistribution).map(([name, value]) => ({
+    name: name.charAt(0).toUpperCase() + name.slice(1).replace('_', ' '),
+    value,
+    fill:
+      name === 'completed'
+        ? 'hsl(var(--success))'
+        : name === 'in_transit'
+          ? 'hsl(var(--primary))'
+          : name === 'delayed'
+            ? 'hsl(var(--destructive))'
+            : 'hsl(var(--warning))',
+  }))
 
-// ============================================================================
-// SKELETON LOADERS
-// ============================================================================
-const StatCardSkeleton = memo(function StatCardSkeleton() {
-    return (
-        <div
-            className="animate-pulse bg-card/60 rounded-md border border-border/30 p-2 sm:p-3"
-            role="status"
-            aria-label="Loading statistic"
-        >
-            <div className="h-4 bg-muted/40 rounded w-24 mb-3" />
-            <div className="h-8 bg-muted/40 rounded w-16 mb-2" />
-            <div className="h-3 bg-muted/20 rounded w-20" />
+  // Get delayed routes
+  const delayedRoutes = routes.filter((r) => r.status === 'delayed').slice(0, 5)
+
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header with Last Update */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Dispatch Console</h2>
+          <p className="text-muted-foreground">
+            Real-time job management and driver assignments
+          </p>
         </div>
-    )
-})
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="w-fit">
+            Last updated: {lastUpdate.toLocaleTimeString()}
+          </Badge>
+          <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
+            <Plus className="h-4 w-4" />
+            New Job
+          </button>
+        </div>
+      </div>
 
-const ProgressRingSkeleton = memo(function ProgressRingSkeleton() {
-    return (
-        <div
-            className="w-20 h-20 rounded-full bg-muted/40 animate-pulse"
-            role="status"
-            aria-label="Loading progress indicator"
+      {/* Key Metrics Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Active Jobs"
+          value={metrics?.activeJobs?.toString() || '0'}
+          icon={Package}
+          trend="up"
+          change="+4"
+          description="Currently dispatched"
+          loading={isLoading}
         />
-    )
-})
+        <StatCard
+          title="In Transit"
+          value={metrics?.scheduled?.toString() || '0'}
+          icon={Truck}
+          trend="neutral"
+          description="En route"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Completed Today"
+          value={metrics?.completed?.toString() || '0'}
+          icon={CheckSquare}
+          trend="up"
+          change="+12%"
+          description="Jobs finished"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Delayed"
+          value={metrics?.delayed?.toString() || '0'}
+          icon={Warning}
+          trend="down"
+          change="-2"
+          description="Behind schedule"
+          loading={isLoading}
+        />
+      </div>
 
-// ============================================================================
-// ACCESSIBLE INTERACTIVE CARD COMPONENT
-// ============================================================================
-interface InteractiveCardProps {
-    children: React.ReactNode
-    onClick: () => void
-    ariaLabel: string
-    className?: string
-}
+      {/* Charts Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Route Status Distribution */}
+        <ResponsivePieChart
+          title="Route Status Distribution"
+          description="Current status of all routes"
+          data={statusChartData}
+          innerRadius={60}
+          loading={isLoading}
+        />
 
-const InteractiveCard = memo(function InteractiveCard({
-    children,
-    onClick,
-    ariaLabel,
-    className
-}: InteractiveCardProps) {
-    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            onClick()
-        }
-    }, [onClick])
+        {/* Weekly Completion Trend */}
+        <ResponsiveLineChart
+          title="Daily Completion Trend"
+          description="Jobs completed vs target over the past week"
+          data={completionTrendData}
+          height={300}
+          showArea
+          loading={isLoading}
+        />
+      </div>
 
-    return (
-        <div
-            className={cn(
-                "bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700",
-                "shadow-sm p-3 sm:p-3 cursor-pointer transition-all duration-300",
-                "hover:shadow-sm hover:-translate-y-0.5",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                className
+      {/* Delayed Routes Alert Section */}
+      {delayedRoutes.length > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Warning className="h-5 w-5 text-amber-500" />
+              <CardTitle>Delayed Routes</CardTitle>
+            </div>
+            <CardDescription>Routes behind schedule requiring attention</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {delayedRoutes.map((route, idx) => (
+                  <motion.div
+                    key={route.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50"
+                  >
+                    <div>
+                      <p className="font-medium">Route #{route.id.slice(0, 8)}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Driver: {route.driverId} • Distance: {route.distance}mi
+                      </p>
+                    </div>
+                    <Badge variant="destructive">
+                      {route.status.toUpperCase()}
+                    </Badge>
+                  </motion.div>
+                ))}
+              </div>
             )}
-            onClick={onClick}
-            onKeyDown={handleKeyDown}
-            role="button"
-            tabIndex={0}
-            aria-label={ariaLabel}
-        >
-            {children}
-        </div>
-    )
-})
+          </CardContent>
+        </Card>
+      )}
 
-// ============================================================================
-// SCREEN READER ANNOUNCEMENT HOOK
-// ============================================================================
-function useAnnouncement() {
-    const [announcement, setAnnouncement] = useState('')
-
-    const announce = useCallback((message: string) => {
-        setAnnouncement('')
-        setTimeout(() => setAnnouncement(message), 100)
-    }, [])
-
-    const AnnouncementRegion = memo(() => (
-        <div
-            role="status"
-            aria-live="polite"
-            aria-atomic="true"
-            className="sr-only"
-        >
-            {announcement}
-        </div>
-    ))
-
-    return { announce, AnnouncementRegion }
+      {/* Quick Actions */}
+      <div className="flex flex-wrap items-center justify-end gap-3 pt-2 border-t border-border">
+        <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition-colors">
+          <Lightning className="h-4 w-4" />
+          Optimize Routes
+        </button>
+        <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition-colors">
+          <MapTrifold className="h-4 w-4" />
+          View Map
+        </button>
+      </div>
+    </div>
+  )
 }
 
-// ============================================================================
-// DISPATCH CONTENT - 10/10 Implementation
-// ============================================================================
-const DispatchContent = memo(function DispatchContent() {
-    const { push } = useDrilldown()
-    const headingId = useId()
-    const { announce, AnnouncementRegion } = useAnnouncement()
-    const [isLoading, setIsLoading] = useState(true)
-    const [metrics, setMetrics] = useState<DispatchMetrics | null>(null)
-    const [isLive, setIsLive] = useState(true)
+/**
+ * Routes Tab - Route management and optimization
+ */
+function RoutesContent() {
+  const { routes, totalDistance, isLoading, lastUpdate } = useReactiveOperationsData()
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setMetrics({
-                activeJobs: 24,
-                startingWithinHour: 6,
-                inTransit: 18,
-                completedToday: 156,
-                target: 160,
-                delayed: 3,
-                criticalDelayed: 1,
-                onTimeRate: 94,
-                yesterdayOnTimeRate: 91,
-                avgDeliveryTime: 42,
-                jobsPerDriver: 8.2,
-                distanceCovered: 2847,
-                customerRating: 4.8,
-                driverCapacity: 78,
-                availableDrivers: 17
-            })
-            setIsLoading(false)
-            announce('Dispatch console loaded. 24 active jobs, 18 currently in transit.')
-        }, 500)
-        return () => clearTimeout(timer)
-    }, [announce])
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Route Management</h2>
+          <p className="text-muted-foreground">
+            Optimize and monitor delivery routes
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline">Last updated: {lastUpdate.toLocaleTimeString()}</Badge>
+          <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
+            <Plus className="h-4 w-4" />
+            New Route
+          </button>
+        </div>
+      </div>
 
-    // Simulated live updates
-    useEffect(() => {
-        if (!isLive) return
-        const interval = setInterval(() => {
-            announce('Live data refreshed')
-        }, 30000)
-        return () => clearInterval(interval)
-    }, [isLive, announce])
-
-    const handleStatClick = useCallback((type: string, title: string) => {
-        announce(`Opening ${title}`)
-        push({ type, data: { title }, id: type } as Omit<DrilldownLevel, "timestamp">)
-    }, [push, announce])
-
-    return (
-        <section
-            className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent min-h-full"
-            aria-labelledby={headingId}
-            role="region"
-        >
-            <AnnouncementRegion />
-
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                    <h2
-                        id={headingId}
-                        className="text-base sm:text-sm font-bold text-white"
-                    >
-                        Dispatch Console
-                    </h2>
-                    <p className="text-slate-400 mt-1">
-                        Real-time job management and driver assignments
-                    </p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => setIsLive(!isLive)}
-                        className={cn(
-                            "inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
-                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                            isLive
-                                ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                : "bg-slate-700 text-slate-400 border border-slate-600"
-                        )}
-                        aria-label={isLive ? "Pause live updates" : "Resume live updates"}
-                        aria-pressed={isLive}
-                    >
-                        <div className={cn(
-                            "w-2 h-2 rounded-full",
-                            isLive ? "bg-green-400 animate-pulse" : "bg-slate-500"
-                        )} aria-hidden="true" />
-                        {isLive ? "Live" : "Paused"}
-                    </button>
-                    <StatusDot status={isLive ? "online" : "offline"} label="Live Updates" />
-                    <button
-                        className={cn(
-                            "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
-                            "bg-primary text-primary-foreground font-medium text-sm",
-                            "hover:bg-primary/90 transition-colors duration-200",
-                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                        )}
-                        onClick={() => handleStatClick('create-job', 'Create Job')}
-                        aria-label="Create new dispatch job"
-                    >
-                        <Plus className="w-4 h-4" aria-hidden="true" />
-                        New Job
-                    </button>
-                </div>
-            </div>
-
-            {/* Primary Stats */}
-            <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-2"
-                role="list"
-                aria-label="Dispatch statistics"
-            >
-                {isLoading ? (
-                    <>
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                    </>
-                ) : (
-                    <>
-                        <StatCard
-                            title="Active Jobs"
-                            value={metrics?.activeJobs.toString() || '0'}
-                            subtitle={`${metrics?.startingWithinHour || 0} starting within hour`}
-                            trend="up"
-                            trendValue="+4"
-                            variant="primary"
-                            icon={<Package className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
-                            onClick={() => handleStatClick('active-jobs', 'Active Jobs')}
-                            aria-label={`Active jobs: ${metrics?.activeJobs}, ${metrics?.startingWithinHour} starting within the hour. Click for details.`}
-                        />
-                        <StatCard
-                            title="In Transit"
-                            value={metrics?.inTransit.toString() || '0'}
-                            subtitle="On schedule"
-                            variant="success"
-                            icon={<Truck className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
-                            onClick={() => handleStatClick('in-transit', 'In Transit')}
-                            aria-label={`Jobs in transit: ${metrics?.inTransit}, all on schedule. Click for details.`}
-                        />
-                        <StatCard
-                            title="Completed Today"
-                            value={metrics?.completedToday.toString() || '0'}
-                            subtitle={`Target: ${metrics?.target || 0}`}
-                            trend="up"
-                            trendValue="+12%"
-                            variant="success"
-                            icon={<CheckSquare className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
-                            onClick={() => handleStatClick('dispatch', 'Completed Today')}
-                            aria-label={`Completed today: ${metrics?.completedToday} of ${metrics?.target} target, up 12%. Click for details.`}
-                        />
-                        <StatCard
-                            title="Delayed"
-                            value={metrics?.delayed.toString() || '0'}
-                            subtitle={`${metrics?.criticalDelayed || 0} critical`}
-                            trend="down"
-                            trendValue="-2"
-                            variant="danger"
-                            icon={<Warning className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
-                            onClick={() => handleStatClick('delayed', 'Delayed Jobs')}
-                            aria-label={`Delayed jobs: ${metrics?.delayed}, ${metrics?.criticalDelayed} critical. Down 2 from earlier. Click for details.`}
-                        />
-                    </>
-                )}
-            </div>
-
-            {/* Secondary Row */}
-            <div
-                className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-2"
-                role="list"
-                aria-label="Performance metrics"
-            >
-                <InteractiveCard
-                    onClick={() => handleStatClick('dispatch', 'On-Time Performance')}
-                    ariaLabel={`On-time rate: ${metrics?.onTimeRate || 0}% versus ${metrics?.yesterdayOnTimeRate || 0}% yesterday. Click for details.`}
-                    className="hover:border-emerald-600"
-                >
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">
-                        On-Time Rate
-                    </h3>
-                    <div className="flex items-center justify-center">
-                        {isLoading ? (
-                            <ProgressRingSkeleton />
-                        ) : (
-                            <ProgressRing
-                                progress={metrics?.onTimeRate || 0}
-                                color="green"
-                                label={`${metrics?.onTimeRate}%`}
-                                sublabel={`vs ${metrics?.yesterdayOnTimeRate}% yesterday`}
-                            />
-                        )}
-                    </div>
-                </InteractiveCard>
-
-                <InteractiveCard
-                    onClick={() => handleStatClick('dispatch', 'Metrics')}
-                    ariaLabel={`Today's metrics: Average delivery ${metrics?.avgDeliveryTime || 0} minutes, ${metrics?.jobsPerDriver || 0} jobs per driver, ${metrics?.customerRating || 0} customer rating. Click for details.`}
-                    className="hover:border-blue-600"
-                >
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">
-                        Today's Metrics
-                    </h3>
-                    <div className="space-y-1">
-                        {isLoading ? (
-                            <>
-                                <div className="h-6 bg-muted/40 rounded animate-pulse" />
-                                <div className="h-6 bg-muted/40 rounded animate-pulse" />
-                                <div className="h-6 bg-muted/40 rounded animate-pulse" />
-                                <div className="h-6 bg-muted/40 rounded animate-pulse" />
-                            </>
-                        ) : (
-                            <>
-                                <QuickStat label="Avg Delivery Time" value={`${metrics?.avgDeliveryTime} min`} trend="down" />
-                                <QuickStat label="Jobs/Driver" value={metrics?.jobsPerDriver?.toFixed(1) || '0'} trend="up" />
-                                <QuickStat label="Distance Covered" value={`${(metrics?.distanceCovered || 0).toLocaleString()} mi`} />
-                                <QuickStat label="Customer Rating" value={`${metrics?.customerRating}/5`} trend="up" />
-                            </>
-                        )}
-                    </div>
-                </InteractiveCard>
-
-                <InteractiveCard
-                    onClick={() => handleStatClick('dispatch', 'Driver Capacity')}
-                    ariaLabel={`Driver capacity: ${metrics?.driverCapacity || 0}%, ${metrics?.availableDrivers || 0} drivers available. Click for details.`}
-                    className="hover:border-blue-600"
-                >
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">
-                        Driver Capacity
-                    </h3>
-                    <div className="flex items-center justify-center">
-                        {isLoading ? (
-                            <ProgressRingSkeleton />
-                        ) : (
-                            <ProgressRing
-                                progress={metrics?.driverCapacity || 0}
-                                color="blue"
-                                label={`${metrics?.driverCapacity}%`}
-                                sublabel={`${metrics?.availableDrivers} drivers available`}
-                            />
-                        )}
-                    </div>
-                </InteractiveCard>
-            </div>
-
-            {/* Quick Actions */}
-            <div
-                className="flex flex-wrap items-center justify-end gap-3 pt-2 border-t border-slate-700"
-                role="toolbar"
-                aria-label="Quick actions"
-            >
-                <button
-                    className={cn(
-                        "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
-                        "bg-slate-700 text-slate-300 font-medium text-sm",
-                        "hover:bg-slate-600 transition-colors duration-200",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                    )}
-                    onClick={() => handleStatClick('optimize-routes', 'Optimize Routes')}
-                    aria-label="Optimize routes"
-                >
-                    <Lightning className="w-4 h-4" aria-hidden="true" />
-                    Optimize Routes
-                </button>
-                <button
-                    className={cn(
-                        "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
-                        "bg-slate-700 text-slate-300 font-medium text-sm",
-                        "hover:bg-slate-600 transition-colors duration-200",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                    )}
-                    onClick={() => handleStatClick('view-map', 'View Fleet Map')}
-                    aria-label="View fleet map"
-                >
-                    <MapTrifold className="w-4 h-4" aria-hidden="true" />
-                    View Map
-                </button>
-            </div>
-        </section>
-    )
-})
-
-// ============================================================================
-// ROUTES CONTENT - 10/10 Implementation
-// ============================================================================
-const RoutesContent = memo(function RoutesContent() {
-    const { push } = useDrilldown()
-    const headingId = useId()
-    const { announce, AnnouncementRegion } = useAnnouncement()
-    const [isLoading, setIsLoading] = useState(true)
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsLoading(false)
-            announce('Route management loaded. 45 active routes, 12 optimized today.')
-        }, 400)
-        return () => clearTimeout(timer)
-    }, [announce])
-
-    const handleStatClick = useCallback((type: string, title: string) => {
-        announce(`Opening ${title}`)
-        push({ type, data: { title }, id: type } as Omit<DrilldownLevel, "timestamp">)
-    }, [push, announce])
-
-    return (
-        <section
-            className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent"
-            aria-labelledby={headingId}
-            role="region"
-        >
-            <AnnouncementRegion />
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                    <h2 id={headingId} className="text-base sm:text-sm font-bold text-white">
-                        Route Management
-                    </h2>
-                    <p className="text-slate-400 mt-1">
-                        Optimize and monitor delivery routes
-                    </p>
-                </div>
-                <button
-                    className={cn(
-                        "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
-                        "bg-primary text-primary-foreground font-medium text-sm",
-                        "hover:bg-primary/90 transition-colors duration-200",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                    )}
-                    onClick={() => handleStatClick('create-route', 'Create Route')}
-                    aria-label="Create new route"
-                >
-                    <Plus className="w-4 h-4" aria-hidden="true" />
-                    New Route
-                </button>
-            </div>
-
-            <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-2"
-                role="list"
-                aria-label="Route statistics"
-            >
-                {isLoading ? (
-                    <>
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                    </>
-                ) : (
-                    <>
-                        <StatCard
-                            title="Active Routes"
-                            value="45"
-                            variant="primary"
-                            icon={<MapTrifold className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
-                            onClick={() => handleStatClick('active-routes', 'Active Routes')}
-                            aria-label="Active routes: 45. Click for details."
-                        />
-                        <StatCard
-                            title="Optimized Today"
-                            value="12"
-                            variant="success"
-                            trend="up"
-                            trendValue="28% savings"
-                            onClick={() => handleStatClick('optimized-today', 'Optimized Routes')}
-                            aria-label="Routes optimized today: 12, achieving 28% savings. Click for details."
-                        />
-                        <StatCard
-                            title="Avg Duration"
-                            value="2.4 hrs"
-                            variant="default"
-                            icon={<Timer className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
-                            onClick={() => handleStatClick('routes', 'Route Duration')}
-                            aria-label="Average route duration: 2.4 hours. Click for details."
-                        />
-                    </>
-                )}
-            </div>
-
-            {/* Route Optimization Insights */}
-            <div
-                className="bg-slate-800/50 rounded-md border border-slate-700 p-3"
-                role="region"
-                aria-label="Optimization insights"
-            >
-                <h3 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
-                    <Lightning className="w-3 h-3 text-amber-400" aria-hidden="true" />
-                    Optimization Insights
-                </h3>
-                <ul className="space-y-3 text-sm" role="list">
-                    <li className="flex items-start gap-3">
-                        <Path className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" aria-hidden="true" />
-                        <span className="text-slate-300">
-                            <strong className="text-white">Route clustering</strong> saved 156 miles and 3.2 hours today
-                        </span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                        <MapPin className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" aria-hidden="true" />
-                        <span className="text-slate-300">
-                            <strong className="text-white">3 routes</strong> can be consolidated for afternoon deliveries
-                        </span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                        <Clock className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" aria-hidden="true" />
-                        <span className="text-slate-300">
-                            <strong className="text-white">Traffic patterns</strong> suggest earlier departure for Route 12
-                        </span>
-                    </li>
-                </ul>
-            </div>
-        </section>
-    )
-})
-
-// ============================================================================
-// TASKS CONTENT - 10/10 Implementation
-// ============================================================================
-const TasksContent = memo(function TasksContent() {
-    const { push } = useDrilldown()
-    const headingId = useId()
-    const { announce, AnnouncementRegion } = useAnnouncement()
-    const [isLoading, setIsLoading] = useState(true)
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsLoading(false)
-            announce('Task management loaded. 34 open tasks, 2 overdue.')
-        }, 400)
-        return () => clearTimeout(timer)
-    }, [announce])
-
-    const handleStatClick = useCallback((type: string, title: string) => {
-        announce(`Opening ${title}`)
-        push({ type, data: { title }, id: type } as Omit<DrilldownLevel, "timestamp">)
-    }, [push, announce])
-
-    return (
-        <section
-            className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent"
-            aria-labelledby={headingId}
-            role="region"
-        >
-            <AnnouncementRegion />
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                    <h2 id={headingId} className="text-base sm:text-sm font-bold text-white">
-                        Task Management
-                    </h2>
-                    <p className="text-slate-400 mt-1">
-                        Track and manage operational tasks
-                    </p>
-                </div>
-                <button
-                    className={cn(
-                        "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
-                        "bg-primary text-primary-foreground font-medium text-sm",
-                        "hover:bg-primary/90 transition-colors duration-200",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                    )}
-                    onClick={() => handleStatClick('create-task', 'Create Task')}
-                    aria-label="Create new task"
-                >
-                    <Plus className="w-4 h-4" aria-hidden="true" />
-                    New Task
-                </button>
-            </div>
-
-            <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-2"
-                role="list"
-                aria-label="Task statistics"
-            >
-                {isLoading ? (
-                    <>
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                    </>
-                ) : (
-                    <>
-                        <StatCard
-                            title="Open Tasks"
-                            value="34"
-                            variant="primary"
-                            onClick={() => handleStatClick('open-tasks', 'Open Tasks')}
-                            aria-label="Open tasks: 34. Click for details."
-                        />
-                        <StatCard
-                            title="In Progress"
-                            value="12"
-                            variant="warning"
-                            onClick={() => handleStatClick('tasks', 'In Progress')}
-                            aria-label="Tasks in progress: 12. Click for details."
-                        />
-                        <StatCard
-                            title="Completed"
-                            value="89"
-                            variant="success"
-                            onClick={() => handleStatClick('tasks', 'Completed Tasks')}
-                            aria-label="Completed tasks: 89. Click for details."
-                        />
-                        <StatCard
-                            title="Overdue"
-                            value="2"
-                            variant="danger"
-                            onClick={() => handleStatClick('overdue-tasks', 'Overdue Tasks')}
-                            aria-label="Overdue tasks: 2. Click for details."
-                        />
-                    </>
-                )}
-            </div>
-        </section>
-    )
-})
-
-// ============================================================================
-// CALENDAR CONTENT - 10/10 Implementation
-// ============================================================================
-const CalendarContent = memo(function CalendarContent() {
-    const { push } = useDrilldown()
-    const headingId = useId()
-    const { announce, AnnouncementRegion } = useAnnouncement()
-    const [isLoading, setIsLoading] = useState(true)
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsLoading(false)
-            announce('Operations calendar loaded. 24 events scheduled today.')
-        }, 400)
-        return () => clearTimeout(timer)
-    }, [announce])
-
-    const handleStatClick = useCallback((type: string, id: string, data: Record<string, any>) => {
-        announce(`Opening ${id.replace(/-/g, ' ')}`)
-        push({ type, id, data } as Omit<DrilldownLevel, "timestamp">)
-    }, [push, announce])
-
-    return (
-        <section
-            className="p-2 sm:p-3 space-y-2 sm:space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent"
-            aria-labelledby={headingId}
-            role="region"
-        >
-            <AnnouncementRegion />
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                    <h2 id={headingId} className="text-base sm:text-sm font-bold text-white">
-                        Operations Calendar
-                    </h2>
-                    <p className="text-slate-400 mt-1">
-                        Schedule and track operational events
-                    </p>
-                </div>
-                <button
-                    className={cn(
-                        "inline-flex items-center gap-2 px-2 py-2 rounded-lg",
-                        "bg-primary text-primary-foreground font-medium text-sm",
-                        "hover:bg-primary/90 transition-colors duration-200",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                    )}
-                    onClick={() => handleStatClick('create-event', 'create-event', {})}
-                    aria-label="Create new calendar event"
-                >
-                    <Plus className="w-4 h-4" aria-hidden="true" />
-                    New Event
-                </button>
-            </div>
-
-            <div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-2"
-                role="list"
-                aria-label="Calendar statistics"
-            >
-                {isLoading ? (
-                    <>
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                        <StatCardSkeleton />
-                    </>
-                ) : (
-                    <>
-                        <StatCard
-                            title="Scheduled Today"
-                            value="24"
-                            variant="primary"
-                            icon={<CalendarDots className="w-3 h-3 sm:w-6 sm:h-6" aria-hidden="true" />}
-                            onClick={() => handleStatClick('calendar-list', 'scheduled-today', { timeframe: 'today' })}
-                            aria-label="Events scheduled today: 24. Click for details."
-                        />
-                        <StatCard
-                            title="This Week"
-                            value="156"
-                            variant="default"
-                            onClick={() => handleStatClick('calendar-list', 'scheduled-week', { timeframe: 'week' })}
-                            aria-label="Events this week: 156. Click for details."
-                        />
-                        <StatCard
-                            title="Driver Shifts"
-                            value="42"
-                            variant="success"
-                            onClick={() => handleStatClick('calendar-list', 'driver-shifts', { type: 'shifts' })}
-                            aria-label="Driver shifts: 42. Click for details."
-                        />
-                    </>
-                )}
-            </div>
-        </section>
-    )
-})
-
-// ============================================================================
-// MAIN HUB COMPONENT - 10/10 Implementation
-// ============================================================================
-export function OperationsHub() {
-    const tabs: HubTab[] = [
-        {
-            id: 'dispatch',
-            label: 'Dispatch',
-            icon: <RadioButton className="w-4 h-4" aria-hidden="true" />,
-            content: <DispatchContent />,
-            ariaLabel: 'View dispatch console and active jobs'
-        },
-        {
-            id: 'routes',
-            label: 'Routes',
-            icon: <MapTrifold className="w-4 h-4" aria-hidden="true" />,
-            content: <RoutesContent />,
-            ariaLabel: 'View route management and optimization'
-        },
-        {
-            id: 'tasks',
-            label: 'Tasks',
-            icon: <CheckSquare className="w-4 h-4" aria-hidden="true" />,
-            content: <TasksContent />,
-            ariaLabel: 'View task management'
-        },
-        {
-            id: 'calendar',
-            label: 'Calendar',
-            icon: <CalendarDots className="w-4 h-4" aria-hidden="true" />,
-            content: <CalendarContent />,
-            ariaLabel: 'View operations calendar'
-        },
-    ]
-
-    return (
-        <HubPage
-            title="Operations Hub"
-            icon={<OperationsIcon className="w-4 h-4" aria-hidden="true" />}
-            description="Dispatch, routing, and task management"
-            tabs={tabs}
-            defaultTab="dispatch"
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <StatCard
+          title="Active Routes"
+          value={routes?.length?.toString() || '0'}
+          icon={MapTrifold}
+          description="Currently active"
+          loading={isLoading}
         />
-    )
+        <StatCard
+          title="Total Distance"
+          value={`${totalDistance?.toFixed(0) || 0} mi`}
+          icon={Path}
+          trend="up"
+          description="Distance covered"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Avg Duration"
+          value="2.4 hrs"
+          icon={Clock}
+          description="Average route time"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Optimization Insights */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Lightning className="h-5 w-5 text-amber-500" />
+            <CardTitle>Optimization Insights</CardTitle>
+          </div>
+          <CardDescription>AI-powered route optimization suggestions</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-start gap-3 p-3 rounded-lg border"
+              >
+                <Path className="h-5 w-5 text-green-500 mt-0.5" />
+                <div>
+                  <p className="font-medium">Route clustering saved 156 miles today</p>
+                  <p className="text-sm text-muted-foreground">3.2 hours of drive time reduced</p>
+                </div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="flex items-start gap-3 p-3 rounded-lg border"
+              >
+                <MapPin className="h-5 w-5 text-blue-500 mt-0.5" />
+                <div>
+                  <p className="font-medium">3 routes can be consolidated</p>
+                  <p className="text-sm text-muted-foreground">Afternoon delivery optimization opportunity</p>
+                </div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="flex items-start gap-3 p-3 rounded-lg border"
+              >
+                <Clock className="h-5 w-5 text-amber-500 mt-0.5" />
+                <div>
+                  <p className="font-medium">Earlier departure recommended for Route 12</p>
+                  <p className="text-sm text-muted-foreground">Traffic patterns suggest 8:30 AM start</p>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
 }
 
-const WrappedOperationsHub = () => (
-    <ErrorBoundary
-        onError={(error, errorInfo) => {
-            logger.error('OperationsHub error', error, {
-                component: 'OperationsHub',
-                errorInfo
-            })
-        }}
-    >
-        <OperationsHub />
-    </ErrorBoundary>
-)
+/**
+ * Tasks Tab - Task management
+ */
+function TasksContent() {
+  const { isLoading, lastUpdate } = useReactiveOperationsData()
 
-export default WrappedOperationsHub
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Task Management</h2>
+          <p className="text-muted-foreground">
+            Track and manage operational tasks
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline">Last updated: {lastUpdate.toLocaleTimeString()}</Badge>
+          <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
+            <Plus className="h-4 w-4" />
+            New Task
+          </button>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Open Tasks"
+          value="34"
+          icon={CheckSquare}
+          description="Pending completion"
+          loading={isLoading}
+        />
+        <StatCard
+          title="In Progress"
+          value="12"
+          icon={Clock}
+          description="Currently active"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Completed"
+          value="89"
+          icon={CheckSquare}
+          trend="up"
+          description="This week"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Overdue"
+          value="2"
+          icon={Warning}
+          trend="down"
+          description="Needs attention"
+          loading={isLoading}
+        />
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Fuel & Operations Tab - Fuel consumption tracking
+ */
+function FuelContent() {
+  const { fuelTransactions, totalFuelCost, fuelConsumptionData, isLoading, lastUpdate } = useReactiveOperationsData()
+
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Fuel Operations</h2>
+          <p className="text-muted-foreground">
+            Track fuel consumption and costs
+          </p>
+        </div>
+        <Badge variant="outline">Last updated: {lastUpdate.toLocaleTimeString()}</Badge>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <StatCard
+          title="Total Fuel Cost"
+          value={`$${totalFuelCost?.toFixed(0) || 0}`}
+          icon={GasPump}
+          trend="up"
+          description="This week"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Transactions Today"
+          value={fuelTransactions?.length?.toString() || '0'}
+          icon={Package}
+          description="Fuel purchases"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Avg Cost/Gallon"
+          value="$4.00"
+          icon={GasPump}
+          trend="down"
+          description="Current average"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Fuel Consumption Chart */}
+      <ResponsiveBarChart
+        title="Weekly Fuel Consumption"
+        description="Gallons and costs by day of the week"
+        data={fuelConsumptionData}
+        height={300}
+        loading={isLoading}
+      />
+    </div>
+  )
+}
+
+/**
+ * Main OperationsHub Component
+ */
+export default function OperationsHub() {
+  const tabs = [
+    {
+      id: 'dispatch',
+      label: 'Dispatch',
+      icon: <RadioButton className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <DispatchOverview />
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'routes',
+      label: 'Routes',
+      icon: <MapTrifold className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading routes...</div>}>
+            <RoutesContent />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'tasks',
+      label: 'Tasks',
+      icon: <CheckSquare className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading tasks...</div>}>
+            <TasksContent />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'fuel',
+      label: 'Fuel',
+      icon: <GasPump className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading fuel data...</div>}>
+            <FuelContent />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+  ]
+
+  return (
+    <HubPage
+      title="Operations Hub"
+      description="Dispatch, routing, and task management"
+      icon={<OperationsIcon className="h-8 w-8" />}
+      tabs={tabs}
+      defaultTab="dispatch"
+    />
+  )
+}

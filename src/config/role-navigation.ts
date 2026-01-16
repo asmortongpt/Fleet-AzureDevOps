@@ -62,7 +62,6 @@ export const ROLE_NAVIGATION_CONFIG: Record<string, string[]> = {
     'procurement-hub-consolidated',
     'assets-hub-consolidated',
     'admin-hub-consolidated',
-    'services-status',
     'communication-hub-consolidated',
     'financial-hub-consolidated',
     'integrations-hub-consolidated',
@@ -82,7 +81,6 @@ export const ROLE_NAVIGATION_CONFIG: Record<string, string[]> = {
     'procurement-hub-consolidated',
     'assets-hub-consolidated',
     'admin-hub-consolidated',
-    'services-status',
     'communication-hub-consolidated',
     'financial-hub-consolidated',
     'integrations-hub-consolidated',
@@ -104,7 +102,6 @@ export const ROLE_NAVIGATION_CONFIG: Record<string, string[]> = {
     'procurement-hub-consolidated',
     'assets-hub-consolidated',
     'admin-hub-consolidated',
-    'services-status',
     'communication-hub-consolidated',
     'financial-hub-consolidated',
     'integrations-hub-consolidated'
@@ -139,7 +136,6 @@ export const ROLE_NAVIGATION_CONFIG: Record<string, string[]> = {
     'procurement-hub-consolidated',
     'assets-hub-consolidated',
     'admin-hub-consolidated',
-    'services-status',
     'communication-hub-consolidated',
     'financial-hub-consolidated',
     'integrations-hub-consolidated'
