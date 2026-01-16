@@ -1,642 +1,783 @@
 /**
- * PolicyHub - Comprehensive Policy and Governance Management Hub
- * Route: /policy-hub
- *
- * Features:
- * - AI-powered policy creation and management
- * - Standard Operating Procedures (SOPs) library
- * - Employee/driver onboarding workflows
- * - Training module assignments and tracking
- * - Compliance checklists and audit trails
- * - Workflow automation and approval routing
- * - Policy acknowledgment and signature tracking
+ * PolicyHub - Modern Policy and Procedures Management Dashboard
+ * Real-time policy tracking, compliance monitoring, and procedure management with responsive visualizations
  */
 
+import { motion } from 'framer-motion'
+import { Suspense } from 'react'
 import {
-    BookOpen as PolicyIcon,
-    ChartBar,
-    FileText,
-    UserPlus,
-    GraduationCap,
-    CheckCircle,
-    FlowArrow,
-    Robot,
-    ShieldCheck,
-    Warning,
-    Lightbulb
-, Receipt } from '@phosphor-icons/react'
-
-import { PolicyEngineWorkbench } from '@/components/modules/admin/PolicyEngineWorkbench'
-import { PolicyOnboarding } from '@/components/modules/admin/PolicyOnboarding'
-import { Button } from '@/components/ui/button'
-import { HubPage, HubTab } from '@/components/ui/hub-page'
-import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
-import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
-import { usePolicies } from '@/contexts/PolicyContext'
+  BookOpen as PolicyIcon,
+  FileText,
+  Shield,
+  Bell,
+  Warning,
+  CheckCircle,
+  ClockCounterClockwise,
+  Certificate,
+  Plus,
+  Users,
+  TrendUp,
+  CalendarCheck,
+} from '@phosphor-icons/react'
+import HubPage from '@/components/ui/hub-page'
+import { useReactivePolicyData } from '@/hooks/use-reactive-policy-data'
+import {
+  StatCard,
+  ResponsiveBarChart,
+  ResponsiveLineChart,
+  ResponsivePieChart,
+} from '@/components/visualizations'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 
 /**
- * Dashboard Content - Overview of policy management system
+ * Overview Tab - Policy metrics and status overview
  */
-function DashboardContent() {
-    const { push } = useDrilldown()
-    const { policies } = usePolicies()
+function PolicyOverview() {
+  const {
+    metrics,
+    statusDistribution,
+    categoryDistribution,
+    policiesNeedingReview,
+    policiesWithViolations,
+    isLoading,
+    lastUpdate,
+  } = useReactivePolicyData()
 
-    // Calculate statistics
-    const activePolicies = policies.filter(p => p.status === 'active').length
-    const draftPolicies = policies.filter(p => p.status === 'draft').length
-    const totalViolations = policies.reduce((sum, p) => sum + (p.violationCount || 0), 0)
-    const complianceRate = policies.length > 0
-        ? Math.round((activePolicies / policies.length) * 100)
-        : 0
+  // Prepare chart data for status distribution
+  const statusChartData = Object.entries(statusDistribution).map(([name, value]) => ({
+    name: name
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' '),
+    value,
+    fill:
+      name === 'active'
+        ? 'hsl(var(--success))'
+        : name === 'draft'
+          ? 'hsl(var(--warning))'
+          : name === 'under_review'
+            ? 'hsl(var(--primary))'
+            : 'hsl(var(--muted))',
+  }))
 
-    return (
-        <div className="p-3 space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-sm font-bold text-white">Policy Management Dashboard</h2>
-                    <p className="text-slate-400 mt-1">Centralized governance and compliance management</p>
-                </div>
-                <Button
-                    onClick={() => push({ type: 'ai-policy-generator', data: { title: 'AI Policy Generator' } } as Omit<DrilldownLevel, "timestamp">)}
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                >
-                    <Robot className="w-4 h-4 mr-2" />
-                    AI Policy Generator
-                </Button>
-            </div>
+  // Prepare chart data for category distribution
+  const categoryChartData = Object.entries(categoryDistribution).map(([name, value]) => ({
+    name: name.charAt(0).toUpperCase() + name.slice(1),
+    value,
+  }))
 
-            {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                <StatCard
-                    title="Active Policies"
-                    value={activePolicies.toString()}
-                    variant="success"
-                    icon={<ShieldCheck className="w-4 h-4" />}
-                    onClick={() => push({ type: 'policies', data: { filter: 'active' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Compliance Rate"
-                    value={`${complianceRate}%`}
-                    variant={complianceRate >= 90 ? "success" : "warning"}
-                    onClick={() => push({ type: 'compliance-tracking', data: { title: 'Compliance Rate' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Draft Policies"
-                    value={draftPolicies.toString()}
-                    variant="default"
-                    onClick={() => push({ type: 'policies', data: { filter: 'draft' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Violations"
-                    value={totalViolations.toString()}
-                    variant={totalViolations > 0 ? "warning" : "success"}
-                    icon={<Warning className="w-4 h-4" />}
-                    onClick={() => push({ type: 'violations', data: { title: 'Policy Violations' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-            </div>
-
-            {/* Status Overview */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
-                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 cursor-pointer hover:border-emerald-600 hover:shadow-sm transition-all duration-200"
-                     onClick={() => push({ type: 'policies', data: { title: 'Policy Status' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">Policy Status</h3>
-                    <div className="flex items-center justify-center">
-                        <ProgressRing progress={complianceRate} color="green" label={`${complianceRate}%`} sublabel="Compliance" />
-                    </div>
-                </div>
-
-                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 cursor-pointer hover:border-blue-600 hover:shadow-sm transition-all duration-200"
-                     onClick={() => push({ type: 'sop-library', data: { title: 'SOP Metrics' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">SOP Library</h3>
-                    <div className="space-y-1">
-                        <QuickStat label="Total SOPs" value="24" />
-                        <QuickStat label="Recently Updated" value="5" trend="up" />
-                        <QuickStat label="Pending Review" value="2" />
-                    </div>
-                </div>
-
-                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 cursor-pointer hover:border-purple-600 hover:shadow-sm transition-all duration-200"
-                     onClick={() => push({ type: 'training', data: { title: 'Training Status' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">Training Status</h3>
-                    <div className="space-y-1">
-                        <QuickStat label="Completed" value="156" trend="up" />
-                        <QuickStat label="In Progress" value="23" />
-                        <QuickStat label="Overdue" value="4" />
-                    </div>
-                </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Quick Actions</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    <button
-                        className="flex items-center gap-3 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
-                        onClick={() => push({ type: 'create-policy', data: { title: 'Create Policy' } } as Omit<DrilldownLevel, "timestamp">)}
-                    >
-                        <Lightbulb className="w-3 h-3 text-blue-800" />
-                        <span className="font-medium text-slate-700 dark:text-slate-300">Create Policy</span>
-                    </button>
-                    <button
-                        className="flex items-center gap-3 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all"
-                        onClick={() => push({ type: 'gap-analysis', data: { title: 'Gap Analysis' } } as Omit<DrilldownLevel, "timestamp">)}
-                    >
-                        <CheckCircle className="w-3 h-3 text-green-600" />
-                        <span className="font-medium text-slate-700 dark:text-slate-300">Run Gap Analysis</span>
-                    </button>
-                    <button
-                        className="flex items-center gap-3 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all"
-                        onClick={() => push({ type: 'training-assignment', data: { title: 'Assign Training' } } as Omit<DrilldownLevel, "timestamp">)}
-                    >
-                        <GraduationCap className="w-3 h-3 text-purple-600" />
-                        <span className="font-medium text-slate-700 dark:text-slate-300">Assign Training</span>
-                    </button>
-                </div>
-            </div>
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header with Last Update */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Policy Overview</h2>
+          <p className="text-muted-foreground">
+            Manage organizational policies and monitor compliance
+          </p>
         </div>
-    )
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="w-fit">
+            Last updated: {lastUpdate.toLocaleTimeString()}
+          </Badge>
+          <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
+            <Plus className="h-4 w-4" />
+            New Policy
+          </button>
+        </div>
+      </div>
+
+      {/* Key Metrics Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Policies"
+          value={metrics?.totalPolicies?.toString() || '0'}
+          icon={FileText}
+          trend="neutral"
+          description="All policies"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Active Policies"
+          value={metrics?.activePolicies?.toString() || '0'}
+          icon={CheckCircle}
+          trend="up"
+          change="+5"
+          description="Currently enforced"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Acknowledgement Rate"
+          value={`${metrics?.acknowledgementRate || 0}%`}
+          icon={Users}
+          trend="up"
+          change="+3%"
+          description="Employee adoption"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Violations"
+          value={metrics?.totalViolations?.toString() || '0'}
+          icon={Warning}
+          trend="down"
+          change="-2"
+          description="Policy violations"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Charts Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Policy Status Distribution */}
+        <ResponsivePieChart
+          title="Policy Status Distribution"
+          description="Current status of all policies in the system"
+          data={statusChartData}
+          innerRadius={60}
+          loading={isLoading}
+        />
+
+        {/* Policies by Category */}
+        <ResponsiveBarChart
+          title="Policies by Category"
+          description="Distribution of policies across categories"
+          data={categoryChartData}
+          height={300}
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Alert Sections Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Policies Needing Review */}
+        {policiesNeedingReview.length > 0 && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <CalendarCheck className="h-5 w-5 text-amber-500" />
+                <CardTitle>Policies Needing Review</CardTitle>
+              </div>
+              <CardDescription>Policies due for review within 30 days</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {policiesNeedingReview.map((policy, idx) => (
+                    <motion.div
+                      key={policy.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.1 }}
+                      className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50"
+                    >
+                      <div>
+                        <p className="font-medium">{policy.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Review Due: {new Date(policy.reviewDate!).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <Badge variant="warning">
+                        {Math.ceil(
+                          (new Date(policy.reviewDate!).getTime() - new Date().getTime()) /
+                            (1000 * 60 * 60 * 24)
+                        )}{' '}
+                        days
+                      </Badge>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Policies with Violations */}
+        {policiesWithViolations.length > 0 && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Warning className="h-5 w-5 text-red-500" />
+                <CardTitle>Policies with Violations</CardTitle>
+              </div>
+              <CardDescription>Policies requiring attention</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {policiesWithViolations.map((policy, idx) => (
+                    <motion.div
+                      key={policy.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.1 }}
+                      className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50"
+                    >
+                      <div>
+                        <p className="font-medium">{policy.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Category: {policy.category.toUpperCase()}
+                        </p>
+                      </div>
+                      <Badge variant="destructive">
+                        {policy.violationCount} {policy.violationCount === 1 ? 'violation' : 'violations'}
+                      </Badge>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  )
 }
 
 /**
- * Policies Content - Policy management workbench
+ * Policies Tab - Active policy management and listing
  */
 function PoliciesContent() {
-    return (
-        <div className="h-full">
-            <PolicyEngineWorkbench />
+  const {
+    policies,
+    metrics,
+    categoryDistribution,
+    isLoading,
+    lastUpdate,
+  } = useReactivePolicyData()
+
+  // Group policies by status
+  const activePolicies = policies.filter((p) => p.status === 'active')
+  const draftPolicies = policies.filter((p) => p.status === 'draft')
+  const underReviewPolicies = policies.filter((p) => p.status === 'under_review')
+
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Policy Management</h2>
+          <p className="text-muted-foreground">
+            Browse and manage all organizational policies
+          </p>
         </div>
-    )
-}
+        <Badge variant="outline">Last updated: {lastUpdate.toLocaleTimeString()}</Badge>
+      </div>
 
-/**
- * SOPs Content - Standard Operating Procedures management
- */
-function SOPsContent() {
-    const { push } = useDrilldown()
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Active Policies"
+          value={activePolicies.length.toString()}
+          icon={CheckCircle}
+          trend="up"
+          description="Currently enforced"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Draft Policies"
+          value={draftPolicies.length.toString()}
+          icon={FileText}
+          trend="neutral"
+          description="In development"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Under Review"
+          value={underReviewPolicies.length.toString()}
+          icon={ClockCounterClockwise}
+          trend="neutral"
+          description="Pending approval"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Total Procedures"
+          value={metrics?.totalProcedures?.toString() || '0'}
+          icon={FileText}
+          trend="up"
+          description="Associated procedures"
+          loading={isLoading}
+        />
+      </div>
 
-    return (
-        <div className="p-3 space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-sm font-bold text-white">Standard Operating Procedures</h2>
-                    <p className="text-slate-400 mt-1">Centralized repository of organizational procedures and best practices</p>
-                </div>
-                <Button
-                    className="bg-blue-600 hover:bg-blue-700"
-                    onClick={() => push({ type: 'create-sop', data: { title: 'Create SOP' } } as Omit<DrilldownLevel, "timestamp">)}
+      {/* Category Distribution Chart */}
+      <ResponsiveBarChart
+        title="Policies by Category"
+        description="Distribution of policies across all categories"
+        data={Object.entries(categoryDistribution).map(([name, value]) => ({
+          name: name.charAt(0).toUpperCase() + name.slice(1),
+          value,
+        }))}
+        height={350}
+        loading={isLoading}
+      />
+
+      {/* Active Policies List */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <CheckCircle className="h-5 w-5 text-green-500" />
+            <CardTitle>Active Policies</CardTitle>
+          </div>
+          <CardDescription>Currently enforced organizational policies</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-20 w-full" />
+              ))}
+            </div>
+          ) : activePolicies.length > 0 ? (
+            <div className="space-y-3">
+              {activePolicies.slice(0, 10).map((policy, idx) => (
+                <motion.div
+                  key={policy.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="rounded-lg border p-4 hover:bg-accent/50"
                 >
-                    <FileText className="w-4 h-4 mr-2" />
-                    Create SOP
-                </Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                <StatCard
-                    title="Total SOPs"
-                    value="24"
-                    variant="primary"
-                    icon={<FileText className="w-4 h-4" />}
-                    onClick={() => push({ type: 'sop-list', data: { title: 'All SOPs' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Recently Updated"
-                    value="5"
-                    variant="success"
-                    onClick={() => push({ type: 'recent-sops', data: { title: 'Recent Updates' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Pending Review"
-                    value="2"
-                    variant="warning"
-                    onClick={() => push({ type: 'pending-review', data: { title: 'Pending Review' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Compliance Rate"
-                    value="97%"
-                    variant="success"
-                    icon={<CheckCircle className="w-4 h-4" />}
-                    onClick={() => push({ type: 'sop-compliance', data: { title: 'SOP Compliance' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-            </div>
-
-            <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">SOP Categories</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {[
-                        { name: 'Safety Procedures', count: 8, icon: <ShieldCheck className="w-3 h-3" />, color: 'text-green-600' },
-                        { name: 'Maintenance', count: 6, icon: <FlowArrow className="w-3 h-3" />, color: 'text-blue-800' },
-                        { name: 'Dispatch', count: 4, icon: <ChartBar className="w-3 h-3" />, color: 'text-purple-600' },
-                        { name: 'Compliance', count: 3, icon: <CheckCircle className="w-3 h-3" />, color: 'text-orange-600' },
-                        { name: 'Emergency Response', count: 2, icon: <Warning className="w-3 h-3" />, color: 'text-red-600' },
-                        { name: 'Administrative', count: 1, icon: <FileText className="w-3 h-3" />, color: 'text-slate-600' },
-                    ].map((category) => (
-                        <button
-                            key={category.name}
-                            className="flex items-center justify-between p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
-                            onClick={() => push({ type: 'sop-category', data: { category: category.name } } as Omit<DrilldownLevel, "timestamp">)}
-                        >
-                            <div className="flex items-center gap-3">
-                                <span className={category.color}>{category.icon}</span>
-                                <span className="font-medium text-slate-700 dark:text-slate-300">{category.name}</span>
-                            </div>
-                            <span className="text-sm text-slate-500">{category.count}</span>
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-md border border-blue-500/20 p-3">
-                <div className="flex items-start gap-2">
-                    <Robot className="w-4 h-4 text-blue-800 flex-shrink-0" />
-                    <div>
-                        <h3 className="text-sm font-semibold text-white mb-2">AI SOP Generation</h3>
-                        <p className="text-slate-300 mb-2">
-                            Use AI to automatically generate SOPs based on your organization's processes, best practices,
-                            and regulatory requirements. Our intelligent system can identify gaps and recommend improvements.
-                        </p>
-                        <Button
-                            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                            onClick={() => push({ type: 'ai-sop-generator', data: { title: 'AI SOP Generator' } } as Omit<DrilldownLevel, "timestamp">)}
-                        >
-                            <Robot className="w-4 h-4 mr-2" />
-                            Generate SOPs with AI
-                        </Button>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <p className="font-medium">{policy.title}</p>
+                        <Badge variant="secondary" className="text-xs">
+                          v{policy.version}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {policy.description}
+                      </p>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <span>Category: {policy.category.toUpperCase()}</span>
+                        <span>•</span>
+                        <span>Owner: {policy.owner}</span>
+                        <span>•</span>
+                        <span>Effective: {new Date(policy.effectiveDate).toLocaleDateString()}</span>
+                      </div>
                     </div>
-                </div>
+                    <Badge variant="default" className="bg-green-500">
+                      Active
+                    </Badge>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-        </div>
-    )
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p>No active policies</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
 }
 
 /**
- * Onboarding Content - Employee/driver onboarding workflows
- */
-function OnboardingContent() {
-    return (
-        <div className="h-full">
-            <PolicyOnboarding />
-        </div>
-    )
-}
-
-/**
- * Training Content - Training module assignment and tracking
- */
-function TrainingContent() {
-    const { push } = useDrilldown()
-
-    return (
-        <div className="p-3 space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-sm font-bold text-white">Training Management</h2>
-                    <p className="text-slate-400 mt-1">Assign, track, and manage training modules and certifications</p>
-                </div>
-                <Button
-                    className="bg-purple-600 hover:bg-purple-700"
-                    onClick={() => push({ type: 'assign-training', data: { title: 'Assign Training' } } as Omit<DrilldownLevel, "timestamp">)}
-                >
-                    <GraduationCap className="w-4 h-4 mr-2" />
-                    Assign Training
-                </Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                <StatCard
-                    title="Completed"
-                    value="156"
-                    variant="success"
-                    icon={<CheckCircle className="w-4 h-4" />}
-                    onClick={() => push({ type: 'completed-training', data: { title: 'Completed Training' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="In Progress"
-                    value="23"
-                    variant="primary"
-                    onClick={() => push({ type: 'in-progress-training', data: { title: 'In Progress' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Overdue"
-                    value="4"
-                    variant="warning"
-                    icon={<Warning className="w-4 h-4" />}
-                    onClick={() => push({ type: 'overdue-training', data: { title: 'Overdue Training' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Completion Rate"
-                    value="87%"
-                    variant="success"
-                    onClick={() => push({ type: 'training-completion-rate', data: { title: 'Completion Rate' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Training Categories</h3>
-                    <div className="space-y-3">
-                        {[
-                            { name: 'Safety Training', completed: 45, total: 50, progress: 90 },
-                            { name: 'Compliance Training', completed: 38, total: 40, progress: 95 },
-                            { name: 'Equipment Operation', completed: 28, total: 35, progress: 80 },
-                            { name: 'Emergency Procedures', completed: 30, total: 30, progress: 100 },
-                            { name: 'Regulatory Requirements', completed: 15, total: 28, progress: 54 },
-                        ].map((category) => (
-                            <div key={category.name} className="space-y-2">
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="font-medium text-slate-700 dark:text-slate-300">{category.name}</span>
-                                    <span className="text-slate-500">{category.completed}/{category.total}</span>
-                                </div>
-                                <div className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                                    <div
-                                        className={`h-full rounded-full transition-all ${
-                                            category.progress >= 90 ? 'bg-green-500' :
-                                            category.progress >= 70 ? 'bg-blue-500' :
-                                            'bg-orange-500'
-                                        }`}
-                                        style={{ width: `${category.progress}%` }}
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Upcoming Training</h3>
-                    <div className="space-y-3">
-                        {[
-                            { title: 'DOT Compliance Update', date: '2024-01-15', attendees: 12 },
-                            { title: 'New Safety Procedures', date: '2024-01-18', attendees: 8 },
-                            { title: 'EV Maintenance Training', date: '2024-01-22', attendees: 5 },
-                            { title: 'Emergency Response Drill', date: '2024-01-25', attendees: 15 },
-                        ].map((training) => (
-                            <div
-                                key={training.title}
-                                className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all cursor-pointer"
-                                onClick={() => push({ type: 'training-detail', data: { training } } as Omit<DrilldownLevel, "timestamp">)}
-                            >
-                                <div>
-                                    <p className="font-medium text-slate-900 dark:text-white">{training.title}</p>
-                                    <p className="text-sm text-slate-500">{training.date}</p>
-                                </div>
-                                <span className="text-sm text-slate-500">{training.attendees} attendees</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
-}
-
-/**
- * Compliance Content - Compliance checklist management
+ * Compliance Tab - Policy compliance tracking
  */
 function ComplianceContent() {
-    const { push } = useDrilldown()
+  const {
+    metrics,
+    complianceTrendData,
+    adoptionByCategory,
+    lowCompliancePolicies,
+    isLoading,
+    lastUpdate,
+  } = useReactivePolicyData()
 
-    return (
-        <div className="p-3 space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-sm font-bold text-white">Compliance Management</h2>
-                    <p className="text-slate-400 mt-1">Track regulatory requirements and ensure organizational compliance</p>
-                </div>
-                <Button
-                    className="bg-emerald-600 hover:bg-emerald-700"
-                    onClick={() => push({ type: 'create-checklist', data: { title: 'Create Checklist' } } as Omit<DrilldownLevel, "timestamp">)}
-                >
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    Create Checklist
-                </Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                <StatCard
-                    title="Overall Compliance"
-                    value="94%"
-                    variant="success"
-                    icon={<CheckCircle className="w-4 h-4" />}
-                    onClick={() => push({ type: 'overall-compliance', data: { title: 'Overall Compliance' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Active Checklists"
-                    value="18"
-                    variant="primary"
-                    onClick={() => push({ type: 'active-checklists', data: { title: 'Active Checklists' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Items Overdue"
-                    value="3"
-                    variant="warning"
-                    icon={<Warning className="w-4 h-4" />}
-                    onClick={() => push({ type: 'overdue-items', data: { title: 'Overdue Items' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Upcoming Audits"
-                    value="2"
-                    variant="default"
-                    onClick={() => push({ type: 'upcoming-audits', data: { title: 'Upcoming Audits' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
-                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 cursor-pointer hover:border-emerald-600 hover:shadow-sm transition-all duration-200"
-                     onClick={() => push({ type: 'dot-compliance', data: { title: 'DOT Compliance' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">DOT Compliance</h3>
-                    <div className="flex items-center justify-center">
-                        <ProgressRing progress={98} color="green" label="98%" sublabel="Compliant" />
-                    </div>
-                </div>
-
-                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 cursor-pointer hover:border-blue-600 hover:shadow-sm transition-all duration-200"
-                     onClick={() => push({ type: 'osha-compliance', data: { title: 'OSHA Compliance' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">OSHA Compliance</h3>
-                    <div className="flex items-center justify-center">
-                        <ProgressRing progress={92} color="green" label="92%" sublabel="Safety Score" />
-                    </div>
-                </div>
-
-                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 cursor-pointer hover:border-purple-600 hover:shadow-sm transition-all duration-200"
-                     onClick={() => push({ type: 'environmental-compliance', data: { title: 'Environmental' } } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">Environmental</h3>
-                    <div className="flex items-center justify-center">
-                        <ProgressRing progress={88} color="green" label="88%" sublabel="EPA Standards" />
-                    </div>
-                </div>
-            </div>
-
-            <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Recent Compliance Activities</h3>
-                <div className="space-y-3">
-                    {[
-                        { activity: 'DOT Inspection Completed', date: '2024-01-05', status: 'passed' },
-                        { activity: 'OSHA 300 Log Updated', date: '2024-01-04', status: 'completed' },
-                        { activity: 'Driver Qualification Files Reviewed', date: '2024-01-03', status: 'passed' },
-                        { activity: 'Vehicle Maintenance Records Audit', date: '2024-01-02', status: 'action-required' },
-                    ].map((item, index) => (
-                        <div
-                            key={index}
-                            className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all cursor-pointer"
-                            onClick={() => push({ type: 'compliance-activity', data: { activity: item } } as Omit<DrilldownLevel, "timestamp">)}
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className={`w-2 h-2 rounded-full ${
-                                    item.status === 'passed' ? 'bg-green-500' :
-                                    item.status === 'completed' ? 'bg-blue-500' :
-                                    'bg-orange-500'
-                                }`} />
-                                <div>
-                                    <p className="font-medium text-slate-900 dark:text-white">{item.activity}</p>
-                                    <p className="text-sm text-slate-500">{item.date}</p>
-                                </div>
-                            </div>
-                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                                item.status === 'passed' ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' :
-                                item.status === 'completed' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400' :
-                                'bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400'
-                            }`}>
-                                {item.status.replace('-', ' ')}
-                            </span>
-                        </div>
-                    ))}
-                </div>
-            </div>
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Policy Compliance</h2>
+          <p className="text-muted-foreground">
+            Monitor policy adoption and compliance rates
+          </p>
         </div>
-    )
-}
+        <Badge variant="outline">Last updated: {lastUpdate.toLocaleTimeString()}</Badge>
+      </div>
 
-/**
- * Workflows Content - Approval workflows and automation
- */
-function WorkflowsContent() {
-    const { push } = useDrilldown()
-
-    return (
-        <div className="p-3 space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-sm font-bold text-white">Workflow Automation</h2>
-                    <p className="text-slate-400 mt-1">Design, automate, and monitor approval workflows and business processes</p>
-                </div>
-                <Button
-                    className="bg-indigo-600 hover:bg-indigo-700"
-                    onClick={() => push({ type: 'create-workflow', data: { title: 'Create Workflow' } } as Omit<DrilldownLevel, "timestamp">)}
-                >
-                    <FlowArrow className="w-4 h-4 mr-2" />
-                    Create Workflow
-                </Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                <StatCard
-                    title="Active Workflows"
-                    value="12"
-                    variant="primary"
-                    icon={<FlowArrow className="w-4 h-4" />}
-                    onClick={() => push({ type: 'active-workflows', data: { title: 'Active Workflows' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Pending Approvals"
-                    value="8"
-                    variant="warning"
-                    onClick={() => push({ type: 'pending-approvals', data: { title: 'Pending Approvals' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Completed This Month"
-                    value="156"
-                    variant="success"
-                    icon={<CheckCircle className="w-4 h-4" />}
-                    onClick={() => push({ type: 'completed-workflows', data: { title: 'Completed' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Avg. Completion Time"
-                    value="2.3 days"
-                    variant="default"
-                    onClick={() => push({ type: 'workflow-metrics', data: { title: 'Metrics' } } as Omit<DrilldownLevel, "timestamp">)}
-                />
-            </div>
-
-            <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Workflow Templates</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {[
-                        { name: 'Purchase Order Approval', steps: 4, users: 8, icon: <Receipt className="w-3 h-3" />, color: 'text-blue-800' },
-                        { name: 'Policy Review & Approval', steps: 5, users: 12, icon: <ShieldCheck className="w-3 h-3" />, color: 'text-green-600' },
-                        { name: 'Incident Investigation', steps: 6, users: 5, icon: <Warning className="w-3 h-3" />, color: 'text-red-600' },
-                        { name: 'Training Certification', steps: 3, users: 20, icon: <GraduationCap className="w-3 h-3" />, color: 'text-purple-600' },
-                        { name: 'Maintenance Approval', steps: 4, users: 6, icon: <FlowArrow className="w-3 h-3" />, color: 'text-orange-600' },
-                        { name: 'Document Review', steps: 3, users: 10, icon: <FileText className="w-3 h-3" />, color: 'text-indigo-600' },
-                    ].map((workflow) => (
-                        <button
-                            key={workflow.name}
-                            className="flex flex-col gap-3 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all text-left"
-                            onClick={() => push({ type: 'workflow-template', data: { workflow } } as Omit<DrilldownLevel, "timestamp">)}
-                        >
-                            <div className="flex items-center gap-3">
-                                <span className={workflow.color}>{workflow.icon}</span>
-                                <span className="font-medium text-slate-700 dark:text-slate-300">{workflow.name}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-slate-500">
-                                <span>{workflow.steps} steps</span>
-                                <span>•</span>
-                                <span>{workflow.users} users</span>
-                            </div>
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            <div className="bg-gradient-to-r from-indigo-600/10 to-purple-600/10 rounded-md border border-indigo-500/20 p-3">
-                <div className="flex items-start gap-2">
-                    <Robot className="w-4 h-4 text-indigo-600 flex-shrink-0" />
-                    <div>
-                        <h3 className="text-sm font-semibold text-white mb-2">AI Workflow Optimization</h3>
-                        <p className="text-slate-300 mb-2">
-                            Leverage AI to identify bottlenecks, optimize approval routing, and predict workflow completion times.
-                            Get intelligent suggestions for process improvements based on historical data.
-                        </p>
-                        <Button
-                            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
-                            onClick={() => push({ type: 'ai-workflow-optimizer', data: { title: 'AI Workflow Optimizer' } } as Omit<DrilldownLevel, "timestamp">)}
-                        >
-                            <Robot className="w-4 h-4 mr-2" />
-                            Optimize with AI
-                        </Button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
-}
-
-/**
- * Import missing Button component
- */
-
-/**
- * Policy Hub Main Component
- */
-export function PolicyHub() {
-    const tabs: HubTab[] = [
-        { id: 'dashboard', label: 'Dashboard', icon: <ChartBar className="w-4 h-4" />, content: <DashboardContent /> },
-        { id: 'policies', label: 'Policies', icon: <ShieldCheck className="w-4 h-4" />, content: <PoliciesContent /> },
-        { id: 'sops', label: 'SOPs', icon: <FileText className="w-4 h-4" />, content: <SOPsContent /> },
-        { id: 'onboarding', label: 'Onboarding', icon: <UserPlus className="w-4 h-4" />, content: <OnboardingContent /> },
-        { id: 'training', label: 'Training', icon: <GraduationCap className="w-4 h-4" />, content: <TrainingContent /> },
-        { id: 'compliance', label: 'Compliance', icon: <CheckCircle className="w-4 h-4" />, content: <ComplianceContent /> },
-        { id: 'workflows', label: 'Workflows', icon: <FlowArrow className="w-4 h-4" />, content: <WorkflowsContent /> },
-    ]
-
-    return (
-        <HubPage
-            title="Policy Management Hub"
-            icon={<PolicyIcon className="w-4 h-4" />}
-            description="Centralized governance, compliance, and process management"
-            tabs={tabs}
-            defaultTab="dashboard"
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Avg Compliance Score"
+          value={`${metrics?.avgComplianceScore || 0}%`}
+          icon={TrendUp}
+          trend="up"
+          change="+2%"
+          description="Overall compliance"
+          loading={isLoading}
         />
-    )
+        <StatCard
+          title="Acknowledgement Rate"
+          value={`${metrics?.acknowledgementRate || 0}%`}
+          icon={Certificate}
+          trend="up"
+          change="+3%"
+          description="Employee adoption"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Training Completion"
+          value={`${metrics?.trainingCompletionRate || 0}%`}
+          icon={Users}
+          trend="up"
+          change="+1%"
+          description="Training complete"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Total Violations"
+          value={metrics?.totalViolations?.toString() || '0'}
+          icon={Warning}
+          trend="down"
+          change="-5"
+          description="Policy violations"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Charts Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Compliance Trend */}
+        <ResponsiveLineChart
+          title="Weekly Compliance Trend"
+          description="Acknowledgement and training completion rates over time"
+          data={complianceTrendData}
+          height={300}
+          showArea
+          loading={isLoading}
+        />
+
+        {/* Adoption by Category */}
+        <ResponsiveBarChart
+          title="Policy Adoption by Category"
+          description="Employee adoption rates across policy categories"
+          data={adoptionByCategory}
+          height={300}
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Low Compliance Policies */}
+      {lowCompliancePolicies.length > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Warning className="h-5 w-5 text-amber-500" />
+              <CardTitle>Low Compliance Policies</CardTitle>
+            </div>
+            <CardDescription>Policies with acknowledgement rates below 80%</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-16 w-full" />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {lowCompliancePolicies.map((item, idx) => (
+                  <motion.div
+                    key={item.policy?.id || idx}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="flex items-center justify-between rounded-lg border p-4"
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium">{item.policy?.title}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {item.acknowledged} of {item.total} employees acknowledged
+                      </p>
+                    </div>
+                    <Badge variant={item.rate >= 60 ? 'warning' : 'destructive'}>
+                      {item.rate}%
+                    </Badge>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Compliance Progress Bars */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Compliance Metrics</CardTitle>
+          <CardDescription>Current compliance status across all policies</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Policy Acknowledgement</span>
+                <span className="text-sm text-muted-foreground">
+                  {metrics?.acknowledgementRate}%
+                </span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-green-500 transition-all duration-500"
+                  style={{ width: `${metrics?.acknowledgementRate}%` }}
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Training Completion</span>
+                <span className="text-sm text-muted-foreground">
+                  {metrics?.trainingCompletionRate}%
+                </span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-blue-500 transition-all duration-500"
+                  style={{ width: `${metrics?.trainingCompletionRate}%` }}
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Compliance Score</span>
+                <span className="text-sm text-muted-foreground">
+                  {metrics?.avgComplianceScore}%
+                </span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-purple-500 transition-all duration-500"
+                  style={{ width: `${metrics?.avgComplianceScore}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
 }
 
-export default PolicyHub
+/**
+ * Updates Tab - Recent policy changes and activity
+ */
+function UpdatesContent() {
+  const { recentUpdates, policies, isLoading, lastUpdate } = useReactivePolicyData()
+
+  // Calculate update statistics
+  const updatesByType = recentUpdates.reduce((acc, update) => {
+    acc[update.type] = (acc[update.type] || 0) + 1
+    return acc
+  }, {} as Record<string, number>)
+
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Policy Updates</h2>
+          <p className="text-muted-foreground">
+            Track recent policy changes and activity
+          </p>
+        </div>
+        <Badge variant="outline">Last updated: {lastUpdate.toLocaleTimeString()}</Badge>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-4">
+        <StatCard
+          title="Total Updates"
+          value={recentUpdates.length.toString()}
+          icon={Bell}
+          trend="neutral"
+          description="Recent activity"
+          loading={isLoading}
+        />
+        <StatCard
+          title="New Policies"
+          value={(updatesByType.created || 0).toString()}
+          icon={Plus}
+          trend="up"
+          description="Recently created"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Revisions"
+          value={(updatesByType.revised || 0).toString()}
+          icon={FileText}
+          trend="neutral"
+          description="Policy updates"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Reviews"
+          value={(updatesByType.reviewed || 0).toString()}
+          icon={Shield}
+          trend="neutral"
+          description="Completed reviews"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Recent Updates Timeline */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <ClockCounterClockwise className="h-5 w-5 text-blue-500" />
+            <CardTitle>Recent Activity</CardTitle>
+          </div>
+          <CardDescription>Latest policy changes and updates</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-24 w-full" />
+              ))}
+            </div>
+          ) : recentUpdates.length > 0 ? (
+            <div className="space-y-4">
+              {recentUpdates.map((update, idx) => {
+                const policy = policies.find((p) => p.id === update.policyId)
+                return (
+                  <motion.div
+                    key={update.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="relative pl-8 pb-4 border-l-2 border-muted last:border-transparent"
+                  >
+                    <div
+                      className={`absolute left-[-9px] top-0 w-4 h-4 rounded-full border-2 border-background ${
+                        update.type === 'created'
+                          ? 'bg-green-500'
+                          : update.type === 'revised'
+                            ? 'bg-blue-500'
+                            : update.type === 'reviewed'
+                              ? 'bg-purple-500'
+                              : 'bg-gray-500'
+                      }`}
+                    />
+                    <div className="rounded-lg border p-4 hover:bg-accent/50">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="font-medium">{policy?.title || 'Unknown Policy'}</p>
+                            <Badge
+                              variant={
+                                update.type === 'created'
+                                  ? 'default'
+                                  : update.type === 'revised'
+                                    ? 'secondary'
+                                    : 'outline'
+                              }
+                              className="text-xs"
+                            >
+                              {update.type.toUpperCase()}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {update.description}
+                          </p>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span>By: {update.updatedBy}</span>
+                            <span>•</span>
+                            <span>{new Date(update.timestamp).toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <Bell className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p>No recent updates</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+/**
+ * Main PolicyHub Component
+ */
+export default function PolicyHub() {
+  const tabs = [
+    {
+      id: 'overview',
+      label: 'Overview',
+      icon: <PolicyIcon className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <PolicyOverview />
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'policies',
+      label: 'Policies',
+      icon: <FileText className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading policies...</div>}>
+            <PoliciesContent />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'compliance',
+      label: 'Compliance',
+      icon: <Shield className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading compliance data...</div>}>
+            <ComplianceContent />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'updates',
+      label: 'Updates',
+      icon: <Bell className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading updates...</div>}>
+            <UpdatesContent />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+  ]
+
+  return (
+    <HubPage
+      title="Policy Hub"
+      description="Policy and procedures management, compliance tracking"
+      icon={<PolicyIcon className="h-8 w-8" />}
+      tabs={tabs}
+      defaultTab="overview"
+    />
+  )
+}
