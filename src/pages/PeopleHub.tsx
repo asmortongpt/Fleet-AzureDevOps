@@ -1,260 +1,782 @@
 /**
- * PeopleHub - Premium Driver & Personnel Management Hub (10/10 Production Quality)
- * Route: /hubs/people
+ * PeopleHub - Modern Personnel & Staff Management Dashboard
+ * Real-time employee tracking, team management, and performance monitoring with responsive visualizations
  */
 
+import { motion } from 'framer-motion'
+import { Suspense } from 'react'
 import {
-    Layout,
-    Users,
-    Activity,
-    FileText,
-    Smartphone,
-    UserCheck,
-    Plus,
-    Award,
-    Calendar,
-    BarChart
-} from 'lucide-react'
-import { memo, useCallback, useState, useMemo } from 'react'
+  Users as PeopleIcon,
+  User,
+  UsersThree,
+  ChartLine,
+  Trophy,
+  Warning,
+  Clock,
+  Plus,
+  Briefcase,
+  UserCircle,
+  CalendarCheck,
+  Buildings,
+} from '@phosphor-icons/react'
+import HubPage from '@/components/ui/hub-page'
+import { useReactivePeopleData } from '@/hooks/use-reactive-people-data'
+import {
+  StatCard,
+  ResponsiveBarChart,
+  ResponsiveLineChart,
+  ResponsivePieChart,
+} from '@/components/visualizations'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 
-import { StatCard } from '@/components/ui/stat-card'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsListUnderline, TabsTriggerUnderline, TabsContent } from "@/components/ui/tabs"
+/**
+ * Overview Tab - Personnel metrics and status overview
+ */
+function PeopleOverview() {
+  const {
+    metrics,
+    statusDistribution,
+    typeDistribution,
+    departmentDistribution,
+    newHires,
+    upcomingReviews,
+    isLoading,
+    lastUpdate,
+  } = useReactivePeopleData()
 
-// ============================================================================
-// HELPERS
-// ============================================================================
-function useAnnouncement() {
-    const [announcement, setAnnouncement] = useState('')
-    const announce = useCallback((message: string) => {
-        setAnnouncement('')
-        setTimeout(() => setAnnouncement(message), 100)
-    }, [])
-    const AnnouncementRegion = memo(() => (
-        <div role="status" aria-live="polite" className="sr-only">{announcement}</div>
-    ))
-    return { announce, AnnouncementRegion }
+  // Prepare chart data for status distribution
+  const statusChartData = Object.entries(statusDistribution).map(([name, value]) => ({
+    name: name
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' '),
+    value,
+    fill:
+      name === 'active'
+        ? 'hsl(var(--success))'
+        : name === 'on_leave'
+          ? 'hsl(var(--warning))'
+          : name === 'inactive'
+            ? 'hsl(var(--muted))'
+            : 'hsl(var(--destructive))',
+  }))
+
+  // Prepare chart data for department distribution
+  const departmentChartData = Object.entries(departmentDistribution)
+    .map(([name, value]) => ({
+      name,
+      value,
+    }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 8)
+
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header with Last Update */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">People Overview</h2>
+          <p className="text-muted-foreground">
+            Manage workforce and monitor organizational health
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="w-fit">
+            Last updated: {lastUpdate.toLocaleTimeString()}
+          </Badge>
+          <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
+            <Plus className="h-4 w-4" />
+            Add Employee
+          </button>
+        </div>
+      </div>
+
+      {/* Key Metrics Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Employees"
+          value={metrics?.totalEmployees?.toString() || '0'}
+          icon={PeopleIcon}
+          trend="neutral"
+          description="In organization"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Active Staff"
+          value={metrics?.activeEmployees?.toString() || '0'}
+          icon={User}
+          trend="up"
+          change="+5"
+          description="Currently working"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Avg Performance"
+          value={`${metrics?.avgPerformanceRating || 0}%`}
+          icon={ChartLine}
+          trend="up"
+          change="+3%"
+          description="Organization average"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Active Teams"
+          value={metrics?.totalTeams?.toString() || '0'}
+          icon={UsersThree}
+          trend="neutral"
+          description="Organizational units"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Charts Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Employee Status Distribution */}
+        <ResponsivePieChart
+          title="Employee Status Distribution"
+          description="Current status of all employees in the organization"
+          data={statusChartData}
+          innerRadius={60}
+          loading={isLoading}
+        />
+
+        {/* Department Distribution */}
+        <ResponsiveBarChart
+          title="Employees by Department"
+          description="Staff distribution across departments"
+          data={departmentChartData}
+          height={300}
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Alert Sections Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* New Hires */}
+        {newHires.length > 0 && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <UserCircle className="h-5 w-5 text-blue-500" />
+                <CardTitle>Recent New Hires</CardTitle>
+              </div>
+              <CardDescription>Employees who joined in the last 90 days</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {newHires.slice(0, 5).map((employee, idx) => (
+                    <motion.div
+                      key={employee.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.1 }}
+                      className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50"
+                    >
+                      <div>
+                        <p className="font-medium">{employee.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {employee.role} • {employee.department}
+                        </p>
+                      </div>
+                      <Badge variant="secondary">
+                        {new Date(employee.hireDate).toLocaleDateString()}
+                      </Badge>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Upcoming Reviews */}
+        {upcomingReviews.length > 0 && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <CalendarCheck className="h-5 w-5 text-amber-500" />
+                <CardTitle>Upcoming Reviews</CardTitle>
+              </div>
+              <CardDescription>Performance reviews scheduled within 30 days</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {upcomingReviews.slice(0, 5).map((employee, idx) => (
+                    <motion.div
+                      key={employee.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.1 }}
+                      className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50"
+                    >
+                      <div>
+                        <p className="font-medium">{employee.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Review: {employee.nextReviewDate ? new Date(employee.nextReviewDate).toLocaleDateString() : 'N/A'}
+                        </p>
+                      </div>
+                      <Badge variant="warning">
+                        Due Soon
+                      </Badge>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  )
 }
 
-const OverviewContent = memo(function OverviewContent() {
-    return (
-        <section className="p-6 text-white min-h-[500px]">
-            <h2 className="text-xl font-bold mb-4">People Overview</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <StatCard title="Active Drivers" value="48" variant="primary" icon={<Users className="w-5 h-5" />} />
-                <StatCard title="Certified" value="44" variant="success" icon={<Award className="w-5 h-5" />} />
-                <StatCard title="In Training" value="4" variant="warning" icon={<Activity className="w-5 h-5" />} />
-                <StatCard title="Avg Score" value="94" variant="info" icon={<BarChart className="w-5 h-5" />} />
-            </div>
-            <div className="bg-slate-900/50 p-6 rounded-lg border border-slate-800">
-                <h3 className="text-lg font-semibold mb-2">Driver Stats & Certification Status</h3>
-                <p className="text-slate-400">
-                    Team performance remains high. 2 certifications expiring soon.
-                </p>
-            </div>
-        </section>
-    )
-})
+/**
+ * Directory Tab - Staff listing and contact information
+ */
+function DirectoryContent() {
+  const {
+    employees,
+    metrics,
+    typeDistribution,
+    isLoading,
+    lastUpdate,
+  } = useReactivePeopleData()
 
-const PeopleManagementContent = memo(function PeopleManagementContent() {
-    return (
-        <div className="h-full p-6 text-white">
-            <h2 className="text-xl font-bold mb-4">People Management</h2>
-            <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-800">
-                <p>Employee directory and contact management.</p>
-                <div className="mt-4 border-t border-slate-800 pt-4">
-                    <div className="flex justify-between items-center py-2">
-                        <span>John Doe</span>
-                        <span className="text-sm text-slate-400">Role: Driver</span>
-                        <span className="text-sm text-green-400">Active</span>
+  // Prepare chart data for employee type distribution
+  const typeChartData = Object.entries(typeDistribution).map(([name, value]) => ({
+    name: name
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' '),
+    value,
+    fill:
+      name === 'full_time'
+        ? 'hsl(var(--primary))'
+        : name === 'part_time'
+          ? 'hsl(var(--secondary))'
+          : 'hsl(var(--accent))',
+  }))
+
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Employee Directory</h2>
+          <p className="text-muted-foreground">
+            Complete staff listing with contact information
+          </p>
+        </div>
+        <Badge variant="outline">Last updated: {lastUpdate.toLocaleTimeString()}</Badge>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Full-Time"
+          value={metrics?.fullTime?.toString() || '0'}
+          icon={Briefcase}
+          trend="neutral"
+          description="Full-time employees"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Part-Time"
+          value={metrics?.partTime?.toString() || '0'}
+          icon={Clock}
+          trend="neutral"
+          description="Part-time employees"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Contractors"
+          value={metrics?.contractors?.toString() || '0'}
+          icon={UserCircle}
+          trend="neutral"
+          description="Contract workers"
+          loading={isLoading}
+        />
+        <StatCard
+          title="On Leave"
+          value={metrics?.onLeave?.toString() || '0'}
+          icon={CalendarCheck}
+          trend="neutral"
+          description="Currently on leave"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Employee Type Distribution Chart */}
+      <ResponsivePieChart
+        title="Employment Type Distribution"
+        description="Breakdown of employees by employment type"
+        data={typeChartData}
+        innerRadius={60}
+        loading={isLoading}
+      />
+
+      {/* Employee List */}
+      <Card>
+        <CardHeader>
+          <CardTitle>All Employees</CardTitle>
+          <CardDescription>Complete directory of all staff members</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-20 w-full" />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {employees.slice(0, 10).map((employee, idx) => (
+                <motion.div
+                  key={employee.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="flex items-center justify-between rounded-lg border p-4 hover:bg-accent/50"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <User className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">{employee.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {employee.role} • {employee.department}
+                        </p>
+                      </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    )
-})
-
-const DriverPerformanceContent = memo(function DriverPerformanceContent() {
-    return (
-        <div className="h-full p-6 text-white">
-            <h2 className="text-xl font-bold mb-4">Driver Performance</h2>
-            <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-800">
-                <h4 className="font-bold mb-2">Performance Metrics</h4>
-                <div className="space-y-2">
-                    <div className="flex justify-between">
-                        <span>Safety Rating</span>
-                        <span className="text-green-400">4.8/5.0</span>
+                    <div className="flex gap-4 text-xs text-muted-foreground ml-13">
+                      <span>{employee.email}</span>
+                      <span>{employee.phone}</span>
+                      <span className="capitalize">{employee.employeeType.replace('_', ' ')}</span>
                     </div>
-                    <div className="flex justify-between">
-                        <span>Efficiency Score</span>
-                        <span className="text-blue-400">92%</span>
+                  </div>
+                  <Badge
+                    variant={
+                      employee.status === 'active'
+                        ? 'default'
+                        : employee.status === 'on_leave'
+                          ? 'warning'
+                          : 'secondary'
+                    }
+                  >
+                    {employee.status.replace('_', ' ').toUpperCase()}
+                  </Badge>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+/**
+ * Teams Tab - Team management and organization structure
+ */
+function TeamsContent() {
+  const {
+    teams,
+    metrics,
+    teamSizeData,
+    employees,
+    isLoading,
+    lastUpdate,
+  } = useReactivePeopleData()
+
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Teams</h2>
+          <p className="text-muted-foreground">
+            Manage organizational teams and structures
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline">Last updated: {lastUpdate.toLocaleTimeString()}</Badge>
+          <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
+            <Plus className="h-4 w-4" />
+            Create Team
+          </button>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <StatCard
+          title="Total Teams"
+          value={metrics?.totalTeams?.toString() || '0'}
+          icon={UsersThree}
+          trend="up"
+          change="+2"
+          description="Active teams"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Avg Team Size"
+          value={metrics?.avgTeamSize?.toString() || '0'}
+          icon={PeopleIcon}
+          trend="neutral"
+          description="Members per team"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Departments"
+          value={Object.keys(
+            employees.reduce((acc, e) => {
+              acc[e.department] = true
+              return acc
+            }, {} as Record<string, boolean>)
+          ).length.toString()}
+          icon={Buildings}
+          trend="neutral"
+          description="Unique departments"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Team Size Distribution Chart */}
+      <ResponsiveBarChart
+        title="Team Size Distribution"
+        description="Number of members in each team"
+        data={teamSizeData}
+        height={350}
+        loading={isLoading}
+      />
+
+      {/* Teams List */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <UsersThree className="h-5 w-5 text-primary" />
+            <CardTitle>All Teams</CardTitle>
+          </div>
+          <CardDescription>Overview of all organizational teams</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} className="h-24 w-full" />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {teams.map((team, idx) => (
+                <motion.div
+                  key={team.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="rounded-lg border p-4 hover:bg-accent/50"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-semibold text-lg">{team.name}</h3>
+                        <Badge variant="secondary">{team.department}</Badge>
+                      </div>
+                      {team.description && (
+                        <p className="text-sm text-muted-foreground mb-2">
+                          {team.description}
+                        </p>
+                      )}
+                      <div className="flex gap-4 text-sm">
+                        <span className="text-muted-foreground">
+                          Members: <span className="font-medium text-foreground">{team.memberCount}</span>
+                        </span>
+                        <span className="text-muted-foreground">
+                          Manager: <span className="font-medium text-foreground">
+                            {employees.find((e) => e.id === team.managerId)?.name || 'Unassigned'}
+                          </span>
+                        </span>
+                      </div>
                     </div>
-                </div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-        </div>
-    )
-})
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
 
-const DriverScorecardContent = memo(function DriverScorecardContent() {
-    return (
-        <div className="h-full p-6 text-white">
-            <h2 className="text-xl font-bold mb-4">Driver Scorecard</h2>
-            <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-800">
-                <p>Comprehensive driver ranking and score analysis.</p>
-                <div className="mt-4 p-4 bg-slate-800/50 rounded">
-                    <h1 className="text-3xl font-bold text-emerald-400">A+</h1>
-                    <p className="text-sm text-slate-400">Fleet Average</p>
-                </div>
+/**
+ * Performance Tab - Performance tracking and reviews
+ */
+function PerformanceContent() {
+  const {
+    metrics,
+    performanceRanges,
+    performanceTrendData,
+    departmentPerformanceData,
+    topPerformers,
+    needsAttention,
+    isLoading,
+    lastUpdate,
+  } = useReactivePeopleData()
+
+  // Prepare chart data for performance ranges
+  const performanceRangesChartData = Object.entries(performanceRanges).map(([name, value]) => ({
+    name: name.charAt(0).toUpperCase() + name.slice(1).replace(/([A-Z])/g, ' $1').trim(),
+    value,
+  }))
+
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Performance Management</h2>
+          <p className="text-muted-foreground">
+            Track employee performance and schedule reviews
+          </p>
+        </div>
+        <Badge variant="outline">Last updated: {lastUpdate.toLocaleTimeString()}</Badge>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Avg Performance"
+          value={`${metrics?.avgPerformanceRating || 0}%`}
+          icon={ChartLine}
+          trend="up"
+          change="+3%"
+          description="Organization average"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Top Performers"
+          value={topPerformers.length.toString()}
+          icon={Trophy}
+          trend="up"
+          description="Above 90% rating"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Scheduled Reviews"
+          value={metrics?.scheduledReviews?.toString() || '0'}
+          icon={CalendarCheck}
+          trend="neutral"
+          description="Upcoming reviews"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Needs Attention"
+          value={needsAttention.length.toString()}
+          icon={Warning}
+          trend="down"
+          description="Require support"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Charts Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Performance Trend */}
+        <ResponsiveLineChart
+          title="Monthly Performance Trend"
+          description="Average performance rating and completed reviews"
+          data={performanceTrendData}
+          height={300}
+          showArea
+          loading={isLoading}
+        />
+
+        {/* Performance Rating Distribution */}
+        <ResponsiveBarChart
+          title="Performance Distribution"
+          description="Employees grouped by performance rating ranges"
+          data={performanceRangesChartData}
+          height={300}
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Department Performance Chart */}
+      <ResponsiveBarChart
+        title="Department Performance"
+        description="Average performance rating by department"
+        data={departmentPerformanceData}
+        height={350}
+        loading={isLoading}
+      />
+
+      {/* Performance Lists Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Top Performers */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-amber-500" />
+              <CardTitle>Top Performers</CardTitle>
             </div>
-        </div>
-    )
-})
+            <CardDescription>Employees with outstanding performance ratings</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-16 w-full" />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {topPerformers.slice(0, 5).map((employee, idx) => (
+                  <motion.div
+                    key={employee.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="flex items-center justify-between rounded-lg border p-4"
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium">{employee.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {employee.role} • {employee.department}
+                      </p>
+                    </div>
+                    <Badge variant="default" className="bg-green-500">
+                      {employee.performanceRating}%
+                    </Badge>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-const MobileEmployeeContent = memo(function MobileEmployeeContent() {
-    return (
-        <div className="h-full p-6 text-white">
-            <h2 className="text-xl font-bold mb-4">Mobile Employee Dashboard</h2>
-            <div className="max-w-md mx-auto bg-slate-900/50 p-4 rounded-3xl border border-slate-800 h-[600px] flex flex-col relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-6 bg-black/40 backdrop-blur"></div>
-                <div className="mt-8 flex-1 flex items-center justify-center">
-                    <p className="text-slate-500 text-center">Mobile View Preview<br />Employee Interface</p>
-                </div>
+        {/* Needs Attention */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Warning className="h-5 w-5 text-amber-500" />
+              <CardTitle>Needs Attention</CardTitle>
             </div>
-        </div>
-    )
-})
+            <CardDescription>Employees requiring support or performance improvement</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-16 w-full" />
+                ))}
+              </div>
+            ) : needsAttention.length > 0 ? (
+              <div className="space-y-3">
+                {needsAttention.slice(0, 5).map((employee, idx) => (
+                  <motion.div
+                    key={employee.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="flex items-center justify-between rounded-lg border p-4"
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium">{employee.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {employee.role} • {employee.department}
+                      </p>
+                    </div>
+                    <Badge variant="warning">
+                      {employee.performanceRating}%
+                    </Badge>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Trophy className="h-12 w-12 mx-auto mb-2 text-green-500" />
+                <p>All employees performing well</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
 
-const MobileManagerContent = memo(function MobileManagerContent() {
-    return (
-        <div className="h-full p-6 text-white">
-            <h2 className="text-xl font-bold mb-4">Mobile Manager View</h2>
-            <div className="max-w-md mx-auto bg-slate-900/50 p-4 rounded-3xl border border-slate-800 h-[600px] flex flex-col relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-6 bg-black/40 backdrop-blur"></div>
-                <div className="mt-8 flex-1 flex items-center justify-center">
-                    <p className="text-slate-500 text-center">Mobile View Preview<br />Manager Oversight</p>
-                </div>
-            </div>
-        </div>
-    )
-})
-
+/**
+ * Main PeopleHub Component
+ */
 export default function PeopleHub() {
-    const [activeTab, setActiveTab] = useState("overview");
+  const tabs = [
+    {
+      id: 'overview',
+      label: 'Overview',
+      icon: <PeopleIcon className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <PeopleOverview />
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'directory',
+      label: 'Directory',
+      icon: <User className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading directory...</div>}>
+            <DirectoryContent />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'teams',
+      label: 'Teams',
+      icon: <UsersThree className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading teams...</div>}>
+            <TeamsContent />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'performance',
+      label: 'Performance',
+      icon: <ChartLine className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading performance data...</div>}>
+            <PerformanceContent />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+  ]
 
-    const metrics = {
-        activeDrivers: 48,
-        certified: 44,
-        inTraining: 4,
-        avgScore: 94
-    };
-
-    return (
-        <div className="flex h-full w-full flex-col bg-slate-950 text-white overflow-hidden">
-
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4 bg-slate-900/50 backdrop-blur">
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-violet-500/10 rounded-lg">
-                        <Users className="w-6 h-6 text-violet-400" />
-                    </div>
-                    <div>
-                        <h1 className="text-lg font-bold">People Hub</h1>
-                        <p className="text-xs text-slate-400">Driver and personnel management</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Layout */}
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-1 flex-col overflow-hidden">
-                <div className="border-b border-slate-800 px-6 bg-slate-900/20">
-                    <TabsListUnderline>
-                        <TabsTriggerUnderline value="overview">
-                            <Layout className="w-4 h-4 mr-2" />
-                            Overview
-                        </TabsTriggerUnderline>
-                        <TabsTriggerUnderline value="people">
-                            <Users className="w-4 h-4 mr-2" />
-                            People
-                        </TabsTriggerUnderline>
-                        <TabsTriggerUnderline value="performance">
-                            <Activity className="w-4 h-4 mr-2" />
-                            Performance
-                        </TabsTriggerUnderline>
-                        <TabsTriggerUnderline value="scorecard">
-                            <FileText className="w-4 h-4 mr-2" />
-                            Scorecard
-                        </TabsTriggerUnderline>
-                        <TabsTriggerUnderline value="mobile-employee">
-                            <Smartphone className="w-4 h-4 mr-2" />
-                            Mobile Employee
-                        </TabsTriggerUnderline>
-                        <TabsTriggerUnderline value="mobile-manager">
-                            <UserCheck className="w-4 h-4 mr-2" />
-                            Mobile Manager
-                        </TabsTriggerUnderline>
-                    </TabsListUnderline>
-                </div>
-
-                <div className="flex flex-1 overflow-hidden">
-                    {/* Main Content */}
-                    <main className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-950 to-slate-900">
-                        <TabsContent value="overview" className="h-full mt-0">
-                            <OverviewContent />
-                        </TabsContent>
-                        <TabsContent value="people" className="h-full mt-0">
-                            <PeopleManagementContent />
-                        </TabsContent>
-                        <TabsContent value="performance" className="h-full mt-0">
-                            <DriverPerformanceContent />
-                        </TabsContent>
-                        <TabsContent value="scorecard" className="h-full mt-0">
-                            <DriverScorecardContent />
-                        </TabsContent>
-                        <TabsContent value="mobile-employee" className="h-full mt-0">
-                            <MobileEmployeeContent />
-                        </TabsContent>
-                        <TabsContent value="mobile-manager" className="h-full mt-0">
-                            <MobileManagerContent />
-                        </TabsContent>
-                    </main>
-
-                    {/* Right Sidebar */}
-                    <aside className="w-80 border-l border-slate-800 bg-slate-900/40 p-6 overflow-y-auto hidden xl:block">
-                        <div className="space-y-6" style={{ borderLeft: "1px solid transparent" }}>
-                            <div>
-                                <h3 className="text-sm font-semibold text-slate-100 uppercase tracking-wide mb-4">Quick Stats</h3>
-                                <div className="space-y-3">
-                                    <div className="flex items-center justify-between p-3 rounded-lg bg-violet-500/10 border border-violet-500/20">
-                                        <span className="text-sm text-slate-300">Active Drivers</span>
-                                        <span className="font-bold text-violet-400">{metrics.activeDrivers}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                                        <span className="text-sm text-slate-300">Certified</span>
-                                        <span className="font-bold text-emerald-400">{metrics.certified}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                                        <span className="text-sm text-slate-300">In Training</span>
-                                        <span className="font-bold text-amber-400">{metrics.inTraining}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                                        <span className="text-sm text-slate-300">Avg Score</span>
-                                        <span className="font-bold text-blue-400">{metrics.avgScore}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="pt-6 border-t border-slate-800">
-                                <h3 className="text-sm font-semibold text-slate-100 uppercase tracking-wide mb-4">Quick Actions</h3>
-                                <div className="space-y-2">
-                                    <Button className="w-full justify-start" variant="outline"><Plus className="mr-2 h-4 w-4" /> Add Driver</Button>
-                                    <Button className="w-full justify-start" variant="outline"><Award className="mr-2 h-4 w-4" /> Check Certifications</Button>
-                                    <Button className="w-full justify-start" variant="outline"><Calendar className="mr-2 h-4 w-4" /> Schedule Training</Button>
-                                    <Button className="w-full justify-start" variant="outline"><BarChart className="mr-2 h-4 w-4" /> Performance Review</Button>
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
-                </div>
-            </Tabs>
-        </div>
-    )
+  return (
+    <HubPage
+      title="People Hub"
+      description="Personnel management, teams, and performance tracking"
+      icon={<PeopleIcon className="h-8 w-8" />}
+      tabs={tabs}
+      defaultTab="overview"
+    />
+  )
 }
