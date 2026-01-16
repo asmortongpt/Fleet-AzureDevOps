@@ -1,177 +1,686 @@
+/**
+ * InsightsHub - Modern Analytics and Intelligence Dashboard
+ * Real-time insights, AI predictions, and actionable recommendations with responsive visualizations
+ */
 
-import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { Suspense } from 'react'
 import {
-    Layout,
-    BarChart,
-    TrendingUp,
-    FileText,
-    Brain,
-    Download,
-    Play,
-    LineChart,
-    Activity,
-    Database,
-    Plus,
-    Calendar,
-    Clipboard
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { StatCard } from '@/components/ui/stat-card'
-import { cn } from "@/lib/utils"
+  ChartLine as InsightsIcon,
+  Brain,
+  TrendUp,
+  Lightbulb,
+  Target,
+  Sparkle,
+  Warning,
+  CheckCircle,
+  Clock,
+  CurrencyDollar,
+  Activity,
+  ChartPie,
+} from '@phosphor-icons/react'
+import HubPage from '@/components/ui/hub-page'
+import { useReactiveInsightsData } from '@/hooks/use-reactive-insights-data'
+import {
+  StatCard,
+  ResponsiveBarChart,
+  ResponsiveLineChart,
+  ResponsivePieChart,
+} from '@/components/visualizations'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 
-export default function InsightsHub() {
-    const [activeTab, setActiveTab] = useState("overview");
+/**
+ * Overview Tab - Key analytics metrics
+ */
+function InsightsOverview() {
+  const {
+    aggregatedMetrics,
+    categoryDistribution,
+    costSavingsTrend,
+    efficiencyTrend,
+    isLoading,
+    lastUpdate,
+  } = useReactiveInsightsData()
 
-    const metrics = {
-        reports: 12,
-        insights: 45,
-        savings: "$12.5k",
-        predictions: 8
-    };
-
-    // Custom Tab Navigation (replaces Radix UI for stability)
-    const NavTab = ({ id, label }: { id: string, label: string }) => {
-        return (
-            <button
-                onClick={() => setActiveTab(id)}
-                className={cn(
-                    "group inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-all mr-2 mb-2",
-                    activeTab === id
-                        ? "bg-white/10 text-white"
-                        : "text-slate-400 hover:bg-white/10 hover:text-white"
-                )}
-            >
-                {label}
-            </button>
-        )
-    }
-
-    return (
-        <div className="flex h-full w-full flex-col bg-slate-950 text-white overflow-hidden">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4 bg-slate-900/50 backdrop-blur">
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-purple-500/10 rounded-lg">
-                        <BarChart className="w-6 h-6 text-purple-400" />
-                    </div>
-                    <div>
-                        <h1 className="text-lg font-bold">Insights Hub</h1>
-                        <p className="text-xs text-slate-400">Data analytics and reporting</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Navigation Bar - Vertical Level to ensure visibility */}
-            <div className="border-b border-slate-800 px-6 bg-slate-900/20 py-4 flex flex-col gap-2">
-                <NavTab id="overview" label="Overview" />
-                <NavTab id="executive" label="Executive Dashboard" />
-                <NavTab id="fleet-analytics" label="Fleet Analytics" />
-                <NavTab id="workbench" label="Data Workbench" />
-                <NavTab id="cost" label="Cost Analysis Center" />
-                <NavTab id="reports" label="Custom Report Builder" />
-                <NavTab id="predictive" label="Predictive Maintenance" />
-            </div>
-
-            <div className="flex flex-1 overflow-hidden">
-                {/* Main Content Area */}
-                <main className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-950 to-slate-900 p-6">
-                    {activeTab === 'overview' && (
-                        <section className="min-h-[500px]">
-                            <h2 className="text-xl font-bold mb-4">Insights Overview</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                                <StatCard title="Reports Today" value="12" variant="primary" icon={<FileText className="w-5 h-5" />} />
-                                <StatCard title="Insights Generated" value="45" variant="success" icon={<Brain className="w-5 h-5" />} />
-                                <StatCard title="Cost Savings" value="$12.5k" variant="warning" icon={<TrendingUp className="w-5 h-5" />} />
-                                <StatCard title="AI Predictions" value="8" variant="info" icon={<Activity className="w-5 h-5" />} />
-                            </div>
-                            <div className="bg-slate-900/50 p-6 rounded-lg border border-slate-800">
-                                <h3 className="text-lg font-semibold mb-2">Executive Summary</h3>
-                                <p className="text-slate-400">Fleet efficiency up 12% following recent route optimizations.</p>
-                            </div>
-                        </section>
-                    )}
-                    {activeTab === 'executive' && (
-                        <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-800">
-                            <h2 className="text-xl font-bold mb-4">Executive Dashboard</h2>
-                            <p>High-level KPI visualization.</p>
-                        </div>
-                    )}
-                    {activeTab === 'fleet-analytics' && (
-                        <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-800">
-                            <h2 className="text-xl font-bold mb-4">Fleet Analytics</h2>
-                            <p>Detailed vehicle performance metrics.</p>
-                        </div>
-                    )}
-                    {activeTab === 'workbench' && (
-                        <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-800">
-                            <h2 className="text-xl font-bold mb-4">Data Workbench</h2>
-                            <p>Custom metric analysis and data exploration.</p>
-                        </div>
-                    )}
-                    {activeTab === 'cost' && (
-                        <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-800">
-                            <h2 className="text-xl font-bold mb-4">Cost Analysis Center</h2>
-                            <p>TCO breakdown and expense tracking.</p>
-                        </div>
-                    )}
-                    {activeTab === 'reports' && (
-                        <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-800">
-                            <h2 className="text-xl font-bold mb-4">Custom Report Builder</h2>
-                            <p>Drag-and-drop report generation.</p>
-                        </div>
-                    )}
-                    {activeTab === 'predictive' && (
-                        <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-800">
-                            <h2 className="text-xl font-bold mb-4">Predictive Maintenance</h2>
-                            <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-800">
-                                <h4 className="font-bold mb-2">AI Forecasting</h4>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between">
-                                        <span>Predicted Failures (7 Days)</span>
-                                        <span className="text-amber-400">2 Vehicles</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </main>
-
-                {/* Right Sidebar - Explicitly Visible */}
-                <aside className="w-80 border-l border-slate-800 bg-slate-900/40 p-6 overflow-y-auto hidden xl:block" style={{ borderLeft: "1px solid transparent" }}>
-                    <div className="space-y-6">
-                        <div>
-                            <h3 className="text-sm font-semibold text-slate-100 uppercase tracking-wide mb-4">Quick Stats</h3>
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                                    <span className="text-sm text-slate-300">Reports Today</span>
-                                    <span className="font-bold text-blue-400">{metrics.reports}</span>
-                                </div>
-                                <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-                                    <span className="text-sm text-slate-300">Insights Generated</span>
-                                    <span className="font-bold text-green-400">{metrics.insights}</span>
-                                </div>
-                                <div className="flex items-center justify-between p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                                    <span className="text-sm text-slate-300">Cost Savings</span>
-                                    <span className="font-bold text-amber-400">{metrics.savings}</span>
-                                </div>
-                                <div className="flex items-center justify-between p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
-                                    <span className="text-sm text-slate-300">AI Predictions</span>
-                                    <span className="font-bold text-indigo-400">{metrics.predictions}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="pt-6 border-t border-slate-800">
-                            <h3 className="text-sm font-semibold text-slate-100 uppercase tracking-wide mb-4">Quick Actions</h3>
-                            <div className="space-y-2">
-                                <Button className="w-full justify-start" variant="outline"><Download className="mr-2 h-4 w-4" /> Export Data</Button>
-                                <Button className="w-full justify-start" variant="outline"><FileText className="mr-2 h-4 w-4" /> Generate Report</Button>
-                                <Button className="w-full justify-start" variant="outline"><Play className="mr-2 h-4 w-4" /> Run Analysis</Button>
-                                <Button className="w-full justify-start" variant="outline"><LineChart className="mr-2 h-4 w-4" /> View Trends</Button>
-                            </div>
-                        </div>
-                    </div>
-                </aside>
-            </div>
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header with Last Update */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Analytics Overview</h2>
+          <p className="text-muted-foreground">
+            Real-time insights and intelligence across your fleet
+          </p>
         </div>
-    )
+        <Badge variant="outline" className="w-fit">
+          Last updated: {lastUpdate.toLocaleTimeString()}
+        </Badge>
+      </div>
+
+      {/* Key Metrics Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Insights"
+          value={aggregatedMetrics?.totalInsights?.toString() || '0'}
+          icon={Brain}
+          trend="up"
+          change="+12"
+          description="AI-generated insights"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Critical Alerts"
+          value={aggregatedMetrics?.criticalAlerts?.toString() || '0'}
+          icon={Warning}
+          trend="down"
+          change="-3"
+          description="Requiring attention"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Potential Savings"
+          value={`$${(aggregatedMetrics?.potentialSavings || 0).toLocaleString()}`}
+          icon={CurrencyDollar}
+          trend="up"
+          change="+$15k"
+          description="From recommendations"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Avg Confidence"
+          value={`${aggregatedMetrics?.avgConfidence || 0}%`}
+          icon={Target}
+          trend="up"
+          change="+5%"
+          description="Model accuracy"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Charts Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Cost Savings Trend */}
+        <ResponsiveLineChart
+          title="Cost Savings Trend"
+          description="Monthly cost savings vs target over 6 months"
+          data={costSavingsTrend}
+          height={300}
+          showArea
+          loading={isLoading}
+        />
+
+        {/* Category Distribution */}
+        <ResponsivePieChart
+          title="Insights by Category"
+          description="Distribution of insights across fleet operations"
+          data={categoryDistribution}
+          innerRadius={60}
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Efficiency Metrics */}
+      <ResponsiveBarChart
+        title="Weekly Efficiency Metrics"
+        description="Fleet utilization, fuel efficiency, and downtime tracking"
+        data={efficiencyTrend}
+        height={300}
+        loading={isLoading}
+      />
+
+      {/* Quick Insights Summary */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Sparkle className="h-5 w-5 text-amber-500" />
+            <CardTitle>Key Performance Indicators</CardTitle>
+          </div>
+          <CardDescription>Current fleet performance snapshot</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-lg border p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-muted-foreground">Fleet Utilization</span>
+                <TrendUp className="h-4 w-4 text-green-500" />
+              </div>
+              <p className="text-2xl font-bold">87%</p>
+              <p className="text-xs text-muted-foreground mt-1">+5% from last month</p>
+            </div>
+            <div className="rounded-lg border p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-muted-foreground">Avg Fuel Efficiency</span>
+                <TrendUp className="h-4 w-4 text-green-500" />
+              </div>
+              <p className="text-2xl font-bold">8.9 MPG</p>
+              <p className="text-xs text-muted-foreground mt-1">+0.7 MPG improvement</p>
+            </div>
+            <div className="rounded-lg border p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-muted-foreground">Downtime</span>
+                <TrendUp className="h-4 w-4 text-amber-500" />
+              </div>
+              <p className="text-2xl font-bold">4 hrs</p>
+              <p className="text-xs text-muted-foreground mt-1">Avg per vehicle/week</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+/**
+ * AI Insights Tab - AI-powered insights and anomalies
+ */
+function AIInsightsContent() {
+  const {
+    topInsights,
+    insightPriorityDistribution,
+    aggregatedMetrics,
+    isLoading,
+    lastUpdate,
+  } = useReactiveInsightsData()
+
+  const priorityColors = {
+    critical: 'destructive',
+    high: 'warning',
+    medium: 'secondary',
+    low: 'default',
+  } as const
+
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">AI-Powered Insights</h2>
+          <p className="text-muted-foreground">
+            Machine learning insights and anomaly detection
+          </p>
+        </div>
+        <Badge variant="outline">Last updated: {lastUpdate.toLocaleTimeString()}</Badge>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Critical Insights"
+          value={insightPriorityDistribution?.critical?.toString() || '0'}
+          icon={Warning}
+          trend="down"
+          change="-2"
+          description="High priority alerts"
+          loading={isLoading}
+        />
+        <StatCard
+          title="High Priority"
+          value={insightPriorityDistribution?.high?.toString() || '0'}
+          icon={Activity}
+          trend="neutral"
+          description="Requires attention"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Medium Priority"
+          value={insightPriorityDistribution?.medium?.toString() || '0'}
+          icon={Brain}
+          trend="up"
+          description="Review recommended"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Total Insights"
+          value={aggregatedMetrics?.totalInsights?.toString() || '0'}
+          icon={Sparkle}
+          trend="up"
+          change="+8"
+          description="All insights"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Top Insights List */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Brain className="h-5 w-5 text-purple-500" />
+            <CardTitle>Top AI Insights</CardTitle>
+          </div>
+          <CardDescription>Most critical insights based on priority and confidence</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-24 w-full" />
+              ))}
+            </div>
+          ) : topInsights.length > 0 ? (
+            <div className="space-y-3">
+              {topInsights.map((insight, idx) => (
+                <motion.div
+                  key={insight.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="rounded-lg border p-4 hover:bg-accent/50"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant={priorityColors[insight.priority]}>
+                          {insight.priority.toUpperCase()}
+                        </Badge>
+                        <Badge variant="outline">{insight.type}</Badge>
+                        <Badge variant="secondary">
+                          {insight.confidence}% confidence
+                        </Badge>
+                      </div>
+                      <h4 className="font-semibold mb-1">{insight.title}</h4>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {insight.description}
+                      </p>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Target className="h-3 w-3" />
+                          Impact: {insight.impact}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Lightbulb className="h-3 w-3" />
+                          Action: {insight.action}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <CheckCircle className="h-12 w-12 mx-auto mb-2 text-green-500" />
+              <p>No critical insights at this time</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Insight Types Distribution */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {[
+          { type: 'Alert', count: topInsights.filter((i) => i.type === 'alert').length, color: 'text-red-500' },
+          { type: 'Recommendation', count: topInsights.filter((i) => i.type === 'recommendation').length, color: 'text-blue-500' },
+          { type: 'Anomaly', count: topInsights.filter((i) => i.type === 'anomaly').length, color: 'text-amber-500' },
+          { type: 'Opportunity', count: topInsights.filter((i) => i.type === 'opportunity').length, color: 'text-green-500' },
+        ].map((item) => (
+          <Card key={item.type}>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">{item.type}</span>
+                <span className={`text-2xl font-bold ${item.color}`}>{item.count}</span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Predictions Tab - Predictive analytics
+ */
+function PredictionsContent() {
+  const {
+    highProbabilityPredictionsList,
+    predictionTypeDistribution,
+    aggregatedMetrics,
+    isLoading,
+    lastUpdate,
+  } = useReactiveInsightsData()
+
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Predictive Analytics</h2>
+          <p className="text-muted-foreground">
+            AI-powered predictions for maintenance, costs, and failures
+          </p>
+        </div>
+        <Badge variant="outline">Last updated: {lastUpdate.toLocaleTimeString()}</Badge>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <StatCard
+          title="Total Predictions"
+          value={aggregatedMetrics?.totalPredictions?.toString() || '0'}
+          icon={Brain}
+          trend="up"
+          description="Active predictions"
+          loading={isLoading}
+        />
+        <StatCard
+          title="High Probability"
+          value={aggregatedMetrics?.highProbabilityPredictions?.toString() || '0'}
+          icon={Target}
+          trend="neutral"
+          description="≥80% confidence"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Avg Confidence"
+          value="82%"
+          icon={ChartPie}
+          trend="up"
+          change="+3%"
+          description="Model accuracy"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Prediction Types Distribution */}
+      <ResponsiveBarChart
+        title="Predictions by Type"
+        description="Distribution of predictions across different categories"
+        data={predictionTypeDistribution}
+        height={300}
+        loading={isLoading}
+      />
+
+      {/* High Probability Predictions */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Target className="h-5 w-5 text-blue-500" />
+            <CardTitle>High Probability Predictions</CardTitle>
+          </div>
+          <CardDescription>Predictions with 70%+ confidence requiring attention</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-28 w-full" />
+              ))}
+            </div>
+          ) : highProbabilityPredictionsList.length > 0 ? (
+            <div className="space-y-3">
+              {highProbabilityPredictionsList.map((prediction, idx) => (
+                <motion.div
+                  key={prediction.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="rounded-lg border p-4 hover:bg-accent/50"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant={prediction.probability >= 0.9 ? 'destructive' : 'warning'}>
+                          {Math.round(prediction.probability * 100)}% probability
+                        </Badge>
+                        <Badge variant="outline">
+                          {prediction.predictionType.replace('_', ' ').toUpperCase()}
+                        </Badge>
+                      </div>
+                      <h4 className="font-semibold mb-1">
+                        {prediction.targetEntity} {prediction.targetId}
+                      </h4>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Estimated Impact: {prediction.estimatedImpact}
+                        {prediction.estimatedCost && ` • Cost: $${prediction.estimatedCost.toLocaleString()}`}
+                      </p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        Predicted Date: {new Date(prediction.predictedDate).toLocaleDateString()}
+                      </div>
+                      {prediction.preventiveActions.length > 0 && (
+                        <div className="mt-3 space-y-1">
+                          <p className="text-xs font-medium">Preventive Actions:</p>
+                          <ul className="text-xs text-muted-foreground space-y-0.5">
+                            {prediction.preventiveActions.slice(0, 3).map((action, i) => (
+                              <li key={i} className="flex items-start gap-1">
+                                <span className="mt-1">•</span>
+                                <span>{action}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <CheckCircle className="h-12 w-12 mx-auto mb-2 text-green-500" />
+              <p>No high probability predictions</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+/**
+ * Recommendations Tab - Actionable recommendations
+ */
+function RecommendationsContent() {
+  const {
+    highRoiRecommendations,
+    roiByCategory,
+    aggregatedMetrics,
+    isLoading,
+    lastUpdate,
+  } = useReactiveInsightsData()
+
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Action Recommendations</h2>
+          <p className="text-muted-foreground">
+            AI-generated recommendations to optimize fleet operations
+          </p>
+        </div>
+        <Badge variant="outline">Last updated: {lastUpdate.toLocaleTimeString()}</Badge>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <StatCard
+          title="Total Recommendations"
+          value={aggregatedMetrics?.totalRecommendations?.toString() || '0'}
+          icon={Lightbulb}
+          trend="up"
+          change="+4"
+          description="Active recommendations"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Potential Savings"
+          value={`$${(aggregatedMetrics?.potentialSavings || 0).toLocaleString()}`}
+          icon={CurrencyDollar}
+          trend="up"
+          change="+$15k"
+          description="Total identified"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Avg ROI"
+          value="195%"
+          icon={TrendUp}
+          trend="up"
+          change="+12%"
+          description="Return on investment"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* ROI by Category */}
+      <ResponsiveBarChart
+        title="ROI by Category"
+        description="Return on investment and potential savings by recommendation category"
+        data={roiByCategory}
+        height={300}
+        loading={isLoading}
+      />
+
+      {/* High ROI Recommendations */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Lightbulb className="h-5 w-5 text-amber-500" />
+            <CardTitle>High ROI Recommendations</CardTitle>
+          </div>
+          <CardDescription>Top recommendations with >100% return on investment</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-32 w-full" />
+              ))}
+            </div>
+          ) : highRoiRecommendations.length > 0 ? (
+            <div className="space-y-3">
+              {highRoiRecommendations.map((rec, idx) => (
+                <motion.div
+                  key={rec.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="rounded-lg border p-4 hover:bg-accent/50"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant={rec.priority === 'high' ? 'default' : rec.priority === 'medium' ? 'secondary' : 'outline'}>
+                          {rec.priority.toUpperCase()} PRIORITY
+                        </Badge>
+                        <Badge variant="outline">
+                          {rec.category.replace('_', ' ').toUpperCase()}
+                        </Badge>
+                        {rec.roi && (
+                          <Badge variant="default" className="bg-green-500">
+                            {rec.roi}% ROI
+                          </Badge>
+                        )}
+                      </div>
+                      <h4 className="font-semibold mb-1">{rec.title}</h4>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {rec.description}
+                      </p>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
+                        {rec.potentialSavings && (
+                          <span className="flex items-center gap-1">
+                            <CurrencyDollar className="h-3 w-3" />
+                            Savings: ${rec.potentialSavings.toLocaleString()}
+                          </span>
+                        )}
+                        {rec.implementationCost && (
+                          <span className="flex items-center gap-1">
+                            Cost: ${rec.implementationCost.toLocaleString()}
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          Timeline: {rec.timeline}
+                        </span>
+                      </div>
+                      {rec.steps.length > 0 && (
+                        <div className="mt-3 space-y-1">
+                          <p className="text-xs font-medium">Implementation Steps:</p>
+                          <ul className="text-xs text-muted-foreground space-y-0.5">
+                            {rec.steps.slice(0, 3).map((step, i) => (
+                              <li key={i} className="flex items-start gap-1">
+                                <span className="mt-1">•</span>
+                                <span>{step}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <CheckCircle className="h-12 w-12 mx-auto mb-2 text-green-500" />
+              <p>No recommendations at this time</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+/**
+ * Main InsightsHub Component
+ */
+export default function InsightsHub() {
+  const tabs = [
+    {
+      id: 'overview',
+      label: 'Overview',
+      icon: <ChartPie className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <InsightsOverview />
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'ai-insights',
+      label: 'AI Insights',
+      icon: <Brain className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading AI insights...</div>}>
+            <AIInsightsContent />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'predictions',
+      label: 'Predictions',
+      icon: <Target className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading predictions...</div>}>
+            <PredictionsContent />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'recommendations',
+      label: 'Recommendations',
+      icon: <Lightbulb className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading recommendations...</div>}>
+            <RecommendationsContent />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+  ]
+
+  return (
+    <HubPage
+      title="Insights Hub"
+      description="Analytics, AI insights, and predictive intelligence"
+      icon={<InsightsIcon className="h-8 w-8" />}
+      tabs={tabs}
+      defaultTab="overview"
+    />
+  )
 }
