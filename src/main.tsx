@@ -3,6 +3,11 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
 
+// Initialize MSW API mocking in development mode
+if (import.meta.env.DEV) {
+  await import('./mocks/browser')
+}
+
 // Initialize i18n BEFORE React renders - this is critical for SSR and proper language detection
 import './i18n/config'
 
