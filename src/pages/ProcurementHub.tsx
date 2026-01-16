@@ -1,515 +1,824 @@
 /**
- * ProcurementHub - Premium Procurement Management Hub
- * Route: /procurement
+ * ProcurementHub - Modern Procurement Management Dashboard
+ * Real-time procurement monitoring with responsive visualizations
  */
 
+import { motion } from 'framer-motion'
+import { Suspense } from 'react'
 import {
-    Package as ProcurementIcon,
-    Storefront,
-    Cube,
-    ShoppingCart,
-    FileText,
-    Scan,
-    GasPump,
-    CurrencyDollar,
-    Warning,
-    CheckCircle,
-    XCircle,
-    Sparkle,
-    ChartBar,
-    Package,
-    Wrench,
-    BatteryFull,
-    Engine
+  Package,
+  Storefront,
+  ShoppingCart,
+  FileText,
+  ChartBar,
+  Warning,
+  TrendUp,
+  CurrencyDollar,
+  CalendarBlank,
+  CheckCircle,
+  Clock,
+  Truck,
 } from '@phosphor-icons/react'
+import HubPage from '@/components/ui/hub-page'
+import { useReactiveProcurementData } from '@/hooks/use-reactive-procurement-data'
+import {
+  StatCard,
+  ResponsiveBarChart,
+  ResponsiveLineChart,
+  ResponsivePieChart,
+} from '@/components/visualizations'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 
-import { HubPage, HubTab } from '@/components/ui/hub-page'
-import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
-import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
+/**
+ * Overview Tab - Main dashboard with key procurement metrics
+ */
+function ProcurementOverview() {
+  const {
+    metrics,
+    poStatusDistribution,
+    monthlySpendTrend,
+    topVendorsBySpend,
+    pendingApprovals,
+    budgetAlerts,
+    isLoading,
+    lastUpdate,
+  } = useReactiveProcurementData()
 
-function VendorsContent() {
-    const { push } = useDrilldown()
+  // Prepare status chart data
+  const statusChartData = Object.entries(poStatusDistribution).map(([name, value]) => ({
+    name,
+    value,
+    fill:
+      name === 'Approved'
+        ? 'hsl(var(--primary))'
+        : name === 'Pending Approval'
+          ? 'hsl(var(--warning))'
+          : name === 'In Transit'
+            ? 'hsl(142, 76%, 36%)'
+            : name === 'Received'
+              ? 'hsl(var(--success))'
+              : 'hsl(var(--muted))',
+  }))
 
-    return (
-        <div className="p-3 space-y-2">
-            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">Vendor Management</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                <StatCard title="Active Vendors" value="34" variant="primary" icon={<Storefront className="w-4 h-4" />} onClick={() => push({ type: 'active-vendors', data: { title: 'Active Vendors' }, id: 'active-vendors' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Pending Orders" value="8" variant="warning" onClick={() => push({ type: 'vendors', data: { title: 'Pending Orders' }, id: 'pending-orders' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="This Month" value="$45.2K" variant="success" icon={<CurrencyDollar className="w-4 h-4" />} onClick={() => push({ type: 'vendors', data: { title: 'Monthly Spend' }, id: 'monthly-spend' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Overdue Invoices" value="$2.1K" variant="danger" onClick={() => push({ type: 'vendors', data: { title: 'Overdue Invoices' }, id: 'overdue-invoices' } as Omit<DrilldownLevel, "timestamp">)} />
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 cursor-pointer hover:shadow-sm transition-shadow" onClick={() => push({ type: 'vendors', data: { title: 'Budget' }, id: 'budget' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">Budget Used</h3>
-                    <ProgressRing progress={72} color="blue" label="$72K" sublabel="of $100K monthly" />
-                </div>
-                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 cursor-pointer hover:shadow-sm transition-shadow" onClick={() => push({ type: 'vendors', data: { title: 'Vendor Metrics' }, id: 'vendor-metrics' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">Metrics</h3>
-                    <QuickStat label="Avg Lead Time" value="3.2 days" trend="down" />
-                    <QuickStat label="On-Time Delivery" value="94%" trend="up" />
-                    <QuickStat label="Quality Rating" value="4.6/5" />
-                </div>
-            </div>
+  // Prepare spend trend data
+  const spendTrendData = monthlySpendTrend.map((item) => ({
+    name: item.name,
+    value: item.spend,
+  }))
+
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header with Last Update */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Procurement Overview</h2>
+          <p className="text-muted-foreground">
+            Real-time procurement status and vendor performance
+          </p>
         </div>
-    )
-}
+        <Badge variant="outline" className="w-fit">
+          Last updated: {lastUpdate.toLocaleTimeString()}
+        </Badge>
+      </div>
 
-function PartsContent() {
-    const { push } = useDrilldown()
-
-    return (
-        <div className="p-3 space-y-2">
-            {/* Header Section */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-2">Parts Inventory Management</h2>
-                    <p className="text-base text-slate-700 dark:text-slate-300">Real-time inventory tracking, stock analytics, and automated reordering</p>
-                </div>
-                <div className="flex gap-2">
-                    <button className="px-2 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg border border-slate-200 dark:border-slate-700 transition-all text-sm font-medium">
-                        Add Part
-                    </button>
-                    <button className="px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all text-sm font-medium">
-                        Generate Report
-                    </button>
-                </div>
-            </div>
-
-            {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-2">
-                <StatCard
-                    title="Total SKUs"
-                    value="1,245"
-                    variant="primary"
-                    icon={<Cube className="w-4 h-4" />}
-                    onClick={() => push({ type: 'total-skus', data: { title: 'All Parts Catalog' }, id: 'total-skus' } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="In Stock"
-                    value="1,180"
-                    variant="success"
-                    icon={<CheckCircle className="w-4 h-4" />}
-                    trend="up"
-                    trendValue="94.8%"
-                    onClick={() => push({ type: 'parts-inventory', data: { title: 'In Stock Items' }, id: 'in-stock' } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Low Stock"
-                    value="42"
-                    variant="warning"
-                    icon={<Warning className="w-4 h-4" />}
-                    onClick={() => push({ type: 'low-stock', data: { title: 'Low Stock Items' }, id: 'low-stock' } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Out of Stock"
-                    value="23"
-                    variant="danger"
-                    icon={<XCircle className="w-4 h-4" />}
-                    onClick={() => push({ type: 'out-of-stock', data: { title: 'Out of Stock' }, id: 'out-of-stock' } as Omit<DrilldownLevel, "timestamp">)}
-                />
-                <StatCard
-                    title="Inventory Value"
-                    value="$342.8K"
-                    variant="default"
-                    icon={<CurrencyDollar className="w-4 h-4" />}
-                    onClick={() => push({ type: 'inventory-value', data: { title: 'Total Inventory Value' }, id: 'inventory-value' } as Omit<DrilldownLevel, "timestamp">)}
-                />
-            </div>
-
-            {/* Stock Status and Turnover */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 cursor-pointer hover:shadow-sm transition-shadow"
-                    onClick={() => push({ type: 'stock-health', data: { title: 'Stock Health Analysis' }, id: 'stock-health' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <div className="flex items-start justify-between mb-3">
-                        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">Stock Health Overview</h3>
-                        <ChartBar className="w-3 h-3 text-slate-600 dark:text-slate-400" />
-                    </div>
-                    <div className="space-y-5">
-                        {/* Healthy Stock */}
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-emerald-600 rounded-full"></div>
-                                    <span className="text-sm font-medium text-slate-900 dark:text-slate-100">Healthy Stock</span>
-                                </div>
-                                <span className="text-sm font-bold text-emerald-600">1,065 SKUs</span>
-                            </div>
-                            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
-                                <div className="bg-emerald-600 h-3 rounded-full" style={{ width: '85.5%' }}></div>
-                            </div>
-                            <div className="text-xs text-slate-600 dark:text-slate-400">Above reorder point • 85.5% of inventory</div>
-                        </div>
-
-                        {/* Adequate Stock */}
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                                    <span className="text-sm font-medium text-slate-900 dark:text-slate-100">Adequate Stock</span>
-                                </div>
-                                <span className="text-sm font-bold text-blue-800">115 SKUs</span>
-                            </div>
-                            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
-                                <div className="bg-blue-600 h-3 rounded-full" style={{ width: '9.2%' }}></div>
-                            </div>
-                            <div className="text-xs text-slate-600 dark:text-slate-400">Near reorder point • 9.2% of inventory</div>
-                        </div>
-
-                        {/* Low Stock */}
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-amber-600 rounded-full"></div>
-                                    <span className="text-sm font-medium text-slate-900 dark:text-slate-100">Low Stock</span>
-                                </div>
-                                <span className="text-sm font-bold text-amber-600">42 SKUs</span>
-                            </div>
-                            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
-                                <div className="bg-amber-600 h-3 rounded-full" style={{ width: '3.4%' }}></div>
-                            </div>
-                            <div className="text-xs text-slate-600 dark:text-slate-400">Below reorder point • 3.4% of inventory</div>
-                        </div>
-
-                        {/* Out of Stock */}
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-red-600 rounded-full"></div>
-                                    <span className="text-sm font-medium text-slate-900 dark:text-slate-100">Out of Stock</span>
-                                </div>
-                                <span className="text-sm font-bold text-red-600">23 SKUs</span>
-                            </div>
-                            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
-                                <div className="bg-red-600 h-3 rounded-full" style={{ width: '1.9%' }}></div>
-                            </div>
-                            <div className="text-xs text-slate-600 dark:text-slate-400">Zero quantity • 1.9% of inventory</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 cursor-pointer hover:shadow-sm transition-shadow"
-                    onClick={() => push({ type: 'turnover-metrics', data: { title: 'Inventory Turnover Metrics' }, id: 'turnover-metrics' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <div className="flex items-start justify-between mb-3">
-                        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">Inventory Turnover Analysis</h3>
-                        <span className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-full text-xs font-medium flex items-center gap-1">
-                            <Sparkle className="w-3 h-3" />
-                            AI Insights
-                        </span>
-                    </div>
-                    <div className="flex items-center justify-center mb-3">
-                        <ProgressRing progress={84} color="green" label="8.4x" sublabel="annual turnover" />
-                    </div>
-                    <div className="space-y-2">
-                        <div className="p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Fast-Moving Parts</span>
-                                <span className="text-xs px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-full">Optimal</span>
-                            </div>
-                            <div className="text-sm font-bold text-emerald-600 mb-1">342 SKUs</div>
-                            <div className="text-xs text-slate-600 dark:text-slate-400">Turnover &gt; 12x/year • 27.5% of catalog</div>
-                        </div>
-
-                        <div className="p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Slow-Moving Parts</span>
-                                <span className="text-xs px-2 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-full">Monitor</span>
-                            </div>
-                            <div className="text-sm font-bold text-amber-600 mb-1">156 SKUs</div>
-                            <div className="text-xs text-slate-600 dark:text-slate-400">Turnover &lt; 2x/year • 12.5% of catalog</div>
-                        </div>
-
-                        <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm font-medium text-blue-800 dark:text-blue-400">Avg Days to Turnover</span>
-                                <span className="text-sm font-bold text-blue-800 dark:text-blue-400">43 days</span>
-                            </div>
-                            <div className="text-xs text-blue-800 dark:text-blue-400 mt-1">Industry avg: 52 days • 17% better</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Category Breakdown */}
-            <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
-                <div className="flex items-start justify-between mb-3">
-                    <div>
-                        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-2">Parts by Category</h3>
-                        <p className="text-sm text-slate-700 dark:text-slate-300">Inventory distribution across major part categories</p>
-                    </div>
-                    <select className="px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg border border-slate-200 dark:border-slate-700 text-sm">
-                        <option>All Categories</option>
-                        <option>Engine Parts</option>
-                        <option>Electrical</option>
-                        <option>Brakes & Suspension</option>
-                        <option>Fluids & Filters</option>
-                    </select>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                    {/* Engine Parts */}
-                    <div className="bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-3 cursor-pointer transition-all">
-                        <div className="flex items-start justify-between mb-2">
-                            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                <Engine className="w-4 h-4 text-blue-800" />
-                            </div>
-                            <span className="text-xs px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-full">98% in stock</span>
-                        </div>
-                        <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">Engine Parts</h4>
-                        <div className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-2">324</div>
-                        <div className="text-xs text-slate-600 dark:text-slate-400 mb-2">SKUs • $89.4K value</div>
-                        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                            <div className="bg-blue-600 h-2 rounded-full" style={{ width: '26%' }}></div>
-                        </div>
-                        <div className="text-xs text-slate-600 dark:text-slate-400 mt-2">26% of total inventory</div>
-                    </div>
-
-                    {/* Electrical */}
-                    <div className="bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-3 cursor-pointer transition-all">
-                        <div className="flex items-start justify-between mb-2">
-                            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-                                <BatteryFull className="w-4 h-4 text-amber-600" />
-                            </div>
-                            <span className="text-xs px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-full">96% in stock</span>
-                        </div>
-                        <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">Electrical</h4>
-                        <div className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-2">268</div>
-                        <div className="text-xs text-slate-600 dark:text-slate-400 mb-2">SKUs • $72.1K value</div>
-                        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                            <div className="bg-amber-600 h-2 rounded-full" style={{ width: '21.5%' }}></div>
-                        </div>
-                        <div className="text-xs text-slate-600 dark:text-slate-400 mt-2">21.5% of total inventory</div>
-                    </div>
-
-                    {/* Brakes & Suspension */}
-                    <div className="bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-3 cursor-pointer transition-all">
-                        <div className="flex items-start justify-between mb-2">
-                            <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                                <Wrench className="w-4 h-4 text-purple-600" />
-                            </div>
-                            <span className="text-xs px-2 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-full">92% in stock</span>
-                        </div>
-                        <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">Brakes & Suspension</h4>
-                        <div className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-2">412</div>
-                        <div className="text-xs text-slate-600 dark:text-slate-400 mb-2">SKUs • $124.6K value</div>
-                        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                            <div className="bg-purple-600 h-2 rounded-full" style={{ width: '33.1%' }}></div>
-                        </div>
-                        <div className="text-xs text-slate-600 dark:text-slate-400 mt-2">33.1% of total inventory</div>
-                    </div>
-
-                    {/* Fluids & Filters */}
-                    <div className="bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-3 cursor-pointer transition-all">
-                        <div className="flex items-start justify-between mb-2">
-                            <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
-                                <Package className="w-4 h-4 text-emerald-600" />
-                            </div>
-                            <span className="text-xs px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-full">94% in stock</span>
-                        </div>
-                        <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">Fluids & Filters</h4>
-                        <div className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-2">241</div>
-                        <div className="text-xs text-slate-600 dark:text-slate-400 mb-2">SKUs • $56.7K value</div>
-                        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                            <div className="bg-emerald-600 h-2 rounded-full" style={{ width: '19.4%' }}></div>
-                        </div>
-                        <div className="text-xs text-slate-600 dark:text-slate-400 mt-2">19.4% of total inventory</div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Critical Stock Alerts */}
-            <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
-                <div className="flex items-start justify-between mb-3">
-                    <div>
-                        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-2">Critical Stock Alerts</h3>
-                        <p className="text-sm text-slate-700 dark:text-slate-300">Immediate attention required • Auto-reorder enabled</p>
-                    </div>
-                    <span className="text-xs px-2 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-full">23 urgent alerts</span>
-                </div>
-
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between p-2 bg-red-50 dark:bg-red-900/10 rounded-lg border-l-4 border-red-600">
-                        <div className="flex items-center gap-2">
-                            <XCircle className="w-3 h-3 text-red-600" weight="fill" />
-                            <div>
-                                <div className="text-sm font-medium text-slate-900 dark:text-slate-100">Oil Filter - 10W-30</div>
-                                <div className="text-xs text-slate-600 dark:text-slate-400">SKU: FLT-10W30-001 • High demand part</div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="text-right">
-                                <div className="text-sm font-bold text-red-600">0 units</div>
-                                <div className="text-xs text-red-600">Out of stock</div>
-                            </div>
-                            <button className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium">
-                                Order Now
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-between p-2 bg-amber-50 dark:bg-amber-900/10 rounded-lg border-l-4 border-amber-600">
-                        <div className="flex items-center gap-2">
-                            <Warning className="w-3 h-3 text-amber-600" weight="fill" />
-                            <div>
-                                <div className="text-sm font-medium text-slate-900 dark:text-slate-100">Brake Pads - Heavy Duty</div>
-                                <div className="text-xs text-slate-600 dark:text-slate-400">SKU: BRK-HD-7890 • Critical safety part</div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="text-right">
-                                <div className="text-sm font-bold text-amber-600">3 units</div>
-                                <div className="text-xs text-amber-600">Below min: 12</div>
-                            </div>
-                            <button className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium">
-                                Reorder
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-between p-2 bg-red-50 dark:bg-red-900/10 rounded-lg border-l-4 border-red-600">
-                        <div className="flex items-center gap-2">
-                            <XCircle className="w-3 h-3 text-red-600" weight="fill" />
-                            <div>
-                                <div className="text-sm font-medium text-slate-900 dark:text-slate-100">Spark Plugs - NGK Premium</div>
-                                <div className="text-xs text-slate-600 dark:text-slate-400">SKU: SPK-NGK-4421 • Fast-moving item</div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="text-right">
-                                <div className="text-sm font-bold text-red-600">0 units</div>
-                                <div className="text-xs text-red-600">Out of stock</div>
-                            </div>
-                            <button className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium">
-                                Order Now
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-between p-2 bg-amber-50 dark:bg-amber-900/10 rounded-lg border-l-4 border-amber-600">
-                        <div className="flex items-center gap-2">
-                            <Warning className="w-3 h-3 text-amber-600" weight="fill" />
-                            <div>
-                                <div className="text-sm font-medium text-slate-900 dark:text-slate-100">Alternator Belt - Serpentine</div>
-                                <div className="text-xs text-slate-600 dark:text-slate-400">SKU: BLT-SERP-9012 • Common replacement</div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="text-right">
-                                <div className="text-sm font-bold text-amber-600">5 units</div>
-                                <div className="text-xs text-amber-600">Below min: 15</div>
-                            </div>
-                            <button className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium">
-                                Reorder
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-between p-2 bg-red-50 dark:bg-red-900/10 rounded-lg border-l-4 border-red-600">
-                        <div className="flex items-center gap-2">
-                            <XCircle className="w-3 h-3 text-red-600" weight="fill" />
-                            <div>
-                                <div className="text-sm font-medium text-slate-900 dark:text-slate-100">Transmission Fluid - Dexron VI</div>
-                                <div className="text-xs text-slate-600 dark:text-slate-400">SKU: FLD-DEX6-3344 • High usage</div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="text-right">
-                                <div className="text-sm font-bold text-red-600">0 units</div>
-                                <div className="text-xs text-red-600">Out of stock</div>
-                            </div>
-                            <button className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium">
-                                Order Now
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
-}
-
-function OrdersContent() {
-    const { push } = useDrilldown()
-
-    return (
-        <div className="p-3 space-y-2">
-            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">Purchase Orders</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                <StatCard title="Open POs" value="12" variant="primary" icon={<ShoppingCart className="w-4 h-4" />} onClick={() => push({ type: 'open-pos', data: { title: 'Open POs' }, id: 'open-pos' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="In Transit" value="8" variant="warning" onClick={() => push({ type: 'in-transit-pos', data: { title: 'In Transit' }, id: 'in-transit' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Received" value="156" variant="success" onClick={() => push({ type: 'purchase-orders', data: { title: 'Received' }, id: 'received' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Total Value" value="$124K" variant="default" onClick={() => push({ type: 'purchase-orders', data: { title: 'Total Value' }, id: 'total-value' } as Omit<DrilldownLevel, "timestamp">)} />
-            </div>
-        </div>
-    )
-}
-
-function InvoicesContent() {
-    const { push } = useDrilldown()
-
-    return (
-        <div className="p-3 space-y-2">
-            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">Invoices & Billing</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                <StatCard title="Pending" value="18" variant="warning" icon={<FileText className="w-4 h-4" />} onClick={() => push({ type: 'vendors', data: { title: 'Pending Invoices' }, id: 'pending-invoices' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Approved" value="12" variant="success" onClick={() => push({ type: 'vendors', data: { title: 'Approved Invoices' }, id: 'approved-invoices' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Paid This Month" value="$89K" variant="success" onClick={() => push({ type: 'vendors', data: { title: 'Paid This Month' }, id: 'paid-this-month' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Overdue" value="$4.2K" variant="danger" onClick={() => push({ type: 'vendors', data: { title: 'Overdue Invoices' }, id: 'overdue-invoices' } as Omit<DrilldownLevel, "timestamp">)} />
-            </div>
-        </div>
-    )
-}
-
-function ReceiptsContent() {
-    const { push } = useDrilldown()
-
-    return (
-        <div className="p-3 space-y-2">
-            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">Receipt Processing</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                <StatCard title="Scanned Today" value="24" variant="primary" icon={<Scan className="w-4 h-4" />} onClick={() => push({ type: 'vendors', data: { title: 'Scanned Today' }, id: 'scanned-today' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Pending Review" value="8" variant="warning" onClick={() => push({ type: 'vendors', data: { title: 'Pending Review' }, id: 'pending-review' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Processed" value="456" variant="success" onClick={() => push({ type: 'vendors', data: { title: 'Processed Receipts' }, id: 'processed-receipts' } as Omit<DrilldownLevel, "timestamp">)} />
-            </div>
-        </div>
-    )
-}
-
-function FuelContent() {
-    const { push } = useDrilldown()
-
-    return (
-        <div className="p-3 space-y-2">
-            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">Fuel Purchasing</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                <StatCard title="Cards Active" value="156" variant="primary" icon={<GasPump className="w-4 h-4" />} onClick={() => push({ type: 'fuel-cards', data: { title: 'Fuel Cards' }, id: 'fuel-cards' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Gallons Today" value="2,450" variant="default" onClick={() => push({ type: 'fuel-purchasing', data: { title: 'Gallons Today' }, id: 'gallons-today' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Cost Today" value="$7,840" variant="warning" onClick={() => push({ type: 'fuel-purchasing', data: { title: 'Cost Today' }, id: 'cost-today' } as Omit<DrilldownLevel, "timestamp">)} />
-                <StatCard title="Avg Price/Gal" value="$3.20" variant="default" onClick={() => push({ type: 'fuel-purchasing', data: { title: 'Fuel Prices' }, id: 'fuel-prices' } as Omit<DrilldownLevel, "timestamp">)} />
-            </div>
-        </div>
-    )
-}
-
-export function ProcurementHub() {
-    const tabs: HubTab[] = [
-        { id: 'vendors', label: 'Vendors', icon: <Storefront className="w-4 h-4" />, content: <VendorsContent /> },
-        { id: 'parts', label: 'Parts', icon: <Cube className="w-4 h-4" />, content: <PartsContent /> },
-        { id: 'orders', label: 'Orders', icon: <ShoppingCart className="w-4 h-4" />, content: <OrdersContent /> },
-        { id: 'invoices', label: 'Invoices', icon: <FileText className="w-4 h-4" />, content: <InvoicesContent /> },
-        { id: 'receipts', label: 'Receipts', icon: <Scan className="w-4 h-4" />, content: <ReceiptsContent /> },
-        { id: 'fuel', label: 'Fuel', icon: <GasPump className="w-4 h-4" />, content: <FuelContent /> },
-    ]
-
-    return (
-        <HubPage
-            title="Procurement Hub"
-            icon={<ProcurementIcon className="w-4 h-4" />}
-            description="Vendors, parts, orders, and fuel purchasing"
-            tabs={tabs}
-            defaultTab="vendors"
+      {/* Key Metrics Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Purchase Orders"
+          value={metrics?.totalPOs?.toString() || '0'}
+          icon={ShoppingCart}
+          trend="neutral"
+          description="All POs"
+          loading={isLoading}
         />
-    )
+        <StatCard
+          title="Active Vendors"
+          value={metrics?.activeVendors?.toString() || '0'}
+          icon={Storefront}
+          trend="up"
+          change="+5%"
+          description="Qualified suppliers"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Pending Approvals"
+          value={metrics?.pendingApprovals?.toString() || '0'}
+          icon={Clock}
+          trend={metrics && metrics.pendingApprovals > 10 ? 'down' : 'neutral'}
+          description="Awaiting review"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Total Spend (YTD)"
+          value={`$${((metrics?.totalSpend || 0) / 1000).toFixed(1)}K`}
+          icon={CurrencyDollar}
+          trend="up"
+          description="Year to date"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Charts Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* PO Status Distribution */}
+        <ResponsivePieChart
+          title="Purchase Order Status"
+          description="Current status breakdown of all purchase orders"
+          data={statusChartData}
+          innerRadius={60}
+          loading={isLoading}
+        />
+
+        {/* Monthly Spend Trend */}
+        <ResponsiveLineChart
+          title="Monthly Spend Trend"
+          description="Procurement spending over the last 6 months"
+          data={spendTrendData}
+          height={300}
+          showArea
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Budget Status Card */}
+      <Card className={budgetAlerts ? 'border-amber-500' : ''}>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <CurrencyDollar className="h-5 w-5 text-emerald-500" />
+            <CardTitle>Budget Status</CardTitle>
+          </div>
+          <CardDescription>Monthly budget tracking and alerts</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <Skeleton className="h-24 w-full" />
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-2xl font-bold">
+                    ${((metrics?.budgetUsed || 0) / 1000).toFixed(1)}K
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    of ${((metrics?.budgetTotal || 0) / 1000).toFixed(0)}K monthly budget
+                  </p>
+                </div>
+                <Badge variant={budgetAlerts ? 'warning' : 'success'}>
+                  {((((metrics?.budgetUsed || 0) / (metrics?.budgetTotal || 1)) * 100) || 0).toFixed(0)}% Used
+                </Badge>
+              </div>
+              <div className="w-full bg-muted rounded-full h-3">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{
+                    width: `${((metrics?.budgetUsed || 0) / (metrics?.budgetTotal || 1)) * 100}%`,
+                  }}
+                  transition={{ duration: 1, ease: 'easeOut' }}
+                  className={`h-3 rounded-full ${
+                    budgetAlerts ? 'bg-amber-500' : 'bg-emerald-500'
+                  }`}
+                />
+              </div>
+              {budgetAlerts && (
+                <div className="flex items-center gap-2 text-amber-600 text-sm">
+                  <Warning className="h-4 w-4" />
+                  <p>Budget usage exceeds 75% - Review spending carefully</p>
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Alerts Section */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Pending Approvals */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Warning className="h-5 w-5 text-amber-500" />
+              <CardTitle>Pending Approvals</CardTitle>
+            </div>
+            <CardDescription>Purchase orders awaiting approval</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
+            ) : pendingApprovals.length > 0 ? (
+              <div className="space-y-2">
+                {pendingApprovals.slice(0, 5).map((po) => (
+                  <motion.div
+                    key={po.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50"
+                  >
+                    <div>
+                      <p className="font-medium">{po.vendorName}</p>
+                      <p className="text-sm text-muted-foreground">PO #{po.orderNumber}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold">${(po.totalAmount / 1000).toFixed(1)}K</p>
+                      <Badge variant={po.priority === 'urgent' ? 'destructive' : 'warning'}>
+                        {po.priority}
+                      </Badge>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground">No pending approvals</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Top Vendors by Spend */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <TrendUp className="h-5 w-5 text-cyan-500" />
+              <CardTitle>Top Vendors by Spend</CardTitle>
+            </div>
+            <CardDescription>Highest spending vendors this period</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
+            ) : topVendorsBySpend.length > 0 ? (
+              <div className="space-y-2">
+                {topVendorsBySpend.map((vendor) => (
+                  <motion.div
+                    key={vendor.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50"
+                  >
+                    <div>
+                      <p className="font-medium">{vendor.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Rating: {vendor.rating.toFixed(1)}/5.0
+                      </p>
+                    </div>
+                    <Badge variant="secondary">
+                      ${(vendor.totalSpend / 1000).toFixed(1)}K
+                    </Badge>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground">No vendor data</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
 }
 
-export default ProcurementHub
+/**
+ * Purchase Orders Tab - PO tracking and management
+ */
+function PurchaseOrdersContent() {
+  const {
+    purchaseOrders,
+    recentPurchaseOrders,
+    poCategoryDistribution,
+    overdueOrders,
+    metrics,
+    isLoading,
+  } = useReactiveProcurementData()
+
+  // Prepare category chart data
+  const categoryChartData = Object.entries(poCategoryDistribution)
+    .map(([name, value]) => ({
+      name,
+      value,
+    }))
+    .sort((a, b) => b.value - a.value)
+
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header */}
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Purchase Orders</h2>
+        <p className="text-muted-foreground">Track and manage all purchase orders</p>
+      </div>
+
+      {/* Metrics Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Orders"
+          value={purchaseOrders.length.toString()}
+          icon={ShoppingCart}
+          trend="neutral"
+          description="All time"
+          loading={isLoading}
+        />
+        <StatCard
+          title="In Transit"
+          value={
+            purchaseOrders.filter((po) => po.status === 'in_transit').length.toString()
+          }
+          icon={Truck}
+          trend="neutral"
+          description="En route"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Received"
+          value={purchaseOrders.filter((po) => po.status === 'received').length.toString()}
+          icon={CheckCircle}
+          trend="up"
+          description="Completed"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Avg Order Value"
+          value={`$${((metrics?.avgOrderValue || 0) / 1000).toFixed(1)}K`}
+          icon={CurrencyDollar}
+          trend="neutral"
+          description="Per PO"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Charts Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Orders by Category */}
+        <ResponsiveBarChart
+          title="Orders by Category"
+          description="Purchase orders breakdown by category"
+          data={categoryChartData}
+          height={300}
+          loading={isLoading}
+        />
+
+        {/* Overdue Orders Alert */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Warning className="h-5 w-5 text-red-500" />
+              <CardTitle>Overdue Deliveries</CardTitle>
+            </div>
+            <CardDescription>Orders past expected delivery date</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
+            ) : overdueOrders.length > 0 ? (
+              <div className="space-y-2">
+                {overdueOrders.slice(0, 5).map((po) => (
+                  <motion.div
+                    key={po.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center justify-between rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/20 p-3"
+                  >
+                    <div>
+                      <p className="font-medium">{po.vendorName}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Due: {po.expectedDelivery ? new Date(po.expectedDelivery).toLocaleDateString() : 'N/A'}
+                      </p>
+                    </div>
+                    <Badge variant="destructive">{po.priority}</Badge>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground">No overdue orders</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Purchase Orders Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Purchase Orders</CardTitle>
+          <CardDescription>Latest purchase orders activity</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-2">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {recentPurchaseOrders.map((po) => (
+                <motion.div
+                  key={po.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center justify-between rounded-lg border p-4 hover:bg-accent/50"
+                >
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                        po.status === 'received'
+                          ? 'bg-emerald-100 dark:bg-emerald-950'
+                          : po.status === 'in_transit'
+                            ? 'bg-blue-100 dark:bg-blue-950'
+                            : po.status === 'pending_approval'
+                              ? 'bg-amber-100 dark:bg-amber-950'
+                              : 'bg-slate-100 dark:bg-slate-950'
+                      }`}
+                    >
+                      {po.status === 'received' ? (
+                        <CheckCircle className="h-5 w-5 text-emerald-600" />
+                      ) : po.status === 'in_transit' ? (
+                        <Truck className="h-5 w-5 text-blue-600" />
+                      ) : (
+                        <Clock className="h-5 w-5 text-amber-600" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium">{po.vendorName}</p>
+                      <p className="text-sm text-muted-foreground">
+                        PO #{po.orderNumber} • {po.items} items
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <p className="font-bold">${(po.totalAmount / 1000).toFixed(1)}K</p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(po.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Badge
+                      variant={
+                        po.status === 'received'
+                          ? 'success'
+                          : po.status === 'pending_approval'
+                            ? 'warning'
+                            : 'secondary'
+                      }
+                    >
+                      {po.status.replace('_', ' ')}
+                    </Badge>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+/**
+ * Vendors Tab - Vendor management and performance
+ */
+function VendorsContent() {
+  const { vendors, vendorSpendData, expiringContracts, metrics, isLoading } =
+    useReactiveProcurementData()
+
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header */}
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Vendor Management</h2>
+        <p className="text-muted-foreground">Track vendor performance and relationships</p>
+      </div>
+
+      {/* Metrics Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Vendors"
+          value={vendors.length.toString()}
+          icon={Storefront}
+          trend="neutral"
+          description="All vendors"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Active Vendors"
+          value={vendors.filter((v) => v.status === 'active').length.toString()}
+          icon={CheckCircle}
+          trend="up"
+          description="Currently active"
+          loading={isLoading}
+        />
+        <StatCard
+          title="On-Time Delivery"
+          value={`${(metrics?.onTimeDeliveryRate || 0).toFixed(0)}%`}
+          icon={Truck}
+          trend={metrics && metrics.onTimeDeliveryRate > 90 ? 'up' : 'down'}
+          description="Fleet average"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Expiring Contracts"
+          value={expiringContracts.length.toString()}
+          icon={CalendarBlank}
+          trend={expiringContracts.length > 0 ? 'down' : 'neutral'}
+          description="Within 30 days"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Vendor Spend Chart */}
+      <ResponsiveBarChart
+        title="Top Vendors by Spend"
+        description="Highest spending vendors in the current period"
+        data={vendorSpendData.map((v) => ({ name: v.name, value: v.spend }))}
+        height={300}
+        loading={isLoading}
+      />
+
+      {/* Alerts Section */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Expiring Contracts */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <CalendarBlank className="h-5 w-5 text-amber-500" />
+              <CardTitle>Expiring Contracts</CardTitle>
+            </div>
+            <CardDescription>Contracts expiring within 30 days</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
+            ) : expiringContracts.length > 0 ? (
+              <div className="space-y-2">
+                {expiringContracts.map((contract) => (
+                  <motion.div
+                    key={contract.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 p-3"
+                  >
+                    <div>
+                      <p className="font-medium">{contract.vendorName}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Expires: {new Date(contract.endDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Badge variant="warning">{contract.type}</Badge>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground">
+                No contracts expiring soon
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Vendor Performance */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <TrendUp className="h-5 w-5 text-emerald-500" />
+              <CardTitle>Top Performing Vendors</CardTitle>
+            </div>
+            <CardDescription>Highest rated vendors by performance</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {vendors
+                  .filter((v) => v.status === 'active')
+                  .sort((a, b) => b.rating - a.rating)
+                  .slice(0, 5)
+                  .map((vendor) => (
+                    <motion.div
+                      key={vendor.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50"
+                    >
+                      <div>
+                        <p className="font-medium">{vendor.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          OTD: {vendor.onTimeDelivery.toFixed(0)}%
+                        </p>
+                      </div>
+                      <Badge variant="success">{vendor.rating.toFixed(1)}/5.0</Badge>
+                    </motion.div>
+                  ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Analytics Tab - Spend analysis and trends
+ */
+function AnalyticsContent() {
+  const { monthlySpendTrend, poStatusDistribution, metrics, isLoading } =
+    useReactiveProcurementData()
+
+  // Prepare spend trend data
+  const spendTrendData = monthlySpendTrend.map((item) => ({
+    name: item.name,
+    value: item.spend,
+  }))
+
+  // Prepare status distribution data
+  const statusChartData = Object.entries(poStatusDistribution).map(([name, value]) => ({
+    name,
+    value,
+    fill:
+      name === 'Approved'
+        ? 'hsl(var(--primary))'
+        : name === 'Pending Approval'
+          ? 'hsl(var(--warning))'
+          : name === 'In Transit'
+            ? 'hsl(142, 76%, 36%)'
+            : 'hsl(var(--success))',
+  }))
+
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header */}
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Analytics & Insights</h2>
+        <p className="text-muted-foreground">Procurement trends and spend analysis</p>
+      </div>
+
+      {/* Metrics Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Monthly Spend"
+          value={`$${((metrics?.monthlySpend || 0) / 1000).toFixed(1)}K`}
+          icon={CurrencyDollar}
+          trend="up"
+          change="+8%"
+          description="This month"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Avg Order Value"
+          value={`$${((metrics?.avgOrderValue || 0) / 1000).toFixed(1)}K`}
+          icon={ShoppingCart}
+          trend="neutral"
+          description="Per order"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Budget Usage"
+          value={`${((((metrics?.budgetUsed || 0) / (metrics?.budgetTotal || 1)) * 100) || 0).toFixed(0)}%`}
+          icon={ChartBar}
+          trend={
+            ((metrics?.budgetUsed || 0) / (metrics?.budgetTotal || 1)) > 0.75 ? 'down' : 'up'
+          }
+          description="Of monthly budget"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Total Orders"
+          value={metrics?.totalPOs?.toString() || '0'}
+          icon={Package}
+          trend="up"
+          description="All time"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Charts Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Spend Trend */}
+        <ResponsiveLineChart
+          title="6-Month Spend Trend"
+          description="Monthly procurement spending analysis"
+          data={spendTrendData}
+          height={300}
+          showArea
+          loading={isLoading}
+        />
+
+        {/* Status Distribution */}
+        <ResponsivePieChart
+          title="Order Status Distribution"
+          description="Current purchase order status breakdown"
+          data={statusChartData}
+          innerRadius={60}
+          loading={isLoading}
+        />
+      </div>
+
+      {/* ROI Analysis Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Procurement ROI Analysis</CardTitle>
+          <CardDescription>Return on investment and cost savings metrics</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <Skeleton className="h-32 w-full" />
+          ) : (
+            <div className="grid gap-6 md:grid-cols-3">
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Cost Savings</p>
+                <p className="text-2xl font-bold text-emerald-600">$24.5K</p>
+                <p className="text-xs text-muted-foreground">
+                  12% reduction vs previous period
+                </p>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Negotiated Discounts</p>
+                <p className="text-2xl font-bold text-blue-600">$18.2K</p>
+                <p className="text-xs text-muted-foreground">Across 23 vendors</p>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Process Efficiency</p>
+                <p className="text-2xl font-bold text-purple-600">94%</p>
+                <p className="text-xs text-muted-foreground">Orders processed on time</p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+/**
+ * Main ProcurementHub Component
+ */
+export default function ProcurementHub() {
+  const tabs = [
+    {
+      id: 'overview',
+      label: 'Overview',
+      icon: <ChartBar className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <ProcurementOverview />
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'purchase-orders',
+      label: 'Purchase Orders',
+      icon: <ShoppingCart className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <PurchaseOrdersContent />
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'vendors',
+      label: 'Vendors',
+      icon: <Storefront className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <VendorsContent />
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'analytics',
+      label: 'Analytics',
+      icon: <TrendUp className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <AnalyticsContent />
+        </ErrorBoundary>
+      ),
+    },
+  ]
+
+  return (
+    <HubPage
+      title="Procurement Hub"
+      description="Comprehensive procurement management and vendor tracking"
+      icon={<Package className="h-8 w-8" />}
+      tabs={tabs}
+      defaultTab="overview"
+    />
+  )
+}
+
+export { ProcurementHub }

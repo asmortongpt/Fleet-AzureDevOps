@@ -151,7 +151,6 @@ const ProfilePage = lazy(() => import("@/pages/ProfilePage"))
 const SafetyAlertsPage = lazy(() => import("@/pages/SafetyAlertsPage"))
 const HeavyEquipmentPage = lazy(() => import("@/pages/HeavyEquipmentPage"))
 const CreateDamageReportPage = lazy(() => import("@/pages/CreateDamageReport").then(m => ({ default: m.CreateDamageReport })))
-const ExternalServicesStatus = lazy(() => import("@/pages/ExternalServicesStatus").then(m => ({ default: m.ExternalServicesStatus })))
 
 // Loading spinner component for Suspense fallback
 const LoadingSpinner = () => (
@@ -262,8 +261,8 @@ function App() {
         return <CommunicationHub />
       case "dispatch-console":
         return <DispatchConsole />
-      case "fleet-hub": // Assuming 'fleet-hub' was a previous route or will be added
-        return <CommandCenter />
+      case "fleet-hub":
+        return <FleetHubPage />
 
       case "garage":
         return <GarageService />
@@ -392,9 +391,6 @@ function App() {
         return <SettingsPage />
       case "profile":
         return <ProfilePage />
-      case "services-status":
-      case "external-services":
-        return <ExternalServicesStatus />
       // NEW CONSOLIDATED HUB PAGES (Production Readiness Phase 3)
       case "fleet-hub-consolidated":
         return <FleetHubPage />

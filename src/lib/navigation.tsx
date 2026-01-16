@@ -152,14 +152,6 @@ export const navigationItems: NavigationItem[] = [
     roles: ['SuperAdmin', 'Admin', 'FleetAdmin']
   },
   {
-    id: "services-status",
-    label: "External Services",
-    icon: <Plugs className="w-3 h-3" />,
-    section: "tools",
-    category: "Admin",
-    roles: ['SuperAdmin', 'Admin', 'FleetAdmin']
-  },
-  {
     id: "communication-hub-consolidated",
     label: "Communication Hub",
     icon: <ChatsCircle className="w-3 h-3" />,

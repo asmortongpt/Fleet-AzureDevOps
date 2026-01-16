@@ -1,473 +1,860 @@
-import { Search, Filter, Download, Star, Clock, TrendingUp, BarChart3, Gauge, Plus } from 'lucide-react';
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+/**
+ * ReportsHub - Modern Report Management Dashboard
+ * Real-time report generation and scheduling with responsive visualizations
+ */
 
-import { AIChatbot } from '@/components/reports/AIChatbot';
-import { AIReportBuilder } from '@/components/reports/AIReportBuilder';
-import { ReportCard } from '@/components/reports/ReportCard';
-import { ReportViewer } from '@/components/reports/ReportViewer';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import reportLibrary from '@/reporting_library/index.json';
+import { motion } from 'framer-motion'
+import { Suspense } from 'react'
+import {
+  ChartBar,
+  FileText,
+  Clock,
+  FolderOpen,
+  Lightning,
+  Download,
+  Calendar,
+  TrendUp,
+  Users,
+  PlayCircle,
+  Plus,
+  Warning,
+} from '@phosphor-icons/react'
+import HubPage from '@/components/ui/hub-page'
+import { useReactiveReportsData } from '@/hooks/use-reactive-reports-data'
+import {
+  StatCard,
+  ResponsiveBarChart,
+  ResponsiveLineChart,
+  ResponsivePieChart,
+} from '@/components/visualizations'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 
-// Domain metadata for organization and styling
-const DOMAIN_METADATA: Record<string, { label: string; icon: string; color: string; description: string }> = {
-  exec: {
-    label: 'Executive',
-    icon: '👔',
-    color: 'from-purple-500 to-purple-700',
-    description: 'High-level strategic insights and KPIs for leadership'
-  },
-  billing: {
-    label: 'Billing & Finance',
-    icon: '💰',
-    color: 'from-green-500 to-green-700',
-    description: 'Financial reporting, billing analytics, and cost tracking'
-  },
-  workorders: {
-    label: 'Work Orders',
-    icon: '🔧',
-    color: 'from-blue-500 to-blue-700',
-    description: 'Work order tracking, completion rates, and labor analytics'
-  },
-  shop: {
-    label: 'Shop & Labor',
-    icon: '⚙️',
-    color: 'from-orange-500 to-orange-700',
-    description: 'Shop efficiency, technician performance, and labor utilization'
-  },
-  pm: {
-    label: 'Preventive Maintenance',
-    icon: '🛡️',
-    color: 'from-cyan-500 to-cyan-700',
-    description: 'PM schedules, compliance, and predictive maintenance insights'
-  },
-  assets: {
-    label: 'Assets & Inventory',
-    icon: '📦',
-    color: 'from-indigo-500 to-indigo-700',
-    description: 'Asset tracking, inventory levels, and parts management'
-  },
-  fuel: {
-    label: 'Fuel & Emissions',
-    icon: '⛽',
-    color: 'from-yellow-500 to-yellow-700',
-    description: 'Fuel consumption, efficiency metrics, and emissions tracking'
-  },
-  safety: {
-    label: 'Safety',
-    icon: '🚨',
-    color: 'from-red-500 to-red-700',
-    description: 'Incident reports, safety compliance, and risk analytics'
-  },
-  ev: {
-    label: 'Electric Vehicles',
-    icon: '⚡',
-    color: 'from-teal-500 to-teal-700',
-    description: 'EV performance, charging analytics, and battery health'
-  },
-  bio: {
-    label: 'Biodiesel',
-    icon: '🌱',
-    color: 'from-lime-500 to-lime-700',
-    description: 'Biodiesel usage, sustainability metrics, and environmental impact'
-  }
-};
+/**
+ * Overview Tab - Report statistics and popular templates
+ */
+function OverviewTab() {
+  const {
+    metrics,
+    popularTemplates,
+    recentReports,
+    generationQueue,
+    categoryDistribution,
+    isLoading,
+    lastUpdate,
+  } = useReactiveReportsData()
 
-interface Report {
-  id: string;
-  title: string;
-  domain: string;
-  file?: string;
-  category?: string;
-  description?: string;
-  organization_id?: string; // For custom reports
-  created_by_user_id?: string;
-  definition?: any; // JSONB definition for custom reports
-  is_template?: boolean;
-  version?: number;
-  created_at?: Date;
-  updated_at?: Date;
-}
-
-export default function ReportsHub() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedDomain, setSelectedDomain] = useState<string>('all');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [viewMode, setViewMode] = useState<'gallery' | 'viewer' | 'builder'>('gallery');
-  const [viewTab, setViewTab] = useState<'core' | 'custom'>('core');
-  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
-  const [sortBy, setSortBy] = useState<'name' | 'domain' | 'recent'>('domain');
-  const [customReports, setCustomReports] = useState<Report[]>([]);
-  const [customReportsLoading, setCustomReportsLoading] = useState(false);
-  const [customReportsError, setCustomReportsError] = useState<string | null>(null);
-
-  // Core reports: 100 universal library reports
-  const coreReports = useMemo(() => {
-    return (reportLibrary.reports as Report[]).map(r => ({ ...r, source: 'core' }));
-  }, []);
-
-  // Fetch custom reports when custom tab is selected
-  useEffect(() => {
-    if (viewTab === 'custom') {
-      const fetchCustomReports = async () => {
-        setCustomReportsLoading(true);
-        setCustomReportsError(null);
-        try {
-          // TODO: Replace with actual API call once authentication is implemented
-          // const response = await fetch('/api/custom-reports', {
-          //   headers: { 'Authorization': `Bearer ${userToken}` }
-          // });
-          // const data = await response.json();
-          // setCustomReports(data.reports || []);
-
-          // For now, set empty array until API is wired up
-          setCustomReports([]);
-        } catch (error) {
-          console.error('Failed to fetch custom reports:', error);
-          setCustomReportsError('Failed to load custom reports');
-          setCustomReports([]);
-        } finally {
-          setCustomReportsLoading(false);
-        }
-      };
-
-      fetchCustomReports();
-    }
-  }, [viewTab]);
-
-  // Filter and sort reports based on current tab
-  const filteredReports = useMemo(() => {
-    let reports = viewTab === 'core' ? coreReports : customReports;
-
-    // Filter by search term
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      reports = reports.filter(
-        (report) =>
-          report.title.toLowerCase().includes(term) ||
-          DOMAIN_METADATA[report.domain]?.label.toLowerCase().includes(term) ||
-          report.description?.toLowerCase().includes(term)
-      );
-    }
-
-    // Filter by domain
-    if (selectedDomain !== 'all') {
-      reports = reports.filter((report) => report.domain === selectedDomain);
-    }
-
-    // Filter by category (for custom reports)
-    if (viewTab === 'custom' && selectedCategory !== 'all') {
-      reports = reports.filter((report) => report.category === selectedCategory);
-    }
-
-    // Sort reports
-    reports = [...reports].sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return a.title.localeCompare(b.title);
-        case 'domain':
-          return a.domain.localeCompare(b.domain);
-        case 'recent':
-          // Would need timestamp metadata - fallback to domain for now
-          return a.domain.localeCompare(b.domain);
-        default:
-          return 0;
-      }
-    });
-
-    return reports;
-  }, [searchTerm, selectedDomain, selectedCategory, sortBy, viewTab, coreReports, customReports]);
-
-  // Group reports by domain
-  const reportsByDomain = useMemo(() => {
-    const grouped: Record<string, Report[]> = {};
-    filteredReports.forEach((report) => {
-      if (!grouped[report.domain]) {
-        grouped[report.domain] = [];
-      }
-      grouped[report.domain].push(report);
-    });
-    return grouped;
-  }, [filteredReports]);
-
-  // Handle report selection
-  const handleReportClick = useCallback((report: Report) => {
-    setSelectedReport(report);
-    setViewMode('viewer');
-  }, []);
-
-  // Handle back to gallery
-  const handleBackToGallery = useCallback(() => {
-    setViewMode('gallery');
-    setSelectedReport(null);
-  }, []);
-
-  // Render gallery view
-  const renderGallery = () => (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white px-3 py-12">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-sm font-bold mb-3">Reports Hub</h1>
-          <p className="text-sm opacity-90 mb-3">
-            {viewTab === 'core' ? reportLibrary.count : customReports.length} {viewTab === 'core' ? 'universal' : 'custom'} reports across {Object.keys(DOMAIN_METADATA).length} domains
-          </p>
-
-          {/* Tab Navigation */}
-          <div className="flex gap-2 mb-3 items-center">
-            <Button
-              variant={viewTab === 'core' ? 'default' : 'outline'}
-              onClick={() => setViewTab('core')}
-              className={viewTab === 'core' ? 'bg-white text-indigo-600 hover:bg-white/90' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}
-            >
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Core Reports ({reportLibrary.count})
-            </Button>
-            <Button
-              variant={viewTab === 'custom' ? 'default' : 'outline'}
-              onClick={() => setViewTab('custom')}
-              className={viewTab === 'custom' ? 'bg-white text-indigo-600 hover:bg-white/90' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}
-            >
-              <Gauge className="h-4 w-4 mr-2" />
-              Custom Reports ({customReports.length})
-            </Button>
-            {viewTab === 'custom' && (
-              <Button
-                onClick={() => setViewMode('builder')}
-                className="bg-green-500 text-white hover:bg-green-600 ml-auto"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Create Custom Report
-              </Button>
-            )}
-          </div>
-
-          {/* Search and filter bar */}
-          <div className="flex gap-2 mb-2">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Search reports by name or category..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-white/90 backdrop-blur-sm border-white/20 text-gray-900 placeholder:text-gray-500"
-              />
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => setShowFilters(!showFilters)}
-              className="bg-white/90 backdrop-blur-sm border-white/20 text-gray-900 hover:bg-white"
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              Filters
-            </Button>
-            <Button
-              onClick={() => setViewMode('builder')}
-              className="bg-white text-indigo-600 hover:bg-white/90"
-            >
-              <TrendingUp className="h-4 w-4 mr-2" />
-              AI Report Builder
-            </Button>
-          </div>
-
-          {/* Filter panel */}
-          {showFilters && (
-            <div className="bg-white/90 backdrop-blur-sm rounded-lg p-2 text-gray-900">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Domain</label>
-                  <select
-                    value={selectedDomain}
-                    onChange={(e) => setSelectedDomain(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  >
-                    <option value="all">All Domains</option>
-                    {Object.entries(DOMAIN_METADATA).map(([key, meta]) => (
-                      <option key={key} value={key}>
-                        {meta.icon} {meta.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                {viewTab === 'custom' && customReports.length > 0 && (
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Report Category</label>
-                    <select
-                      value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    >
-                      <option value="all">All Categories</option>
-                      {Array.from(new Set(customReports.map(r => r.category).filter(Boolean))).map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-                <div>
-                  <label className="block text-sm font-medium mb-2">Sort By</label>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as 'name' | 'domain' | 'recent')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  >
-                    <option value="domain">Domain</option>
-                    <option value="name">Name</option>
-                    <option value="recent">Recently Used</option>
-                  </select>
-                </div>
-                <div className="flex items-end">
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      setSearchTerm('');
-                      setSelectedDomain('all');
-                      setSelectedCategory('all');
-                      setSortBy('domain');
-                    }}
-                    className="w-full"
-                  >
-                    Clear Filters
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Report statistics */}
-      <div className="bg-gray-50 border-b border-gray-200 px-3 py-2">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-2">
-          <div className="bg-white rounded-lg p-2 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-indigo-100 rounded-lg">
-                <Star className="h-5 w-5 text-indigo-600" />
-              </div>
-              <div>
-                <div className="text-sm font-bold text-gray-900">{filteredReports.length}</div>
-                <div className="text-sm text-slate-700">Available Reports</div>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg p-2 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Clock className="h-5 w-5 text-purple-600" />
-              </div>
-              <div>
-                <div className="text-sm font-bold text-gray-900">0</div>
-                <div className="text-sm text-slate-700">Recently Viewed</div>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg p-2 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <TrendingUp className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <div className="text-sm font-bold text-gray-900">0</div>
-                <div className="text-sm text-slate-700">Custom Reports</div>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg p-2 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <Download className="h-5 w-5 text-orange-600" />
-              </div>
-              <div>
-                <div className="text-sm font-bold text-gray-900">0</div>
-                <div className="text-sm text-slate-700">Exports Today</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Reports grid by domain */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 bg-gray-50">
-        <div className="max-w-7xl mx-auto space-y-2">
-          {Object.entries(reportsByDomain).map(([domain, reports]) => {
-            const meta = DOMAIN_METADATA[domain];
-            if (!meta) return null;
-
-            return (
-              <div key={domain} className="space-y-2">
-                <div className="flex items-center gap-3">
-                  <div className={`px-2 py-2 bg-gradient-to-r ${meta.color} text-white rounded-lg shadow-md`}>
-                    <span className="text-sm mr-2">{meta.icon}</span>
-                    <span className="font-bold text-sm">{meta.label}</span>
-                  </div>
-                  <p className="text-sm text-slate-700">{meta.description}</p>
-                  <span className="ml-auto text-sm font-medium text-gray-500">
-                    {reports.length} {reports.length === 1 ? 'report' : 'reports'}
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
-                  {reports.map((report) => (
-                    <ReportCard
-                      key={report.id}
-                      report={report}
-                      domainMeta={meta}
-                      onClick={() => handleReportClick(report)}
-                    />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-
-          {filteredReports.length === 0 && (
-            <div className="text-center py-12">
-              <Search className="h-9 w-12 text-gray-400 mx-auto mb-2" />
-              <h3 className="text-sm font-medium text-gray-900 mb-2">No reports found</h3>
-              <p className="text-slate-700">
-                Try adjusting your search or filters
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-
-  // Render report viewer
-  const renderViewer = () => {
-    if (!selectedReport) return null;
-    return (
-      <ReportViewer
-        reportId={selectedReport.id}
-        onBack={handleBackToGallery}
-      />
-    );
-  };
-
-  // Render AI builder
-  const renderBuilder = () => (
-    <AIReportBuilder
-      onBack={handleBackToGallery}
-      onReportCreated={(reportId) => {
-        // Would load the custom report and display in viewer
-        console.log('Custom report created:', reportId);
-        handleBackToGallery();
-      }}
-    />
-  );
+  // Prepare chart data for category distribution
+  const categoryChartData = Object.entries(categoryDistribution)
+    .map(([name, value]) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      value,
+    }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 8)
 
   return (
-    <div className="h-full flex flex-col bg-white">
-      {viewMode === 'gallery' && renderGallery()}
-      {viewMode === 'viewer' && renderViewer()}
-      {viewMode === 'builder' && renderBuilder()}
+    <div className="space-y-6 p-6">
+      {/* Header with Last Update */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Reports Overview</h2>
+          <p className="text-muted-foreground">
+            Report library statistics and generation activity
+          </p>
+        </div>
+        <Badge variant="outline" className="w-fit">
+          Last updated: {lastUpdate.toLocaleTimeString()}
+        </Badge>
+      </div>
 
-      {/* AI Chatbot - always visible */}
-      <AIChatbot />
+      {/* Key Metrics Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Reports"
+          value={metrics?.totalReports?.toString() || '0'}
+          icon={FileText}
+          trend="neutral"
+          description="Available templates"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Scheduled"
+          value={metrics?.activeSchedules?.toString() || '0'}
+          icon={Clock}
+          trend="up"
+          change="+3"
+          description="Active schedules"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Generated Today"
+          value={metrics?.generatedToday?.toString() || '0'}
+          icon={TrendUp}
+          trend="up"
+          description="Reports created"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Popular Templates"
+          value={popularTemplates?.length?.toString() || '0'}
+          icon={ChartBar}
+          trend="neutral"
+          description="Most used"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Charts Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Reports by Category */}
+        <ResponsiveBarChart
+          title="Reports by Category"
+          description="Template distribution across categories"
+          data={categoryChartData}
+          height={300}
+          loading={isLoading}
+        />
+
+        {/* Generation Queue Status */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <PlayCircle className="h-5 w-5 text-blue-500" />
+              <CardTitle>Generation Queue</CardTitle>
+            </div>
+            <CardDescription>Reports currently being generated</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
+            ) : generationQueue.length > 0 ? (
+              <div className="space-y-2">
+                {generationQueue.map((report) => (
+                  <motion.div
+                    key={report.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
+                    <div>
+                      <p className="font-medium">{report.title}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {report.format.toUpperCase()} • Started{' '}
+                        {new Date(report.generatedAt).toLocaleTimeString()}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 animate-pulse rounded-full bg-blue-500" />
+                      <Badge variant="secondary">Generating</Badge>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-8 text-center text-muted-foreground">
+                <PlayCircle className="mx-auto mb-2 h-12 w-12 opacity-20" />
+                <p>No reports currently generating</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Popular Templates & Recent Reports */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Popular Templates */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <TrendUp className="h-5 w-5 text-green-500" />
+              <CardTitle>Popular Templates</CardTitle>
+            </div>
+            <CardDescription>Most frequently generated reports</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
+            ) : popularTemplates.length > 0 ? (
+              <div className="space-y-2">
+                {popularTemplates.slice(0, 5).map((template, idx) => (
+                  <motion.div
+                    key={template.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50"
+                  >
+                    <div>
+                      <p className="font-medium">{template.title}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {template.category} • {template.domain}
+                      </p>
+                    </div>
+                    <Badge variant="outline">{template.popularity}x</Badge>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground">No usage data available</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Recent Reports */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-cyan-500" />
+              <CardTitle>Recent Reports</CardTitle>
+            </div>
+            <CardDescription>Latest generated reports</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
+            ) : recentReports.length > 0 ? (
+              <div className="space-y-2">
+                {recentReports.slice(0, 5).map((report, idx) => (
+                  <motion.div
+                    key={report.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50"
+                  >
+                    <div>
+                      <p className="font-medium">{report.title}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(report.generatedAt).toLocaleString()} • {report.generatedBy}
+                      </p>
+                    </div>
+                    <Button size="sm" variant="ghost">
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground">No reports generated yet</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  );
+  )
+}
+
+/**
+ * Templates Tab - Report template library
+ */
+function TemplatesTab() {
+  const {
+    templates,
+    metrics,
+    domainDistribution,
+    isLoading,
+    lastUpdate,
+  } = useReactiveReportsData()
+
+  // Domain chart data
+  const domainChartData = Object.entries(domainDistribution)
+    .map(([name, value]) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      value,
+    }))
+    .sort((a, b) => b.value - a.value)
+
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Report Templates</h2>
+          <p className="text-muted-foreground">
+            Core and custom report template library
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline">Last updated: {lastUpdate.toLocaleTimeString()}</Badge>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Create Template
+          </Button>
+        </div>
+      </div>
+
+      {/* Template Metrics */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Core Templates"
+          value={metrics?.coreTemplates?.toString() || '0'}
+          icon={FileText}
+          trend="neutral"
+          description="Universal library"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Custom Templates"
+          value={metrics?.customTemplates?.toString() || '0'}
+          icon={FolderOpen}
+          trend="up"
+          change="+5"
+          description="Organization-specific"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Categories"
+          value={Object.keys(domainDistribution).length.toString()}
+          icon={ChartBar}
+          trend="neutral"
+          description="Unique domains"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Most Popular"
+          value={templates.length > 0 ? templates[0]?.title?.slice(0, 15) + '...' : 'N/A'}
+          icon={TrendUp}
+          trend="up"
+          description="Top template"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Templates by Domain Chart */}
+      <ResponsivePieChart
+        title="Templates by Domain"
+        description="Report template distribution across business domains"
+        data={domainChartData}
+        innerRadius={60}
+        loading={isLoading}
+      />
+
+      {/* Template List */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Available Templates</CardTitle>
+          <CardDescription>Browse and generate reports from templates</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          ) : templates.length > 0 ? (
+            <div className="space-y-2">
+              {templates.slice(0, 10).map((template, idx) => (
+                <motion.div
+                  key={template.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="flex items-center justify-between rounded-lg border p-4 hover:bg-accent/50"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{template.title}</p>
+                      {template.isCore && (
+                        <Badge variant="secondary" className="text-xs">
+                          Core
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {template.domain} • {template.category}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {template.description}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline">
+                      Preview
+                    </Button>
+                    <Button size="sm">
+                      <PlayCircle className="mr-2 h-4 w-4" />
+                      Generate
+                    </Button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-8 text-center text-muted-foreground">
+              <FileText className="mx-auto mb-2 h-12 w-12 opacity-20" />
+              <p>No templates available</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+/**
+ * Scheduled Tab - Automated report scheduling
+ */
+function ScheduledTab() {
+  const {
+    scheduledReports,
+    upcomingScheduled,
+    metrics,
+    isLoading,
+    lastUpdate,
+  } = useReactiveReportsData()
+
+  // Calculate schedule metrics
+  const activeSchedules = scheduledReports.filter((s) => s.status === 'active').length
+  const pausedSchedules = scheduledReports.filter((s) => s.status === 'paused').length
+
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Scheduled Reports</h2>
+          <p className="text-muted-foreground">
+            Automated report generation and delivery
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline">Last updated: {lastUpdate.toLocaleTimeString()}</Badge>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            New Schedule
+          </Button>
+        </div>
+      </div>
+
+      {/* Schedule Metrics */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Schedules"
+          value={metrics?.scheduledReports?.toString() || '0'}
+          icon={Calendar}
+          trend="neutral"
+          description="All schedules"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Active"
+          value={activeSchedules.toString()}
+          icon={PlayCircle}
+          trend="up"
+          description="Running schedules"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Paused"
+          value={pausedSchedules.toString()}
+          icon={Clock}
+          trend="neutral"
+          description="Temporarily disabled"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Next Run"
+          value={upcomingScheduled.length > 0 ? 'In 2h' : 'N/A'}
+          icon={Lightning}
+          trend="neutral"
+          description="Upcoming execution"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Upcoming Scheduled Reports */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-blue-500" />
+            <CardTitle>Upcoming Executions</CardTitle>
+          </div>
+          <CardDescription>Next scheduled report generations</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          ) : upcomingScheduled.length > 0 ? (
+            <div className="space-y-2">
+              {upcomingScheduled.map((schedule, idx) => (
+                <motion.div
+                  key={schedule.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="flex items-center justify-between rounded-lg border p-4"
+                >
+                  <div className="flex-1">
+                    <p className="font-medium">Schedule #{schedule.id.slice(0, 8)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {schedule.schedule} • {schedule.format.toUpperCase()}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Recipients: {schedule.recipients.length} • Next run:{' '}
+                      {new Date(schedule.nextRun).toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant={schedule.status === 'active' ? 'default' : 'secondary'}
+                    >
+                      {schedule.status}
+                    </Badge>
+                    <Button size="sm" variant="outline">
+                      Edit
+                    </Button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-8 text-center text-muted-foreground">
+              <Calendar className="mx-auto mb-2 h-12 w-12 opacity-20" />
+              <p>No scheduled reports</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* All Schedules */}
+      <Card>
+        <CardHeader>
+          <CardTitle>All Scheduled Reports</CardTitle>
+          <CardDescription>Manage report generation schedules</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          ) : scheduledReports.length > 0 ? (
+            <div className="space-y-2">
+              {scheduledReports.map((schedule, idx) => (
+                <motion.div
+                  key={schedule.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="flex items-center justify-between rounded-lg border p-4 hover:bg-accent/50"
+                >
+                  <div className="flex-1">
+                    <p className="font-medium">Schedule #{schedule.id.slice(0, 8)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {schedule.schedule} • {schedule.format.toUpperCase()} •{' '}
+                      {schedule.recipients.length} recipient(s)
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant={schedule.status === 'active' ? 'default' : 'secondary'}
+                    >
+                      {schedule.status}
+                    </Badge>
+                    <Button size="sm" variant="ghost">
+                      Pause
+                    </Button>
+                    <Button size="sm" variant="ghost">
+                      Delete
+                    </Button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-8 text-center text-muted-foreground">
+              <Calendar className="mx-auto mb-2 h-12 w-12 opacity-20" />
+              <p>No scheduled reports configured</p>
+              <Button className="mt-4">
+                <Plus className="mr-2 h-4 w-4" />
+                Create First Schedule
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+/**
+ * History Tab - Generated reports archive
+ */
+function HistoryTab() {
+  const {
+    generatedReports,
+    metrics,
+    generationTrend,
+    formatChartData,
+    failedReports,
+    isLoading,
+    lastUpdate,
+  } = useReactiveReportsData()
+
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Report History</h2>
+          <p className="text-muted-foreground">
+            Generated reports archive and analytics
+          </p>
+        </div>
+        <Badge variant="outline">Last updated: {lastUpdate.toLocaleTimeString()}</Badge>
+      </div>
+
+      {/* History Metrics */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Generated"
+          value={metrics?.totalGenerated?.toString() || '0'}
+          icon={FileText}
+          trend="up"
+          description="All time"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Generated Today"
+          value={metrics?.generatedToday?.toString() || '0'}
+          icon={TrendUp}
+          trend="up"
+          change={`+${metrics?.generatedToday || 0}`}
+          description="Today's reports"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Failed Today"
+          value={metrics?.failedToday?.toString() || '0'}
+          icon={Warning}
+          trend={metrics && metrics.failedToday > 0 ? 'down' : 'neutral'}
+          description="Generation errors"
+          loading={isLoading}
+        />
+        <StatCard
+          title="Average Daily"
+          value={Math.round(metrics?.totalGenerated / 30).toString() || '0'}
+          icon={ChartBar}
+          trend="up"
+          description="Last 30 days"
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Charts Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Generation Trend */}
+        <ResponsiveLineChart
+          title="Generation Trend"
+          description="Report generation volume over the past week"
+          data={generationTrend}
+          height={300}
+          showArea
+          loading={isLoading}
+        />
+
+        {/* Format Distribution */}
+        <ResponsivePieChart
+          title="Export Formats"
+          description="Report format distribution"
+          data={formatChartData}
+          innerRadius={60}
+          loading={isLoading}
+        />
+      </div>
+
+      {/* Failed Reports Alert */}
+      {failedReports.length > 0 && (
+        <Card className="border-destructive">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Warning className="h-5 w-5 text-destructive" />
+              <CardTitle className="text-destructive">Failed Reports</CardTitle>
+            </div>
+            <CardDescription>Reports that failed to generate today</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {failedReports.slice(0, 5).map((report, idx) => (
+                <motion.div
+                  key={report.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="flex items-center justify-between rounded-lg border border-destructive/50 p-3"
+                >
+                  <div>
+                    <p className="font-medium">{report.title}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Failed at {new Date(report.generatedAt).toLocaleString()}
+                    </p>
+                  </div>
+                  <Button size="sm" variant="outline">
+                    Retry
+                  </Button>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Report History List */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Generated Reports</CardTitle>
+              <CardDescription>Complete report generation history</CardDescription>
+            </div>
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export All
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          ) : generatedReports.length > 0 ? (
+            <div className="space-y-2">
+              {generatedReports.slice(0, 20).map((report, idx) => (
+                <motion.div
+                  key={report.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.02 }}
+                  className="flex items-center justify-between rounded-lg border p-4 hover:bg-accent/50"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{report.title}</p>
+                      <Badge
+                        variant={
+                          report.status === 'completed'
+                            ? 'default'
+                            : report.status === 'failed'
+                              ? 'destructive'
+                              : 'secondary'
+                        }
+                      >
+                        {report.status}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(report.generatedAt).toLocaleString()} • {report.generatedBy} •{' '}
+                      {report.format.toUpperCase()} • {(report.size / 1024).toFixed(2)} KB
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {report.status === 'completed' && report.downloadUrl && (
+                      <>
+                        <Button size="sm" variant="ghost">
+                          <Download className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost">
+                          <Users className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-8 text-center text-muted-foreground">
+              <FileText className="mx-auto mb-2 h-12 w-12 opacity-20" />
+              <p>No reports generated yet</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+/**
+ * Main ReportsHub Component
+ */
+export default function ReportsHub() {
+  const tabs = [
+    {
+      id: 'overview',
+      label: 'Overview',
+      icon: <ChartBar className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <OverviewTab />
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'templates',
+      label: 'Templates',
+      icon: <FileText className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading templates...</div>}>
+            <TemplatesTab />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'scheduled',
+      label: 'Scheduled',
+      icon: <Clock className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading schedules...</div>}>
+            <ScheduledTab />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+    {
+      id: 'history',
+      label: 'History',
+      icon: <FolderOpen className="h-4 w-4" />,
+      content: (
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-6">Loading history...</div>}>
+            <HistoryTab />
+          </Suspense>
+        </ErrorBoundary>
+      ),
+    },
+  ]
+
+  return (
+    <HubPage
+      title="Reports Hub"
+      description="Comprehensive report generation and analytics"
+      icon={<ChartBar className="h-8 w-8" />}
+      tabs={tabs}
+      defaultTab="overview"
+    />
+  )
 }
