@@ -21,10 +21,10 @@ import {
   PlayCircle,
   ClipboardText,
   Clock,
-  Route,
+  Path,
   Gauge,
   Calendar,
-  AlertCircle
+  WarningCircle
 } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -197,7 +197,7 @@ export function DriverDashboard() {
     return (
       <div className="min-h-screen bg-slate-900 p-2">
         <Alert variant="destructive" className="bg-red-950/50 border-red-500/50">
-          <AlertCircle className="h-4 w-4 text-red-400" />
+          <WarningCircle className="h-4 w-4 text-red-400" />
           <AlertTitle className="text-red-400">Error Loading Data</AlertTitle>
           <AlertDescription className="text-red-300">
             {vehicleError instanceof Error ? vehicleError.message : 'Failed to load your dashboard data'}
@@ -289,7 +289,7 @@ export function DriverDashboard() {
       {/* Today's Trips */}
       <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
-          <Route className="w-4 h-4 text-violet-400" />
+          <Path className="w-4 h-4 text-violet-400" />
           <h2 className="text-sm font-bold text-white">Today's Trips</h2>
         </div>
 
