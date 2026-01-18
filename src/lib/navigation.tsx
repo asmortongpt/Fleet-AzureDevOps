@@ -195,6 +195,56 @@ export const navigationItems: NavigationItem[] = [
     category: "CTA Admin",
     roles: ['SuperAdmin']
   },
+
+  // ==================== ADDITIONAL HUBS ====================
+  {
+    id: "work-hub",
+    label: "Work Hub",
+    icon: <Wrench className="w-3 h-3" />,
+    section: "hubs",
+    category: "Operations",
+    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Mechanic', 'Technician']
+  },
+  {
+    id: "safety-hub",
+    label: "Safety Hub",
+    icon: <Shield className="w-3 h-3" />,
+    section: "hubs",
+    category: "Safety & Compliance",
+    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'SafetyOfficer', 'Auditor']
+  },
+  {
+    id: "people-hub",
+    label: "People Hub",
+    icon: <Users className="w-3 h-3" />,
+    section: "hubs",
+    category: "Operations",
+    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor']
+  },
+  {
+    id: "insights-hub",
+    label: "Insights Hub",
+    icon: <ChartLine className="w-3 h-3" />,
+    section: "hubs",
+    category: "Analytics",
+    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Analyst', 'Auditor']
+  },
+  {
+    id: "configuration-hub",
+    label: "Configuration Hub",
+    icon: <Gear className="w-3 h-3" />,
+    section: "hubs",
+    category: "Admin",
+    roles: ['Admin', 'FleetAdmin']
+  },
+  {
+    id: "meta-glasses-hub",
+    label: "Meta Glasses Hub",
+    icon: <Plugs className="w-3 h-3" />,
+    section: "hubs",
+    category: "Integrations",
+    roles: ['Admin', 'FleetAdmin', 'Manager', 'Technician']
+  },
 ]
 
 

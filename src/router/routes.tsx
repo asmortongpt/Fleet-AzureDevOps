@@ -107,13 +107,60 @@ const CostAnalyticsPage = lazy(() => import("@/pages/CostAnalyticsPage"));
 
 // HUB PAGES
 const FleetHub = lazy(() => import("@/pages/FleetHub"));
+const MaintenanceHub = lazy(() => import("@/pages/MaintenanceHub"));
+const OperationsHub = lazy(() => import("@/pages/OperationsHub"));
+const DriversHub = lazy(() => import("@/pages/DriversHub"));
+const ComplianceHub = lazy(() => import("@/pages/ComplianceHub"));
+const AnalyticsHub = lazy(() => import("@/pages/AnalyticsHub"));
+const AdminHub = lazy(() => import("@/pages/AdminHub"));
+const ProcurementHub = lazy(() => import("@/pages/ProcurementHub"));
+const ReportsHub = lazy(() => import("@/pages/ReportsHub"));
+const WorkHub = lazy(() => import("@/pages/WorkHub"));
+const SafetyHub = lazy(() => import("@/pages/SafetyHub"));
+const SafetyComplianceHub = lazy(() => import("@/pages/SafetyComplianceHub"));
+const DocumentsHub = lazy(() => import("@/pages/DocumentsHub"));
+const PeopleHub = lazy(() => import("@/pages/PeopleHub"));
+const InsightsHub = lazy(() => import("@/pages/InsightsHub"));
+const AssetsHub = lazy(() => import("@/pages/AssetsHub"));
+const FinancialHub = lazy(() => import("@/pages/FinancialHub"));
+const PolicyHub = lazy(() => import("@/pages/PolicyHub"));
+const CommunicationHub = lazy(() => import("@/pages/CommunicationHub"));
+const ConfigurationHub = lazy(() => import("@/pages/ConfigurationHub"));
+const CTAConfigurationHub = lazy(() => import("@/pages/CTAConfigurationHub"));
+const DataGovernanceHub = lazy(() => import("@/pages/DataGovernanceHub"));
+const IntegrationsHub = lazy(() => import("@/pages/IntegrationsHub"));
+const MetaGlassesHub = lazy(() => import("@/pages/MetaGlassesHub"));
 
 // 3D VISUALIZATION
 const VehicleShowroom3D = lazy(() => import("@/pages/VehicleShowroom3D"));
 
 const routes = [
   { path: "dashboard", element: <FleetDashboard /> },
-  { path: "fleet-hub", element: <FleetHub /> },
+  // PRIMARY HUBS (match navigation IDs)
+  { path: "fleet-hub-consolidated", element: <FleetHub /> },
+  { path: "maintenance-hub-consolidated", element: <MaintenanceHub /> },
+  { path: "operations-hub-consolidated", element: <OperationsHub /> },
+  { path: "drivers-hub-consolidated", element: <DriversHub /> },
+  { path: "analytics-hub-consolidated", element: <AnalyticsHub /> },
+  { path: "reports-hub", element: <ReportsHub /> },
+  { path: "safety-compliance-hub", element: <SafetyComplianceHub /> },
+  { path: "policy-hub", element: <PolicyHub /> },
+  { path: "documents-hub", element: <DocumentsHub /> },
+  { path: "procurement-hub-consolidated", element: <ProcurementHub /> },
+  { path: "assets-hub-consolidated", element: <AssetsHub /> },
+  { path: "admin-hub-consolidated", element: <AdminHub /> },
+  { path: "communication-hub-consolidated", element: <CommunicationHub /> },
+  { path: "financial-hub-consolidated", element: <FinancialHub /> },
+  { path: "integrations-hub-consolidated", element: <IntegrationsHub /> },
+  { path: "cta-configuration-hub", element: <CTAConfigurationHub /> },
+  { path: "data-governance-hub", element: <DataGovernanceHub /> },
+  // ADDITIONAL HUBS (not in navigation yet)
+  { path: "work-hub", element: <WorkHub /> },
+  { path: "safety-hub", element: <SafetyHub /> },
+  { path: "people-hub", element: <PeopleHub /> },
+  { path: "insights-hub", element: <InsightsHub /> },
+  { path: "configuration-hub", element: <ConfigurationHub /> },
+  { path: "meta-glasses-hub", element: <MetaGlassesHub /> },
   { path: "executive-dashboard", element: <ExecutiveDashboard /> },
   { path: "admin-dashboard", element: <AdminDashboard /> },
   { path: "emulator-dashboard", element: <EmulatorDashboard /> },
