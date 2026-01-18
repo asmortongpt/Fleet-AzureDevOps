@@ -167,3 +167,12 @@ export interface FuelTransaction {
   location?: string
   fuelType?: string
 }
+
+export interface DataPoint {
+  name: string
+  value: number
+  timestamp?: string
+  unit?: string
+  category?: string
+  metadata?: Record<string, any>
+}

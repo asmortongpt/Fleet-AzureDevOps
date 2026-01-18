@@ -1,0 +1,8 @@
+{
+  "agent_id": 29,
+  "name": "Root npmrc",
+  "file": ".npmrc",
+  "status": "success",
+  "content": "legacy-peer-deps=true",
+  "timestamp": "2026-01-18T16:21:48.538527"
+}

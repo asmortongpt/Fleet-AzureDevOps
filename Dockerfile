@@ -1,3 +1,21 @@
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY .npmrc ./
+
+# Install dependencies with legacy peer deps
+RUN npm ci --legacy-peer-deps
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Production stage
 FROM nginx:alpine
 
 # Create nginx user with UID 1001
@@ -9,8 +27,8 @@ RUN mkdir -p /var/cache/nginx /var/run /var/log/nginx /usr/share/nginx/html && \
     chown -R nginx-app:nginx-app /var/cache/nginx /var/run /var/log/nginx /usr/share/nginx/html && \
     chmod -R 755 /var/cache/nginx /var/run /var/log/nginx
 
-# Copy application files
-COPY --chown=nginx-app:nginx-app dist/ /usr/share/nginx/html/
+# Copy application files from builder
+COPY --from=builder --chown=nginx-app:nginx-app /app/dist/ /usr/share/nginx/html/
 
 # Configure nginx with proxy temp paths for read-only filesystem
 RUN echo 'proxy_temp_path /var/cache/nginx/proxy_temp; \

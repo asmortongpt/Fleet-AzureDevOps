@@ -39,7 +39,7 @@ router.get('/:entityType', async (req: Request, res: Response) => {
     const entityType = entityTypeSchema.parse(req.params.entityType);
     validateEntityType(entityType);
 
-    const { page = '1', pageSize = '50', filters = '{}' } = req.query;
+    const { page = '1', pageSize = '50', filters = '{}' } = req.query as { page?: string; pageSize?: string; filters?: string };
 
     const pageNum = parseInt(page, 10);
     const pageSizeNum = parseInt(pageSize, 10);
@@ -84,7 +84,7 @@ router.get('/:entityType', async (req: Request, res: Response) => {
 router.get('/:entityType/export', async (req: Request, res: Response) => {
   try {
     const entityType = validateEntityType(req.params.entityType);
-    const { filters = '{}', format = 'csv' } = req.query;
+    const { filters = '{}', format = 'csv' } = req.query as { filters?: string; format?: string };
 
     const parsedFilters = validateFilters(z.object({}).passthrough(), filters);
 
