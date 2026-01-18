@@ -12,7 +12,7 @@
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal'
 
-interface LogContext {
+type LogContext = string | {
   userId?: string
   sessionId?: string
   component?: string
