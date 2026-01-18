@@ -83,7 +83,7 @@ build_images() {
     docker build \
         -t $REGISTRY/fleet-api:$IMAGE_TAG \
         -t $REGISTRY/fleet-api:latest \
-        -f Dockerfile \
+        -f ./api/Dockerfile \
         --build-arg NODE_ENV=production \
         --build-arg EMULATOR_ENABLED=true \
         ./api
