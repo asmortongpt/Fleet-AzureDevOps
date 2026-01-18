@@ -14,7 +14,7 @@ import {
   MapTrifold,
   Radio,
   Siren,
-  Route,
+  Path,
   CarSimple,
   Clock,
   CheckCircle,
@@ -239,7 +239,7 @@ export function DispatcherDashboard() {
           onClick={handleCreateRoute}
           className="bg-cyan-600 hover:bg-cyan-700 text-white"
         >
-          <Route className="w-4 h-4 mr-2" />
+          <Path className="w-4 h-4 mr-2" />
           New Route
         </Button>
       </div>
@@ -298,7 +298,7 @@ export function DispatcherDashboard() {
         {/* Active Trips List */}
         <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
           <div className="flex items-center gap-2 mb-3">
-            <Route className="w-4 h-4 text-violet-400" />
+            <Path className="w-4 h-4 text-violet-400" />
             <h2 className="text-sm font-bold text-white">Active Trips</h2>
           </div>
 

@@ -1,8 +1,7 @@
 {
   "agent_id": 29,
-  "name": "Root npmrc",
-  "file": ".npmrc",
+  "name": "Phosphor Icons Inventory",
+  "file": "src/lib/phosphor-icons-available.ts",
   "status": "success",
-  "content": "legacy-peer-deps=true",
-  "timestamp": "2026-01-18T16:21:48.538527"
+  "content_length": 16976
 }

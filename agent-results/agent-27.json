@@ -1,8 +1,7 @@
 {
   "agent_id": 27,
-  "name": "Dockerignore",
-  "file": ".dockerignore",
+  "name": "DispatcherDashboard Route Icon",
+  "file": "src/components/dashboards/roles/DispatcherDashboard.tsx",
   "status": "success",
-  "content": "# Ignore version control\n.git\n.gitignore\n\n# Ignore dependencies\nnode_modules/\nnpm-debug.log*\nyarn-debug.log*\nyarn-error.log*\n\n# Ignore build outputs\ndist/\ncoverage/\n\n# Ignore environment files\n.env\n.env.*\n\n# Ignore logs\n*.log\nlogs/\n\n# Ignore IDE files\n.vscode/\n.idea/\n*.swp\n*.swo\n*~\n\n# Ignore OS files\n.DS_Store\nThumbs.db\n\n# Ignore test files\n*.test.js\n*.spec.js\n__tests__/\n\n# Ignore temporary files\n*.tmp\n*.temp\n.cache/",
-  "timestamp": "2026-01-18T16:21:48.537925"
+  "content_length": 14061
 }
