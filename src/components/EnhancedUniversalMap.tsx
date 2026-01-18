@@ -108,7 +108,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
       onRecoverySuccess?.()
     },
     onCircuitStateChange: (state) => {
-      logger.debug('Circuit breaker state:', state)
+      logger.debug(`Circuit breaker state: ${state}`)
       if (state === 'OPEN') {
         toast.error('Map service temporarily unavailable. Will retry automatically.')
       }
@@ -131,13 +131,13 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
     {
       interval: 60000, // Check every minute
       onStatusChange: (provider, status) => {
-        logger.debug(`${provider} status changed to:`, status)
+        logger.debug(`${provider} status changed to: ${status}`)
         if (status === HealthStatus.UNHEALTHY && provider === currentProvider) {
           toast.warning(`${provider} map service is experiencing issues`)
         }
       },
       onRateLimitDetected: (provider, resetTime) => {
-        logger.warn(`Rate limit detected for ${provider}`, resetTime)
+        logger.warn(`Rate limit detected for ${provider}, resets at ${resetTime}`)
         toast.warning('Rate limit reached. Switching to alternative provider...')
         if (provider === currentProvider) {
           handleProviderSwitch(provider === 'google' ? 'leaflet' : 'google')
