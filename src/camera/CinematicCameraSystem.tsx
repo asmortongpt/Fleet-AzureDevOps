@@ -193,6 +193,13 @@ export function CinematicCameraSystem({
   // Current camera configuration
   const currentConfig = cameraPresets[currentView]
 
+  // Spring configurations
+  const springConfig = {
+    default: { mass: 1, tension: 280, friction: 60 },
+    slow: { mass: 1, tension: 200, friction: 50 },
+    wobbly: { mass: 1, tension: 180, friction: 12 }
+  }
+
   // Smooth camera transition animation
   const [{ position, target, fov }, api] = useSpring(() => ({
     position: currentConfig.position,
@@ -204,13 +211,6 @@ export function CinematicCameraSystem({
         springConfig.slow : 
         springConfig.default
   }))
-
-  // Spring configurations
-  const springConfig = {
-    default: { mass: 1, tension: 280, friction: 60 },
-    slow: { mass: 1, tension: 200, friction: 50 },
-    wobbly: { mass: 1, tension: 180, friction: 12 }
-  }
 
   // Update camera when view changes
   useEffect(() => {
@@ -324,7 +324,7 @@ export function CinematicCameraSystem({
   return (
     <>
       <animated.group
-        position={position}
+        position={position as any}
         ref={cameraGroupRef}
       >
         <PerspectiveCamera

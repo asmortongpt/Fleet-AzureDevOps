@@ -98,6 +98,8 @@ declare module 'react-leaflet' {
   export const TileLayer: ComponentType<TileLayerProps>;
   export const Marker: ComponentType<MarkerProps>;
   export const Popup: ComponentType<PopupProps>;
+  export const Polygon: any;
+  export const Circle: any;
 
   export function useMap(): L.Map;
   export function useMapEvents(handlers: L.LeafletEventHandlerFnMap): L.Map;
