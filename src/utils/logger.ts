@@ -104,6 +104,27 @@ class ProductionLogger {
     this.info(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '))
   }
 
+  // Alias methods for compatibility
+  logError(message: string, error?: Error | unknown, context?: LogContext) {
+    this.error(message, error, context)
+  }
+
+  logAudit(message: string, context?: LogContext) {
+    this.info(`[AUDIT] ${message}`, context)
+  }
+
+  logWarning(message: string, context?: LogContext) {
+    this.warn(message, context)
+  }
+
+  logInfo(message: string, context?: LogContext) {
+    this.info(message, context)
+  }
+
+  logDebug(message: string, context?: LogContext) {
+    this.debug(message, context)
+  }
+
   redact = this.redactSensitiveData.bind(this)
 }
 
