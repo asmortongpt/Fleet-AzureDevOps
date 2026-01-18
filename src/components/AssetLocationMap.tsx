@@ -2,10 +2,10 @@ import axios from 'axios';
 import type { LatLngExpression } from 'leaflet';
 import React, { useEffect, useState, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, Polygon } from 'react-leaflet';
-import { toast } from 'react-toastify';
 import { io, Socket } from 'socket.io-client';
+import { toast } from 'sonner';
 
-import 'react-toastify/dist/ReactToastify.css';
+import 'leaflet/dist/leaflet.css';
 import { Asset, Geofence } from '@/types';
 import { getAuthHeaders } from '@/utils/auth';
 import { logger } from '@/utils/logger';
