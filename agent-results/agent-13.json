@@ -1,8 +1,7 @@
 {
   "agent_id": 13,
-  "name": "Query Builder",
-  "file": "api/src/routes/drill-through/utils/queryBuilder.ts",
+  "name": "Global Types Index",
+  "file": "src/@types/index.d.ts",
   "status": "success",
-  "content": "export function buildQuery(filters: any): { query: string; params: any[] } {\n  // Stub implementation - would build SQL dynamically in production\n  return {\n    query: 'SELECT * FROM data WHERE tenant_id = $1',\n    params: [filters.tenantId]\n  };\n}\n\nexport function buildDrillThroughQuery(entityType: string, filters: any): { query: string; params: any[] } {\n  // Stub implementation for drill-through queries\n  const baseQuery = `SELECT * FROM ${entityType} WHERE tenant_id = $1`;\n  return {\n    query: baseQuery,\n    params: [filters.tenantId || '']\n  };\n}",
-  "timestamp": "2026-01-18T16:21:48.531863"
+  "content_length": 130
 }

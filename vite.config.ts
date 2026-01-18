@@ -77,10 +77,14 @@ export default defineConfig({
           'icons-vendor': ['lucide-react'],
         },
       },
-      // P0-1: Explicitly exclude .env files from being bundled
-      external: (id) => {
+      // P0-1: Explicitly exclude .env files and msw from being bundled
+      external: (id: string): boolean => {
         if (id.includes('.env')) {
           console.warn(`⚠️  SECURITY: Prevented .env file from being bundled: ${id}`);
+          return true;
+        }
+        // Exclude MSW from production build (development-only mocking)
+        if (id.includes('msw/') || id === 'msw') {
           return true;
         }
         return false;
