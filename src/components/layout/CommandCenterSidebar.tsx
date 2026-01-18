@@ -20,7 +20,7 @@ interface CommandCenterSidebarProps {
 
 export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNavigate }: CommandCenterSidebarProps) {
     const navigate = useNavigate();
-    const { activeModule, setActiveModule, visibleNavItems } = useNavigation();
+    const { activeModule, navigateTo, visibleNavItems } = useNavigation();
 
     // Group items by section for better organization
     const groupedItems = useMemo(() => ({
@@ -35,7 +35,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
         const isActive = activeModule === item.id;
 
         const handleClick = () => {
-            setActiveModule(item.id);
+            navigateTo(item.id);
             onNavigate?.();
         };
 
