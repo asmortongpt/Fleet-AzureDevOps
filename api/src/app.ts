@@ -77,7 +77,7 @@ export class FleetAPI {
     this.authService = new AuthenticationService(this.pool, this.redis);
     this.authzService = new AuthorizationService(this.pool, true, process.env.REDIS_URL);
     this.secretsService = new SecretsManagementService(this.pool);
-    this.configService = new ConfigurationManagementService(this.pool, { redis: this.redis });
+    this.configService = new ConfigurationManagementService(this.pool, this.redis);
 
     this.setupMiddleware();
     this.setupRoutes();
@@ -230,8 +230,8 @@ export class FleetAPI {
           }
           const value = await this.secretsService.getSecret(req.params.name, {
             userId: req.user.userId.toString(),
-            ipAddress: req.ip,
-            userAgent: req.headers['user-agent']
+            ipAddress: req.ip || '',
+            userAgent: req.headers['user-agent'] || ''
           });
           res.json({ success: true, data: { value } });
         } catch (error) {
@@ -255,8 +255,8 @@ export class FleetAPI {
             req.body.metadata,
             {
               userId: req.user.userId.toString(),
-              ipAddress: req.ip,
-              userAgent: req.headers['user-agent']
+              ipAddress: req.ip || '',
+              userAgent: req.headers['user-agent'] || ''
             }
           );
           res.json({ success: true, message: 'Secret stored successfully' });

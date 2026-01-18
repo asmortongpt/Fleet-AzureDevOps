@@ -42,7 +42,8 @@ interface BoundingBox {
 
 class AISafetyDetectionService {
   private db: Pool;
-  private model: tf.GraphModel | null = null;
+  // private model: tf.GraphModel | null = null; // TensorFlow removed
+  private model: any | null = null;
   private modelLoaded: boolean = false;
 
   constructor(db: Pool) {
@@ -487,30 +488,4 @@ class AISafetyDetectionService {
           metrics.avgProcessingTime
         ]
       );
-    } catch (error: any) {
-      logger.error('Failed to update model metrics:', error.message);
-    }
-  }
-
-  /**
-   * Get model performance statistics
-   */
-  async getModelStats(): Promise<any> {
-    try {
-      const result = await this.db.query(
-        `SELECT model_name, model_type, accuracy_rate, false_positive_rate,
-                avg_processing_time_ms, total_detections, enabled, created_at, updated_at
-         FROM ai_detection_models
-         WHERE model_type = 'safety_detection'
-         ORDER BY updated_at DESC`
-      );
-
-      return result.rows;
-    } catch (error: any) {
-      logger.error('Failed to get model stats:', error.message);
-      return [];
-    }
-  }
-}
-
-export default AISafetyDetectionService;
+    
