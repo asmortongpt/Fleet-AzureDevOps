@@ -135,12 +135,12 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
 
   const handleToggleEmulator = (emulatorId: string) => {
     // This would call an API to start/stop the emulator
-    logger.debug('Toggle emulator:', emulatorId);
+    logger.debug('Toggle emulator', { emulatorId });
   };
 
   const handleRefreshEmulator = (emulatorId: string) => {
     // This would call an API to refresh the emulator
-    logger.debug('Refresh emulator:', emulatorId);
+    logger.debug('Refresh emulator', { emulatorId });
   };
 
   if (loading && !emulators) {

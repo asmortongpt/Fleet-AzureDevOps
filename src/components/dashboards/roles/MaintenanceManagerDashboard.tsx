@@ -22,7 +22,7 @@ import {
   Gauge,
   ListChecks,
   CarSimple,
-  Tools
+  Toolbox
 } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';

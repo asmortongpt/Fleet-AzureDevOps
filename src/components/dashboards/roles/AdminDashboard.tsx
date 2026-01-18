@@ -13,7 +13,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Shield,
   Users,
-  Activity,
+  ChartLine,
   FileText,
   Warning,
   CheckCircle,
@@ -199,7 +199,7 @@ export function AdminDashboard() {
           : "bg-red-950/20 border-red-500/30"
       )}>
         <div className="flex items-center gap-2 mb-3">
-          <Activity className={cn(
+          <ChartLine className={cn(
             "w-4 h-4",
             systemHealth.status === 'healthy' ? "text-green-400" : "text-amber-400"
           )} />
@@ -431,7 +431,7 @@ export function AdminDashboard() {
         <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-amber-400" />
+              <ChartLine className="w-4 h-4 text-amber-400" />
               <h2 className="text-sm font-bold text-white">Recent Activity</h2>
             </div>
           </div>

@@ -1,8 +1,7 @@
 {
   "agent_id": 2,
-  "name": "OpenCV Stubs",
-  "file": "api/src/@types/opencv-stub.d.ts",
+  "name": "React-Leaflet Types",
+  "file": "src/@types/react-leaflet.d.ts",
   "status": "success",
-  "content": "/**\n * Stub types for OpenCV.js (not available in Azure Static Web Apps)\n * These provide type definitions without requiring the actual package\n */\n\ndeclare namespace cv {\n  export const COLOR_RGB2GRAY: number;\n  export const THRESH_BINARY: number;\n  export const RETR_EXTERNAL: number;\n  export const CHAIN_APPROX_SIMPLE: number;\n\n  export class Mat {\n    constructor();\n    constructor(rows: number, cols: number, type: number);\n    constructor(rows: number, cols: number, type: number, scalar: Scalar);\n    delete(): void;\n    rows: number;\n    cols: number;\n    data: Uint8Array;\n    data32S: Int32Array;\n    data32F: Float32Array;\n    data64F: Float64Array;\n    clone(): Mat;\n    copyTo(dst: Mat): void;\n    convertTo(dst: Mat, rtype: number, alpha?: number, beta?: number): void;\n    total(): number;\n    row(y: number): Mat;\n    col(x: number): Mat;\n  }\n\n  export class MatVector {\n    constructor();\n    delete(): void;\n    size(): number;\n    get(index: number): Mat;\n    push_back(mat: Mat): void;\n  }\n\n  export class Scalar {\n    constructor(v0: number, v1?: number, v2?: number, v3?: number);\n  }\n\n  export class Rect {\n    x: number;\n    y: number;\n    width: number;\n    height: number;\n  }\n\n  export function imread(imageElement: HTMLImageElement | HTMLCanvasElement): Mat;\n  export function cvtColor(src: Mat, dst: Mat, code: number): void;\n  export function threshold(src: Mat, dst: Mat, thresh: number, maxval: number, type: number): void;\n  export function findContours(image: Mat, contours: MatVector, hierarchy: Mat, mode: number, method: number): void;\n  export function contourArea(contour: Mat): number;\n  export function matFromImageData(imageData: ImageData): Mat;\n  export function Canny(src: Mat, dst: Mat, threshold1: number, threshold2: number, apertureSize?: number, L2gradient?: boolean): void;\n  export function boundingRect(contour: Mat): Rect;\n}\n\ndeclare module '@techstark/opencv-js' {\n  export = cv;\n}",
-  "timestamp": "2026-01-18T16:21:48.526380"
+  "content_length": 3028
 }

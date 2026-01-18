@@ -87,7 +87,7 @@ export function DriverDashboard() {
     navigate('/operations-hub-consolidated', {
       state: { action: 'start-trip', tripId }
     });
-    toast.info(`Starting Trip #${tripId}...`);
+    toast(`Starting Trip #${tripId}...`);
   };
 
   const handleLogFuel = () => {
@@ -95,7 +95,7 @@ export function DriverDashboard() {
     navigate('/fleet-hub-consolidated', {
       state: { action: 'log-fuel', vehicleId: assignedVehicle.id }
     });
-    toast.info('Opening fuel log form...');
+    toast('Opening fuel log form...');
   };
 
   const handleReportIssue = () => {
@@ -103,7 +103,7 @@ export function DriverDashboard() {
     navigate('/maintenance-hub-consolidated', {
       state: { action: 'report-issue', vehicleId: assignedVehicle.id }
     });
-    toast.info('Opening incident report...');
+    toast('Opening incident report...');
   };
 
   const handleCompleteInspection = async () => {
@@ -153,7 +153,7 @@ export function DriverDashboard() {
     navigate('/operations-hub-consolidated', {
       state: { action: 'view-route', tripId }
     });
-    toast.info(`Loading route map for Trip #${tripId}...`);
+    toast(`Loading route map for Trip #${tripId}...`);
   };
 
   const toggleInspectionItem = (itemId: string) => {

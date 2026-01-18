@@ -78,14 +78,14 @@ export function FleetManagerDashboard() {
     navigate('/drivers-hub-consolidated', {
       state: { action: 'assign-driver' }
     });
-    toast.info('Opening driver assignment...');
+    toast('Opening driver assignment...');
   };
 
   const handleCreateWorkOrder = () => {
     navigate('/maintenance-hub-consolidated', {
       state: { action: 'create-work-order' }
     });
-    toast.info('Opening work order form...');
+    toast('Opening work order form...');
   };
 
   const handleExportReport = async () => {
@@ -98,14 +98,14 @@ export function FleetManagerDashboard() {
     navigate('/maintenance-hub-consolidated', {
       state: { filter: 'overdue' }
     });
-    toast.info('Loading overdue maintenance queue...');
+    toast('Loading overdue maintenance queue...');
   };
 
   const handleScheduleMaintenance = () => {
     navigate('/maintenance-hub-consolidated', {
       state: { view: 'schedule', filter: 'upcoming' }
     });
-    toast.info('Opening maintenance scheduler...');
+    toast('Opening maintenance scheduler...');
   };
 
   // Loading state - show spinner while fetching initial data
