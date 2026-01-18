@@ -1,11 +1,25 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
 import React, { useState } from 'react';
-import { Modal, Form, Button, Alert } from 'react-bootstrap';
-import { Helmet } from 'react-helmet-async';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import logger from '@/utils/logger';
 
 interface CheckoutAssetModalProps {
@@ -27,9 +41,14 @@ type CheckoutFormData = z.infer<typeof CheckoutSchema>;
 
 const CheckoutAssetModal: React.FC<CheckoutAssetModalProps> = ({ show, onHide, assetId, tenantId }) => {
   const [error, setError] = useState<string | null>(null);
-  const { register, handleSubmit, formState: { errors } } = useForm<CheckoutFormData>({
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<CheckoutFormData>({
     resolver: zodResolver(CheckoutSchema),
+    defaultValues: {
+      condition: 'GOOD',
+    },
   });
+
+  const conditionValue = watch('condition');
 
   const onSubmit = async (data: CheckoutFormData) => {
     try {
@@ -64,54 +83,76 @@ const CheckoutAssetModal: React.FC<CheckoutAssetModalProps> = ({ show, onHide, a
   };
 
   return (
-    <>
-      <Helmet>
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self';" />
-        <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains" />
-      </Helmet>
-      <Modal show={show} onHide={onHide}>
-        <Modal.Header closeButton>
-          <Modal.Title>Checkout Asset</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {error && <Alert variant="danger">{error}</Alert>}
-          <Form onSubmit={handleSubmit(onSubmit)}>
-            <Form.Group controlId="assignee">
-              <Form.Label>Assignee</Form.Label>
-              <Form.Control type="text" {...register('assignee')} isInvalid={!!errors.assignee} />
-              <Form.Control.Feedback type="invalid">{errors.assignee?.message}</Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group controlId="dueDate">
-              <Form.Label>Due Date</Form.Label>
-              <Form.Control type="date" {...register('dueDate')} isInvalid={!!errors.dueDate} />
-              <Form.Control.Feedback type="invalid">{errors.dueDate?.message}</Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group controlId="purpose">
-              <Form.Label>Purpose</Form.Label>
-              <Form.Control type="text" {...register('purpose')} isInvalid={!!errors.purpose} />
-              <Form.Control.Feedback type="invalid">{errors.purpose?.message}</Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group controlId="condition">
-              <Form.Label>Condition</Form.Label>
-              <Form.Control as="select" {...register('condition')} isInvalid={!!errors.condition}>
-                <option value="EXCELLENT">EXCELLENT</option>
-                <option value="GOOD">GOOD</option>
-                <option value="FAIR">FAIR</option>
-                <option value="POOR">POOR</option>
-                <option value="DAMAGED">DAMAGED</option>
-              </Form.Control>
-              <Form.Control.Feedback type="invalid">{errors.condition?.message}</Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group controlId="signature">
-              <Form.Label>Signature</Form.Label>
-              <Form.Control type="text" {...register('signature')} isInvalid={!!errors.signature} />
-              <Form.Control.Feedback type="invalid">{errors.signature?.message}</Form.Control.Feedback>
-            </Form.Group>
-            <Button variant="primary" type="submit">Checkout</Button>
-          </Form>
-        </Modal.Body>
-      </Modal>
-    </>
+    <Dialog open={show} onOpenChange={(open) => !open && onHide()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Checkout Asset</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {error && (
+            <div className="bg-destructive/15 text-destructive px-4 py-2 rounded-md text-sm">
+              {error}
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Label htmlFor="assignee">Assignee</Label>
+            <Input id="assignee" {...register('assignee')} />
+            {errors.assignee && (
+              <p className="text-sm text-destructive">{errors.assignee.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="dueDate">Due Date</Label>
+            <Input id="dueDate" type="date" {...register('dueDate')} />
+            {errors.dueDate && (
+              <p className="text-sm text-destructive">{errors.dueDate.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="purpose">Purpose</Label>
+            <Input id="purpose" {...register('purpose')} />
+            {errors.purpose && (
+              <p className="text-sm text-destructive">{errors.purpose.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="condition">Condition</Label>
+            <Select
+              value={conditionValue}
+              onValueChange={(value) => setValue('condition', value as CheckoutFormData['condition'])}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select condition" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="EXCELLENT">EXCELLENT</SelectItem>
+                <SelectItem value="GOOD">GOOD</SelectItem>
+                <SelectItem value="FAIR">FAIR</SelectItem>
+                <SelectItem value="POOR">POOR</SelectItem>
+                <SelectItem value="DAMAGED">DAMAGED</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.condition && (
+              <p className="text-sm text-destructive">{errors.condition.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="signature">Signature</Label>
+            <Input id="signature" {...register('signature')} />
+            {errors.signature && (
+              <p className="text-sm text-destructive">{errors.signature.message}</p>
+            )}
+          </div>
+
+          <Button type="submit" className="w-full">Checkout</Button>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 
