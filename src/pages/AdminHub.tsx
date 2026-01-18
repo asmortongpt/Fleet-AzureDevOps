@@ -30,7 +30,7 @@ import {
   IdentificationCard,
   GearSix,
   UserCircle,
-  Activity,
+  Pulse as Activity,
   Clock,
   XCircle,
   Key,

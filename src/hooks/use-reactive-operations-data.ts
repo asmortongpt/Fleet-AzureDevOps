@@ -20,7 +20,8 @@ import { useState, useCallback, useMemo } from 'react'
 import { z } from 'zod'
 
 // Environment configuration with validation
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+// Use relative path to leverage Vite's proxy in development
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
 // Query configuration constants
 const QUERY_CONFIG = {

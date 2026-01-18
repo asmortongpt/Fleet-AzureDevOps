@@ -3,9 +3,9 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
 
-// Initialize MSW API mocking in development mode
+// Initialize MSW API mocking in development mode (non-blocking)
 if (import.meta.env.DEV) {
-  await import('./mocks/browser')
+  import('./mocks/browser').catch(console.error)  // Don't block app startup
 }
 
 // Initialize i18n BEFORE React renders - this is critical for SSR and proper language detection
@@ -98,9 +98,9 @@ import "./styles/accessibility.css"
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: true, // Refetch when window regains focus
-      refetchInterval: 10000, // Auto-refresh every 10 seconds
-      staleTime: 5000, // Data considered fresh for 5 seconds
+      refetchOnWindowFocus: false, // Disable auto-refetch on focus for performance
+      refetchInterval: false, // Disable auto-refresh (was 10 seconds - too aggressive)
+      staleTime: 60000, // Data considered fresh for 60 seconds
       retry: 1,
     },
   },

@@ -69,8 +69,9 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
   };
 
   const handleVehicleClick = (vehicle: Vehicle) => {
-    setSelectedId(vehicle.id);
-    onVehicleSelect?.(vehicle.id);
+    const id = String(vehicle.id);
+    setSelectedId(id);
+    onVehicleSelect?.(id);
   };
 
   // Normalize coordinates - map lat/lng to grid position
@@ -118,7 +119,7 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
         {/* Vehicle Markers - Positioned on map */}
         {vehiclesWithCoords.map((vehicle, index) => {
           const pos = normalizePosition(vehicle, index);
-          const isSelected = selectedId === vehicle.id;
+          const isSelected = selectedId === String(vehicle.id);
           return (
             <button
               key={vehicle.id}
@@ -126,7 +127,7 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
               style={{ left: `${pos.left}%`, top: `${pos.top}%`, transform: 'translate(-50%, -50%)' }}
               onClick={() => handleVehicleClick(vehicle)}
               data-testid={`map-marker-${vehicle.id}`}
-              aria-label={`Vehicle ${vehicle.vehicleNumber || vehicle.id.slice(0, 6)} - Status: ${vehicle.status}`}
+              aria-label={`Vehicle ${vehicle.vehicleNumber || String(vehicle.id).slice(0, 6)} - Status: ${vehicle.status}`}
               role="button"
             >
               {/* Marker with pulse effect for active vehicles */}
@@ -141,7 +142,7 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
               {/* Vehicle label on hover/select */}
               {isSelected && (
                 <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-white rounded shadow-sm text-xs font-medium text-slate-800 whitespace-nowrap" aria-live="polite">
-                  {vehicle.vehicleNumber || `Vehicle ${vehicle.id.slice(0, 6)}`}
+                  {vehicle.vehicleNumber || `Vehicle ${String(vehicle.id).slice(0, 6)}`}
                 </div>
               )}
             </button>
