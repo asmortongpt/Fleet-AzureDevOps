@@ -5,6 +5,14 @@
  * For now, this is a stub implementation
  */
 export class SecretsManagementService {
+  async initialize(): Promise<void> {
+    // Stub: In production, would connect to Azure Key Vault
+  }
+
+  async shutdown(): Promise<void> {
+    // Stub: In production, would close Key Vault connection
+  }
+
   async getSecret(key: string): Promise<string | undefined> {
     // In production: fetch from Azure Key Vault
     return process.env[key];

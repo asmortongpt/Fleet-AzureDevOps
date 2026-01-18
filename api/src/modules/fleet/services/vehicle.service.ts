@@ -54,4 +54,17 @@ export class VehicleService extends BaseService {
       return await this.vehicleRepository.delete(id, tenantId);
     });
   }
+
+  async getStatus(vehicleId: string, tenantId: string): Promise<any> {
+    // Stub implementation - returns basic vehicle status
+    const vehicle = await this.getVehicleById(parseInt(vehicleId), tenantId);
+    if (!vehicle) {
+      return null;
+    }
+    return {
+      id: vehicle.id,
+      status: vehicle.status || 'active',
+      lastUpdated: vehicle.updated_at || new Date()
+    };
+  }
 }
