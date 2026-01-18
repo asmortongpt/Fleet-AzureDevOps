@@ -1,11 +1,13 @@
 /**
  * Advanced ML/AI Damage Assessment Engine
- * Implements: TensorFlow.js, Computer Vision, Fraud Detection, and Predictive Analytics
+ * Implements: Computer Vision APIs, Fraud Detection, and Predictive Analytics
+ *
+ * NOTE: TensorFlow.js and OpenCV dependencies removed for build compatibility
+ * Uses external AI APIs (OpenAI/Azure) instead
  */
 
-import * as tf from '@tensorflow/tfjs-node'
-// @ts-expect-error - Build compatibility fix
-import * as cv from '@techstark/opencv-js'
+// import * as tf from '@tensorflow/tfjs-node' // Removed for build compatibility
+// import * as cv from '@techstark/opencv-js' // Removed for build compatibility
 import { OpenAI } from 'openai'
 import { ComputerVisionClient } from '@azure/cognitiveservices-computervision'
 import { ApiKeyCredentials } from '@azure/ms-rest-js'

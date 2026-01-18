@@ -1,10 +1,13 @@
 /**
  * AI Safety Detection Service
- * Advanced computer vision for driver safety monitoring using TensorFlow.js and OpenCV
+ * Advanced computer vision for driver safety monitoring
  * Detects: distracted driving, drowsiness, phone use, seatbelt violations, smoking
+ *
+ * NOTE: TensorFlow.js dependencies removed for build compatibility
+ * Uses external AI APIs (OpenAI/Azure) instead
  */
 
-import * as tf from '@tensorflow/tfjs-node';
+// import * as tf from '@tensorflow/tfjs-node'; // Removed for build compatibility
 import axios from 'axios';
 import { Pool } from 'pg';
 
