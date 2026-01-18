@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Outlet, Link } from "react-router-dom";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { CommandCenterLayout } from "@/components/layout/CommandCenterLayout";
@@ -10,6 +10,58 @@ const LoadingSpinner = () => (
     <div className="flex flex-col items-center gap-3">
       <div className="w-4 h-4 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       <p className="text-sm text-muted-foreground">Loading module...</p>
+    </div>
+  </div>
+);
+
+// Route categories for organized display
+const routeCategories = {
+  "Dashboards": ["dashboard", "fleet-hub", "executive-dashboard", "admin-dashboard", "emulator-dashboard"],
+  "Fleet & Vehicles": ["vehicles", "gps-tracking", "vehicle-telemetry", "vehicle-showroom-3d", "virtual-garage", "garage"],
+  "Operations": ["dispatch-console", "routes", "route-optimization", "task-management", "gis-map"],
+  "Maintenance": ["predictive", "maintenance-scheduling"],
+  "Fuel & Charging": ["fuel", "fuel-purchasing", "ev-charging"],
+  "Analytics": ["workbench", "analytics-workbench", "comprehensive", "cost-analytics", "endpoint-monitor"],
+  "Procurement": ["vendor-management", "parts-inventory", "purchase-orders", "invoices"],
+  "Compliance & Safety": ["osha-forms", "video-telematics", "incident-management", "safety-alerts"],
+  "Documents": ["documents", "document-qa"],
+  "Assets": ["asset-management", "equipment-dashboard", "heavy-equipment"],
+  "Personal Use": ["personal-use", "personal-use-policy", "reimbursement-queue", "charges-billing"],
+  "Integrations": ["teams-integration", "email-center", "arcgis-integration", "map-settings", "map-layers"],
+  "Tools": ["mileage", "receipt-processing", "traffic-cameras", "form-builder", "communication-log"],
+  "Admin": ["policy-engine", "policy-management", "notifications", "push-notification-admin", "settings", "profile"],
+};
+
+// Routes Index Component
+const RoutesIndex = () => (
+  <div className="p-6 max-w-6xl mx-auto">
+    <h1 className="text-2xl font-bold text-white mb-2">Fleet Management Routes</h1>
+    <p className="text-slate-400 mb-6">Navigate to any module by clicking the links below or typing the path in the address bar.</p>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Object.entries(routeCategories).map(([category, paths]) => (
+        <div key={category} className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
+          <h2 className="text-sm font-semibold text-cyan-400 uppercase tracking-wider mb-3">{category}</h2>
+          <ul className="space-y-1">
+            {paths.map(path => (
+              <li key={path}>
+                <Link
+                  to={`/${path}`}
+                  className="text-sm text-slate-300 hover:text-white hover:bg-slate-700/50 block px-2 py-1 rounded transition-colors"
+                >
+                  /{path}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+
+    <div className="mt-8 p-4 bg-slate-800/30 rounded-lg border border-slate-700">
+      <p className="text-xs text-slate-500">
+        <strong className="text-slate-400">Tip:</strong> Type any route path directly in your browser address bar, e.g., <code className="bg-slate-700 px-1 rounded">localhost:3000/vehicles</code>
+      </p>
     </div>
   </div>
 );
@@ -104,6 +156,7 @@ const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const SafetyAlertsPage = lazy(() => import("@/pages/SafetyAlertsPage"));
 const CostAnalyticsPage = lazy(() => import("@/pages/CostAnalyticsPage"));
+const VehiclesOperations = lazy(() => import("@/pages/Operations/Vehicles"));
 
 // HUB PAGES
 const FleetHub = lazy(() => import("@/pages/FleetHub"));
@@ -219,6 +272,7 @@ const routes = [
   { path: "settings", element: <SettingsPage /> },
   { path: "profile", element: <ProfilePage /> },
   { path: "cost-analytics", element: <CostAnalyticsPage /> },
+  { path: "vehicles", element: <VehiclesOperations /> },
 ];
 
 export const router = createBrowserRouter([
@@ -234,10 +288,7 @@ export const router = createBrowserRouter([
         index: true,
         element: (
           <ErrorBoundary>
-            <Suspense fallback={<LoadingSpinner />}>
-              {/* <FleetDashboardModern /> */}
-              <div className="p-2 text-center">Dashboard Modern Not Found</div>
-            </Suspense>
+            <RoutesIndex />
           </ErrorBoundary>
         ),
       },
