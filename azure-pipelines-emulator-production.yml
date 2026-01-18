@@ -1,0 +1,453 @@
+# ============================================================================
+# Fleet Production Deployment Pipeline with Emulator Activation
+# Azure DevOps CI/CD - Deploys Fleet Management System and Starts All Emulators
+# ============================================================================
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - '*.md'
+      - 'docs/**'
+
+variables:
+  - group: fleet-production-secrets  # Variable group in Azure DevOps
+  - name: imageRepository
+    value: 'ctafleet'
+  - name: containerRegistry
+    value: 'fleetacr.azurecr.io'
+  - name: dockerComposeFile
+    value: 'docker-compose.production.yml'
+  - name: azureSubscription
+    value: 'Azure-Production'
+  - name: resourceGroup
+    value: 'fleet-production-rg'
+  - name: keyVaultName
+    value: 'fleet-secrets-0d326d71'
+  - name: productionApiUrl
+    value: 'https://proud-bay-0fdc8040f.3.azurestaticapps.net'
+  - name: emulatorVehicleCount
+    value: '50'  # Number of vehicles to emulate
+
+stages:
+  # ============================================================================
+  # STAGE 1: Build Docker Images
+  # ============================================================================
+  - stage: Build
+    displayName: 'Build and Push Docker Images'
+    jobs:
+      - job: BuildImages
+        displayName: 'Build All Services'
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        steps:
+          - checkout: self
+            fetchDepth: 1
+
+          - task: AzureKeyVault@2
+            displayName: 'Fetch Secrets from Key Vault'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              KeyVaultName: '$(keyVaultName)'
+              SecretsFilter: '*'
+              RunAsPreJob: true
+
+          - task: Docker@2
+            displayName: 'Login to ACR'
+            inputs:
+              command: login
+              containerRegistry: $(containerRegistry)
+
+          - script: |
+              echo "Creating production .env file..."
+              cat > .env.production << ENVEOF
+              # Database Configuration
+              POSTGRES_DB=fleetdb
+              POSTGRES_USER=fleetadmin
+              POSTGRES_PASSWORD=$(DATABASE-PASSWORD)
+              POSTGRES_PORT=5432
+
+              # Redis Configuration
+              REDIS_PASSWORD=$(redis-password)
+              REDIS_PORT=6379
+
+              # API Configuration
+              API_PORT=3000
+              NODE_ENV=production
+              PORT=3000
+
+              # Authentication
+              JWT_SECRET=$(jwt-secret)
+              JWT_EXPIRES_IN=1h
+              AZURE_AD_CLIENT_ID=$(AZURE-AD-CLIENT-ID)
+              AZURE_AD_CLIENT_SECRET=$(AZURE-AD-CLIENT-SECRET)
+              AZURE_AD_TENANT_ID=$(AZURE-TENANT-ID)
+
+              # Azure Services
+              AZURE_OPENAI_ENDPOINT=$(azure-openai-endpoint)
+              AZURE_OPENAI_KEY=$(azure-openai-key)
+              AZURE_STORAGE_CONNECTION_STRING=$(azure-storage-connection-string)
+              APPLICATION_INSIGHTS_CONNECTION_STRING=$(app-insights-connection-string)
+
+              # Google Services
+              GOOGLE_MAPS_API_KEY=$(GOOGLE-MAPS-API-KEY)
+              VITE_GOOGLE_MAPS_API_KEY=$(GOOGLE-MAPS-API-KEY)
+
+              # Emulator Configuration - ENABLED FOR PRODUCTION
+              EMULATOR_ENABLED=true
+              EMULATOR_AUTO_START=true
+              EMULATOR_VEHICLE_COUNT=$(emulatorVehicleCount)
+              EMULATOR_TIME_COMPRESSION=60
+              EMULATOR_UPDATE_INTERVAL=1000
+              EMULATOR_WEBSOCKET_ENABLED=true
+              EMULATOR_WEBSOCKET_PORT=3004
+
+              # Frontend Configuration
+              FRONTEND_PORT=80
+              VITE_API_URL=$(productionApiUrl)
+              VITE_ENVIRONMENT=production
+
+              # Monitoring
+              GRAFANA_ADMIN_USER=admin
+              GRAFANA_ADMIN_PASSWORD=GrafanaFleet2024!
+              GRAFANA_ROOT_URL=https://fleet-monitoring.azurewebsites.net
+
+              # CORS
+              CORS_ORIGIN=$(productionApiUrl)
+
+              # Build Info
+              ENVIRONMENT=production
+              CACHE_BUST=$(Build.BuildId)
+              BUILD_NUMBER=$(Build.BuildId)
+              BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+              ENVEOF
+              echo "✅ Environment file created with emulator configuration"
+            displayName: 'Create Production Environment File with Emulator Config'
+
+          - script: |
+              docker-compose -f $(dockerComposeFile) build \
+                --build-arg BUILDKIT_INLINE_CACHE=1 \
+                --build-arg EMULATOR_ENABLED=true \
+                --parallel
+            displayName: 'Build Docker Images with Emulator Support'
+            env:
+              DOCKER_BUILDKIT: 1
+              COMPOSE_DOCKER_CLI_BUILD: 1
+
+          - script: |
+              docker-compose -f $(dockerComposeFile) push
+            displayName: 'Push Images to ACR'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Docker Compose Files'
+            inputs:
+              PathtoPublish: '$(System.DefaultWorkingDirectory)'
+              ArtifactName: 'drop'
+              publishLocation: 'Container'
+
+  # ============================================================================
+  # STAGE 2: Deploy to Production
+  # ============================================================================
+  - stage: DeployProduction
+    displayName: 'Deploy to Production'
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: DeployProduction
+        displayName: 'Deploy to Production ACI'
+        pool:
+          vmImage: 'ubuntu-latest'
+        environment: 'fleet-production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: drop
+
+                - task: AzureKeyVault@2
+                  displayName: 'Fetch Secrets for Deployment'
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    KeyVaultName: '$(keyVaultName)'
+                    SecretsFilter: '*'
+
+                - task: AzureCLI@2
+                  displayName: 'Deploy Fleet API to Production with Emulator Support'
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      echo "🚀 Deploying Fleet Management System to Production..."
+
+                      # Create resource group
+                      az group create --name $(resourceGroup) --location eastus2
+
+                      # Deploy PostgreSQL Database
+                      echo "📦 Deploying PostgreSQL Database..."
+                      az container create \
+                        --resource-group $(resourceGroup) \
+                        --name fleet-postgres-prod \
+                        --image postgres:15-alpine \
+                        --dns-name-label fleet-postgres-prod \
+                        --ports 5432 \
+                        --environment-variables \
+                          POSTGRES_DB=fleetdb \
+                          POSTGRES_USER=fleetadmin \
+                        --secure-environment-variables \
+                          POSTGRES_PASSWORD=$(DATABASE-PASSWORD) \
+                        --cpu 4 --memory 8
+
+                      # Deploy Redis Cache
+                      echo "📦 Deploying Redis Cache..."
+                      az container create \
+                        --resource-group $(resourceGroup) \
+                        --name fleet-redis-prod \
+                        --image redis:7-alpine \
+                        --dns-name-label fleet-redis-prod \
+                        --ports 6379 \
+                        --command-line "redis-server --requirepass $(redis-password)" \
+                        --cpu 2 --memory 4
+
+                      # Deploy Fleet API with Emulator Configuration
+                      echo "🚀 Deploying Fleet API with Emulator Support..."
+                      az container create \
+                        --resource-group $(resourceGroup) \
+                        --name fleet-api-prod \
+                        --image $(containerRegistry)/$(imageRepository)-api:$(Build.BuildId) \
+                        --registry-login-server $(containerRegistry) \
+                        --registry-username $(ACR_USERNAME) \
+                        --registry-password $(ACR_PASSWORD) \
+                        --dns-name-label fleet-api-prod \
+                        --ports 3000 3004 \
+                        --environment-variables \
+                          NODE_ENV=production \
+                          PORT=3000 \
+                          EMULATOR_ENABLED=true \
+                          EMULATOR_AUTO_START=false \
+                          EMULATOR_VEHICLE_COUNT=$(emulatorVehicleCount) \
+                          EMULATOR_WEBSOCKET_PORT=3004 \
+                        --secure-environment-variables \
+                          DATABASE_URL="postgresql://fleetadmin:$(DATABASE-PASSWORD)@fleet-postgres-prod.eastus2.azurecontainer.io:5432/fleetdb" \
+                          REDIS_URL="redis://:$(redis-password)@fleet-redis-prod.eastus2.azurecontainer.io:6379" \
+                          JWT_SECRET=$(jwt-secret) \
+                          GOOGLE_MAPS_API_KEY=$(GOOGLE-MAPS-API-KEY) \
+                          AZURE_OPENAI_KEY=$(azure-openai-key) \
+                        --cpu 4 --memory 8
+
+                      echo "✅ Production deployment complete!"
+                      echo "🌐 API URL: https://fleet-api-prod.eastus2.azurecontainer.io:3000"
+                      echo "🔌 Emulator WebSocket: wss://fleet-api-prod.eastus2.azurecontainer.io:3004"
+
+  # ============================================================================
+  # STAGE 3: Initialize Database and Start Emulators
+  # ============================================================================
+  - stage: ActivateEmulators
+    displayName: 'Activate Fleet Emulators'
+    dependsOn: DeployProduction
+    condition: succeeded()
+    jobs:
+      - job: StartEmulators
+        displayName: 'Initialize Database and Start All Emulators'
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        steps:
+          - task: AzureKeyVault@2
+            displayName: 'Fetch API Credentials'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              KeyVaultName: '$(keyVaultName)'
+              SecretsFilter: 'jwt-secret'
+
+          - script: |
+              echo "⏳ Waiting for API to be fully ready..."
+              sleep 60
+            displayName: 'Wait for API Startup'
+
+          - task: AzureCLI@2
+            displayName: 'Health Check - API Readiness'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                echo "🏥 Checking API health..."
+
+                API_URL="http://fleet-api-prod.eastus2.azurecontainer.io:3000/api/health"
+                MAX_RETRIES=10
+                RETRY_COUNT=0
+
+                while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+                  if curl -f -s "$API_URL" | grep -q "healthy"; then
+                    echo "✅ API is healthy and ready"
+                    exit 0
+                  else
+                    echo "⏳ API not ready yet, retry $((RETRY_COUNT + 1))/$MAX_RETRIES..."
+                    sleep 10
+                    RETRY_COUNT=$((RETRY_COUNT + 1))
+                  fi
+                done
+
+                echo "❌ API health check failed after $MAX_RETRIES retries"
+                exit 1
+
+          - script: |
+              echo "🚀 Starting Fleet Emulators..."
+
+              API_BASE_URL="http://fleet-api-prod.eastus2.azurecontainer.io:3000/api"
+
+              # Start emulators for all vehicles
+              echo "📡 Activating emulators for $(emulatorVehicleCount) vehicles..."
+
+              RESPONSE=$(curl -X POST "$API_BASE_URL/emulator/start" \
+                -H "Content-Type: application/json" \
+                -d "{\"count\": $(emulatorVehicleCount)}" \
+                -w "\nHTTP_STATUS:%{http_code}" \
+                -s)
+
+              HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS:" | cut -d: -f2)
+              BODY=$(echo "$RESPONSE" | grep -v "HTTP_STATUS:")
+
+              echo "Response Status: $HTTP_STATUS"
+              echo "Response Body: $BODY"
+
+              if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "201" ]; then
+                echo "✅ Emulators started successfully!"
+                echo "$BODY" | jq '.'
+              else
+                echo "❌ Failed to start emulators (HTTP $HTTP_STATUS)"
+                echo "$BODY"
+                exit 1
+              fi
+            displayName: 'Start All Emulators via API'
+
+          - script: |
+              echo "🔍 Verifying emulator status..."
+
+              API_BASE_URL="http://fleet-api-prod.eastus2.azurecontainer.io:3000/api"
+
+              sleep 5  # Wait for emulators to initialize
+
+              # Get emulator status
+              STATUS_RESPONSE=$(curl -s "$API_BASE_URL/emulator/status")
+              echo "Emulator Status:"
+              echo "$STATUS_RESPONSE" | jq '.'
+
+              # Get fleet overview
+              FLEET_RESPONSE=$(curl -s "$API_BASE_URL/emulator/fleet/overview")
+              echo ""
+              echo "Fleet Overview:"
+              echo "$FLEET_RESPONSE" | jq '.'
+
+              # Verify vehicles are reporting data
+              VEHICLE_COUNT=$(echo "$FLEET_RESPONSE" | jq '.vehicles | length')
+
+              if [ "$VEHICLE_COUNT" -gt 0 ]; then
+                echo "✅ Emulators verified: $VEHICLE_COUNT vehicles reporting data"
+              else
+                echo "⚠️ Warning: No vehicles reporting data yet"
+              fi
+            displayName: 'Verify Emulator Status'
+
+          - script: |
+              echo "📊 Emulator System Report"
+              echo "=========================="
+
+              API_BASE_URL="http://fleet-api-prod.eastus2.azurecontainer.io:3000/api"
+
+              # Get comprehensive status
+              STATUS=$(curl -s "$API_BASE_URL/emulator/status")
+
+              echo "Running: $(echo "$STATUS" | jq -r '.isRunning')"
+              echo "Total Vehicles: $(echo "$STATUS" | jq -r '.stats.totalVehicles')"
+              echo "Active Vehicles: $(echo "$STATUS" | jq -r '.stats.activeVehicles')"
+              echo "Total Events: $(echo "$STATUS" | jq -r '.stats.totalEvents')"
+              echo "Events/Second: $(echo "$STATUS" | jq -r '.stats.eventsPerSecond')"
+              echo ""
+              echo "🎯 Emulator Endpoints Available:"
+              echo "  - Status: $API_BASE_URL/emulator/status"
+              echo "  - Fleet Overview: $API_BASE_URL/emulator/fleet/overview"
+              echo "  - Vehicle List: $API_BASE_URL/emulator/vehicles"
+              echo "  - Fleet Positions: $API_BASE_URL/emulator/fleet/positions"
+              echo "  - WebSocket Stream: wss://fleet-api-prod.eastus2.azurecontainer.io:3004/emulator/stream"
+              echo ""
+              echo "✅ Emulator activation complete!"
+            displayName: 'Display Emulator Report'
+
+  # ============================================================================
+  # STAGE 4: Post-Deployment Testing
+  # ============================================================================
+  - stage: PostDeploymentTests
+    displayName: 'Post-Deployment Validation'
+    dependsOn: ActivateEmulators
+    condition: succeeded()
+    jobs:
+      - job: ValidateDeployment
+        displayName: 'Run Validation Tests'
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        steps:
+          - script: |
+              echo "🧪 Running comprehensive deployment validation..."
+
+              API_BASE_URL="http://fleet-api-prod.eastus2.azurecontainer.io:3000/api"
+
+              # Test 1: API Health
+              echo "Test 1: API Health Check"
+              if curl -f -s "$API_BASE_URL/health" | grep -q "healthy"; then
+                echo "✅ PASS: API health check"
+              else
+                echo "❌ FAIL: API health check"
+                exit 1
+              fi
+
+              # Test 2: Emulator Status
+              echo ""
+              echo "Test 2: Emulator Status"
+              EMULATOR_STATUS=$(curl -s "$API_BASE_URL/emulator/status" | jq -r '.isRunning')
+              if [ "$EMULATOR_STATUS" = "true" ]; then
+                echo "✅ PASS: Emulators are running"
+              else
+                echo "❌ FAIL: Emulators not running"
+                exit 1
+              fi
+
+              # Test 3: Vehicle Data
+              echo ""
+              echo "Test 3: Vehicle Data Availability"
+              VEHICLE_COUNT=$(curl -s "$API_BASE_URL/emulator/vehicles" | jq '. | length')
+              if [ "$VEHICLE_COUNT" -gt 0 ]; then
+                echo "✅ PASS: $VEHICLE_COUNT vehicles available"
+              else
+                echo "❌ FAIL: No vehicles available"
+                exit 1
+              fi
+
+              # Test 4: Real-time Telemetry
+              echo ""
+              echo "Test 4: Real-time Telemetry"
+              FIRST_VEHICLE=$(curl -s "$API_BASE_URL/emulator/vehicles" | jq -r '.[0].id')
+              TELEMETRY=$(curl -s "$API_BASE_URL/emulator/vehicles/$FIRST_VEHICLE/telemetry")
+              if echo "$TELEMETRY" | jq -e '.gps' > /dev/null; then
+                echo "✅ PASS: Telemetry data streaming"
+              else
+                echo "❌ FAIL: No telemetry data"
+                exit 1
+              fi
+
+              echo ""
+              echo "🎉 All validation tests passed!"
+            displayName: 'Validate Production Deployment'
+
+          - script: |
+              echo "📧 Sending deployment notification..."
+              echo "✅ Fleet Management System deployed to production with $(emulatorVehicleCount) active vehicle emulators"
+              echo "🌐 Production URL: $(productionApiUrl)"
+              echo "📊 Monitoring: https://fleet-monitoring.azurewebsites.net"
+            displayName: 'Send Deployment Notification'
