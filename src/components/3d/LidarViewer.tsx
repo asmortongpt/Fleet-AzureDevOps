@@ -47,6 +47,7 @@ interface Model3D {
   modelId: string;
   format: 'glb' | 'usdz' | 'obj' | 'ply' | 'stl';
   fileUrl: string;
+  fileSize: number;
   polygonCount: number;
   vertexCount: number;
 }
