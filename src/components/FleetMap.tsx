@@ -65,7 +65,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
           setLoading(false);
         }
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         console.error('Error loading Google Maps:', err);
         setError('Failed to load Google Maps. Please check your API key configuration.');
         setLoading(false);
