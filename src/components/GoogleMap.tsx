@@ -342,7 +342,7 @@ export function GoogleMap({
               if (fullscreenButton) fullscreenButton.setAttribute('data-testid', 'map-fullscreen')
             }
           } catch (err) {
-            logger.debug('[GoogleMap] Could not add test IDs to controls:', err)
+            logger.debug(`[GoogleMap] Could not add test IDs to controls: ${err}`)
           }
         }, 1000)
 
