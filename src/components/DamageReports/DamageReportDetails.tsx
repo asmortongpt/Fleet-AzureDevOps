@@ -10,7 +10,7 @@ import {
   Wrench,
   Image as ImageIcon,
   Video,
-  Cube,
+  Box,
   Download,
   ExternalLink,
 } from 'lucide-react'
@@ -352,7 +352,7 @@ export function DamageReportDetails() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
-                  <Cube className="h-5 w-5" />
+                  <Box className="h-5 w-5" />
                   3D Model
                 </CardTitle>
                 {!report.triposr_model_url && report.photos && report.photos.length > 0 && (
@@ -387,7 +387,7 @@ export function DamageReportDetails() {
 
               {!report.triposr_status && (
                 <div className="py-12 text-center">
-                  <Cube className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
+                  <Box className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
                   <p className="text-muted-foreground mb-2">No 3D model available</p>
                   {report.photos && report.photos.length > 0 && (
                     <Button onClick={handleGenerateModel}>Generate 3D Model from Photos</Button>
