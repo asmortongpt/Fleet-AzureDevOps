@@ -59,10 +59,31 @@ export class FuelCardIntegrationRepository {
   }
 
   async list(filters: any, tenant_id: string): Promise<FuelCardIntegration[]> {
-    const result = await this.pool.query(
-      `SELECT * FROM fuel_card_integrations WHERE tenant_id = $1 ORDER BY created_at DESC`,
-      [tenant_id]
-    );
+    let query = `SELECT * FROM fuel_card_integrations WHERE tenant_id = $1`;
+    const params: any[] = [tenant_id];
+    let paramIndex = 2;
+
+    if (filters?.provider) {
+      query += ` AND provider = $${paramIndex}`;
+      params.push(filters.provider);
+      paramIndex++;
+    }
+
+    if (filters?.status) {
+      query += ` AND status = $${paramIndex}`;
+      params.push(filters.status);
+      paramIndex++;
+    }
+
+    if (filters?.card_number) {
+      query += ` AND card_number = $${paramIndex}`;
+      params.push(filters.card_number);
+      paramIndex++;
+    }
+
+    query += ` ORDER BY created_at DESC`;
+
+    const result = await this.pool.query(query, params);
     return result.rows;
   }
 }

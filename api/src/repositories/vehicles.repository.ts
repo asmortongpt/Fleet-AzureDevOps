@@ -144,7 +144,7 @@ export class VehiclesRepository extends BaseRepository<any> {
         vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id
       )
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      RETURNING *`,
+      RETURNING id, vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id, created_at, updated_at`,
       [
         data.vin,
         data.licensePlate || null,
@@ -195,7 +195,7 @@ export class VehiclesRepository extends BaseRepository<any> {
            department = COALESCE($8, department),
            updated_at = NOW()
        WHERE id = $9 AND tenant_id = $10
-       RETURNING *`,
+       RETURNING id, vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id, created_at, updated_at`,
       [
         data.licensePlate,
         data.make,
@@ -389,16 +389,4 @@ export class VehiclesRepository extends BaseRepository<any> {
   async findAllWithDriversAndStatus(tenantId: string) {
     const query = `
       SELECT
-        v.id, v.make, v.model, v.year, v.vin, v.license_plate, v.mileage, v.status,
-        d.id as driver_id, d.name as driver_name, d.email as driver_email
-      FROM vehicles v
-      LEFT JOIN drivers d ON v.driver_id = d.id
-      WHERE v.tenant_id = $1 AND v.deleted_at IS NULL
-      ORDER BY v.created_at DESC
-    `;
-    const result = await this.pool.query(query, [tenantId]);
-    return result.rows;
-  }
-}
-
-export const vehiclesRepository = new VehiclesRepository(pool)
+        v.id, v.make, v.model, v.year, v.vin, v.license_plate, v.mileage, v.
