@@ -38,7 +38,7 @@ async function ensureLeafletLoaded(): Promise<typeof import("leaflet")> {
         await import("leaflet/dist/leaflet.css")
         leafletCssLoaded = true
       } catch (cssError) {
-        logger.warn("⚠️  Leaflet CSS could not be loaded:", cssError)
+        logger.warn(`⚠️  Leaflet CSS could not be loaded: ${cssError}`)
         // Non-fatal: map will still work but may not be styled correctly
       }
     }
@@ -55,15 +55,15 @@ async function ensureLeafletLoaded(): Promise<typeof import("leaflet")> {
         shadowUrl: shadowUrl.default,
       })
     } catch (iconError) {
-      logger.warn("⚠️  Leaflet icons could not be loaded:", iconError)
+      logger.warn(`⚠️  Leaflet icons could not be loaded: ${iconError}`)
       // Non-fatal: markers will use fallback icons
     }
 
-    logger.debug("✅ Leaflet loaded successfully (version:", L.version || "unknown", ")")
+    logger.debug(`✅ Leaflet loaded successfully (version: ${L.version || "unknown"})`)
     return L
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error"
-    logger.error("❌ Failed to load Leaflet:", errorMessage)
+    logger.error(`❌ Failed to load Leaflet: ${errorMessage}`)
     throw new Error(`Leaflet initialization failed: ${errorMessage}`)
   }
 }
