@@ -122,8 +122,8 @@ database-credentials-*.txt
 azure-credentials-*-MASTER.txt
 deployment-info-*.txt
 diagnose-whitescreen.js
-Fleet/
-Fleet-1/
+/Fleet/
+/Fleet-1/
 dist-from-vm/
 dist-from-vm/
 dist-from-vm/
