@@ -48,6 +48,13 @@
     "src",
     "api"
   ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/__tests__/**",
+    "**/tests/**",
+    "node_modules"
+  ],
   "references": [
     {
       "path": "./tsconfig.node.json"
