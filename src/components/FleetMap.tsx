@@ -39,12 +39,14 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
     const loader = new Loader({
       apiKey: GOOGLE_MAPS_API_KEY,
       version: 'weekly',
-      libraries: ['places', 'geometry'],
     });
 
-    loader
-      .load()
-      .then(() => {
+    const initMap = async () => {
+      try {
+        await loader.importLibrary('maps');
+        await loader.importLibrary('places');
+        await loader.importLibrary('geometry');
+
         if (mapRef.current) {
           const newMap = new google.maps.Map(mapRef.current, {
             center: { lat: 30.4383, lng: -84.2807 }, // Tallahassee, FL
@@ -64,12 +66,14 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
           setMap(newMap);
           setLoading(false);
         }
-      })
-      .catch((err: unknown) => {
+      } catch (err: unknown) {
         console.error('Error loading Google Maps:', err);
         setError('Failed to load Google Maps. Please check your API key configuration.');
         setLoading(false);
-      });
+      }
+    };
+
+    initMap();
   }, []);
 
   // Update markers when vehicles change

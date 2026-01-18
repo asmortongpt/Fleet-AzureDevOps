@@ -20,7 +20,7 @@ async function loadMapboxGL(): Promise<any> {
         mapboxCssLoaded = true
         logger.debug("✅ Mapbox GL CSS loaded")
       } catch (cssError) {
-        logger.warn("⚠️  Mapbox GL CSS could not be loaded:", cssError)
+        logger.warn(`⚠️  Mapbox GL CSS could not be loaded: ${cssError}`)
       }
     }
 
@@ -28,7 +28,7 @@ async function loadMapboxGL(): Promise<any> {
     return mapboxgl as typeof import("mapbox-gl")
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error"
-    logger.error("❌ Failed to load Mapbox GL:", errorMessage)
+    logger.error(`❌ Failed to load Mapbox GL: ${errorMessage}`)
     throw new Error(`Mapbox GL initialization failed: ${errorMessage}`)
   }
 }
