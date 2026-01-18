@@ -57,6 +57,7 @@ export const ROLE_NAVIGATION_CONFIG: Record<string, string[]> = {
     'analytics-hub-consolidated',
     'reports-hub',
     'safety-compliance-hub',
+    'safety-hub',
     'policy-hub',
     'documents-hub',
     'procurement-hub-consolidated',
@@ -66,7 +67,12 @@ export const ROLE_NAVIGATION_CONFIG: Record<string, string[]> = {
     'financial-hub-consolidated',
     'integrations-hub-consolidated',
     'cta-configuration-hub',
-    'data-governance-hub'
+    'data-governance-hub',
+    'work-hub',
+    'people-hub',
+    'insights-hub',
+    'configuration-hub',
+    'meta-glasses-hub'
   ],
   'SuperAdmin': [ // Alias
     'fleet-hub-consolidated',
@@ -76,6 +82,7 @@ export const ROLE_NAVIGATION_CONFIG: Record<string, string[]> = {
     'analytics-hub-consolidated',
     'reports-hub',
     'safety-compliance-hub',
+    'safety-hub',
     'policy-hub',
     'documents-hub',
     'procurement-hub-consolidated',
@@ -85,7 +92,12 @@ export const ROLE_NAVIGATION_CONFIG: Record<string, string[]> = {
     'financial-hub-consolidated',
     'integrations-hub-consolidated',
     'cta-configuration-hub',
-    'data-governance-hub'
+    'data-governance-hub',
+    'work-hub',
+    'people-hub',
+    'insights-hub',
+    'configuration-hub',
+    'meta-glasses-hub'
   ],
 
   // ==================== ADMIN / TENANT ADMIN ====================
@@ -97,6 +109,7 @@ export const ROLE_NAVIGATION_CONFIG: Record<string, string[]> = {
     'analytics-hub-consolidated',
     'reports-hub',
     'safety-compliance-hub',
+    'safety-hub',
     'policy-hub',
     'documents-hub',
     'procurement-hub-consolidated',
@@ -104,7 +117,11 @@ export const ROLE_NAVIGATION_CONFIG: Record<string, string[]> = {
     'admin-hub-consolidated',
     'communication-hub-consolidated',
     'financial-hub-consolidated',
-    'integrations-hub-consolidated'
+    'integrations-hub-consolidated',
+    'work-hub',
+    'people-hub',
+    'insights-hub',
+    'configuration-hub'
   ],
   'tenant_admin': [
     'fleet-hub-consolidated',
