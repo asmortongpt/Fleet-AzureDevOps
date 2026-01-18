@@ -20,7 +20,7 @@ import {
   Users,
   FileText,
   Calendar,
-  AlertCircle
+  WarningCircle
 } from '@phosphor-icons/react';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
@@ -125,7 +125,7 @@ export function FleetManagerDashboard() {
     return (
       <div className="min-h-screen bg-[var(--minimalist-bg-primary)] p-2">
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <WarningCircle className="h-4 w-4" />
           <AlertTitle>Error Loading Data</AlertTitle>
           <AlertDescription>
             {maintenanceError instanceof Error ? maintenanceError.message : 'Failed to load dashboard data'}
@@ -150,7 +150,7 @@ export function FleetManagerDashboard() {
       {/* Attention Needed Section - Minimalist Alert Cards */}
       <Card className="p-2 mb-2 border-[var(--minimalist-border-medium)]">
         <div className="flex items-center gap-2 mb-3">
-          <AlertCircle className="w-4 h-4 text-[var(--minimalist-text-secondary)]" />
+          <WarningCircle className="w-4 h-4 text-[var(--minimalist-text-secondary)]" />
           <h2 className="text-base font-medium text-[var(--minimalist-text-primary)]">
             Attention Needed
           </h2>

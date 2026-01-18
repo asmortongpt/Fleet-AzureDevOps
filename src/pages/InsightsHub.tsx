@@ -536,7 +536,7 @@ function RecommendationsContent() {
             <Lightbulb className="h-5 w-5 text-amber-500" />
             <CardTitle>High ROI Recommendations</CardTitle>
           </div>
-          <CardDescription>Top recommendations with >100% return on investment</CardDescription>
+          <CardDescription>Top recommendations with &gt;100% return on investment</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
