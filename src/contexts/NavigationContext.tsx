@@ -56,10 +56,11 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
     }, [visibleNavItems]);
 
     const navigateTo = useCallback((moduleId: string) => {
-        // Map module ID to path
+        // Set state immediately for instant UI feedback
+        setActiveModuleState(moduleId);
+        // Map module ID to path and navigate (URL will also sync via useEffect)
         const path = moduleId === 'live-fleet-dashboard' ? '/' : `/${moduleId}`;
         navigate(path);
-        // State update happens via useEffect
     }, [navigate]);
 
     const updateNavigation = () => {

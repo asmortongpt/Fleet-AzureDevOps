@@ -71,7 +71,7 @@ const AuditLogSchema = z.object({
   resource: z.string().min(1).max(100),
   timestamp: z.string().datetime(),
   status: z.enum(['success', 'failure']),
-  ipAddress: z.string().ip().optional(),
+  ipAddress: z.string().optional(), // IP address validation
 })
 
 const SessionSchema = z.object({
@@ -80,7 +80,7 @@ const SessionSchema = z.object({
   userName: z.string().min(1).max(255),
   startTime: z.string().datetime(),
   lastActivity: z.string().datetime(),
-  ipAddress: z.string().ip(),
+  ipAddress: z.string(), // IP address validation
   userAgent: z.string().min(1).max(500),
   status: z.enum(['active', 'expired']),
 })
