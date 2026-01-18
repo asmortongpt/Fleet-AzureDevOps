@@ -393,37 +393,4 @@ router.get("/statistics",
       total: vehicles.length,
       byStatus: {
         active: vehicles.filter((v: any) => v.status === 'active').length,
-        inactive: vehicles.filter((v: any) => v.status === 'inactive').length,
-        maintenance: vehicles.filter((v: any) => v.status === 'maintenance').length,
-        out_of_service: vehicles.filter((v: any) => v.status === 'out_of_service').length
-      },
-      byFuelType: vehicles.reduce((acc: any, v: any) => {
-        const fuelType = v.fuel_type || 'unknown'
-        acc[fuelType] = (acc[fuelType] || 0) + 1
-        return acc
-      }, {}),
-      averageMileage: vehicles.length > 0
-        ? Math.round(vehicles.reduce((sum: number, v: any) => sum + (v.mileage || 0), 0) / vehicles.length)
-        : 0,
-      maintenanceDue: vehicles.filter((v: any) => {
-        if (!v.next_service_date) return false
-        const dueDate = new Date(v.next_service_date)
-        const today = new Date()
-        const daysUntilDue = Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-        return daysUntilDue <= 30 && daysUntilDue >= 0
-      }).length,
-      overdueMaintenance: vehicles.filter((v: any) => {
-        if (!v.next_service_date) return false
-        return new Date(v.next_service_date) < new Date()
-      }).length
-    }
-
-    // Cache for 10 minutes (600 seconds)
-    await cacheService.set(cacheKey, statistics, 600)
-
-    logger.info('Fetched vehicle statistics', { tenantId, total: statistics.total })
-    res.json(statistics)
-  })
-)
-
-export default router
+        inactive: vehicles.filter((v: any) =>
