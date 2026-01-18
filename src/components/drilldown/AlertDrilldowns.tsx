@@ -27,38 +27,6 @@ import { swrFetcher } from '@/lib/fetcher'
 
 const fetcher = swrFetcher
 
-// Alert data type for SWR responses
-interface AlertData {
-  id: string
-  title: string
-  alert_number: string
-  category: string
-  severity: string
-  status: string
-  triggered_at: string
-  duration_minutes?: number
-  description?: string
-  alert_type?: string
-  priority?: string
-  auto_clear_enabled?: boolean
-  threshold_value?: number
-  threshold_metric?: string
-  current_value?: number
-  vehicle_id?: string
-  vehicle_name?: string
-  driver_id?: string
-  driver_name?: string
-  location?: string
-  coordinates?: { lat: number; lng: number }
-  acknowledged_by?: string
-  acknowledged_at?: string
-  resolved_by?: string
-  resolved_at?: string
-  resolution_notes?: string
-  notifications_sent?: Array<{ recipient: string; method: string; sent_at: string }>
-  activity_log?: Array<{ action: string; user: string; timestamp: string; notes?: string }>
-}
-
 // ============================================
 // Alert Data Interface
 // ============================================
@@ -89,12 +57,17 @@ interface AlertData {
   resolved_by?: string
   resolved_at?: string
   resolution_notes?: string
-  notifications_sent?: number
+  notifications_sent?: Array<{
+    recipient: string
+    method: string
+    sent_at: string
+  }>
   activity_log?: Array<{
     timestamp: string
     action: string
     user: string
     details?: string
+    notes?: string
   }>
 }
 
@@ -165,7 +138,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
     return <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>{null}</DrilldownContent>
   }
 
-  const alertData = alert as AlertData
+  const alertData = alert
 
   return (
     <DrilldownContent loading={false} error={error} onRetry={() => mutate()}>
@@ -307,7 +280,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                           push({
                             id: `vehicle-${alertData.vehicle_id}`,
                             type: 'vehicle-detail',
-                            label: alertData.vehicle_name,
+                            label: alertData.vehicle_name || 'Vehicle',
                             data: { vehicleId: alertData.vehicle_id },
                           })
                         }
@@ -332,7 +305,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                           push({
                             id: `driver-${alertData.driver_id}`,
                             type: 'driver-detail',
-                            label: alertData.driver_name,
+                            label: alertData.driver_name || 'Driver',
                             data: { driverId: alertData.driver_id },
                           })
                         }
@@ -409,7 +382,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                       <p className="text-sm font-medium">Notifications Sent</p>
                     </div>
                     <ul className="text-xs space-y-1 mt-2">
-                      {alertData.notifications_sent.map((notification: any, idx: number) => (
+                      {alertData.notifications_sent.map((notification, idx) => (
                         <li key={idx}>
                           {notification.recipient} via {notification.method} at{' '}
                           {new Date(notification.sent_at).toLocaleString()}
@@ -456,7 +429,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {alertData.activity_log?.map((activity: any, idx: number) => (
+                  {alertData.activity_log?.map((activity, idx) => (
                     <div key={idx} className="flex items-start gap-2 p-2 rounded bg-muted/50">
                       <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
                       <div className="flex-1">
@@ -577,7 +550,7 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
         </div>
 
         <div className="space-y-2">
-          {alerts?.map((alert: AlertData) => (
+          {alerts?.map((alert) => (
             <Card
               key={alert.id}
               className="cursor-pointer hover:bg-accent transition-colors"

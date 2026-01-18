@@ -25,6 +25,67 @@ import { swrFetcher } from '@/lib/fetcher'
 
 const fetcher = swrFetcher
 
+// Type definitions
+interface Asset {
+  id: string
+  name: string
+  asset_number: string
+  status: 'active' | 'inactive' | 'maintenance' | 'surplus'
+  category: string
+  type?: string
+  manufacturer?: string
+  model?: string
+  serial_number?: string
+  acquisition_date?: string
+  current_value?: number
+  purchase_price?: number
+  depreciation_rate?: number
+  condition_score?: number
+  last_service_date?: string
+  next_service_date?: string
+  assigned_to?: string
+  department?: string
+  current_location?: string
+}
+
+interface Equipment {
+  id: string
+  name: string
+  category: 'heavy' | 'light' | 'specialized' | 'tools'
+  status: 'operational' | 'maintenance' | 'out-of-service'
+  type?: string
+  manufacturer?: string
+  model?: string
+  serial_number?: string
+  operating_hours?: number
+  utilization?: number
+  current_operator?: string
+  total_operators?: number
+  hours_this_month?: number
+  avg_daily_usage?: number
+  last_service?: string
+  next_service?: string
+}
+
+interface InventoryItem {
+  id: string
+  name: string
+  sku: string
+  quantity: number
+  reorder_point: number
+  unit_cost?: number
+  category?: string
+  supplier?: string
+  lead_time_days?: number
+  min_order_qty?: number
+  used_this_month?: number
+  avg_monthly_usage?: number
+  last_order_date?: string
+  total_orders?: number
+  primary_location?: string
+  total_locations?: number
+}
+
 // ============================================
 // Asset Detail Panel
 // ============================================
@@ -34,7 +95,7 @@ interface AssetDetailPanelProps {
 
 export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
   const { push } = useDrilldown()
-  const { data: asset, error, isLoading, mutate } = useSWR(
+  const { data: asset, error, isLoading, mutate } = useSWR<Asset>(
     `/api/assets/${assetId}`,
     fetcher
   )
@@ -220,7 +281,7 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
                     <div>
                       <p className="text-sm text-muted-foreground">Depreciation</p>
                       <p className="text-base font-bold text-destructive">
-                        -${(asset.purchase_price - asset.current_value)?.toLocaleString() || '0'}
+                        -${((asset.purchase_price || 0) - (asset.current_value || 0))?.toLocaleString() || '0'}
                       </p>
                     </div>
                     <div>
@@ -249,7 +310,7 @@ interface EquipmentDetailPanelProps {
 
 export function EquipmentDetailPanel({ equipmentId }: EquipmentDetailPanelProps) {
   const { push } = useDrilldown()
-  const { data: equipment, error, isLoading, mutate } = useSWR(
+  const { data: equipment, error, isLoading, mutate } = useSWR<Equipment>(
     `/api/equipment/${equipmentId}`,
     fetcher
   )
@@ -410,7 +471,7 @@ interface InventoryItemDetailPanelProps {
 
 export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelProps) {
   const { push } = useDrilldown()
-  const { data: item, error, isLoading, mutate } = useSWR(
+  const { data: item, error, isLoading, mutate } = useSWR<InventoryItem>(
     `/api/inventory/${itemId}`,
     fetcher
   )
@@ -570,7 +631,7 @@ interface AssetListViewProps {
 
 export function AssetListView({ filter = 'all' }: AssetListViewProps) {
   const { push } = useDrilldown()
-  const { data: assets, error, isLoading } = useSWR(
+  const { data: assets, error, isLoading } = useSWR<Asset[]>(
     `/api/assets?filter=${filter}`,
     fetcher
   )
@@ -595,7 +656,7 @@ export function AssetListView({ filter = 'all' }: AssetListViewProps) {
         </div>
 
         <div className="space-y-2">
-          {assets?.map((asset: any) => (
+          {assets?.map((asset) => (
             <Card
               key={asset.id}
               className="cursor-pointer hover:bg-accent transition-colors"
@@ -643,7 +704,7 @@ interface EquipmentListViewProps {
 
 export function EquipmentListView({ category }: EquipmentListViewProps) {
   const { push } = useDrilldown()
-  const { data: equipment, error, isLoading } = useSWR(
+  const { data: equipment, error, isLoading } = useSWR<Equipment[]>(
     category ? `/api/equipment?category=${category}` : '/api/equipment',
     fetcher
   )
@@ -666,7 +727,7 @@ export function EquipmentListView({ category }: EquipmentListViewProps) {
         </div>
 
         <div className="space-y-2">
-          {equipment?.map((item: any) => (
+          {equipment?.map((item) => (
             <Card
               key={item.id}
               className="cursor-pointer hover:bg-accent transition-colors"
@@ -714,7 +775,7 @@ interface InventoryListViewProps {
 
 export function InventoryListView({ filter = 'all' }: InventoryListViewProps) {
   const { push } = useDrilldown()
-  const { data: items, error, isLoading } = useSWR(
+  const { data: items, error, isLoading } = useSWR<InventoryItem[]>(
     `/api/inventory?filter=${filter}`,
     fetcher
   )
@@ -735,7 +796,7 @@ export function InventoryListView({ filter = 'all' }: InventoryListViewProps) {
         </div>
 
         <div className="space-y-2">
-          {items?.map((item: any) => (
+          {items?.map((item) => (
             <Card
               key={item.id}
               className="cursor-pointer hover:bg-accent transition-colors"
@@ -754,15 +815,6 @@ export function InventoryListView({ filter = 'all' }: InventoryListViewProps) {
                     <p className="font-semibold">{item.name}</p>
                     <p className="text-sm text-muted-foreground">SKU: {item.sku}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold">Qty: {item.quantity}</p>
-                    {item.quantity <= item.reorder_point && (
-                      <Badge variant="destructive" className="mt-1">
-                        <AlertCircle className="h-3 w-3 mr-1" />
-                        Low Stock
-                      </Badge>
-                    )}
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -770,5 +822,6 @@ export function InventoryListView({ filter = 'all' }: InventoryListViewProps) {
         </div>
       </div>
     </DrilldownContent>
-  )
-}
+  );
+};
+                
