@@ -9,7 +9,7 @@ import { DrilldownPanel } from './shared/DrilldownPanel';
 import { useDrilldown } from '@/contexts/DrilldownContext';
 import { useMultiLevelDrilldown } from '@/hooks/useMultiLevelDrilldown';
 import { api } from '@/services/api';
-import { Vehicle } from '@/types/types';
+import { Vehicle } from '@/types';
 
 /**
  * DrilldownSystem - Universal Multi-Level Drilldown with Excel Views
@@ -18,21 +18,22 @@ import { Vehicle } from '@/types/types';
  * based on the drilldown type, with full filtering, sorting, and export.
  */
 export function DrilldownSystem() {
-  const { path } = useDrilldown();
+  const drilldownContext = useDrilldown();
+  const { levels: contextLevels } = drilldownContext;
   const { levels, isOpen, push, navigateToLevel, close } = useMultiLevelDrilldown();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // React to drilldown context changes
   useEffect(() => {
-    if (path.length === 0) {
+    if (contextLevels.length === 0) {
       close();
       return;
     }
 
-    const currentDrilldown = path[path.length - 1];
+    const currentDrilldown = contextLevels[contextLevels.length - 1];
     handleDrilldownRequest(currentDrilldown);
-  }, [path]);
+  }, [contextLevels]);
 
   const handleDrilldownRequest = async (drilldown: any) => {
     setLoading(true);
@@ -116,13 +117,13 @@ export function DrilldownSystem() {
             // Second-level drilldown: individual vehicle details
             push(
               {
-                id: `vehicle-${vehicle.unit_number}`,
+                id: `vehicle-${vehicle.number}`,
                 type: 'vehicle-detail',
-                label: `Vehicle ${vehicle.unit_number}`,
+                label: `Vehicle ${vehicle.number}`,
                 data: { vehicle }
               },
               <div className="p-3 bg-slate-900/95 rounded-lg">
-                <h3 className="text-sm font-bold text-white mb-3">Vehicle Details: {vehicle.unit_number}</h3>
+                <h3 className="text-sm font-bold text-white mb-3">Vehicle Details: {vehicle.number}</h3>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <div>
@@ -145,11 +146,11 @@ export function DrilldownSystem() {
                     </div>
                     <div>
                       <label className="text-sm text-slate-400">Driver</label>
-                      <p className="text-sm text-white">{vehicle.assigned_driver || 'Unassigned'}</p>
+                      <p className="text-sm text-white">{vehicle.assignedDriver || 'Unassigned'}</p>
                     </div>
                     <div>
                       <label className="text-sm text-slate-400">Facility</label>
-                      <p className="text-sm text-white">{vehicle.home_facility}</p>
+                      <p className="text-sm text-white">{vehicle.department}</p>
                     </div>
                   </div>
                 </div>
