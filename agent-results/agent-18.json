@@ -1,0 +1,8 @@
+{
+  "agent_id": 18,
+  "name": "Vehicle Repository",
+  "file": "api/src/modules/fleet/repositories/vehicle.repository.ts",
+  "status": "success",
+  "content": "import { injectable } from 'inversify';\nimport { VehiclesRepository } from '../../../repositories/vehicles.repository';\nimport { pool } from '../../../config/database';\n\n/**\n * VehicleRepository - Wrapper for VehiclesRepository in fleet module\n * Follows the module pattern used by other modules (drivers, maintenance, etc.)\n */\n@injectable()\nexport class VehicleRepository extends VehiclesRepository {\n  constructor() {\n    super(pool);\n  }\n}",
+  "timestamp": "2026-01-18T16:21:48.533079"
+}

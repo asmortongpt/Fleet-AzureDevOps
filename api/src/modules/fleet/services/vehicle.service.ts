@@ -56,15 +56,16 @@ export class VehicleService extends BaseService {
   }
 
   async getStatus(vehicleId: string, tenantId: string): Promise<any> {
-    // Stub implementation - returns basic vehicle status
-    const vehicle = await this.getVehicleById(parseInt(vehicleId), tenantId);
-    if (!vehicle) {
-      return null;
-    }
-    return {
-      id: vehicle.id,
-      status: vehicle.status || 'active',
-      lastUpdated: vehicle.updated_at || new Date()
-    };
+    return this.executeInTransaction(async () => {
+      const vehicle = await this.vehicleRepository.findById(parseInt(vehicleId), tenantId);
+      if (!vehicle) {
+        return null;
+      }
+      return {
+        id: vehicle.id,
+        status: vehicle.status || 'active',
+        lastUpdated: vehicle.updated_at || new Date()
+      };
+    });
   }
 }

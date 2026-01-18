@@ -138,11 +138,10 @@ export const QueryErrorBoundary: React.FC<QueryErrorBoundaryProps> = ({
           onError={(error, errorInfo) => {
             logger.error('Query Error Boundary caught:', error, errorInfo);
           }}
-          fallback={({ error: actualError, resetErrorBoundary }) => {
-            if (fallback) {
-              return fallback;
-            }
-            return (
+          fallbackRender={({ error: actualError, resetErrorBoundary }) => 
+            fallback ? (
+              <>{fallback}</>
+            ) : (
               <QueryErrorFallback
                 error={actualError || new Error('An unknown error occurred')}
                 resetErrorBoundary={() => {
@@ -151,8 +150,8 @@ export const QueryErrorBoundary: React.FC<QueryErrorBoundaryProps> = ({
                   onReset?.();
                 }}
               />
-            );
-          }}
+            )
+          }
         >
           {children}
         </EnhancedErrorBoundary>

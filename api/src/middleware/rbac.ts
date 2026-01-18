@@ -1,3 +1,4 @@
+```typescript
 /**
  * Role-Based Access Control (RBAC) Middleware
  * CRIT-F-003: Comprehensive RBAC implementation
@@ -159,7 +160,13 @@ export const PERMISSIONS = {
   SAFETY_ALERT_READ: 'safety_alert:read',
   SAFETY_ALERT_UPDATE: 'safety_alert:update',
   SAFETY_ALERT_DELETE: 'safety_alert:delete',
-  SAFETY_METRICS_READ: 'safety_metrics:read'
+  SAFETY_METRICS_READ: 'safety_metrics:read',
+
+  // Analytics permissions
+  ANALYTICS_READ: 'analytics:read',
+
+  // Reports permissions
+  REPORTS_READ: 'reports:read'
 } as const
 
 // ============================================================================
@@ -446,162 +453,4 @@ export function requireRBAC(config: {
   }
 
   // Return combined middleware
-  return (req: AuthRequest, res: Response, next: NextFunction) => {
-    let index = 0
-
-    const runNext = (err?: any) => {
-      if (err) {
-        return next(err)
-      }
-      if (index >= middlewares.length) {
-        return next()
-      }
-
-      const middleware = middlewares[index++]
-      middleware(req, res, runNext)
-    }
-
-    runNext()
-  }
-}
-
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
-
-/**
- * Verify that a resource belongs to the specified tenant
- */
-async function verifyTenantOwnership(
-  tenantId: string,
-  resourceType: string,
-  resourceId: string
-): Promise<boolean> {
-  // Map resource types to table names
-  const tableMap: Record<string, string> = {
-    vehicle: 'vehicles',
-    driver: 'drivers',
-    maintenance: 'maintenance_records',
-    work_order: 'work_orders',
-    fuel: 'fuel_transactions',
-    document: 'documents'
-  }
-
-  const tableName = tableMap[resourceType]
-
-  if (!tableName) {
-    logger.warn('Unknown resource type for tenant check', { resourceType })
-    return false
-  }
-
-  try {
-    // Note: tenant_id might not exist on all tables yet
-    // For now, we'll assume it does. In migration, add tenant_id to all tables.
-    const result = await pool.query(
-      `SELECT COUNT(*) as count FROM ${tableName} WHERE id = $1 AND tenant_id = $2`,
-      [resourceId, tenantId]
-    )
-
-    return result.rows[0].count > 0
-  } catch (error) {
-    // If column doesn't exist, log warning and allow access (backward compatibility)
-    logger.warn('Tenant column may not exist', {
-      tableName,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    })
-    return false // Fail closed for security
-  }
-}
-
-/**
- * Log authorization failures for audit trail
- */
-async function logAuthorizationFailure(entry: {
-  userId: string
-  tenantId: string
-  action: string
-  reason: string
-  requiredRoles?: string[]
-  userRole?: string
-  requiredPermissions?: string[]
-  userPermissions?: string[]
-  resourceType?: string
-  resourceId?: string
-  ipAddress?: string
-  userAgent?: string
-}) {
-  try {
-    await pool.query(
-      `INSERT INTO authorization_audit_log
-       (user_id, tenant_id, action, reason, required_roles, user_role,
-        required_permissions, user_permissions, resource_type, resource_id,
-        ip_address, user_agent, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())`,
-      [
-        entry.userId,
-        entry.tenantId,
-        entry.action,
-        entry.reason,
-        entry.requiredRoles ? JSON.stringify(entry.requiredRoles) : null,
-        entry.userRole || null,
-        entry.requiredPermissions ? JSON.stringify(entry.requiredPermissions) : null,
-        entry.userPermissions ? JSON.stringify(entry.userPermissions) : null,
-        entry.resourceType || null,
-        entry.resourceId || null,
-        entry.ipAddress || null,
-        entry.userAgent || null
-      ]
-    )
-  } catch (error) {
-    // Don't throw - logging failure shouldn't block the response
-    logger.error('Failed to log authorization failure', {
-      error,
-      userId: entry.userId
-    })
-  }
-}
-
-/**
- * Get user's effective role (for display purposes)
- */
-export async function getUserEffectiveRole(userId: string): Promise<string> {
-  try {
-    const result = await pool.query(
-      'SELECT role FROM users WHERE id = $1',
-      [userId]
-    )
-
-    if (result.rows.length === 0) {
-      return Role.GUEST
-    }
-
-    return result.rows[0].role
-  } catch (error) {
-    logger.error('Failed to get user role', { error, userId })
-    return Role.GUEST
-  }
-}
-
-/**
- * Clear all RBAC caches for a user (call when roles/permissions change)
- */
-export function clearUserRBACCache(userId: string): void {
-  clearPermissionCache(userId)
-  logger.info('Cleared RBAC cache for user', { userId })
-}
-
-// Alias authorize to requirePermission for backward compatibility
-export const authorize = requirePermission
-
-export default {
-  Role,
-  PERMISSIONS,
-  requireRole,
-  requirePermission,
-  requireTenantIsolation,
-  requireRBAC,
-  hasRole,
-  getUserEffectiveRole,
-  clearUserRBACCache,
-  authorize
-}
+  return (req: AuthRequest, res: Response, next: NextFunction) =>
