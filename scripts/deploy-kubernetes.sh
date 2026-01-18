@@ -89,13 +89,28 @@ build_images() {
         ./api
 
     # Build Frontend
-    log_info "Building fleet-frontend image..."
+    log_info "Building fleet-frontend application..."
+
+    # Install dependencies if needed
+    if [ ! -d "node_modules" ]; then
+        log_info "Installing frontend dependencies..."
+        npm ci
+    fi
+
+    # Build the application
+    VITE_API_URL=https://fleet.capitaltechalliance.com/api \
+    VITE_USE_MOCK_DATA=false \
+    VITE_AZURE_AD_CLIENT_ID="${AZURE_AD_CLIENT_ID:-}" \
+    VITE_AZURE_AD_TENANT_ID="${AZURE_AD_TENANT_ID:-}" \
+    VITE_AZURE_AD_REDIRECT_URI=https://fleet.capitaltechalliance.com/auth/callback \
+    VITE_GOOGLE_MAPS_API_KEY="${GOOGLE_MAPS_API_KEY:-}" \
+    npm run build
+
+    log_info "Building fleet-frontend Docker image..."
     docker build \
         -t $REGISTRY/fleet-frontend:$IMAGE_TAG \
         -t $REGISTRY/fleet-frontend:latest \
         -f Dockerfile \
-        --build-arg VITE_API_URL=https://fleet.capitaltechalliance.com/api \
-        --build-arg VITE_USE_MOCK_DATA=false \
         .
 
     log_success "Images built successfully"
