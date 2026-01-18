@@ -56,13 +56,13 @@ import { useAuth } from '@/contexts/AuthContext'
 // ============================================================================
 
 const LiveTracking = lazy(() => import('@/components/fleet/LiveTracking'))
-const LiveFleetDashboard = lazy(() => import('@/components/dashboard/LiveFleetDashboard'))
-const VehicleTelemetry = lazy(() => import('@/components/modules/fleet/VehicleTelemetry'))
-const VirtualGarage = lazy(() => import('@/components/modules/fleet/VirtualGarage'))
-const VideoTelematics = lazy(() => import('@/components/modules/compliance/VideoTelematics'))
-const EVChargingManagement = lazy(() => import('@/components/modules/charging/EVChargingManagement'))
-const FleetManagerDashboard = lazy(() => import('@/components/dashboards/roles/FleetManagerDashboard'))
-const DriverDashboard = lazy(() => import('@/components/dashboards/roles/DriverDashboard'))
+const LiveFleetDashboard = lazy(() => import('@/components/dashboard/LiveFleetDashboard').then(m => ({ default: m.LiveFleetDashboard })))
+const VehicleTelemetry = lazy(() => import('@/components/modules/fleet/VehicleTelemetry').then(m => ({ default: m.VehicleTelemetry })))
+const VirtualGarage = lazy(() => import('@/components/modules/fleet/VirtualGarage').then(m => ({ default: m.VirtualGarage })))
+const VideoTelematics = lazy(() => import('@/components/modules/compliance/VideoTelematics').then(m => ({ default: m.VideoTelematics })))
+const EVChargingManagement = lazy(() => import('@/components/modules/charging/EVChargingManagement').then(m => ({ default: m.EVChargingManagement })))
+const FleetManagerDashboard = lazy(() => import('@/components/dashboards/roles/FleetManagerDashboard').then(m => ({ default: m.FleetManagerDashboard })))
+const DriverDashboard = lazy(() => import('@/components/dashboards/roles/DriverDashboard').then(m => ({ default: m.DriverDashboard })))
 
 // ============================================================================
 // CONSTANTS
