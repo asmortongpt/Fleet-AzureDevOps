@@ -129,7 +129,7 @@ const AssetsHub = lazy(() => import("@/components/hubs/assets/AssetsHub").then(m
 // NEW CONSOLIDATED HUB PAGES (Production Readiness Phase 3)
 const FleetHubPage = lazy(() => import("@/pages/FleetHub"))
 const OperationsHubPage = lazy(() => import("@/pages/OperationsHub"))
-const MaintenanceHubPage = lazy(() => import("@/pages/MaintenanceHub"))
+const MaintenanceHubPage = lazy(() => import("@/pages/MaintenanceHub").then(m => ({ default: m.default || m.MaintenanceHub })))
 const DriversHubPage = lazy(() => import("@/pages/DriversHub"))
 const AnalyticsHubPage = lazy(() => import("@/pages/AnalyticsHub"))
 const ComplianceHubPage = lazy(() => import("@/pages/ComplianceHub"))
