@@ -1,9 +1,3 @@
-declare module 'react-router-dom' {
-  export interface Location {
-    state?: any;
-  }
-}
-
 declare module '@mui/material' {
   export interface Theme {
     customShadows?: {
