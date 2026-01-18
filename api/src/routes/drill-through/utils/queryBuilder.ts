@@ -5,3 +5,12 @@ export function buildQuery(filters: any): { query: string; params: any[] } {
     params: [filters.tenantId]
   };
 }
+
+export function buildDrillThroughQuery(entityType: string, filters: any): { query: string; params: any[] } {
+  // Stub implementation for drill-through queries
+  const baseQuery = `SELECT * FROM ${entityType} WHERE tenant_id = $1`;
+  return {
+    query: baseQuery,
+    params: [filters.tenantId || '']
+  };
+}
