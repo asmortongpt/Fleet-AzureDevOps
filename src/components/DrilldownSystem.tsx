@@ -100,9 +100,11 @@ export function DrilldownSystem() {
             case 'active':
               return v.status === 'active';
             case 'maintenance':
-              return v.status === 'maintenance';
+            case 'service':
+              return v.status === 'service';
             case 'inactive':
-              return v.status === 'inactive';
+            case 'offline':
+              return v.status === 'offline';
             default:
               return true;
           }

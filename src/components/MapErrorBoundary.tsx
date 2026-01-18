@@ -468,7 +468,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
         this.handleReport()
         break
       default:
-        logger.warn('Unknown action:', action)
+        logger.warn(`Unknown action: ${action}`)
     }
   }
 
