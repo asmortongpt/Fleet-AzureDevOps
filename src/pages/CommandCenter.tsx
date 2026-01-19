@@ -40,6 +40,9 @@ const CommandCenter: React.FC = () => {
 
     return (
         <div className="flex flex-col h-full bg-slate-950 overflow-hidden relative selection:bg-emerald-500/30">
+            {/* Visually hidden h1 for accessibility - WCAG 2.1 AA compliance */}
+            <h1 className="sr-only">Fleet Command Center - Live Fleet Tracking Dashboard</h1>
+
             {/* 1. Main Content Layer - The Map (Full Screen) */}
             <div className="absolute inset-0 z-0">
                 <ProfessionalFleetMap
