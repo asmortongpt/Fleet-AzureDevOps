@@ -18,8 +18,11 @@ class TelemetryService {
                             import.meta.env.VITE_APPLICATIONINSIGHTS_CONNECTION_STRING
 
     if (!connectionString) {
-      logger.warn('⚠️ Application Insights connection string not found. Frontend telemetry disabled.')
-      logger.warn('Set VITE_APPLICATION_INSIGHTS_CONNECTION_STRING in your .env file')
+      // Only warn in production - this is expected in development
+      if (import.meta.env.PROD) {
+        logger.warn('⚠️ Application Insights connection string not found. Frontend telemetry disabled.')
+        logger.warn('Set VITE_APPLICATION_INSIGHTS_CONNECTION_STRING in your .env file')
+      }
       return null
     }
 
