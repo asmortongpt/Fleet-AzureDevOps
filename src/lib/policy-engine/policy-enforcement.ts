@@ -187,7 +187,7 @@ export async function enforceEVChargingPolicy(
       description: 'Charging session does not comply with energy management policy'
     });
   } else if (result.recommendations.length > 0) {
-    toast.info('Charging Recommendation', {
+    toast('Charging Recommendation', {
       description: result.recommendations[0]
     });
   }
