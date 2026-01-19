@@ -226,7 +226,7 @@ export function useErrorRecovery(config: ErrorRecoveryConfig = {}): UseErrorReco
           toast.success(message)
           break
         default:
-          toast.info(message)
+          toast(message)
       }
     },
     [mergedConfig.enableNotifications]

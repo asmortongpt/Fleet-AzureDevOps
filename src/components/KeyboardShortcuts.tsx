@@ -37,7 +37,7 @@ export function KeyboardShortcuts({ children }: KeyboardShortcutsProps) {
       description: 'Go to Dashboard',
       action: () => {
         navigate('/');
-        toast.info('Navigated to Dashboard');
+        toast('Navigated to Dashboard');
       },
       preventDefault: true,
     },
@@ -47,7 +47,7 @@ export function KeyboardShortcuts({ children }: KeyboardShortcutsProps) {
       description: 'Go to GPS Tracking',
       action: () => {
         navigate('/gps-tracking');
-        toast.info('Navigated to GPS Tracking');
+        toast('Navigated to GPS Tracking');
       },
       preventDefault: true,
     },
@@ -57,7 +57,7 @@ export function KeyboardShortcuts({ children }: KeyboardShortcutsProps) {
       description: 'Go to Vehicles',
       action: () => {
         navigate('/vehicles');
-        toast.info('Navigated to Vehicles');
+        toast('Navigated to Vehicles');
       },
       preventDefault: true,
     },
@@ -67,7 +67,7 @@ export function KeyboardShortcuts({ children }: KeyboardShortcutsProps) {
       description: 'Go to Maintenance',
       action: () => {
         navigate('/maintenance');
-        toast.info('Navigated to Maintenance');
+        toast('Navigated to Maintenance');
       },
       preventDefault: true,
     },
@@ -79,7 +79,7 @@ export function KeyboardShortcuts({ children }: KeyboardShortcutsProps) {
       description: 'Toggle Sidebar',
       action: () => {
         toggleSidebar();
-        toast.info('Sidebar toggled');
+        toast('Sidebar toggled');
       },
       preventDefault: true,
     },
@@ -130,7 +130,7 @@ export function KeyboardShortcuts({ children }: KeyboardShortcutsProps) {
         if (searchInput) {
           searchInput.focus();
           searchInput.select();
-          toast.info('Search focused');
+          toast('Search focused');
         }
       },
       preventDefault: true,
@@ -168,7 +168,7 @@ export function KeyboardShortcuts({ children }: KeyboardShortcutsProps) {
         // Trigger add vehicle dialog
         const event = new CustomEvent('open-add-vehicle-dialog');
         window.dispatchEvent(event);
-        toast.info('Add Vehicle dialog opened');
+        toast('Add Vehicle dialog opened');
       },
       preventDefault: true,
     },

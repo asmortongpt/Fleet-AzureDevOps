@@ -103,7 +103,7 @@ export function useEmails(filter?: {
         })
       }
 
-      toast.info(`New email from ${message.data?.email.from.name}`)
+      toast(`New email from ${message.data?.email.from.name}`)
     })
 
     const unsubscribeUpdated = subscribe('outlook:email-updated', (message: any) => {

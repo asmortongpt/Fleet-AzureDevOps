@@ -206,7 +206,7 @@ export function DocumentManagement() {
 
   const handleDownloadDocument = (document: Document) => {
     // In production, this would trigger actual download
-    toast.info('Download started')
+    toast('Download started')
     window.open(`${import.meta.env.VITE_API_URL}${document.file_url}`, '_blank')
   }
 

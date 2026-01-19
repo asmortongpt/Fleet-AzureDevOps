@@ -117,17 +117,17 @@ export function DispatcherDashboard() {
   };
 
   const handleContactDriver = (driverName: string) => {
-    toast.info(`Contacting ${driverName}...`);
+    toast(`Contacting ${driverName}...`);
     // TODO: Open driver communication
   };
 
   const handleViewOnMap = () => {
-    toast.info('Switching to full-screen map view...');
+    toast('Switching to full-screen map view...');
     // TODO: Navigate to map view
   };
 
   const handleFilterTrips = (filter: string) => {
-    toast.info(`Filtering trips by: ${filter}`);
+    toast(`Filtering trips by: ${filter}`);
     // TODO: Apply filter to active trips
   };
 

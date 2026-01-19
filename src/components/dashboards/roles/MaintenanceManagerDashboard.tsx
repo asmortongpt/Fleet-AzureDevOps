@@ -126,17 +126,17 @@ export function MaintenanceManagerDashboard() {
   };
 
   const handleAssignMechanic = () => {
-    toast.info('Opening mechanic assignment dialog...');
+    toast('Opening mechanic assignment dialog...');
     // TODO: Open mechanic assignment
   };
 
   const handleViewQueue = () => {
-    toast.info('Navigating to work order queue...');
+    toast('Navigating to work order queue...');
     // TODO: Navigate to work order page
   };
 
   const handleViewCalendar = () => {
-    toast.info('Opening maintenance calendar...');
+    toast('Opening maintenance calendar...');
     // TODO: Navigate to calendar view
   };
 

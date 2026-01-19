@@ -60,7 +60,7 @@ export function BrandingConfigurator() {
   const handleReset = () => {
     setConfig(defaultBrandingConfig)
     setHasChanges(true)
-    toast.info('Reset to default configuration')
+    toast('Reset to default configuration')
   }
 
   const handleApplyTemplate = (templateName: string) => {

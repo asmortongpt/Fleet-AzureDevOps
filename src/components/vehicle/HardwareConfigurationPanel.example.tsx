@@ -46,7 +46,7 @@ export function WithEventHandlersExample() {
     const message = `Removed ${provider} provider at ${new Date().toLocaleTimeString()}`
     setProviderCount(prev => prev - 1)
     setActivityLog(prev => [message, ...prev].slice(0, 10))
-    toast.info(`${provider} provider removed`, {
+    toast(`${provider} provider removed`, {
       description: 'Telemetry data collection has stopped'
     })
   }
@@ -221,7 +221,7 @@ export function MultiVehicleManagementExample() {
                   toast.success(`${provider} added to ${selectedVehicle.name}`)
                 }}
                 onProviderRemoved={(provider) => {
-                  toast.info(`${provider} removed from ${selectedVehicle.name}`)
+                  toast(`${provider} removed from ${selectedVehicle.name}`)
                 }}
               />
             </>
