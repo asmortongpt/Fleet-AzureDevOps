@@ -72,7 +72,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const SKIP_AUTH = (process.env.NODE_ENV === 'test' || import.meta.env.MODE === 'development') && import.meta.env.VITE_SKIP_AUTH === 'true';
 
         // Log security warning if bypass is enabled in non-test environment
-        if (SKIP_AUTH && process.env.NODE_ENV !== 'test') {
+        // Only warn in production - this is expected in development mode
+        if (SKIP_AUTH && process.env.NODE_ENV !== 'test' && import.meta.env.PROD) {
           logger.warn('[Security] CRITICAL: Authentication bypass is enabled in non-test environment!', {
             nodeEnv: process.env.NODE_ENV,
             skipAuth: SKIP_AUTH
