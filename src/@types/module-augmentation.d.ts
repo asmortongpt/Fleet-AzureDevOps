@@ -1,53 +1,52 @@
-declare module '@mui/material' {
-  export interface Theme {
-    customShadows?: {
-      z1?: string;
-      z4?: string;
-      z8?: string;
-      z12?: string;
-      z16?: string;
-      z20?: string;
-      z24?: string;
-      primary?: string;
-      secondary?: string;
-      info?: string;
-      success?: string;
-      warning?: string;
-      error?: string;
-      card?: string;
-      dialog?: string;
-      dropdown?: string;
-    };
-  }
-
-  export interface ThemeOptions {
-    customShadows?: {
-      z1?: string;
-      z4?: string;
-      z8?: string;
-      z12?: string;
-      z16?: string;
-      z20?: string;
-      z24?: string;
-      primary?: string;
-      secondary?: string;
-      info?: string;
-      success?: string;
-      warning?: string;
-      error?: string;
-      card?: string;
-      dialog?: string;
-      dropdown?: string;
-    };
-  }
-}
-
+// Augment @mui/material/styles to add custom theme properties
 declare module '@mui/material/styles' {
-  export interface TypographyVariants {
+  interface Theme {
+    customShadows?: {
+      z1?: string;
+      z4?: string;
+      z8?: string;
+      z12?: string;
+      z16?: string;
+      z20?: string;
+      z24?: string;
+      primary?: string;
+      secondary?: string;
+      info?: string;
+      success?: string;
+      warning?: string;
+      error?: string;
+      card?: string;
+      dialog?: string;
+      dropdown?: string;
+    };
+  }
+
+  interface ThemeOptions {
+    customShadows?: {
+      z1?: string;
+      z4?: string;
+      z8?: string;
+      z12?: string;
+      z16?: string;
+      z20?: string;
+      z24?: string;
+      primary?: string;
+      secondary?: string;
+      info?: string;
+      success?: string;
+      warning?: string;
+      error?: string;
+      card?: string;
+      dialog?: string;
+      dropdown?: string;
+    };
+  }
+
+  interface TypographyVariants {
     fontWeightSemiBold?: number;
   }
 
-  export interface TypographyVariantsOptions {
+  interface TypographyVariantsOptions {
     fontWeightSemiBold?: number;
   }
 }

@@ -135,7 +135,7 @@ export function TripUsageDialog({
         // Show charge estimate if applicable
         const charge = calculateEstimatedCharge()
         if (charge > 0) {
-          toast.info(`Estimated personal use charge: $${charge.toFixed(2)}`)
+          toast(`Estimated personal use charge: $${charge.toFixed(2)}`)
         }
 
         setOpen(false)

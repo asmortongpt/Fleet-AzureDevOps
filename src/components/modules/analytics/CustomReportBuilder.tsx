@@ -317,7 +317,7 @@ export function CustomReportBuilder() {
   }
 
   const handleExecuteReport = (reportId: string, format: string = 'csv') => {
-    toast.info("Executing report...")
+    toast("Executing report...")
     executeReportMutation.mutate({ reportId, format })
   }
 

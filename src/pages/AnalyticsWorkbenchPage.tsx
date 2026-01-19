@@ -343,7 +343,7 @@ export function AnalyticsWorkbenchPage() {
                 setSelectedColumns([])
                 setFilters([])
                 setChartType("table")
-                toast.info("Report cleared")
+                toast("Report cleared")
               }}
             >
               <ArrowsClockwise className="w-4 h-4 mr-2" />

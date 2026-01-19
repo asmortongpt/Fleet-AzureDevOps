@@ -62,7 +62,7 @@ export default function ModuleAdminPage() {
         // Since we auto-save to manager in toggleModule, this is essentially a reload
         loadData();
         navigationContext.updateNavigation();
-        toast.info("Configuration reloaded");
+        toast("Configuration reloaded");
     };
 
     return (
