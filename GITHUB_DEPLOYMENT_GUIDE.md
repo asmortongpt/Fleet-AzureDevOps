@@ -106,8 +106,8 @@ The pipeline will automatically:
 VITE_GOOGLE_MAPS_API_KEY: <from secrets>
 VITE_AZURE_AD_CLIENT_ID: <from secrets>
 VITE_AZURE_AD_TENANT_ID: <from secrets>
-VITE_AZURE_AD_REDIRECT_URI: https://proud-bay-0fdc8040f.3.azurestaticapps.net/auth/callback
-VITE_API_BASE_URL: https://proud-bay-0fdc8040f.3.azurestaticapps.net/api
+VITE_AZURE_AD_REDIRECT_URI: https://fleet.capitaltechalliance.com/auth/callback
+VITE_API_BASE_URL: https://fleet.capitaltechalliance.com/api
 VITE_USE_MOCK_DATA: false
 ```
 
@@ -120,7 +120,7 @@ VITE_USE_MOCK_DATA: false
 
 **Production URL:**
 ```
-https://proud-bay-0fdc8040f.3.azurestaticapps.net
+https://fleet.capitaltechalliance.com
 ```
 
 ### Stage 4: Verification (~30 seconds)
@@ -201,10 +201,10 @@ gh run view <run-id>
 **Production Health Check:**
 ```bash
 # Frontend
-curl -I https://proud-bay-0fdc8040f.3.azurestaticapps.net
+curl -I https://fleet.capitaltechalliance.com
 
 # API
-curl https://proud-bay-0fdc8040f.3.azurestaticapps.net/api/health
+curl https://fleet.capitaltechalliance.com/api/health
 ```
 
 ---
@@ -256,7 +256,7 @@ git push
 ```bash
 # Get new deployment token from Azure Portal
 az staticwebapp secrets list \
-  --name proud-bay-0fdc8040f \
+  --name fleet-management-production \
   --query properties.apiKey -o tsv
 
 # Update GitHub secret
