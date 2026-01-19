@@ -115,7 +115,7 @@ export function DataWorkbench() {
   }
 
   const handleRefresh = async () => {
-    toast.info("Refreshing fleet data...")
+    toast("Refreshing fleet data...")
     setTimeout(() => {
       window.location.reload()
     }, 500)

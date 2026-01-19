@@ -234,7 +234,7 @@ export function TrafficCameras(): JSX.Element {
    */
   const handleSync = useCallback(async () => {
     setState(prev => ({ ...prev, isSyncing: true, error: null }))
-    toast.info("Starting camera synchronization...")
+    toast("Starting camera synchronization...")
     syncMutation.mutate()
   }, [syncMutation])
 

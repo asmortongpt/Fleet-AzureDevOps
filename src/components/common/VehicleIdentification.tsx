@@ -218,7 +218,7 @@ export function VehicleIdentification({
   const handleQRScanResult = useCallback(async (data: string) => {
     setShowQRScanner(false)
     setLoading(true)
-    toast.info("QR Code detected, looking up vehicle...")
+    toast("QR Code detected, looking up vehicle...")
 
     try {
       // Try to parse as JSON first (structured QR code)

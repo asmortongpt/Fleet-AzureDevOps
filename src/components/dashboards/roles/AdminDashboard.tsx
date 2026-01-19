@@ -126,7 +126,7 @@ export function AdminDashboard() {
   };
 
   const handleViewAuditLogs = () => {
-    toast.info('Loading audit logs...');
+    toast('Loading audit logs...');
     // TODO: Navigate to audit logs page
   };
 
@@ -136,7 +136,7 @@ export function AdminDashboard() {
   };
 
   const handleConfigureSettings = () => {
-    toast.info('Opening system configuration...');
+    toast('Opening system configuration...');
     // TODO: Navigate to settings page
   };
 
@@ -146,12 +146,12 @@ export function AdminDashboard() {
   };
 
   const handleViewUsers = () => {
-    toast.info('Loading user management interface...');
+    toast('Loading user management interface...');
     // TODO: Navigate to user management
   };
 
   const handleViewSecurityAlerts = () => {
-    toast.info('Loading security alerts...');
+    toast('Loading security alerts...');
     // TODO: Navigate to security dashboard
   };
 
