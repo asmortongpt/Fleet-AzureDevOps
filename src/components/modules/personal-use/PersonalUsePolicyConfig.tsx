@@ -269,7 +269,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
     })
 
     setHasChanges(true)
-    toast.info('Settings reset to defaults')
+    toast('Settings reset to defaults')
   }
 
   const updateFormData = (updates: Partial<PolicyFormData>) => {

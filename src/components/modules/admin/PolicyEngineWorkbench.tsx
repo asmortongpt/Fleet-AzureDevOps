@@ -167,7 +167,7 @@ export function PolicyEngineWorkbench() {
   }
 
   const handleTest = async (policyId: string) => {
-    toast.info("Starting policy simulation in sandbox environment...")
+    toast("Starting policy simulation in sandbox environment...")
     // Simulate testing
     setTimeout(async () => {
       try {
