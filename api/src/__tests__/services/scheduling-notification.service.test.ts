@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import { SchedulingNotificationService } from '../../services/scheduling-notification.service';
 
 describe('SchedulingNotificationService', () => {

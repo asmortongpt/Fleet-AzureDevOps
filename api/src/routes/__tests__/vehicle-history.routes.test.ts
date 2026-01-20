@@ -4,12 +4,12 @@
  * Tests for location history, trip breadcrumbs, and vehicle timeline endpoints
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import request from 'supertest';
 import express from 'express';
-import vehicleHistoryRoutes from '../vehicle-history.routes';
+import request from 'supertest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+
 import pool from '../../config/database';
-import { csrfProtection } from '../middleware/csrf'
+import vehicleHistoryRoutes from '../vehicle-history.routes';
 
 
 // Mock authentication middleware

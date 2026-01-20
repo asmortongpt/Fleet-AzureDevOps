@@ -14,8 +14,6 @@
  * @security Data sanitization in hook layer
  */
 
-import { motion } from 'framer-motion'
-import { Suspense, memo, useCallback, useMemo, type FC, type ReactNode } from 'react'
 import {
   Wrench,
   Warehouse,
@@ -29,19 +27,22 @@ import {
   Clock,
   CheckCircle,
 } from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { Suspense, memo, useCallback, useMemo, type FC, type ReactNode } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveMaintenanceData, type WorkOrder, type PredictiveMaintenance } from '@/hooks/use-reactive-maintenance-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Button } from '@/components/ui/button'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useReactiveMaintenanceData, type WorkOrder, type PredictiveMaintenance } from '@/hooks/use-reactive-maintenance-data'
 
 // ============================================================================
 // TYPES AND INTERFACES

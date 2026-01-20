@@ -3,23 +3,18 @@
  * Implements: Multi-threaded processing, Bull queues, TripoSR integration, and CDN delivery
  */
 
-import Bull, { Job, Queue } from 'bull'
-import { Worker } from 'worker_threads'
-import sharp from 'sharp'
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
 // @ts-expect-error - Type mismatch
-import { CloudFrontClient, CreateInvalidationCommand } from '@aws-sdk/client-cloudfront'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import FormData from 'form-data'
-import axios from 'axios'
-import pLimit from 'p-limit'
 import { EventEmitter } from 'events'
-import crypto from 'crypto'
 import path from 'path'
-import fs from 'fs/promises'
-import { pipeline } from 'stream/promises'
-import { createReadStream, createWriteStream } from 'fs'
+import { Worker } from 'worker_threads'
 import zlib from 'zlib'
+
+import { CloudFrontClient, CreateInvalidationCommand } from '@aws-sdk/client-cloudfront'
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import axios from 'axios'
+import Bull, { Job, Queue } from 'bull'
+import FormData from 'form-data'
+import pLimit from 'p-limit'
 
 // Types and Interfaces
 interface Model3DProcessingJob {

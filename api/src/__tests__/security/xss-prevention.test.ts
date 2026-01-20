@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
 import DOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
+import { describe, it, expect } from 'vitest';
 
 /**
  * Critical Security Test Suite: XSS (Cross-Site Scripting) Prevention

@@ -14,8 +14,6 @@
  * @performance Optimized with memoization, code splitting
  */
 
-import { motion } from 'framer-motion'
-import { Suspense, memo, useCallback, useMemo } from 'react'
 import {
   ChartBar,
   FileText,
@@ -30,29 +28,29 @@ import {
   Plus,
   Warning,
 } from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { Suspense, memo, useCallback, useMemo } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveReportsData } from '@/hooks/use-reactive-reports-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Button } from '@/components/ui/button'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useReactiveReportsData } from '@/hooks/use-reactive-reports-data'
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
-import type {
-  ReportTemplate,
-  GeneratedReport,
-  ScheduledReport,
-} from '@/hooks/use-reactive-reports-data'
+
+
 
 interface AnimatedListItemProps {
   index: number

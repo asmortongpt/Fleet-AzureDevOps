@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import { GarageBayService } from '../../services/garageBayService';
 
 describe('GarageBayService', () => {

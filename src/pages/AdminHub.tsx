@@ -14,8 +14,6 @@
  * - Screen reader friendly
  */
 
-import { memo, useMemo, Suspense, lazy, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
   Gear as AdminIcon,
   Users,
@@ -35,27 +33,26 @@ import {
   XCircle,
   Key,
 } from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { memo, useMemo, Suspense } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveAdminData } from '@/hooks/use-reactive-admin-data'
-import type {
-  User,
-  SystemMetrics,
-  AuditLog,
-  Session,
-  AdminMetrics,
-  ActivityTrendData,
-  TopUserActivity,
-} from '@/hooks/use-reactive-admin-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useReactiveAdminData } from '@/hooks/use-reactive-admin-data'
+import type {
+  User,
+  AuditLog,
+  Session,
+} from '@/hooks/use-reactive-admin-data'
 
 // ============================================================================
 // CONSTANTS

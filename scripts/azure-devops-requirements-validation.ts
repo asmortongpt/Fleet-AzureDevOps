@@ -4,9 +4,10 @@
  * Uses Grok AI agents to validate all requirements with evidence-based analysis
  */
 
-import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import axios from 'axios';
 
 // Configuration
 const AZURE_DEVOPS_ORG = 'CapitalTechAlliance';

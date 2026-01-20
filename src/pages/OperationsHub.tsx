@@ -15,14 +15,11 @@
  * @security XSS protection, data sanitization, input validation
  */
 
-import { motion } from 'framer-motion'
-import { Suspense, memo, useCallback, useMemo } from 'react'
 import {
   Broadcast as OperationsIcon,
   MapTrifold,
   RadioButton,
   CheckSquare,
-  CalendarDots,
   Truck,
   Package,
   Warning,
@@ -33,26 +30,27 @@ import {
   MapPin,
   GasPump,
   CheckCircle,
-  X,
   ArrowUp,
   ArrowDown,
   ArrowRight,
 } from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { Suspense, memo, useCallback, useMemo } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveOperationsData, type Route, type FuelTransaction, type Task } from '@/hooks/use-reactive-operations-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { sanitizeHTML } from '@/lib/security/xss-prevention'
+import { useReactiveOperationsData, type Route } from '@/hooks/use-reactive-operations-data'
 
 // Constants for animation configuration
 const ANIMATION_CONFIG = {

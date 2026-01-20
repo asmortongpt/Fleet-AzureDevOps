@@ -3,13 +3,14 @@
  * Shows connection health, emulator status, and real-time metrics
  */
 
-import { useState, useEffect } from 'react';
 import { Activity, AlertCircle, CheckCircle2, Clock, Database, Radio, Server, TrendingUp, Zap } from 'lucide-react';
+import { useState, useEffect } from 'react';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface ConnectionStatus {
   name: string;

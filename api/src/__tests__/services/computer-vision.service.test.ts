@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import { ComputerVisionService } from '../../services/computer-vision.service';
 
 describe('ComputerVisionService', () => {

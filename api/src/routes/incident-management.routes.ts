@@ -18,10 +18,10 @@ import { Router } from 'express'
 import { pool } from '../config/database';
 import logger from '../config/logger';
 import type { AuthRequest } from '../middleware/auth'
-import { NotFoundError } from '../utils/errors'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { NotFoundError } from '../utils/errors'
 
 const router = Router()
 router.use(authenticateJWT)

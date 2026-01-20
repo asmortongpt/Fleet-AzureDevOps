@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { ErrorBoundary } from "@/components/common/ErrorBoundary";
-import { logger } from "@/utils/logger";
+
 
 import { ProfessionalFleetMap } from "../components/Maps/ProfessionalFleetMap";
 import { DispatchPanel } from "../components/modules/operations/DispatchPanel";
@@ -10,7 +9,9 @@ import { MaintenancePanel } from "../components/modules/operations/MaintenancePa
 import { VehicleRoster } from "../components/modules/operations/VehicleRoster";
 import { CommandDock } from "../components/ui/CommandDock";
 
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { useFleetData } from "@/hooks/use-fleet-data";
+import { logger } from "@/utils/logger";
 
 const CommandCenter: React.FC = () => {
     const { vehicles = [], facilities = [] } = useFleetData();

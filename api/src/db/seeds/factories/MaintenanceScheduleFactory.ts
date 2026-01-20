@@ -1,8 +1,9 @@
 /**
  * MaintenanceScheduleFactory - Generates maintenance schedules
  */
-import { BaseFactory } from './BaseFactory';
 import type { MaintenanceSchedule, MaintenanceType, Priority, Status, FactoryOptions } from '../types';
+
+import { BaseFactory } from './BaseFactory';
 
 export class MaintenanceScheduleFactory extends BaseFactory {
   /**

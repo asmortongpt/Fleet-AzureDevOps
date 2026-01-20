@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import { MapboxService } from '../../services/mapbox.service';
 
 describe('MapboxService', () => {

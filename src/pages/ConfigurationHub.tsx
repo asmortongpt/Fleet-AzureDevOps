@@ -3,8 +3,6 @@
  * Real-time system settings, integrations, and security monitoring with responsive visualizations
  */
 
-import { motion } from 'framer-motion'
-import { Suspense } from 'react'
 import {
   Settings as ConfigIcon,
   Database,
@@ -20,23 +18,25 @@ import {
   Key,
   Eye,
   Server,
-  BarChart3,
   TrendingUp,
   RefreshCw,
   Clock,
 } from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { Suspense } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveConfigurationData } from '@/hooks/use-reactive-configuration-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useReactiveConfigurationData } from '@/hooks/use-reactive-configuration-data'
 
 /**
  * Overview Tab - Configuration metrics and system status

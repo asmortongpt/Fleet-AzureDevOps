@@ -13,8 +13,9 @@
  * Security: Read-only component, no security concerns
  */
 
+import { Wifi, WifiOff, RefreshCw, AlertCircle, Clock } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { Wifi, WifiOff, RefreshCw, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+
 import { offlineSyncService, type SyncStatus } from '../../services/offline-sync.service';
 
 interface OfflineIndicatorProps {

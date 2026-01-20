@@ -1,5 +1,6 @@
-import { callLLM } from "../gateway/modelRouter";
 import { AI_CONFIG } from "../config";
+import { callLLM } from "../gateway/modelRouter";
+
 import { AgentPlan } from "./types";
 
 export async function makePlan(goal: string): Promise<AgentPlan> {

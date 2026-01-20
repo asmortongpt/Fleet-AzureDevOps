@@ -16,13 +16,10 @@
  * @accessibility WCAG 2.1 AA compliant
  */
 
-import { memo, useCallback, useMemo } from 'react'
-import { motion } from 'framer-motion'
 import {
   Package,
   Storefront,
   ShoppingCart,
-  FileText,
   ChartBar,
   Warning,
   TrendUp,
@@ -32,18 +29,21 @@ import {
   Clock,
   Truck,
 } from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { memo, useMemo } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveProcurementData } from '@/hooks/use-reactive-procurement-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useReactiveProcurementData } from '@/hooks/use-reactive-procurement-data'
 import type { PurchaseOrder, Vendor, Contract } from '@/types/procurement'
 
 // ============================================================================

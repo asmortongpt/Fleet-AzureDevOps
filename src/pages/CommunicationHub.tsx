@@ -3,8 +3,6 @@
  * Real-time messaging, notifications, and announcements with responsive visualizations
  */
 
-import { motion } from 'framer-motion'
-import { Suspense } from 'react'
 import {
   ChatsCircle as CommunicationIcon,
   Envelope,
@@ -16,22 +14,24 @@ import {
   Clock,
   Eye,
   TrendUp,
-  ChartLine,
   Users,
   Plus,
 } from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { Suspense } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveCommunicationData } from '@/hooks/use-reactive-communication-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useReactiveCommunicationData } from '@/hooks/use-reactive-communication-data'
 
 /**
  * Overview Tab - Communication metrics and status

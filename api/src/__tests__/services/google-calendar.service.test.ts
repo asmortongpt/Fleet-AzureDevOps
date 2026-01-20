@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import { GoogleCalendarService } from '../../services/google-calendar.service';
 
 describe('GoogleCalendarService', () => {

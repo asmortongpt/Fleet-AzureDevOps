@@ -4,6 +4,7 @@
  */
 
 import { FullConfig } from '@playwright/test';
+
 import { getIsolationManager } from '../api/src/db/reset/test-isolation';
 
 async function globalTeardown(config: FullConfig) {

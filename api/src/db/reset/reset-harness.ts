@@ -4,11 +4,14 @@
  * Target: < 10 seconds for reset + reseed
  */
 
-import { Pool } from 'pg';
-import { SnapshotManager, getSnapshotManager } from './snapshot-manager';
 import { exec } from 'child_process';
-import { promisify } from 'util';
 import path from 'path';
+import { promisify } from 'util';
+
+import { Pool } from 'pg';
+
+import { SnapshotManager, getSnapshotManager } from './snapshot-manager';
+
 
 const execAsync = promisify(exec);
 

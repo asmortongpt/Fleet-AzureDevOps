@@ -11,8 +11,8 @@
  */
 
 import { EventEmitter } from 'events';
+
 import logger from '../utils/logger';
-import { getAppConfig } from '../config/app-config.service';
 
 // ============================================================================
 // TYPES

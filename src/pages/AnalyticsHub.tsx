@@ -14,8 +14,6 @@
  * @security XSS protection, data sanitization
  */
 
-import { motion } from 'framer-motion'
-import { Suspense, memo, useCallback, useMemo } from 'react'
 import {
   ChartLine as AnalyticsIcon,
   FileText,
@@ -33,20 +31,23 @@ import {
   ArrowDown,
   ArrowRight,
 } from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { Suspense, memo, useCallback, useMemo } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveAnalyticsData } from '@/hooks/use-reactive-analytics-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useReactiveAnalyticsData } from '@/hooks/use-reactive-analytics-data'
 import type { AnalyticsReport } from '@/hooks/use-reactive-analytics-data'
 
 // Constants for animation configuration

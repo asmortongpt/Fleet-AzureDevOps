@@ -1,17 +1,13 @@
 import {
     Wrench,
-    TrendUp,
     Warning,
-    CheckCircle,
-    Lightning,
-    Clock
+    Lightning
 } from "@phosphor-icons/react"
 import { useMemo } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-
 import { useVehicles } from "@/hooks/use-api"
 import { Vehicle } from "@/lib/types"
 

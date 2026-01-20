@@ -13,18 +13,14 @@
  * @module pages/ComplianceReportingHub
  */
 
-import React, { useState, useMemo, useCallback } from 'react';
 import {
   Shield,
-  CheckCircle,
   Warning,
   XCircle,
-  Clock,
   TrendUp,
   TrendDown,
   FileText,
   Calendar,
-  Gavel,
   ChartBar,
   Download,
   Plus,
@@ -32,6 +28,8 @@ import {
   Funnel,
   CaretDown,
 } from '@phosphor-icons/react';
+import React, { useState, useMemo, useCallback } from 'react';
+
 import { HubPage } from '@/components/ui/hub-page';
 import {
   useReactiveComplianceReportingData,

@@ -1,6 +1,7 @@
-import { chromium, Page } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
+
+import { chromium, Page } from '@playwright/test';
 
 const APP_URL = 'http://localhost:5174';
 const SCREENSHOT_DIR = './screenshots';

@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useMemo, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { useAuth, UserRole } from '@/contexts/AuthContext';
-import { navigationItems, NavigationItem } from '@/lib/navigation';
 import { getNavigationItemsForRole } from '@/config/role-navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { navigationItems, NavigationItem } from '@/lib/navigation';
 
 interface NavigationContextType {
     activeModule: string;

@@ -16,8 +16,9 @@ import {
   Area,
   AreaChart,
 } from 'recharts'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
 import { useThemeContext } from '@/components/providers/ThemeProvider'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface DataPoint {
   name: string

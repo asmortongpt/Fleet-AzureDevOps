@@ -17,33 +17,33 @@
  * - Error Handling: Boundaries, graceful degradation
  */
 
-import { motion } from 'framer-motion'
-import { Suspense, memo, useCallback, useMemo } from 'react'
 import {
   Shield as ComplianceIcon,
   CheckCircle,
   Warning,
   ClipboardText,
-  Certificate,
   CalendarX,
   TrendUp,
   FileText,
   ListChecks,
   XCircle,
 } from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { Suspense, memo, useCallback, useMemo } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveComplianceData } from '@/hooks/use-reactive-compliance-data'
-import type { ComplianceRecord, Inspection } from '@/hooks/use-reactive-compliance-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useReactiveComplianceData } from '@/hooks/use-reactive-compliance-data'
+import type { ComplianceRecord, Inspection } from '@/hooks/use-reactive-compliance-data'
 
 // ============================================================================
 // CONFIGURATION

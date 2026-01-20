@@ -5,6 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 import {
   ROLE_HIERARCHY,
   PERMISSION_CATEGORIES,
@@ -18,8 +19,8 @@ import {
   getEffectivePermissions,
   checkAccess,
   logPermissionCheck,
-  type Permission,
 } from '../rbac';
+
 import type { UserRole } from '@/contexts/AuthContext';
 
 // Mock logger

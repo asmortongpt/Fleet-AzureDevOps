@@ -13,10 +13,10 @@
 import { injectable } from 'inversify';
 import { Pool } from 'pg';
 
+import pool from '../config/database';
 import { ApprovalWorkflow } from '../types/trip-usage';
 
 import { BaseRepository, QueryContext } from './base/BaseRepository';
-import pool from '../config/database';
 
 
 export interface PersonalUsePolicy {

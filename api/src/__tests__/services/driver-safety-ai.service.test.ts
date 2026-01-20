@@ -3,8 +3,9 @@
  * Tests all 16+ safety behavior detections
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Pool } from 'pg';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import DriverSafetyAIService from '../../services/driver-safety-ai.service';
 
 // Mock dependencies

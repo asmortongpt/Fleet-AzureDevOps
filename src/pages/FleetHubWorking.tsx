@@ -3,28 +3,24 @@
  * Route: /hubs/fleet
  */
 
+import * as TabsPrimitive from "@radix-ui/react-tabs"
 import {
     Layout,
     Truck,
-    Settings,
     Wrench,
     Clipboard,
     Activity,
     Plus,
     Calendar,
-    FileText,
-    BarChart,
     Car,
-    Database,
-    AlertTriangle
+    Database
 } from 'lucide-react'
 import { memo, useCallback, useState, useEffect, useMemo } from 'react'
-import * as TabsPrimitive from "@radix-ui/react-tabs"
 
-import { StatCard } from '@/components/ui/stat-card'
-import { useVehicles } from '@/hooks/use-api'
 import { Button } from '@/components/ui/button'
+import { StatCard } from '@/components/ui/stat-card'
 import { Tabs, TabsContent } from "@/components/ui/tabs"
+import { useVehicles } from '@/hooks/use-api'
 import { cn } from "@/lib/utils"
 
 // ============================================================================

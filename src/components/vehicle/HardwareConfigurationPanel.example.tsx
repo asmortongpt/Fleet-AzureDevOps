@@ -6,11 +6,13 @@
  */
 
 import React, { useState } from 'react'
-import { HardwareConfigurationPanel } from './HardwareConfigurationPanel'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
+
+import { HardwareConfigurationPanel } from './HardwareConfigurationPanel'
+
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 // ============================================================================
 // Example 1: Basic Usage

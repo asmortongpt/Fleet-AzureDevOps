@@ -14,8 +14,9 @@
  */
 
 import axios from 'axios';
-import logger from '../config/logger';
 import sharp from 'sharp';
+
+import logger from '../config/logger';
 
 // ============================================================================
 // TYPES & INTERFACES

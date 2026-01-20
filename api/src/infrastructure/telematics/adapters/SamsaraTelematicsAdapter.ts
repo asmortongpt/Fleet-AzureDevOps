@@ -1,8 +1,10 @@
 import axios, { AxiosInstance } from 'axios';
-import { ITelematicsProviderAdapter } from '../../../domain/telematics/interfaces/ITelematicsProviderAdapter';
-import { TelematicsDevice } from '../../../domain/telematics/entities/TelematicsDevice';
-import { AssetPositionEvent } from '../../../domain/telematics/entities/AssetPositionEvent';
 import { Logger } from 'winston';
+
+import { AssetPositionEvent } from '../../../domain/telematics/entities/AssetPositionEvent';
+import { TelematicsDevice } from '../../../domain/telematics/entities/TelematicsDevice';
+import { ITelematicsProviderAdapter } from '../../../domain/telematics/interfaces/ITelematicsProviderAdapter';
+
 
 export interface SamsaraConfig {
   apiKey: string;

@@ -1,9 +1,10 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { MapPin, Navigation, Clock } from "lucide-react"
+
 import { GoogleMapView } from "@/components/Maps/GoogleMapView"
-import { useVehicles } from "@/hooks/use-api"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useVehicles } from "@/hooks/use-api"
 
 export default function LiveTracking() {
   const { data, isLoading } = useVehicles()

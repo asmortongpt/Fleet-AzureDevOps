@@ -15,6 +15,9 @@
 import OpenAI from 'openai'
 import { Pool } from 'pg'
 
+import pool from '../config/database'
+import logger from '../utils/logger'
+
 import embeddingService from './EmbeddingService'
 import vectorSearchService from './VectorSearchService'
 
@@ -697,8 +700,6 @@ ${content.substring(0, 2000)}...`
 }
 
 // Import pool for singleton instance
-import pool from '../config/database'
-import logger from '../utils/logger'
 
 // Export singleton instance
 export const documentAiService = new DocumentAiService(pool, logger)
