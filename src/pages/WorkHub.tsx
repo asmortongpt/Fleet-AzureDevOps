@@ -7,7 +7,7 @@
 import React, { useState, useCallback, useMemo, memo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { z } from 'zod';
-import DOMPurify from 'isomorphic-dompurify';
+import DOMPurify from 'dompurify';
 import {
   CheckSquare,
   ListChecks,
