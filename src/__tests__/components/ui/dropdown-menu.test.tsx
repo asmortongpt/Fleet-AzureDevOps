@@ -1,29 +1,29 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Dropdown-menu } from '../../components/ui/dropdown-menu';
+import { DropdownMenu } from '../../components/ui/dropdown-menu';
 
-describe('Dropdown-menu', () => {
+describe('DropdownMenu', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   describe('Rendering', () => {
     it('should render without crashing', () => {
-      const { container } = render(<Dropdown-menu />);
+      const { container } = render(<DropdownMenu />);
       expect(container).toBeTruthy();
     });
 
     it('should render with default props', () => {
-      render(<Dropdown-menu />);
+      render(<DropdownMenu />);
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
 
     it('should render children correctly', () => {
       render(
-        <Dropdown-menu>
+        <DropdownMenu>
           <div>Test Child</div>
-        </Dropdown-menu>
+        </DropdownMenu>
       );
       expect(screen.getByText('Test Child')).toBeInTheDocument();
     });
@@ -31,18 +31,18 @@ describe('Dropdown-menu', () => {
 
   describe('Props', () => {
     it('should accept and apply className prop', () => {
-      const { container } = render(<Dropdown-menu className="test-class" />);
+      const { container } = render(<DropdownMenu className="test-class" />);
       expect(container.firstChild).toHaveClass('test-class');
     });
 
     it('should handle data attributes', () => {
-      const { container } = render(<Dropdown-menu data-testid="test-component" />);
+      const { container } = render(<DropdownMenu data-testid="test-component" />);
       expect(container.firstChild).toHaveAttribute('data-testid', 'test-component');
     });
 
     it('should render with custom props', () => {
       const customProps = { title: 'Test Title' };
-      render(<Dropdown-menu {...customProps} />);
+      render(<DropdownMenu {...customProps} />);
       expect(screen.getByText('Test Title', { exact: false })).toBeInTheDocument();
     });
   });
@@ -50,7 +50,7 @@ describe('Dropdown-menu', () => {
   describe('User Interactions', () => {
     it('should handle click events', async () => {
       const handleClick = vi.fn();
-      render(<Dropdown-menu onClick={handleClick} />);
+      render(<DropdownMenu onClick={handleClick} />);
 
       const element = screen.getByRole('button', { hidden: true });
       await userEvent.click(element);
@@ -60,7 +60,7 @@ describe('Dropdown-menu', () => {
 
     it('should handle keyboard events', async () => {
       const handleKeyDown = vi.fn();
-      render(<Dropdown-menu onKeyDown={handleKeyDown} />);
+      render(<DropdownMenu onKeyDown={handleKeyDown} />);
 
       const element = screen.getByRole('button', { hidden: true });
       fireEvent.keyDown(element, { key: 'Enter' });
@@ -70,7 +70,7 @@ describe('Dropdown-menu', () => {
 
     it('should handle form submission', async () => {
       const handleSubmit = vi.fn();
-      render(<Dropdown-menu onSubmit={handleSubmit} />);
+      render(<DropdownMenu onSubmit={handleSubmit} />);
 
       const form = screen.getByRole('form', { hidden: true });
       fireEvent.submit(form);
@@ -81,7 +81,7 @@ describe('Dropdown-menu', () => {
 
   describe('State Management', () => {
     it('should update state correctly', async () => {
-      render(<Dropdown-menu />);
+      render(<DropdownMenu />);
 
       const button = screen.getByRole('button', { hidden: true });
       await userEvent.click(button);
@@ -92,8 +92,8 @@ describe('Dropdown-menu', () => {
     });
 
     it('should maintain internal state', () => {
-      const { rerender } = render(<Dropdown-menu />);
-      rerender(<Dropdown-menu />);
+      const { rerender } = render(<DropdownMenu />);
+      rerender(<DropdownMenu />);
 
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
@@ -101,13 +101,13 @@ describe('Dropdown-menu', () => {
 
   describe('Accessibility', () => {
     it('should have proper ARIA attributes', () => {
-      render(<Dropdown-menu />);
+      render(<DropdownMenu />);
       const element = screen.getByRole('main', { hidden: true });
       expect(element).toHaveAttribute('aria-label');
     });
 
     it('should be keyboard navigable', async () => {
-      render(<Dropdown-menu />);
+      render(<DropdownMenu />);
       const element = screen.getByRole('button', { hidden: true });
 
       element.focus();
@@ -117,7 +117,7 @@ describe('Dropdown-menu', () => {
     });
 
     it('should have semantic HTML', () => {
-      const { container } = render(<Dropdown-menu />);
+      const { container } = render(<DropdownMenu />);
       expect(container.querySelector('button, a, input, select')).toBeTruthy();
     });
   });
@@ -126,34 +126,34 @@ describe('Dropdown-menu', () => {
     it('should handle errors gracefully', () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      render(<Dropdown-menu invalidProp={undefined} />);
+      render(<DropdownMenu invalidProp={undefined} />);
 
       expect(consoleError).not.toHaveBeenCalled();
       consoleError.mockRestore();
     });
 
     it('should display error messages', () => {
-      render(<Dropdown-menu error="Test error" />);
+      render(<DropdownMenu error="Test error" />);
       expect(screen.getByText('Test error', { exact: false })).toBeInTheDocument();
     });
   });
 
   describe('Conditional Rendering', () => {
     it('should render when condition is met', () => {
-      render(<Dropdown-menu show={true} />);
+      render(<DropdownMenu show={true} />);
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
 
     it('should not render when condition is not met', () => {
-      const { container } = render(<Dropdown-menu show={false} />);
+      const { container } = render(<DropdownMenu show={false} />);
       expect(container.firstChild).toBeNull();
     });
 
     it('should toggle visibility', async () => {
-      const { rerender } = render(<Dropdown-menu show={false} />);
+      const { rerender } = render(<DropdownMenu show={false} />);
       expect(screen.queryByRole('main')).not.toBeInTheDocument();
 
-      rerender(<Dropdown-menu show={true} />);
+      rerender(<DropdownMenu show={true} />);
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
   });
@@ -161,16 +161,16 @@ describe('Dropdown-menu', () => {
   describe('Performance', () => {
     it('should memoize expensive computations', () => {
       const expensiveFunction = vi.fn(() => 'result');
-      render(<Dropdown-menu compute={expensiveFunction} />);
+      render(<DropdownMenu compute={expensiveFunction} />);
 
       expect(expensiveFunction).toHaveBeenCalledTimes(1);
     });
 
     it('should not re-render unnecessarily', () => {
-      const { rerender } = render(<Dropdown-menu value="test" />);
+      const { rerender } = render(<DropdownMenu value="test" />);
       const renderCount = vi.fn();
 
-      rerender(<Dropdown-menu value="test" />);
+      rerender(<DropdownMenu value="test" />);
       expect(renderCount).toHaveBeenCalledTimes(0);
     });
   });
@@ -178,14 +178,14 @@ describe('Dropdown-menu', () => {
   describe('Security', () => {
     it('should sanitize user input', () => {
       const maliciousInput = '<script>alert("XSS")</script>';
-      render(<Dropdown-menu value={maliciousInput} />);
+      render(<DropdownMenu value={maliciousInput} />);
 
       expect(screen.queryByText('alert', { exact: false })).not.toBeInTheDocument();
     });
 
     it('should escape HTML entities', () => {
       const htmlInput = '<div>Test</div>';
-      render(<Dropdown-menu value={htmlInput} />);
+      render(<DropdownMenu value={htmlInput} />);
 
       const element = screen.getByText(htmlInput, { exact: false });
       expect(element.innerHTML).not.toContain('<div>');

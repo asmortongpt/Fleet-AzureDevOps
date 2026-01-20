@@ -4,9 +4,11 @@
  * Supports database pooling and automatic cleanup
  */
 
-import { Pool } from 'pg';
-import { SnapshotManager, getSnapshotManager } from './snapshot-manager';
 import crypto from 'crypto';
+
+import { Pool } from 'pg';
+
+import { SnapshotManager, getSnapshotManager } from './snapshot-manager';
 
 export interface TestDatabase {
   id: string;

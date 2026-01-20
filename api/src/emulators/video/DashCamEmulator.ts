@@ -20,8 +20,8 @@
  * - BlackVue DR900X
  */
 
-import { EventEmitter } from 'events';
 import crypto from 'crypto';
+import { EventEmitter } from 'events';
 
 export interface DashCamConfig {
   vehicleId: string;

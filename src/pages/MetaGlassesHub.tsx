@@ -1,9 +1,10 @@
-import React from "react";
-import { HubLayout } from "@/components/layout/HubLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Eye, Lightning, Camera, VideoCamera } from "@phosphor-icons/react";
+import React from "react";
+
+import { HubLayout } from "@/components/layout/HubLayout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const MetaGlassesHub: React.FC = () => {
     return (

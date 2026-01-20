@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { FleetMap } from '@/components/FleetMap';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { MapPin, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
+
+import { FleetMap } from '@/components/FleetMap';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 /**
  * Demo page showing FleetMap component with sample data

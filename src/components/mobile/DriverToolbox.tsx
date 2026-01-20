@@ -13,8 +13,9 @@
  * Security: Role-based access, validated inputs
  */
 
+import { Clipboard, AlertTriangle, Wrench, MapPin, FileText, Clock, CheckCircle } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { Camera, Clipboard, AlertTriangle, Wrench, MapPin, FileText, Clock, CheckCircle } from 'lucide-react';
+
 import { offlineSyncService } from '../../services/offline-sync.service';
 import { pushNotificationService } from '../../services/push-notifications.service';
 

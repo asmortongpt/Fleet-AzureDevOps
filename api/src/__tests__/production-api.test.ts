@@ -3,11 +3,12 @@
  * Tests all 30 endpoints with authentication, authorization, and validation
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import { db } from '../db/connection';
-import { schema } from '../schemas/production.schema';
 import { eq } from 'drizzle-orm';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+
+import { db } from '../db/connection';
 import { hashPassword, generateToken } from '../middleware/auth.production';
+import { schema } from '../schemas/production.schema';
 
 // Test data
 let testTenantId: string;

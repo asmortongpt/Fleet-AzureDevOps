@@ -10,17 +10,17 @@
  * - Real performance metrics shown inline (safety score, trips, miles)
  */
 
-import React, { useState, useMemo } from 'react';
-import { User, Plus, MagnifyingGlass, CheckCircle, Car, Trophy, Trash, Warning } from '@phosphor-icons/react';
+import { User, Plus, MagnifyingGlass, CheckCircle, Trophy, Trash, Warning } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
+import React, { useState, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 
-import { SplitView } from '@/components/operations/SplitView';
 import { ActionButton, StatusBadge, InlineEditPanel, ConfirmDialog } from '@/components/operations/InlineActions';
+import { SplitView } from '@/components/operations/SplitView';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
 import { useDrivers, useCreateDriver, useUpdateDriver, useDeleteDriver, Driver } from '@/hooks/useDrivers';
+import { cn } from '@/lib/utils';
 
 export function DriversOperations() {
   // API queries

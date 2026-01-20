@@ -5,8 +5,9 @@ import { useNavigate } from 'react-router-dom';
 
 import MonitoringDashboard from '../components/admin/MonitoringDashboard';
 import { UserManagement } from '../components/admin/UserManagement';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { useAuth } from '../hooks/useAuth';
+
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { logger } from '@/utils/logger';
 
 interface TabPanelProps {

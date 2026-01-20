@@ -11,10 +11,9 @@
  */
 
 import { Router, Request, Response } from 'express'
+import { Container } from 'inversify';
 
 import logger from '../config/logger';
-import { container } from '../container'
-import { Container } from 'inversify';
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 

@@ -3,11 +3,12 @@
  * Comprehensive tests for database reset functionality
  */
 
+import { Pool } from 'pg';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+
 import { DatabaseResetHarness } from '../reset-harness';
 import { SnapshotManager } from '../snapshot-manager';
 import { TestIsolationManager } from '../test-isolation';
-import { Pool } from 'pg';
 
 // Use test database
 const TEST_DB_URL = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/fleet_test';

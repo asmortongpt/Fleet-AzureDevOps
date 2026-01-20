@@ -1,6 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import request from 'supertest';
 import express from 'express';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 describe('Route: vehicles-refactored.example', () => {
   let app: express.Application;

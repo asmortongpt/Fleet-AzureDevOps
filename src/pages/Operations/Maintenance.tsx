@@ -17,8 +17,6 @@
  * 4. Real-time cost tracking and statistics
  */
 
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import {
   Wrench,
   Plus,
@@ -30,14 +28,16 @@ import {
   CurrencyDollar,
   ArrowsClockwise
 } from '@phosphor-icons/react';
+import { motion } from 'framer-motion';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 
-import { SplitView } from '@/components/operations/SplitView';
 import {
   ActionButton,
   InlineEditPanel,
   StatusBadge as OperationStatusBadge
 } from '@/components/operations/InlineActions';
+import { SplitView } from '@/components/operations/SplitView';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';

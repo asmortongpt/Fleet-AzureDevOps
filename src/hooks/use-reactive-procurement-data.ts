@@ -21,23 +21,19 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useCallback, useRef, useEffect } from 'react'
 import { z } from 'zod'
+
 import type {
   Vendor,
   PurchaseOrder,
   Contract,
   ProcurementMetrics,
-  ChartDataPoint,
   TrendDataPoint,
-  VendorPerformance,
-  SpendByCategory,
-  BudgetTracking,
   ProcurementAlert,
 } from '@/types/procurement'
 import {
   VendorSchema,
   PurchaseOrderSchema,
   ContractSchema,
-  ProcurementMetricsSchema,
 } from '@/types/procurement'
 
 // ============================================================================

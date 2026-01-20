@@ -774,8 +774,8 @@ return true
 }
 
 // Export singleton instance
-import { pool } from '../db'
 import logger from '../config/logger'
+import { pool } from '../db'
 const mlTrainingService = new MLTrainingService(pool, logger)
 
 export default mlTrainingService

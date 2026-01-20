@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import { VehicleHardwareConfigService } from '../../services/vehicle-hardware-config.service';
 
 describe('VehicleHardwareConfigService', () => {

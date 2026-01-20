@@ -5,7 +5,6 @@
  */
 
 import * as fs from 'fs';
-import { execSync } from 'child_process';
 
 console.log('PHASE 2: Service Method Signatures\n');
 

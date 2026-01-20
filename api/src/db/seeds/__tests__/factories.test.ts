@@ -2,13 +2,13 @@
  * Factory Tests - Verify deterministic output and data validity
  */
 import { describe, it, expect, beforeEach } from 'vitest';
+
 import {
   TenantFactory,
   UserFactory,
   VehicleFactory,
   DriverFactory,
   WorkOrderFactory,
-  MaintenanceScheduleFactory,
   FuelTransactionFactory,
   RouteFactory,
   IncidentFactory,

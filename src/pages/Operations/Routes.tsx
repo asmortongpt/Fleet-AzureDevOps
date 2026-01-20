@@ -18,18 +18,18 @@
  * - Actions: optimize, view stops, track metrics
  */
 
-import React, { useState, useMemo } from 'react';
 import { MapPin, Plus, MagnifyingGlass, Lightning, Briefcase, CheckCircle, Warning, Spinner } from '@phosphor-icons/react';
-import { motion } from 'framer-motion';
-import { toast } from 'react-hot-toast';
 import { useQuery } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
+import React, { useState, useMemo } from 'react';
+import { toast } from 'react-hot-toast';
 
-import { SplitView } from '@/components/operations/SplitView';
 import { ActionButton, StatusBadge } from '@/components/operations/InlineActions';
+import { SplitView } from '@/components/operations/SplitView';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
 import { getCsrfToken } from '@/hooks/use-api';
+import { cn } from '@/lib/utils';
 import logger from '@/utils/logger';
 
 /**

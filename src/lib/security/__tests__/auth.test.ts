@@ -5,13 +5,13 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 import {
   SessionManager,
   MFAService,
   APITokenService,
   PasswordPolicy,
   EncryptionService,
-  type SecurityContext,
   type APIToken,
 } from '../auth';
 

@@ -16,8 +16,6 @@
  * @security XSS prevention via Zod, CSRF protection, input sanitization
  */
 
-import { motion, AnimatePresence } from 'framer-motion'
-import { Suspense, lazy, memo, useMemo, useCallback } from 'react'
 import {
   Car,
   MapPin,
@@ -34,22 +32,25 @@ import {
   ArrowDown,
   XCircle,
 } from '@phosphor-icons/react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Suspense, lazy, memo, useMemo, useCallback } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
-import type { AlertVehicle } from '@/hooks/use-reactive-fleet-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useAuth } from '@/contexts/AuthContext'
+import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
+import type { AlertVehicle } from '@/hooks/use-reactive-fleet-data'
 
 // ============================================================================
 // LAZY-LOADED COMPONENTS

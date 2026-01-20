@@ -5,11 +5,8 @@
  * each vehicle uses. Supports adding, removing, testing, and managing provider configurations.
  */
 
-import React, { useState, useEffect } from 'react'
 import {
   Cpu,
-  Wifi,
-  WifiOff,
   Settings,
   Trash2,
   Plus,
@@ -20,30 +17,11 @@ import {
   Car,
   Smartphone,
   AlertCircle,
-  Check,
   Loader2,
   ExternalLink
 } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
 
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter
-} from '@/components/ui/card'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -54,6 +32,27 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
+import { Badge, StatusBadge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter
+} from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -61,11 +60,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge, StatusBadge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Spinner } from '@/components/ui/spinner'
+import { cn } from '@/lib/utils'
 
 // ============================================================================
 // Types & Interfaces

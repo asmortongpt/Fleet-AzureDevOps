@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test } from '@playwright/test'
 
 test('FleetHub UI Visual Check', async ({ page }) => {
   // Navigate to FleetHub

@@ -11,8 +11,9 @@
  * @module __tests__/ai-damage-detection
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { Pool } from 'pg';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+
 import {
   getDamageDetectionModel,
   DamageDetectionModel

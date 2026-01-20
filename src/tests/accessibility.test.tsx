@@ -16,10 +16,10 @@
  * - Screen Reader Compatibility
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import React from 'react';
+import { describe, it, expect } from 'vitest';
 
 // Extend expect with jest-axe matchers
 expect.extend(toHaveNoViolations);

@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 
 import logger from '../config/logger';
 import { container } from '../container';
-import { TYPES } from '../types';
 import { VehicleService } from '../modules/fleet/services/vehicle.service';
+import { TYPES } from '../types';
 
 const vehicleService = container.get<VehicleService>(TYPES.VehicleService);
 

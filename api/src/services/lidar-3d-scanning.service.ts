@@ -16,6 +16,7 @@
 
 import { BlobServiceClient } from '@azure/storage-blob';
 import { v4 as uuidv4 } from 'uuid';
+
 import logger from '../config/logger';
 import { pool } from '../db/connection';
 import {
@@ -29,7 +30,6 @@ import {
   LiDARComparisonResult,
   LiDARPoint,
   LiDARScanMetadata,
-  LiDARScanSession,
   ListScansResponse,
   MeshGenerationOptions,
   Model3DFormat,
@@ -38,7 +38,6 @@ import {
   ProcessLiDARScanRequest,
   ProcessLiDARScanResponse,
   VolumeCalculation,
-  VolumeCalculationError,
 } from '../types/lidar.types';
 
 /**

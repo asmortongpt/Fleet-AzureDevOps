@@ -9,7 +9,6 @@
  * - Route assignment & coordination
  */
 
-import React, { useState, useEffect } from 'react';
 import {
   MapTrifold,
   Radio,
@@ -25,7 +24,9 @@ import {
   Lightning
 } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
+import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
+
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';

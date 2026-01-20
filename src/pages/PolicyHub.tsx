@@ -3,8 +3,6 @@
  * Real-time policy tracking, compliance monitoring, and procedure management with responsive visualizations
  */
 
-import { motion } from 'framer-motion'
-import { Suspense } from 'react'
 import {
   BookOpen as PolicyIcon,
   FileText,
@@ -19,18 +17,21 @@ import {
   TrendUp,
   CalendarCheck,
 } from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { Suspense } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
-import { useReactivePolicyData } from '@/hooks/use-reactive-policy-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useReactivePolicyData } from '@/hooks/use-reactive-policy-data'
 
 /**
  * Overview Tab - Policy metrics and status overview

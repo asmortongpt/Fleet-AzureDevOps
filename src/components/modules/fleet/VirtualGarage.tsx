@@ -1,6 +1,7 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Car, Wrench, AlertTriangle } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
-import { Car, Wrench, Calendar, AlertTriangle } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export function VirtualGarage() {
   const vehicles = [
