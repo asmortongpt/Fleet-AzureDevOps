@@ -7,6 +7,7 @@
 
 import express, { Response } from 'express';
 import { z } from 'zod';
+
 import logger from '../config/logger';
 import { NotFoundError } from '../errors/app-error';
 import { auditLog } from '../middleware/audit';

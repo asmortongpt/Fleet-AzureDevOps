@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import { RouteOptimizationService } from '../../services/route-optimization.service';
 
 describe('RouteOptimizationService', () => {

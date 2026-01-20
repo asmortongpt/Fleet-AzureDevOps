@@ -4,8 +4,10 @@
  */
 
 import { EventEmitter } from 'events';
-import { db, checkDatabaseConnection } from '../db/connection';
+
 import Redis from 'ioredis';
+
+import { checkDatabaseConnection } from '../db/connection';
 
 export interface ConnectionStatus {
   name: string;

@@ -1,29 +1,29 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Virtual-table } from '../../components/ui/virtual-table';
+import { VirtualTable } from '../../components/ui/virtual-table';
 
-describe('Virtual-table', () => {
+describe('VirtualTable', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   describe('Rendering', () => {
     it('should render without crashing', () => {
-      const { container } = render(<Virtual-table />);
+      const { container } = render(<VirtualTable />);
       expect(container).toBeTruthy();
     });
 
     it('should render with default props', () => {
-      render(<Virtual-table />);
+      render(<VirtualTable />);
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
 
     it('should render children correctly', () => {
       render(
-        <Virtual-table>
+        <VirtualTable>
           <div>Test Child</div>
-        </Virtual-table>
+        </VirtualTable>
       );
       expect(screen.getByText('Test Child')).toBeInTheDocument();
     });
@@ -31,18 +31,18 @@ describe('Virtual-table', () => {
 
   describe('Props', () => {
     it('should accept and apply className prop', () => {
-      const { container } = render(<Virtual-table className="test-class" />);
+      const { container } = render(<VirtualTable className="test-class" />);
       expect(container.firstChild).toHaveClass('test-class');
     });
 
     it('should handle data attributes', () => {
-      const { container } = render(<Virtual-table data-testid="test-component" />);
+      const { container } = render(<VirtualTable data-testid="test-component" />);
       expect(container.firstChild).toHaveAttribute('data-testid', 'test-component');
     });
 
     it('should render with custom props', () => {
       const customProps = { title: 'Test Title' };
-      render(<Virtual-table {...customProps} />);
+      render(<VirtualTable {...customProps} />);
       expect(screen.getByText('Test Title', { exact: false })).toBeInTheDocument();
     });
   });
@@ -50,7 +50,7 @@ describe('Virtual-table', () => {
   describe('User Interactions', () => {
     it('should handle click events', async () => {
       const handleClick = vi.fn();
-      render(<Virtual-table onClick={handleClick} />);
+      render(<VirtualTable onClick={handleClick} />);
 
       const element = screen.getByRole('button', { hidden: true });
       await userEvent.click(element);
@@ -60,7 +60,7 @@ describe('Virtual-table', () => {
 
     it('should handle keyboard events', async () => {
       const handleKeyDown = vi.fn();
-      render(<Virtual-table onKeyDown={handleKeyDown} />);
+      render(<VirtualTable onKeyDown={handleKeyDown} />);
 
       const element = screen.getByRole('button', { hidden: true });
       fireEvent.keyDown(element, { key: 'Enter' });
@@ -70,7 +70,7 @@ describe('Virtual-table', () => {
 
     it('should handle form submission', async () => {
       const handleSubmit = vi.fn();
-      render(<Virtual-table onSubmit={handleSubmit} />);
+      render(<VirtualTable onSubmit={handleSubmit} />);
 
       const form = screen.getByRole('form', { hidden: true });
       fireEvent.submit(form);
@@ -81,7 +81,7 @@ describe('Virtual-table', () => {
 
   describe('State Management', () => {
     it('should update state correctly', async () => {
-      render(<Virtual-table />);
+      render(<VirtualTable />);
 
       const button = screen.getByRole('button', { hidden: true });
       await userEvent.click(button);
@@ -92,8 +92,8 @@ describe('Virtual-table', () => {
     });
 
     it('should maintain internal state', () => {
-      const { rerender } = render(<Virtual-table />);
-      rerender(<Virtual-table />);
+      const { rerender } = render(<VirtualTable />);
+      rerender(<VirtualTable />);
 
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
@@ -101,13 +101,13 @@ describe('Virtual-table', () => {
 
   describe('Accessibility', () => {
     it('should have proper ARIA attributes', () => {
-      render(<Virtual-table />);
+      render(<VirtualTable />);
       const element = screen.getByRole('main', { hidden: true });
       expect(element).toHaveAttribute('aria-label');
     });
 
     it('should be keyboard navigable', async () => {
-      render(<Virtual-table />);
+      render(<VirtualTable />);
       const element = screen.getByRole('button', { hidden: true });
 
       element.focus();
@@ -117,7 +117,7 @@ describe('Virtual-table', () => {
     });
 
     it('should have semantic HTML', () => {
-      const { container } = render(<Virtual-table />);
+      const { container } = render(<VirtualTable />);
       expect(container.querySelector('button, a, input, select')).toBeTruthy();
     });
   });
@@ -126,34 +126,34 @@ describe('Virtual-table', () => {
     it('should handle errors gracefully', () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      render(<Virtual-table invalidProp={undefined} />);
+      render(<VirtualTable invalidProp={undefined} />);
 
       expect(consoleError).not.toHaveBeenCalled();
       consoleError.mockRestore();
     });
 
     it('should display error messages', () => {
-      render(<Virtual-table error="Test error" />);
+      render(<VirtualTable error="Test error" />);
       expect(screen.getByText('Test error', { exact: false })).toBeInTheDocument();
     });
   });
 
   describe('Conditional Rendering', () => {
     it('should render when condition is met', () => {
-      render(<Virtual-table show={true} />);
+      render(<VirtualTable show={true} />);
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
 
     it('should not render when condition is not met', () => {
-      const { container } = render(<Virtual-table show={false} />);
+      const { container } = render(<VirtualTable show={false} />);
       expect(container.firstChild).toBeNull();
     });
 
     it('should toggle visibility', async () => {
-      const { rerender } = render(<Virtual-table show={false} />);
+      const { rerender } = render(<VirtualTable show={false} />);
       expect(screen.queryByRole('main')).not.toBeInTheDocument();
 
-      rerender(<Virtual-table show={true} />);
+      rerender(<VirtualTable show={true} />);
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
   });
@@ -161,16 +161,16 @@ describe('Virtual-table', () => {
   describe('Performance', () => {
     it('should memoize expensive computations', () => {
       const expensiveFunction = vi.fn(() => 'result');
-      render(<Virtual-table compute={expensiveFunction} />);
+      render(<VirtualTable compute={expensiveFunction} />);
 
       expect(expensiveFunction).toHaveBeenCalledTimes(1);
     });
 
     it('should not re-render unnecessarily', () => {
-      const { rerender } = render(<Virtual-table value="test" />);
+      const { rerender } = render(<VirtualTable value="test" />);
       const renderCount = vi.fn();
 
-      rerender(<Virtual-table value="test" />);
+      rerender(<VirtualTable value="test" />);
       expect(renderCount).toHaveBeenCalledTimes(0);
     });
   });
@@ -178,14 +178,14 @@ describe('Virtual-table', () => {
   describe('Security', () => {
     it('should sanitize user input', () => {
       const maliciousInput = '<script>alert("XSS")</script>';
-      render(<Virtual-table value={maliciousInput} />);
+      render(<VirtualTable value={maliciousInput} />);
 
       expect(screen.queryByText('alert', { exact: false })).not.toBeInTheDocument();
     });
 
     it('should escape HTML entities', () => {
       const htmlInput = '<div>Test</div>';
-      render(<Virtual-table value={htmlInput} />);
+      render(<VirtualTable value={htmlInput} />);
 
       const element = screen.getByText(htmlInput, { exact: false });
       expect(element.innerHTML).not.toContain('<div>');

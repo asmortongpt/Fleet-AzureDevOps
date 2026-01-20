@@ -10,18 +10,18 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { eq, and, SQL, desc } from 'drizzle-orm';
 import express from 'express';
-import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 
 import { db, checkDatabaseConnection } from './db/connection';
 import authRouter from './routes/auth';
-import obd2EmulatorRouter, { setupOBD2WebSocket } from './routes/obd2-emulator.routes';
 import damageReportsRouter from './routes/damage-reports.routes';
-import scanSessionsRouter from './routes/scan-sessions.routes';
-import geospatialRouter from './routes/geospatial.routes';
-import emulatorsRouter from './routes/emulators.routes';
-import systemHealthRouter from './routes/system-health.routes';
 import dashboardRouter from './routes/dashboard.routes';
+import emulatorsRouter from './routes/emulators.routes';
+import geospatialRouter from './routes/geospatial.routes';
+import obd2EmulatorRouter, { setupOBD2WebSocket } from './routes/obd2-emulator.routes';
+import scanSessionsRouter from './routes/scan-sessions.routes';
+import systemHealthRouter from './routes/system-health.routes';
 import { schema } from './schemas/production.schema';
 import { connectionHealthService } from './services/ConnectionHealthService';
 

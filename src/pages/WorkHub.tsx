@@ -4,41 +4,23 @@
  * Quality Score: 97%
  */
 
-import React, { useState, useCallback, useMemo, memo, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { z } from 'zod';
 import DOMPurify from 'dompurify';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  CheckSquare,
-  ListChecks,
   FolderKanban,
-  Users,
-  TrendingUp,
   AlertTriangle,
   Clock,
-  DollarSign,
   BarChart3,
-  GitBranch,
   Target,
-  Layers,
-  Activity,
-  Calendar,
   Filter,
   Search,
   Plus,
-  Edit3,
-  Trash2,
-  ChevronRight,
-  ChevronDown,
-  ArrowUp,
-  ArrowDown,
-  ArrowRight,
-  Zap,
-  Briefcase,
-  Shield
+  Briefcase
 } from 'lucide-react';
+import React, { useState, useCallback, useMemo, memo, useRef, useEffect } from 'react';
+
 import { useReactiveWorkData } from '@/hooks/use-reactive-work-data';
-import type { WorkItem, TeamMember, Project, WorkMetrics } from '@/hooks/use-reactive-work-data';
+import type { WorkItem, TeamMember, WorkMetrics } from '@/hooks/use-reactive-work-data';
 
 // Custom Kanban Board Component
 const KanbanBoard = memo(({ workItems, onMove, onUpdate }: {

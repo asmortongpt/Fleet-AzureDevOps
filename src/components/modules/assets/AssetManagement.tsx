@@ -3,7 +3,7 @@ import { Plus, MagnifyingGlass } from "@phosphor-icons/react"
 import { AssetStatsBar } from "./AssetManagement/components/AssetStatsBar"
 import { useAssetFilters } from "./AssetManagement/hooks/useAssetFilters"
 import { useAssets } from "./AssetManagement/hooks/useAssets"
-import { useAuth } from "@/contexts/AuthContext"
+
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -24,6 +24,7 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
+import { useAuth } from "@/contexts/AuthContext"
 
 
 

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import { VideoEmulatorService } from '../../services/video-emulator.service';
 
 describe('VideoEmulatorService', () => {

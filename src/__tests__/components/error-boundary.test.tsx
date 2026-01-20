@@ -1,29 +1,29 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Error-boundary } from '../../components/error-boundary';
+import { ErrorBoundary } from '../../components/error-boundary';
 
-describe('Error-boundary', () => {
+describe('ErrorBoundary', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   describe('Rendering', () => {
     it('should render without crashing', () => {
-      const { container } = render(<Error-boundary />);
+      const { container } = render(<ErrorBoundary />);
       expect(container).toBeTruthy();
     });
 
     it('should render with default props', () => {
-      render(<Error-boundary />);
+      render(<ErrorBoundary />);
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
 
     it('should render children correctly', () => {
       render(
-        <Error-boundary>
+        <ErrorBoundary>
           <div>Test Child</div>
-        </Error-boundary>
+        </ErrorBoundary>
       );
       expect(screen.getByText('Test Child')).toBeInTheDocument();
     });
@@ -31,18 +31,18 @@ describe('Error-boundary', () => {
 
   describe('Props', () => {
     it('should accept and apply className prop', () => {
-      const { container } = render(<Error-boundary className="test-class" />);
+      const { container } = render(<ErrorBoundary className="test-class" />);
       expect(container.firstChild).toHaveClass('test-class');
     });
 
     it('should handle data attributes', () => {
-      const { container } = render(<Error-boundary data-testid="test-component" />);
+      const { container } = render(<ErrorBoundary data-testid="test-component" />);
       expect(container.firstChild).toHaveAttribute('data-testid', 'test-component');
     });
 
     it('should render with custom props', () => {
       const customProps = { title: 'Test Title' };
-      render(<Error-boundary {...customProps} />);
+      render(<ErrorBoundary {...customProps} />);
       expect(screen.getByText('Test Title', { exact: false })).toBeInTheDocument();
     });
   });
@@ -50,7 +50,7 @@ describe('Error-boundary', () => {
   describe('User Interactions', () => {
     it('should handle click events', async () => {
       const handleClick = vi.fn();
-      render(<Error-boundary onClick={handleClick} />);
+      render(<ErrorBoundary onClick={handleClick} />);
 
       const element = screen.getByRole('button', { hidden: true });
       await userEvent.click(element);
@@ -60,7 +60,7 @@ describe('Error-boundary', () => {
 
     it('should handle keyboard events', async () => {
       const handleKeyDown = vi.fn();
-      render(<Error-boundary onKeyDown={handleKeyDown} />);
+      render(<ErrorBoundary onKeyDown={handleKeyDown} />);
 
       const element = screen.getByRole('button', { hidden: true });
       fireEvent.keyDown(element, { key: 'Enter' });
@@ -70,7 +70,7 @@ describe('Error-boundary', () => {
 
     it('should handle form submission', async () => {
       const handleSubmit = vi.fn();
-      render(<Error-boundary onSubmit={handleSubmit} />);
+      render(<ErrorBoundary onSubmit={handleSubmit} />);
 
       const form = screen.getByRole('form', { hidden: true });
       fireEvent.submit(form);
@@ -81,7 +81,7 @@ describe('Error-boundary', () => {
 
   describe('State Management', () => {
     it('should update state correctly', async () => {
-      render(<Error-boundary />);
+      render(<ErrorBoundary />);
 
       const button = screen.getByRole('button', { hidden: true });
       await userEvent.click(button);
@@ -92,8 +92,8 @@ describe('Error-boundary', () => {
     });
 
     it('should maintain internal state', () => {
-      const { rerender } = render(<Error-boundary />);
-      rerender(<Error-boundary />);
+      const { rerender } = render(<ErrorBoundary />);
+      rerender(<ErrorBoundary />);
 
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
@@ -101,13 +101,13 @@ describe('Error-boundary', () => {
 
   describe('Accessibility', () => {
     it('should have proper ARIA attributes', () => {
-      render(<Error-boundary />);
+      render(<ErrorBoundary />);
       const element = screen.getByRole('main', { hidden: true });
       expect(element).toHaveAttribute('aria-label');
     });
 
     it('should be keyboard navigable', async () => {
-      render(<Error-boundary />);
+      render(<ErrorBoundary />);
       const element = screen.getByRole('button', { hidden: true });
 
       element.focus();
@@ -117,7 +117,7 @@ describe('Error-boundary', () => {
     });
 
     it('should have semantic HTML', () => {
-      const { container } = render(<Error-boundary />);
+      const { container } = render(<ErrorBoundary />);
       expect(container.querySelector('button, a, input, select')).toBeTruthy();
     });
   });
@@ -126,34 +126,34 @@ describe('Error-boundary', () => {
     it('should handle errors gracefully', () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      render(<Error-boundary invalidProp={undefined} />);
+      render(<ErrorBoundary invalidProp={undefined} />);
 
       expect(consoleError).not.toHaveBeenCalled();
       consoleError.mockRestore();
     });
 
     it('should display error messages', () => {
-      render(<Error-boundary error="Test error" />);
+      render(<ErrorBoundary error="Test error" />);
       expect(screen.getByText('Test error', { exact: false })).toBeInTheDocument();
     });
   });
 
   describe('Conditional Rendering', () => {
     it('should render when condition is met', () => {
-      render(<Error-boundary show={true} />);
+      render(<ErrorBoundary show={true} />);
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
 
     it('should not render when condition is not met', () => {
-      const { container } = render(<Error-boundary show={false} />);
+      const { container } = render(<ErrorBoundary show={false} />);
       expect(container.firstChild).toBeNull();
     });
 
     it('should toggle visibility', async () => {
-      const { rerender } = render(<Error-boundary show={false} />);
+      const { rerender } = render(<ErrorBoundary show={false} />);
       expect(screen.queryByRole('main')).not.toBeInTheDocument();
 
-      rerender(<Error-boundary show={true} />);
+      rerender(<ErrorBoundary show={true} />);
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
   });
@@ -161,16 +161,16 @@ describe('Error-boundary', () => {
   describe('Performance', () => {
     it('should memoize expensive computations', () => {
       const expensiveFunction = vi.fn(() => 'result');
-      render(<Error-boundary compute={expensiveFunction} />);
+      render(<ErrorBoundary compute={expensiveFunction} />);
 
       expect(expensiveFunction).toHaveBeenCalledTimes(1);
     });
 
     it('should not re-render unnecessarily', () => {
-      const { rerender } = render(<Error-boundary value="test" />);
+      const { rerender } = render(<ErrorBoundary value="test" />);
       const renderCount = vi.fn();
 
-      rerender(<Error-boundary value="test" />);
+      rerender(<ErrorBoundary value="test" />);
       expect(renderCount).toHaveBeenCalledTimes(0);
     });
   });
@@ -178,14 +178,14 @@ describe('Error-boundary', () => {
   describe('Security', () => {
     it('should sanitize user input', () => {
       const maliciousInput = '<script>alert("XSS")</script>';
-      render(<Error-boundary value={maliciousInput} />);
+      render(<ErrorBoundary value={maliciousInput} />);
 
       expect(screen.queryByText('alert', { exact: false })).not.toBeInTheDocument();
     });
 
     it('should escape HTML entities', () => {
       const htmlInput = '<div>Test</div>';
-      render(<Error-boundary value={htmlInput} />);
+      render(<ErrorBoundary value={htmlInput} />);
 
       const element = screen.getByText(htmlInput, { exact: false });
       expect(element.innerHTML).not.toContain('<div>');

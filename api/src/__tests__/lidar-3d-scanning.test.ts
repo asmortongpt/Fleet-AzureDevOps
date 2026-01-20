@@ -5,13 +5,12 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import { LiDAR3DScanningService } from '../services/lidar-3d-scanning.service';
+
 import { pool } from '../db/connection';
+import { LiDAR3DScanningService } from '../services/lidar-3d-scanning.service';
 import {
   LiDARPoint,
   ProcessLiDARScanRequest,
-  CalculateVolumeRequest,
-  CompareScansRequest,
 } from '../types/lidar.types';
 
 describe('LiDAR 3D Scanning Service', () => {

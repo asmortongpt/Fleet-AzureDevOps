@@ -3,13 +3,13 @@
  * Complete Flask Management API with security, authentication, and all 30 endpoints
  */
 
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import { eq } from 'drizzle-orm';
 import express, { Express, Request, Response } from 'express';
 import helmet from 'helmet';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
+
 import { db, checkDatabaseConnection } from './db/connection';
-import { schema } from './schemas/production.schema';
-import { eq } from 'drizzle-orm';
 
 // Import middleware
 import {
@@ -20,12 +20,9 @@ import {
   registerHandler,
   profileHandler,
 } from './middleware/auth.production';
-
 import {
   apiRateLimiter,
   authRateLimiter,
-  createRateLimiter,
-  csrfProtection,
   csrfTokenHandler,
   sanitizeInput,
   validateUUID,
@@ -35,14 +32,15 @@ import {
 } from './middleware/security.production';
 
 // Import route handlers
-import productionReadyRouter from './routes/production-ready-api';
 
 // Import existing routers
 import authRouter from './routes/auth';
-import obd2EmulatorRouter, { setupOBD2WebSocket } from './routes/obd2-emulator.routes';
 import damageReportsRouter from './routes/damage-reports.routes';
-import scanSessionsRouter from './routes/scan-sessions.routes';
 import geospatialRouter from './routes/geospatial.routes';
+import obd2EmulatorRouter, { setupOBD2WebSocket } from './routes/obd2-emulator.routes';
+import productionReadyRouter from './routes/production-ready-api';
+import scanSessionsRouter from './routes/scan-sessions.routes';
+import { schema } from './schemas/production.schema';
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;

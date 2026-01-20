@@ -3,31 +3,31 @@
  * Real-time safety incident tracking and compliance monitoring
  */
 
-import { motion } from 'framer-motion'
 import {
   Shield,
   Warning,
   CheckCircle,
   FirstAid,
   FileText,
-  TrendUp,
   WarningCircle,
   ClipboardText,
   Certificate,
   ChartBar,
 } from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveSafetyComplianceData } from '@/hooks/use-reactive-safety-compliance-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useReactiveSafetyComplianceData } from '@/hooks/use-reactive-safety-compliance-data'
 
 /**
  * Overview Tab - Safety stats, incident trends, compliance score, alerts

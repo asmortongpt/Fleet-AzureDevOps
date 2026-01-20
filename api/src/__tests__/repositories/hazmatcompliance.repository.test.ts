@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import { pool } from '../../db';
 import { HazmatComplianceRepository } from '../../repositories/hazmatcompliance.repository';
 

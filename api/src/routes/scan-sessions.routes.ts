@@ -1,5 +1,6 @@
 
 import { Router } from 'express';
+
 import { scanSessionsController } from '../controllers/scan-sessions.controller';
 
 const router = Router();

@@ -3,9 +3,9 @@
  * Comprehensive security measures including input validation, CSRF, rate limiting, XSS prevention
  */
 
+import { doubleCsrf } from 'csrf-csrf';
 import { Request, Response, NextFunction } from 'express';
 import rateLimit from 'express-rate-limit';
-import { doubleCsrf } from 'csrf-csrf';
 import DOMPurify from 'isomorphic-dompurify';
 import { z, ZodSchema } from 'zod';
 

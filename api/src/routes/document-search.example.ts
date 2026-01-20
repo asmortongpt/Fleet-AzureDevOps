@@ -13,9 +13,9 @@
 
 import { Router, Request, Response } from 'express'
 
+import { csrfProtection } from '../middleware/csrf'
 import documentSearchService from '../services/document-search.service'
 import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
 
 const router = Router()
 

@@ -11,7 +11,6 @@
  * Created: 2026-01-08
  */
 
-import React, { useState, useMemo } from 'react';
 import {
   Activity,
   AlertTriangle,
@@ -20,12 +19,12 @@ import {
   Gauge,
   Wrench,
   Calendar,
-  TrendingUp,
   CheckCircle,
   XCircle,
   Clock,
-  DollarSign,
 } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+
 import type { VehicleCondition, ServiceRecord } from '@/types/vehicle-condition.types';
 
 // ============================================================================

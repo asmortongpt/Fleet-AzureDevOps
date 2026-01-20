@@ -217,7 +217,7 @@ router.get('/analysis', asyncHandler(async (req, res) => {
       new Date(endDate) : new Date()
 
     // Get filtered costs
-    let costs = costEmulator.getAllCosts({
+    const costs = costEmulator.getAllCosts({
       startDate: start,
       endDate: end,
       vehicleId: vehicleId && typeof vehicleId === 'string' ? Number(vehicleId) : undefined,

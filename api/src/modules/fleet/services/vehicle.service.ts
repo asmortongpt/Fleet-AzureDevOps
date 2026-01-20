@@ -1,4 +1,5 @@
 import { injectable, inject } from "inversify";
+
 import { BaseService } from "../../../services/base.service";
 import { TYPES } from "../../../types";
 import { VehicleRepository } from "../repositories/vehicle.repository";

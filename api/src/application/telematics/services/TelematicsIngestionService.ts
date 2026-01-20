@@ -1,8 +1,9 @@
-import { ITelematicsProviderAdapter } from '../../../domain/telematics/interfaces/ITelematicsProviderAdapter';
-import { TelematicsDevice } from '../../../domain/telematics/entities/TelematicsDevice';
-import { AssetLocation } from '../../../domain/telematics/entities/AssetLocation';
-import { TelematicsRepository } from '../../../repositories/TelematicsRepository';
 import { Logger } from 'winston';
+
+import { AssetLocation } from '../../../domain/telematics/entities/AssetLocation';
+import { ITelematicsProviderAdapter } from '../../../domain/telematics/interfaces/ITelematicsProviderAdapter';
+import { TelematicsRepository } from '../../../repositories/TelematicsRepository';
+
 
 export interface ITelematicsIngestionService {
   ingestLatestPositions(): Promise<void>;

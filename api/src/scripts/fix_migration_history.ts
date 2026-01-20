@@ -1,9 +1,10 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+
 import * as dotenv from 'dotenv';
 import { Pool } from 'pg';
-import { fileURLToPath } from 'url';
 
 dotenv.config();
 

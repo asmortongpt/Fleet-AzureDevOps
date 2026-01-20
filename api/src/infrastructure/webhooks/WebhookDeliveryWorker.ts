@@ -1,5 +1,5 @@
-import { Queue, Worker, Job } from 'bullmq';
 import axios from 'axios';
+import { Queue, Worker, Job } from 'bullmq';
 import { Logger } from 'winston';
 
 export class WebhookDeliveryWorker {

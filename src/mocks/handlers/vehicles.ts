@@ -4,6 +4,7 @@
  */
 
 import { http, HttpResponse } from 'msw'
+
 import { vehicles, calculateFleetMetrics } from '../data/vehicles'
 
 export const vehicleHandlers = [

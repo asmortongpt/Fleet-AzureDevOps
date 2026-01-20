@@ -6,7 +6,7 @@ test.describe('Operations Domain - Dispatch Console', () => {
         await page.addInitScript(() => {
             if (window.navigator?.serviceWorker) {
                 window.navigator.serviceWorker.getRegistrations().then(registrations => {
-                    for (let registration of registrations) {
+                    for (const registration of registrations) {
                         registration.unregister();
                     }
                 });

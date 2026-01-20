@@ -3,8 +3,6 @@
  * Real-time financial tracking, budget monitoring, and expense analysis with responsive visualizations
  */
 
-import { motion } from 'framer-motion'
-import { Suspense } from 'react'
 import {
   CurrencyDollar as FinancialIcon,
   Wallet,
@@ -17,21 +15,23 @@ import {
   Clock,
   CreditCard,
   Invoice,
-  Calendar,
   Plus,
 } from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { Suspense } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveFinancialData } from '@/hooks/use-reactive-financial-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useReactiveFinancialData } from '@/hooks/use-reactive-financial-data'
 
 /**
  * Overview Tab - Financial summary and key metrics

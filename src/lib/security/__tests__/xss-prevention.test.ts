@@ -5,6 +5,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
+
 import { sanitizeHTML, sanitizeText, sanitizeURL, CSP_HEADERS } from '../xss-prevention';
 
 // Mock DOMPurify for JSDOM environment

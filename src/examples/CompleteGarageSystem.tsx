@@ -4,30 +4,29 @@
  * This file demonstrates how to integrate all components
  */
 
-import React, { useState, useEffect } from 'react';
-import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, PerspectiveCamera } from '@react-three/drei';
+import { Canvas } from '@react-three/fiber';
+import React, { useState, useEffect } from 'react';
 
 // Phase 1: Photo System
 import { MobileCameraCapture } from '@/components/garage/MobileCameraCapture';
 import { PhotoGallery } from '@/components/garage/PhotoGallery';
+import { VehicleConditionPanel } from '@/components/garage/VehicleConditionPanel';
+import {
+  initializeDamageDetection,
+  getDamageDetectionService,
+} from '@/services/AIDamageDetectionService';
 import { photoUploadService } from '@/services/PhotoUploadService';
 
 // Phase 2: Condition Monitoring
-import { VehicleConditionPanel } from '@/components/garage/VehicleConditionPanel';
 import type { VehicleCondition, ServiceRecord } from '@/types/vehicle-condition.types';
 
 // Phase 3: Performance
 import { LODVehicleModel } from '@/utils/lod-system';
 
 // Phase 4: Rendering
-import { VehicleMaterialFactory, QUALITY_PRESETS } from '@/utils/pbr-materials';
 
 // Phase 5: AI
-import {
-  initializeDamageDetection,
-  getDamageDetectionService,
-} from '@/services/AIDamageDetectionService';
 
 // ============================================================================
 // COMPLETE GARAGE SYSTEM

@@ -6,12 +6,7 @@
  * Shows real-time status from /api/integrations endpoint with connection health indicators
  */
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { IntegrationCard, IntegrationHealth } from '@/components/integrations/IntegrationCard';
+import axios from 'axios';
 import {
   RefreshCw,
   Activity,
@@ -20,7 +15,12 @@ import {
   XCircle,
   HelpCircle
 } from 'lucide-react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+
+import { IntegrationCard, IntegrationHealth } from '@/components/integrations/IntegrationCard';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface IntegrationSummary {
   total: number;
