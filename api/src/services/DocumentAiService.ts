@@ -73,6 +73,11 @@ export class DocumentAiService {
   private visionModel = 'gpt-4-vision-preview'
 
   constructor(private db: Pool, private logger: any) {
+    // Safety check for logger
+    if (!this.logger) {
+      this.logger = console
+    }
+
     if (process.env.OPENAI_API_KEY) {
       this.openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
@@ -698,7 +703,7 @@ ${content.substring(0, 2000)}...`
 
 // Import pool for singleton instance
 import pool from '../config/database'
-import logger from '../utils/logger'
+import logger from '../config/logger'
 
 // Export singleton instance
 export const documentAiService = new DocumentAiService(pool, logger)

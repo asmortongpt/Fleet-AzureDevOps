@@ -1,4 +1,3 @@
-```typescript
 /**
  * Role-Based Access Control (RBAC) Middleware
  * CRIT-F-003: Comprehensive RBAC implementation
@@ -210,7 +209,7 @@ export function requireRole(roles: string[]) {
       await logAuthorizationFailure({
         userId: req.user.id,
         tenantId: req.user.tenant_id,
-        action: `${req.method} ${req.path}`,
+        action: req.method + ' ' + req.path,
         reason: 'Insufficient role',
         requiredRoles: roles,
         userRole,
@@ -282,7 +281,7 @@ export function requirePermission(permissions: string[], requireAll: boolean = f
         await logAuthorizationFailure({
           userId: req.user.id,
           tenantId: req.user.tenant_id,
-          action: `${req.method} ${req.path}`,
+          action: req.method + ' ' + req.path,
           reason: 'Insufficient permissions',
           requiredPermissions: permissions,
           userPermissions: Array.from(userPermissions),
@@ -376,7 +375,7 @@ export function requireTenantIsolation(resourceType?: string) {
           await logAuthorizationFailure({
             userId: req.user.id,
             tenantId: req.user.tenant_id,
-            action: `${req.method} ${req.path}`,
+            action: req.method + ' ' + req.path,
             reason: 'Tenant isolation violation',
             resourceType,
             resourceId,
@@ -386,7 +385,7 @@ export function requireTenantIsolation(resourceType?: string) {
 
           // Return 404 instead of 403 to prevent information disclosure
           return res.status(404).json({
-            error: `${resourceType} not found`,
+            error: resourceType + ' not found',
             code: 'NOT_FOUND'
           })
         }
@@ -453,4 +452,123 @@ export function requireRBAC(config: {
   }
 
   // Return combined middleware
-  return (req: AuthRequest, res: Response, next: NextFunction) =>
+  return async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      // Execute middlewares in sequence
+      for (const middleware of middlewares) {
+        // Wrap middleware to support async execution
+        await new Promise<void>((resolve, reject) => {
+          middleware(req, res, (err: any) => {
+            if (err) return reject(err)
+            // If response headers are sent, stop execution
+            if (res.headersSent) return resolve()
+            resolve()
+          })
+        })
+        
+        // If response headers are sent, stop execution chain
+        if (res.headersSent) return
+      }
+      
+      // If we got here and headers aren't sent, proceed to next handler
+      if (!res.headersSent) {
+        next()
+      }
+    } catch (error) {
+      next(error)
+    }
+  }
+}
+
+/**
+ * Log authorization failure to database
+ */
+async function logAuthorizationFailure(data: {
+  userId: string
+  tenantId: string
+  action: string
+  reason: string
+  requiredRoles?: string[]
+  requiredPermissions?: string[]
+  userRole?: string
+  userPermissions?: string[]
+  resourceType?: string
+  resourceId?: string
+  ipAddress?: string
+  userAgent?: string
+}) {
+  try {
+    await pool.query(
+      'INSERT INTO security_audit_log (tenant_id, user_id, action_type, action_details, ip_address, user_agent, severity, status, reason) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
+      [
+        data.tenantId,
+        data.userId,
+        'AUTHORIZATION_FAILURE',
+        JSON.stringify({
+          action: data.action,
+          requiredRoles: data.requiredRoles,
+          requiredPermissions: data.requiredPermissions,
+          userRole: data.userRole,
+          resourceType: data.resourceType,
+          resourceId: data.resourceId
+        }),
+        data.ipAddress,
+        data.userAgent,
+        'medium',
+        'failure',
+        data.reason
+      ]
+    )
+  } catch (error) {
+    // Fail silently to not block request, but log to file
+    logger.error('Failed to log authorization failure', { error, data })
+  }
+}
+
+/**
+ * Verify if a resource belongs to a tenant
+ */
+async function verifyTenantOwnership(
+  tenantId: string, 
+  resourceType: string, 
+  resourceId: string
+): Promise<boolean> {
+  // Map resource types to table names
+  const tableMap: Record<string, string> = {
+    'vehicle': 'vehicles',
+    'driver': 'drivers',
+    'work_order': 'work_orders',
+    'route': 'routes',
+    'document': 'documents',
+    'fuel_transaction': 'fuel_transactions',
+    'maintenance': 'maintenance_records',
+    'part': 'parts',
+    'vendor': 'vendors',
+    'invoice': 'invoices',
+    'task': 'tasks',
+    'team': 'teams',
+    'user': 'users'
+  }
+
+  const tableName = tableMap[resourceType]
+  
+  if (!tableName) {
+    logger.warn('RBAC: Unknown resource type for tenant verification: ' + resourceType)
+    return false
+  }
+
+  try {
+    // Check if resource exists and belongs to tenant
+    // Use parameterized query for safety (table name is internal/safe)
+    const query = 'SELECT 1 FROM ' + tableName + ' WHERE id = $1 AND tenant_id = $2'
+    const result = await pool.query(query, [resourceId, tenantId])
+    
+    return result.rows.length > 0
+  } catch (error) {
+    logger.error('Error verifying tenant ownership', { 
+      error, tenantId, resourceType, resourceId 
+    })
+    return false
+  }
+}
+
