@@ -209,7 +209,7 @@ export function requireRole(roles: string[]) {
       await logAuthorizationFailure({
         userId: req.user.id,
         tenantId: req.user.tenant_id,
-        action: `${req.method} ${req.path}`,
+        action: req.method + ' ' + req.path,
         reason: 'Insufficient role',
         requiredRoles: roles,
         userRole,
@@ -281,7 +281,7 @@ export function requirePermission(permissions: string[], requireAll: boolean = f
         await logAuthorizationFailure({
           userId: req.user.id,
           tenantId: req.user.tenant_id,
-          action: `${req.method} ${req.path}`,
+          action: req.method + ' ' + req.path,
           reason: 'Insufficient permissions',
           requiredPermissions: permissions,
           userPermissions: Array.from(userPermissions),
@@ -375,7 +375,7 @@ export function requireTenantIsolation(resourceType?: string) {
           await logAuthorizationFailure({
             userId: req.user.id,
             tenantId: req.user.tenant_id,
-            action: `${req.method} ${req.path}`,
+            action: req.method + ' ' + req.path,
             reason: 'Tenant isolation violation',
             resourceType,
             resourceId,
@@ -385,7 +385,7 @@ export function requireTenantIsolation(resourceType?: string) {
 
           // Return 404 instead of 403 to prevent information disclosure
           return res.status(404).json({
-            error: `${resourceType} not found`,
+            error: resourceType + ' not found',
             code: 'NOT_FOUND'
           })
         }
@@ -452,18 +452,31 @@ export function requireRBAC(config: {
   }
 
   // Return combined middleware
-  return (req: AuthRequest, res: Response, next: NextFunction) => {
-    let index = 0
+  return async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      // Execute middlewares in sequence
+      for (const middleware of middlewares) {
+        // Wrap middleware to support async execution
+        await new Promise<void>((resolve, reject) => {
+          middleware(req, res, (err: any) => {
+            if (err) return reject(err)
+            // If response headers are sent, stop execution
+            if (res.headersSent) return resolve()
+            resolve()
+          })
+        })
 
-    const runNext = (err?: any) => {
-      if (err) return next(err)
-      if (index >= middlewares.length) return next()
+        // If response headers are sent, stop execution chain
+        if (res.headersSent) return
+      }
 
-      const middleware = middlewares[index++]
-      middleware(req, res, runNext)
+      // If we got here and headers aren't sent, proceed to next handler
+      if (!res.headersSent) {
+        next()
+      }
+    } catch (error) {
+      next(error)
     }
-
-    runNext()
   }
 }
 
@@ -472,30 +485,47 @@ export function requireRBAC(config: {
 // ============================================================================
 
 /**
- * Verify that a resource belongs to a specific tenant
+ * Verify if a resource belongs to a tenant
  */
 async function verifyTenantOwnership(
   tenantId: string,
   resourceType: string,
   resourceId: string
 ): Promise<boolean> {
+  // Map resource types to table names
+  const tableMap: Record<string, string> = {
+    'vehicle': 'vehicles',
+    'driver': 'drivers',
+    'work_order': 'work_orders',
+    'route': 'routes',
+    'document': 'documents',
+    'fuel_transaction': 'fuel_transactions',
+    'maintenance': 'maintenance_records',
+    'part': 'parts',
+    'vendor': 'vendors',
+    'invoice': 'invoices',
+    'task': 'tasks',
+    'team': 'teams',
+    'user': 'users'
+  }
+
+  const tableName = tableMap[resourceType]
+
+  if (!tableName) {
+    logger.warn('RBAC: Unknown resource type for tenant verification: ' + resourceType)
+    return false
+  }
+
   try {
-    const result = await pool.query(
-      `SELECT tenant_id FROM ${resourceType}s WHERE id = $1`,
-      [resourceId]
-    )
+    // Check if resource exists and belongs to tenant
+    // Use parameterized query for safety (table name is internal/safe)
+    const query = 'SELECT 1 FROM ' + tableName + ' WHERE id = $1 AND tenant_id = $2'
+    const result = await pool.query(query, [resourceId, tenantId])
 
-    if (result.rows.length === 0) {
-      return false
-    }
-
-    return result.rows[0].tenant_id === tenantId
+    return result.rows.length > 0
   } catch (error) {
     logger.error('Error verifying tenant ownership', {
-      error,
-      tenantId,
-      resourceType,
-      resourceId
+      error, tenantId, resourceType, resourceId
     })
     return false
   }
