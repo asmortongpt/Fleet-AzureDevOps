@@ -444,4 +444,64 @@ async function checkRedis(): Promise<IntegrationHealth> {
     if (!cache.isConnected()) {
       health.status = 'down';
       health.errorMessage = 'Redis not connected';
-      health.technicalDetails = '
+      health.technicalDetails = '      return health;
+    }
+
+    health.responseTime = Date.now() - startTime;
+    health.status = 'healthy';
+    health.lastSuccess = new Date().toISOString();
+  } catch (error: any) {
+    health.status = 'down';
+    health.errorMessage = 'Redis connection failed';
+    health.technicalDetails = error.message;
+  }
+
+  return health;
+}
+
+/**
+ * Database Health Check
+ */
+async function checkDatabase(): Promise<IntegrationHealth> {
+  const startTime = Date.now();
+
+  const health: IntegrationHealth = {
+    name: 'Database',
+    status: 'unknown',
+    configured: true,
+    lastCheck: new Date().toISOString(),
+    requiredConfig: ['DATABASE_URL'],
+    optionalConfig: [],
+    capabilities: ['Data Storage', 'Transactions']
+  };
+
+  try {
+    await pool.query('SELECT 1');
+    health.responseTime = Date.now() - startTime;
+    health.status = 'healthy';
+    health.lastSuccess = new Date().toISOString();
+  } catch (error: any) {
+    health.status = 'down';
+    health.errorMessage = 'Database connection failed';
+    health.technicalDetails = error.message;
+  }
+
+  return health;
+}
+
+/**
+ * Test functions for integrations
+ */
+async function testGoogleMaps(params: any): Promise<any> {
+  return { success: true, message: 'Google Maps test not implemented' };
+}
+
+async function testOpenAI(params: any): Promise<any> {
+  return { success: true, message: 'OpenAI test not implemented' };
+}
+
+async function testAzureAD(params: any): Promise<any> {
+  return { success: true, message: 'Azure AD test not implemented' };
+}
+
+export default router;
