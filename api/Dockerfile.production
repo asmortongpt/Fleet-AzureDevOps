@@ -19,7 +19,8 @@ RUN npm ci --legacy-peer-deps
 # Copy source code
 COPY src ./src
 
-# Build TypeScript to JavaScript
+# Build TypeScript to JavaScript (increase memory for large codebase)
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN npm run build
 
 # ============================================================================
