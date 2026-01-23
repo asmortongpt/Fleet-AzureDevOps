@@ -1,4 +1,3 @@
-```typescript
 /**
  * Role-Based Access Control (RBAC) Middleware
  * CRIT-F-003: Comprehensive RBAC implementation
@@ -453,4 +452,115 @@ export function requireRBAC(config: {
   }
 
   // Return combined middleware
-  return (req: AuthRequest, res: Response, next: NextFunction) =>
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    let index = 0
+
+    const runNext = (err?: any) => {
+      if (err) return next(err)
+      if (index >= middlewares.length) return next()
+
+      const middleware = middlewares[index++]
+      middleware(req, res, runNext)
+    }
+
+    runNext()
+  }
+}
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Verify that a resource belongs to a specific tenant
+ */
+async function verifyTenantOwnership(
+  tenantId: string,
+  resourceType: string,
+  resourceId: string
+): Promise<boolean> {
+  try {
+    const result = await pool.query(
+      `SELECT tenant_id FROM ${resourceType}s WHERE id = $1`,
+      [resourceId]
+    )
+
+    if (result.rows.length === 0) {
+      return false
+    }
+
+    return result.rows[0].tenant_id === tenantId
+  } catch (error) {
+    logger.error('Error verifying tenant ownership', {
+      error,
+      tenantId,
+      resourceType,
+      resourceId
+    })
+    return false
+  }
+}
+
+/**
+ * Log authorization failures for audit purposes
+ */
+async function logAuthorizationFailure(details: {
+  userId: string
+  tenantId: string
+  action: string
+  reason: string
+  requiredRoles?: string[]
+  userRole?: string
+  requiredPermissions?: string[]
+  userPermissions?: string[]
+  resourceType?: string
+  resourceId?: string
+  ipAddress?: string
+  userAgent?: string
+}): Promise<void> {
+  try {
+    await pool.query(
+      `INSERT INTO audit_logs
+       (user_id, tenant_id, action, resource_type, resource_id, status, details, ip_address, user_agent)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [
+        details.userId,
+        details.tenantId,
+        details.action,
+        details.resourceType || 'authorization',
+        details.resourceId || null,
+        'denied',
+        JSON.stringify({
+          reason: details.reason,
+          requiredRoles: details.requiredRoles,
+          userRole: details.userRole,
+          requiredPermissions: details.requiredPermissions,
+          userPermissions: details.userPermissions
+        }),
+        details.ipAddress || null,
+        details.userAgent || null
+      ]
+    )
+  } catch (error) {
+    logger.error('Failed to log authorization failure', { error, details })
+  }
+}
+
+/**
+ * Get schema for a configuration key
+ */
+async function getSchema(key: string): Promise<any> {
+  try {
+    const result = await pool.query(
+      `SELECT schema FROM configuration_schemas WHERE key = $1`,
+      [key]
+    )
+    return result.rows[0]?.schema || null
+  } catch (error) {
+    logger.error('Error getting schema', { error, key })
+    return null
+  }
+}
+
+// Export helper functions for testing
+export { verifyTenantOwnership, logAuthorizationFailure, clearPermissionCache }
