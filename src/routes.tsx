@@ -4,12 +4,12 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
-import { AnalyticsHub } from '@/components/hubs/analytics/AnalyticsHub';
-import { FleetHub } from '@/components/hubs/fleet/FleetHub';
-import { ReservationsHub } from '@/components/hubs/reservations/ReservationsHub';
-import { ConfigurationHub } from '@/pages/ConfigurationHub';
+import AnalyticsHub from '@/components/hubs/analytics/AnalyticsHub';
+import FleetHub from '@/pages/FleetHub';
+import ReservationsHub from '@/components/hubs/reservations/ReservationsHub';
+import ConfigurationHub from '@/pages/ConfigurationHub';
 import DocumentsHub from '@/pages/DocumentsHub';
-import { PolicyHub } from '@/pages/PolicyHub';
+import PolicyHub from '@/pages/PolicyHub';
 import MapDiagnostics from '@/pages/MapDiagnostics';
 
 export const AppRoutes: React.FC = () => {

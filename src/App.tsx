@@ -22,7 +22,8 @@ const VehicleTelemetry = lazy(() => import("@/components/modules/fleet/VehicleTe
 const VirtualGarage = lazy(() => import("@/components/modules/fleet/VirtualGarage").then(m => ({ default: m.VirtualGarage })))
 const FleetOptimizer = lazy(() => import("@/components/modules/fleet/FleetOptimizer").then(m => ({ default: m.FleetOptimizer })))
 
-// ANALYTICS MODULES
+// ANALYTICS MODULES 
+//testing 
 const ExecutiveDashboard = lazy(() => import("@/components/modules/analytics/ExecutiveDashboard").then(m => ({ default: m.ExecutiveDashboard })))
 const DataWorkbench = lazy(() => import("@/components/modules/analytics/DataWorkbench").then(m => ({ default: m.DataWorkbench })))
 const EndpointMonitor = lazy(() => import("@/components/modules/analytics/EndpointMonitor").then(m => ({ default: m.EndpointMonitor })))
