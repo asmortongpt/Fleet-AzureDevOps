@@ -36,8 +36,8 @@ export interface DrilldownCardProps {
   value: string | number | ReactNode
   /** Optional subtitle or description */
   subtitle?: string
-  /** Drilldown type (maps to DrilldownManager switch) */
-  drilldownType: string
+  /** Drilldown type (maps to DrilldownManager switch). If not provided, drilldown is disabled. */
+  drilldownType?: string
   /** Label for drilldown breadcrumb */
   drilldownLabel?: string
   /** Additional data for drilldown */
@@ -86,8 +86,11 @@ export function DrilldownCard({
 }: DrilldownCardProps) {
   const { push } = useDrilldown()
 
+  // Drilldown is disabled when drilldownType is not provided
+  const isDrilldownEnabled = !!drilldownType && !disabled
+
   const handleClick = (e: MouseEvent<HTMLDivElement>) => {
-    if (disabled || loading) return
+    if (!isDrilldownEnabled || loading) return
 
     onClick?.(e)
 
@@ -104,7 +107,7 @@ export function DrilldownCard({
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (disabled || loading) return
+    if (!isDrilldownEnabled || loading) return
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       handleClick(e as unknown as MouseEvent<HTMLDivElement>)
@@ -138,19 +141,19 @@ export function DrilldownCard({
 
   return (
     <Card
-      role="button"
-      tabIndex={disabled ? -1 : 0}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      aria-label={`View ${drilldownLabel || title}`}
-      aria-disabled={disabled}
+      role={isDrilldownEnabled ? "button" : undefined}
+      tabIndex={isDrilldownEnabled ? 0 : -1}
+      onClick={isDrilldownEnabled ? handleClick : undefined}
+      onKeyDown={isDrilldownEnabled ? handleKeyDown : undefined}
+      aria-label={isDrilldownEnabled ? `View ${drilldownLabel || title}` : undefined}
+      aria-disabled={!isDrilldownEnabled}
       className={cn(
-        'group cursor-pointer transition-all duration-200',
-        'hover:shadow-md hover:border-primary/50',
-        'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2',
+        'group transition-all duration-200',
+        isDrilldownEnabled && 'cursor-pointer hover:shadow-md hover:border-primary/50',
+        isDrilldownEnabled && 'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2',
         colorClasses[color],
         variantClasses[variant],
-        disabled && 'cursor-not-allowed opacity-50',
+        !isDrilldownEnabled && 'cursor-default',
         className
       )}
     >
@@ -196,13 +199,15 @@ export function DrilldownCard({
               >
                 {value}
               </div>
-              <ArrowRight
-                className={cn(
-                  'w-3 h-3 text-muted-foreground',
-                  'opacity-0 group-hover:opacity-100 transition-opacity',
-                  'group-focus:opacity-100'
-                )}
-              />
+              {isDrilldownEnabled && (
+                <ArrowRight
+                  className={cn(
+                    'w-3 h-3 text-muted-foreground',
+                    'opacity-0 group-hover:opacity-100 transition-opacity',
+                    'group-focus:opacity-100'
+                  )}
+                />
+              )}
             </div>
             {(subtitle || trend) && (
               <div className="flex items-center justify-between mt-1">
