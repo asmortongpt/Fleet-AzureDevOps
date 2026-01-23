@@ -1,4 +1,3 @@
-```typescript
 /**
  * Configuration Management Service
  *
@@ -466,3 +465,196 @@ export class ConfigurationManagementService {
       // Invalidate cache
       if (this.cacheEnabled && this.redis) {
         await this.invalidateCache(key);
+      }
+
+      // Emit change event
+      const configChange: ConfigChange = {
+        key,
+        oldValue: previousValue,
+        newValue: value,
+        scope: scope.scope,
+        scopeId: scope.scopeId,
+        changedBy: userId,
+        version: versionResult.rows[0].version
+      };
+
+      this.eventEmitter.emit('config:changed', configChange);
+
+      await this.recordAudit('set', key, userId, true, {
+        version: versionResult.rows[0].version,
+        impactLevel
+      });
+
+      return versionResult.rows[0];
+    } catch (error) {
+      await client.query('ROLLBACK');
+      await this.recordAudit('set', key, userId, false, {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  // ============================================================================
+  // HELPER METHODS
+  // ============================================================================
+
+  private getCacheKey(key: string, scope?: { scope: ConfigScope; scopeId?: string }): string {
+    return `config:${key}:${scope?.scope || 'global'}:${scope?.scopeId || 'none'}`;
+  }
+
+  private buildScopeHierarchy(scope?: { scope: ConfigScope; scopeId?: string }): Array<{ scope: ConfigScope; scopeId?: string }> {
+    if (!scope) {
+      return [{ scope: ConfigScope.GLOBAL }];
+    }
+
+    const hierarchy: Array<{ scope: ConfigScope; scopeId?: string }> = [];
+
+    switch (scope.scope) {
+      case ConfigScope.USER:
+        hierarchy.push({ scope: ConfigScope.USER, scopeId: scope.scopeId });
+        hierarchy.push({ scope: ConfigScope.TEAM, scopeId: scope.scopeId });
+        hierarchy.push({ scope: ConfigScope.ORGANIZATION, scopeId: scope.scopeId });
+        break;
+      case ConfigScope.TEAM:
+        hierarchy.push({ scope: ConfigScope.TEAM, scopeId: scope.scopeId });
+        hierarchy.push({ scope: ConfigScope.ORGANIZATION, scopeId: scope.scopeId });
+        break;
+      case ConfigScope.ORGANIZATION:
+        hierarchy.push({ scope: ConfigScope.ORGANIZATION, scopeId: scope.scopeId });
+        break;
+    }
+
+    hierarchy.push({ scope: ConfigScope.GLOBAL });
+    return hierarchy;
+  }
+
+  private shouldEncrypt(key: string): boolean {
+    const encryptedKeys = ['api_key', 'secret', 'password', 'token', 'credential'];
+    return encryptedKeys.some(k => key.toLowerCase().includes(k));
+  }
+
+  private encrypt(value: any): string {
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-cbc', this.encryptionKey, iv);
+    let encrypted = cipher.update(JSON.stringify(value), 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return `${iv.toString('hex')}:${encrypted}`;
+  }
+
+  private decrypt(encryptedValue: string): any {
+    const [ivHex, encrypted] = encryptedValue.split(':');
+    const iv = Buffer.from(ivHex, 'hex');
+    const decipher = crypto.createDecipheriv('aes-256-cbc', this.encryptionKey, iv);
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return JSON.parse(decrypted);
+  }
+
+  private generateVersion(key: string, value: any): string {
+    const hash = crypto.createHash('sha256');
+    hash.update(key + JSON.stringify(value) + Date.now());
+    return hash.digest('hex').substring(0, 12);
+  }
+
+  private calculateDiff(oldValue: any, newValue: any): ConfigDiff[] {
+    // Simple diff implementation
+    const diffs: ConfigDiff[] = [];
+
+    if (typeof oldValue !== 'object' || typeof newValue !== 'object') {
+      if (oldValue !== newValue) {
+        diffs.push({
+          path: '',
+          operation: 'modify',
+          oldValue,
+          newValue
+        });
+      }
+      return diffs;
+    }
+
+    // Compare object keys
+    const allKeys = new Set([...Object.keys(oldValue || {}), ...Object.keys(newValue || {})]);
+
+    for (const key of allKeys) {
+      if (!(key in oldValue)) {
+        diffs.push({ path: key, operation: 'add', newValue: newValue[key] });
+      } else if (!(key in newValue)) {
+        diffs.push({ path: key, operation: 'delete', oldValue: oldValue[key] });
+      } else if (oldValue[key] !== newValue[key]) {
+        diffs.push({ path: key, operation: 'modify', oldValue: oldValue[key], newValue: newValue[key] });
+      }
+    }
+
+    return diffs;
+  }
+
+  private async determineImpactLevel(key: string, value: any): Promise<ImpactLevel> {
+    // Determine impact based on key patterns
+    if (key.includes('system') || key.includes('critical')) {
+      return ImpactLevel.CRITICAL;
+    }
+    if (key.includes('security') || key.includes('auth')) {
+      return ImpactLevel.HIGH;
+    }
+    if (key.includes('feature') || key.includes('threshold')) {
+      return ImpactLevel.MEDIUM;
+    }
+    if (key.includes('ui') || key.includes('display')) {
+      return ImpactLevel.LOW;
+    }
+    return ImpactLevel.NONE;
+  }
+
+  private async validateConfig(key: string, value: any): Promise<ValidationResult> {
+    const schema = this.schemas.get(key);
+    if (!schema) {
+      return { valid: true };
+    }
+
+    try {
+      schema.parse(value);
+      return { valid: true };
+    } catch (error: any) {
+      return {
+        valid: false,
+        errors: error.errors?.map((e: any) => ({
+          path: e.path.join('.'),
+          message: e.message
+        })) || []
+      };
+    }
+  }
+
+  private async invalidateCache(key: string): Promise<void> {
+    if (!this.redis) return;
+
+    const pattern = `config:${key}:*`;
+    const keys = await this.redis.keys(pattern);
+    if (keys.length > 0) {
+      await this.redis.del(...keys);
+    }
+  }
+
+  private async recordAudit(
+    operation: string,
+    key: string,
+    userId?: string,
+    success: boolean = true,
+    metadata?: Record<string, any>
+  ): Promise<void> {
+    // Audit logging implementation
+    console.log(`[ConfigService] ${operation} ${key}`, { userId, success, metadata });
+  }
+
+  private async requestChange(request: Partial<ChangeRequest>): Promise<string> {
+    // Placeholder for change request creation
+    return 'change-request-id';
+  }
+
+  private async getSchema(key: string): Promise<any> {
+    return null;
+  }
+}

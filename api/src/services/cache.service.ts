@@ -1,4 +1,3 @@
-```typescript
 import { injectable } from 'inversify';
 import Redis from 'ioredis';
 
@@ -81,4 +80,3 @@ export class CacheService {
     await this.delete(CacheKeys.vehicle(vehicleId));
   }
 }
-```
