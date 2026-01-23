@@ -1,12 +1,45 @@
 {
+  "auth": {
+    "identityProviders": {
+      "azureActiveDirectory": {
+        "registration": {
+          "openIdIssuer": "https://login.microsoftonline.com/0ec14b81-7b82-45ee-8f3d-cbc31ced5347/v2.0",
+          "clientIdSettingName": "AZURE_AD_CLIENT_ID",
+          "clientSecretSettingName": "AZURE_AD_CLIENT_SECRET"
+        },
+        "login": {
+          "loginParameters": [
+            "domain_hint=capitaltechalliance.com"
+          ]
+        },
+        "userDetailsClaim": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
+      }
+    }
+  },
   "navigationFallback": {
     "rewrite": "/index.html",
     "exclude": ["/assets/*", "/api/*", "*.js", "*.css", "*.png", "*.jpg", "*.svg", "*.woff2", "*.ico", "/sw.js", "/manifest.json", "/offline.html", "/icons/*"]
   },
   "routes": [
     {
+      "route": "/.auth/login/aad",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/login",
+      "rewrite": "/.auth/login/aad"
+    },
+    {
+      "route": "/logout",
+      "rewrite": "/.auth/logout"
+    },
+    {
       "route": "/api/*",
-      "allowedRoles": ["authenticated", "anonymous"]
+      "allowedRoles": ["authenticated"]
+    },
+    {
+      "route": "/*",
+      "allowedRoles": ["authenticated"]
     }
   ],
   "responseOverrides": {
