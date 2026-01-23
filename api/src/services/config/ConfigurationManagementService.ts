@@ -498,6 +498,283 @@ export class ConfigurationManagementService {
   }
 
   // ============================================================================
+  // PUBLIC API METHODS (Aliases and Additional Methods)
+  // ============================================================================
+
+  /**
+   * Alias for getConfig - shorter method name
+   */
+  async get<T = any>(
+    key: string,
+    scope?: { scope: ConfigScope; scopeId?: string }
+  ): Promise<T | null> {
+    return this.getConfig<T>(key, scope);
+  }
+
+  /**
+   * Alias for setConfig - shorter method name
+   */
+  async set<T = any>(
+    key: string,
+    value: T,
+    scope: { scope: ConfigScope; scopeId?: string },
+    userId: string,
+    comment?: string
+  ): Promise<ConfigVersion> {
+    return this.setConfig<T>(key, value, scope, userId, comment);
+  }
+
+  /**
+   * Get version history for a configuration key
+   */
+  async getHistory(key: string, limit: number = 50): Promise<ConfigVersion[]> {
+    try {
+      const result = await this.pool.query<ConfigVersion>(
+        `SELECT id, key, value, version, previous_version as "previousVersion",
+                scope, scope_id as "scopeId", impact_level as "impactLevel",
+                changed_by as "changedBy", changed_at as "changedAt",
+                comment, tags, is_rollback as "isRollback",
+                rollback_from_version as "rollbackFromVersion", diff
+         FROM configuration_versions
+         WHERE key = $1
+         ORDER BY changed_at DESC
+         LIMIT $2`,
+        [key, limit]
+      );
+
+      return result.rows;
+    } catch (error) {
+      console.error('[ConfigService] getHistory error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Rollback to a previous version
+   */
+  async rollback(
+    key: string,
+    toVersion: string,
+    userId: string,
+    reason?: string
+  ): Promise<ConfigVersion> {
+    const client = await this.pool.connect();
+
+    try {
+      await client.query('BEGIN');
+
+      // Get the version to rollback to
+      const versionResult = await client.query(
+        `SELECT value, scope, scope_id FROM configuration_versions WHERE key = $1 AND version = $2`,
+        [key, toVersion]
+      );
+
+      if (versionResult.rows.length === 0) {
+        throw new Error(`Version ${toVersion} not found for key ${key}`);
+      }
+
+      const targetVersion = versionResult.rows[0];
+
+      // Set the config to the old value
+      const newVersion = await this.setConfig(
+        key,
+        targetVersion.value,
+        {
+          scope: targetVersion.scope,
+          scopeId: targetVersion.scope_id
+        },
+        userId,
+        reason || `Rollback to version ${toVersion}`
+      );
+
+      // Mark this version as a rollback
+      await client.query(
+        `UPDATE configuration_versions
+         SET is_rollback = true, rollback_from_version = $1
+         WHERE version = $2`,
+        [toVersion, newVersion.version]
+      );
+
+      await client.query('COMMIT');
+
+      return newVersion;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  /**
+   * Get diff between two versions
+   */
+  async getDiff(
+    key: string,
+    versionA: string,
+    versionB: string
+  ): Promise<ConfigDiff[]> {
+    const result = await this.pool.query(
+      `SELECT version, value FROM configuration_versions WHERE key = $1 AND version = ANY($2)`,
+      [key, [versionA, versionB]]
+    );
+
+    if (result.rows.length !== 2) {
+      throw new Error('One or both versions not found');
+    }
+
+    const valueA = result.rows.find((r: any) => r.version === versionA)?.value;
+    const valueB = result.rows.find((r: any) => r.version === versionB)?.value;
+
+    return this.calculateDiff(valueA, valueB);
+  }
+
+  /**
+   * Get pending change requests
+   */
+  async getPendingChanges(userId?: string): Promise<ChangeRequest[]> {
+    // Placeholder implementation
+    return [];
+  }
+
+  /**
+   * Approve a change request
+   */
+  async approveChange(requestId: string, userId: string, comment?: string): Promise<void> {
+    // Placeholder implementation
+    console.log(`[ConfigService] Change request ${requestId} approved by ${userId}`);
+  }
+
+  /**
+   * Reject a change request
+   */
+  async rejectChange(requestId: string, userId: string, reason: string): Promise<void> {
+    // Placeholder implementation
+    console.log(`[ConfigService] Change request ${requestId} rejected by ${userId}: ${reason}`);
+  }
+
+  /**
+   * List all feature flags
+   */
+  async listFlags(): Promise<FeatureFlag[]> {
+    // Placeholder implementation
+    return [];
+  }
+
+  /**
+   * Evaluate a feature flag for a given context
+   */
+  async evaluateFlag(flagName: string, context: FlagContext): Promise<boolean> {
+    // Simple hash-based rollout
+    const flag = await this.get<FeatureFlag>(`flag:${flagName}`);
+
+    if (!flag || !flag.enabled) {
+      return false;
+    }
+
+    // Check conditions
+    if (flag.conditions && flag.conditions.length > 0) {
+      for (const condition of flag.conditions) {
+        const attrValue = context.attributes?.[condition.attribute];
+
+        switch (condition.operator) {
+          case 'equals':
+            if (attrValue !== condition.value) return false;
+            break;
+          case 'in':
+            if (!condition.values?.includes(attrValue)) return false;
+            break;
+          case 'notIn':
+            if (condition.values?.includes(attrValue)) return false;
+            break;
+        }
+      }
+    }
+
+    // Rollout percentage check
+    if (flag.rolloutPercentage < 100 && context.userId) {
+      const hash = crypto.createHash('md5').update(context.userId + flagName).digest('hex');
+      const percentage = parseInt(hash.substring(0, 8), 16) % 100;
+      return percentage < flag.rolloutPercentage;
+    }
+
+    return true;
+  }
+
+  /**
+   * Set rollout percentage for a feature flag
+   */
+  async setFlagRollout(flagName: string, percentage: number): Promise<void> {
+    const flag = await this.get<FeatureFlag>(`flag:${flagName}`) || {
+      name: flagName,
+      enabled: true,
+      rolloutPercentage: 0,
+      description: ''
+    };
+
+    flag.rolloutPercentage = percentage;
+
+    await this.set(
+      `flag:${flagName}`,
+      flag,
+      { scope: ConfigScope.GLOBAL },
+      'system',
+      `Set rollout to ${percentage}%`
+    );
+  }
+
+  /**
+   * Export configuration
+   */
+  async exportConfig(
+    scope: { scope: ConfigScope; scopeId?: string },
+    format: 'json' | 'yaml' = 'json'
+  ): Promise<string> {
+    const result = await this.pool.query(
+      `SELECT key, value FROM configuration_settings
+       WHERE scope = $1 AND (scope_id = $2 OR scope_id IS NULL)
+       AND is_active = true`,
+      [scope.scope, scope.scopeId || null]
+    );
+
+    const config: Record<string, any> = {};
+    for (const row of result.rows) {
+      config[row.key] = row.value;
+    }
+
+    return JSON.stringify(config, null, 2);
+  }
+
+  /**
+   * Watch configuration changes
+   */
+  async watchConfig(
+    keys: string[],
+    callback: (changes: ConfigChange[]) => void | Promise<void>
+  ): Promise<void> {
+    this.eventEmitter.on('config:changed', async (change: ConfigChange) => {
+      if (keys.includes(change.key)) {
+        await callback([change]);
+      }
+    });
+  }
+
+  /**
+   * Preload hot configs into cache
+   */
+  async preloadHotConfigs(): Promise<void> {
+    const hotKeys = ['branding', 'pm_intervals', 'approval_thresholds', 'system_settings'];
+
+    for (const key of hotKeys) {
+      try {
+        await this.getConfig(key);
+      } catch (error) {
+        console.error(`[ConfigService] Failed to preload ${key}:`, error);
+      }
+    }
+  }
+
+  // ============================================================================
   // HELPER METHODS
   // ============================================================================
 
@@ -657,4 +934,24 @@ export class ConfigurationManagementService {
   private async getSchema(key: string): Promise<any> {
     return null;
   }
+}
+
+
+// ============================================================================
+// FACTORY FUNCTION
+// ============================================================================
+
+/**
+ * Create a new ConfigurationManagementService instance
+ */
+export function createConfigurationService(
+  pool: Pool,
+  options?: {
+    redis?: Redis;
+    encryptionKey?: string;
+    cacheEnabled?: boolean;
+    cacheTtl?: number;
+  }
+): ConfigurationManagementService {
+  return new ConfigurationManagementService(pool, options);
 }
