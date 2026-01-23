@@ -9,6 +9,9 @@ export const api = axios.create({
   },
 });
 
+// Alias for backward compatibility
+export const apiClient = api;
+
 // Add request interceptor for auth
 api.interceptors.request.use(
   (config) => {
