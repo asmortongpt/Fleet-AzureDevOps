@@ -237,14 +237,6 @@ export const navigationItems: NavigationItem[] = [
     category: "Admin",
     roles: ['Admin', 'FleetAdmin']
   },
-  {
-    id: "meta-glasses-hub",
-    label: "Meta Glasses Hub",
-    icon: <Plugs className="w-3 h-3" />,
-    section: "hubs",
-    category: "Integrations",
-    roles: ['Admin', 'FleetAdmin', 'Manager', 'Technician']
-  },
 ]
 
 
