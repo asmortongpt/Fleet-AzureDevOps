@@ -182,7 +182,6 @@ const ConfigurationHub = lazy(() => import("@/pages/ConfigurationHub"));
 const CTAConfigurationHub = lazy(() => import("@/pages/CTAConfigurationHub"));
 const DataGovernanceHub = lazy(() => import("@/pages/DataGovernanceHub"));
 const IntegrationsHub = lazy(() => import("@/pages/IntegrationsHub"));
-const MetaGlassesHub = lazy(() => import("@/pages/MetaGlassesHub"));
 
 // 3D VISUALIZATION
 const VehicleShowroom3D = lazy(() => import("@/pages/VehicleShowroom3D"));
@@ -213,7 +212,6 @@ const routes = [
   { path: "people-hub", element: <PeopleHub /> },
   { path: "insights-hub", element: <InsightsHub /> },
   { path: "configuration-hub", element: <ConfigurationHub /> },
-  { path: "meta-glasses-hub", element: <MetaGlassesHub /> },
   { path: "executive-dashboard", element: <ExecutiveDashboard /> },
   { path: "admin-dashboard", element: <AdminDashboard /> },
   { path: "emulator-dashboard", element: <EmulatorDashboard /> },
