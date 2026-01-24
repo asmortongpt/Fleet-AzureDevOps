@@ -6,8 +6,6 @@ import cors from 'cors'
 import express from 'express'
 
 import { initializeConnectionManager } from './config/connection-manager' // Import connection manager initialization
-import { createFuelMasterRouter } from './emulators/fuelmaster/FuelMasterEmulator'
-import { createPeopleSoftRouter } from './emulators/peoplesoft/PeopleSoftEmulator'
 import { processEmailJob } from './jobs/processors/email.processor'
 import { processNotificationJob } from './jobs/processors/notification.processor'
 import { processReportJob } from './jobs/processors/report.processor'
@@ -33,7 +31,6 @@ import { sentryService } from './monitoring/sentry'
 
 // Core Fleet Management Routes
 import adminJobsRouter from './routes/admin-jobs.routes'
-// DISABLED: import aiInsightsRouter from './routes/ai-insights.routes'
 import aiSearchRouter from './routes/ai-search'
 import aiTaskAssetRouter from './routes/ai-task-asset.routes'
 import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
@@ -43,7 +40,6 @@ import assetAnalyticsRouter from './routes/asset-analytics.routes'
 import assetManagementRouter from './routes/asset-management.routes'
 import assetsMobileRouter from './routes/assets-mobile.routes'
 import assignmentReportingRouter from './routes/assignment-reporting.routes'
-// DISABLED: import attachmentsRouter from './routes/attachments.routes'
 import authRouter from './routes/auth'
 import batchRouter from './routes/batch'
 import billingReportsRouter from './routes/billing-reports'
@@ -64,31 +60,22 @@ import communicationLogsRouter from './routes/communication-logs'
 // EV Management Routes
 
 // Document Management Routes
-// DISABLED: import ocrRouter from './routes/ocr.routes'
 
 // Financial & Cost Management Routes
 import costAnalysisRouter from './routes/cost-analysis.routes'
 import costBenefitAnalysisRouter from './routes/cost-benefit-analysis.routes'
 import costsRouter from './routes/costs'
-// DISABLED: import fuelPurchasingRouter from './routes/fuel-purchasing.routes'
 
 // Reporting & Analytics Routes
-// DISABLED: import customReportsRouter from './routes/custom-reports.routes'
 
 // AI & Automation Routes
-// DISABLED: import langchainRouter from './routes/langchain.routes'
-// DISABLED: import fleetOptimizerRouter from './routes/fleet-optimizer.routes'
 import aiDamageDetectionRouter from './routes/ai-damage-detection.routes'
 
 // Task & Schedule Management Routes
 
 // Mobile & Integration Routes
-// DISABLED: import mobileNotificationsRouter from './routes/mobile-notifications.routes'
-// DISABLED: import mobileObd2Router from './routes/mobile-obd2.routes'
-// DISABLED: import mobileOcrRouter from './routes/mobile-ocr.routes'
 
 // Vehicle Management Routes
-// DISABLED: import vehicleIdentificationRouter from './routes/vehicle-identification.routes'
 import damageRouter from './routes/damage'
 import damageReportsRouter from './routes/damage-reports'
 import lidarRouter from './routes/lidar.routes'
@@ -185,7 +172,6 @@ import logger from './utils/logger'
 
 console.log('--- SERVER STARTING DEBUG ---')
 // Initialize Datadog APM FIRST (must be before ALL other imports)
-// DISABLED: Datadog APM initialization disabled for now
 // TODO: Re-enable when dd-trace package is properly installed
 console.log('Datadog APM disabled')
 telemetryService.initialize()
@@ -350,8 +336,6 @@ app.use('/api/charging-stations', chargingStationsRouter)
 // Document Management Routes
 app.use('/api/documents', documentsRouter)
 app.use('/api/fleet-documents', fleetDocumentsRouter)
-// DISABLED: app.use('/api/attachments', attachmentsRouter)
-// DISABLED: app.use('/api/ocr', ocrRouter)
 
 // Financial & Cost Management Routes
 app.use('/api/costs', costsRouter)
@@ -361,21 +345,16 @@ app.use('/api/billing-reports', billingReportsRouter)
 app.use('/api/mileage-reimbursement', mileageReimbursementRouter)
 app.use('/api/personal-use-charges', chargesRouter)
 app.use('/api/personal-use-policies', personalUsePoliciesRouter)
-// DISABLED: app.use('/api/fuel-purchasing', fuelPurchasingRouter)
 
 // Reporting & Analytics Routes
 app.use('/api/executive-dashboard', executiveDashboardRouter)
-// DISABLED: app.use('/api/custom-reports', customReportsRouter)
 app.use('/api/assignment-reporting', assignmentReportingRouter)
 app.use('/api/driver-scorecard', driverScorecardRouter)
 
 // AI & Automation Routes
-// DISABLED: app.use('/api/ai-insights', aiInsightsRouter)
 app.use('/api/ai-search', aiSearchRouter)
 app.use('/api/ai-task-asset', aiTaskAssetRouter)
 app.use('/api/ai-tasks', aiTaskPrioritizationRouter)
-// DISABLED: app.use('/api/langchain', langchainRouter)
-// DISABLED: app.use('/api/fleet-optimizer', fleetOptimizerRouter)
 
 // Task & Schedule Management Routes
 app.use('/api/scheduling', schedulingRouter)
@@ -387,9 +366,6 @@ app.use('/api/mobile-assignment', mobileAssignmentRouter)
 app.use('/api/mobile-hardware', mobileHardwareRouter)
 app.use('/api/mobile-integration', mobileIntegrationRouter)
 app.use('/api/mobile-messaging', mobileMessagingRouter)
-// DISABLED: app.use('/api/mobile-notifications', mobileNotificationsRouter)
-// DISABLED: app.use('/api/mobile-obd2', mobileObd2Router)
-// DISABLED: app.use('/api/mobile-ocr', mobileOcrRouter)
 app.use('/api/mobile-photos', mobilePhotosRouter)
 app.use('/api/mobile-trips', mobileTripsRouter)
 app.use('/api/push-notifications', pushNotificationsRouter)
@@ -397,7 +373,6 @@ app.use('/api/push-notifications', pushNotificationsRouter)
 // Vehicle Management Routes
 app.use('/api/vehicle-assignments', vehicleAssignmentsRouter)
 app.use('/api/vehicle-history', vehicleHistoryRouter)
-// DISABLED: app.use('/api/vehicle-identification', vehicleIdentificationRouter)
 app.use('/api/vehicle-3d', vehicle3dRouter)
 app.use('/api/damage', damageRouter)
 app.use('/api/damage-reports', damageReportsRouter)
@@ -440,8 +415,6 @@ app.use('/api/dashboard', dashboardRouter)
 app.use('/api/emulator', emulatorRouter)
 app.use('/api/obd2-emulator', obd2EmulatorRouter)
 app.use('/api/demo', demoRouter)
-app.use('/api/emulators/peoplesoft', createPeopleSoftRouter())
-app.use('/api/emulators/fuelmaster', createFuelMasterRouter())
 
 // System Management Routes
 app.use('/api/monitoring', monitoringRouter)
