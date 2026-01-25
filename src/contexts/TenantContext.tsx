@@ -83,7 +83,7 @@ export const TenantProvider = ({ children }: TenantProviderProps) => {
         } else {
             setSettings(null);
         }
-    }, [isAuthenticated, user?.tenantId, user?.tenantName]);
+    }, [isAuthenticated, user?.tenantId]);
 
     const value = {
         tenantId: user?.tenantId || null,
