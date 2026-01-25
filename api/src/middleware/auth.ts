@@ -54,56 +54,25 @@ export const authenticateJWT = async (
     return res.status(401).json({ error: 'Authentication required' })
   }
 
-  // SECURITY: JWT_SECRET must be set in environment variables and be at least 32 characters
-  if (!process.env.JWT_SECRET) {
-    logger.error('FATAL: JWT_SECRET environment variable is not set')
-    return res.status(500).json({ error: 'Server configuration error' })
-  }
-
-  if (process.env.JWT_SECRET.length < 32) {
-    logger.error('FATAL: JWT_SECRET must be at least 32 characters')
-    return res.status(500).json({ error: 'Server configuration error' })
-  }
-
-  // BYPASS: Allow demo token in non-production environments
-  if (process.env.NODE_ENV !== 'production') {
-    try {
-      // Try to decode as base64 JSON (format used by Login.tsx dev bypass)
-      if (token.startsWith('eyJ') === false) { // Simple check if it MIGHT NOT be a standard JWT (standard JWTs usually start with eyJ)
-        const buffer = Buffer.from(token, 'base64')
-        const decodedString = buffer.toString('utf-8')
-        // Check if it looks like the demo token structure
-        if (decodedString.includes('"auth_provider":"demo"')) {
-          const demoData = JSON.parse(decodedString)
-          if (demoData.payload && demoData.payload.auth_provider === 'demo') {
-            logger.warn('⚠️ AUTH BYPASS - Accepting DEMO token in development mode')
-            req.user = demoData.payload
-            return next()
-          }
-        }
-      }
-    } catch (e) {
-      // Ignore parsing errors, fall through to standard JWT verification
-    }
-  }
-
+  // SECURITY: All auth must use FIPS-compliant RS256 verification
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET) as any
+    const { FIPSJWTService } = await import('../services/fips-jwt.service')
+    const decoded = FIPSJWTService.verifyAccessToken(token)
     req.user = decoded
-    logger.info('✅ AUTH MIDDLEWARE - JWT token validated successfully')
+    logger.info('✅ AUTH MIDDLEWARE - JWT token validated successfully via FIPS Service')
 
     // SECURITY FIX: Check if token has been revoked (CVSS 7.2)
     // Call checkRevoked if it has been registered
     if (checkRevokedFn) {
-      return checkRevokedFn(req, res, next)
+      return (checkRevokedFn as any)(req, res, next)
     } else {
       // Fallback if revocation middleware not loaded yet
       logger.warn('⚠️ Session revocation middleware not registered - skipping revocation check')
       return next()
     }
-  } catch (error) {
-    logger.info('❌ AUTH MIDDLEWARE - Invalid or expired token')
-    return res.status(403).json({ error: 'Invalid or expired token' })
+  } catch (error: any) {
+    logger.error('❌ AUTH MIDDLEWARE - Invalid or expired token:', error.message)
+    return res.status(403).json({ error: 'Invalid or expired token', message: error.message })
   }
 }
 

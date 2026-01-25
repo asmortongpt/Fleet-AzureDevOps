@@ -38,26 +38,27 @@ export const auditLog = (options: AuditOptions) => {
 
           await pool.query(
             `INSERT INTO audit_logs (
-              tenant_id, user_id, action, resource_type, resource_id,
-              resource_attributes, ip_address, user_agent, result_status, result_message, checksum
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+              tenant_id, user_id, action, entity_type, entity_id,
+              metadata, ip_address, user_agent
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
             [
               req.user?.tenant_id || null,
               req.user?.id || null,
               options.action,
               options.resourceType,
-              resourceId,
+              typeof resourceId === 'string' && resourceId.length === 36 ? resourceId : null, // Ensure valid UUID or null
               JSON.stringify({
                 method: req.method,
                 path: req.path,
                 query: req.query,
-                body: options.action !== 'READ' ? req.body : undefined // Don't log body for reads
+                body: options.action !== 'READ' ? req.body : undefined, // Don't log body for reads
+                outcome,
+                status: res.statusCode,
+                errorMessage: res.statusCode >= 400 ? body?.error || body?.message : null,
+                checksum: hash
               }),
               req.ip,
-              req.get('User-Agent'),
-              outcome,
-              res.statusCode >= 400 ? body?.error || body?.message : null,
-              hash
+              req.get('User-Agent')
             ]
           )
         } catch (error) {
@@ -99,19 +100,23 @@ export async function createAuditLog(
 
   await pool.query(
     `INSERT INTO audit_logs (
-      tenant_id, user_id, action, resource_type, resource_id,
-      resource_attributes, ip_address, user_agent, outcome
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      tenant_id, user_id, action, entity_type, entity_id,
+      metadata, ip_address, user_agent
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
     [
       tenantId,
       userId,
       action,
       resourceType,
-      resourceId,
-      JSON.stringify(details || {}),
+      typeof resourceId === 'string' && resourceId.length === 36 ? resourceId : null,
+      JSON.stringify({
+        ...(details || {}),
+        outcome,
+        errorMessage,
+        checksum: hash
+      }),
       ipAddress,
-      userAgent,
-      outcome
+      userAgent
     ]
   )
 }
