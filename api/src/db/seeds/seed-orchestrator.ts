@@ -82,11 +82,11 @@ export class SeedOrchestrator {
       await this.seedDrivers(client);
       await this.seedVehicles(client);
       await this.seedWorkOrders(client);
-      await this.seedMaintenanceSchedules(client);
-      await this.seedFuelTransactions(client);
-      await this.seedRoutes(client);
-      await this.seedIncidents(client);
-      await this.seedComplianceRecords(client);
+      // await this.seedMaintenanceSchedules(client);
+      // await this.seedFuelTransactions(client);
+      // await this.seedRoutes(client);
+      // await this.seedIncidents(client);
+      // await this.seedComplianceRecords(client);
 
       await client.query('COMMIT');
 
@@ -153,13 +153,17 @@ export class SeedOrchestrator {
 
     for (const tenant of tenants) {
       const result = await client.query(
-        `INSERT INTO tenants (id, name, subdomain, settings, is_active, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
+
+        `INSERT INTO tenants (id, name, slug, domain, billing_email, subscription_tier, settings, is_active, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
          RETURNING id`,
         [
           tenant.id,
           tenant.name,
-          tenant.subdomain,
+          tenant.subdomain, // Map to slug
+          `${tenant.subdomain}.example.com`, // Map to domain
+          `billing@${tenant.subdomain}.example.com`, // billing_email
+          'standard', // subscription_tier
           JSON.stringify(tenant.settings),
           tenant.is_active,
           tenant.created_at,
@@ -179,6 +183,7 @@ export class SeedOrchestrator {
   private async seedUsers(client: PoolClient): Promise<Map<string, string[]>> {
     console.log('👥 Seeding users...');
     const userMap = new Map<string, string[]>();
+    let loggedAdmin = false;
 
     const tenantIds = await this.getTenantIds(client);
 
@@ -205,6 +210,12 @@ export class SeedOrchestrator {
           ]
         );
         userIds.push(user.id);
+
+        if (!loggedAdmin && (user.role === 'Admin' || user.role === 'SuperAdmin')) {
+          console.log(`\n🔑 Test Admin Credentials: ${user.email} / ${this.userFactory.getDefaultPassword()}`);
+          console.log(`   Tenant ID: ${tenantId}\n`);
+          loggedAdmin = true;
+        }
       }
 
       userMap.set(tenantId, userIds);
@@ -234,21 +245,22 @@ export class SeedOrchestrator {
 
       for (const driver of drivers) {
         await client.query(
-          `INSERT INTO drivers (id, tenant_id, user_id, employee_number, license_number, license_state, license_expiry, status, hire_date, phone, email, safety_score, created_at, updated_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+          `INSERT INTO drivers (id, tenant_id, user_id, first_name, last_name, employee_number, license_number, license_state, license_expiry_date, status, hire_date, phone, email, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
           [
             driver.id,
             driver.tenant_id,
             driver.user_id,
+            driver.first_name,
+            driver.last_name,
             driver.employee_number,
             driver.license_number,
             driver.license_state,
-            driver.license_expiry,
+            driver.license_expiration, // Maps to license_expiry_date
             driver.status,
             driver.hire_date,
             driver.phone,
             driver.email,
-            driver.safety_score,
             driver.created_at,
             driver.updated_at,
           ]
@@ -274,7 +286,7 @@ export class SeedOrchestrator {
     const tenantIds = await this.getTenantIds(client);
 
     for (const tenantId of tenantIds) {
-      const driverIds = await this.getDriverIds(client, tenantId);
+      const driverIds = await this.getDriverUserIds(client, tenantId);
       const vehicles = this.vehicleFactory.buildList(tenantId, this.config.vehiclesPerTenant);
       const vehicleIds: string[] = [];
 
@@ -286,12 +298,13 @@ export class SeedOrchestrator {
           : null;
 
         await client.query(
-          `INSERT INTO vehicles (id, tenant_id, vehicle_number, vin, make, model, year, type, fuel_type, status, license_plate, current_mileage, current_latitude, current_longitude, last_location_update, assigned_driver_id, assigned_facility_id, model_3d_url, metadata, created_at, updated_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)`,
+          `INSERT INTO vehicles (id, tenant_id, name, number, vin, make, model, year, type, fuel_type, status, license_plate, odometer, latitude, longitude, assigned_driver_id, assigned_facility_id, metadata, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)`,
           [
             vehicle.id,
             vehicle.tenant_id,
-            vehicle.vehicle_number,
+            `${vehicle.year} ${vehicle.make} ${vehicle.model}`, // name
+            vehicle.number,
             vehicle.vin,
             vehicle.make,
             vehicle.model,
@@ -300,13 +313,11 @@ export class SeedOrchestrator {
             vehicle.fuel_type,
             vehicle.status,
             vehicle.license_plate,
-            vehicle.current_mileage,
-            vehicle.current_latitude,
-            vehicle.current_longitude,
-            vehicle.last_location_update,
+            vehicle.odometer,
+            vehicle.latitude,
+            vehicle.longitude,
             assignedDriverId,
             vehicle.assigned_facility_id,
-            vehicle.model_3d_url,
             JSON.stringify(vehicle.metadata),
             vehicle.created_at,
             vehicle.updated_at,
@@ -347,22 +358,23 @@ export class SeedOrchestrator {
 
         for (const wo of workOrders) {
           await client.query(
-            `INSERT INTO work_orders (id, tenant_id, vehicle_id, work_order_number, type, priority, status, description, assigned_to, scheduled_start, scheduled_end, actual_start, actual_end, estimated_cost, actual_cost, notes, created_at, updated_at)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
+            `INSERT INTO work_orders (id, tenant_id, vehicle_id, number, title, type, priority, status, description, assigned_to_id, scheduled_start_date, scheduled_end_date, actual_start_date, actual_end_date, estimated_cost, actual_cost, notes, created_at, updated_at)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
             [
               wo.id,
               wo.tenant_id,
               wo.vehicle_id,
-              wo.work_order_number,
+              wo.work_order_number, // Maps to number
+              `${wo.type.charAt(0).toUpperCase() + wo.type.slice(1)} Maintenance`, // title
               wo.type,
               wo.priority,
               wo.status,
               wo.description,
-              wo.assigned_to,
-              wo.scheduled_start,
-              wo.scheduled_end,
-              wo.actual_start,
-              wo.actual_end,
+              wo.assigned_to, // Maps to assigned_to_id
+              wo.scheduled_start, // Maps to scheduled_start_date
+              wo.scheduled_end, // Maps to scheduled_end_date
+              wo.actual_start, // Maps to actual_start_date
+              wo.actual_end, // Maps to actual_end_date
               wo.estimated_cost,
               wo.actual_cost,
               wo.notes,
@@ -399,23 +411,20 @@ export class SeedOrchestrator {
 
         for (const schedule of schedules) {
           await client.query(
-            `INSERT INTO maintenance_schedules (id, tenant_id, vehicle_id, type, description, scheduled_date, completed_date, status, priority, assigned_mechanic_id, mileage_at_service, cost, work_order_id, notes, created_at, updated_at)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
+            `INSERT INTO maintenance_schedules (id, tenant_id, vehicle_id, type, name, description, next_service_date, last_service_date, last_service_mileage, estimated_cost, is_active, created_at, updated_at)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
             [
               schedule.id,
               schedule.tenant_id,
               schedule.vehicle_id,
-              schedule.type,
-              schedule.description,
-              schedule.scheduled_date,
-              schedule.completed_date,
-              schedule.status,
-              schedule.priority,
-              schedule.assigned_mechanic_id,
-              schedule.mileage_at_service,
-              schedule.cost,
-              schedule.work_order_id,
-              schedule.notes,
+              schedule.type, // Maps to type
+              schedule.description, // Maps to name (description is usually short enough)
+              schedule.description, // Maps to description
+              schedule.scheduled_date, // Maps to next_service_date
+              schedule.completed_date, // Maps to last_service_date
+              schedule.mileage_at_service, // Maps to last_service_mileage
+              schedule.cost, // Maps to estimated_cost
+              true, // is_active
               schedule.created_at,
               schedule.updated_at,
             ]
@@ -440,18 +449,30 @@ export class SeedOrchestrator {
     for (const tenantId of tenantIds) {
       const vehicles = await this.getVehiclesWithFuelType(client, tenantId);
 
+      // Map User ID to Driver ID
+      const driverMapResult = await client.query('SELECT id, user_id FROM drivers WHERE tenant_id = $1', [tenantId]);
+      const userToDriverMap = new Map<string, string>();
+      for (const row of driverMapResult.rows) {
+        if (row.user_id) userToDriverMap.set(row.user_id, row.id);
+      }
+
       for (const vehicle of vehicles) {
+        // Resolve Driver ID from User ID
+        const driverId = vehicle.assigned_driver_id
+          ? (userToDriverMap.get(vehicle.assigned_driver_id) || null)
+          : null;
+
         const transactions = this.fuelFactory.buildList(
           tenantId,
           vehicle.id,
-          vehicle.assigned_driver_id,
+          driverId, // Use Driver ID
           vehicle.fuel_type as any,
           this.config.fuelTransactionsPerVehicle
         );
 
         for (const tx of transactions) {
           await client.query(
-            `INSERT INTO fuel_transactions (id, tenant_id, vehicle_id, driver_id, transaction_date, gallons, cost_per_gallon, total_cost, fuel_type, vendor, location, odometer, card_number_last_4, receipt_url, created_at)
+            `INSERT INTO fuel_transactions (id, tenant_id, vehicle_id, driver_id, transaction_date, gallons, cost_per_gallon, total_cost, fuel_type, vendor_name, location, odometer_reading, card_last4, receipt_url, created_at)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
             [
               tx.id,
@@ -463,10 +484,10 @@ export class SeedOrchestrator {
               tx.cost_per_gallon,
               tx.total_cost,
               tx.fuel_type,
-              tx.vendor,
+              tx.vendor, // Maps to vendor_name
               tx.location,
-              tx.odometer,
-              tx.card_number_last_4,
+              tx.odometer, // Maps to odometer_reading
+              tx.card_number_last_4, // Maps to card_last4
               tx.receipt_url,
               tx.created_at,
             ]
@@ -491,17 +512,29 @@ export class SeedOrchestrator {
     for (const tenantId of tenantIds) {
       const vehicles = await this.getVehiclesWithDrivers(client, tenantId);
 
+      // Map User ID to Driver ID
+      const driverMapResult = await client.query('SELECT id, user_id FROM drivers WHERE tenant_id = $1', [tenantId]);
+      const userToDriverMap = new Map<string, string>();
+      for (const row of driverMapResult.rows) {
+        if (row.user_id) userToDriverMap.set(row.user_id, row.id);
+      }
+
       for (const vehicle of vehicles) {
+        // Resolve Driver ID from User ID (vehicle.assigned_driver_id is User ID)
+        const driverId = vehicle.assigned_driver_id
+          ? (userToDriverMap.get(vehicle.assigned_driver_id) || null)
+          : null;
+
         const routes = this.routeFactory.buildList(
           tenantId,
           vehicle.id,
-          vehicle.assigned_driver_id,
+          driverId, // Use Driver ID
           this.config.routesPerVehicle
         );
 
         for (const route of routes) {
           await client.query(
-            `INSERT INTO routes (id, tenant_id, route_name, vehicle_id, driver_id, status, route_type, start_location, end_location, planned_start_time, planned_end_time, actual_start_time, actual_end_time, total_distance, estimated_duration, actual_duration, waypoints, optimized_waypoints, route_geometry, notes, created_at, updated_at)
+            `INSERT INTO routes (id, tenant_id, route_name, vehicle_id, driver_id, status, type, start_location, end_location, planned_start_time, planned_end_time, actual_start_time, actual_end_time, total_distance, estimated_duration, actual_duration, waypoints, optimized_waypoints, route_geometry, notes, created_at, updated_at)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)`,
             [
               route.id,
@@ -510,7 +543,7 @@ export class SeedOrchestrator {
               route.vehicle_id,
               route.driver_id,
               route.status,
-              route.route_type,
+              route.route_type, // Maps to type
               route.start_location,
               route.end_location,
               route.planned_start_time,
@@ -558,11 +591,12 @@ export class SeedOrchestrator {
 
       for (const incident of incidents) {
         await client.query(
-          `INSERT INTO incidents (id, tenant_id, vehicle_id, driver_id, incident_date, severity, type, description, location, latitude, longitude, injuries_count, fatalities_count, police_report_number, insurance_claim_number, status, estimated_cost, created_at, updated_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
+          `INSERT INTO incidents (id, tenant_id, number, vehicle_id, driver_id, incident_date, severity, type, description, location, latitude, longitude, injuries_reported, fatalities_reported, police_report_number, insurance_claim_number, status, estimated_cost, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)`,
           [
             incident.id,
             incident.tenant_id,
+            incident.number,
             incident.vehicle_id,
             incident.driver_id,
             incident.incident_date,
@@ -572,8 +606,8 @@ export class SeedOrchestrator {
             incident.location,
             incident.latitude,
             incident.longitude,
-            incident.injuries_count,
-            incident.fatalities_count,
+            (incident.injuries_count || 0) > 0, // Maps to injuries_reported
+            (incident.fatalities_count || 0) > 0, // Maps to fatalities_reported
             incident.police_report_number,
             incident.insurance_claim_number,
             incident.status,

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import express, { Request, Response } from 'express'
 import { z } from 'zod'
+import crypto from 'crypto'
 
 import pool from '../config/database' // SECURITY: Import database pool
 import logger from '../config/logger'; // Wave 16: Add Winston logger
@@ -280,7 +281,7 @@ router.post('/login', ...loginMiddleware, async (req: Request, res: Response) =>
     // SECURITY: Include tenant_id for proper multi-tenant isolation
     await pool.query(
       'INSERT INTO refresh_tokens (user_id, tenant_id, token_hash, expires_at, created_at) VALUES ($1, $2, $3, NOW() + INTERVAL \'7 days\', NOW())',
-      [user.id, user.tenant_id, Buffer.from(refreshToken).toString('base64').substring(0, 64)]
+      [user.id, user.tenant_id, crypto.createHash('sha256').update(refreshToken).digest('hex')]
     )
 
     await createAuditLog(
@@ -481,7 +482,7 @@ router.post('/refresh', csrfProtection, async (req: Request, res: Response) => {
 
     // Check if refresh token exists in database and is not revoked
     // SECURITY: Add tenant_id filter to prevent cross-tenant token use
-    const tokenHash = Buffer.from(refreshToken).toString('base64').substring(0, 64)
+    const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex')
     const tokenResult = await pool.query(
       `SELECT * FROM refresh_tokens
        WHERE user_id = $1 AND tenant_id = $2 AND token_hash = $3 AND revoked_at IS NULL AND expires_at > NOW()`,
@@ -531,7 +532,7 @@ router.post('/refresh', csrfProtection, async (req: Request, res: Response) => {
     // SECURITY: Include tenant_id for proper multi-tenant isolation
     await pool.query(
       'INSERT INTO refresh_tokens (user_id, tenant_id, token_hash, expires_at, created_at) VALUES ($1, $2, $3, NOW() + INTERVAL \'7 days\', NOW())',
-      [user.id, user.tenant_id, Buffer.from(newRefreshToken).toString('base64').substring(0, 64)]
+      [user.id, user.tenant_id, crypto.createHash('sha256').update(newRefreshToken).digest('hex')]
     )
 
     await createAuditLog(

@@ -49,11 +49,14 @@ export class LiDAR3DScanningService {
   private containerName = 'lidar-scans';
 
   constructor() {
-    const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING || '';
+    const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
     if (!connectionString) {
-      logger.warn('Azure Storage connection string not configured for LiDAR service');
+      logger.warn('Azure Storage connection string not configured for LiDAR service - running in degraded mode');
+      // @ts-ignore - allow internal initialization to continue for development
+      this.blobServiceClient = null;
+    } else {
+      this.blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
     }
-    this.blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
   }
 
   /**

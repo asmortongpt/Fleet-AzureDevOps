@@ -116,7 +116,7 @@ export class BaseFactory {
    * Generate realistic work order number
    */
   protected generateWorkOrderNumber(prefix: string, year: number, index: number): string {
-    return `${prefix}-${year}-${String(index).padStart(5, '0')}`;
+    return `${prefix}-${year}-${String(index).padStart(5, '0')}-${this.faker.string.alphanumeric(8).toUpperCase()}`;
   }
 
   /**

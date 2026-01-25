@@ -15,18 +15,22 @@ export interface PaginationParams {
 }
 
 export interface FuelTransaction {
-  id: number
-  vehicleId: number
-  driverId?: number
+  id: string
+  vehicleId: string
+  driverId?: string
   transactionDate: Date
   gallons: number
   costPerGallon: number
   totalCost: number
-  odometerReading?: number
-  fuelType?: string
-  vendor?: string
+  odometer: number
+  fuelType: 'gasoline' | 'diesel' | 'electric' | 'hybrid' | 'propane' | 'cng' | 'hydrogen'
+  vendorName?: string
   location?: string
   receiptNumber?: string
+  receiptUrl?: string
+  paymentMethod?: string
+  cardLast4?: string
+  notes?: string
   tenantId: string
   createdAt: Date
   updatedAt: Date
@@ -46,9 +50,9 @@ export class FuelRepository extends BaseRepository<any> {
   /**
    * Find fuel transaction by ID
    */
-  async findById(id: number, tenantId: string): Promise<FuelTransaction | null> {
+  async findById(id: string, tenantId: string): Promise<FuelTransaction | null> {
     const result = await pool.query(
-      'SELECT id, vehicle_id, driver_id, transaction_date, gallons, cost_per_gallon, total_cost, odometer_reading, fuel_type, vendor, location, receipt_number, tenant_id, created_at, updated_at FROM fuel_transactions WHERE id = $1 AND tenant_id = $2',
+      'SELECT id, vehicle_id AS "vehicleId", driver_id AS "driverId", transaction_date AS "transactionDate", gallons, cost_per_gallon AS "costPerGallon", total_cost AS "totalCost", odometer, fuel_type AS "fuelType", vendor_name AS "vendorName", location, receipt_number AS "receiptNumber", tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM fuel_transactions WHERE id = $1 AND tenant_id = $2',
       [id, tenantId]
     )
     return result.rows[0] || null
@@ -69,7 +73,7 @@ export class FuelRepository extends BaseRepository<any> {
     const safeSortOrder = sortOrder === 'asc' ? 'ASC' : 'DESC'
 
     const result = await pool.query(
-      `SELECT id, vehicle_id, driver_id, transaction_date, gallons, cost_per_gallon, total_cost, odometer_reading, fuel_type, vendor, location, receipt_number, tenant_id, created_at, updated_at FROM fuel_transactions 
+      `SELECT id, vehicle_id AS "vehicleId", driver_id AS "driverId", transaction_date AS "transactionDate", gallons, cost_per_gallon AS "costPerGallon", total_cost AS "totalCost", odometer, fuel_type AS "fuelType", vendor_name AS "vendorName", location, receipt_number AS "receiptNumber", tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM fuel_transactions 
        WHERE tenant_id = $1 
        ORDER BY ${safeSortBy} ${safeSortOrder} 
        LIMIT $2 OFFSET $3`,
@@ -82,14 +86,14 @@ export class FuelRepository extends BaseRepository<any> {
    * Find fuel transactions by vehicle
    */
   async findByVehicle(
-    vehicleId: number,
+    vehicleId: string,
     tenantId: string,
     startDate?: Date,
     endDate?: Date
   ): Promise<FuelTransaction[]> {
     if (startDate && endDate) {
       const result = await pool.query(
-        `SELECT id, vehicle_id, driver_id, transaction_date, gallons, cost_per_gallon, total_cost, odometer_reading, fuel_type, vendor, location, receipt_number, tenant_id, created_at, updated_at FROM fuel_transactions 
+        `SELECT id, vehicle_id AS "vehicleId", driver_id AS "driverId", transaction_date AS "transactionDate", gallons, cost_per_gallon AS "costPerGallon", total_cost AS "totalCost", odometer, fuel_type AS "fuelType", vendor_name AS "vendorName", location, receipt_number AS "receiptNumber", tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM fuel_transactions 
          WHERE vehicle_id = $1 AND tenant_id = $2 
          AND transaction_date BETWEEN $3 AND $4 
          ORDER BY transaction_date DESC`,
@@ -99,7 +103,7 @@ export class FuelRepository extends BaseRepository<any> {
     }
 
     const result = await pool.query(
-      `SELECT id, vehicle_id, driver_id, transaction_date, gallons, cost_per_gallon, total_cost, odometer_reading, fuel_type, vendor, location, receipt_number, tenant_id, created_at, updated_at FROM fuel_transactions 
+      `SELECT id, vehicle_id AS "vehicleId", driver_id AS "driverId", transaction_date AS "transactionDate", gallons, cost_per_gallon AS "costPerGallon", total_cost AS "totalCost", odometer, fuel_type AS "fuelType", vendor_name AS "vendorName", location, receipt_number AS "receiptNumber", tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM fuel_transactions 
        WHERE vehicle_id = $1 AND tenant_id = $2 
        ORDER BY transaction_date DESC`,
       [vehicleId, tenantId]
@@ -111,7 +115,7 @@ export class FuelRepository extends BaseRepository<any> {
    * Find fuel transactions by driver
    */
   async findByDriver(
-    driverId: number,
+    driverId: string,
     tenantId: string,
     pagination: PaginationParams = {}
   ): Promise<FuelTransaction[]> {
@@ -119,7 +123,7 @@ export class FuelRepository extends BaseRepository<any> {
     const offset = (page - 1) * limit
 
     const result = await pool.query(
-      `SELECT id, vehicle_id, driver_id, transaction_date, gallons, cost_per_gallon, total_cost, odometer_reading, fuel_type, vendor, location, receipt_number, tenant_id, created_at, updated_at FROM fuel_transactions 
+      `SELECT id, vehicle_id AS "vehicleId", driver_id AS "driverId", transaction_date AS "transactionDate", gallons, cost_per_gallon AS "costPerGallon", total_cost AS "totalCost", odometer, fuel_type AS "fuelType", vendor_name AS "vendorName", location, receipt_number AS "receiptNumber", tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM fuel_transactions 
        WHERE driver_id = $1 AND tenant_id = $2 
        ORDER BY transaction_date DESC 
        LIMIT $3 OFFSET $4`,
@@ -142,7 +146,7 @@ export class FuelRepository extends BaseRepository<any> {
     const result = await pool.query(
       `INSERT INTO fuel_transactions (
         vehicle_id, driver_id, transaction_date, gallons, cost_per_gallon, 
-        total_cost, odometer_reading, fuel_type, vendor, location, receipt_number, tenant_id
+        total_cost, odometer, fuel_type, vendor_name, location, receipt_number, tenant_id
       )
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING *`,
@@ -153,9 +157,9 @@ export class FuelRepository extends BaseRepository<any> {
         data.gallons,
         data.costPerGallon,
         totalCost,
-        data.odometerReading || null,
-        data.fuelType || null,
-        data.vendor || null,
+        data.odometer || 0,
+        data.fuelType || 'gasoline',
+        data.vendorName || null,
         data.location || null,
         data.receiptNumber || null,
         tenantId
@@ -186,7 +190,7 @@ export class FuelRepository extends BaseRepository<any> {
         const result = await client.query(
           `INSERT INTO fuel_transactions (
             vehicle_id, driver_id, transaction_date, gallons, cost_per_gallon, 
-            total_cost, odometer_reading, fuel_type, vendor, location, receipt_number, tenant_id
+            total_cost, odometer, fuel_type, vendor_name, location, receipt_number, tenant_id
           )
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
           RETURNING *`,
@@ -197,9 +201,9 @@ export class FuelRepository extends BaseRepository<any> {
             data.gallons,
             data.costPerGallon,
             totalCost,
-            data.odometerReading || null,
-            data.fuelType || null,
-            data.vendor || null,
+            data.odometer || 0,
+            data.fuelType || 'gasoline',
+            data.vendorName || null,
             data.location || null,
             data.receiptNumber || null,
             tenantId
@@ -222,7 +226,7 @@ export class FuelRepository extends BaseRepository<any> {
    * Update fuel transaction
    */
   async update(
-    id: number,
+    id: string,
     data: Partial<FuelTransaction>,
     tenantId: string
   ): Promise<FuelTransaction> {
@@ -247,9 +251,9 @@ export class FuelRepository extends BaseRepository<any> {
            gallons = COALESCE($2, gallons),
            cost_per_gallon = COALESCE($3, cost_per_gallon),
            total_cost = $4,
-           odometer_reading = COALESCE($5, odometer_reading),
+           odometer = COALESCE($5, odometer),
            fuel_type = COALESCE($6, fuel_type),
-           vendor = COALESCE($7, vendor),
+           vendor_name = COALESCE($7, vendor_name),
            location = COALESCE($8, location),
            receipt_number = COALESCE($9, receipt_number),
            updated_at = NOW()
@@ -260,9 +264,9 @@ export class FuelRepository extends BaseRepository<any> {
         data.gallons,
         data.costPerGallon,
         totalCost,
-        data.odometerReading,
+        data.odometer,
         data.fuelType,
-        data.vendor,
+        data.vendorName,
         data.location,
         data.receiptNumber,
         id,
@@ -287,7 +291,7 @@ export class FuelRepository extends BaseRepository<any> {
    * Get total fuel cost for a vehicle in a date range
    */
   async getTotalCost(
-    vehicleId: number,
+    vehicleId: string,
     tenantId: string,
     startDate: Date,
     endDate: Date
@@ -306,19 +310,19 @@ export class FuelRepository extends BaseRepository<any> {
    * Get fuel efficiency (MPG) for a vehicle
    */
   async getFuelEfficiency(
-    vehicleId: number,
+    vehicleId: string,
     tenantId: string,
     startDate: Date,
     endDate: Date
   ): Promise<number> {
     const result = await pool.query(
       `SELECT 
-         MAX(odometer_reading) - MIN(odometer_reading) as miles_driven,
+         MAX(odometer) - MIN(odometer) as miles_driven,
          SUM(gallons) as total_gallons
        FROM fuel_transactions 
        WHERE vehicle_id = $1 AND tenant_id = $2 
        AND transaction_date BETWEEN $3 AND $4
-       AND odometer_reading IS NOT NULL`,
+       AND odometer IS NOT NULL`,
       [vehicleId, tenantId, startDate, endDate]
     )
 

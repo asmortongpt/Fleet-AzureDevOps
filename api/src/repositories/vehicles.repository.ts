@@ -9,17 +9,24 @@ import { BaseRepository, PaginationParams } from './base/BaseRepository';
 import { CacheService, CacheKeys } from '../services/cache.service'
 
 export interface Vehicle {
-  id: number
+  id: string
   vin: string
+  name: string
+  number: string
   licensePlate: string
   make: string
   model: string
   year: number
+  type: 'sedan' | 'suv' | 'truck' | 'van' | 'bus' | 'emergency' | 'construction' | 'specialty'
   tenantId: string
-  status: 'active' | 'maintenance' | 'retired'
-  mileage?: number
+  status: 'active' | 'maintenance' | 'retired' | 'idle' | 'charging' | 'service' | 'emergency' | 'offline'
+  odometer: number
+  fuelLevel?: number
   fuelType?: string
-  department?: string
+  latitude?: number
+  longitude?: number
+  assignedDriverId?: string
+  assignedFacilityId?: string
   createdAt: Date
   updatedAt: Date
 }
@@ -32,7 +39,7 @@ export interface Vehicle {
  */
 import { TYPES } from '../types';
 
-export class VehiclesRepository extends BaseRepository<any> {
+export class VehiclesRepository extends BaseRepository<Vehicle> {
   private cache: CacheService
 
   constructor(pool: Pool) {
@@ -42,18 +49,18 @@ export class VehiclesRepository extends BaseRepository<any> {
 
   /**
    * Find vehicle by ID with tenant isolation (cached)
-   * @param id Vehicle ID
+   * @param id Vehicle ID (UUID)
    * @param tenantId Tenant ID for isolation
    * @returns Vehicle or null
    */
-  async findById(id: number, tenantId: string): Promise<Vehicle | null> {
+  async findById(id: string, tenantId: string): Promise<Vehicle | null> {
     const cacheKey = CacheKeys.vehicle(id)
 
     return await this.cache.getOrSet(
       cacheKey,
       async () => {
         const result = await this.pool.query(
-          'SELECT id, vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id, created_at, updated_at FROM vehicles WHERE id = $1 AND tenant_id = $2',
+          'SELECT id, vin, license_plate AS "licensePlate", make, model, year, status, odometer, fuel_level AS "fuelLevel", fuel_type AS "fuelType", latitude, longitude, assigned_driver_id AS "assignedDriverId", assigned_facility_id AS "assignedFacilityId", tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM vehicles WHERE id = $1 AND tenant_id = $2',
           [id, tenantId]
         )
         return result.rows[0] || null
@@ -76,12 +83,12 @@ export class VehiclesRepository extends BaseRepository<any> {
     const offset = (page - 1) * limit
 
     // Whitelist sortBy to prevent SQL injection
-    const allowedSortColumns = ['id', 'vin', 'make', 'model', 'year', 'created_at', 'updated_at', 'status']
+    const allowedSortColumns = ['id', 'vin', 'make', 'model', 'year', 'created_at', 'updated_at', 'status', 'odometer']
     const safeSortBy = allowedSortColumns.includes(sortBy) ? sortBy : 'created_at'
     const safeSortOrder = sortOrder?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC'
 
     const result = await this.pool.query(
-      `SELECT id, vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id, created_at, updated_at FROM vehicles 
+      `SELECT id, vin, license_plate AS "licensePlate", make, model, year, status, odometer, fuel_level AS "fuelLevel", fuel_type AS "fuelType", tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM vehicles 
        WHERE tenant_id = $1 
        ORDER BY ${safeSortBy} ${safeSortOrder} 
        LIMIT $2 OFFSET $3`,
@@ -98,7 +105,7 @@ export class VehiclesRepository extends BaseRepository<any> {
    */
   async findByVIN(vin: string, tenantId: string): Promise<Vehicle | null> {
     const result = await this.pool.query(
-      'SELECT id, vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id, created_at, updated_at FROM vehicles WHERE vin = $1 AND tenant_id = $2',
+      'SELECT id, vin, license_plate AS "licensePlate", make, model, year, status, odometer, tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM vehicles WHERE vin = $1 AND tenant_id = $2',
       [vin, tenantId]
     )
     return result.rows[0] || null
@@ -111,11 +118,11 @@ export class VehiclesRepository extends BaseRepository<any> {
    * @returns Array of vehicles
    */
   async findByStatus(
-    status: 'active' | 'maintenance' | 'retired',
+    status: Vehicle['status'],
     tenantId: string
   ): Promise<Vehicle[]> {
     const result = await this.pool.query(
-      'SELECT id, vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id, created_at, updated_at FROM vehicles WHERE status = $1 AND tenant_id = $2 ORDER BY created_at DESC',
+      'SELECT id, vin, license_plate AS "licensePlate", make, model, year, status, odometer, tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM vehicles WHERE status = $1 AND tenant_id = $2 ORDER BY created_at DESC',
       [status, tenantId]
     )
     return result.rows
@@ -129,8 +136,8 @@ export class VehiclesRepository extends BaseRepository<any> {
    */
   async create(data: Partial<Vehicle>, tenantId: string): Promise<Vehicle> {
     // Validate required fields
-    if (!data.vin || !data.make || !data.model || !data.year) {
-      throw new ValidationError('VIN, make, model, and year are required')
+    if (!data.vin || !data.make || !data.model || !data.year || !data.type) {
+      throw new ValidationError('VIN, make, model, year, and type are required')
     }
 
     // Check for duplicate VIN
@@ -141,39 +148,42 @@ export class VehiclesRepository extends BaseRepository<any> {
 
     const result = await this.pool.query(
       `INSERT INTO vehicles (
-        vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id
+        vin, name, number, license_plate, make, model, year, type, status, odometer, fuel_level, fuel_type, tenant_id
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      RETURNING id, vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id, created_at, updated_at`,
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      RETURNING id, vin, license_plate AS "licensePlate", make, model, year, status, odometer, tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt"`,
       [
         data.vin,
+        data.name,
+        data.number,
         data.licensePlate || null,
         data.make,
         data.model,
         data.year,
+        data.type,
         data.status || 'active',
-        data.mileage || 0,
+        data.odometer || 0,
+        data.fuelLevel || 100,
         data.fuelType || null,
-        data.department || null,
         tenantId
       ]
     )
 
     // Invalidate tenant-level cache
-    await this.cache.deletePattern(CacheKeys.vehicles(parseInt(tenantId)))
+    await this.cache.deletePattern(CacheKeys.vehicles(tenantId))
 
     return result.rows[0]
   }
 
   /**
    * Update vehicle with tenant isolation (invalidates cache)
-   * @param id Vehicle ID
+   * @param id Vehicle ID (UUID)
    * @param data Partial vehicle data
    * @param tenantId Tenant ID for isolation
    * @returns Updated vehicle
    */
   async update(
-    id: number,
+    id: string,
     data: Partial<Vehicle>,
     tenantId: string
   ): Promise<Vehicle> {
@@ -190,21 +200,23 @@ export class VehiclesRepository extends BaseRepository<any> {
            model = COALESCE($3, model),
            year = COALESCE($4, year),
            status = COALESCE($5, status),
-           mileage = COALESCE($6, mileage),
-           fuel_type = COALESCE($7, fuel_type),
-           department = COALESCE($8, department),
+           odometer = COALESCE($6, odometer),
+           fuel_level = COALESCE($7, fuel_level),
+           fuel_type = COALESCE($8, fuel_type),
+           assigned_driver_id = COALESCE($9, assigned_driver_id),
            updated_at = NOW()
-       WHERE id = $9 AND tenant_id = $10
-       RETURNING id, vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id, created_at, updated_at`,
+       WHERE id = $10 AND tenant_id = $11
+       RETURNING id, vin, license_plate AS "licensePlate", make, model, year, status, odometer, tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt"`,
       [
         data.licensePlate,
         data.make,
         data.model,
         data.year,
         data.status,
-        data.mileage,
+        data.odometer,
+        data.fuelLevel,
         data.fuelType,
-        data.department,
+        data.assignedDriverId,
         id,
         tenantId
       ]
@@ -212,18 +224,18 @@ export class VehiclesRepository extends BaseRepository<any> {
 
     // Invalidate individual and tenant-level cache
     await this.cache.delete(CacheKeys.vehicle(id))
-    await this.cache.deletePattern(CacheKeys.vehicles(parseInt(tenantId)))
+    await this.cache.deletePattern(CacheKeys.vehicles(tenantId))
 
     return result.rows[0]
   }
 
   /**
    * Delete vehicle with tenant isolation (invalidates cache)
-   * @param id Vehicle ID
+   * @param id Vehicle ID (UUID)
    * @param tenantId Tenant ID for isolation
    * @returns true if deleted
    */
-  async delete(id: number, tenantId: string): Promise<boolean> {
+  async delete(id: string, tenantId: string): Promise<boolean> {
     const result = await this.pool.query(
       'DELETE FROM vehicles WHERE id = $1 AND tenant_id = $2',
       [id, tenantId]
@@ -233,7 +245,7 @@ export class VehiclesRepository extends BaseRepository<any> {
     if (deleted) {
       // Invalidate individual and tenant-level cache
       await this.cache.delete(CacheKeys.vehicle(id))
-      await this.cache.deletePattern(CacheKeys.vehicles(parseInt(tenantId)))
+      await this.cache.deletePattern(CacheKeys.vehicles(tenantId))
     }
 
     return deleted
@@ -261,7 +273,7 @@ export class VehiclesRepository extends BaseRepository<any> {
   async search(keyword: string, tenantId: string): Promise<Vehicle[]> {
     const searchTerm = `%${keyword}%`
     const result = await this.pool.query(
-      `SELECT id, vin, license_plate, make, model, year, status, mileage, fuel_type, department, tenant_id, created_at, updated_at FROM vehicles
+      `SELECT id, vin, license_plate AS "licensePlate", make, model, year, status, odometer, tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM vehicles
        WHERE tenant_id = $1
        AND (
          make ILIKE $2 OR
@@ -277,11 +289,11 @@ export class VehiclesRepository extends BaseRepository<any> {
 
   /**
    * Validate that a vehicle exists and belongs to the tenant
-   * @param id Vehicle ID
+   * @param id Vehicle ID (UUID)
    * @param tenantId Tenant ID for isolation
    * @returns true if vehicle exists and belongs to tenant
    */
-  async validateOwnership(id: number, tenantId: string): Promise<boolean> {
+  async validateOwnership(id: string, tenantId: string): Promise<boolean> {
     const result = await this.pool.query(
       'SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2',
       [id, tenantId]
@@ -315,7 +327,7 @@ export class VehiclesRepository extends BaseRepository<any> {
       `SELECT
         v.*,
         d.id as driver_id,
-        d.name as driver_name,
+        d.first_name || ' ' || d.last_name as driver_name,
         d.license_number as driver_license,
         d.phone as driver_phone,
         d.email as driver_email
@@ -333,26 +345,26 @@ export class VehiclesRepository extends BaseRepository<any> {
   /**
    * B9: Fetch single vehicle with all related data (eager loading)
    * Prevents N+1 by fetching all relations in one query
-   * @param id Vehicle ID
+   * @param id Vehicle ID (UUID)
    * @param tenantId Tenant ID for isolation
    * @returns Vehicle with all relations or null
    */
-  async findByIdWithRelations(id: number, tenantId: string): Promise<any | null> {
+  async findByIdWithRelations(id: string, tenantId: string): Promise<any | null> {
     const result = await this.pool.query(
       `SELECT
         v.*,
         d.id as driver_id,
-        d.name as driver_name,
+        d.first_name || ' ' || d.last_name as driver_name,
         d.license_number as driver_license,
         COUNT(DISTINCT m.id) as maintenance_count,
         COUNT(DISTINCT f.id) as fuel_transaction_count,
-        MAX(m.service_date) as last_service_date
+        MAX(m.actual_end_date) as last_service_date
       FROM vehicles v
       LEFT JOIN drivers d ON v.assigned_driver_id = d.id AND d.tenant_id = $2
-      LEFT JOIN maintenance_records m ON v.id = m.vehicle_id AND m.tenant_id = $2
+      LEFT JOIN work_orders m ON v.id = m.vehicle_id AND m.tenant_id = $2
       LEFT JOIN fuel_transactions f ON v.id = f.vehicle_id AND f.tenant_id = $2
       WHERE v.id = $1 AND v.tenant_id = $2
-      GROUP BY v.id, d.id, d.name, d.license_number`,
+      GROUP BY v.id, d.id`,
       [id, tenantId]
     )
 
@@ -365,19 +377,19 @@ export class VehiclesRepository extends BaseRepository<any> {
   async findWithDriverAndMaintenance(id: string, tenantId: string) {
     const query = `
       SELECT
-        v.id, v.make, v.model, v.year, v.vin, v.license_plate, v.mileage, v.status,
-        d.id as driver_id, d.name as driver_name, d.email as driver_email, d.phone as driver_phone,
-        m.id as maintenance_id, m.type as maintenance_type, m.date as maintenance_date,
-        m.cost as maintenance_cost, m.description as maintenance_description
+        v.id, v.make, v.model, v.year, v.vin, v.license_plate, v.odometer, v.status,
+        d.id as driver_id, d.first_name || ' ' || d.last_name as driver_name, d.email as driver_email, d.phone as driver_phone,
+        m.id as maintenance_id, m.type as maintenance_type, m.actual_end_date as maintenance_date,
+        m.actual_cost as maintenance_cost, m.description as maintenance_description
       FROM vehicles v
-      LEFT JOIN drivers d ON v.driver_id = d.id
+      LEFT JOIN drivers d ON v.assigned_driver_id = d.id
       LEFT JOIN LATERAL (
-        SELECT * FROM maintenance
-        WHERE vehicle_id = v.id AND deleted_at IS NULL
-        ORDER BY date DESC
+        SELECT * FROM work_orders
+        WHERE vehicle_id = v.id 
+        ORDER BY actual_end_date DESC
         LIMIT 5
       ) m ON true
-      WHERE v.id = $1 AND v.tenant_id = $2 AND v.deleted_at IS NULL
+      WHERE v.id = $1 AND v.tenant_id = $2
     `;
     const result = await this.pool.query(query, [id, tenantId]);
     return result.rows;
@@ -389,4 +401,14 @@ export class VehiclesRepository extends BaseRepository<any> {
   async findAllWithDriversAndStatus(tenantId: string) {
     const query = `
       SELECT
-        v.id, v.make, v.model, v.year, v.vin, v.license_plate, v.mileage, v.
+        v.id, v.make, v.model, v.year, v.vin, v.license_plate, v.odometer, v.status,
+        d.id as driver_id, d.first_name || ' ' || d.last_name as driver_name
+      FROM vehicles v
+      LEFT JOIN drivers d ON v.assigned_driver_id = d.id
+      WHERE v.tenant_id = $1
+      ORDER BY v.created_at DESC
+    `;
+    const result = await this.pool.query(query, [tenantId]);
+    return result.rows;
+  }
+}

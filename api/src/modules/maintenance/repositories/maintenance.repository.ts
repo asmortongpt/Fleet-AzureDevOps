@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 
-import { BaseRepository } from "../../../repositories/base.repository";
+import { BaseRepository } from "../../../repositories/base/BaseRepository";
 import type { MaintenanceRecord } from "../../../types/maintenance";
 
 @injectable()

@@ -60,8 +60,7 @@ export class RouteFactory extends BaseFactory {
       { value: 'pending', weight: 15 },
       { value: 'in_progress', weight: 25 },
       { value: 'completed', weight: 50 },
-      { value: 'cancelled', weight: 8 },
-      { value: 'on_hold', weight: 2 },
+      { value: 'cancelled', weight: 10 },
     ]);
 
     // Calculate approximate distance (simplified Haversine)

@@ -4,7 +4,7 @@ import { Pool } from 'pg'
 import { injectable } from 'inversify';
 
 import { pool } from '../../../db';
-import { BaseRepository } from '../../../repositories/base.repository';
+import { BaseRepository } from '../../../repositories/base/BaseRepository';
 
 export interface IncidentAction {
   id?: number;

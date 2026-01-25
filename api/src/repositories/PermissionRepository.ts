@@ -11,7 +11,7 @@ import { injectable } from 'inversify';
 
 import { pool } from '../db';
 
-import { BaseRepository } from './base.repository';
+import { BaseRepository } from './base/BaseRepository';
 
 export interface Role {
   id: number;
