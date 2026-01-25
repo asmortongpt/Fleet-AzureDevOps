@@ -1,10 +1,12 @@
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
+import { Pool } from "pg";
 
-import { BaseRepository } from "../../../repositories/base.repository";
+import { BaseRepository } from "../../../repositories/base/BaseRepository";
+import { TYPES } from "../../../types";
 
 @injectable()
 export class DriverRepository extends BaseRepository<any> {
-  constructor() {
-    super("fleet_drivers");
+  constructor(@inject(TYPES.DatabasePool) pool: Pool) {
+    super(pool, "fleet_drivers");
   }
 }

@@ -22,31 +22,25 @@ export class DriverFactory extends BaseFactory {
     const { overrides = {} } = options;
 
     const id = this.generateDeterministicUUID(`driver-${tenantId}-${index}`);
+    const firstName = this.faker.person.firstName();
+    const lastName = this.faker.person.lastName();
     const state = this.faker.helpers.arrayElement(this.US_STATES);
     const licenseNumber = this.generateDriverLicenseNumber(state);
     const employeeNumber = this.generateEmployeeNumber('DRV', index);
 
     // Realistic status distribution
     const status = this.weightedRandom<DriverStatus>([
-      { value: 'active', weight: 75 },
-      { value: 'inactive', weight: 10 },
-      { value: 'on_leave', weight: 8 },
-      { value: 'training', weight: 5 },
-      { value: 'suspended', weight: 1.5 },
-      { value: 'terminated', weight: 0.5 },
+      { value: 'active', weight: 85 },
+      { value: 'on_leave', weight: 10 },
+      { value: 'suspended', weight: 3 },
+      { value: 'terminated', weight: 2 },
     ]);
 
     // Generate realistic hire date (1-10 years ago)
     const hireDate = this.faker.date.past({ years: 10 });
     const yearsEmployed = (new Date().getTime() - hireDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
 
-    // Safety score correlates with years employed (experienced drivers tend to be safer)
-    const baseSafetyScore = 70 + Math.min(yearsEmployed * 3, 20);
-    const safetyScore = this.faker.number.float({
-      min: baseSafetyScore - 10,
-      max: Math.min(baseSafetyScore + 10, 100),
-      fractionDigits: 2,
-    });
+
 
     // License expiry (1-5 years from now for active drivers)
     const licenseExpiry =
@@ -58,15 +52,17 @@ export class DriverFactory extends BaseFactory {
       id,
       tenant_id: tenantId,
       user_id: userId,
+      first_name: firstName,
+      last_name: lastName,
       employee_number: employeeNumber,
       license_number: licenseNumber,
       license_state: state,
-      license_expiry: licenseExpiry,
+      license_expiration: licenseExpiry,
       status,
+
       hire_date: hireDate,
       phone: this.generatePhoneNumber(),
-      email: this.faker.internet.email().toLowerCase(),
-      safety_score: safetyScore,
+      email: this.faker.internet.email({ firstName, lastName }).toLowerCase(),
       created_at: hireDate,
       updated_at: new Date(),
       ...overrides,
@@ -103,7 +99,6 @@ export class DriverFactory extends BaseFactory {
     return this.build(tenantId, userId, index, {
       overrides: {
         status: 'active',
-        safety_score: this.faker.number.float({ min: 90, max: 100, fractionDigits: 2 }),
       },
     });
   }
@@ -114,7 +109,7 @@ export class DriverFactory extends BaseFactory {
   buildExpiredLicense(tenantId: string, userId: string, index: number = 0): Driver {
     return this.build(tenantId, userId, index, {
       overrides: {
-        license_expiry: this.randomPastDate(365),
+        license_expiration: this.randomPastDate(365),
         status: 'suspended',
       },
     });
@@ -127,9 +122,8 @@ export class DriverFactory extends BaseFactory {
     const recentHireDate = this.faker.date.recent({ days: 90 });
     return this.build(tenantId, userId, index, {
       overrides: {
-        status: 'training',
+        status: 'active',
         hire_date: recentHireDate,
-        safety_score: this.faker.number.float({ min: 80, max: 95, fractionDigits: 2 }),
         created_at: recentHireDate,
       },
     });

@@ -125,7 +125,7 @@ router.get("/:id",
 
       // Use DI-resolved VehicleService
       const vehicleService = container.get<VehicleService>(TYPES.VehicleService)
-      const vehicle = await vehicleService.getVehicleById(vehicleId, tenantId)
+      const vehicle = await vehicleService.getVehicleById(Number(vehicleId), tenantId)
 
       if (!vehicle) {
         return res.status(404).json({
@@ -283,7 +283,7 @@ router.put("/:id",
       const vehicleService = container.get<VehicleService>(TYPES.VehicleService)
 
       // VehicleService.updateVehicle will throw error if vehicle not found or access denied
-      const vehicle = await vehicleService.updateVehicle(vehicleId, req.body, tenantId)
+      const vehicle = await vehicleService.updateVehicle(Number(vehicleId), req.body, tenantId)
 
       if (!vehicle) {
         return res.status(404).json({
@@ -333,7 +333,7 @@ router.delete("/:id",
 
       // Use DI-resolved VehicleService
       const vehicleService = container.get<VehicleService>(TYPES.VehicleService)
-      const deleted = await vehicleService.deleteVehicle(vehicleId, tenantId)
+      const deleted = await vehicleService.deleteVehicle(Number(vehicleId), tenantId)
 
       if (!deleted) {
         return res.status(404).json({
@@ -393,4 +393,18 @@ router.get("/statistics",
       total: vehicles.length,
       byStatus: {
         active: vehicles.filter((v: any) => v.status === 'active').length,
-        inactive: vehicles.filter((v: any) =>
+        inactive: vehicles.filter((v: any) => v.status === 'inactive').length,
+        maintenance: vehicles.filter((v: any) => v.status === 'maintenance').length,
+        retired: vehicles.filter((v: any) => v.status === 'retired').length
+      }
+    }
+
+    // Cache for 10 minutes
+    await cacheService.set(cacheKey, statistics, 600)
+
+    logger.info('Fetched vehicle statistics', { tenantId })
+    res.json(statistics)
+  })
+)
+
+export default router

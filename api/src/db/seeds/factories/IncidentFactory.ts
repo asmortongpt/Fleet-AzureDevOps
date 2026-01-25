@@ -29,6 +29,8 @@ export class IncidentFactory extends BaseFactory {
     const { overrides = {} } = options;
 
     const id = this.generateDeterministicUUID(`incident-${tenantId}-${index}`);
+    const year = new Date().getFullYear();
+    const incidentNumber = `INC-${year}-${String(index).padStart(5, '0')}-${this.faker.string.alphanumeric(6).toUpperCase()}`;
 
     const severity = this.weightedRandom<IncidentSeverity>([
       { value: 'minor', weight: 50 },
@@ -41,7 +43,7 @@ export class IncidentFactory extends BaseFactory {
     const type = this.faker.helpers.arrayElement(this.INCIDENT_TYPES);
 
     const status = this.weightedRandom<Status>([
-      { value: 'pending', weight: 15 },
+      { value: 'open', weight: 15 },
       { value: 'in_progress', weight: 35 },
       { value: 'completed', weight: 45 },
       { value: 'on_hold', weight: 5 },
@@ -119,6 +121,7 @@ export class IncidentFactory extends BaseFactory {
     return {
       id,
       tenant_id: tenantId,
+      number: incidentNumber,
       vehicle_id: vehicleId,
       driver_id: driverId,
       incident_date: incidentDate,
