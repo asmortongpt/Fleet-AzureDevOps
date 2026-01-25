@@ -104,11 +104,9 @@ export class VehicleFactory extends BaseFactory {
 
     // Realistic status distribution
     const status = this.weightedRandom<VehicleStatus>([
-      { value: 'active', weight: 60 },
-      { value: 'idle', weight: 20 },
-      { value: 'maintenance', weight: 10 },
-      { value: 'service', weight: 5 },
-      { value: 'charging', weight: fuelType === 'electric' ? 3 : 0 },
+      { value: 'active', weight: 80 },
+      { value: 'maintenance', weight: 15 },
+      { value: 'offline', weight: 3 },
       { value: 'retired', weight: 2 },
     ]);
 
@@ -124,7 +122,7 @@ export class VehicleFactory extends BaseFactory {
     return {
       id,
       tenant_id: tenantId,
-      vehicle_number: `VEH-${String(index + 1).padStart(4, '0')}`,
+      number: `VEH-${String(index + 1).padStart(4, '0')}`,
       vin,
       make: config.make,
       model,
@@ -133,17 +131,14 @@ export class VehicleFactory extends BaseFactory {
       fuel_type: fuelType,
       status,
       license_plate: licensePlate,
-      current_mileage: currentMileage,
-      current_latitude: location.lat + latOffset,
-      current_longitude: location.lon + lonOffset,
-      last_location_update:
-        status === 'active' || status === 'idle'
-          ? this.randomPastDate(1)
-          : this.randomPastDate(30),
+      odometer: currentMileage,
+      latitude: location.lat + latOffset,
+      longitude: location.lon + lonOffset,
+
       assigned_driver_id: assignedDriverId || null,
       assigned_facility_id: null,
-      model_3d_url: this.get3DModelUrl(config.make, model),
       metadata: {
+        model3dUrl: this.get3DModelUrl(config.make, model),
         color: this.faker.vehicle.color(),
         purchaseDate: this.faker.date.past({ years: vehicleAge }),
         warrantyExpiry: this.faker.date.future({ years: Math.max(1, 5 - vehicleAge) }),

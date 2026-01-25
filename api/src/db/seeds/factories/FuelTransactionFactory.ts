@@ -50,7 +50,7 @@ export class FuelTransactionFactory extends BaseFactory {
     const id = this.generateDeterministicUUID(`fuel-${tenantId}-${vehicleId}-${index}`);
 
     const vendor = this.faker.helpers.arrayElement(this.FUEL_VENDORS);
-    const baseCost = this.BASE_FUEL_PRICES[fuelType];
+    const baseCost = this.BASE_FUEL_PRICES[fuelType] || this.BASE_FUEL_PRICES.gasoline;
     const costPerGallon = this.faker.number.float({
       min: baseCost * vendor.priceMultiplier * 0.95,
       max: baseCost * vendor.priceMultiplier * 1.05,
@@ -68,7 +68,7 @@ export class FuelTransactionFactory extends BaseFactory {
       hydrogen: { min: 4, max: 12 },
     };
 
-    const range = gallonsRange[fuelType];
+    const range = gallonsRange[fuelType] || gallonsRange.gasoline;
     const gallons = this.faker.number.float({
       min: range.min,
       max: range.max,

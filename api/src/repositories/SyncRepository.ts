@@ -1,6 +1,6 @@
 import { pool } from '../db';
 
-import { BaseRepository } from './base.repository';
+import { BaseRepository } from './base/BaseRepository';
 
 /**
  * Sync Repository - Manages sync state, jobs, and errors

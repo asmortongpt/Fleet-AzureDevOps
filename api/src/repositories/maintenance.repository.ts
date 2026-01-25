@@ -1,9 +1,5 @@
 import { Pool } from 'pg'
-
-
-import { pool } from '../db'
 import { NotFoundError, ValidationError } from '../lib/errors'
-
 import { BaseRepository } from './base/BaseRepository';
 
 export interface PaginationParams {
@@ -13,18 +9,19 @@ export interface PaginationParams {
   sortOrder?: 'asc' | 'desc'
 }
 
-export interface Maintenance {
-  id: number
-  vehicleId: number
-  maintenanceType: string
-  description: string
-  scheduledDate: Date
-  completedDate?: Date
-  status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled'
-  cost?: number
-  mileage?: number
-  performedBy?: string
-  notes?: string
+export interface MaintenanceSchedule {
+  id: string
+  vehicleId: string
+  name: string
+  type: string
+  description?: string
+  intervalDays?: number
+  intervalMiles?: number
+  lastServiceDate?: Date
+  lastServiceMileage?: number
+  nextServiceDate?: Date
+  nextServiceMileage?: number
+  isActive: boolean
   tenantId: string
   createdAt: Date
   updatedAt: Date
@@ -35,20 +32,17 @@ export interface Maintenance {
  * All queries use parameterized statements for SQL injection prevention
  * All operations enforce tenant isolation
  */
-export class MaintenanceRepository extends BaseRepository<any> {
-  private tenantId: string;
-
-  constructor(pool: Pool, tenantId?: string) {
-    super(pool, 'LMaintenance_LRepository extends _LBases');
-    this.tenantId = tenantId || '';
+export class MaintenanceRepository extends BaseRepository<MaintenanceSchedule> {
+  constructor(pool: Pool) {
+    super(pool, 'maintenance_schedules');
   }
 
   /**
    * Find maintenance record by ID with tenant isolation
    */
-  async findById(id: number, tenantId: string): Promise<Maintenance | null> {
-    const result = await pool.query(
-      'SELECT id, created_at, updated_at FROM maintenance WHERE id = $1 AND tenant_id = $2',
+  async findById(id: string, tenantId: string): Promise<MaintenanceSchedule | null> {
+    const result = await this.pool.query(
+      'SELECT id, vehicle_id AS "vehicleId", name, type, description, interval_days AS "intervalDays", interval_miles AS "intervalMiles", last_service_date AS "lastServiceDate", last_service_mileage AS "lastServiceMileage", next_service_date AS "nextServiceDate", next_service_mileage AS "nextServiceMileage", is_active AS "isActive", tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2',
       [id, tenantId]
     )
     return result.rows[0] || null
@@ -60,16 +54,16 @@ export class MaintenanceRepository extends BaseRepository<any> {
   async findByTenant(
     tenantId: string,
     pagination: PaginationParams = {}
-  ): Promise<Maintenance[]> {
-    const { page = 1, limit = 20, sortBy = 'scheduled_date', sortOrder = 'desc' } = pagination
+  ): Promise<MaintenanceSchedule[]> {
+    const { page = 1, limit = 20, sortBy = 'next_service_date', sortOrder = 'desc' } = pagination
     const offset = (page - 1) * limit
 
-    const allowedSortColumns = ['id', 'scheduled_date', 'completed_date', 'status', 'cost', 'created_at']
-    const safeSortBy = allowedSortColumns.includes(sortBy) ? sortBy : 'scheduled_date'
+    const allowedSortColumns = ['id', 'name', 'type', 'next_service_date', 'is_active', 'created_at']
+    const safeSortBy = allowedSortColumns.includes(sortBy) ? sortBy : 'next_service_date'
     const safeSortOrder = sortOrder === 'asc' ? 'ASC' : 'DESC'
 
-    const result = await pool.query(
-      `SELECT id, created_at, updated_at FROM maintenance 
+    const result = await this.pool.query(
+      `SELECT id, vehicle_id AS "vehicleId", name, type, description, interval_days AS "intervalDays", next_service_date AS "nextServiceDate", is_active AS "isActive", tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM maintenance_schedules 
        WHERE tenant_id = $1 
        ORDER BY ${safeSortBy} ${safeSortOrder} 
        LIMIT $2 OFFSET $3`,
@@ -82,65 +76,14 @@ export class MaintenanceRepository extends BaseRepository<any> {
    * Find maintenance records by vehicle ID
    */
   async findByVehicle(
-    vehicleId: number,
-    tenantId: string,
-    pagination: PaginationParams = {}
-  ): Promise<Maintenance[]> {
-    const { page = 1, limit = 20 } = pagination
-    const offset = (page - 1) * limit
-
-    const result = await pool.query(
-      `SELECT id, created_at, updated_at FROM maintenance 
-       WHERE vehicle_id = $1 AND tenant_id = $2 
-       ORDER BY scheduled_date DESC 
-       LIMIT $3 OFFSET $4`,
-      [vehicleId, tenantId, limit, offset]
-    )
-    return result.rows
-  }
-
-  /**
-   * Find maintenance records by status
-   */
-  async findByStatus(
-    status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled',
+    vehicleId: string,
     tenantId: string
-  ): Promise<Maintenance[]> {
-    const result = await pool.query(
-      `SELECT id, created_at, updated_at FROM maintenance 
-       WHERE status = $1 AND tenant_id = $2 
-       ORDER BY scheduled_date DESC`,
-      [status, tenantId]
-    )
-    return result.rows
-  }
-
-  /**
-   * Find upcoming maintenance (next 30 days)
-   */
-  async findUpcoming(tenantId: string): Promise<Maintenance[]> {
-    const result = await pool.query(
-      `SELECT id, created_at, updated_at FROM maintenance 
-       WHERE tenant_id = $1 
-       AND status IN ($2, $3) 
-       AND scheduled_date BETWEEN NOW() AND NOW() + INTERVAL '30 days' 
-       ORDER BY scheduled_date ASC`,
-      [tenantId, 'scheduled', 'in_progress']
-    )
-    return result.rows
-  }
-
-  /**
-   * Find overdue maintenance
-   */
-  async findOverdue(tenantId: string): Promise<Maintenance[]> {
-    const result = await pool.query(
-      `SELECT id, created_at, updated_at FROM maintenance 
-       WHERE tenant_id = $1 
-       AND status IN ($2, $3) 
-       AND scheduled_date < NOW() 
-       ORDER BY scheduled_date ASC`,
-      [tenantId, 'scheduled', 'in_progress']
+  ): Promise<MaintenanceSchedule[]> {
+    const result = await this.pool.query(
+      `SELECT id, vehicle_id AS "vehicleId", name, type, description, interval_days AS "intervalDays", next_service_date AS "nextServiceDate", is_active AS "isActive", tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM maintenance_schedules 
+       WHERE vehicle_id = $1 AND tenant_id = $2 
+       ORDER BY next_service_date ASC`,
+      [vehicleId, tenantId]
     )
     return result.rows
   }
@@ -148,28 +91,28 @@ export class MaintenanceRepository extends BaseRepository<any> {
   /**
    * Create new maintenance record
    */
-  async create(data: Partial<Maintenance>, tenantId: string): Promise<Maintenance> {
-    if (!data.vehicleId || !data.maintenanceType || !data.scheduledDate) {
-      throw new ValidationError('Vehicle ID, maintenance type, and scheduled date are required')
+  async create(data: Partial<MaintenanceSchedule>, tenantId: string): Promise<MaintenanceSchedule> {
+    if (!data.vehicleId || !data.name || !data.type) {
+      throw new ValidationError('Vehicle ID, name, and type are required')
     }
 
-    const result = await pool.query(
-      `INSERT INTO maintenance (
-        vehicle_id, maintenance_type, description, scheduled_date, 
-        status, cost, mileage, performed_by, notes, tenant_id
+    const result = await this.pool.query(
+      `INSERT INTO maintenance_schedules (
+        vehicle_id, name, type, description, interval_days, interval_miles,
+        next_service_date, next_service_mileage, is_active, tenant_id
       )
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      RETURNING *`,
+      RETURNING id, vehicle_id AS "vehicleId", name, type, description, interval_days AS "intervalDays", is_active AS "isActive", tenant_id AS "tenantId", created_at AS "createdAt"`,
       [
         data.vehicleId,
-        data.maintenanceType,
-        data.description || '',
-        data.scheduledDate,
-        data.status || 'scheduled',
-        data.cost || null,
-        data.mileage || null,
-        data.performedBy || null,
-        data.notes || null,
+        data.name,
+        data.type,
+        data.description || null,
+        data.intervalDays || null,
+        data.intervalMiles || null,
+        data.nextServiceDate || null,
+        data.nextServiceMileage || null,
+        data.isActive ?? true,
         tenantId
       ]
     )
@@ -180,39 +123,35 @@ export class MaintenanceRepository extends BaseRepository<any> {
    * Update maintenance record
    */
   async update(
-    id: number,
-    data: Partial<Maintenance>,
+    id: string,
+    data: Partial<MaintenanceSchedule>,
     tenantId: string
-  ): Promise<Maintenance> {
+  ): Promise<MaintenanceSchedule> {
     const existing = await this.findById(id, tenantId)
     if (!existing) {
-      throw new NotFoundError('Maintenance')
+      throw new NotFoundError('MaintenanceSchedule')
     }
 
-    const result = await pool.query(
-      `UPDATE maintenance 
-       SET maintenance_type = COALESCE($1, maintenance_type),
-           description = COALESCE($2, description),
-           scheduled_date = COALESCE($3, scheduled_date),
-           completed_date = COALESCE($4, completed_date),
-           status = COALESCE($5, status),
-           cost = COALESCE($6, cost),
-           mileage = COALESCE($7, mileage),
-           performed_by = COALESCE($8, performed_by),
-           notes = COALESCE($9, notes),
+    const result = await this.pool.query(
+      `UPDATE maintenance_schedules 
+       SET name = COALESCE($1, name),
+           type = COALESCE($2, type),
+           description = COALESCE($3, description),
+           interval_days = COALESCE($4, interval_days),
+           interval_miles = COALESCE($5, interval_miles),
+           next_service_date = COALESCE($6, next_service_date),
+           is_active = COALESCE($7, is_active),
            updated_at = NOW()
-       WHERE id = $10 AND tenant_id = $11
-       RETURNING *`,
+       WHERE id = $8 AND tenant_id = $9
+       RETURNING id, vehicle_id AS "vehicleId", name, type, description, interval_days AS "intervalDays", is_active AS "isActive", tenant_id AS "tenantId", updated_at AS "updatedAt"`,
       [
-        data.maintenanceType,
+        data.name,
+        data.type,
         data.description,
-        data.scheduledDate,
-        data.completedDate,
-        data.status,
-        data.cost,
-        data.mileage,
-        data.performedBy,
-        data.notes,
+        data.intervalDays,
+        data.intervalMiles,
+        data.nextServiceDate,
+        data.isActive,
         id,
         tenantId
       ]
@@ -221,35 +160,11 @@ export class MaintenanceRepository extends BaseRepository<any> {
   }
 
   /**
-   * Mark maintenance as completed
-   */
-  async markCompleted(
-    id: number,
-    completedDate: Date,
-    cost: number,
-    tenantId: string
-  ): Promise<Maintenance> {
-    const result = await pool.query(
-      `UPDATE maintenance 
-       SET status = $1, completed_date = $2, cost = $3, updated_at = NOW()
-       WHERE id = $4 AND tenant_id = $5
-       RETURNING *`,
-      ['completed', completedDate, cost, id, tenantId]
-    )
-    
-    if (result.rows.length === 0) {
-      throw new NotFoundError('Maintenance')
-    }
-    
-    return result.rows[0]
-  }
-
-  /**
    * Delete maintenance record
    */
-  async delete(id: number, tenantId: string): Promise<boolean> {
-    const result = await pool.query(
-      'DELETE FROM maintenance WHERE id = $1 AND tenant_id = $2',
+  async delete(id: string, tenantId: string): Promise<boolean> {
+    const result = await this.pool.query(
+      'DELETE FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2',
       [id, tenantId]
     )
     return (result.rowCount ?? 0) > 0
@@ -258,43 +173,11 @@ export class MaintenanceRepository extends BaseRepository<any> {
   /**
    * Count maintenance records for a tenant
    */
-  async count(filters: Record<string, unknown> = {}, tenantId: string | number): Promise<number> {
-    const result = await pool.query(
-      'SELECT COUNT(*) FROM maintenance WHERE tenant_id = $1',
+  async count(filters: Record<string, unknown> = {}, tenantId: string): Promise<number> {
+    const result = await this.pool.query(
+      'SELECT COUNT(*) FROM maintenance_schedules WHERE tenant_id = $1',
       [tenantId]
     )
     return parseInt(result.rows[0].count, 10)
   }
-
-  /**
-   * Get total maintenance cost for a vehicle
-   */
-  async getTotalCost(vehicleId: number, tenantId: string): Promise<number> {
-    const result = await pool.query(
-      `SELECT COALESCE(SUM(cost), 0) as total_cost 
-       FROM maintenance 
-       WHERE vehicle_id = $1 AND tenant_id = $2 AND status = $3`,
-      [vehicleId, tenantId, 'completed']
-    )
-    return parseFloat(result.rows[0].total_cost) || 0
-  }
-
-  // Prevent N+1 queries with JOINs
-  async findAllWithRelated() {
-    const query = `
-      SELECT
-        t1.*,
-        t2.id as related_id,
-        t2.name as related_name
-      FROM ${this.tableName} t1
-      LEFT JOIN related_table t2 ON t1.related_id = t2.id
-      WHERE t1.tenant_id = $1
-      ORDER BY t1.created_at DESC
-    `;
-    const result = await this.pool.query(query, [this.tenantId]);
-    return result.rows;
-  }
-
 }
-
-export const maintenanceRepository = new MaintenanceRepository(pool)

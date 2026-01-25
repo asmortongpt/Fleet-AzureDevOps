@@ -30,10 +30,9 @@ export class MaintenanceScheduleFactory extends BaseFactory {
 
     const priority = this.weightedRandom<Priority>([
       { value: 'low', weight: 30 },
-      { value: 'medium', weight: 45 },
-      { value: 'high', weight: 20 },
-      { value: 'critical', weight: 4 },
-      { value: 'emergency', weight: 1 },
+      { value: 'medium', weight: 50 },
+      { value: 'high', weight: 15 },
+      { value: 'critical', weight: 5 },
     ]);
 
     const status = this.weightedRandom<Status>([
@@ -44,8 +43,12 @@ export class MaintenanceScheduleFactory extends BaseFactory {
       { value: 'cancelled', weight: 3 },
     ]);
 
-    const scheduledDate = this.faker.date.soon({ days: 90 });
-    const completedDate = status === 'completed'
+    const isCompleted = status === 'completed';
+    const scheduledDate = isCompleted
+      ? this.faker.date.past({ years: 1 })
+      : this.faker.date.soon({ days: 90 });
+
+    const completedDate = isCompleted
       ? this.faker.date.between({ from: scheduledDate, to: new Date() })
       : null;
 

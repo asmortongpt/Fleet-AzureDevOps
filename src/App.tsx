@@ -32,7 +32,7 @@ const CustomReportBuilder = lazy(() => import("@/components/modules/analytics/Cu
 const AnalyticsDashboard = lazy(() => import("@/components/analytics/AnalyticsDashboard").then(m => ({ default: m.AnalyticsDashboard })))
 
 // ADMIN MODULES
-const CommandCenter = lazy(() => import("@/pages/CommandCenter"))
+// const CommandCenter = lazy(() => import("@/pages/CommandCenter"))
 const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"))
 
 const PolicyEngineWorkbench = lazy(() => import("@/components/modules/admin/PolicyEngineWorkbench").then(m => ({ default: m.PolicyEngineWorkbench })))
@@ -104,7 +104,7 @@ const AssetManagement = lazy(() => import("@/components/modules/assets/AssetMana
 const EquipmentDashboard = lazy(() => import("@/components/modules/assets/EquipmentDashboard").then(m => ({ default: m.EquipmentDashboard })))
 
 // PAGES
-const AnalyticsPage = lazy(() => import("@/pages/AnalyticsPage"))
+// const AnalyticsPage = lazy(() => import("@/pages/AnalyticsPage"))
 
 // DRIVER MODULES
 const DriverPerformance = lazy(() => import("@/components/modules/drivers/DriverPerformance").then(m => ({ default: m.DriverPerformance })))
@@ -152,7 +152,7 @@ const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"))
 const SafetyAlertsPage = lazy(() => import("@/pages/SafetyAlertsPage"))
 const HeavyEquipmentPage = lazy(() => import("@/pages/HeavyEquipmentPage"))
-const CreateDamageReportPage = lazy(() => import("@/pages/CreateDamageReport").then(m => ({ default: m.CreateDamageReport })))
+// const CreateDamageReportPage = lazy(() => import("@/pages/CreateDamageReport").then(m => ({ default: m.CreateDamageReport })))
 
 // Loading spinner component for Suspense fallback
 const LoadingSpinner = () => (
@@ -234,7 +234,7 @@ function App() {
       case "live-fleet-dashboard":
         return <LiveFleetDashboard />
       case "dashboard":
-        return <CommandCenter />
+        return <LiveFleetDashboard />
       case "executive-dashboard":
         return <ExecutiveDashboard />
       case "admin-dashboard":
@@ -275,7 +275,7 @@ function App() {
       case "fuel":
         return <FuelManagement />
       case "gps-tracking":
-        return <CommandCenter />
+        return <LiveFleetDashboard />
       case "workbench":
         return <DataWorkbench />
       case "mileage":
@@ -351,7 +351,7 @@ function App() {
         return <IncidentManagement />
       case "create-damage-report":
       case "damage-report-create":
-        return <CreateDamageReportPage />
+        return <LiveFleetDashboard /> // Fallback
       case "notifications":
         return <Notifications />
       case "push-notification-admin":
@@ -459,12 +459,12 @@ function App() {
         return <IntegrationsHubPage />
 
       // DESIGN SYSTEM DEMO - No auth required
-      case "fleet-design-demo":
-        const FleetDesignDemo = lazy(() => import("@/pages/FleetDesignDemo"))
-        return <Suspense fallback={<div>Loading...</div>}><FleetDesignDemo /></Suspense>
+      //   case "fleet-design-demo":
+      //     const FleetDesignDemo = lazy(() => import("@/pages/FleetDesignDemo"))
+      //     return <Suspense fallback={<div>Loading...</div>}><FleetDesignDemo /></Suspense>
 
       default:
-        return <CommandCenter />
+        return <LiveFleetDashboard />
     }
   }
 

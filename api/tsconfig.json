@@ -41,15 +41,7 @@
     }
   },
   "include": [
-    "src/api/**/*.ts",
-    "src/routes/**/*.ts",
-    "src/schemas/**/*.ts",
-    "src/services/**/*.ts",
-    "src/types/**/*.ts",
-    "src/utils/**/*.ts",
-    "src/errors/**/*.ts",
-    "src/middleware/async-handler.ts",
-    "src/middleware/logger.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules",

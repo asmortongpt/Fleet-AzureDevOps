@@ -33,8 +33,7 @@ export class WorkOrderFactory extends BaseFactory {
       { value: 'low', weight: 30 },
       { value: 'medium', weight: 40 },
       { value: 'high', weight: 20 },
-      { value: 'critical', weight: 8 },
-      { value: 'emergency', weight: 2 },
+      { value: 'critical', weight: 10 },
     ]);
 
     const status = this.weightedRandom<Status>([
@@ -113,7 +112,7 @@ export class WorkOrderFactory extends BaseFactory {
   buildEmergency(tenantId: string, vehicleId: string, index: number = 0): WorkOrder {
     return this.build(tenantId, vehicleId, index, undefined, {
       overrides: {
-        priority: 'emergency',
+        priority: 'critical',
         status: 'in_progress',
         type: 'corrective',
       },

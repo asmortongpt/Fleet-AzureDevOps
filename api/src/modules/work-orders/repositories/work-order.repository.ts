@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 
 import { pool } from "../../../db";
-import { BaseRepository } from "../../../repositories/base.repository";
+import { BaseRepository } from "../../../repositories/base/BaseRepository";
 import type { WorkOrder } from "../../../types/work-order";
 
 @injectable()
