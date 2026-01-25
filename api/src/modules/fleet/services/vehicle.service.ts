@@ -30,7 +30,7 @@ export class VehicleService extends BaseService {
     });
   }
 
-  async getVehicleById(id: number, tenantId: string): Promise<any | null> {
+  async getVehicleById(id: string, tenantId: string): Promise<any | null> {
     return this.executeInTransaction(async () => {
       return await this.vehicleRepository.findById(id, tenantId);
     });
@@ -43,13 +43,13 @@ export class VehicleService extends BaseService {
     });
   }
 
-  async updateVehicle(id: number, data: any, tenantId: string): Promise<any | null> {
+  async updateVehicle(id: string, data: any, tenantId: string): Promise<any | null> {
     return this.executeInTransaction(async () => {
       return await this.vehicleRepository.update(id, data, tenantId);
     });
   }
 
-  async deleteVehicle(id: number, tenantId: string): Promise<boolean> {
+  async deleteVehicle(id: string, tenantId: string): Promise<boolean> {
     return this.executeInTransaction(async () => {
       return await this.vehicleRepository.delete(id, tenantId);
     });
@@ -57,14 +57,14 @@ export class VehicleService extends BaseService {
 
   async getStatus(vehicleId: string, tenantId: string): Promise<any> {
     return this.executeInTransaction(async () => {
-      const vehicle = await this.vehicleRepository.findById(parseInt(vehicleId), tenantId);
+      const vehicle = await this.vehicleRepository.findById(vehicleId, tenantId);
       if (!vehicle) {
         return null;
       }
       return {
         id: vehicle.id,
         status: vehicle.status || 'active',
-        lastUpdated: vehicle.updated_at || new Date()
+        lastUpdated: vehicle.updatedAt || new Date()
       };
     });
   }

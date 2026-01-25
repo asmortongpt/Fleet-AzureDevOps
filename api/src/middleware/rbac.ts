@@ -31,6 +31,7 @@ import { getUserPermissions, clearPermissionCache } from './permissions'
  * Role hierarchy (higher roles inherit all permissions from lower roles)
  */
 export enum Role {
+  SUPERADMIN = 'superadmin',
   ADMIN = 'admin',
   SECURITY_ADMIN = 'security-admin',
   FLEET_MANAGER = 'fleet-manager',
@@ -48,6 +49,7 @@ export enum Role {
  * Role hierarchy map - each role includes all lower roles
  */
 const ROLE_HIERARCHY: Record<Role, Role[]> = {
+  [Role.SUPERADMIN]: [Role.SUPERADMIN, Role.ADMIN, Role.SECURITY_ADMIN, Role.FLEET_MANAGER, Role.MANAGER, Role.MAINTENANCE_TECH, Role.COMPLIANCE_OFFICER, Role.ANALYST, Role.DRIVER, Role.USER, Role.VIEWER, Role.GUEST],
   [Role.ADMIN]: [Role.ADMIN, Role.SECURITY_ADMIN, Role.FLEET_MANAGER, Role.MANAGER, Role.MAINTENANCE_TECH, Role.COMPLIANCE_OFFICER, Role.ANALYST, Role.DRIVER, Role.USER, Role.VIEWER, Role.GUEST],
   [Role.SECURITY_ADMIN]: [Role.SECURITY_ADMIN, Role.VIEWER, Role.GUEST],
   [Role.FLEET_MANAGER]: [Role.FLEET_MANAGER, Role.MANAGER, Role.MAINTENANCE_TECH, Role.ANALYST, Role.DRIVER, Role.USER, Role.VIEWER, Role.GUEST],
@@ -195,7 +197,7 @@ export function requireRole(roles: string[]) {
       })
     }
 
-    const userRole = req.user.role
+    const userRole = req.user.role || Role.GUEST
 
     if (!hasRole(userRole, roles)) {
       logger.warn('RBAC: Insufficient role', {
@@ -208,7 +210,7 @@ export function requireRole(roles: string[]) {
 
       await logAuthorizationFailure({
         userId: req.user.id,
-        tenantId: req.user.tenant_id,
+        tenantId: req.user.tenant_id!,
         action: req.method + ' ' + req.path,
         reason: 'Insufficient role',
         requiredRoles: roles,
@@ -263,9 +265,9 @@ export function requirePermission(permissions: string[], requireAll: boolean = f
     try {
       const userPermissions = await getUserPermissions(req.user.id)
 
-      const hasRequiredPermissions = requireAll
+      const hasRequiredPermissions = userPermissions.has('*') || (requireAll
         ? permissions.every(p => userPermissions.has(p))
-        : permissions.some(p => userPermissions.has(p))
+        : permissions.some(p => userPermissions.has(p)))
 
       if (!hasRequiredPermissions) {
         logger.warn('RBAC: Insufficient permissions', {
@@ -358,7 +360,7 @@ export function requireTenantIsolation(resourceType?: string) {
       try {
         const resourceId = req.params.id
         const tenantOwned = await verifyTenantOwnership(
-          req.user.tenant_id,
+          req.user.tenant_id!,
           resourceType || 'unknown',
           resourceId
         )
@@ -374,7 +376,7 @@ export function requireTenantIsolation(resourceType?: string) {
 
           await logAuthorizationFailure({
             userId: req.user.id,
-            tenantId: req.user.tenant_id,
+            tenantId: req.user.tenant_id!,
             action: req.method + ' ' + req.path,
             reason: 'Tenant isolation violation',
             resourceType,

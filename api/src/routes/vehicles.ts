@@ -125,7 +125,7 @@ router.get("/:id",
 
       // Use DI-resolved VehicleService
       const vehicleService = container.get<VehicleService>(TYPES.VehicleService)
-      const vehicle = await vehicleService.getVehicleById(Number(vehicleId), tenantId)
+      const vehicle = await vehicleService.getVehicleById(vehicleId, tenantId)
 
       if (!vehicle) {
         return res.status(404).json({
@@ -283,7 +283,7 @@ router.put("/:id",
       const vehicleService = container.get<VehicleService>(TYPES.VehicleService)
 
       // VehicleService.updateVehicle will throw error if vehicle not found or access denied
-      const vehicle = await vehicleService.updateVehicle(Number(vehicleId), req.body, tenantId)
+      const vehicle = await vehicleService.updateVehicle(vehicleId, req.body, tenantId)
 
       if (!vehicle) {
         return res.status(404).json({
@@ -333,7 +333,7 @@ router.delete("/:id",
 
       // Use DI-resolved VehicleService
       const vehicleService = container.get<VehicleService>(TYPES.VehicleService)
-      const deleted = await vehicleService.deleteVehicle(Number(vehicleId), tenantId)
+      const deleted = await vehicleService.deleteVehicle(vehicleId, tenantId)
 
       if (!deleted) {
         return res.status(404).json({
