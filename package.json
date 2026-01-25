@@ -17,6 +17,8 @@
     "test:a11y:watch": "vitest --watch src/tests/accessibility.test.tsx"
   },
   "dependencies": {
+    "@azure/msal-browser": "^5.0.2",
+    "@azure/msal-react": "^5.0.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@googlemaps/js-api-loader": "^2.0.2",
