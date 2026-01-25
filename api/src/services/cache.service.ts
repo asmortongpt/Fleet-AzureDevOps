@@ -2,8 +2,8 @@ import { injectable } from 'inversify';
 import Redis from 'ioredis';
 
 export const CacheKeys = {
-  vehicle: (id: number) => `vehicle:${id}`,
-  vehicles: (tenantId: number) => `vehicles:${tenantId}:*`
+  vehicle: (id: string | number) => `vehicle:${id}`,
+  vehicles: (tenantId: string | number) => `vehicles:${tenantId}:*`
 };
 
 @injectable()
@@ -57,7 +57,7 @@ export class CacheService {
     const info = await this.redis.info('memory');
     const memoryMatch = info.match(/used_memory:(\d+)/);
     const memoryUsage = memoryMatch ? parseInt(memoryMatch[1]) : 0;
-    
+
     const total = this.hits + this.misses;
     const hitRate = total > 0 ? this.hits / total : 0;
 
@@ -72,11 +72,11 @@ export class CacheService {
     return this.deletePattern(pattern);
   }
 
-  async cacheVehicle(vehicleId: number, data: unknown) {
+  async cacheVehicle(vehicleId: string | number, data: unknown) {
     await this.set(CacheKeys.vehicle(vehicleId), data, 300);
   }
 
-  async invalidateVehicle(vehicleId: number) {
+  async invalidateVehicle(vehicleId: string | number) {
     await this.delete(CacheKeys.vehicle(vehicleId));
   }
 }

@@ -64,7 +64,7 @@ import communicationLogsRouter from './routes/communication-logs'
 // Financial & Cost Management Routes
 import costAnalysisRouter from './routes/cost-analysis.routes'
 import costBenefitAnalysisRouter from './routes/cost-benefit-analysis.routes'
-import costsRouter from './routes/costs'
+// import costsRouter from './routes/costs'
 
 // Reporting & Analytics Routes
 
@@ -92,12 +92,12 @@ import lidarRouter from './routes/lidar.routes'
 import outlookRouter from './routes/outlook.routes'
 
 // Emulator & Testing Routes
-import emulatorRouter from './routes/emulator.routes'
-import obd2EmulatorRouter from './routes/obd2-emulator.routes'
+// import emulatorRouter from './routes/emulator.routes'
+// import obd2EmulatorRouter from './routes/obd2-emulator.routes'
 import demoRouter from './routes/demo.routes'
 
 // System Management Routes
-import monitoringRouter from './routes/monitoring'
+// import monitoringRouter from './routes/monitoring'
 import healthRouter from './routes/health.routes' // Microsoft integration health
 import healthSystemRouter from './routes/health-system.routes' // Comprehensive system health (BACKEND-12)
 import healthDetailedRouter from './routes/health-detailed'
@@ -144,7 +144,7 @@ import purchaseOrdersRouter from './routes/purchase-orders'
 import pushNotificationsRouter from './routes/push-notifications.routes'
 import qualityGatesRouter from './routes/quality-gates'
 import reservationsRouter from './routes/reservations.routes'
-import routeEmulatorRouter from './routes/route-emulator.routes'
+// import routeEmulatorRouter from './routes/route-emulator.routes'
 import routesRouter from './routes/routes'
 import safetyIncidentsRouter from './routes/safety-incidents'
 import schedulingRouter from './routes/scheduling.routes'
@@ -338,7 +338,7 @@ app.use('/api/documents', documentsRouter)
 app.use('/api/fleet-documents', fleetDocumentsRouter)
 
 // Financial & Cost Management Routes
-app.use('/api/costs', costsRouter)
+// app.use('/api/costs', costsRouter)
 app.use('/api/cost-analysis', costAnalysisRouter)
 app.use('/api/cost-benefit-analysis', costBenefitAnalysisRouter)
 app.use('/api/billing-reports', billingReportsRouter)
@@ -381,7 +381,7 @@ app.use('/api/lidar', lidarRouter)
 
 // Trip & Route Management Routes
 app.use('/api/routes', routesRouter)
-app.use('/api/route-emulator', routeEmulatorRouter)
+// app.use('/api/route-emulator', routeEmulatorRouter)
 app.use('/api/trip-usage', tripUsageRouter)
 
 // Safety & Compliance Routes
@@ -412,12 +412,12 @@ app.use('/api/video-telematics', videoTelematicsRouter)
 app.use('/api/dashboard', dashboardRouter)
 
 // Emulator & Testing Routes
-app.use('/api/emulator', emulatorRouter)
-app.use('/api/obd2-emulator', obd2EmulatorRouter)
+// app.use('/api/emulator', emulatorRouter)
+// app.use('/api/obd2-emulator', obd2EmulatorRouter)
 app.use('/api/demo', demoRouter)
 
 // System Management Routes
-app.use('/api/monitoring', monitoringRouter)
+// app.use('/api/monitoring', monitoringRouter)
 app.use('/api/health', healthSystemRouter) // Comprehensive system health (BACKEND-12)
 app.use('/api/health/microsoft', healthRouter) // Microsoft integration health
 app.use('/api/health-detailed', healthDetailedRouter)

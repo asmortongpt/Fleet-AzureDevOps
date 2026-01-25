@@ -70,8 +70,7 @@ export type Priority =
   | 'low'
   | 'medium'
   | 'high'
-  | 'critical'
-  | 'emergency';
+  | 'critical';
 
 export type IncidentSeverity =
   | 'minor'
@@ -124,7 +123,7 @@ export interface User {
 export interface Vehicle {
   id: string;
   tenant_id: string;
-  vehicle_number: string;
+  number: string;
   vin: string | null;
   make: string | null;
   model: string | null;
@@ -133,13 +132,12 @@ export interface Vehicle {
   fuel_type: FuelType | null;
   status: VehicleStatus;
   license_plate: string | null;
-  current_mileage: number | null;
-  current_latitude: number | null;
-  current_longitude: number | null;
-  last_location_update: Date | null;
+  odometer: number | null;
+  latitude: number | null;
+  longitude: number | null;
+
   assigned_driver_id: string | null;
   assigned_facility_id: string | null;
-  model_3d_url: string | null;
   metadata: Record<string, any>;
   created_at: Date;
   updated_at: Date;
@@ -149,15 +147,16 @@ export interface Driver {
   id: string;
   tenant_id: string;
   user_id: string | null;
+  first_name: string;
+  last_name: string;
   employee_number: string | null;
   license_number: string;
   license_state: string | null;
-  license_expiry: Date | null;
+  license_expiration: Date | null;
   status: DriverStatus;
   hire_date: Date | null;
   phone: string | null;
   email: string | null;
-  safety_score: number;
   created_at: Date;
   updated_at: Date;
 }
@@ -227,6 +226,7 @@ export interface FuelTransaction {
 export interface Incident {
   id: string;
   tenant_id: string;
+  number: string;
   vehicle_id: string | null;
   driver_id: string | null;
   incident_date: Date;
