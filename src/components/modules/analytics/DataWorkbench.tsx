@@ -10,18 +10,26 @@ import {
 import { useState, Dispatch, SetStateAction } from "react"
 import { toast } from "sonner"
 
-import { AnalyticsTab } from "./DataWorkbench.bak/AnalyticsTab"
-import { DataWorkbenchDialogs } from "./DataWorkbench.bak/DataWorkbenchDialogs"
-import { FuelTab } from "./DataWorkbench.bak/FuelTab"
-import { MaintenanceTab } from "./DataWorkbench.bak/MaintenanceTab"
-import { OverviewTab } from "./DataWorkbench.bak/OverviewTab"
+// import { AnalyticsTab } from "./DataWorkbench.bak/AnalyticsTab"
+// import { DataWorkbenchDialogs } from "./DataWorkbench.bak/DataWorkbenchDialogs"
+// import { FuelTab } from "./DataWorkbench.bak/FuelTab"
+// import { MaintenanceTab } from "./DataWorkbench.bak/MaintenanceTab"
+// import { OverviewTab } from "./DataWorkbench.bak/OverviewTab"
 
 import { MetricCard } from "@/components/MetricCard"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { useFuelData } from "@/hooks/use-fuel-data"
 import { useMaintenanceData } from "@/hooks/use-maintenance-data"
+
+// Placeholder components until .bak files are restored
+const OverviewTab = ({ vehicles, onAdvancedSearch }: any) => <Card className="p-4"><p>Overview tab - {vehicles.length} vehicles</p><Button onClick={onAdvancedSearch}>Advanced Search</Button></Card>
+const MaintenanceTab = ({ maintenanceRecords, onScheduleService }: any) => <Card className="p-4"><p>Maintenance tab - {maintenanceRecords.length} records</p><Button onClick={onScheduleService}>Schedule Service</Button></Card>
+const FuelTab = ({ fuelRecords }: any) => <Card className="p-4"><p>Fuel tab - {fuelRecords.length} records</p></Card>
+const AnalyticsTab = ({ vehicles }: any) => <Card className="p-4"><p>Analytics tab - {vehicles.length} vehicles</p></Card>
+const DataWorkbenchDialogs = (props: any) => null
 
 interface Vehicle {
   status: string;
