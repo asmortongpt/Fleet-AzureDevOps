@@ -42,6 +42,19 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
   }
 
   try {
+    // Check if user is SuperAdmin
+    const userResult = await pool.query('SELECT role FROM users WHERE id = $1', [userId])
+    const userRole = userResult.rows[0]?.role?.toLowerCase()
+
+    if (userRole === 'superadmin') {
+      // For SuperAdmin, we can return a special set or all pins
+      // But simpler is to handle bypass in hasPermission
+      const allPermissions = new Set(['*']) // Magic string for all permissions
+      permissionCache.set(cacheKey, allPermissions)
+      setTimeout(() => permissionCache.delete(cacheKey), CACHE_TTL)
+      return allPermissions
+    }
+
     const result = await pool.query(`
       SELECT DISTINCT p.name
       FROM permissions p
@@ -80,7 +93,7 @@ export async function hasPermission(
   permission: string
 ): Promise<boolean> {
   const permissions = await getUserPermissions(userId)
-  return permissions.has(permission)
+  return permissions.has('*') || permissions.has(permission)
 }
 
 /**
@@ -217,20 +230,20 @@ export async function validateResourceScope(
     switch (resourceType) {
       case 'vehicle':
         if (user.scope_level === 'own' && user.vehicle_id === resourceId) {
-return true
-}
+          return true
+        }
         if (user.scope_level === 'team' && user.team_vehicle_ids && user.team_vehicle_ids.includes(resourceId)) {
-return true
-}
+          return true
+        }
         break
 
       case 'driver':
         if (user.scope_level === 'own' && user.driver_id === resourceId) {
-return true
-}
+          return true
+        }
         if (user.scope_level === 'team' && user.team_driver_ids && user.team_driver_ids.includes(resourceId)) {
-return true
-}
+          return true
+        }
         break
 
       case 'work_order':
@@ -243,13 +256,13 @@ return true
 
           // Own scope: can only see work orders assigned to them
           if (user.scope_level === 'own' && assigned_technician_id === userId) {
-return true
-}
+            return true
+          }
 
           // Team scope: can see work orders in their facilities
           if (user.scope_level === 'team' && user.facility_ids && facility_id && user.facility_ids.includes(facility_id)) {
-return true
-}
+            return true
+          }
         }
         break
 
@@ -263,13 +276,13 @@ return true
 
           // Own scope: can only see their own routes
           if (user.scope_level === 'own' && user.driver_id === driverId) {
-return true
-}
+            return true
+          }
 
           // Team scope: can see routes for drivers in their team
           if (user.scope_level === 'team' && user.team_driver_ids && user.team_driver_ids.includes(driverId)) {
-return true
-}
+            return true
+          }
         }
         break
 
@@ -283,13 +296,13 @@ return true
 
           // Own scope: can only see documents they uploaded
           if (user.scope_level === 'own' && uploadedBy === userId) {
-return true
-}
+            return true
+          }
 
           // Team scope: can see all documents in their tenant (documents don't have facility association)
           if (user.scope_level === 'team') {
-return true
-}
+            return true
+          }
         }
         break
 
@@ -303,13 +316,13 @@ return true
 
           // Own scope: can only see their own fuel transactions
           if (user.scope_level === 'own' && user.driver_id === driverId) {
-return true
-}
+            return true
+          }
 
           // Team scope: can see fuel transactions for drivers in their team
           if (user.scope_level === 'team' && user.team_driver_ids && user.team_driver_ids.includes(driverId)) {
-return true
-}
+            return true
+          }
         }
         break
     }
@@ -390,12 +403,12 @@ export function preventSelfApproval(createdByField: string = 'created_by') {
       // Determine table based on URL path
       let table: SelfApprovalTable | '' = ''
       if (req.path.includes('work-orders')) {
-table = 'work_orders'
-} else if (req.path.includes('purchase-orders')) {
-table = 'purchase_orders'
-} else if (req.path.includes('safety-incidents')) {
-table = `safety_incidents`
-} else {
+        table = 'work_orders'
+      } else if (req.path.includes('purchase-orders')) {
+        table = 'purchase_orders'
+      } else if (req.path.includes('safety-incidents')) {
+        table = `safety_incidents`
+      } else {
         return next() // Skip check if table not recognized
       }
 
