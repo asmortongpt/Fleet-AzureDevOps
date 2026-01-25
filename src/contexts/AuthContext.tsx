@@ -7,9 +7,12 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 
+import { useMsal } from '@azure/msal-react';
+import { InteractionStatus } from '@azure/msal-browser';
 import { getCsrfToken, refreshCsrfToken, clearCsrfToken } from '@/hooks/use-api';
 import { initializeTokenRefresh, stopTokenRefresh } from '@/lib/auth/token-refresh';
 import { getMicrosoftLoginUrl } from '@/lib/microsoft-auth';
+import { loginRequest } from '@/lib/msal-config';
 import logger from '@/utils/logger';
 
 export interface User {
@@ -64,7 +67,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUserState] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // SECURITY (CRIT-F-001): Initialize auth state from httpOnly cookies
+  // MSAL hooks for Azure AD authentication
+  const { instance, accounts, inProgress } = useMsal();
+
+  // SECURITY (CRIT-F-001): Initialize auth state from MSAL or httpOnly cookies
   useEffect(() => {
     const initAuth = async () => {
       try {
@@ -98,6 +104,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setUserState(demoUser);
           setIsLoading(false);
           logger.info('[Auth] Development auth bypass enabled - using demo user');
+          return;
+        }
+
+        // Check for MSAL authentication
+        if (accounts.length > 0 && inProgress === InteractionStatus.None) {
+          const account = accounts[0];
+          logger.info('[Auth] MSAL account found', { email: account.username });
+
+          // Create user from MSAL account
+          const msalUser: User = {
+            id: account.localAccountId,
+            email: account.username,
+            firstName: account.name?.split(' ')[0] || '',
+            lastName: account.name?.split(' ').slice(1).join(' ') || '',
+            role: 'User', // Default role, should be fetched from backend
+            permissions: [],
+            tenantId: account.tenantId,
+            tenantName: account.tenantId
+          };
+          setUserState(msalUser);
+          setIsLoading(false);
+          logger.info('[Auth] MSAL authentication successful');
           return;
         }
 
@@ -148,7 +176,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     initAuth();
-  }, []);
+  }, [accounts, inProgress]);
 
   // SECURITY (CRIT-F-001): Login function using httpOnly cookies only
   const login = useCallback(async (email: string, password: string) => {
@@ -216,16 +244,32 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, []);
 
-  // Microsoft OAuth login
-  const loginWithMicrosoft = useCallback(() => {
-    window.location.href = getMicrosoftLoginUrl();
-  }, []);
+  // Microsoft OAuth login using MSAL
+  const loginWithMicrosoft = useCallback(async () => {
+    try {
+      logger.info('[Auth] Initiating MSAL login redirect');
+      await instance.loginRedirect(loginRequest);
+    } catch (error) {
+      logger.error('[Auth] MSAL login failed:', { error });
+      // Fallback to old OAuth flow if MSAL fails
+      window.location.href = getMicrosoftLoginUrl();
+    }
+  }, [instance]);
 
   // SECURITY (CRIT-F-001): Logout function
   const logout = useCallback(async () => {
     try {
       // Stop token refresh
       stopTokenRefresh();
+
+      // If MSAL account exists, logout from MSAL
+      if (accounts.length > 0) {
+        logger.info('[Auth] Logging out from MSAL');
+        await instance.logoutRedirect({
+          account: accounts[0]
+        });
+        return; // MSAL will handle the redirect
+      }
 
       // Call backend to clear httpOnly cookie
       await fetch('/api/auth/logout', {
@@ -244,7 +288,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUserState(null);
     localStorage.removeItem('demo_mode');
     localStorage.removeItem('demo_role');
-  }, []);
+  }, [instance, accounts]);
 
   // Set user (for demo mode)
   const setUser = useCallback((newUser: User | null) => {
