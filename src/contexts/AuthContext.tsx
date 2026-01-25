@@ -5,7 +5,7 @@
  * SECURITY (CRIT-F-003): Implements RBAC with role hierarchy and permissions
  */
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 
 import { getCsrfToken, refreshCsrfToken, clearCsrfToken } from '@/hooks/use-api';
 import { initializeTokenRefresh, stopTokenRefresh } from '@/lib/auth/token-refresh';
@@ -383,23 +383,42 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return user?.tenantId || null;
   }, [user]);
 
-  const value: AuthContextType = {
-    user,
-    isAuthenticated: !!user,
-    isLoading,
-    login,
-    loginWithMicrosoft,
-    logout,
-    setUser,
-    refreshToken,
-    hasRole,
-    hasPermission,
-    canAccess,
-    isRole,
-    isSuperAdmin,
-    switchTenant,
-    getCurrentTenant,
-  };
+  // Memoize context value to prevent unnecessary re-renders
+  const value: AuthContextType = useMemo(
+    () => ({
+      user,
+      isAuthenticated: !!user,
+      isLoading,
+      login,
+      loginWithMicrosoft,
+      logout,
+      setUser,
+      refreshToken,
+      hasRole,
+      hasPermission,
+      canAccess,
+      isRole,
+      isSuperAdmin,
+      switchTenant,
+      getCurrentTenant,
+    }),
+    [
+      user,
+      isLoading,
+      login,
+      loginWithMicrosoft,
+      logout,
+      setUser,
+      refreshToken,
+      hasRole,
+      hasPermission,
+      canAccess,
+      isRole,
+      isSuperAdmin,
+      switchTenant,
+      getCurrentTenant,
+    ]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
