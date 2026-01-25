@@ -56,7 +56,14 @@ import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
 import { TenantProvider } from "./contexts/TenantContext"
 import { initSentry } from "./lib/sentry"
 import { Login } from "./pages/Login"
+import { PublicClientApplication } from "@azure/msal-browser"
+import { MsalProvider } from "@azure/msal-react"
+import { msalConfig } from "./lib/msal-config"
+
 initSentry()
+
+// Initialize MSAL instance for Azure AD SSO
+const msalInstance = new PublicClientApplication(msalConfig)
 
 /**
  * P0-3 SECURITY FIX: Startup JWT validation
@@ -231,43 +238,45 @@ validateStartupConfiguration().then(() => {
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider defaultTheme="system" storageKey="ctafleet-theme">
-          <SentryErrorBoundary level="page">
-            <BrandingProvider>
-              <AuthProvider>
-                <TenantProvider>
-                  <FeatureFlagProvider>
-                    <DrilldownProvider>
-                      <InspectProvider>
-                        <BrowserRouter>
-                          {/* <GlobalCommandPalette /> */}
-                          <SentryRoutes>
-                            {/* Public Login Route */}
-                            <Route path="/login" element={<Login />} />
+        <MsalProvider instance={msalInstance}>
+          <ThemeProvider defaultTheme="system" storageKey="ctafleet-theme">
+            <SentryErrorBoundary level="page">
+              <BrandingProvider>
+                <AuthProvider>
+                  <TenantProvider>
+                    <FeatureFlagProvider>
+                      <DrilldownProvider>
+                        <InspectProvider>
+                          <BrowserRouter>
+                            {/* <GlobalCommandPalette /> */}
+                            <SentryRoutes>
+                              {/* Public Login Route */}
+                              <Route path="/login" element={<Login />} />
 
-                            {/* Protected Application Routes - Require SSO Authentication */}
-                            <Route
-                              path="/*"
-                              element={
-                                <ProtectedRoute requireAuth={true}>
-                                  <SentryErrorBoundary level="section">
-                                    <NavigationProvider>
-                                      <App />
-                                    </NavigationProvider>
-                                  </SentryErrorBoundary>
-                                </ProtectedRoute>
-                              }
-                            />
-                          </SentryRoutes>
-                        </BrowserRouter>
-                      </InspectProvider>
-                    </DrilldownProvider>
-                  </FeatureFlagProvider>
-                </TenantProvider>
-              </AuthProvider>
-            </BrandingProvider>
-          </SentryErrorBoundary>
-        </ThemeProvider>
+                              {/* Protected Application Routes - Require SSO Authentication */}
+                              <Route
+                                path="/*"
+                                element={
+                                  <ProtectedRoute requireAuth={true}>
+                                    <SentryErrorBoundary level="section">
+                                      <NavigationProvider>
+                                        <App />
+                                      </NavigationProvider>
+                                    </SentryErrorBoundary>
+                                  </ProtectedRoute>
+                                }
+                              />
+                            </SentryRoutes>
+                          </BrowserRouter>
+                        </InspectProvider>
+                      </DrilldownProvider>
+                    </FeatureFlagProvider>
+                  </TenantProvider>
+                </AuthProvider>
+              </BrandingProvider>
+            </SentryErrorBoundary>
+          </ThemeProvider>
+        </MsalProvider>
       </QueryClientProvider>
     </React.StrictMode>
   )
