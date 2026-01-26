@@ -1,0 +1,64 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: fleet-remediation-all-issues
+  namespace: fleet-management
+spec:
+  backoffLimit: 2
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        app: fleet-remediation
+    spec:
+      containers:
+      - command:
+        - /bin/sh
+        - /scripts/remediation-all.sh
+        image: node:20-alpine
+        name: remediation-worker
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 200m
+            memory: 512Mi
+        volumeMounts:
+        - mountPath: /scripts
+          name: scripts
+        - mountPath: /workspace
+          name: workspace
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - |
+          git clone https://asmortongpt:${GITHUB_TOKEN}@github.com/asmortongpt/Fleet.git /workspace/Fleet
+        env:
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-token
+              key: token
+        image: alpine/git
+        name: clone-repo
+        resources:
+          limits:
+            cpu: 200m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        volumeMounts:
+        - mountPath: /workspace
+          name: workspace
+      restartPolicy: Never
+      volumes:
+      - configMap:
+          defaultMode: 493
+          name: remediation-scripts-v2
+        name: scripts
+      - emptyDir: {}
+        name: workspace
