@@ -50,16 +50,7 @@ jobs:
       - name: Run tests
         run: npm test -- --watchAll=false --passWithNoTests || true
 
-      - name: Build verification
-        run: npm run build
-        env:
-          NODE_OPTIONS: '--max-old-space-size=4096'
-          VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
-          VITE_AZURE_AD_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
-          VITE_AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
-          VITE_AZURE_AD_REDIRECT_URI: https://fleet.capitaltechalliance.com/auth/callback
-          VITE_API_BASE_URL: https://fleet.capitaltechalliance.com/api
-          VITE_USE_MOCK_DATA: false
+      # Note: Build verification removed - build-frontend job handles the actual build
 
   # ============================================================================
   # Build Frontend Application
@@ -155,25 +146,11 @@ jobs:
         with:
           submodules: true
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Download frontend build artifact
+        uses: actions/download-artifact@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-
-      - name: Build application with production config
-        env:
-          NODE_OPTIONS: '--max-old-space-size=4096'
-          VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
-          VITE_AZURE_AD_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
-          VITE_AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
-          VITE_AZURE_AD_REDIRECT_URI: https://fleet.capitaltechalliance.com/auth/callback
-          VITE_API_BASE_URL: https://fleet.capitaltechalliance.com/api
-          VITE_USE_MOCK_DATA: false
-        run: npm run build
+          name: frontend-dist
+          path: dist/
 
       - name: Deploy to Azure Static Web Apps
         id: deploy
