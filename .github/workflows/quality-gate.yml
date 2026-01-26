@@ -2,7 +2,7 @@ name: Quality Gates
 
 on:
   push:
-    branches: [main, develop, feature/*, fix/*]
+    branches: [develop, feature/*, fix/*]  # Exclude main - handled by production-deployment.yml
   pull_request:
     branches: [main, develop]
 
