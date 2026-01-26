@@ -1,0 +1,29 @@
+# Test dependencies for Radio Fleet Dispatch Workers service
+
+# Core testing framework
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+pytest-asyncio==0.21.1
+pytest-celery==0.0.0
+
+# Mocking and fixtures
+pytest-fixtures==0.1.0
+faker==20.1.0
+
+# Code quality
+pytest-flake8==1.1.1
+pytest-pylint==0.21.0
+black==23.12.0
+isort==5.13.2
+ruff==0.1.8
+
+# Coverage reporting
+coverage[toml]==7.3.4
+pytest-html==4.1.1
+
+# Celery testing
+kombu==5.3.4
+
+# All production dependencies
+-r requirements.txt
