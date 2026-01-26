@@ -61,6 +61,8 @@ export const DEV_CSP_DIRECTIVES: Partial<CSPDirectives> = {
     'https://api.fleet-management.com',
     'https://*.azure.com',
     'https://*.microsoft.com',
+    'https://login.microsoftonline.com',
+    'https://graph.microsoft.com',
   ],
   'media-src': [
     "'self'",
@@ -108,6 +110,8 @@ export const PROD_CSP_DIRECTIVES: Partial<CSPDirectives> = {
     'https://api.fleet-management.com',
     'https://*.azure.com',
     'https://*.microsoft.com',
+    'https://login.microsoftonline.com', // Azure AD OAuth
+    'https://graph.microsoft.com', // Microsoft Graph API
     'https://*.ingest.sentry.io', // Sentry error reporting
     'https://*.google-analytics.com', // Analytics
   ],
