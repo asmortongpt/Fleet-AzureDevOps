@@ -8,7 +8,7 @@
 
 import { ShieldX, Home, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
+//dwsdss
 import { useAuth } from '@/hooks/useAuth';
 
 export function Forbidden403Page() {
