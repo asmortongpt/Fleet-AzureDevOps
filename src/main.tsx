@@ -26,7 +26,7 @@ if (import.meta.env.DEV) {
  */
 if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
   // P0-2: Clear any demo mode artifacts from localStorage in production
-  localStorage.removeItem('demo_mode');
+  // Demo mode removed - using real SSO only
   localStorage.removeItem('mock_auth');
   localStorage.removeItem('bypass_sso');
   localStorage.removeItem('demo_user');
@@ -237,7 +237,9 @@ validateStartupConfiguration().then(() => {
   console.log('[Fleet] Starting application...');
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
-    <React.StrictMode>
+    // TEMP DISABLED: React.StrictMode to debug infinite loop
+    // <React.StrictMode>
+    <React.Fragment>
       <QueryClientProvider client={queryClient}>
         <MsalProvider instance={msalInstance}>
           <ThemeProvider defaultTheme="system" storageKey="ctafleet-theme">
@@ -282,7 +284,7 @@ validateStartupConfiguration().then(() => {
           </ThemeProvider>
         </MsalProvider>
       </QueryClientProvider>
-    </React.StrictMode>
+    </React.Fragment>
   )
 
   // Register service worker for PWA functionality
