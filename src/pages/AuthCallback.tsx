@@ -1,154 +1,107 @@
-import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { getAuthErrorFromUrl } from '@/lib/microsoft-auth'
-import logger from '@/utils/logger'
-
 /**
- * AuthCallback Component
- * Handles the OAuth callback from Microsoft Azure AD
+ * OAuth Callback Handler
+ * Handles the redirect from Microsoft OAuth/MSAL authentication
  *
- * SECURITY: Uses httpOnly cookies for token storage (not localStorage)
- * Backend handles token exchange and sets secure cookie before redirecting here
+ * This component:
+ * 1. Shows a loading state while MSAL processes the OAuth response
+ * 2. Waits for MSAL to complete authentication
+ * 3. Redirects to dashboard on success or login on failure
  */
+
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useMsal } from '@azure/msal-react';
+import { AuthenticationResult } from '@azure/msal-browser';
+import logger from '@/utils/logger';
+
 export function AuthCallback() {
-  const navigate = useNavigate()
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
-  const [errorMessage, setErrorMessage] = useState<string>('')
+  const navigate = useNavigate();
+  const { instance, accounts } = useMsal();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    handleCallback()
-  }, [])
-
-  async function handleCallback() {
-    try {
-      // Check for OAuth errors first
-      const oauthError = getAuthErrorFromUrl()
-      if (oauthError) {
-        setStatus('error')
-        setErrorMessage(`Authentication failed: ${oauthError.description}`)
-        return
-      }
-
-      // Check for URL error parameters (from backend redirect on failure)
-      const params = new URLSearchParams(window.location.search)
-      const urlError = params.get('error')
-      const urlMessage = params.get('message')
-      if (urlError) {
-        setStatus('error')
-        setErrorMessage(urlMessage || 'Authentication failed. Please try again.')
-        return
-      }
-
-      // Verify the session was established via httpOnly cookie
-      // Backend already exchanged the code and set the cookie before redirecting here
-      const apiUrl = import.meta.env.VITE_API_URL || window.location.origin
-
+    const handleRedirect = async () => {
       try {
-        const response = await fetch(`${apiUrl}/api/v1/auth/verify`, {
-          method: 'GET',
-          credentials: 'include', // Send httpOnly cookie
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
+        logger.info('[AuthCallback] Processing OAuth redirect...');
 
-        if (response.ok) {
-          const data = await response.json()
-          if (data.user) {
-            // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.log
-            logger.debug('[AUTH] Session verified via httpOnly cookie')
-            setStatus('success')
-            setTimeout(() => {
-              navigate('/')
-            }, 1500)
-            return
-          }
+        // MSAL automatically handles the redirect when the app loads
+        // We just need to wait for it to complete
+        const response: AuthenticationResult | null = await instance.handleRedirectPromise();
+
+        if (response) {
+          logger.info('[AuthCallback] MSAL authentication successful', {
+            account: response.account.username,
+            scopes: response.scopes
+          });
+
+          // Success - redirect to dashboard
+          logger.info('[AuthCallback] Redirecting to dashboard');
+          navigate('/', { replace: true });
+        } else if (accounts.length > 0) {
+          // Already authenticated (page refresh case)
+          logger.info('[AuthCallback] Already authenticated, redirecting to dashboard');
+          navigate('/', { replace: true });
+        } else {
+          // No response and no accounts - something went wrong
+          logger.warn('[AuthCallback] No authentication response received');
+          setError('Authentication failed. Please try again.');
+
+          setTimeout(() => {
+            navigate('/login', { replace: true });
+          }, 3000);
         }
+      } catch (err) {
+        logger.error('[AuthCallback] Error processing redirect:', { error: err });
+        setError('An error occurred during authentication. Redirecting to login...');
 
-        // If verification failed, check if we need to handle the auth code
-        // (This shouldn't happen in normal flow, but handles edge cases)
-        const authCode = params.get('code')
-        if (authCode) {
-          // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.log
-          logger.debug('[AUTH] Auth code found, backend should have already processed it')
-          setStatus('error')
-          setErrorMessage('Authentication processing error. Please try signing in again.')
-          return
-        }
-
-      } catch (apiError) {
-        // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.error
-        logger.error('[AUTH] Backend API not available:', apiError)
-        setStatus('error')
-        setErrorMessage('Unable to connect to authentication service. Please try again later.')
-        return
+        setTimeout(() => {
+          navigate('/login', { replace: true });
+        }, 3000);
       }
+    };
 
-      // If we get here, no valid authentication found
-      setStatus('error')
-      setErrorMessage('No valid session found. Please try signing in again.')
-
-    } catch (error: any) {
-      // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.error
-      logger.error('Authentication callback error:', error)
-      setStatus('error')
-      setErrorMessage(error.message || 'An unexpected error occurred during authentication')
-    }
-  }
+    handleRedirect();
+  }, [instance, accounts, navigate]);
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-2">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            {status === 'loading' && <Loader2 className="h-6 w-6 animate-spin" />}
-            {status === 'success' && <CheckCircle2 className="h-6 w-6 text-green-600" />}
-            {status === 'error' && <XCircle className="h-6 w-6 text-red-600" />}
-            <span>
-              {status === 'loading' && 'Completing sign in...'}
-              {status === 'success' && 'Sign in successful!'}
-              {status === 'error' && 'Sign in failed'}
-            </span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {status === 'loading' && (
-            <p className="text-muted-foreground">
-              Please wait while we complete your authentication with Microsoft...
-            </p>
-          )}
-
-          {status === 'success' && (
-            <div className="space-y-2">
-              <p className="text-muted-foreground">
-                You have been successfully authenticated. Redirecting to your dashboard...
-              </p>
-            </div>
-          )}
-
-          {status === 'error' && (
-            <div className="space-y-2">
-              <Alert variant="destructive">
-                <AlertTitle>Authentication Error</AlertTitle>
-                <AlertDescription>{errorMessage}</AlertDescription>
-              </Alert>
-              <Button
-                onClick={() => navigate('/login')}
-                className="w-full"
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="text-center p-8">
+        {error ? (
+          <>
+            <div className="mb-4">
+              <svg
+                className="mx-auto h-12 w-12 text-red-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                Return to Login
-              </Button>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
             </div>
-          )}
-        </CardContent>
-      </Card>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              Authentication Error
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">{error}</p>
+          </>
+        ) : (
+          <>
+            <div className="mb-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              Completing Sign In
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              Please wait while we authenticate you with Microsoft...
+            </p>
+          </>
+        )}
+      </div>
     </div>
-  )
+  );
 }
-
-export default AuthCallback

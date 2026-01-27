@@ -56,6 +56,7 @@ import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
 import { TenantProvider } from "./contexts/TenantContext"
 import { initSentry } from "./lib/sentry"
 import { Login } from "./pages/Login"
+import { AuthCallback } from "./pages/AuthCallback"
 import { PublicClientApplication } from "@azure/msal-browser"
 import { MsalProvider } from "@azure/msal-react"
 import { msalConfig } from "./lib/msal-config"
@@ -252,6 +253,9 @@ validateStartupConfiguration().then(() => {
                             <SentryRoutes>
                               {/* Public Login Route */}
                               <Route path="/login" element={<Login />} />
+
+                              {/* OAuth Callback Route - Public (no auth required) */}
+                              <Route path="/auth/callback" element={<AuthCallback />} />
 
                               {/* Protected Application Routes - Require SSO Authentication */}
                               <Route
