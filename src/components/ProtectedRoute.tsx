@@ -73,8 +73,19 @@ export function ProtectedRoute({
 }: ProtectedRouteProps) {
   const { user, isLoading, isAuthenticated, canAccess } = useAuth();
 
+  // CRITICAL DEBUG: Log auth state on every render
+  logger.debug('[ProtectedRoute] Render check:', {
+    isLoading,
+    isAuthenticated,
+    hasUser: !!user,
+    userId: user?.id,
+    requireAuth,
+    timestamp: new Date().toISOString()
+  });
+
   // Show loading state while auth is initializing
   if (isLoading) {
+    logger.debug('[ProtectedRoute] Showing loading state');
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600"></div>
@@ -84,7 +95,11 @@ export function ProtectedRoute({
 
   // Check authentication requirement
   if (requireAuth && !isAuthenticated) {
-    logger.warn('ProtectedRoute: User not authenticated, redirecting to login');
+    logger.warn('[ProtectedRoute] User not authenticated, redirecting to login', {
+      hasUser: !!user,
+      isAuthenticated,
+      redirectTo
+    });
     return <Navigate to={redirectTo} replace />;
   }
 
@@ -106,6 +121,10 @@ export function ProtectedRoute({
   }
 
   // All checks passed, render the protected content
+  logger.debug('[ProtectedRoute] All checks passed, rendering protected content', {
+    userId: user?.id,
+    role: user?.role
+  });
   return <>{children}</>;
 }
 

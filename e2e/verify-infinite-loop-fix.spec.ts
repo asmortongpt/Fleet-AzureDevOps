@@ -47,8 +47,8 @@ test.describe('Infinite Loop Fix Verification', () => {
       }
     });
 
-    console.log('🔍 Loading page at http://localhost:4173');
-    await page.goto('http://localhost:4173', {
+    console.log('🔍 Loading page at http://localhost:5173');
+    await page.goto('http://localhost:5173', {
       waitUntil: 'networkidle',
       timeout: 30000
     });
