@@ -233,8 +233,43 @@ async function validateStartupConfiguration(): Promise<void> {
 
 // P0-3: Run validation BEFORE rendering app
 // This ensures app only starts if all security requirements are met
+// CRITICAL FIX: Initialize MSAL following Microsoft's official pattern BEFORE rendering
 validateStartupConfiguration().then(() => {
-  console.log('[Fleet] Starting application...');
+  return msalInstance.initialize();
+}).then(() => {
+  // CRITICAL: Set up MSAL event callbacks after initialization
+  // Set the first account as active if accounts exist but none is active
+  const allAccounts = msalInstance.getAllAccounts();
+  const activeAccount = msalInstance.getActiveAccount();
+
+  console.log('[MSAL] Initialization complete:', {
+    totalAccounts: allAccounts.length,
+    hasActiveAccount: !!activeAccount,
+    activeAccountEmail: activeAccount?.username,
+    allAccountEmails: allAccounts.map(a => a.username)
+  });
+
+  if (!activeAccount && allAccounts.length > 0) {
+    msalInstance.setActiveAccount(allAccounts[0]);
+    console.log('[MSAL] Restored active account on startup:', allAccounts[0].username);
+  }
+
+  // CRITICAL: Listen for LOGIN_SUCCESS and set the active account
+  msalInstance.addEventCallback((event) => {
+    console.log('[MSAL] Event received:', event.eventType);
+
+    if (event.eventType === 'msal:loginSuccess' && event.payload?.account) {
+      const account = event.payload.account;
+      msalInstance.setActiveAccount(account);
+      console.log('[MSAL] Active account set after login:', account.username);
+    }
+
+    if (event.eventType === 'msal:handleRedirectEnd') {
+      console.log('[MSAL] Redirect handling complete');
+    }
+  });
+
+  console.log('[Fleet] MSAL initialized, starting application...');
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
     // TEMP DISABLED: React.StrictMode to debug infinite loop
