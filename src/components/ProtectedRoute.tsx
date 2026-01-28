@@ -100,7 +100,10 @@ export function ProtectedRoute({
       isAuthenticated,
       redirectTo
     });
-    return <Navigate to={redirectTo} replace />;
+    logger.debug('[ProtectedRoute] Returning Navigate element, NOT rendering children');
+    const navigateElement = <Navigate to={redirectTo} replace />;
+    logger.debug('[ProtectedRoute] Navigate element created:', navigateElement);
+    return navigateElement;
   }
 
   // Check role and permission requirements
@@ -125,6 +128,7 @@ export function ProtectedRoute({
     userId: user?.id,
     role: user?.role
   });
+  logger.debug('[ProtectedRoute] About to render children');
   return <>{children}</>;
 }
 

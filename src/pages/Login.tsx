@@ -27,30 +27,9 @@ export function Login() {
   const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@fleet.local' : '')
   const [password, setPassword] = useState(import.meta.env.DEV ? 'demo123' : '')
 
-  // AUTO-LOGIN in DEV mode - FIXED to prevent infinite loop
-  // FIX: Only auto-login if user is NOT already authenticated
-  useEffect(() => {
-    if (import.meta.env.DEV && !isAuthenticated) {
-      logger.debug('[LOGIN] DEV mode detected - setting demo user in AuthContext')
-
-      // FIX: Set user directly in AuthContext instead of using token
-      // This ensures AuthContext knows about the user and won't redirect back to login
-      const demoUser = {
-        id: '34c5e071-2d8c-44d0-8f1f-90b58672dceb',
-        email: 'toby.deckow@capitaltechalliance.com',
-        firstName: 'Toby',
-        lastName: 'Deckow',
-        role: 'SuperAdmin' as const,
-        permissions: ['*'],
-        tenantId: 'ee1e7320-b232-402e-b4f8-288998b5bff7',
-        tenantName: 'Capital Tech Alliance'
-      }
-
-      setUser(demoUser)
-      logger.debug('[LOGIN] Demo user set in AuthContext, redirecting to dashboard')
-      navigate('/', { replace: true })
-    }
-  }, [navigate, isAuthenticated, setUser])
+  // P0 FIX: Removed auto-login bypass to allow SSO testing
+  // Auto-login in DEV mode was preventing users from testing Microsoft SSO
+  // If auto-login is needed, use VITE_SKIP_AUTH=true in .env instead (controlled by AuthContext.tsx)
 
   // Handle Microsoft OAuth callback
   // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.log

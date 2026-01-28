@@ -157,3 +157,4 @@ artifacts/sync_test_*.json
 .gitignore updated
 azure-test-agents/
 incoming_data/
+*.env.bak*
