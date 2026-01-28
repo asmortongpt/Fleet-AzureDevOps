@@ -237,13 +237,12 @@ export function Login() {
               <Button
                 type="submit"
                 size="lg"
-                variant="outline"
-                className="w-full font-semibold border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-400 dark:hover:border-slate-500 transition-all"
+                className="w-full font-semibold bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white border-2 border-slate-800 dark:border-slate-700 hover:border-slate-900 dark:hover:border-slate-600 transition-all"
                 disabled={emailLoginMutation.isPending}
               >
                 {emailLoginMutation.isPending ? (
                   <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 border-2 border-slate-400/30 border-t-slate-700 dark:border-t-slate-300 rounded-full animate-spin" />
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     Signing in...
                   </span>
                 ) : (
