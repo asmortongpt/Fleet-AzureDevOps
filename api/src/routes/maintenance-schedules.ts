@@ -64,16 +64,16 @@ const checkDueSchedules = async (tenantId: string, daysAhead: number, includeOve
   futureDate.setDate(futureDate.getDate() + daysAhead)
 
   const query = includeOverdue
-    ? 'SELECT * FROM maintenance_schedules WHERE tenant_id = $1 AND (next_due <= $2 OR next_due < NOW())'
-    : 'SELECT * FROM maintenance_schedules WHERE tenant_id = $1 AND next_due <= $2 AND next_due >= NOW()'
+    ? 'SELECT * FROM maintenance_schedules WHERE tenant_id = $1 AND (next_service_date <= $2 OR next_service_date < NOW())'
+    : 'SELECT * FROM maintenance_schedules WHERE tenant_id = $1 AND next_service_date <= $2 AND next_service_date >= NOW()'
 
   const result = await pool.query(query, [tenantId, futureDate])
 
   return result.rows.map((schedule: any) => ({
     schedule,
     vehicle: { id: schedule.vehicle_id },
-    is_overdue: new Date(schedule.next_due) < new Date(),
-    days_until_due: Math.floor((new Date(schedule.next_due).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    is_overdue: new Date(schedule.next_service_date) < new Date(),
+    days_until_due: Math.floor((new Date(schedule.next_service_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
   }))
 }
 
@@ -82,8 +82,8 @@ const generateWorkOrder = async (schedule: any, telemetry: any, overrideTemplate
     tenant_id: schedule.tenant_id,
     vehicle_id: schedule.vehicle_id,
     type: 'preventive',
-    priority: schedule.priority || 'medium',
-    description: schedule.service_type,
+    priority: 'medium',
+    description: schedule.description || schedule.name,
     estimated_cost: schedule.estimated_cost || 0,
     status: 'open',
     metadata: { schedule_id: schedule.id, ...overrideTemplate },
