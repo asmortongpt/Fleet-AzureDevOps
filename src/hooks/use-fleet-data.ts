@@ -1,6 +1,6 @@
 /**
- * Fleet Data Hook - Hybrid Version (API + Demo Fallback)
- * Uses API data when available, falls back to demo data
+ * Fleet Data Hook - Production API Version
+ * Uses real API data from backend
  */
 
 import { useCallback, useEffect, useMemo } from 'react'
@@ -21,16 +21,8 @@ import {
   useRouteMutations,
   useMaintenanceMutations
 } from '@/hooks/use-api'
-import { generateDemoVehicles, generateDemoDrivers, generateDemoWorkOrders, generateDemoFacilities } from '@/lib/demo-data'
 import { Vehicle, Driver, WorkOrder, GISFacility } from '@/lib/types'
 import logger from '@/utils/logger'
-
-// Check if demo mode is enabled (default: true)
-const isDemoMode = () => {
-  if (typeof window === 'undefined') return true
-  const demoMode = localStorage.getItem('demo_mode')
-  return demoMode !== 'false' // Default to demo mode unless explicitly disabled
-}
 
 // Debug flag
 const DEBUG_FLEET_DATA = typeof window !== 'undefined' && localStorage.getItem('debug_fleet_data') === 'true'
@@ -66,7 +58,6 @@ export function useFleetData() {
   // Log API responses for debugging
   useEffect(() => {
     if (DEBUG_FLEET_DATA) {
-      logger.debug('[useFleetData] Demo Mode:', isDemoMode())
       logger.debug('[useFleetData] API Data State:', {
         vehicles: { count: vehiclesData?.length ?? 'N/A', loading: vehiclesLoading, error: !!vehiclesError },
         drivers: { count: driversData?.length ?? 'N/A', loading: driversLoading, error: !!driversError },
@@ -84,15 +75,8 @@ export function useFleetData() {
   const maintenanceMutations = useMaintenanceMutations()
   const fuelMutations = useFuelMutations()
 
-  // Extract data arrays with demo fallback
+  // Extract data arrays from API
   const vehicles = useMemo((): Vehicle[] => {
-    if (isDemoMode()) {
-      // Use demo data
-      const demoVehicles = generateDemoVehicles(50)
-      if (DEBUG_FLEET_DATA) logger.debug('[useFleetData] Using demo vehicles:', demoVehicles.length)
-      return demoVehicles
-    }
-
     // Use API data - ensure alerts is always an array
     const rawVehicles = vehiclesData || []
     return Array.isArray(rawVehicles) ? rawVehicles.map((v): Vehicle => ({
@@ -105,61 +89,31 @@ export function useFleetData() {
   }, [vehiclesData]);
 
   const drivers = useMemo((): Driver[] => {
-    if (isDemoMode()) {
-      const demoDrivers = generateDemoDrivers(20)
-      if (DEBUG_FLEET_DATA) logger.debug('[useFleetData] Using demo drivers:', demoDrivers.length)
-      return demoDrivers
-    }
-
     const rawDrivers = driversData || []
     return Array.isArray(rawDrivers) ? (rawDrivers as unknown as Driver[]) : []
   }, [driversData]);
 
   const workOrders = useMemo((): WorkOrder[] => {
-    if (isDemoMode()) {
-      const demoOrders = generateDemoWorkOrders(30)
-      if (DEBUG_FLEET_DATA) logger.debug('[useFleetData] Using demo work orders:', demoOrders.length)
-      return demoOrders
-    }
-
     const rawWorkOrders = workOrdersData || []
     return Array.isArray(rawWorkOrders) ? (rawWorkOrders as unknown as WorkOrder[]) : []
   }, [workOrdersData]);
 
   const fuelTransactions = useMemo(() => {
-    if (isDemoMode()) {
-      return [] // No demo fuel transactions for now
-    }
-
     const rawFuelTransactions = fuelTransactionsData || []
     return Array.isArray(rawFuelTransactions) ? rawFuelTransactions : []
   }, [fuelTransactionsData]);
 
   const facilities = useMemo((): GISFacility[] => {
-    if (isDemoMode()) {
-      const demoFacilities = generateDemoFacilities()
-      if (DEBUG_FLEET_DATA) logger.debug('[useFleetData] Using demo facilities:', demoFacilities.length)
-      return demoFacilities
-    }
-
     const rawFacilities = facilitiesData || []
     return Array.isArray(rawFacilities) ? (rawFacilities as unknown as GISFacility[]) : []
   }, [facilitiesData]);
 
   const maintenanceSchedules = useMemo(() => {
-    if (isDemoMode()) {
-      return [] // No demo maintenance schedules for now
-    }
-
     const rawMaintenanceSchedules = maintenanceData || []
     return Array.isArray(rawMaintenanceSchedules) ? rawMaintenanceSchedules : []
   }, [maintenanceData]);
 
   const routes = useMemo(() => {
-    if (isDemoMode()) {
-      return [] // No demo routes for now
-    }
-
     const rawRoutes = routesData || []
     return Array.isArray(rawRoutes) ? rawRoutes : []
   }, [routesData]);
@@ -171,8 +125,7 @@ export function useFleetData() {
         vehicles: vehicles.length,
         drivers: drivers.length,
         workOrders: workOrders.length,
-        facilities: facilities.length,
-        demoMode: isDemoMode()
+        facilities: facilities.length
       })
     }
   }, [vehicles.length, drivers.length, workOrders.length, facilities.length])
@@ -190,11 +143,7 @@ export function useFleetData() {
 
   // Data initialization
   const initializeData = useCallback(() => {
-    if (isDemoMode()) {
-      logger.info('✅ Using demo data mode')
-    } else {
-      logger.info('✅ Using production API/emulator data')
-    }
+    logger.info('✅ Using production API data')
   }, [])
 
   // CRUD operations using API mutations
@@ -293,34 +242,19 @@ export function useFleetData() {
     return []
   }, [])
 
-  // Safety Data (Mock for now)
+  // Safety Data (TODO: Connect to API endpoints when available)
   const incidents = useMemo(() => {
-    if (isDemoMode()) {
-      return [
-        { id: 'INC-001', type: 'Collision', severity: 'high', status: 'closed', location: { lat: 30.439, lng: -84.281, address: 'Main St' }, date: new Date().toISOString(), vehicleId: 'veh-demo-1', oshaRecordable: true, workDaysLost: 3, injuries: 1, reportedBy: 'John Doe' },
-        { id: 'INC-002', type: 'Near Miss', severity: 'low', status: 'resolved', location: { lat: 30.462, lng: -84.255, address: 'North Ave' }, date: new Date(Date.now() - 86400000 * 2).toISOString(), vehicleId: 'veh-demo-2', oshaRecordable: false, workDaysLost: 0, injuries: 0, reportedBy: 'Jane Smith' }
-      ]
-    }
+    // TODO: Fetch from API endpoint /api/incidents
     return []
   }, [])
 
   const hazardZones = useMemo(() => {
-    if (isDemoMode()) {
-      return [
-        { id: 'HZ-001', name: 'Downtown Construction', type: 'physical', location: { lat: 30.442, lng: -84.275 }, radius: 300, severity: 'medium', restrictions: ['Speed Limit 25mph'], activeFrom: new Date().toISOString() },
-        { id: 'HZ-002', name: 'Flooded Road', type: 'environmental', location: { lat: 30.425, lng: -84.305 }, radius: 500, severity: 'high', restrictions: ['No Access', 'Detour Required'], activeFrom: new Date().toISOString() }
-      ]
-    }
+    // TODO: Fetch from API endpoint /api/hazard-zones
     return []
   }, [])
 
   const inspections = useMemo(() => {
-    if (isDemoMode()) {
-      return [
-        { id: 'INS-001', vehicleId: 'veh-demo-1', vehicleName: 'Ford F-150', inspectorName: 'Mike Wilson', date: new Date().toISOString(), passed: true, violations: 0, notes: 'All good' },
-        { id: 'INS-002', vehicleId: 'veh-demo-2', vehicleName: 'Toyota Camry', inspectorName: 'Mike Wilson', date: new Date(Date.now() - 86400000).toISOString(), passed: false, violations: 2, notes: 'Worn tires' }
-      ]
-    }
+    // TODO: Fetch from API endpoint /api/inspections
     return []
   }, [])
 
@@ -340,7 +274,7 @@ export function useFleetData() {
     maintenanceRequests: maintenanceSchedules,
     routes,
     dataInitialized: true,
-    isLoading: isDemoMode() ? false : (vehiclesLoading || driversLoading || workOrdersLoading || fuelLoading || routesLoading),
+    isLoading: vehiclesLoading || driversLoading || workOrdersLoading || fuelLoading || routesLoading,
     initializeData,
     addVehicle,
     updateVehicle,
