@@ -57,11 +57,6 @@ class APIClient {
    * - Automatically retries on 403 errors
    */
   private async initializeCsrfToken(): Promise<void> {
-    // Skip CSRF token in development mock mode
-    if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-      return
-    }
-
     // If already fetching, return existing promise
     if (this.csrfTokenPromise) {
       return this.csrfTokenPromise
