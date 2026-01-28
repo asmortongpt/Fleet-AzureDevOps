@@ -21,36 +21,36 @@ import logger from '@/utils/logger'
  */
 export function Login() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, isAuthenticated, setUser } = useAuth()
 
   // Pre-fill credentials in DEV mode for quick access
   const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@fleet.local' : '')
   const [password, setPassword] = useState(import.meta.env.DEV ? 'demo123' : '')
 
-  // AUTO-LOGIN in DEV mode - ENABLED for bypass as requested
-  // Users must authenticate via Microsoft SSO in PROD
+  // AUTO-LOGIN in DEV mode - FIXED to prevent infinite loop
+  // FIX: Only auto-login if user is NOT already authenticated
   useEffect(() => {
-    if (import.meta.env.DEV && true) { // Enabled for bypass
-      logger.debug('[LOGIN] DEV mode detected - auto-logging in with demo user')
+    if (import.meta.env.DEV && !isAuthenticated) {
+      logger.debug('[LOGIN] DEV mode detected - setting demo user in AuthContext')
 
-      // Create a demo JWT token (accepted by modified auth.middleware)
-      const demoToken = btoa(JSON.stringify({
-        header: { alg: 'HS256', typ: 'JWT' },
-        payload: {
-          id: '34c5e071-2d8c-44d0-8f1f-90b58672dceb', // Real User ID
-          email: 'toby.deckow@capitaltechalliance.com', // Real Email
-          role: 'SuperAdmin',
-          tenant_id: 'ee1e7320-b232-402e-b4f8-288998b5bff7', // Real Tenant ID
-          auth_provider: 'demo',
-          exp: Date.now() + 86400000 // 24 hours
-        }
-      }))
+      // FIX: Set user directly in AuthContext instead of using token
+      // This ensures AuthContext knows about the user and won't redirect back to login
+      const demoUser = {
+        id: '34c5e071-2d8c-44d0-8f1f-90b58672dceb',
+        email: 'toby.deckow@capitaltechalliance.com',
+        firstName: 'Toby',
+        lastName: 'Deckow',
+        role: 'SuperAdmin' as const,
+        permissions: ['*'],
+        tenantId: 'ee1e7320-b232-402e-b4f8-288998b5bff7',
+        tenantName: 'Capital Tech Alliance'
+      }
 
-      setAuthToken(demoToken)
-      logger.debug('[LOGIN] Demo token set, redirecting to dashboard')
+      setUser(demoUser)
+      logger.debug('[LOGIN] Demo user set in AuthContext, redirecting to dashboard')
       navigate('/', { replace: true })
     }
-  }, [navigate])
+  }, [navigate, isAuthenticated, setUser])
 
   // Handle Microsoft OAuth callback
   // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.log
