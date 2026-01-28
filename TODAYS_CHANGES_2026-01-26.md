@@ -258,14 +258,45 @@ if (inProgress === InteractionStatus.None) {
 During startup, MSAL was in `InteractionStatus.Startup` state, so `setIsLoading(false)` was never called.
 
 ### Solution Implemented
+
+#### Initial Fix (Iteration 1):
 Modified AuthContext to accept BOTH valid startup states:
 ```typescript
-// FIXED:
+// INITIAL FIX:
 if (inProgress === InteractionStatus.None || inProgress === InteractionStatus.Startup) {
   setIsLoading(false);
   logger.info('[Auth] Auth initialization complete, loading set to false', { inProgress });
 }
 ```
+
+#### Improved Fix (Iteration 2 - FINAL):
+Refactored to be more robust and future-proof by blacklisting active states instead:
+```typescript
+// PRODUCTION-READY FIX:
+const activeInteractions = [
+  InteractionStatus.Login,
+  InteractionStatus.Logout,
+  InteractionStatus.HandleRedirect,
+  InteractionStatus.AcquireToken,
+  InteractionStatus.SsoSilent
+];
+
+const isActivelyProcessing = activeInteractions.includes(inProgress as any);
+
+if (!isActivelyProcessing) {
+  // Safe to complete loading for: None, Startup, or any future idle states
+  setIsLoading(false);
+  logger.info('[Auth] Auth initialization complete, loading set to false', { inProgress });
+} else {
+  // Keep loading while MSAL actively processes user interaction
+  logger.debug('[Auth] MSAL actively processing user interaction, keeping loading state', { inProgress });
+}
+```
+
+**Why This Approach is Better**:
+- Future-proof: Automatically handles any new idle states MSAL might add
+- More maintainable: Self-documenting code with clear intent
+- Robust: Covers all edge cases including future MSAL updates
 
 ### Verification
 **Tool Created:** `check-browser-console.cjs` - Playwright script to verify fix
@@ -285,12 +316,25 @@ Current URL: http://localhost:5173/login
 ✅ NO 403 API errors
 
 ### Deployment
+
 **Branch:** `fix/infinite-loop-login-2026-01-27`
-**Commit:** `da7c8cab0`
+
+**Commits:**
+- `da7c8cab0` - Initial fix (Iteration 1)
+- `5b4d4133a` - Improved production-ready implementation (Iteration 2 - FINAL)
+
 **Pushed to:**
 - ✅ Azure DevOps origin
 - ✅ GitHub (asmortongpt)
 - ✅ GitHub (Capital-Technology-Alliance)
+
+**Files Modified:**
+1. `src/contexts/AuthContext.tsx` (lines 209-233) - Improved MSAL state handling
+2. `src/components/ProtectedRoute.tsx` - Removed debug logging
+3. `.gitignore` - Added *.env.bak* pattern
+4. `check-browser-console.cjs` - Created verification script
+5. `INFINITE_LOOP_FIX_SUMMARY.md` - Updated with both iterations
+6. `TODAYS_CHANGES_2026-01-26.md` - Complete session documentation
 
 ### Impact
 - **CRITICAL** - Blocks 100% of unauthenticated users
