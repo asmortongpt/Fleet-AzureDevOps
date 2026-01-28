@@ -64,16 +64,16 @@ const checkDueSchedules = async (tenantId: string, daysAhead: number, includeOve
   futureDate.setDate(futureDate.getDate() + daysAhead)
 
   const query = includeOverdue
-    ? 'SELECT * FROM maintenance_schedules WHERE tenant_id = $1 AND (next_due <= $2 OR next_due < NOW())'
-    : 'SELECT * FROM maintenance_schedules WHERE tenant_id = $1 AND next_due <= $2 AND next_due >= NOW()'
+    ? 'SELECT * FROM maintenance_schedules WHERE tenant_id = $1 AND (next_service_date <= $2 OR next_service_date < NOW())'
+    : 'SELECT * FROM maintenance_schedules WHERE tenant_id = $1 AND next_service_date <= $2 AND next_service_date >= NOW()'
 
   const result = await pool.query(query, [tenantId, futureDate])
 
   return result.rows.map((schedule: any) => ({
     schedule,
     vehicle: { id: schedule.vehicle_id },
-    is_overdue: new Date(schedule.next_due) < new Date(),
-    days_until_due: Math.floor((new Date(schedule.next_due).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    is_overdue: new Date(schedule.next_service_date) < new Date(),
+    days_until_due: Math.floor((new Date(schedule.next_service_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
   }))
 }
 
@@ -82,8 +82,8 @@ const generateWorkOrder = async (schedule: any, telemetry: any, overrideTemplate
     tenant_id: schedule.tenant_id,
     vehicle_id: schedule.vehicle_id,
     type: 'preventive',
-    priority: schedule.priority || 'medium',
-    description: schedule.service_type,
+    priority: 'medium',
+    description: schedule.description || schedule.name,
     estimated_cost: schedule.estimated_cost || 0,
     status: 'open',
     metadata: { schedule_id: schedule.id, ...overrideTemplate },
@@ -104,10 +104,10 @@ const generateWorkOrder = async (schedule: any, telemetry: any, overrideTemplate
 const getRecurringScheduleStats = async (tenantId: string) => {
   const result = await pool.query(
     `SELECT COUNT(*) as total,
-            SUM(CASE WHEN auto_create_work_order THEN 1 ELSE 0 END) as active,
+            SUM(CASE WHEN is_active THEN 1 ELSE 0 END) as active,
             SUM(estimated_cost) as total_estimated_cost
      FROM maintenance_schedules
-     WHERE tenant_id = $1 AND is_recurring = true`,
+     WHERE tenant_id = $1`,
     [tenantId]
   )
 
@@ -123,20 +123,14 @@ router.get(
     try {
       const paginationParams = getPaginationParams(req)
       const {
-        trigger_metric,
         vehicle_id,
         service_type
       } = req.query
 
-      // Build multi-metric filters
+      // Build filters
       let filters = `WHERE tenant_id = $1`
       const params: any[] = [req.user!.tenant_id]
       let paramIndex = 2
-
-      if (trigger_metric) {
-        filters += ` AND trigger_metric = $${paramIndex++}`
-        params.push(trigger_metric)
-      }
 
       if (vehicle_id) {
         filters += ` AND vehicle_id = $${paramIndex++}`
@@ -144,16 +138,15 @@ router.get(
       }
 
       if (service_type) {
-        filters += ` AND service_type = $${paramIndex++}`
+        filters += ` AND type = $${paramIndex++}`
         params.push(service_type)
       }
 
       const result = await pool.query(
-        `SELECT id, tenant_id, vehicle_id, service_type, priority, status,
-                trigger_metric, trigger_value, current_value, next_due,
-                estimated_cost, is_recurring, recurrence_pattern,
-                auto_create_work_order, work_order_template, notes,
-                created_at, updated_at
+        `SELECT id, tenant_id, vehicle_id, name, description, type,
+                interval_miles, interval_days, last_service_date, last_service_mileage,
+                next_service_date, next_service_mileage, estimated_cost, estimated_duration,
+                is_active, metadata, created_at, updated_at
          FROM maintenance_schedules ${filters} ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
         [...params, paginationParams.limit, paginationParams.offset]
       )
@@ -185,11 +178,10 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT id, tenant_id, vehicle_id, service_type, priority, status,
-                trigger_metric, trigger_value, current_value, next_due,
-                estimated_cost, is_recurring, recurrence_pattern,
-                auto_create_work_order, work_order_template, parts,
-                notes, created_at, updated_at
+        `SELECT id, tenant_id, vehicle_id, name, description, type,
+                interval_miles, interval_days, last_service_date, last_service_mileage,
+                next_service_date, next_service_mileage, estimated_cost, estimated_duration,
+                is_active, metadata, created_at, updated_at
          FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
@@ -310,7 +302,7 @@ router.post(
         })
       }
 
-      // Calculate initial next_due date
+      // Calculate initial next service date
       const now = new Date()
       const nextDue = await calculateNextDueDate(
         {
@@ -324,25 +316,27 @@ router.post(
       // Create schedule
       const result = await pool.query(
         `INSERT INTO maintenance_schedules (
-          tenant_id, vehicle_id, service_type, priority, estimated_cost,
-          is_recurring, recurrence_pattern, auto_create_work_order,
-          work_order_template, next_due, notes, parts, status
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+          tenant_id, vehicle_id, name, description, type,
+          interval_days, next_service_date, estimated_cost,
+          is_active, metadata
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING *`,
         [
           req.user!.tenant_id,
           data.vehicle_id,
-          data.service_type,
-          data.priority,
-          data.estimated_cost || 0,
-          true,
-          JSON.stringify(data.recurrence_pattern),
-          data.auto_create_work_order,
-          JSON.stringify(data.work_order_template),
+          data.name || data.service_type || 'Recurring Maintenance',
+          data.description || data.notes || '',
+          data.type || data.service_type || 'preventive',
+          data.recurrence_pattern?.interval || 30,
           nextDue,
-          data.notes,
-          data.parts ? JSON.stringify(data.parts) : null,
-          'scheduled'
+          data.estimated_cost || 0,
+          data.is_active !== false && data.auto_create_work_order !== false,
+          JSON.stringify({
+            recurrence_pattern: data.recurrence_pattern,
+            work_order_template: data.work_order_template,
+            parts: data.parts,
+            priority: data.priority
+          })
         ]
       )
 
@@ -372,26 +366,41 @@ router.put(
         })
       }
 
-      const updateFields: string[] = [`recurrence_pattern = $3`]
-      const updateValues: any[] = [JSON.stringify(data.recurrence_pattern)]
+      // Get existing metadata
+      const existing = await pool.query(
+        `SELECT metadata FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2`,
+        [req.params.id, req.user!.tenant_id]
+      )
+
+      if (existing.rows.length === 0) {
+        return res.status(404).json({ error: `Recurring schedule not found` })
+      }
+
+      const currentMetadata = existing.rows[0].metadata || {}
+      const updatedMetadata = {
+        ...currentMetadata,
+        recurrence_pattern: data.recurrence_pattern
+      }
+
+      const updateFields: string[] = [`metadata = $3`]
+      const updateValues: any[] = [JSON.stringify(updatedMetadata)]
       let paramIndex = 4
 
       if (data.auto_create_work_order !== undefined) {
-        updateFields.push(`auto_create_work_order = $${paramIndex}`)
+        updateFields.push(`is_active = $${paramIndex}`)
         updateValues.push(data.auto_create_work_order)
         paramIndex++
       }
 
       if (data.work_order_template) {
-        updateFields.push(`work_order_template = $${paramIndex}`)
-        updateValues.push(JSON.stringify(data.work_order_template))
-        paramIndex++
+        updatedMetadata.work_order_template = data.work_order_template
+        updateValues[0] = JSON.stringify(updatedMetadata)
       }
 
       const result = await pool.query(
         `UPDATE maintenance_schedules
          SET ${updateFields.join(`, `)}, updated_at = NOW()
-         WHERE id = $1 AND tenant_id = $2 AND is_recurring = true
+         WHERE id = $1 AND tenant_id = $2
          RETURNING *`,
         [req.params.id, req.user!.tenant_id, ...updateValues]
       )
@@ -435,11 +444,15 @@ router.get(
       }
 
       if (service_type) {
-        dueSchedules = dueSchedules.filter((s) => s.schedule.service_type === service_type)
+        dueSchedules = dueSchedules.filter((s) => s.schedule.type === service_type)
       }
 
       if (priority) {
-        dueSchedules = dueSchedules.filter((s) => s.schedule.priority === priority)
+        const priorityFilter = priority as string
+        dueSchedules = dueSchedules.filter((s) => {
+          const metadata = s.schedule.metadata || {}
+          return metadata.priority === priorityFilter
+        })
       }
 
       res.json({
@@ -469,7 +482,11 @@ router.post(
 
       // Get schedule
       const scheduleResult = await pool.query(
-        `SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2`,
+        `SELECT id, tenant_id, vehicle_id, name, description, type,
+                interval_miles, interval_days, last_service_date, last_service_mileage,
+                next_service_date, next_service_mileage, estimated_cost, estimated_duration,
+                is_active, metadata, created_at, updated_at
+         FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -482,11 +499,11 @@ router.post(
       // Check if due (unless skip_due_check is true)
       if (!skip_due_check) {
         const now = new Date()
-        const nextDue = new Date(schedule.next_due)
+        const nextDue = new Date(schedule.next_service_date)
         if (nextDue > now) {
           return res.status(400).json({
             error: 'Schedule is not due yet',
-            next_due: schedule.next_due
+            next_service_date: schedule.next_service_date
           })
         }
       }
@@ -531,7 +548,11 @@ router.get(
     try {
       // Get schedule
       const scheduleResult = await pool.query(
-        `SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2`,
+        `SELECT id, tenant_id, vehicle_id, name, description, type,
+                interval_miles, interval_days, last_service_date, last_service_mileage,
+                next_service_date, next_service_mileage, estimated_cost, estimated_duration,
+                is_active, metadata, created_at, updated_at
+         FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -599,8 +620,8 @@ router.patch(
     try {
       const result = await pool.query(
         `UPDATE maintenance_schedules
-         SET auto_create_work_order = false, updated_at = NOW()
-         WHERE id = $1 AND tenant_id = $2 AND is_recurring = true
+         SET is_active = false, updated_at = NOW()
+         WHERE id = $1 AND tenant_id = $2
          RETURNING *`,
         [req.params.id, req.user!.tenant_id]
       )
@@ -629,8 +650,8 @@ router.patch(
     try {
       const result = await pool.query(
         `UPDATE maintenance_schedules
-         SET auto_create_work_order = true, updated_at = NOW()
-         WHERE id = $1 AND tenant_id = $2 AND is_recurring = true
+         SET is_active = true, updated_at = NOW()
+         WHERE id = $1 AND tenant_id = $2
          RETURNING *`,
         [req.params.id, req.user!.tenant_id]
       )

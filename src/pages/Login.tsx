@@ -1,7 +1,7 @@
-import { CarProfile } from '@phosphor-icons/react'
+import { CarProfile, Eye, EyeSlash } from '@phosphor-icons/react'
 import { useMutation } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -21,36 +21,16 @@ import logger from '@/utils/logger'
  */
 export function Login() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, isAuthenticated, setUser } = useAuth()
 
-  // Pre-fill credentials in DEV mode for quick access
-  const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@fleet.local' : '')
-  const [password, setPassword] = useState(import.meta.env.DEV ? 'demo123' : '')
+  // Empty credentials for security - no pre-filled test data
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
-  // AUTO-LOGIN in DEV mode - ENABLED for bypass as requested
-  // Users must authenticate via Microsoft SSO in PROD
-  useEffect(() => {
-    if (import.meta.env.DEV && true) { // Enabled for bypass
-      logger.debug('[LOGIN] DEV mode detected - auto-logging in with demo user')
-
-      // Create a demo JWT token (accepted by modified auth.middleware)
-      const demoToken = btoa(JSON.stringify({
-        header: { alg: 'HS256', typ: 'JWT' },
-        payload: {
-          id: '34c5e071-2d8c-44d0-8f1f-90b58672dceb', // Real User ID
-          email: 'toby.deckow@capitaltechalliance.com', // Real Email
-          role: 'SuperAdmin',
-          tenant_id: 'ee1e7320-b232-402e-b4f8-288998b5bff7', // Real Tenant ID
-          auth_provider: 'demo',
-          exp: Date.now() + 86400000 // 24 hours
-        }
-      }))
-
-      setAuthToken(demoToken)
-      logger.debug('[LOGIN] Demo token set, redirecting to dashboard')
-      navigate('/', { replace: true })
-    }
-  }, [navigate])
+  // P0 FIX: Removed auto-login bypass to allow SSO testing
+  // Auto-login in DEV mode was preventing users from testing Microsoft SSO
+  // If auto-login is needed, use VITE_SKIP_AUTH=true in .env instead (controlled by AuthContext.tsx)
 
   // Handle Microsoft OAuth callback
   // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.log
@@ -145,7 +125,7 @@ export function Login() {
                 Welcome Back
               </CardTitle>
               <CardDescription className="text-base text-slate-600 dark:text-slate-400">
-                Sign in with your @capitaltechalliance.com account
+                Sign in with your fleet account
               </CardDescription>
             </div>
           </CardHeader>
@@ -191,9 +171,9 @@ export function Login() {
               <div className="absolute inset-0 flex items-center">
                 <Separator className="w-full bg-slate-200 dark:bg-slate-700" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase z-10">
+              <div className="relative flex justify-center text-xs z-10">
                 <span className="bg-white/90 dark:bg-slate-900/90 px-4 text-slate-500 dark:text-slate-400 font-medium backdrop-blur-sm" data-testid="login-separator-text">
-                  Or continue with email
+                  or continue with email
                 </span>
               </div>
             </div>
@@ -207,7 +187,7 @@ export function Login() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@fleet.local"
+                  placeholder="your.email@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -217,31 +197,52 @@ export function Login() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Password
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={emailLoginMutation.isPending}
-                  className="h-11 border-slate-300 dark:border-slate-600 focus:border-blue-600 dark:focus:border-blue-500"
-                />
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Password
+                  </Label>
+                  <Link
+                    to="/reset-password"
+                    className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={emailLoginMutation.isPending}
+                    className="h-11 pr-10 border-slate-300 dark:border-slate-600 focus:border-blue-600 dark:focus:border-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <EyeSlash className="w-5 h-5" weight="regular" />
+                    ) : (
+                      <Eye className="w-5 h-5" weight="regular" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <Button
                 type="submit"
                 size="lg"
-                variant="outline"
-                className="w-full font-semibold border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-400 dark:hover:border-slate-500 transition-all"
+                className="w-full font-semibold bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white border-2 border-slate-800 dark:border-slate-700 hover:border-slate-900 dark:hover:border-slate-600 transition-all"
                 disabled={emailLoginMutation.isPending}
               >
                 {emailLoginMutation.isPending ? (
                   <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 border-2 border-slate-400/30 border-t-slate-700 dark:border-t-slate-300 rounded-full animate-spin" />
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     Signing in...
                   </span>
                 ) : (
@@ -251,7 +252,20 @@ export function Login() {
             </form>
 
             <p className="text-center text-sm text-slate-500 dark:text-slate-400 pt-4" data-testid="login-help-text">
-              Need help? Contact your system administrator.
+              Need help?{' '}
+              <a
+                href="mailto:fleet-support@capitaltechalliance.com?subject=Login%20Assistance"
+                className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline"
+              >
+                Contact your system administrator
+              </a>
+              {' '}or{' '}
+              <Link
+                to="/reset-password"
+                className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline"
+              >
+                reset your password
+              </Link>
             </p>
           </CardContent>
         </Card>

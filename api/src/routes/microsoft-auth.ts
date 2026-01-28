@@ -19,10 +19,11 @@ const AZURE_AD_CONFIG = {
 }
 
 /**
- * GET /api/auth/microsoft/callback
- * OAuth2 callback endpoint - exchanges authorization code for access token
+ * OAuth2 callback handler - processes authorization code from Microsoft
+ * @param req - Express request with code and state query params
+ * @param res - Express response
  */
-router.get('/microsoft/callback', async (req: Request, res: Response) => {
+const handleOAuthCallback = async (req: Request, res: Response) => {
   try {
     const { code, state } = req.query
 
@@ -254,7 +255,19 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     })
     res.redirect(safeErrorUrl)
   }
-})
+}
+
+/**
+ * GET /api/auth/microsoft/callback
+ * OAuth2 callback endpoint - exchanges authorization code for access token
+ */
+router.get('/microsoft/callback', handleOAuthCallback)
+
+/**
+ * GET /api/auth/callback
+ * Alias for Microsoft OAuth callback (for frontend compatibility)
+ */
+router.get('/callback', handleOAuthCallback)
 
 /**
  * GET /api/auth/microsoft
