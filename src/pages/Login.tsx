@@ -1,7 +1,7 @@
-import { CarProfile } from '@phosphor-icons/react'
+import { CarProfile, Eye, EyeSlash } from '@phosphor-icons/react'
 import { useMutation } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -23,9 +23,10 @@ export function Login() {
   const navigate = useNavigate()
   const { login, isAuthenticated, setUser } = useAuth()
 
-  // Pre-fill credentials in DEV mode for quick access
-  const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@fleet.local' : '')
-  const [password, setPassword] = useState(import.meta.env.DEV ? 'demo123' : '')
+  // Empty credentials for security - no pre-filled test data
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
   // P0 FIX: Removed auto-login bypass to allow SSO testing
   // Auto-login in DEV mode was preventing users from testing Microsoft SSO
@@ -124,7 +125,7 @@ export function Login() {
                 Welcome Back
               </CardTitle>
               <CardDescription className="text-base text-slate-600 dark:text-slate-400">
-                Sign in with your @capitaltechalliance.com account
+                Sign in with your fleet account
               </CardDescription>
             </div>
           </CardHeader>
@@ -170,9 +171,9 @@ export function Login() {
               <div className="absolute inset-0 flex items-center">
                 <Separator className="w-full bg-slate-200 dark:bg-slate-700" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase z-10">
+              <div className="relative flex justify-center text-xs z-10">
                 <span className="bg-white/90 dark:bg-slate-900/90 px-4 text-slate-500 dark:text-slate-400 font-medium backdrop-blur-sm" data-testid="login-separator-text">
-                  Or continue with email
+                  or continue with email
                 </span>
               </div>
             </div>
@@ -186,7 +187,7 @@ export function Login() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@fleet.local"
+                  placeholder="your.email@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -196,19 +197,41 @@ export function Login() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Password
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={emailLoginMutation.isPending}
-                  className="h-11 border-slate-300 dark:border-slate-600 focus:border-blue-600 dark:focus:border-blue-500"
-                />
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Password
+                  </Label>
+                  <Link
+                    to="/reset-password"
+                    className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={emailLoginMutation.isPending}
+                    className="h-11 pr-10 border-slate-300 dark:border-slate-600 focus:border-blue-600 dark:focus:border-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <EyeSlash className="w-5 h-5" weight="regular" />
+                    ) : (
+                      <Eye className="w-5 h-5" weight="regular" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <Button
@@ -230,7 +253,20 @@ export function Login() {
             </form>
 
             <p className="text-center text-sm text-slate-500 dark:text-slate-400 pt-4" data-testid="login-help-text">
-              Need help? Contact your system administrator.
+              Need help?{' '}
+              <a
+                href="mailto:fleet-support@capitaltechalliance.com?subject=Login%20Assistance"
+                className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline"
+              >
+                Contact your system administrator
+              </a>
+              {' '}or{' '}
+              <Link
+                to="/reset-password"
+                className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline"
+              >
+                reset your password
+              </Link>
             </p>
           </CardContent>
         </Card>
