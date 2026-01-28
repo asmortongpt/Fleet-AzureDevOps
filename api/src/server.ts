@@ -94,7 +94,7 @@ import outlookRouter from './routes/outlook.routes'
 // Emulator & Testing Routes
 // import emulatorRouter from './routes/emulator.routes'
 // import obd2EmulatorRouter from './routes/obd2-emulator.routes'
-import demoRouter from './routes/demo.routes'
+// import demoRouter from './routes/demo.routes' // REMOVED: demo routes deleted during mock data cleanup
 
 // System Management Routes
 // import monitoringRouter from './routes/monitoring'
@@ -397,8 +397,9 @@ app.use('/api/permissions', permissionsRouter)
 // Authentication & User Management Routes
 app.use('/api/auth', authRouter)
 app.use('/auth', authRouter) // Alias without /api prefix for backward compatibility
+app.use('/api/auth', microsoftAuthRouter) // Microsoft SSO: /microsoft, /microsoft/callback
+app.use('/auth', microsoftAuthRouter) // Microsoft SSO without /api prefix for frontend calls
 app.use('/api/auth', sessionRevocationRouter) // Session revocation endpoints (/revoke, /revoke/status)
-app.use('/api/microsoft-auth', microsoftAuthRouter)
 app.use('/api/break-glass', breakGlassRouter)
 
 // External Integrations Routes
@@ -414,7 +415,7 @@ app.use('/api/dashboard', dashboardRouter)
 // Emulator & Testing Routes
 // app.use('/api/emulator', emulatorRouter)
 // app.use('/api/obd2-emulator', obd2EmulatorRouter)
-app.use('/api/demo', demoRouter)
+// app.use('/api/demo', demoRouter) // REMOVED: demo routes deleted during mock data cleanup
 
 // System Management Routes
 // app.use('/api/monitoring', monitoringRouter)
