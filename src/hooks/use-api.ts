@@ -33,11 +33,6 @@ let csrfTokenPromise: Promise<string> | null = null;
  * Uses a promise cache to prevent multiple simultaneous requests
  */
 export async function getCsrfToken(): Promise<string> {
-  // Skip CSRF in development mock mode
-  if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-    return '';
-  }
-
   // If we already have a token, return it
   if (csrfToken) {
     return csrfToken;
