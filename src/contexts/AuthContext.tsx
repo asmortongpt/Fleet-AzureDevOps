@@ -207,13 +207,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // Network errors or fetch failures
         logger.error('Failed to initialize auth:', { error });
       } finally {
-        // CRITICAL FIX: Keep loading while MSAL processes OAuth redirect
-        // This prevents login loop when user returns from Microsoft authentication
-        if (inProgress === InteractionStatus.None) {
+        // CRITICAL FIX: Always complete loading after auth check
+        // We need to set loading to false so ProtectedRoute can decide whether to redirect
+        // The only exception is when MSAL is actively handling a redirect (handleRedirect, acquireToken, etc.)
+        if (inProgress === InteractionStatus.None || inProgress === InteractionStatus.Startup) {
           setIsLoading(false);
-          logger.info('[Auth] Auth initialization complete, loading set to false');
+          logger.info('[Auth] Auth initialization complete, loading set to false', { inProgress });
         } else {
-          logger.debug('[Auth] MSAL still processing (inProgress:', inProgress, '), keeping loading state');
+          logger.debug('[Auth] MSAL actively processing (inProgress:', inProgress, '), keeping loading state');
         }
         // Reset initialization flag to allow future re-runs
         isInitializingRef.current = false;
