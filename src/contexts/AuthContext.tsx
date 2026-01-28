@@ -89,6 +89,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return;
       }
 
+      // CRITICAL FIX: Prevent unnecessary re-initialization if user is already set
+      // This prevents infinite loops when inProgress changes from 'startup' -> 'none'
+      if (user && !hasAccounts) {
+        logger.debug('[Auth] User already authenticated, skipping re-initialization', {
+          userId: user.id,
+          inProgress
+        });
+        return;
+      }
+
       isInitializingRef.current = true;
       logger.info('[Auth] Initializing authentication', {
         hasAccounts,
@@ -129,11 +139,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
 
         // Check for MSAL authentication
-        if (hasAccounts && firstAccount && inProgress === InteractionStatus.None) {
+        // Only process MSAL account when not actively in a user interaction flow
+        const activeInteractions = [
+          InteractionStatus.Login,
+          InteractionStatus.Logout,
+          InteractionStatus.HandleRedirect,
+          InteractionStatus.AcquireToken,
+          InteractionStatus.SsoSilent
+        ];
+
+        if (hasAccounts && firstAccount && !activeInteractions.includes(inProgress as any)) {
           logger.info('[Auth] MSAL account found - creating user object', {
             email: firstAccount.username,
             accountId: firstAccount.localAccountId,
-            tenantId: firstAccount.tenantId
+            tenantId: firstAccount.tenantId,
+            inProgress
           });
 
           // Create user from MSAL account
