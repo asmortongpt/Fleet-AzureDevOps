@@ -207,14 +207,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // Network errors or fetch failures
         logger.error('Failed to initialize auth:', { error });
       } finally {
-        // CRITICAL FIX: Always complete loading after auth check
+        // CRITICAL FIX: Complete loading after auth check UNLESS MSAL is actively processing user interaction
         // We need to set loading to false so ProtectedRoute can decide whether to redirect
-        // The only exception is when MSAL is actively handling a redirect (handleRedirect, acquireToken, etc.)
-        if (inProgress === InteractionStatus.None || inProgress === InteractionStatus.Startup) {
+        // Keep loading ONLY when MSAL is actively handling user interactions (Login, Logout, HandleRedirect, etc.)
+        const activeInteractions = [
+          InteractionStatus.Login,
+          InteractionStatus.Logout,
+          InteractionStatus.HandleRedirect,
+          InteractionStatus.AcquireToken,
+          InteractionStatus.SsoSilent
+        ];
+
+        const isActivelyProcessing = activeInteractions.includes(inProgress as any);
+
+        if (!isActivelyProcessing) {
+          // Safe to complete loading for: None, Startup, or any future idle states
           setIsLoading(false);
           logger.info('[Auth] Auth initialization complete, loading set to false', { inProgress });
         } else {
-          logger.debug('[Auth] MSAL actively processing (inProgress:', inProgress, '), keeping loading state');
+          // Keep loading while MSAL actively processes user interaction
+          logger.debug('[Auth] MSAL actively processing user interaction, keeping loading state', { inProgress });
         }
         // Reset initialization flag to allow future re-runs
         isInitializingRef.current = false;
