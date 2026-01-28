@@ -89,6 +89,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return;
       }
 
+      // CRITICAL FIX: Prevent unnecessary re-initialization if user is already set
+      // This prevents infinite loops when inProgress changes from 'startup' -> 'none'
+      if (user && !hasAccounts) {
+        logger.debug('[Auth] User already authenticated, skipping re-initialization', {
+          userId: user.id,
+          inProgress
+        });
+        return;
+      }
+
       isInitializingRef.current = true;
       logger.info('[Auth] Initializing authentication', {
         hasAccounts,
@@ -129,11 +139,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
 
         // Check for MSAL authentication
-        if (hasAccounts && firstAccount && inProgress === InteractionStatus.None) {
+        // Only process MSAL account when not actively in a user interaction flow
+        const activeInteractions = [
+          InteractionStatus.Login,
+          InteractionStatus.Logout,
+          InteractionStatus.HandleRedirect,
+          InteractionStatus.AcquireToken,
+          InteractionStatus.SsoSilent
+        ];
+
+        if (hasAccounts && firstAccount && !activeInteractions.includes(inProgress as any)) {
           logger.info('[Auth] MSAL account found - creating user object', {
             email: firstAccount.username,
             accountId: firstAccount.localAccountId,
-            tenantId: firstAccount.tenantId
+            tenantId: firstAccount.tenantId,
+            inProgress
           });
 
           // Create user from MSAL account
@@ -207,13 +227,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // Network errors or fetch failures
         logger.error('Failed to initialize auth:', { error });
       } finally {
-        // CRITICAL FIX: Keep loading while MSAL processes OAuth redirect
-        // This prevents login loop when user returns from Microsoft authentication
-        if (inProgress === InteractionStatus.None) {
+        // CRITICAL FIX: Complete loading after auth check UNLESS MSAL is actively processing user interaction
+        // We need to set loading to false so ProtectedRoute can decide whether to redirect
+        // Keep loading ONLY when MSAL is actively handling user interactions (Login, Logout, HandleRedirect, etc.)
+        const activeInteractions = [
+          InteractionStatus.Login,
+          InteractionStatus.Logout,
+          InteractionStatus.HandleRedirect,
+          InteractionStatus.AcquireToken,
+          InteractionStatus.SsoSilent
+        ];
+
+        const isActivelyProcessing = activeInteractions.includes(inProgress as any);
+
+        if (!isActivelyProcessing) {
+          // Safe to complete loading for: None, Startup, or any future idle states
           setIsLoading(false);
-          logger.info('[Auth] Auth initialization complete, loading set to false');
+          logger.info('[Auth] Auth initialization complete, loading set to false', { inProgress });
         } else {
-          logger.debug('[Auth] MSAL still processing (inProgress:', inProgress, '), keeping loading state');
+          // Keep loading while MSAL actively processes user interaction
+          logger.debug('[Auth] MSAL actively processing user interaction, keeping loading state', { inProgress });
         }
         // Reset initialization flag to allow future re-runs
         isInitializingRef.current = false;
