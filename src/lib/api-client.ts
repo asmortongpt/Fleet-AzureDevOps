@@ -111,33 +111,6 @@ class APIClient {
     await this.initializeCsrfToken()
   }
 
-  /**
-   * Generate mock data for development when API is unavailable
-   * GRACEFUL DEGRADATION: Allows frontend development without backend
-   */
-  private getMockData<T>(endpoint: string): T | null {
-    if (import.meta.env.PROD) return null
-
-    logger.debug('[Mock Data] Generating fallback for endpoint', { endpoint })
-
-    // Mock data for common endpoints
-    const endpointPatterns = [
-      { pattern: '/api/vehicles', mock: { data: [], total: 0, page: 1, limit: 50 } },
-      { pattern: '/api/drivers', mock: { data: [], total: 0, page: 1, limit: 50 } },
-      { pattern: '/api/work-orders', mock: { data: [], total: 0, page: 1, limit: 50 } },
-      { pattern: '/api/fuel-transactions', mock: { data: [], total: 0, page: 1, limit: 50 } },
-      { pattern: '/api/maintenance-schedules', mock: { data: [], total: 0, page: 1, limit: 50 } },
-    ]
-
-    for (const { pattern, mock } of endpointPatterns) {
-      if (endpoint.includes(pattern)) {
-        return { ...mock, __mock: true, message: 'Mock data: API unavailable in development mode' } as T
-      }
-    }
-
-    return { data: [], __mock: true, message: 'Mock data: API unavailable in development mode' } as T
-  }
-
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -228,17 +201,6 @@ class APIClient {
         // Auto-logout on 401
         if (error.status === 401) {
           this.clearToken()
-
-          // GRACEFUL FALLBACK: In development, provide mock data instead of redirecting
-          if (import.meta.env.DEV) {
-            logger.warn(`API returned 401 for ${endpoint}, using mock data`, {
-              component: 'APIClient',
-              endpoint
-            })
-            const mockData = this.getMockData<T>(endpoint)
-            if (mockData !== null) return mockData
-          }
-
           window.location.href = '/login'
         }
         throw error
@@ -253,19 +215,7 @@ class APIClient {
         )
       }
 
-      // Network or other errors - provide mock data in development
-      if (import.meta.env.DEV) {
-        logger.warn(`API unavailable for ${endpoint}, using mock data`, {
-          component: 'APIClient',
-          endpoint,
-          error: error instanceof Error ? error.message : String(error)
-        })
-        const mockData = this.getMockData<T>(endpoint)
-        if (mockData !== null) {
-          return mockData
-        }
-      }
-
+      // Network or other errors - fail fast for production readiness
       throw new APIError(
         error instanceof Error ? error.message : 'Network error - API may be unavailable',
         0,
