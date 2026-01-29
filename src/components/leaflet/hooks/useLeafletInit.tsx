@@ -30,7 +30,7 @@ async function ensureLeafletLoaded(): Promise<typeof import("leaflet")> {
         await import("leaflet/dist/leaflet.css")
         leafletCssLoaded = true
       } catch (cssError) {
-        logger.warn("⚠️  Leaflet CSS could not be loaded:", cssError)
+        logger.warn("⚠️  Leaflet CSS could not be loaded:", { error: cssError })
       }
     }
 
@@ -46,7 +46,7 @@ async function ensureLeafletLoaded(): Promise<typeof import("leaflet")> {
         shadowUrl: shadowUrl.default,
       })
     } catch (iconError) {
-      logger.warn("⚠️  Leaflet icons could not be loaded:", iconError)
+      logger.warn("⚠️  Leaflet icons could not be loaded:", { error: iconError })
     }
 
     logger.debug("✅ Leaflet loaded successfully")

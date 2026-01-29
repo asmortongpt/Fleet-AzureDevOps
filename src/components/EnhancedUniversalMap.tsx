@@ -191,7 +191,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
       errorRecovery.reset()
 
       onProviderSwitch?.(oldProvider, newProvider)
-      toast(`Switched to ${newProvider === 'google' ? 'Google Maps' : 'OpenStreetMap'}`)
+      toast.info(`Switched to ${newProvider === 'google' ? 'Google Maps' : 'OpenStreetMap'}`)
     },
     [currentProvider, errorRecovery, onProviderSwitch]
   )

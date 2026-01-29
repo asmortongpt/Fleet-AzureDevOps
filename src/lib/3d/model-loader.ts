@@ -118,8 +118,9 @@ export async function loadVehicleModel(
           onProgress(progress);
         }
       },
-      (error) => {
-        const err = new Error(`Failed to load model from ${url}: ${error.message || error}`);
+      (error: unknown) => {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const err = new Error(`Failed to load model from ${url}: ${errorMessage}`);
         if (onError) {
           onError(err);
         }

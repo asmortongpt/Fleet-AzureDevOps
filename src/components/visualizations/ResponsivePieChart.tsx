@@ -77,17 +77,17 @@ export function ResponsivePieChart({
             <ResponsiveContainer width="100%" height={height}>
               <PieChart>
                 <Pie
-                  data={data}
+                  data={data as unknown as Record<string, unknown>[]}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
                   label={({
                     cx,
                     cy,
-                    midAngle,
+                    midAngle = 0,
                     innerRadius,
                     outerRadius,
-                    percent,
+                    percent = 0,
                   }) => {
                     const RADIAN = Math.PI / 180
                     const radius = innerRadius + (outerRadius - innerRadius) * 0.5

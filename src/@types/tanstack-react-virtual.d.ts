@@ -30,6 +30,7 @@ declare module '@tanstack/react-virtual' {
     isScrollingResetDelay?: number;
     enabled?: boolean;
     isRtl?: boolean;
+    gap?: number;
   }
 
   export interface Range {

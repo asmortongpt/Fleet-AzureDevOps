@@ -5,7 +5,43 @@
  * @module monitoring/telemetry
  */
 
-import { trace, context, SpanStatusCode, SpanKind } from '@opentelemetry/api';
+import React from 'react';
+
+// Define OpenTelemetry-compatible types locally to avoid dependency on @opentelemetry/api
+export enum SpanStatusCode {
+  UNSET = 0,
+  OK = 1,
+  ERROR = 2,
+}
+
+export enum SpanKind {
+  INTERNAL = 0,
+  SERVER = 1,
+  CLIENT = 2,
+  PRODUCER = 3,
+  CONSUMER = 4,
+}
+
+// Span interface for type safety
+interface Span {
+  setAttributes(attributes: Record<string, unknown>): void;
+  setAttribute(key: string, value: unknown): void;
+  setStatus(status: { code: SpanStatusCode; message?: string }): void;
+  addEvent(name: string, attributes?: Record<string, unknown>): void;
+  recordException(error: Error): void;
+  end(): void;
+}
+
+// Stub implementations for when @opentelemetry/api is not available
+const trace = {
+  getTracer: (_name: string, _version?: string) => ({
+    startSpan: () => null,
+    startActiveSpan: <T>(_name: string, _options: unknown, fn: (span: unknown) => T) => fn(null),
+  }),
+  getActiveSpan: (): Span | null => null,
+};
+
+const context = {};
 
 /**
  * Telemetry Configuration
@@ -441,7 +477,7 @@ export function startPerformanceObserver(): void {
               'timing.tcp': navEntry.connectEnd - navEntry.connectStart,
               'timing.request': navEntry.responseStart - navEntry.requestStart,
               'timing.response': navEntry.responseEnd - navEntry.responseStart,
-              'timing.dom': navEntry.domComplete - navEntry.domLoading,
+              'timing.dom': navEntry.domComplete - navEntry.domInteractive,
             });
           },
           {
@@ -492,8 +528,6 @@ export function useTraceRender(componentName: string, props?: any): void {
 export {
   trace,
   context,
-  SpanStatusCode,
-  SpanKind,
 };
 
 /**

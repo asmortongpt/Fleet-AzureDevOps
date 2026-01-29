@@ -2,7 +2,43 @@
 
 import { useEffect, useState } from 'react';
 
-import { api } from '@/lib/api';
+/**
+ * Fetches CSRF token from the server
+ * Returns the token string or null if unavailable
+ */
+async function fetchCsrfToken(): Promise<string | null> {
+  // Skip CSRF token in development mock mode
+  if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+    return null;
+  }
+
+  const baseURL = (import.meta.env.VITE_API_URL || window.location.origin).replace(/\/api$/, '');
+
+  try {
+    // Try primary endpoint first
+    let response = await fetch(`${baseURL}/api/v1/csrf-token`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    // Fallback to alternate endpoint if primary fails
+    if (!response.ok) {
+      response = await fetch(`${baseURL}/api/csrf`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+    }
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.csrfToken || data.token || null;
+    }
+  } catch {
+    // Silently fail - CSRF token may not be required in all environments
+  }
+
+  return null;
+}
 
 /**
  * CSRFInput Component
@@ -26,19 +62,12 @@ export function CSRFInput() {
   const [csrfToken, setCsrfToken] = useState<string>('');
 
   useEffect(() => {
-    // Get CSRF token from sessionStorage (set by api.initializeCSRF())
-    const token = sessionStorage.getItem('csrf_token');
-    if (token) {
-      setCsrfToken(token);
-    } else {
-      // If token not yet initialized, initialize it
-      api.initializeCSRF().then(() => {
-        const newToken = sessionStorage.getItem('csrf_token');
-        if (newToken) {
-          setCsrfToken(newToken);
-        }
-      });
-    }
+    // Fetch CSRF token directly from the server
+    fetchCsrfToken().then((token) => {
+      if (token) {
+        setCsrfToken(token);
+      }
+    });
   }, []);
 
   if (!csrfToken) {
@@ -69,17 +98,10 @@ export function useCSRFToken(): string | null {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    // Get from sessionStorage
-    const storedToken = sessionStorage.getItem('csrf_token');
-    if (storedToken) {
-      setToken(storedToken);
-    } else {
-      // Initialize if needed
-      api.initializeCSRF().then(() => {
-        const newToken = sessionStorage.getItem('csrf_token');
-        setToken(newToken);
-      });
-    }
+    // Fetch CSRF token directly from the server
+    fetchCsrfToken().then((csrfToken) => {
+      setToken(csrfToken);
+    });
   }, []);
 
   return token;

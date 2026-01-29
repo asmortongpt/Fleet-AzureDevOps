@@ -1125,4 +1125,4 @@ export const phosphorIcons = [
   'Basket'
 ] as const;
 
-export type AvailablePhosphorIcon = typeof AVAILABLE_PHOSPHOR_ICONS[number];
+export type AvailablePhosphorIcon = typeof phosphorIcons[number];

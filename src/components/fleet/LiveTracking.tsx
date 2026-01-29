@@ -4,27 +4,39 @@ import { MapPin, Navigation, Clock } from "lucide-react"
 import { GoogleMapView } from "@/components/Maps/GoogleMapView"
 import { useVehicles } from "@/hooks/use-api"
 import { Skeleton } from "@/components/ui/skeleton"
+import type { Vehicle } from "@/types/Vehicle"
 
 export default function LiveTracking() {
   const { data, isLoading } = useVehicles()
 
   // Transform API data to match GoogleMapView expected format
-  const vehicles = (data?.data || []).map((v: any) => ({
-    id: v.id,
+  const vehicles = (data || []).map((v: any) => ({
+    id: String(v.id),
+    tenantId: 'default',
     name: v.name || `${v.make} ${v.model}`,
-    number: v.license_plate,
-    make: v.make,
-    model: v.model,
+    number: v.license_plate || '',
+    make: v.make || '',
+    model: v.model || '',
+    year: v.year || new Date().getFullYear(),
+    vin: v.vin || '',
+    licensePlate: v.license_plate || '',
     type: 'truck' as const,
-    status: v.status === 'active' ? 'active' : v.status === 'maintenance' ? 'service' : 'idle',
+    status: (v.status === 'active' ? 'active' : v.status === 'maintenance' ? 'service' : 'idle') as Vehicle['status'],
     fuelLevel: parseFloat(v.fuel_level) || 0,
+    fuelType: 'gasoline' as const,
+    mileage: v.mileage || 0,
+    region: v.region || '',
+    department: v.department || '',
+    ownership: 'owned' as const,
+    lastService: v.last_service || '',
+    nextService: v.next_service || '',
+    alerts: [],
     location: {
       lat: parseFloat(v.latitude) || 40.7128,
       lng: parseFloat(v.longitude) || -74.0060,
       address: v.location || 'Unknown'
     },
-    driver: null
-  }))
+  })) as Vehicle[]
 
   const activeCount = vehicles.filter((v: any) => v.status === 'active').length
   const idleCount = vehicles.filter((v: any) => v.status === 'idle').length

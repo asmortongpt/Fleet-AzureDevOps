@@ -91,7 +91,7 @@ export default function CostAnalyticsPage() {
 
     // Calculate fuel costs
     const totalFuelCost = fuelTransactions.reduce((sum, t) => {
-      return sum + (t.quantity || 0) * (t.pricePerGallon || 0)
+      return sum + (t.gallons || 0) * (t.pricePerGallon || 0)
     }, 0)
 
     // Calculate maintenance costs from work orders
@@ -158,7 +158,7 @@ export default function CostAnalyticsPage() {
     const workOrders = fleetData.workOrders || []
 
     const totalFuelCost = fuelTransactions.reduce((sum, t) => {
-      return sum + (t.quantity || 0) * (t.pricePerGallon || 0)
+      return sum + (t.gallons || 0) * (t.pricePerGallon || 0)
     }, 0)
 
     const totalMaintenanceCost = workOrders
@@ -229,7 +229,7 @@ export default function CostAnalyticsPage() {
 
       // Calculate costs
       const fuelCost = vehicleFuelTransactions.reduce((sum, t) => {
-        return sum + (t.quantity || 0) * (t.pricePerGallon || 0)
+        return sum + (t.gallons || 0) * (t.pricePerGallon || 0)
       }, 0)
 
       const maintenanceCost = vehicleWorkOrders.reduce((sum, wo) => {

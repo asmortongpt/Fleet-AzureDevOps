@@ -1,18 +1,14 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-
 import './globals.css';
 import { Providers } from './providers';
 
-const inter = Inter({ subsets: ['latin'] });
-
-export const metadata: Metadata = {
+// Metadata for the Radio Fleet Dispatch feature
+export const metadata = {
   title: 'Radio Fleet Dispatch',
   description: 'AI-powered radio transcription and fleet dispatch management',
   icons: {
     icon: '/favicon.ico',
   },
-};
+} as const;
 
 export default function RootLayout({
   children,
@@ -20,10 +16,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <Providers>{children}</Providers>
-      </body>
-    </html>
+    <div className="font-sans">
+      <Providers>{children}</Providers>
+    </div>
   );
 }

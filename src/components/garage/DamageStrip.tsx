@@ -182,10 +182,9 @@ function VehicleSilhouette({ className }: { className?: string }) {
       <path
         d="M180 40 C180 25 175 15 160 12 L140 10 C130 10 120 15 110 15 L90 15 C80 15 70 10 60 10 L40 12 C25 15 20 25 20 40 C20 55 25 65 40 68 L60 70 C70 70 80 65 90 65 L110 65 C120 65 130 70 140 70 L160 68 C175 65 180 55 180 40Z"
         fill="currentColor"
-        className="text-slate-700"
+        className="text-slate-700 stroke-slate-500"
         stroke="currentColor"
         strokeWidth="1"
-        className="stroke-slate-500"
       />
       {/* Windshield */}
       <path

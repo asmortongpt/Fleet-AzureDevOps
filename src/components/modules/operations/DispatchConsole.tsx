@@ -89,7 +89,7 @@ export default function DispatchConsole() {
       logger.debug('PTT started:', transmissionId);
     },
     onTransmissionEnd: (audioBlob) => {
-      logger.debug('PTT ended, blob size:', audioBlob.size);
+      logger.debug(`PTT ended, blob size: ${audioBlob.size}`);
       const transmissionId = ptt.currentTransmissionId;
       if (transmissionId) {
         // Convert blob to base64 and send

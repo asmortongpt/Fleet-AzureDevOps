@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-import { generateDemoVehicles, generateDemoFuelTransactions, generateDemoWorkOrders } from '@/lib/demo-data'
+import { useFleetData } from '@/hooks/use-fleet-data'
 
 // Reusable stat row component
 function StatRow({ label, value, trend, icon: Icon }: {
@@ -42,7 +42,8 @@ function StatRow({ label, value, trend, icon: Icon }: {
 // Fleet Overview Drilldown - Shows all vehicles summary
 export function FleetOverviewDrilldown() {
     const { push } = useDrilldown()
-    const vehicles = generateDemoVehicles(100)
+    const { vehicles: rawVehicles } = useFleetData()
+    const vehicles = rawVehicles || []
 
     const byStatus = {
         active: vehicles.filter(v => v.status === 'active'),
@@ -158,7 +159,8 @@ export function FleetOverviewDrilldown() {
 // Active Vehicles Drilldown
 export function ActiveVehiclesDrilldown() {
     const { push } = useDrilldown()
-    const vehicles = generateDemoVehicles(100).filter(v => v.status === 'active')
+    const { vehicles: rawVehicles } = useFleetData()
+    const vehicles = (rawVehicles || []).filter((v: any) => v.status === 'active')
 
     return (
         <div className="space-y-2">
@@ -222,7 +224,8 @@ export function ActiveVehiclesDrilldown() {
 // Maintenance Drilldown
 export function MaintenanceDrilldown() {
     const { push } = useDrilldown()
-    const workOrders = generateDemoWorkOrders(75)
+    const { workOrders: rawWorkOrders } = useFleetData()
+    const workOrders = rawWorkOrders || []
 
     const byStatus = {
         overdue: workOrders.filter(w => w.dueDate && new Date(w.dueDate) < new Date() && w.status !== 'completed' && w.status !== 'cancelled'),
@@ -335,7 +338,8 @@ export function MaintenanceDrilldown() {
 // Fuel Management Drilldown
 export function FuelManagementDrilldown() {
     const { push } = useDrilldown()
-    const transactions = generateDemoFuelTransactions(150)
+    const { fuelTransactions: rawTransactions } = useFleetData()
+    const transactions = rawTransactions || []
 
     const totalCost = transactions.reduce((sum, t) => sum + (t.cost ?? 0), 0)
     const totalGallons = transactions.reduce((sum, t) => sum + t.gallons, 0)
@@ -513,9 +517,10 @@ export function SafetyScoreDrilldown() {
 
 export function VehicleListDrilldown() {
     const { currentLevel, push } = useDrilldown()
+    const { vehicles: apiVehicles } = useFleetData()
 
-    // Get vehicles from drilldown data or generate demo vehicles
-    const vehicles = currentLevel?.data?.vehicles || generateDemoVehicles(100)
+    // Get vehicles from drilldown data or API
+    const vehicles = currentLevel?.data?.vehicles || apiVehicles || []
     const filter = currentLevel?.data?.filter || currentLevel?.data?.status
 
     // Apply filter if provided

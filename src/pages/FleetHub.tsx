@@ -49,7 +49,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { useAuth } from '@/contexts/AuthContext'
 
 // ============================================================================
 // LAZY-LOADED COMPONENTS
@@ -61,8 +60,6 @@ const VehicleTelemetry = lazy(() => import('@/components/modules/fleet/VehicleTe
 const VirtualGarage = lazy(() => import('@/components/modules/fleet/VirtualGarage').then(m => ({ default: m.VirtualGarage })))
 const VideoTelematics = lazy(() => import('@/components/modules/compliance/VideoTelematics').then(m => ({ default: m.VideoTelematics })))
 const EVChargingManagement = lazy(() => import('@/components/modules/charging/EVChargingManagement').then(m => ({ default: m.EVChargingManagement })))
-const FleetManagerDashboard = lazy(() => import('@/components/dashboards/roles/FleetManagerDashboard').then(m => ({ default: m.FleetManagerDashboard })))
-const DriverDashboard = lazy(() => import('@/components/dashboards/roles/DriverDashboard').then(m => ({ default: m.DriverDashboard })))
 
 // ============================================================================
 // CONSTANTS
@@ -365,7 +362,7 @@ const FleetOverview = memo(() => {
           value={metrics?.activeVehicles?.toString() || '0'}
           icon={TrendUp}
           trend="up"
-          change="+12%"
+          change={12}
           description="Currently in use"
           loading={isLoading}
           aria-label="Active vehicles"
@@ -504,34 +501,6 @@ FleetOverview.displayName = 'FleetOverview'
  * FleetHub - Main export with role-based routing
  */
 export default function FleetHub() {
-  const { user } = useAuth()
-
-  // ========================================
-  // Role-Based Dashboard Override
-  // ========================================
-
-  // Fleet Manager Dashboard
-  if (user?.role === 'fleet_manager' && user?.department === 'fleet') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<LoadingFallback message="Loading Fleet Manager Dashboard..." />}>
-          <FleetManagerDashboard />
-        </Suspense>
-      </ErrorBoundary>
-    )
-  }
-
-  // Driver Dashboard
-  if (user?.role === 'driver') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<LoadingFallback message="Loading Driver Dashboard..." />}>
-          <DriverDashboard />
-        </Suspense>
-      </ErrorBoundary>
-    )
-  }
-
   // ========================================
   // Admin Users - Full Tabbed Interface
   // ========================================

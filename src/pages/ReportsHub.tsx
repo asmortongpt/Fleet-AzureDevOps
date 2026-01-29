@@ -228,7 +228,7 @@ const OverviewTab = memo(() => {
             value={metrics?.activeSchedules?.toString() || '0'}
             icon={Clock}
             trend="up"
-            change="+3"
+            change={3}
             description="Active schedules"
             loading={isLoading}
             aria-label={`Scheduled reports: ${metrics?.activeSchedules || 0}`}
@@ -474,7 +474,7 @@ const TemplatesTab = memo(() => {
             value={metrics?.customTemplates?.toString() || '0'}
             icon={FolderOpen}
             trend="up"
-            change="+5"
+            change={5}
             description="Organization-specific"
             loading={isLoading}
           />
@@ -819,7 +819,7 @@ const HistoryTab = memo(() => {
             value={metrics?.generatedToday?.toString() || '0'}
             icon={TrendUp}
             trend="up"
-            change={`+${metrics?.generatedToday || 0}`}
+            change={metrics?.generatedToday || 0}
             description="Today's reports"
             loading={isLoading}
           />
@@ -849,7 +849,7 @@ const HistoryTab = memo(() => {
           <ResponsiveLineChart
             title="Generation Trend"
             description="Report generation volume over the past week"
-            data={generationTrend}
+            data={generationTrend.map(point => ({ name: point.name, value: point.count }))}
             height={300}
             showArea
             loading={isLoading}

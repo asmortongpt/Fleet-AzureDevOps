@@ -58,7 +58,17 @@ import {
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 
-import { useDatabase } from '../../hooks/useDatabase';
+// Mock database hook functions for demonstration
+const useDatabase = () => ({
+  getDrivers: () => [
+    { id: 'DRV-001', firstName: 'John', lastName: 'Smith' },
+    { id: 'DRV-002', firstName: 'Jane', lastName: 'Doe' },
+    { id: 'DRV-003', firstName: 'Bob', lastName: 'Johnson' },
+    { id: 'DRV-004', firstName: 'Alice', lastName: 'Williams' },
+    { id: 'DRV-005', firstName: 'Charlie', lastName: 'Brown' },
+  ],
+  getVehicles: () => []
+});
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -342,7 +352,7 @@ const SafetyComplianceSystem: React.FC = () => {
 
     const totalTrainings = trainings.reduce((sum, t) => sum + t.completions.length, 0);
     const expiredTrainings = trainings.reduce((sum, t) =>
-      sum + t.completions.filter(c => new Date(c.expiryDate) < new Date()).length, 0
+      sum + t.completions.filter((c: { expiryDate: string }) => new Date(c.expiryDate) < new Date()).length, 0
     );
 
     const complianceRate = policies.reduce((sum, p) =>
@@ -455,8 +465,8 @@ const SafetyComplianceSystem: React.FC = () => {
         {/* Dashboard */}
         <Grid container spacing={3}>
           {/* Metrics Cards */}
-          <Grid item xs={12} md={3}>
-            <Card sx={{ bgcolor: 'success: main', color: 'white' }}>
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Card sx={{ bgcolor: 'success.main', color: 'white' }}>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
                   <Box>
@@ -469,7 +479,7 @@ const SafetyComplianceSystem: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -489,14 +499,14 @@ const SafetyComplianceSystem: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
                   <Box>
                     <Typography color="textSecondary" gutterBottom>Open Incidents</Typography>
                     <Typography variant="h4">{metrics.openIncidents}</Typography>
-                    <Typography variant="body2" color="warning: main">
+                    <Typography variant="body2" color="warning.main">
                       {metrics.injuryIncidents} with injuries
                     </Typography>
                   </Box>
@@ -506,7 +516,7 @@ const SafetyComplianceSystem: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -524,7 +534,7 @@ const SafetyComplianceSystem: React.FC = () => {
           </Grid>
 
           {/* Safety Performance Radar */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Safety Performance Overview</Typography>
@@ -542,7 +552,7 @@ const SafetyComplianceSystem: React.FC = () => {
           </Grid>
 
           {/* Incident Trend */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Incident Trend Analysis</Typography>
@@ -563,7 +573,7 @@ const SafetyComplianceSystem: React.FC = () => {
           </Grid>
 
           {/* Training Completion */}
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Training Completion Status</Typography>
@@ -582,7 +592,7 @@ const SafetyComplianceSystem: React.FC = () => {
           </Grid>
 
           {/* Recent Incidents */}
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Recent Incidents</Typography>
@@ -617,30 +627,30 @@ const SafetyComplianceSystem: React.FC = () => {
           </Grid>
 
           {/* Compliance Alerts */}
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Compliance Alerts</Typography>
                 <Grid container spacing={2}>
-                  <Grid item xs={12} md={3}>
+                  <Grid size={{ xs: 12, md: 3 }}>
                     <Alert severity="error">
                       <Typography variant="subtitle2">Expired Training</Typography>
                       <Typography variant="body2">3 drivers have expired CPR certification</Typography>
                     </Alert>
                   </Grid>
-                  <Grid item xs={12} md={3}>
+                  <Grid size={{ xs: 12, md: 3 }}>
                     <Alert severity="warning">
                       <Typography variant="subtitle2">Inspection Due</Typography>
                       <Typography variant="body2">5 vehicles due for DOT inspection this month</Typography>
                     </Alert>
                   </Grid>
-                  <Grid item xs={12} md={3}>
+                  <Grid size={{ xs: 12, md: 3 }}>
                     <Alert severity="info">
                       <Typography variant="subtitle2">Policy Review</Typography>
                       <Typography variant="body2">Safety policy POL-003 due for annual review</Typography>
                     </Alert>
                   </Grid>
-                  <Grid item xs={12} md={3}>
+                  <Grid size={{ xs: 12, md: 3 }}>
                     <Alert severity="success">
                       <Typography variant="subtitle2">Achievement</Typography>
                       <Typography variant="body2">30 days without preventable accidents</Typography>
@@ -656,7 +666,7 @@ const SafetyComplianceSystem: React.FC = () => {
       <TabPanel value={tabValue} index={1}>
         {/* Incidents Management */}
         <Grid container spacing={3}>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Card>
               <CardContent>
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
@@ -736,7 +746,7 @@ const SafetyComplianceSystem: React.FC = () => {
                               <IconButton
                                 size="small"
                                 onClick={() => handleViewItem(incident, 'incident')}
-                                sx={{ '&:hover': { color: 'primary: main' } }}
+                                sx={{ '&:hover': { color: 'primary.main' } }}
                               >
                                 <Visibility />
                               </IconButton>
@@ -766,7 +776,7 @@ const SafetyComplianceSystem: React.FC = () => {
       <TabPanel value={tabValue} index={2}>
         {/* Training Management */}
         <Grid container spacing={3}>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Card>
               <CardContent>
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
@@ -781,7 +791,7 @@ const SafetyComplianceSystem: React.FC = () => {
 
                 <Grid container spacing={3}>
                   {trainings.map(training => (
-                    <Grid item xs={12} md={6} key={training.id}>
+                    <Grid size={{ xs: 12, md: 6 }} key={training.id}>
                       <Card variant="outlined">
                         <CardContent>
                           <Box display="flex" justifyContent="space-between" alignItems="start" mb={2}>
@@ -799,11 +809,11 @@ const SafetyComplianceSystem: React.FC = () => {
                           </Box>
 
                           <Grid container spacing={2} mb={2}>
-                            <Grid item xs={6}>
+                            <Grid size={6}>
                               <Typography variant="body2" color="textSecondary">Duration</Typography>
                               <Typography>{training.duration}</Typography>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={6}>
                               <Typography variant="body2" color="textSecondary">Valid For</Typography>
                               <Typography>{training.validFor}</Typography>
                             </Grid>
@@ -824,7 +834,7 @@ const SafetyComplianceSystem: React.FC = () => {
                           </Box>
 
                           <List dense>
-                            {training.completions.slice(0, 3).map(completion => {
+                            {training.completions.slice(0, 3).map((completion: { driverId: string; expiryDate: string }) => {
                               const driver = drivers.find(d => d.id === completion.driverId);
                               const expired = new Date(completion.expiryDate) < new Date();
                               return (
@@ -859,7 +869,7 @@ const SafetyComplianceSystem: React.FC = () => {
           </Grid>
 
           {/* Training Calendar */}
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Upcoming Training Schedule</Typography>
@@ -917,7 +927,7 @@ const SafetyComplianceSystem: React.FC = () => {
       <TabPanel value={tabValue} index={3}>
         {/* Inspections */}
         <Grid container spacing={3}>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Card>
               <CardContent>
                 <Typography variant="h5" gutterBottom>Inspection Records</Typography>
@@ -966,7 +976,7 @@ const SafetyComplianceSystem: React.FC = () => {
                             <IconButton
                               size="small"
                               onClick={() => handleViewItem(inspection, 'inspection')}
-                              sx={{ '&:hover': { color: 'primary: main' } }}
+                              sx={{ '&:hover': { color: 'primary.main' } }}
                             >
                               <Visibility />
                             </IconButton>
@@ -982,26 +992,26 @@ const SafetyComplianceSystem: React.FC = () => {
           </Grid>
 
           {/* Inspection Checklist */}
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Pre-Trip Inspection Checklist</Typography>
                 <Grid container spacing={2}>
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <Typography variant="subtitle2" gutterBottom>Exterior</Typography>
                     <FormControlLabel control={<Checkbox />} label="Lights & Reflectors" />
                     <FormControlLabel control={<Checkbox />} label="Tires & Wheels" />
                     <FormControlLabel control={<Checkbox />} label="Windshield & Mirrors" />
                     <FormControlLabel control={<Checkbox />} label="Body Condition" />
                   </Grid>
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <Typography variant="subtitle2" gutterBottom>Engine Compartment</Typography>
                     <FormControlLabel control={<Checkbox />} label="Oil Level" />
                     <FormControlLabel control={<Checkbox />} label="Coolant Level" />
                     <FormControlLabel control={<Checkbox />} label="Belts & Hoses" />
                     <FormControlLabel control={<Checkbox />} label="Battery" />
                   </Grid>
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <Typography variant="subtitle2" gutterBottom>Interior</Typography>
                     <FormControlLabel control={<Checkbox />} label="Brakes" />
                     <FormControlLabel control={<Checkbox />} label="Steering" />
@@ -1023,7 +1033,7 @@ const SafetyComplianceSystem: React.FC = () => {
       <TabPanel value={tabValue} index={4}>
         {/* Compliance */}
         <Grid container spacing={3}>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Card>
               <CardContent>
                 <Typography variant="h5" gutterBottom>Compliance Management</Typography>
@@ -1032,7 +1042,7 @@ const SafetyComplianceSystem: React.FC = () => {
                 <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>Safety Policies</Typography>
                 <Grid container spacing={2}>
                   {policies.map(policy => (
-                    <Grid item xs={12} md={6} key={policy.id}>
+                    <Grid size={{ xs: 12, md: 6 }} key={policy.id}>
                       <Card variant="outlined">
                         <CardContent>
                           <Box display="flex" justifyContent="space-between" alignItems="start">
@@ -1126,7 +1136,7 @@ const SafetyComplianceSystem: React.FC = () => {
       <TabPanel value={tabValue} index={5}>
         {/* Audit Trail */}
         <Grid container spacing={3}>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Card>
               <CardContent>
                 <Typography variant="h5" gutterBottom>Safety Audit Trail</Typography>
@@ -1134,7 +1144,7 @@ const SafetyComplianceSystem: React.FC = () => {
                 <List>
                   <ListItem>
                     <ListItemIcon>
-                      <Avatar sx={{ bgcolor: 'primary: main' }}>
+                      <Avatar sx={{ bgcolor: 'primary.main' }}>
                         <Assignment />
                       </Avatar>
                     </ListItemIcon>
@@ -1146,7 +1156,7 @@ const SafetyComplianceSystem: React.FC = () => {
                   <Divider />
                   <ListItem>
                     <ListItemIcon>
-                      <Avatar sx={{ bgcolor: 'success: main' }}>
+                      <Avatar sx={{ bgcolor: 'success.main' }}>
                         <CheckCircle />
                       </Avatar>
                     </ListItemIcon>
@@ -1158,7 +1168,7 @@ const SafetyComplianceSystem: React.FC = () => {
                   <Divider />
                   <ListItem>
                     <ListItemIcon>
-                      <Avatar sx={{ bgcolor: 'warning: main' }}>
+                      <Avatar sx={{ bgcolor: 'warning.main' }}>
                         <Warning />
                       </Avatar>
                     </ListItemIcon>
@@ -1170,7 +1180,7 @@ const SafetyComplianceSystem: React.FC = () => {
                   <Divider />
                   <ListItem>
                     <ListItemIcon>
-                      <Avatar sx={{ bgcolor: 'info: main' }}>
+                      <Avatar sx={{ bgcolor: 'info.main' }}>
                         <Security />
                       </Avatar>
                     </ListItemIcon>
@@ -1191,7 +1201,7 @@ const SafetyComplianceSystem: React.FC = () => {
         <DialogTitle>Report New Incident</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} mt={1}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 type="date"
@@ -1200,7 +1210,7 @@ const SafetyComplianceSystem: React.FC = () => {
                 InputLabelProps={{ shrink: true }}
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 type="time"
@@ -1209,7 +1219,7 @@ const SafetyComplianceSystem: React.FC = () => {
                 InputLabelProps={{ shrink: true }}
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Incident Type</InputLabel>
                 <Select value={selectedItem?.type || ''} label="Incident Type">
@@ -1221,7 +1231,7 @@ const SafetyComplianceSystem: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Severity</InputLabel>
                 <Select value={selectedItem?.severity || ''} label="Severity">
@@ -1233,14 +1243,14 @@ const SafetyComplianceSystem: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 fullWidth
                 label="Location"
                 value={selectedItem?.location || ''}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 fullWidth
                 multiline
@@ -1249,13 +1259,13 @@ const SafetyComplianceSystem: React.FC = () => {
                 value={selectedItem?.description || ''}
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <FormControlLabel
                 control={<Checkbox checked={selectedItem?.injuries || false} />}
                 label="Injuries Reported"
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <FormControlLabel
                 control={<Checkbox checked={selectedItem?.propertyDamage || false} />}
                 label="Property Damage"
@@ -1285,7 +1295,7 @@ const SafetyComplianceSystem: React.FC = () => {
                 {viewingType === 'incident' && `Safety Incident - ${viewingItem?.id}`}
                 {viewingType === 'inspection' && `Safety Inspection - ${viewingItem?.id}`}
               </Typography>
-              <Typography variant="body2" color="text: secondary">
+              <Typography variant="body2" color="text.secondary">
                 {viewingType === 'incident' && `${viewingItem?.date} ${viewingItem?.time} | ${viewingItem?.location}`}
                 {viewingType === 'inspection' && `${viewingItem?.date} | ${viewingItem?.vehicleId}`}
               </Typography>
@@ -1300,7 +1310,7 @@ const SafetyComplianceSystem: React.FC = () => {
         <DialogContent>
           {viewingItem && viewingType === 'incident' && (
             <Grid container spacing={3}>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Alert severity={viewingItem.severity === 'High' ? 'error' : 'warning'} sx={{ mb: 2 }}>
                   <Typography variant="body1">
                     <strong>Type:</strong> {viewingItem.type} |
@@ -1310,7 +1320,7 @@ const SafetyComplianceSystem: React.FC = () => {
                 </Alert>
               </Grid>
 
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
@@ -1318,15 +1328,15 @@ const SafetyComplianceSystem: React.FC = () => {
                     </Typography>
                     <Stack spacing={2}>
                       <Box>
-                        <Typography variant="body2" color="text: secondary">Description</Typography>
+                        <Typography variant="body2" color="text.secondary">Description</Typography>
                         <Typography variant="body1">{viewingItem.description}</Typography>
                       </Box>
                       <Box>
-                        <Typography variant="body2" color="text: secondary">Driver Involved</Typography>
+                        <Typography variant="body2" color="text.secondary">Driver Involved</Typography>
                         <Typography variant="body1">{viewingItem.driverId}</Typography>
                       </Box>
                       <Box>
-                        <Typography variant="body2" color="text: secondary">Location</Typography>
+                        <Typography variant="body2" color="text.secondary">Location</Typography>
                         <Typography variant="body1">{viewingItem.location}</Typography>
                       </Box>
                     </Stack>
@@ -1334,7 +1344,7 @@ const SafetyComplianceSystem: React.FC = () => {
                 </Card>
               </Grid>
 
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
@@ -1342,7 +1352,7 @@ const SafetyComplianceSystem: React.FC = () => {
                     </Typography>
                     <Stack spacing={2}>
                       <Box>
-                        <Typography variant="body2" color="text: secondary">Injuries Reported</Typography>
+                        <Typography variant="body2" color="text.secondary">Injuries Reported</Typography>
                         <Chip
                           label={viewingItem.injuries ? 'Yes' : 'No'}
                           color={viewingItem.injuries ? 'error' : 'success'}
@@ -1350,7 +1360,7 @@ const SafetyComplianceSystem: React.FC = () => {
                         />
                       </Box>
                       <Box>
-                        <Typography variant="body2" color="text: secondary">Property Damage</Typography>
+                        <Typography variant="body2" color="text.secondary">Property Damage</Typography>
                         <Chip
                           label={viewingItem.propertyDamage ? 'Yes' : 'No'}
                           color={viewingItem.propertyDamage ? 'warning' : 'success'}
@@ -1358,7 +1368,7 @@ const SafetyComplianceSystem: React.FC = () => {
                         />
                       </Box>
                       <Box>
-                        <Typography variant="body2" color="text: secondary">Current Status</Typography>
+                        <Typography variant="body2" color="text.secondary">Current Status</Typography>
                         <Chip
                           label={viewingItem.status}
                           color={viewingItem.status === 'Closed' ? 'success' : 'warning'}
@@ -1374,7 +1384,7 @@ const SafetyComplianceSystem: React.FC = () => {
 
           {viewingItem && viewingType === 'inspection' && (
             <Grid container spacing={3}>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Alert severity="info" sx={{ mb: 2 }}>
                   <Typography variant="body1">
                     <strong>Inspector:</strong> {viewingItem.inspector} |
@@ -1384,7 +1394,7 @@ const SafetyComplianceSystem: React.FC = () => {
                 </Alert>
               </Grid>
 
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
@@ -1392,15 +1402,15 @@ const SafetyComplianceSystem: React.FC = () => {
                     </Typography>
                     <Stack spacing={2}>
                       <Box>
-                        <Typography variant="body2" color="text: secondary">Vehicle ID</Typography>
+                        <Typography variant="body2" color="text.secondary">Vehicle ID</Typography>
                         <Typography variant="body1">{viewingItem.vehicleId}</Typography>
                       </Box>
                       <Box>
-                        <Typography variant="body2" color="text: secondary">Inspection Date</Typography>
+                        <Typography variant="body2" color="text.secondary">Inspection Date</Typography>
                         <Typography variant="body1">{viewingItem.date}</Typography>
                       </Box>
                       <Box>
-                        <Typography variant="body2" color="text: secondary">Next Due Date</Typography>
+                        <Typography variant="body2" color="text.secondary">Next Due Date</Typography>
                         <Typography variant="body1">{viewingItem.nextDue}</Typography>
                       </Box>
                     </Stack>
@@ -1408,7 +1418,7 @@ const SafetyComplianceSystem: React.FC = () => {
                 </Card>
               </Grid>
 
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
@@ -1416,7 +1426,7 @@ const SafetyComplianceSystem: React.FC = () => {
                     </Typography>
                     <Stack spacing={2}>
                       <Box>
-                        <Typography variant="body2" color="text: secondary">Overall Score</Typography>
+                        <Typography variant="body2" color="text.secondary">Overall Score</Typography>
                         <LinearProgress
                           variant="determinate"
                           value={viewingItem.score}
@@ -1426,7 +1436,7 @@ const SafetyComplianceSystem: React.FC = () => {
                         <Typography variant="caption">{viewingItem.score}/100</Typography>
                       </Box>
                       <Box>
-                        <Typography variant="body2" color="text: secondary">Status</Typography>
+                        <Typography variant="body2" color="text.secondary">Status</Typography>
                         <Chip
                           label={viewingItem.status}
                           color={viewingItem.status === 'Completed' ? 'success' : 'warning'}

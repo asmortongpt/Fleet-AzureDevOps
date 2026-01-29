@@ -374,7 +374,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
               fill="#8884d8"
               dataKey="value"
             >
-              {pieData.map((entry, index) => (
+              {pieData.map((_entry: { name: string; value: number }, index: number) => (
                 <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
               ))}
             </Pie>

@@ -49,6 +49,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import type { AnalyticsReport } from '@/hooks/use-reactive-analytics-data'
 
+// Type for chart data points (matches visualization component expectations)
+interface DataPoint {
+  name: string
+  value: number
+  [key: string]: unknown
+}
+
 // Constants for animation configuration
 const ANIMATION_CONFIG = {
   STAGGER_DELAY: 0.05,
@@ -170,7 +177,7 @@ const AnalyticsOverview = memo(() => {
             value={metrics?.activeReports?.toString() || '0'}
             icon={ChartBar}
             trend="up"
-            change="+3"
+            change={3}
             description="Currently active"
             loading={isLoading}
             aria-label="Active Reports"
@@ -180,7 +187,7 @@ const AnalyticsOverview = memo(() => {
             value={metrics?.reportsThisWeek?.toString() || '0'}
             icon={Calendar}
             trend="up"
-            change="+12"
+            change={12}
             description="Reports generated"
             loading={isLoading}
             aria-label="Reports Generated This Week"
@@ -216,7 +223,7 @@ const AnalyticsOverview = memo(() => {
         <ResponsiveLineChart
           title="Performance Metrics Trend"
           description="Fleet utilization, efficiency, and availability over time"
-          data={performanceMetricsTrend}
+          data={performanceMetricsTrend as DataPoint[]}
           height={300}
           showArea
           loading={isLoading}
@@ -401,7 +408,7 @@ const ReportsContent = memo(() => {
             value={metrics?.customReports?.toString() || '0'}
             icon={ChartBar}
             trend="up"
-            change="+2"
+            change={2}
             description="User created"
             loading={isLoading}
           />
@@ -410,7 +417,7 @@ const ReportsContent = memo(() => {
             value={metrics?.reportsThisWeek?.toString() || '0'}
             icon={TrendUp}
             trend="up"
-            change="+12"
+            change={12}
             description="Generated"
             loading={isLoading}
           />
@@ -421,7 +428,7 @@ const ReportsContent = memo(() => {
       <ResponsiveBarChart
         title="Report Generation Trend"
         description="Weekly report generation statistics"
-        data={reportGenerationTrend}
+        data={reportGenerationTrend as DataPoint[]}
         height={300}
         loading={isLoading}
         aria-label="Report Generation Trend Chart"
@@ -577,7 +584,7 @@ const DashboardsContent = memo(() => {
             value={dashboardStats.totalViews.toString()}
             icon={Eye}
             trend="up"
-            change="+45"
+            change={45}
             description="This month"
             loading={isLoading}
           />
@@ -681,13 +688,13 @@ const TrendsContent = memo(() => {
     useReactiveAnalyticsData()
 
   // Calculate trend metrics with safe fallbacks
-  const currentMonthCost = costTrends[costTrends.length - 1]?.total || 0
-  const previousMonthCost = costTrends[costTrends.length - 2]?.total || 0
+  const currentMonthCost = Number(costTrends[costTrends.length - 1]?.total) || 0
+  const previousMonthCost = Number(costTrends[costTrends.length - 2]?.total) || 0
   const costChange = currentMonthCost - previousMonthCost
 
-  const currentQRevenue = revenueVsCost[revenueVsCost.length - 1]?.revenue || 0
-  const currentQCosts = revenueVsCost[revenueVsCost.length - 1]?.costs || 0
-  const currentMargin = revenueVsCost[revenueVsCost.length - 1]?.margin || 0
+  const currentQRevenue = Number(revenueVsCost[revenueVsCost.length - 1]?.revenue) || 0
+  const currentQCosts = Number(revenueVsCost[revenueVsCost.length - 1]?.costs) || 0
+  const currentMargin = Number(revenueVsCost[revenueVsCost.length - 1]?.margin) || 0
 
   const lastUpdateString = useMemo(() => formatDate(lastUpdate, { timeStyle: 'medium' }), [lastUpdate])
 
@@ -755,7 +762,7 @@ const TrendsContent = memo(() => {
             value={`$${formatNumber(currentMonthCost / 1000, { maximumFractionDigits: 0 })}K`}
             icon={CurrencyDollar}
             trend={costChange < 0 ? 'down' : costChange > 0 ? 'up' : 'neutral'}
-            change={`${costChange > 0 ? '+' : ''}$${formatNumber(Math.abs(costChange / 1000), { maximumFractionDigits: 1 })}K`}
+            change={Math.round(costChange / 1000)}
             description="This month"
             loading={isLoading}
           />
@@ -780,7 +787,7 @@ const TrendsContent = memo(() => {
             value={`${formatNumber(currentMargin, { maximumFractionDigits: 1 })}%`}
             icon={AnalyticsIcon}
             trend="up"
-            change="+2.1%"
+            change={2.1}
             description="Current quarter"
             loading={isLoading}
           />
@@ -791,7 +798,7 @@ const TrendsContent = memo(() => {
       <ResponsiveLineChart
         title="Cost Trends"
         description="Monthly breakdown of fuel, maintenance, and operations costs"
-        data={costTrends}
+        data={costTrends as DataPoint[]}
         height={350}
         showArea
         loading={isLoading}
@@ -803,7 +810,7 @@ const TrendsContent = memo(() => {
         <ResponsiveBarChart
           title="Revenue vs Cost Analysis"
           description="Quarterly revenue and cost comparison with profit margins"
-          data={revenueVsCost}
+          data={revenueVsCost as DataPoint[]}
           height={300}
           loading={isLoading}
           aria-label="Revenue vs Cost Analysis Chart"
@@ -813,7 +820,7 @@ const TrendsContent = memo(() => {
         <ResponsiveLineChart
           title="Performance Metrics"
           description="Fleet utilization, efficiency, and availability trends"
-          data={performanceMetricsTrend}
+          data={performanceMetricsTrend as DataPoint[]}
           height={300}
           loading={isLoading}
           aria-label="Performance Metrics Chart"

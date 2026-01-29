@@ -544,7 +544,7 @@ function generateTableOfContents(document: PolicyDocument | SOPDocument): string
     ${'policyStatements' in document ? '<li>Policy Statements</li>' : ''}
     ${'policyStatements' in document && document.procedures ? '<li>Procedures</li>' : ''}
     ${'procedure' in document ? '<li>Procedure</li>' : ''}
-    ${document.compliance ? '<li>Compliance Requirements</li>' : ''}
+    ${'compliance' in document && document.compliance ? '<li>Compliance Requirements</li>' : ''}
     ${'safetyControls' in document && document.safetyControls ? '<li>Safety Controls</li>' : ''}
     ${document.relatedPolicies && document.relatedPolicies.length > 0 ? '<li>Related Policies</li>' : ''}
     ${document.kpis && document.kpis.length > 0 ? '<li>Key Performance Indicators</li>' : ''}
@@ -603,9 +603,9 @@ function generateDocumentBody(document: PolicyDocument | SOPDocument, colors: an
   }
 
   // Compliance
-  if (document.compliance && document.compliance.length > 0) {
+  if ('compliance' in document && document.compliance && document.compliance.length > 0) {
     html += '<div class="compliance-box"><h3>Compliance Requirements</h3><ul>'
-    document.compliance.forEach(req => {
+    document.compliance.forEach((req: string) => {
       html += `<li>${req}</li>`
     })
     html += '</ul></div>'
@@ -744,10 +744,10 @@ export async function exportToPDF(
  * Export document as Word (DOCX) - generates HTML that Word can import
  */
 export async function exportToWord(
-  document: PolicyDocument | SOPDocument,
+  doc: PolicyDocument | SOPDocument,
   branding: BrandingConfig = loadBrandingConfig()
 ): Promise<void> {
-  const html = generateDocumentHTML(document, branding)
+  const html = generateDocumentHTML(doc, branding)
 
   // Create blob with Word-compatible HTML
   const blob = new Blob([`
@@ -756,7 +756,7 @@ export async function exportToWord(
           xmlns='http://www.w3.org/TR/REC-html40'>
     <head>
       <meta charset='utf-8'>
-      <title>${document.metadata.title}</title>
+      <title>${doc.metadata.title}</title>
     </head>
     <body>${html}</body>
     </html>
@@ -768,7 +768,7 @@ export async function exportToWord(
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `${document.metadata.documentNumber}_${sanitizeFilename(document.metadata.title)}.doc`
+  a.download = `${doc.metadata.documentNumber}_${sanitizeFilename(doc.metadata.title)}.doc`
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)

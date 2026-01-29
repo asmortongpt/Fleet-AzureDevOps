@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
-import { generateDemoDrivers, generateDemoWorkOrders } from '@/lib/demo-data'
+import { useFleetData } from '@/hooks/use-fleet-data'
 
 // Define interfaces for data structures
 interface Driver {
@@ -38,7 +38,8 @@ interface Vehicle {
 
 export function DriversRosterDrilldown() {
     const { push } = useDrilldown()
-    const drivers = generateDemoDrivers(48) as Driver[]
+    const { drivers: rawDrivers } = useFleetData()
+    const drivers = (rawDrivers || []) as Driver[]
 
     const onDuty = drivers.filter(d => d.status === 'active')
     const offDuty = drivers.filter(d => d.status === 'off-duty')
@@ -117,7 +118,8 @@ export function DriversRosterDrilldown() {
 
 export function DriverPerformanceDrilldown() {
     const { push } = useDrilldown()
-    const drivers = generateDemoDrivers(48) as Driver[]
+    const { drivers: rawDrivers } = useFleetData()
+    const drivers = (rawDrivers || []) as Driver[]
 
     // Calculate performance tiers
     const topPerformers = drivers.filter(d => (d.safetyScore || 0) >= 90)
@@ -209,7 +211,8 @@ export function DriverPerformanceDrilldown() {
 }
 
 export function DriverScorecardDrilldown() {
-    const drivers = generateDemoDrivers(48) as Driver[]
+    const { drivers: rawDrivers } = useFleetData()
+    const drivers = (rawDrivers || []) as Driver[]
     const avgScore = Math.round(drivers.reduce((sum, d) => sum + (d.safetyScore || 85), 0) / drivers.length)
     const topScore = Math.max(...drivers.map(d => d.safetyScore || 85))
 
@@ -267,7 +270,8 @@ export function DriverScorecardDrilldown() {
 
 export function GarageDrilldown() {
     const { push } = useDrilldown()
-    const workOrders = generateDemoWorkOrders(24) as WorkOrder[]
+    const { workOrders: rawWorkOrders } = useFleetData()
+    const workOrders = (rawWorkOrders || []) as WorkOrder[]
 
     const inProgress = workOrders.filter(wo => wo.status === 'in-progress')
     const pending = workOrders.filter(wo => wo.status === 'pending')

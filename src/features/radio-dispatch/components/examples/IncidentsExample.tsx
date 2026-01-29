@@ -13,11 +13,21 @@
 
 import { useState } from 'react';
 
-import { EmptyState, SearchEmptyState } from '@/components/EmptyState';
-import { ErrorPanel } from '@/components/ErrorPanel';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { api, type Incident } from '@/lib/api';
-import { useApiData } from '@/lib/hooks/useApiData';
+import { EmptyState, SearchEmptyState } from '../EmptyState';
+import { ErrorPanel } from '../ErrorPanel';
+import { LoadingSpinner } from '../LoadingSpinner';
+import { api } from '@/lib/api';
+import { useApiData } from '../../lib/hooks/useApiData';
+
+// Local Incident type definition for this example
+interface Incident {
+  id: string;
+  title: string;
+  description: string;
+  status: 'open' | 'in_progress' | 'closed';
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  created_at: string;
+}
 
 
 export function IncidentsExample() {
@@ -35,10 +45,10 @@ export function IncidentsExample() {
       // Refetch when filter changes
       dependencies: [filter],
       // Optional: callbacks for success/error
-      onSuccess: (data) => {
+      onSuccess: (data: Incident[]) => {
         console.log(`Loaded ${data.length} incidents`);
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         console.error('Failed to load incidents:', error);
       },
     }

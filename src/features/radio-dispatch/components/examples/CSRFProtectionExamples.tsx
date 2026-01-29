@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 
-import { CSRFInput, useCSRFToken } from '@/components/CSRFInput';
+import { CSRFInput, useCSRFToken } from '../CSRFInput';
 import { api } from '@/lib/api';
-import { useMutation } from '@/lib/hooks/useMutation';
+import { useMutation } from '../../lib/hooks/useMutation';
 
 /**
  * CSRF Protection Examples
@@ -40,16 +40,16 @@ export function CreateIncidentExample() {
   const [priority, setPriority] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
 
   const createIncident = useMutation<Incident, CreateIncidentInput>(
-    (data) => api.post('/api/incidents', data),
+    (data: CreateIncidentInput) => api.post('/api/incidents', data),
     {
-      onSuccess: (incident) => {
+      onSuccess: (incident: Incident) => {
         console.log('Incident created successfully:', incident.id);
         // Clear form
         setTitle('');
         setDescription('');
         setPriority('medium');
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         console.error('Failed to create incident:', error.message);
       },
     }
@@ -206,12 +206,12 @@ export function UpdateIncidentExample({ incidentId }: { incidentId: string }) {
 
 export function DeleteIncidentExample({ incidentId }: { incidentId: string }) {
   const deleteIncident = useMutation<void, string>(
-    (id) => api.delete(`/api/incidents/${id}`),
+    (id: string) => api.delete(`/api/incidents/${id}`),
     {
       onSuccess: () => {
         console.log('Incident deleted successfully');
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         console.error('Failed to delete incident:', error.message);
       },
     }
@@ -345,7 +345,7 @@ export function BatchOperationsExample() {
     try {
       // All requests automatically include CSRF tokens
       const promises = selectedIds.map((id) =>
-        api.patch(`/api/incidents/${id}`, { status: 'closed' })
+        api.put(`/api/incidents/${id}`, { status: 'closed' })
       );
 
       await Promise.all(promises);

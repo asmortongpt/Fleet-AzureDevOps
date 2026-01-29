@@ -8,10 +8,10 @@ import {
   Palette,
   FileText,
   Image as ImageIcon,
-  Type,
-  Save,
+  TextAa,
+  FloppyDisk,
   Eye,
-  RotateCcw,
+  ArrowCounterClockwise,
   Upload
 } from '@phosphor-icons/react'
 import { useState, useEffect } from 'react'
@@ -163,11 +163,11 @@ export function BrandingConfigurator() {
             Preview
           </Button>
           <Button variant="outline" onClick={handleReset} disabled={!hasChanges}>
-            <RotateCcw className="w-4 h-4 mr-2" />
+            <ArrowCounterClockwise className="w-4 h-4 mr-2" />
             Reset
           </Button>
           <Button onClick={handleSave} disabled={!hasChanges}>
-            <Save className="w-4 h-4 mr-2" />
+            <FloppyDisk className="w-4 h-4 mr-2" />
             Save Changes
           </Button>
         </div>
@@ -215,7 +215,7 @@ export function BrandingConfigurator() {
             Colors
           </TabsTrigger>
           <TabsTrigger value="typography">
-            <Type className="w-4 h-4 mr-2" />
+            <TextAa className="w-4 h-4 mr-2" />
             Typography
           </TabsTrigger>
           <TabsTrigger value="layout">

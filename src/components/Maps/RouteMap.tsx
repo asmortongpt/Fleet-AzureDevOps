@@ -11,6 +11,7 @@ import { GoogleMapView } from './GoogleMapView'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useVehicles } from '@/hooks/use-api'
+import { Vehicle } from '@/types/Vehicle'
 
 export interface RouteMapProps {
   className?: string
@@ -48,9 +49,11 @@ export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
   const { data: vehicles, isLoading, error } = useVehicles()
 
   // Filter to only active vehicles (those in transit)
+  // Cast to full Vehicle type since the API returns complete vehicle data
   const activeVehicles = React.useMemo(() => {
-    if (!vehicles) return []
-    return vehicles.filter(v => v.status === 'active' || v.assignedDriver)
+    if (!vehicles) return [] as Vehicle[]
+    const fullVehicles = vehicles as unknown as Vehicle[]
+    return fullVehicles.filter(v => v.status === 'active' || v.assignedDriver)
   }, [vehicles])
 
   if (isLoading) {

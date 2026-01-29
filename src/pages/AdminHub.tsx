@@ -295,7 +295,7 @@ interface SettingItemProps {
   label: string
   description: string
   value: string
-  variant?: 'default' | 'success' | 'warning' | 'secondary'
+  variant?: 'default' | 'success' | 'warning' | 'secondary' | 'outline'
 }
 
 const SettingItem = memo<SettingItemProps>(({ label, description, value, variant = 'outline' }) => (
@@ -363,7 +363,7 @@ const AdminOverview = memo(() => {
             value={metrics?.totalUsers?.toString() || '0'}
             icon={Users}
             trend="up"
-            change="+5"
+            change={5}
             description="Registered users"
             loading={isLoading}
           />
@@ -380,7 +380,7 @@ const AdminOverview = memo(() => {
             value={`${metrics?.systemHealth || 0}%`}
             icon={Shield}
             trend="up"
-            change="+1%"
+            change={1}
             description="Overall system status"
             loading={isLoading}
           />
@@ -389,7 +389,7 @@ const AdminOverview = memo(() => {
             value={systemMetrics ? `${(systemMetrics.apiCalls / 1000).toFixed(1)}K` : '0'}
             icon={CloudArrowUp}
             trend="up"
-            change="+12%"
+            change={12}
             description="API requests"
             loading={isLoading}
           />
@@ -409,7 +409,8 @@ const AdminOverview = memo(() => {
           <ResponsiveLineChart
             title="System Activity (Last 7 Days)"
             description="Successful and failed actions over time"
-            data={activityTrendData}
+            data={activityTrendData.map(d => ({ ...d, value: d.total }))}
+            dataKeys={['success', 'failure']}
             height={300}
             showArea
             loading={isLoading}
@@ -498,7 +499,7 @@ const UsersContent = memo(() => {
             value={metrics?.totalUsers?.toString() || '0'}
             icon={Users}
             trend="up"
-            change="+5"
+            change={5}
             description="All users"
             loading={isLoading}
           />
@@ -801,7 +802,7 @@ const AuditContent = memo(() => {
             value="156"
             icon={Activity}
             trend="up"
-            change="+12"
+            change={12}
             description="Actions today"
             loading={isLoading}
           />
@@ -810,7 +811,7 @@ const AuditContent = memo(() => {
             value={metrics?.failedActions?.toString() || '0'}
             icon={XCircle}
             trend="down"
-            change="-3"
+            change={-3}
             description="Unsuccessful actions"
             loading={isLoading}
           />

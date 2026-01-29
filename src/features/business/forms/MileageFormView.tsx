@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import FDOTMileageCalculator from '../mileage/FDOTMileageCalculator';
+import { MileageReimbursement } from '@/components/modules/tools/MileageReimbursement';
 
 interface MileageData {
   startMileage: number;
@@ -116,14 +116,7 @@ const MileageFormView: React.FC<MileageFormViewProps> = ({ currentTheme, setActi
       {/* Tab Content */}
       {activeTab === 'fdot' ? (
         <div style={{ marginTop: '0' }}>
-          <FDOTMileageCalculator 
-            className="rounded-t-none border-t-0"
-            employeeId="FL123456"
-            vehicleId={formData.vehicleId}
-            onCalculationComplete={(result) => {
-              // console.log('FDOT Calculation Complete:', result);
-            }}
-          />
+          <MileageReimbursement />
         </div>
       ) : (
         <div style={{

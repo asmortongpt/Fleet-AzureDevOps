@@ -285,7 +285,7 @@ const DispatchOverview = memo(() => {
             value={metrics?.activeJobs?.toString() || '0'}
             icon={Package}
             trend="up"
-            change="+4"
+            change={4}
             description="Currently dispatched"
             loading={isLoading}
             aria-label="Active Jobs"
@@ -304,7 +304,7 @@ const DispatchOverview = memo(() => {
             value={metrics?.completed?.toString() || '0'}
             icon={CheckSquare}
             trend="up"
-            change="+12%"
+            change={12}
             description="Jobs finished"
             loading={isLoading}
             aria-label="Completed Jobs Today"
@@ -314,7 +314,7 @@ const DispatchOverview = memo(() => {
             value={metrics?.delayed?.toString() || '0'}
             icon={Warning}
             trend="down"
-            change="-2"
+            change={-2}
             description="Behind schedule"
             loading={isLoading}
             aria-label="Delayed Jobs"
@@ -341,7 +341,8 @@ const DispatchOverview = memo(() => {
         <ResponsiveLineChart
           title="Daily Completion Trend"
           description="Jobs completed vs target over the past week"
-          data={completionTrendData}
+          data={completionTrendData as Array<{name: string; value: number; [key: string]: unknown}>}
+          dataKeys={['completed', 'target']}
           height={300}
           showArea
           loading={isLoading}
@@ -732,7 +733,8 @@ const FuelContent = memo(() => {
       <ResponsiveBarChart
         title="Weekly Fuel Consumption"
         description="Gallons and costs by day of the week"
-        data={fuelConsumptionData}
+        data={fuelConsumptionData as Array<{name: string; value: number; [key: string]: unknown}>}
+        dataKey="gallons"
         height={300}
         loading={isLoading}
         aria-label="Weekly Fuel Consumption Chart"

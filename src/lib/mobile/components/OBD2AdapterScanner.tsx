@@ -95,7 +95,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
               setDtcs(diagnosticCodes)
               onDTCsDetected?.(diagnosticCodes)
             } catch (error) {
-              logger.warn('Could not read DTCs on reconnect:', error)
+              logger.warn('Could not read DTCs on reconnect', { error })
             }
           }
 
@@ -214,7 +214,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
         setVin(vehicleVIN)
         onAdapterConnected?.(adapter, vehicleVIN)
       } catch (error) {
-        logger.warn('Could not read VIN:', error)
+        logger.warn('Could not read VIN', { error })
         onAdapterConnected?.(adapter)
       }
 
@@ -230,7 +230,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
             logger.info(`Found ${diagnosticCodes.length} diagnostic trouble code(s)`)
           }
         } catch (error) {
-          logger.warn('Could not read DTCs:', error)
+          logger.warn('Could not read DTCs', { error })
         }
       }
 

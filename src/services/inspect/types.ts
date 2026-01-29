@@ -6,7 +6,12 @@ export type InspectType =
   | "alert"
   | "task"
   | "dispatch"
-  | "maintenance";
+  | "maintenance"
+  | "compliance-violation"
+  | "safety-incident"
+  | "safety-inspection"
+  | "training-record"
+  | "certification";
 
 export type InspectTarget = {
   type: InspectType;

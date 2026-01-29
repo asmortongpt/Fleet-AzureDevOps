@@ -3,8 +3,8 @@
 import { MapPin, Activity, Zap, AlertTriangle } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
-import { geotabService } from '../services/GeotabService';
-import { samsaraService } from '../services/SamsaraService';
+import { geotabService, type GeotabDevice } from '@/services/GeotabService';
+import { samsaraService } from '@/services/SamsaraService';
 
 export const TelematicsHub: React.FC = () => {
   const [vehicles, setVehicles] = useState<any[]>([]);
@@ -26,7 +26,7 @@ export const TelematicsHub: React.FC = () => {
       if (selectedSource === 'geotab') {
         const devices = await geotabService.getDevices();
         const vehiclesWithLocations = await Promise.all(
-          devices.map(async (device) => {
+          devices.map(async (device: GeotabDevice) => {
             const location = await geotabService.getDeviceLocation(device.id);
             return {
               id: device.id,

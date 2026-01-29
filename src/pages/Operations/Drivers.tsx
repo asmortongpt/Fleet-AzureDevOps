@@ -42,9 +42,9 @@ export function DriversOperations() {
   const filteredDrivers = useMemo(() => {
     return drivers.filter(driver => {
       const searchLower = searchQuery.toLowerCase();
-      const fullName = `${driver.first_name || ''} ${driver.last_name || ''}`.toLowerCase();
+      const fullName = (driver.name || '').toLowerCase();
       const email = (driver.email || '').toLowerCase();
-      const license = (driver.license_number || '').toLowerCase();
+      const license = (driver.licenseNumber || '').toLowerCase();
 
       return (
         fullName.includes(searchLower) ||
@@ -61,7 +61,7 @@ export function DriversOperations() {
   // Handler: Create driver
   const handleCreateDriver = async () => {
     try {
-      if (!formData.first_name || !formData.email || !formData.license_number) {
+      if (!formData.name || !formData.email || !formData.licenseNumber) {
         toast.error('Please fill in all required fields');
         return;
       }
@@ -112,7 +112,7 @@ export function DriversOperations() {
   // Render driver list item
   const renderDriverItem = (driver: Driver) => {
     const isSelected = driver.id === selectedDriverId;
-    const fullName = `${driver.first_name || ''} ${driver.last_name || ''}`.trim();
+    const fullName = driver.name || '';
     const statusDisplay = driver.status as 'active' | 'inactive' | 'pending' | 'completed' | 'error' | 'warning' || 'active';
 
     return (
@@ -141,7 +141,7 @@ export function DriversOperations() {
             <div className="min-w-0 flex-1">
               <h3 className="text-sm font-bold text-white mb-1 truncate">{fullName}</h3>
               <p className="text-xs text-slate-400 line-clamp-2">
-                {driver.license_number} • Safety: {driver.safety_score || 0}
+                {driver.licenseNumber} • Safety: {driver.safetyScore || 0}
               </p>
             </div>
           </div>
@@ -161,22 +161,13 @@ export function DriversOperations() {
   // Render driver form fields
   const renderDriverForm = () => (
     <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-3">
-        <Input
-          placeholder="First name"
-          value={formData.first_name || ''}
-          onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-          className="bg-slate-700/50 border-slate-600 text-white"
-          disabled={createMutation.isPending || updateMutation.isPending}
-        />
-        <Input
-          placeholder="Last name"
-          value={formData.last_name || ''}
-          onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-          className="bg-slate-700/50 border-slate-600 text-white"
-          disabled={createMutation.isPending || updateMutation.isPending}
-        />
-      </div>
+      <Input
+        placeholder="Full name"
+        value={formData.name || ''}
+        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+        className="bg-slate-700/50 border-slate-600 text-white"
+        disabled={createMutation.isPending || updateMutation.isPending}
+      />
 
       <Input
         placeholder="Email"
@@ -197,8 +188,8 @@ export function DriversOperations() {
 
       <Input
         placeholder="License number"
-        value={formData.license_number || ''}
-        onChange={(e) => setFormData({ ...formData, license_number: e.target.value })}
+        value={formData.licenseNumber || ''}
+        onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
         className="bg-slate-700/50 border-slate-600 text-white"
         disabled={createMutation.isPending || updateMutation.isPending}
       />
@@ -232,7 +223,7 @@ export function DriversOperations() {
 
     if (!selectedDriver) return null;
 
-    const fullName = `${selectedDriver.first_name || ''} ${selectedDriver.last_name || ''}`.trim();
+    const fullName = selectedDriver.name || '';
 
     return (
       <div className="space-y-4">
@@ -254,18 +245,18 @@ export function DriversOperations() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <span className="text-slate-400">License:</span>
-                  <p className="text-white font-mono text-xs">{selectedDriver.license_number}</p>
+                  <p className="text-white font-mono text-xs">{selectedDriver.licenseNumber}</p>
                 </div>
                 <div>
                   <span className="text-slate-400">Status:</span>
                   <p className="text-white font-semibold capitalize">{selectedDriver.status}</p>
                 </div>
               </div>
-              {selectedDriver.hire_date && (
+              {selectedDriver.hireDate && (
                 <div>
                   <span className="text-slate-400">Hire Date:</span>
                   <p className="text-white font-medium">
-                    {new Date(selectedDriver.hire_date).toLocaleDateString()}
+                    {new Date(selectedDriver.hireDate).toLocaleDateString()}
                   </p>
                 </div>
               )}
@@ -302,30 +293,22 @@ export function DriversOperations() {
             <div>
               <p className="text-slate-400 text-xs mb-1">Safety Score</p>
               <p className="text-emerald-400 font-bold text-lg">
-                {selectedDriver.safety_score || 0}
+                {selectedDriver.safetyScore || 0}
               </p>
             </div>
             <div>
               <p className="text-slate-400 text-xs mb-1">Total Trips</p>
               <p className="text-cyan-400 font-bold text-lg">
-                {selectedDriver.total_trips || 0}
+                {selectedDriver.totalTrips || 0}
               </p>
             </div>
             <div>
               <p className="text-slate-400 text-xs mb-1">Total Miles</p>
               <p className="text-blue-400 font-bold text-lg">
-                {(selectedDriver.total_miles_driven || 0).toLocaleString()}
+                {(selectedDriver.totalMiles || 0).toLocaleString()}
               </p>
             </div>
           </div>
-          {(selectedDriver.incidents_count || 0) > 0 && (
-            <div className="mt-4 pt-4 border-t border-slate-700/50">
-              <p className="text-xs text-slate-400 mb-1">Safety Events</p>
-              <p className="text-amber-400 font-semibold">
-                {selectedDriver.incidents_count} incident{(selectedDriver.incidents_count || 0) !== 1 ? 's' : ''}
-              </p>
-            </div>
-          )}
         </div>
 
         {/* Delete Action */}
@@ -409,11 +392,10 @@ export function DriversOperations() {
                 setSelectedDriverId(null);
                 setIsEditing(false);
                 setFormData({
-                  first_name: '',
-                  last_name: '',
+                  name: '',
                   email: '',
                   phone: '',
-                  license_number: '',
+                  licenseNumber: '',
                   status: 'active'
                 });
               }}
@@ -429,8 +411,8 @@ export function DriversOperations() {
         detailPanel={
           selectedDriverId || isCreating
             ? {
-                title: isCreating ? 'New Driver' : selectedDriver ? `${selectedDriver.first_name || ''} ${selectedDriver.last_name || ''}` : '',
-                subtitle: isCreating ? 'Create new driver' : selectedDriver?.license_number,
+                title: isCreating ? 'New Driver' : selectedDriver ? selectedDriver.name || '' : '',
+                subtitle: isCreating ? 'Create new driver' : selectedDriver?.licenseNumber,
                 content: detailContent(),
                 onClose: () => {
                   setSelectedDriverId(null);
@@ -461,7 +443,7 @@ export function DriversOperations() {
         }}
         onConfirm={handleDeleteDriver}
         title="Delete Driver"
-        message={`Are you sure you want to delete ${selectedDriver?.first_name} ${selectedDriver?.last_name}? This action cannot be undone.`}
+        message={`Are you sure you want to delete ${selectedDriver?.name}? This action cannot be undone.`}
         confirmLabel="Delete"
         cancelLabel="Cancel"
         variant="danger"

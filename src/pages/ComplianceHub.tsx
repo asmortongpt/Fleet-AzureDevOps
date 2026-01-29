@@ -346,7 +346,7 @@ const ComplianceOverview = memo(function ComplianceOverview() {
           value={`${metrics?.complianceRate || 0}%`}
           icon={CheckCircle}
           trend="up"
-          change="+2%"
+          change={2}
           description="Overall compliance"
           loading={isLoading}
         />
@@ -355,7 +355,7 @@ const ComplianceOverview = memo(function ComplianceOverview() {
           value={metrics?.expiringSoon?.toString() || '0'}
           icon={CalendarX}
           trend="down"
-          change="-3"
+          change={-3}
           description="Within 30 days"
           loading={isLoading}
         />
@@ -364,7 +364,7 @@ const ComplianceOverview = memo(function ComplianceOverview() {
           value={metrics?.nonCompliant?.toString() || '0'}
           icon={Warning}
           trend="down"
-          change="-5"
+          change={-5}
           description="Requires attention"
           loading={isLoading}
         />
@@ -486,7 +486,7 @@ const InspectionsContent = memo(function InspectionsContent() {
           value={metrics?.totalInspections?.toString() || '0'}
           icon={ListChecks}
           trend="up"
-          change="+12"
+          change={12}
           description="All time"
           loading={isLoading}
         />
@@ -503,7 +503,7 @@ const InspectionsContent = memo(function InspectionsContent() {
           value={metrics?.failedInspections?.toString() || '0'}
           icon={XCircle}
           trend="down"
-          change="-2"
+          change={-2}
           description="Need remediation"
           loading={isLoading}
         />
@@ -512,7 +512,7 @@ const InspectionsContent = memo(function InspectionsContent() {
           value={`${passRate}%`}
           icon={TrendUp}
           trend="up"
-          change="+3%"
+          change={3}
           description="Success rate"
           loading={isLoading}
         />
@@ -522,7 +522,8 @@ const InspectionsContent = memo(function InspectionsContent() {
       <ResponsiveLineChart
         title="Inspection Trend"
         description="Monthly inspection pass/fail rates over time"
-        data={inspectionTrendData}
+        data={inspectionTrendData.map(d => ({ ...d, value: d.rate }))}
+        dataKeys={['passed', 'failed', 'rate']}
         height={350}
         showArea
         loading={isLoading}
@@ -597,7 +598,7 @@ const ReportsContent = memo(function ReportsContent() {
           value={`${avgComplianceRate}%`}
           icon={TrendUp}
           trend="up"
-          change="+1.5%"
+          change={1.5}
           description="Across all categories"
           loading={isLoading}
         />
@@ -691,7 +692,7 @@ const ViolationsContent = memo(function ViolationsContent() {
           value={metrics?.totalViolations?.toString() || '0'}
           icon={Warning}
           trend="down"
-          change="-8"
+          change={-8}
           description="All violations"
           loading={isLoading}
         />
@@ -700,7 +701,7 @@ const ViolationsContent = memo(function ViolationsContent() {
           value={criticalViolations.toString()}
           icon={XCircle}
           trend="down"
-          change="-2"
+          change={-2}
           description="High priority"
           loading={isLoading}
         />
@@ -709,7 +710,7 @@ const ViolationsContent = memo(function ViolationsContent() {
           value={resolvedViolations.toString()}
           icon={CheckCircle}
           trend="up"
-          change="+15"
+          change={15}
           description="Successfully resolved"
           loading={isLoading}
         />

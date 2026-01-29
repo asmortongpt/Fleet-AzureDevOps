@@ -191,7 +191,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
               )}
             </div>
           </div>
-          <StatusBadge status={provider.status === 'error' ? 'offline' : provider.status} />
+          <StatusBadge status={provider.status === 'error' ? 'offline' : provider.status === 'connected' ? 'online' : provider.status} />
         </div>
       </CardHeader>
 

@@ -74,39 +74,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        // Only enabled when (NODE_ENV='test' OR MODE='development') AND VITE_SKIP_AUTH='true'
-        const SKIP_AUTH = (process.env.NODE_ENV === 'test' || import.meta.env.MODE === 'development') && import.meta.env.VITE_SKIP_AUTH === 'true';
-
-        // Log security warning if bypass is enabled in non-test environment
-        // Only warn in production - this is expected in development mode
-        if (SKIP_AUTH && process.env.NODE_ENV !== 'test' && import.meta.env.PROD) {
-          logger.warn('[Security] CRITICAL: Authentication bypass is enabled in non-test environment!', {
-            nodeEnv: process.env.NODE_ENV,
-            skipAuth: SKIP_AUTH
-          });
-        }
-
-        // DEMO MODE: Only enabled if explicitly set - SSO-first in production
-        const DEMO_MODE = import.meta.env.VITE_USE_MOCK_DATA === 'true' ||
-          localStorage.getItem('demo_mode') === 'true';
-
-        if (SKIP_AUTH || DEMO_MODE) {
-          const demoUser: User = {
-            id: '34c5e071-2d8c-44d0-8f1f-90b58672dceb', // Real Seeded User ID
-            email: 'toby.deckow@capitaltechalliance.com', // Real Seeded Email
-            firstName: 'Toby',
-            lastName: 'Deckow',
-            role: 'SuperAdmin', // Promoted to SuperAdmin for full access
-            permissions: ['*'], // Full permissions
-            tenantId: 'ee1e7320-b232-402e-b4f8-288998b5bff7', // Real Seeded Tenant ID
-            tenantName: 'Capital Tech Alliance'
-          };
-          setUserState(demoUser);
-          setIsLoading(false);
-          logger.info('[Auth] Development auth bypass enabled - using demo user');
-          return;
-        }
-
         // Check for MSAL authentication
         if (accounts.length > 0 && inProgress === InteractionStatus.None) {
           const account = accounts[0];
@@ -165,11 +132,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           });
         }
       } catch (error) {
-        const DEMO_MODE = import.meta.env.VITE_USE_MOCK_DATA === 'true' ||
-          localStorage.getItem('demo_mode') === 'true';
-        if (!DEMO_MODE) {
-          logger.error('Failed to initialize auth:', { error });
-        }
+        logger.error('Failed to initialize auth:', { error });
       } finally {
         setIsLoading(false);
       }
