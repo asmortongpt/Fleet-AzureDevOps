@@ -104,12 +104,20 @@ app.get('/api/v1/vehicles', async (req, res) => {
 
     const result = await pool.query(
       `SELECT
-        id, vin, make, model, year, license_plate, status,
-        mileage, fuel_level, name,
-        latitude, longitude, location,
-        created_at, updated_at
-      FROM vehicles
-      ORDER BY created_at DESC
+        v.id, v.vin, v.make, v.model, v.year, v.license_plate, v.status,
+        v.odometer as mileage, v.fuel_type,
+        v.latitude, v.longitude, v.vehicle_type,
+        v.assigned_driver_id, v.assigned_facility_id,
+        v.purchase_date, v.purchase_price, v.current_value,
+        v.speed, v.heading, v.gps_device_id, v.engine_hours,
+        CONCAT(v.make, ' ', v.model, ' (', v.license_plate, ')') as name,
+        v.created_at, v.updated_at,
+        u.first_name || ' ' || u.last_name as driver_name,
+        f.name as facility_name
+      FROM vehicles v
+      LEFT JOIN users u ON v.assigned_driver_id = u.id
+      LEFT JOIN facilities f ON v.assigned_facility_id = f.id
+      ORDER BY v.created_at DESC
       LIMIT $1 OFFSET $2`,
       [limit, offset]
     );
@@ -169,12 +177,17 @@ app.get('/api/v1/drivers', async (req, res) => {
 
     const result = await pool.query(
       `SELECT
-        id, first_name, last_name, email, phone,
-        license_number, license_state,
-        hire_date, status, name,
-        created_at, updated_at
-      FROM drivers
-      ORDER BY created_at DESC
+        d.id, d.license_number, d.license_state, d.license_expiration,
+        d.cdl_class, d.cdl_endorsements, d.medical_card_expiration,
+        d.hire_date, d.status, d.safety_score,
+        d.total_miles_driven, d.total_hours_driven,
+        d.incidents_count, d.violations_count,
+        d.user_id, d.created_at, d.updated_at,
+        u.first_name, u.last_name, u.email, u.phone,
+        u.first_name || ' ' || u.last_name as name
+      FROM drivers d
+      LEFT JOIN users u ON d.user_id = u.id
+      ORDER BY d.created_at DESC
       LIMIT $1 OFFSET $2`,
       [limit, offset]
     );
@@ -262,7 +275,13 @@ app.get('/api/vehicles', async (req, res) => {
     const limit = parseInt(req.query.limit) || 100;
     const offset = parseInt(req.query.offset) || 0;
     const result = await pool.query(
-      `SELECT id, vin, make, model, year, license_plate, status, mileage, fuel_level, name, latitude, longitude, location, created_at, updated_at FROM vehicles ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
+      `SELECT v.*, CONCAT(v.make, ' ', v.model, ' (', v.license_plate, ')') as name,
+              u.first_name || ' ' || u.last_name as driver_name,
+              f.name as facility_name
+       FROM vehicles v
+       LEFT JOIN users u ON v.assigned_driver_id = u.id
+       LEFT JOIN facilities f ON v.assigned_facility_id = f.id
+       ORDER BY v.created_at DESC LIMIT $1 OFFSET $2`,
       [limit, offset]
     );
     const countResult = await pool.query('SELECT COUNT(*) as total FROM vehicles');
@@ -278,7 +297,11 @@ app.get('/api/drivers', async (req, res) => {
     const limit = parseInt(req.query.limit) || 100;
     const offset = parseInt(req.query.offset) || 0;
     const result = await pool.query(
-      `SELECT id, first_name, last_name, email, phone, license_number, license_state, hire_date, status, name, created_at, updated_at FROM drivers ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
+      `SELECT d.*, u.first_name, u.last_name, u.email, u.phone,
+              u.first_name || ' ' || u.last_name as name
+       FROM drivers d
+       LEFT JOIN users u ON d.user_id = u.id
+       ORDER BY d.created_at DESC LIMIT $1 OFFSET $2`,
       [limit, offset]
     );
     const countResult = await pool.query('SELECT COUNT(*) as total FROM drivers');
@@ -289,17 +312,184 @@ app.get('/api/drivers', async (req, res) => {
   }
 });
 
-// Placeholder endpoints for frontend compatibility
-app.get('/api/work-orders', (req, res) => {
-  res.json({ data: [], total: 0, message: 'Work orders endpoint - placeholder' });
+// Work orders endpoint - real database query
+app.get('/api/work-orders', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const offset = parseInt(req.query.offset) || 0;
+    const result = await pool.query(
+      `SELECT w.*, v.make || ' ' || v.model as vehicle_name, v.license_plate,
+              f.name as facility_name, u.first_name || ' ' || u.last_name as technician_name
+       FROM work_orders w
+       LEFT JOIN vehicles v ON w.vehicle_id = v.id
+       LEFT JOIN facilities f ON w.facility_id = f.id
+       LEFT JOIN users u ON w.assigned_technician_id = u.id
+       ORDER BY w.created_at DESC LIMIT $1 OFFSET $2`,
+      [limit, offset]
+    );
+    const countResult = await pool.query('SELECT COUNT(*) as total FROM work_orders');
+    res.json({ data: result.rows, total: parseInt(countResult.rows[0].total), limit, offset });
+  } catch (error) {
+    console.error('Work orders endpoint error:', error);
+    res.status(500).json({ error: 'Failed to fetch work orders', details: error.message });
+  }
 });
 
-app.get('/api/facilities', (req, res) => {
-  res.json({ data: [], total: 0, message: 'Facilities endpoint - placeholder' });
+// Facilities endpoint - real database query
+app.get('/api/facilities', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const offset = parseInt(req.query.offset) || 0;
+    const result = await pool.query(
+      `SELECT * FROM facilities ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
+      [limit, offset]
+    );
+    const countResult = await pool.query('SELECT COUNT(*) as total FROM facilities');
+    res.json({ data: result.rows, total: parseInt(countResult.rows[0].total), limit, offset });
+  } catch (error) {
+    console.error('Facilities endpoint error:', error);
+    res.status(500).json({ error: 'Failed to fetch facilities', details: error.message });
+  }
 });
 
-app.get('/api/maintenance-schedules', (req, res) => {
-  res.json({ data: [], total: 0, message: 'Maintenance schedules endpoint - placeholder' });
+// Maintenance schedules endpoint - real database query
+app.get('/api/maintenance-schedules', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const offset = parseInt(req.query.offset) || 0;
+    const result = await pool.query(
+      `SELECT m.*, v.make || ' ' || v.model as vehicle_name, v.license_plate, v.vin
+       FROM maintenance_schedules m
+       LEFT JOIN vehicles v ON m.vehicle_id = v.id
+       ORDER BY m.next_service_due_date ASC LIMIT $1 OFFSET $2`,
+      [limit, offset]
+    );
+    const countResult = await pool.query('SELECT COUNT(*) as total FROM maintenance_schedules');
+    res.json({ data: result.rows, total: parseInt(countResult.rows[0].total), limit, offset });
+  } catch (error) {
+    console.error('Maintenance schedules endpoint error:', error);
+    res.status(500).json({ error: 'Failed to fetch maintenance schedules', details: error.message });
+  }
+});
+
+// Fuel transactions endpoint - real database query
+app.get('/api/fuel-transactions', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const offset = parseInt(req.query.offset) || 0;
+    const result = await pool.query(
+      `SELECT ft.*, v.make || ' ' || v.model as vehicle_name, v.license_plate,
+              u.first_name || ' ' || u.last_name as driver_name
+       FROM fuel_transactions ft
+       LEFT JOIN vehicles v ON ft.vehicle_id = v.id
+       LEFT JOIN drivers d ON ft.driver_id = d.id
+       LEFT JOIN users u ON d.user_id = u.id
+       ORDER BY ft.transaction_date DESC LIMIT $1 OFFSET $2`,
+      [limit, offset]
+    );
+    const countResult = await pool.query('SELECT COUNT(*) as total FROM fuel_transactions');
+    res.json({ data: result.rows, total: parseInt(countResult.rows[0].total), limit, offset });
+  } catch (error) {
+    console.error('Fuel transactions endpoint error:', error);
+    res.status(500).json({ error: 'Failed to fetch fuel transactions', details: error.message });
+  }
+});
+
+// Routes endpoint - real database query
+app.get('/api/routes', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const offset = parseInt(req.query.offset) || 0;
+    const result = await pool.query(
+      `SELECT r.*, v.make || ' ' || v.model as vehicle_name, v.license_plate,
+              u.first_name || ' ' || u.last_name as driver_name
+       FROM routes r
+       LEFT JOIN vehicles v ON r.vehicle_id = v.id
+       LEFT JOIN drivers d ON r.driver_id = d.id
+       LEFT JOIN users u ON d.user_id = u.id
+       ORDER BY r.created_at DESC LIMIT $1 OFFSET $2`,
+      [limit, offset]
+    );
+    const countResult = await pool.query('SELECT COUNT(*) as total FROM routes');
+    res.json({ data: result.rows, total: parseInt(countResult.rows[0].total), limit, offset });
+  } catch (error) {
+    console.error('Routes endpoint error:', error);
+    res.status(500).json({ error: 'Failed to fetch routes', details: error.message });
+  }
+});
+
+// Safety incidents endpoint - real database query
+app.get('/api/safety-incidents', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const offset = parseInt(req.query.offset) || 0;
+    const result = await pool.query(
+      `SELECT si.*, v.make || ' ' || v.model as vehicle_name, v.license_plate,
+              u.first_name || ' ' || u.last_name as driver_name
+       FROM safety_incidents si
+       LEFT JOIN vehicles v ON si.vehicle_id = v.id
+       LEFT JOIN drivers d ON si.driver_id = d.id
+       LEFT JOIN users u ON d.user_id = u.id
+       ORDER BY si.incident_date DESC LIMIT $1 OFFSET $2`,
+      [limit, offset]
+    );
+    const countResult = await pool.query('SELECT COUNT(*) as total FROM safety_incidents');
+    res.json({ data: result.rows, total: parseInt(countResult.rows[0].total), limit, offset });
+  } catch (error) {
+    console.error('Safety incidents endpoint error:', error);
+    res.status(500).json({ error: 'Failed to fetch safety incidents', details: error.message });
+  }
+});
+
+// Inspections endpoint - real database query
+app.get('/api/inspections', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const offset = parseInt(req.query.offset) || 0;
+    const result = await pool.query(
+      `SELECT i.*, v.make || ' ' || v.model as vehicle_name, v.license_plate,
+              u.first_name || ' ' || u.last_name as driver_name
+       FROM inspections i
+       LEFT JOIN vehicles v ON i.vehicle_id = v.id
+       LEFT JOIN drivers d ON i.driver_id = d.id
+       LEFT JOIN users u ON d.user_id = u.id
+       ORDER BY i.inspection_date DESC LIMIT $1 OFFSET $2`,
+      [limit, offset]
+    );
+    const countResult = await pool.query('SELECT COUNT(*) as total FROM inspections');
+    res.json({ data: result.rows, total: parseInt(countResult.rows[0].total), limit, offset });
+  } catch (error) {
+    console.error('Inspections endpoint error:', error);
+    res.status(500).json({ error: 'Failed to fetch inspections', details: error.message });
+  }
+});
+
+// Telemetry data endpoint
+app.get('/api/telemetry', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const offset = parseInt(req.query.offset) || 0;
+    const vehicleId = req.query.vehicleId;
+
+    let query = `SELECT t.*, v.make || ' ' || v.model as vehicle_name, v.license_plate
+                 FROM telemetry_data t
+                 LEFT JOIN vehicles v ON t.vehicle_id = v.id`;
+    const params = [];
+
+    if (vehicleId) {
+      query += ` WHERE t.vehicle_id = $1`;
+      params.push(vehicleId);
+    }
+
+    query += ` ORDER BY t.timestamp DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+    params.push(limit, offset);
+
+    const result = await pool.query(query, params);
+    res.json({ data: result.rows, total: result.rowCount, limit, offset });
+  } catch (error) {
+    console.error('Telemetry endpoint error:', error);
+    res.status(500).json({ error: 'Failed to fetch telemetry data', details: error.message });
+  }
 });
 
 // ============================================================================
