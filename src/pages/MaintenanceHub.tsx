@@ -15,7 +15,7 @@
  */
 
 import { motion } from 'framer-motion'
-import { Suspense, memo, useCallback, useMemo, type FC, type ReactNode } from 'react'
+import { Suspense, memo, useCallback, useMemo, useState, type FC, type ReactNode } from 'react'
 import {
   Wrench,
   Warehouse,
@@ -41,6 +41,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 
 // ============================================================================
@@ -436,14 +441,62 @@ PredictiveContent.displayName = 'PredictiveContent'
 
 const CalendarContent: FC = memo(() => {
   const { loadingStates, lastUpdate } = useReactiveMaintenanceData()
+  const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false)
+  const [scheduleForm, setScheduleForm] = useState({
+    vehicleId: '',
+    serviceType: 'preventive',
+    description: '',
+    scheduledDate: '',
+    estimatedCost: '',
+    notes: ''
+  })
 
   const isLoading = loadingStates.workOrders
   const formattedTime = useMemo(() => lastUpdate.toLocaleTimeString(), [lastUpdate])
 
   const handleSchedule = useCallback(() => {
-    // TODO: Implement schedule modal
-    console.log('Schedule maintenance')
+    setIsScheduleDialogOpen(true)
   }, [])
+
+  const handleScheduleSubmit = useCallback(async () => {
+    try {
+      // Call backend API to create maintenance schedule
+      const response = await fetch('/api/maintenance-schedules', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          vehicle_id: scheduleForm.vehicleId,
+          service_type: scheduleForm.serviceType,
+          notes: scheduleForm.description,
+          scheduled_date: scheduleForm.scheduledDate,
+          estimated_cost: parseFloat(scheduleForm.estimatedCost) || 0,
+          metadata: { notes: scheduleForm.notes }
+        })
+      })
+
+      if (response.ok) {
+        // Success - close dialog and reset form
+        setIsScheduleDialogOpen(false)
+        setScheduleForm({
+          vehicleId: '',
+          serviceType: 'preventive',
+          description: '',
+          scheduledDate: '',
+          estimatedCost: '',
+          notes: ''
+        })
+        // TODO: Show success toast
+        console.log('Maintenance scheduled successfully')
+      } else {
+        // TODO: Show error toast
+        console.error('Failed to schedule maintenance')
+      }
+    } catch (error) {
+      console.error('Error scheduling maintenance:', error)
+      // TODO: Show error toast
+    }
+  }, [scheduleForm])
 
   return (
     <div className="space-y-6 p-6">
@@ -517,6 +570,95 @@ const CalendarContent: FC = memo(() => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Schedule Maintenance Dialog */}
+      <Dialog open={isScheduleDialogOpen} onOpenChange={setIsScheduleDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Schedule Maintenance</DialogTitle>
+            <DialogDescription>
+              Create a new maintenance schedule for a vehicle. All fields are required.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="vehicleId">Vehicle ID</Label>
+              <Input
+                id="vehicleId"
+                placeholder="Enter vehicle ID"
+                value={scheduleForm.vehicleId}
+                onChange={(e) => setScheduleForm({ ...scheduleForm, vehicleId: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="serviceType">Service Type</Label>
+              <Select
+                value={scheduleForm.serviceType}
+                onValueChange={(value) => setScheduleForm({ ...scheduleForm, serviceType: value })}
+              >
+                <SelectTrigger id="serviceType">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="preventive">Preventive Maintenance</SelectItem>
+                  <SelectItem value="corrective">Corrective Maintenance</SelectItem>
+                  <SelectItem value="inspection">Inspection</SelectItem>
+                  <SelectItem value="repair">Repair</SelectItem>
+                  <SelectItem value="diagnostic">Diagnostic</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="scheduledDate">Scheduled Date</Label>
+              <Input
+                id="scheduledDate"
+                type="datetime-local"
+                value={scheduleForm.scheduledDate}
+                onChange={(e) => setScheduleForm({ ...scheduleForm, scheduledDate: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                placeholder="Describe the maintenance work..."
+                value={scheduleForm.description}
+                onChange={(e) => setScheduleForm({ ...scheduleForm, description: e.target.value })}
+                rows={3}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="estimatedCost">Estimated Cost ($)</Label>
+              <Input
+                id="estimatedCost"
+                type="number"
+                placeholder="0.00"
+                step="0.01"
+                value={scheduleForm.estimatedCost}
+                onChange={(e) => setScheduleForm({ ...scheduleForm, estimatedCost: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="notes">Additional Notes (Optional)</Label>
+              <Textarea
+                id="notes"
+                placeholder="Any additional information..."
+                value={scheduleForm.notes}
+                onChange={(e) => setScheduleForm({ ...scheduleForm, notes: e.target.value })}
+                rows={2}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsScheduleDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleScheduleSubmit}>
+              Schedule Maintenance
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 })
