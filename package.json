@@ -64,6 +64,7 @@
     "@tanstack/react-query": "^5.90.17",
     "@tanstack/react-query-devtools": "^5.91.2",
     "@tanstack/react-table": "^8.21.3",
+    "@testing-library/dom": "^10.4.1",
     "@yudiel/react-qr-scanner": "^2.5.1",
     "@zxing/library": "^0.21.3",
     "ag-grid-react": "^35.0.0",
