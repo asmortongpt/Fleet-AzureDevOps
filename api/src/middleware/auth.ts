@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
+import { PoolClient } from 'pg'
 
 import pool from '../config/database'
 import logger from '../config/logger'
@@ -18,6 +19,7 @@ export interface AuthRequest extends Request {
     name?: string
     org_id?: string
   }
+  dbClient?: PoolClient
 }
 
 // Import checkRevoked from session-revocation module

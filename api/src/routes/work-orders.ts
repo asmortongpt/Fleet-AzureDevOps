@@ -74,6 +74,7 @@ router.get(
     try {
       const { page = 1, limit = 50, status, priority, facility_id } = req.query
       const offset = (Number(page) - 1) * Number(limit)
+      const isDevelopment = process.env.NODE_ENV === 'development'
 
       // Use req.dbClient which has tenant context set
       const client = (req as any).dbClient
@@ -85,31 +86,15 @@ router.get(
         })
       }
 
-      // Get user's scope for row-level filtering (beyond RLS)
-      const userResult = await client.query(
-        'SELECT facility_ids, scope_level FROM users WHERE id = $1',
-        [req.user!.id]
-      )
-
-      const user = userResult.rows[0]
-      let scopeFilter = ''
-      const scopeParams: any[] = []
-
-      if (user.scope_level === 'own') {
-        // Mechanics only see their assigned work orders
-        scopeFilter = 'WHERE assigned_technician_id = $1'
-        scopeParams.push(req.user!.id)
-      } else if (user.scope_level === 'team' && user.facility_ids && user.facility_ids.length > 0) {
-        // Supervisors see work orders in their facilities
-        scopeFilter = 'WHERE facility_id = ANY($1::uuid[])'
-        scopeParams.push(user.facility_ids)
-      }
-      // fleet/global scope sees all (filtered by RLS to current tenant)
-
       // Build dynamic query
-      // NOTE: No WHERE tenant_id clause! RLS handles tenant filtering
-      let whereClause = scopeFilter
-      const queryParams = [...scopeParams]
+      // NOTE: In development mode, we need to filter by tenant_id since RLS is not active
+      let whereClause = ''
+      const queryParams: any[] = []
+
+      if (isDevelopment && req.user?.tenant_id) {
+        whereClause = 'WHERE tenant_id = $1'
+        queryParams.push(req.user.tenant_id)
+      }
 
       if (status) {
         queryParams.push(status)
@@ -119,17 +104,20 @@ router.get(
         queryParams.push(priority)
         whereClause += (whereClause ? ' AND' : 'WHERE') + ` priority = $${queryParams.length}`
       }
-      if (facility_id) {
-        queryParams.push(facility_id)
-        whereClause += (whereClause ? ' AND' : 'WHERE') + ` facility_id = $${queryParams.length}`
-      }
+      // Note: facility_id filter removed - column doesn't exist in work_orders table
 
       const result = await client.query(
-        `SELECT id, tenant_id, work_order_number, vehicle_id, facility_id,
-                assigned_technician_id, type, priority, status, description,
-                scheduled_start, scheduled_end, actual_start, actual_end,
-                labor_hours, labor_cost, parts_cost, odometer_reading,
-                engine_hours_reading, created_by, created_at, updated_at
+        `SELECT id, tenant_id, number as work_order_number, vehicle_id, title,
+                description, type, priority, status,
+                assigned_to_id as assigned_technician_id,
+                requested_by_id, approved_by_id,
+                scheduled_start_date as scheduled_start,
+                scheduled_end_date as scheduled_end,
+                actual_start_date as actual_start,
+                actual_end_date as actual_end,
+                labor_hours, estimated_cost, actual_cost,
+                odometer_at_start as odometer_reading,
+                notes, metadata, created_at, updated_at
          FROM work_orders ${whereClause} ORDER BY created_at DESC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`,
         [...queryParams, limit, offset]
       )
@@ -179,11 +167,17 @@ router.get(
 
       // RLS automatically filters - if work order doesn't exist OR is in different tenant, returns nothing
       const result = await client.query(
-        `SELECT id, tenant_id, work_order_number, vehicle_id, facility_id,
-                assigned_technician_id, type, priority, status, description,
-                scheduled_start, scheduled_end, actual_start, actual_end,
-                labor_hours, labor_cost, parts_cost, odometer_reading,
-                engine_hours_reading, notes, created_by, created_at, updated_at
+        `SELECT id, tenant_id, number as work_order_number, vehicle_id, title,
+                description, type, priority, status,
+                assigned_to_id as assigned_technician_id,
+                requested_by_id, approved_by_id,
+                scheduled_start_date as scheduled_start,
+                scheduled_end_date as scheduled_end,
+                actual_start_date as actual_start,
+                actual_end_date as actual_end,
+                labor_hours, estimated_cost, actual_cost,
+                odometer_at_start as odometer_reading,
+                odometer_at_end, notes, metadata, created_at, updated_at
          FROM work_orders WHERE id = $1`,
         [req.params.id]
       )

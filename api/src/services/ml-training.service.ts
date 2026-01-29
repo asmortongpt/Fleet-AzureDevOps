@@ -504,15 +504,13 @@ class MLTrainingService {
     tenantId: string,
     config: TrainingConfig
   ): Promise<any[]> {
-    // This would fetch actual training data based on model type
-    // For now, return mock data structure
-    this.logger.info('Fetching training data', { modelType: config.model_type })
+    this.logger.error('ML training data fetch not implemented', { modelType: config.model_type })
 
     // In production, this would query relevant tables based on model type
     // e.g., for predictive maintenance: vehicle history, work orders, telemetry
     // e.g., for driver scoring: trips, safety incidents, telemetry events
 
-    return []
+    throw new Error('ML training data fetching requires implementation with actual data sources')
   }
 
   private splitDataset(
@@ -538,27 +536,25 @@ class MLTrainingService {
     hyperparameters: Record<string, any>,
     dataSplits: any
   ): Promise<any> {
-    this.logger.info('Executing model training', { modelType, algorithm })
+    this.logger.error('ML model training not implemented', { modelType, algorithm })
 
     // In production, this would:
     // 1. Use TensorFlow.js, scikit-learn via Python bridge, or cloud ML services
     // 2. Train the actual model with the data
     // 3. Return the trained model artifacts
 
-    // For now, return mock model
-    return {
-      type: modelType,
-      algorithm,
-      parameters: hyperparameters,
-      trained: true
-    }
+    throw new Error('ML model training requires implementation with TensorFlow.js or cloud ML services')
   }
 
   private async evaluateModel(model: any, testData: any[]): Promise<Record<string, any>> {
-    this.logger.info('Evaluating model performance')
+    this.logger.error('ML model evaluation not implemented')
 
     // In production, this would evaluate against test set
-    // For now, return mock metrics
+    throw new Error('ML model evaluation requires implementation with actual test data')
+  }
+
+  private async _evaluateModelMockPlaceholder(model: any, testData: any[]): Promise<Record<string, any>> {
+    // Placeholder for reference - DO NOT USE
     return {
       accuracy: 0.87,
       precision: 0.85,
