@@ -1,4 +1,4 @@
-import {
+import React, {
   useState,
   useEffect,
   useCallback,
@@ -846,10 +846,214 @@ export function resetMapProvider(reloadPage = true): void {
   setMapProvider("leaflet", reloadPage)
 }
 
+// ============================================================================
+// Map Service Provider Context
+// ============================================================================
+
 /**
- * Map Service Provider component stub
- * TODO: Implement actual provider component
+ * Context for map service provider state
  */
-export function MapServiceProvider({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+interface MapServiceProviderContextValue {
+  /** Current active provider */
+  provider: MapProvider
+
+  /** Set the map provider */
+  setProvider: (provider: MapProvider) => void
+
+  /** Whether a provider is available */
+  isProviderAvailable: (provider: MapProvider) => boolean
+
+  /** Get list of available providers */
+  availableProviders: MapProvider[]
+
+  /** Whether Google Maps API key is available */
+  hasGoogleMapsKey: boolean
+}
+
+const MapServiceProviderContext = React.createContext<MapServiceProviderContextValue | null>(null)
+
+/**
+ * Props for MapServiceProvider
+ */
+interface MapServiceProviderProps {
+  /** Child components */
+  children: React.ReactNode
+
+  /** Force a specific provider (optional) */
+  forceProvider?: MapProvider
+
+  /** Initial provider preference (optional) */
+  initialProvider?: MapProvider
+}
+
+/**
+ * Map Service Provider - Context provider for managing map provider state
+ *
+ * Features:
+ * - Checks for Google Maps API key availability
+ * - Dynamically determines available providers
+ * - Manages provider switching across the application
+ * - Integrates with localStorage for persistence
+ * - Provides fallback to Leaflet if Google Maps unavailable
+ *
+ * Usage:
+ * ```tsx
+ * <MapServiceProvider>
+ *   <UniversalMap vehicles={vehicles} />
+ * </MapServiceProvider>
+ * ```
+ *
+ * Or with forced provider:
+ * ```tsx
+ * <MapServiceProvider forceProvider="leaflet">
+ *   <UniversalMap vehicles={vehicles} />
+ * </MapServiceProvider>
+ * ```
+ */
+export function MapServiceProvider({
+  children,
+  forceProvider,
+  initialProvider,
+}: MapServiceProviderProps) {
+  // Check if Google Maps API key is available
+  const hasGoogleMapsKey = useMemo(() => hasGoogleMapsApiKey(), [])
+
+  // Determine initial provider
+  const initialProviderValue = useMemo(() => {
+    if (forceProvider && isValidProvider(forceProvider)) {
+      return forceProvider
+    }
+    if (initialProvider && isValidProvider(initialProvider)) {
+      return initialProvider
+    }
+    return getActiveProvider()
+  }, [forceProvider, initialProvider])
+
+  // Provider state
+  const [provider, setProviderState] = useState<MapProvider>(initialProviderValue)
+
+  // Get available providers
+  const availableProviders = useMemo(() => {
+    const providers: MapProvider[] = ["leaflet"]
+    if (hasGoogleMapsKey) {
+      providers.push("google")
+    }
+    return providers
+  }, [hasGoogleMapsKey])
+
+  // Check if a provider is available
+  const isProviderAvailable = useCallback(
+    (providerToCheck: MapProvider): boolean => {
+      if (!isValidProvider(providerToCheck)) {
+        return false
+      }
+      if (providerToCheck === "google") {
+        return hasGoogleMapsKey
+      }
+      return true // Leaflet is always available
+    },
+    [hasGoogleMapsKey]
+  )
+
+  // Set provider with validation
+  const setProvider = useCallback(
+    (newProvider: MapProvider) => {
+      // Validate provider
+      if (!isValidProvider(newProvider)) {
+        logger.error(`Invalid map provider: ${newProvider}`)
+        return
+      }
+
+      // Check if provider is available
+      if (!isProviderAvailable(newProvider)) {
+        logger.error(
+          `Cannot set provider to ${newProvider}: ${
+            newProvider === "google" ? "Google Maps API key not available" : "Provider not available"
+          }`
+        )
+        return
+      }
+
+      // Don't update if forced provider is set
+      if (forceProvider) {
+        logger.warn(`Cannot change provider: forceProvider is set to ${forceProvider}`)
+        return
+      }
+
+      // Update state
+      setProviderState(newProvider)
+
+      // Persist to localStorage
+      safeSetLocalStorage(STORAGE_KEY, newProvider)
+
+      logger.debug(`Map provider changed to: ${newProvider}`)
+    },
+    [forceProvider, isProviderAvailable]
+  )
+
+  // Listen for storage events (cross-tab provider changes)
+  useEffect(() => {
+    if (forceProvider) return // Don't listen if provider is forced
+
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === STORAGE_KEY && event.newValue) {
+        const newProvider = event.newValue as MapProvider
+        if (isValidProvider(newProvider) && isProviderAvailable(newProvider)) {
+          setProviderState(newProvider)
+          logger.debug(`Provider changed from storage event: ${newProvider}`)
+        }
+      }
+    }
+
+    window.addEventListener("storage", handleStorageChange)
+    return () => window.removeEventListener("storage", handleStorageChange)
+  }, [forceProvider, isProviderAvailable])
+
+  // Log provider availability on mount (dev only)
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      logger.debug("Map Service Provider initialized:")
+      logger.debug(`  - Current provider: ${provider}`)
+      logger.debug(`  - Available providers: ${availableProviders.join(", ")}`)
+      logger.debug(`  - Google Maps key available: ${hasGoogleMapsKey}`)
+      logger.debug(`  - Forced provider: ${forceProvider || "none"}`)
+    }
+  }, [])
+
+  const contextValue: MapServiceProviderContextValue = {
+    provider,
+    setProvider,
+    isProviderAvailable,
+    availableProviders,
+    hasGoogleMapsKey,
+  }
+
+  return (
+    <MapServiceProviderContext.Provider value={contextValue}>
+      {children}
+    </MapServiceProviderContext.Provider>
+  )
+}
+
+/**
+ * Hook to access map service provider context
+ *
+ * Usage:
+ * ```tsx
+ * function MyComponent() {
+ *   const { provider, setProvider, availableProviders } = useMapServiceProvider()
+ *   return <div>Current provider: {provider}</div>
+ * }
+ * ```
+ *
+ * @throws Error if used outside MapServiceProvider
+ */
+export function useMapServiceProvider(): MapServiceProviderContextValue {
+  const context = React.useContext(MapServiceProviderContext)
+
+  if (!context) {
+    throw new Error("useMapServiceProvider must be used within a MapServiceProvider")
+  }
+
+  return context
 }

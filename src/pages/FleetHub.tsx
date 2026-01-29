@@ -285,11 +285,20 @@ const FleetOverview = memo(() => {
   // Memoize mileage chart data
   const mileageChartData = useMemo(() => avgMileageByStatus, [avgMileageByStatus])
 
+  // Import useDrilldown at the top level of FleetOverview
+  const { push: pushDrilldown } = useDrilldown()
+
   // Alert click handlers - memoized
   const handleVehicleClick = useCallback((vehicle: AlertVehicle) => {
     console.log('Vehicle clicked:', vehicle)
-    // TODO: Navigate to vehicle detail page or open modal
-  }, [])
+    // Navigate to vehicle detail panel using drilldown
+    pushDrilldown({
+      id: `vehicle-${vehicle.id}`,
+      type: 'vehicle',
+      label: `${vehicle.make} ${vehicle.model} (${vehicle.license_plate})`,
+      data: { vehicleId: vehicle.id }
+    })
+  }, [pushDrilldown])
 
   // Retry handler
   const handleRetry = useCallback(() => {
