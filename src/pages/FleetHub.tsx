@@ -50,6 +50,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useAuth } from '@/contexts/AuthContext'
+import { useDrilldown } from '@/contexts/DrilldownContext'
 
 // ============================================================================
 // LAZY-LOADED COMPONENTS
