@@ -86,7 +86,6 @@ export class TelemetryService extends EventEmitter {
   private channelCache: Map<string, RadioChannel> = new Map()
   private geofenceCache: Map<string, Geofence> = new Map()
   private isInitialized: boolean = false
-  private useMockData: boolean = true // Will be set based on DB availability
 
   // Batch write buffers
   private gpsBuffer: any[] = []
@@ -106,21 +105,18 @@ export class TelemetryService extends EventEmitter {
   public async initialize(dbConnection?: DatabaseConnection): Promise<void> {
     if (this.isInitialized) return
 
-    if (dbConnection) {
-      this.db = dbConnection
-      this.useMockData = false
+    if (!dbConnection) {
+      throw new Error('TelemetryService requires a valid database connection')
+    }
 
-      // Test the connection
-      try {
-        await this.db.query('SELECT 1')
-        console.log('TelemetryService: Database connection established')
-      } catch (error) {
-        console.warn('TelemetryService: Database connection failed, using mock data')
-        this.useMockData = true
-      }
-    } else {
-      console.log('TelemetryService: No database connection, using mock data')
-      this.useMockData = true
+    this.db = dbConnection
+
+    // Test the connection
+    try {
+      await this.db.query('SELECT 1')
+      console.log('TelemetryService: Database connection established')
+    } catch (error) {
+      throw new Error(`TelemetryService: Database connection failed - ${error}`)
     }
 
     // Load initial data
@@ -142,41 +138,42 @@ export class TelemetryService extends EventEmitter {
    * Load vehicles from database
    */
   private async loadVehicles(): Promise<void> {
-    if (!this.useMockData && this.db) {
-      try {
-        const results = await this.db.query(`
-          SELECT
-            v.id,
-            v.vehicle_number,
-            v.make,
-            v.model,
-            v.year,
-            v.vin,
-            v.license_plate,
-            v.status,
-            v.mileage,
-            v.fuel_type,
-            v.specifications,
-            f.name as facility_name,
-            f.coordinates as facility_coords
-          FROM vehicles v
-          LEFT JOIN facilities f ON v.facility_id = f.id
-          WHERE v.status = 'active'
-          ORDER BY v.id
-        `)
-
-        for (const row of results) {
-          const vehicle = this.mapDatabaseVehicle(row)
-          this.vehicleCache.set(vehicle.id, vehicle)
-        }
-        return
-      } catch (error) {
-        console.warn('Failed to load vehicles from database, using mock data')
-      }
+    if (!this.db) {
+      throw new Error('Database connection not available')
     }
 
-    // Load mock data based on realistic fleet composition
-    this.loadMockVehicles()
+    try {
+      const results = await this.db.query(`
+        SELECT
+          v.id,
+          v.vehicle_number,
+          v.make,
+          v.model,
+          v.year,
+          v.vin,
+          v.license_plate,
+          v.status,
+          v.mileage,
+          v.fuel_type,
+          v.specifications,
+          f.name as facility_name,
+          f.coordinates as facility_coords
+        FROM vehicles v
+        LEFT JOIN facilities f ON v.facility_id = f.id
+        WHERE v.status = 'active'
+        ORDER BY v.id
+      `)
+
+      for (const row of results) {
+        const vehicle = this.mapDatabaseVehicle(row)
+        this.vehicleCache.set(vehicle.id, vehicle)
+      }
+
+      console.log(`Loaded ${this.vehicleCache.size} vehicles from database`)
+    } catch (error) {
+      console.error('Failed to load vehicles from database:', error)
+      throw error
+    }
   }
 
   /**
@@ -216,281 +213,81 @@ export class TelemetryService extends EventEmitter {
     }
   }
 
-  /**
-   * Load mock vehicles when database is unavailable
-   */
-  private loadMockVehicles(): void {
-    // Generate realistic fleet from database-like data
-    const fleetBase = { lat: 30.4383, lng: -84.2807, name: 'Tallahassee Fleet Center' }
-
-    const vehicleSpecs = [
-      // Trucks
-      { make: 'Ford', model: 'F-150', type: 'truck', tankSize: 26, efficiency: 18, count: 5 },
-      { make: 'Ford', model: 'F-250', type: 'truck', tankSize: 34, efficiency: 15, count: 3 },
-      { make: 'Chevrolet', model: 'Silverado', type: 'truck', tankSize: 26, efficiency: 19, count: 4 },
-      { make: 'Ram', model: '1500', type: 'truck', tankSize: 26, efficiency: 17, count: 3 },
-      { make: 'Toyota', model: 'Tacoma', type: 'truck', tankSize: 21, efficiency: 21, count: 2 },
-
-      // Vans
-      { make: 'Mercedes-Benz', model: 'Sprinter', type: 'van', tankSize: 25, efficiency: 20, count: 2 },
-      { make: 'Ford', model: 'Transit', type: 'van', tankSize: 25, efficiency: 19, count: 3 },
-      { make: 'Ram', model: 'ProMaster', type: 'van', tankSize: 24, efficiency: 18, count: 2 },
-
-      // SUVs
-      { make: 'Ford', model: 'Explorer', type: 'suv', tankSize: 18, efficiency: 24, count: 3 },
-      { make: 'Chevrolet', model: 'Tahoe', type: 'suv', tankSize: 24, efficiency: 20, count: 2 },
-      { make: 'Honda', model: 'CR-V', type: 'suv', tankSize: 22, efficiency: 28, count: 2 },
-
-      // Sedans
-      { make: 'Toyota', model: 'Camry', type: 'sedan', tankSize: 15, efficiency: 30, count: 3 },
-      { make: 'Honda', model: 'Accord', type: 'sedan', tankSize: 14, efficiency: 32, count: 2 },
-
-      // EVs
-      { make: 'Tesla', model: 'Model 3', type: 'sedan', tankSize: 0, efficiency: 0, batteryCapacity: 75, electricRange: 310, count: 2 },
-      { make: 'Tesla', model: 'Model Y', type: 'suv', tankSize: 0, efficiency: 0, batteryCapacity: 75, electricRange: 330, count: 2 },
-      { make: 'Chevrolet', model: 'Bolt EV', type: 'sedan', tankSize: 0, efficiency: 0, batteryCapacity: 66, electricRange: 259, count: 2 },
-
-      // Heavy Equipment
-      { make: 'Caterpillar', model: '320', type: 'excavator', tankSize: 75, efficiency: 4, count: 2 },
-      { make: 'John Deere', model: '200G', type: 'excavator', tankSize: 70, efficiency: 5, count: 1 },
-      { make: 'Mack', model: 'Granite', type: 'dump_truck', tankSize: 125, efficiency: 6, count: 2 },
-      { make: 'Peterbilt', model: '567', type: 'dump_truck', tankSize: 150, efficiency: 5, count: 1 },
-    ]
-
-    let vehicleIndex = 1
-    for (const spec of vehicleSpecs) {
-      for (let i = 0; i < spec.count; i++) {
-        const id = `VEH-${String(vehicleIndex).padStart(3, '0')}`
-        const isEV = spec.batteryCapacity !== undefined
-
-        this.vehicleCache.set(id, {
-          id,
-          vehicleId: vehicleIndex,
-          vehicleNumber: id,
-          make: spec.make,
-          model: spec.model,
-          year: 2021 + Math.floor(Math.random() * 3),
-          type: spec.type,
-          vin: this.generateVIN(),
-          licensePlate: this.generateLicensePlate(),
-          tankSize: spec.tankSize,
-          fuelEfficiency: spec.efficiency,
-          batteryCapacity: spec.batteryCapacity,
-          electricRange: spec.electricRange,
-          startingLocation: {
-            lat: fleetBase.lat + (Math.random() - 0.5) * 0.02,
-            lng: fleetBase.lng + (Math.random() - 0.5) * 0.02
-          },
-          homeBase: fleetBase,
-          driverBehavior: this.randomDriverBehavior(),
-          features: this.inferFeatures(spec.make, spec.model, isEV ? 'electric' : 'gasoline'),
-          mileage: Math.floor(Math.random() * 50000) + 10000,
-          status: 'active'
-        })
-        vehicleIndex++
-      }
-    }
-  }
 
   /**
-   * Load routes from database or generate realistic routes
+   * Load routes from database
    */
   private async loadRoutes(): Promise<void> {
-    if (!this.useMockData && this.db) {
-      try {
-        const results = await this.db.query(`
-          SELECT * FROM routes WHERE is_active = true ORDER BY id
-        `)
+    if (!this.db) {
+      throw new Error('Database connection not available')
+    }
 
-        for (const row of results) {
-          const route: TelemetryRoute = {
-            id: row.route_id,
-            routeId: row.route_id,
-            name: row.name,
-            description: row.description,
-            type: row.type,
-            estimatedDuration: row.estimated_duration,
-            estimatedDistance: parseFloat(row.estimated_distance),
-            waypoints: row.waypoints || [],
-            roadTypes: row.road_types || [],
-            trafficPatterns: row.traffic_patterns || {},
-            priority: row.priority,
-            frequency: row.frequency
-          }
-          this.routeCache.set(route.id, route)
+    try {
+      const results = await this.db.query(`
+        SELECT * FROM routes WHERE is_active = true ORDER BY id
+      `)
+
+      for (const row of results) {
+        const route: TelemetryRoute = {
+          id: row.route_id,
+          routeId: row.route_id,
+          name: row.name,
+          description: row.description,
+          type: row.type,
+          estimatedDuration: row.estimated_duration,
+          estimatedDistance: parseFloat(row.estimated_distance),
+          waypoints: row.waypoints || [],
+          roadTypes: row.road_types || [],
+          trafficPatterns: row.traffic_patterns || {},
+          priority: row.priority,
+          frequency: row.frequency
         }
-        return
-      } catch (error) {
-        console.warn('Failed to load routes from database, using mock data')
+        this.routeCache.set(route.id, route)
       }
-    }
 
-    // Generate realistic routes based on Tallahassee, FL
-    this.loadMockRoutes()
-  }
-
-  /**
-   * Load mock routes for Tallahassee area
-   */
-  private loadMockRoutes(): void {
-    const routes: TelemetryRoute[] = [
-      {
-        id: 'ROUTE-001',
-        routeId: 'ROUTE-001',
-        name: 'Downtown Tallahassee Loop',
-        description: 'Standard downtown delivery route covering Capitol area',
-        type: 'delivery',
-        estimatedDuration: 120,
-        estimatedDistance: 18,
-        waypoints: [
-          { lat: 30.4383, lng: -84.2807, name: 'Fleet Center', type: 'depot', stopDuration: 0 },
-          { lat: 30.4518, lng: -84.2728, name: 'FSU Campus', type: 'delivery', stopDuration: 15 },
-          { lat: 30.4380, lng: -84.2812, name: 'Downtown', type: 'delivery', stopDuration: 10 },
-          { lat: 30.4550, lng: -84.2534, name: 'Midtown', type: 'delivery', stopDuration: 10 },
-          { lat: 30.4383, lng: -84.2807, name: 'Fleet Center', type: 'depot', stopDuration: 0 }
-        ],
-        roadTypes: ['city', 'city', 'city', 'city', 'city'],
-        trafficPatterns: { morning: 'moderate', midday: 'light', afternoon: 'heavy', evening: 'moderate', night: 'light' }
-      },
-      {
-        id: 'ROUTE-002',
-        routeId: 'ROUTE-002',
-        name: 'I-10 Interstate Run',
-        description: 'Long-haul route to Jacksonville via I-10',
-        type: 'longhaul',
-        estimatedDuration: 180,
-        estimatedDistance: 165,
-        waypoints: [
-          { lat: 30.4383, lng: -84.2807, name: 'Tallahassee Fleet Center', type: 'depot', stopDuration: 0 },
-          { lat: 30.4407, lng: -84.0834, name: 'I-10 East Entry', type: 'waypoint', stopDuration: 0 },
-          { lat: 30.3658, lng: -83.2232, name: 'Lake City Rest Stop', type: 'break', stopDuration: 20 },
-          { lat: 30.3322, lng: -81.6557, name: 'Jacksonville Downtown', type: 'delivery', stopDuration: 45 },
-          { lat: 30.3658, lng: -83.2232, name: 'Lake City Rest Stop', type: 'break', stopDuration: 15 },
-          { lat: 30.4383, lng: -84.2807, name: 'Tallahassee Fleet Center', type: 'depot', stopDuration: 0 }
-        ],
-        roadTypes: ['city', 'highway', 'highway', 'city', 'highway', 'city'],
-        trafficPatterns: { morning: 'heavy', midday: 'moderate', afternoon: 'heavy', evening: 'moderate', night: 'light' }
-      },
-      {
-        id: 'ROUTE-003',
-        routeId: 'ROUTE-003',
-        name: 'Construction Site Circuit',
-        description: 'Heavy equipment service route to construction sites',
-        type: 'service',
-        estimatedDuration: 240,
-        estimatedDistance: 35,
-        waypoints: [
-          { lat: 30.4383, lng: -84.2807, name: 'Fleet Center', type: 'depot', stopDuration: 0 },
-          { lat: 30.4889, lng: -84.2276, name: 'North Site', type: 'service', stopDuration: 60 },
-          { lat: 30.4150, lng: -84.3050, name: 'West Development', type: 'service', stopDuration: 45 },
-          { lat: 30.3980, lng: -84.2420, name: 'South Project', type: 'service', stopDuration: 45 },
-          { lat: 30.4383, lng: -84.2807, name: 'Fleet Center', type: 'depot', stopDuration: 0 }
-        ],
-        roadTypes: ['city', 'residential', 'residential', 'residential', 'city'],
-        trafficPatterns: { morning: 'light', midday: 'light', afternoon: 'light', evening: 'light', night: 'light' }
-      },
-      {
-        id: 'ROUTE-004',
-        routeId: 'ROUTE-004',
-        name: 'Airport Shuttle',
-        description: 'Regular shuttle to Tallahassee International Airport',
-        type: 'shuttle',
-        estimatedDuration: 30,
-        estimatedDistance: 8,
-        waypoints: [
-          { lat: 30.4383, lng: -84.2807, name: 'Fleet Center', type: 'depot', stopDuration: 0 },
-          { lat: 30.3966, lng: -84.3503, name: 'Tallahassee Airport', type: 'pickup', stopDuration: 15 },
-          { lat: 30.4383, lng: -84.2807, name: 'Fleet Center', type: 'depot', stopDuration: 0 }
-        ],
-        roadTypes: ['city', 'highway', 'city'],
-        trafficPatterns: { morning: 'moderate', midday: 'light', afternoon: 'moderate', evening: 'light', night: 'light' },
-        frequency: 'every_hour'
-      },
-      {
-        id: 'ROUTE-005',
-        routeId: 'ROUTE-005',
-        name: 'Emergency Response',
-        description: 'Priority emergency response route',
-        type: 'emergency',
-        estimatedDuration: 20,
-        estimatedDistance: 12,
-        waypoints: [
-          { lat: 30.4383, lng: -84.2807, name: 'Fleet Center', type: 'depot', stopDuration: 0 },
-          { lat: 30.4550, lng: -84.2600, name: 'Zone Alpha', type: 'emergency', stopDuration: 5 },
-          { lat: 30.4250, lng: -84.2950, name: 'Zone Bravo', type: 'emergency', stopDuration: 5 },
-          { lat: 30.4450, lng: -84.3100, name: 'Zone Charlie', type: 'emergency', stopDuration: 5 },
-          { lat: 30.4383, lng: -84.2807, name: 'Fleet Center', type: 'depot', stopDuration: 0 }
-        ],
-        roadTypes: ['city', 'city', 'city', 'city', 'city'],
-        priority: 'high',
-        trafficPatterns: { morning: 'light', midday: 'light', afternoon: 'light', evening: 'light', night: 'light' }
-      },
-      {
-        id: 'ROUTE-006',
-        routeId: 'ROUTE-006',
-        name: 'Coastal Delivery - Panama City',
-        description: 'Delivery route to Panama City Beach area',
-        type: 'longhaul',
-        estimatedDuration: 150,
-        estimatedDistance: 100,
-        waypoints: [
-          { lat: 30.4383, lng: -84.2807, name: 'Tallahassee Fleet Center', type: 'depot', stopDuration: 0 },
-          { lat: 30.1766, lng: -85.8055, name: 'Panama City', type: 'delivery', stopDuration: 30 },
-          { lat: 30.2116, lng: -85.8789, name: 'Panama City Beach', type: 'delivery', stopDuration: 20 },
-          { lat: 30.4383, lng: -84.2807, name: 'Tallahassee Fleet Center', type: 'depot', stopDuration: 0 }
-        ],
-        roadTypes: ['city', 'highway', 'city', 'highway'],
-        trafficPatterns: { morning: 'moderate', midday: 'light', afternoon: 'moderate', evening: 'light', night: 'light' }
-      }
-    ]
-
-    for (const route of routes) {
-      this.routeCache.set(route.id, route)
+      console.log(`Loaded ${this.routeCache.size} routes from database`)
+    } catch (error) {
+      console.error('Failed to load routes from database:', error)
+      // Routes are optional - continue without them
+      console.log('Continuing without routes')
     }
   }
+
 
   /**
    * Load radio channels
    */
   private async loadRadioChannels(): Promise<void> {
-    if (!this.useMockData && this.db) {
-      try {
-        const results = await this.db.query(`
-          SELECT * FROM radio_channels WHERE is_active = true ORDER BY priority DESC
-        `)
-
-        for (const row of results) {
-          const channel: RadioChannel = {
-            id: row.channel_id,
-            channelId: row.channel_id,
-            name: row.name,
-            frequency: row.frequency,
-            type: row.type,
-            priority: row.priority,
-            encryption: row.encryption,
-            maxUsers: row.max_users,
-            talkGroup: row.talk_group,
-            description: row.description
-          }
-          this.channelCache.set(channel.id, channel)
-        }
-        return
-      } catch (error) {
-        console.warn('Failed to load radio channels from database, using defaults')
-      }
+    if (!this.db) {
+      throw new Error('Database connection not available')
     }
 
-    // Default channels
-    const channels: RadioChannel[] = [
-      { id: 'channel-dispatch', channelId: 'channel-dispatch', name: 'Dispatch', frequency: '154.280', type: 'dispatch', priority: 10, encryption: true, maxUsers: 100, talkGroup: 'fleet-main' },
-      { id: 'channel-emergency', channelId: 'channel-emergency', name: 'Emergency', frequency: '155.475', type: 'emergency', priority: 100, encryption: true, maxUsers: 50, talkGroup: 'emergency' },
-      { id: 'channel-tactical', channelId: 'channel-tactical', name: 'Tactical 1', frequency: '154.340', type: 'tactical', priority: 50, encryption: true, maxUsers: 20, talkGroup: 'tactical-1' },
-      { id: 'channel-maintenance', channelId: 'channel-maintenance', name: 'Maintenance', frequency: '154.570', type: 'maintenance', priority: 5, encryption: false, maxUsers: 50, talkGroup: 'maintenance' },
-      { id: 'channel-common', channelId: 'channel-common', name: 'Common', frequency: '154.600', type: 'common', priority: 1, encryption: false, maxUsers: 200, talkGroup: 'common' }
-    ]
+    try {
+      const results = await this.db.query(`
+        SELECT * FROM radio_channels WHERE is_active = true ORDER BY priority DESC
+      `)
 
-    for (const channel of channels) {
-      this.channelCache.set(channel.id, channel)
+      for (const row of results) {
+        const channel: RadioChannel = {
+          id: row.channel_id,
+          channelId: row.channel_id,
+          name: row.name,
+          frequency: row.frequency,
+          type: row.type,
+          priority: row.priority,
+          encryption: row.encryption,
+          maxUsers: row.max_users,
+          talkGroup: row.talk_group,
+          description: row.description
+        }
+        this.channelCache.set(channel.id, channel)
+      }
+
+      console.log(`Loaded ${this.channelCache.size} radio channels from database`)
+    } catch (error) {
+      console.error('Failed to load radio channels from database:', error)
+      // Radio channels are optional - continue without them
+      console.log('Continuing without radio channels')
     }
   }
 
@@ -498,40 +295,33 @@ export class TelemetryService extends EventEmitter {
    * Load geofences
    */
   private async loadGeofences(): Promise<void> {
-    if (!this.useMockData && this.db) {
-      try {
-        const results = await this.db.query(`
-          SELECT * FROM geofences WHERE is_active = true ORDER BY id
-        `)
-
-        for (const row of results) {
-          const geofence: Geofence = {
-            id: row.geofence_id,
-            name: row.name,
-            type: row.type,
-            center: { lat: parseFloat(row.center_lat), lng: parseFloat(row.center_lng) },
-            radius: parseFloat(row.radius),
-            alertOnEntry: row.alert_on_entry,
-            alertOnExit: row.alert_on_exit
-          }
-          this.geofenceCache.set(geofence.id, geofence)
-        }
-        return
-      } catch (error) {
-        console.warn('Failed to load geofences from database, using defaults')
-      }
+    if (!this.db) {
+      throw new Error('Database connection not available')
     }
 
-    // Default geofences for Tallahassee
-    const geofences: Geofence[] = [
-      { id: 'GEO-001', name: 'Fleet Center Zone', type: 'operational', center: { lat: 30.4383, lng: -84.2807 }, radius: 5000, alertOnEntry: false, alertOnExit: true },
-      { id: 'GEO-002', name: 'Depot Perimeter', type: 'restricted', center: { lat: 30.4383, lng: -84.2807 }, radius: 500, alertOnEntry: true, alertOnExit: true },
-      { id: 'GEO-003', name: 'FSU Campus Zone', type: 'operational', center: { lat: 30.4518, lng: -84.2728 }, radius: 1500, alertOnEntry: true, alertOnExit: false },
-      { id: 'GEO-004', name: 'Airport Zone', type: 'restricted', center: { lat: 30.3966, lng: -84.3503 }, radius: 2000, alertOnEntry: true, alertOnExit: true }
-    ]
+    try {
+      const results = await this.db.query(`
+        SELECT * FROM geofences WHERE is_active = true ORDER BY id
+      `)
 
-    for (const geofence of geofences) {
-      this.geofenceCache.set(geofence.id, geofence)
+      for (const row of results) {
+        const geofence: Geofence = {
+          id: row.geofence_id,
+          name: row.name,
+          type: row.type,
+          center: { lat: parseFloat(row.center_lat), lng: parseFloat(row.center_lng) },
+          radius: parseFloat(row.radius),
+          alertOnEntry: row.alert_on_entry,
+          alertOnExit: row.alert_on_exit
+        }
+        this.geofenceCache.set(geofence.id, geofence)
+      }
+
+      console.log(`Loaded ${this.geofenceCache.size} geofences from database`)
+    } catch (error) {
+      console.error('Failed to load geofences from database:', error)
+      // Geofences are optional - continue without them
+      console.log('Continuing without geofences')
     }
   }
 

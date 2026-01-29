@@ -239,52 +239,6 @@ function safeDateParse(dateString: string): Date | null {
   }
 }
 
-// ============================================================================
-// MOCK DATA GENERATORS (for graceful degradation)
-// ============================================================================
-
-function generateMockTemplates(): ReportTemplate[] {
-  const categories = ['operational', 'financial', 'compliance', 'safety', 'maintenance', 'inventory']
-  const domains = ['fleet', 'assets', 'drivers', 'maintenance', 'fuel', 'compliance']
-
-  return Array.from({ length: 15 }, (_, i) => ({
-    id: crypto.randomUUID(),
-    title: `Report Template ${i + 1}`,
-    domain: domains[i % domains.length],
-    category: categories[i % categories.length],
-    description: `Sample report template for ${categories[i % categories.length]} analysis`,
-    isCore: i < 8,
-    popularity: Math.floor(Math.random() * 100),
-    createdAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
-  }))
-}
-
-function generateMockScheduled(): ScheduledReport[] {
-  return Array.from({ length: 5 }, () => ({
-    id: crypto.randomUUID(),
-    templateId: crypto.randomUUID(),
-    schedule: 'Daily at 08:00',
-    recipients: ['user@example.com'],
-    format: 'pdf' as const,
-    status: 'active' as const,
-    nextRun: new Date(Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
-  }))
-}
-
-function generateMockHistory(): GeneratedReport[] {
-  const now = Date.now()
-  return Array.from({ length: 20 }, (_, i) => ({
-    id: crypto.randomUUID(),
-    templateId: crypto.randomUUID(),
-    title: `Generated Report ${i + 1}`,
-    generatedAt: new Date(now - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
-    generatedBy: 'System User',
-    format: ['pdf', 'xlsx', 'csv'][Math.floor(Math.random() * 3)] as ReportFormat,
-    size: Math.floor(Math.random() * 5000000),
-    status: Math.random() > 0.9 ? 'failed' : 'completed' as GenerationStatus,
-    downloadUrl: 'https://example.com/report.pdf',
-  }))
-}
 
 // ============================================================================
 // MAIN HOOK: useReactiveReportsData
@@ -319,9 +273,8 @@ export function useReactiveReportsData() {
           signal
         )
       } catch (error) {
-        console.warn('Templates API unavailable, using mock data:', error)
-        // Graceful fallback to mock data
-        return generateMockTemplates()
+        console.warn('Templates API unavailable:', error)
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.TEMPLATES,
@@ -348,8 +301,8 @@ export function useReactiveReportsData() {
           signal
         )
       } catch (error) {
-        console.warn('Scheduled reports API unavailable, using mock data:', error)
-        return generateMockScheduled()
+        console.warn('Scheduled reports API unavailable:', error)
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.SCHEDULED,
@@ -376,8 +329,8 @@ export function useReactiveReportsData() {
           signal
         )
       } catch (error) {
-        console.warn('Report history API unavailable, using mock data:', error)
-        return generateMockHistory()
+        console.warn('Report history API unavailable:', error)
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.HISTORY,

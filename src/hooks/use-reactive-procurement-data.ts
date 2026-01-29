@@ -254,30 +254,6 @@ function getDaysUntil(dateStr: string): number {
   }
 }
 
-// ============================================================================
-// MOCK DATA GENERATORS (For development/fallback)
-// ============================================================================
-
-/**
- * Generate mock vendors for fallback
- */
-function generateMockVendors(): Vendor[] {
-  return [] // Return empty array, let components handle empty state
-}
-
-/**
- * Generate mock purchase orders for fallback
- */
-function generateMockPurchaseOrders(): PurchaseOrder[] {
-  return [] // Return empty array, let components handle empty state
-}
-
-/**
- * Generate mock contracts for fallback
- */
-function generateMockContracts(): Contract[] {
-  return [] // Return empty array, let components handle empty state
-}
 
 // ============================================================================
 // MAIN HOOK: useReactiveProcurementData
@@ -318,8 +294,8 @@ export function useReactiveProcurementData() {
           signal
         )
       } catch (error) {
-        console.warn('Vendors API unavailable, using fallback:', error)
-        return generateMockVendors()
+        console.warn('Vendors API unavailable, returning empty array:', error)
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.VENDORS,
@@ -348,8 +324,8 @@ export function useReactiveProcurementData() {
           signal
         )
       } catch (error) {
-        console.warn('Purchase Orders API unavailable, using fallback:', error)
-        return generateMockPurchaseOrders()
+        console.warn('Purchase Orders API unavailable, returning empty array:', error)
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.PURCHASE_ORDERS,
@@ -378,8 +354,8 @@ export function useReactiveProcurementData() {
           signal
         )
       } catch (error) {
-        console.warn('Contracts API unavailable, using fallback:', error)
-        return generateMockContracts()
+        console.warn('Contracts API unavailable, returning empty array:', error)
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.CONTRACTS,
