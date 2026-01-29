@@ -69,6 +69,7 @@ import costBenefitAnalysisRouter from './routes/cost-benefit-analysis.routes'
 // Reporting & Analytics Routes
 
 // AI & Automation Routes
+import aiChatRouter from './routes/ai-chat'
 import aiDamageDetectionRouter from './routes/ai-damage-detection.routes'
 
 // Task & Schedule Management Routes
@@ -352,6 +353,7 @@ app.use('/api/assignment-reporting', assignmentReportingRouter)
 app.use('/api/driver-scorecard', driverScorecardRouter)
 
 // AI & Automation Routes
+app.use('/api/ai/chat', aiChatRouter) // AI Chat interface for document Q&A
 app.use('/api/ai-search', aiSearchRouter)
 app.use('/api/ai-task-asset', aiTaskAssetRouter)
 app.use('/api/ai-tasks', aiTaskPrioritizationRouter)
