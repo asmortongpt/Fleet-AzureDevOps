@@ -56,6 +56,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { UserManagement } from '@/components/admin/UserManagement'
 
 // ============================================================================
 // CONSTANTS
@@ -946,7 +947,7 @@ export default function AdminHub() {
         content: (
           <ErrorBoundary>
             <Suspense fallback={<div className="p-6" role="status" aria-live="polite">Loading user data...</div>}>
-              <UsersContent />
+              <UserManagement />
             </Suspense>
           </ErrorBoundary>
         ),
