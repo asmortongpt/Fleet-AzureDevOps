@@ -82,6 +82,9 @@ export const getPoolStats = () => connectionManager.getAllPoolStats()
  *
  * DEPRECATED: Use getWritePool() for new code
  */
+let isInitializing = false
+let initializationPromise: Promise<void> | null = null
+
 const poolProxy = new Proxy({} as Pool, {
   get(target, prop) {
     if (process.env.USE_MOCK_DATA === 'true') {
@@ -97,8 +100,38 @@ const poolProxy = new Proxy({} as Pool, {
       }
       return result
     }
-    const pool = connectionManager.getWritePool()
-    return (pool as any)[prop]
+
+    // Lazy initialize on first access
+    if (!isInitializing && !(connectionManager as any).initialized) {
+      isInitializing = true
+      // Initialize synchronously by calling it without await
+      // The first actual pool.connect() will wait for initialization
+      initializationPromise = initializeConnectionManager().then(() => {
+        isInitializing = false
+      }).catch(err => {
+        console.error('Failed to initialize connection manager:', err)
+        isInitializing = false
+        throw err
+      })
+    }
+
+    try {
+      const pool = connectionManager.getWritePool()
+      return (pool as any)[prop]
+    } catch (error) {
+      // If pools not initialized yet, wait for initialization
+      if (initializationPromise) {
+        // Return a promise that waits for initialization then retries
+        if (prop === 'connect' || typeof (Pool.prototype as any)[prop] === 'function') {
+          return async (...args: any[]) => {
+            await initializationPromise
+            const pool = connectionManager.getWritePool()
+            return (pool as any)[prop](...args)
+          }
+        }
+      }
+      throw error
+    }
   }
 })
 

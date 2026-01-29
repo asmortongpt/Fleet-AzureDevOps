@@ -12,6 +12,7 @@ import { processReportJob } from './jobs/processors/report.processor'
 import { emailQueue, notificationQueue, reportQueue, closeAllQueues } from './jobs/queue'
 import { getCorsConfig, validateCorsConfiguration } from './middleware/corsConfig'
 import { getCsrfToken } from './middleware/csrf'
+import { developmentAuthBypass, isDevelopmentBypassEnabled } from './middleware/development-auth-bypass'
 import { errorHandler } from './middleware/errorHandler'
 import { initializeProcessErrorHandlers } from './middleware/processErrorHandlers'
 import { globalLimiter } from './middleware/rateLimiter'
@@ -31,6 +32,7 @@ import { sentryService } from './monitoring/sentry'
 
 // Core Fleet Management Routes
 import adminJobsRouter from './routes/admin-jobs.routes'
+import alertsRouter from './routes/alerts.routes'
 import aiSearchRouter from './routes/ai-search'
 import aiTaskAssetRouter from './routes/ai-task-asset.routes'
 import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
@@ -157,6 +159,7 @@ import syncRouter from './routes/sync.routes'
 import tasksRouter from './routes/tasks'
 import teamsRouter from './routes/teams.routes'
 import telematicsRouter from './routes/telematics.routes'
+import trafficCamerasRouter from './routes/traffic-cameras'
 import tripUsageRouter from './routes/trip-usage'
 import vehicle3dRouter from './routes/vehicle-3d.routes'
 import vehicleAssignmentsRouter from './routes/vehicle-assignments.routes'
@@ -167,6 +170,9 @@ import vendorsRouter from './routes/vendors'
 import videoEventsRouter from './routes/video-events'
 import videoTelematicsRouter from './routes/video-telematics.routes'
 import workOrdersRouter from './routes/work-orders'
+
+// E2E Testing Routes (DEVELOPMENT ONLY - NO AUTH)
+import e2eTestRouter from './routes/e2e-test.routes'
 
 // Job Processing Infrastructure
 import logger from './utils/logger'
@@ -288,6 +294,18 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // ============================================================================
+// DEVELOPMENT AUTH BYPASS (Development Only)
+// ============================================================================
+// Sets a default user for local development to bypass JWT authentication
+// This allows frontend VITE_SKIP_AUTH=true to work with real backend API
+if (isDevelopmentBypassEnabled()) {
+  app.use(developmentAuthBypass)
+  console.log('[AUTH] 🔓 Development auth bypass enabled')
+} else {
+  console.log('[AUTH] 🔒 Production mode - JWT authentication required')
+}
+
+// ============================================================================
 // API ROUTE REGISTRATIONS
 // ============================================================================
 
@@ -296,6 +314,7 @@ app.use('/api/v1/batch', batchRouter)
 app.use('/api/batch', batchRouter)
 
 // Core Fleet Management Routes
+app.use('/api/alerts', alertsRouter)
 app.use('/api/vehicles', vehiclesRouter)
 app.use('/api/drivers', driversRouter)
 app.use('/api/fuel-transactions', fuelRouter)
@@ -321,6 +340,7 @@ app.use('/api/teams', teamsRouter)
 app.use('/api/gps', gpsRouter)
 app.use('/api/geofences', geofencesRouter)
 app.use('/api/telematics', telematicsRouter)
+app.use('/api/traffic-cameras', trafficCamerasRouter)
 app.use('/api/vehicle-idling', vehicleIdlingRouter)
 
 // Maintenance & Inspection Routes
@@ -436,6 +456,12 @@ app.use('/api/sync', syncRouter)
 app.use('/api/quality-gates', qualityGatesRouter)
 app.use('/api/reservations', reservationsRouter)
 app.use('/api/admin/jobs', adminJobsRouter)
+
+// E2E Test Routes - DEVELOPMENT ONLY (no authentication required)
+if (process.env.NODE_ENV === 'development' || process.env.ENABLE_E2E_ROUTES === 'true') {
+  app.use('/api/e2e-test', e2eTestRouter)
+  console.log('⚠️  E2E Test routes enabled at /api/e2e-test (NO AUTHENTICATION)')
+}
 
 // 404 handler - must come before error handlers
 app.use(notFoundHandler())

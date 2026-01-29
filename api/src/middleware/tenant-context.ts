@@ -49,6 +49,12 @@ export const setTenantContext = async (
   res: Response,
   next: NextFunction
 ) => {
+  // DEVELOPMENT MODE: In development, still set up dbClient but skip RLS
+  const isDevelopment = process.env.NODE_ENV === 'development'
+  if (isDevelopment) {
+    logger.debug('🔓 TENANT CONTEXT - Development mode, setting up dbClient without RLS')
+  }
+
   // Skip if user is not authenticated (will be caught by authenticateJWT)
   if (!req.user) {
     logger.warn('⚠️  TENANT CONTEXT - No authenticated user, skipping tenant context')
@@ -90,20 +96,29 @@ export const setTenantContext = async (
     const client = await pool.connect()
 
     try {
-      // Set the session variable for this transaction
+      // Set the session variable for this transaction (skip in development)
       // Using SET LOCAL ensures the variable is cleared after the transaction
       // This is critical for connection pooling security
-      await client.query(
-        'SET LOCAL app.current_tenant_id = $1',
-        [req.user.tenant_id]
-      )
+      if (!isDevelopment) {
+        await client.query(
+          'SET LOCAL app.current_tenant_id = $1',
+          [req.user.tenant_id]
+        )
 
-      console.log('✅ TENANT CONTEXT - Session variable set', {
-        tenantId: req.user.tenant_id,
-        userId: req.user.id,
-        method: req.method,
-        path: req.path
-      })
+        console.log('✅ TENANT CONTEXT - Session variable set', {
+          tenantId: req.user.tenant_id,
+          userId: req.user.id,
+          method: req.method,
+          path: req.path
+        })
+      } else {
+        console.log('✅ TENANT CONTEXT - Development mode, dbClient set without RLS', {
+          tenantId: req.user.tenant_id,
+          userId: req.user.id,
+          method: req.method,
+          path: req.path
+        })
+      }
 
       // Store the client on the request object for the route handlers to use
       // This ensures all queries in this request use the same connection
