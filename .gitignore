@@ -158,3 +158,4 @@ artifacts/sync_test_*.json
 azure-test-agents/
 incoming_data/
 *.env.bak*
+.env.bak
