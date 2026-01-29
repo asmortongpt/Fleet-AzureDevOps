@@ -207,50 +207,6 @@ export class TripoSRService {
     }
   }
 
-  /**
-   * Mock implementation for development/testing
-   */
-  async generate3DModelMock(
-    tenantId: string,
-    damageReportId: string,
-    photos: string[]
-  ): Promise<TripoSRTask> {
-    if (photos.length === 0) {
-      throw new Error('At least one photo is required for 3D model generation');
-    }
-
-    // Simulate processing
-    await damageReportRepository.updateTriposrStatus(
-      tenantId,
-      damageReportId,
-      'processing'
-    );
-
-    // Simulate async completion after 3 seconds
-    setTimeout(async () => {
-      const mockModelUrl = `https://storage.example.com/models/${damageReportId}.glb`;
-
-      await damageReportRepository.updateTriposrStatus(
-        tenantId,
-        damageReportId,
-        'completed',
-        `mock-task-${damageReportId}`,
-        mockModelUrl
-      );
-
-      console.log(
-        `Mock 3D model generation completed for ${damageReportId}`
-      );
-    }, 3000);
-
-    return {
-      task_id: `mock-task-${damageReportId}`,
-      status: 'processing',
-      model_url: null,
-      created_at: new Date(),
-      updated_at: new Date(),
-    };
-  }
 }
 
 export const triposrService = new TripoSRService();

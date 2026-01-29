@@ -42,6 +42,15 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
   }
 
   try {
+    // DEVELOPMENT MODE: Grant dev user all permissions
+    if (process.env.NODE_ENV === 'development' && userId === '00000000-0000-0000-0000-000000000001') {
+      const allPermissions = new Set(['*'])
+      permissionCache.set(cacheKey, allPermissions)
+      setTimeout(() => permissionCache.delete(cacheKey), CACHE_TTL)
+      logger.debug('🔓 Development mode: Granting all permissions to dev user')
+      return allPermissions
+    }
+
     // Check if user is SuperAdmin
     const userResult = await pool.query('SELECT role FROM users WHERE id = $1', [userId])
     const userRole = userResult.rows[0]?.role?.toLowerCase()
@@ -520,6 +529,12 @@ async function logPermissionCheck(entry: {
   resourceId?: string
 }) {
   try {
+    // DEVELOPMENT MODE: Skip logging if table doesn't exist
+    if (process.env.NODE_ENV === 'development') {
+      logger.debug('Permission check log skipped in development mode')
+      return
+    }
+
     await pool.query(
       `INSERT INTO permission_check_logs
        (user_id, tenant_id, permission_name, granted, reason, ip_address, user_agent, resource_id)

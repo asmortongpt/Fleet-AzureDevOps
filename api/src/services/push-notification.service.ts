@@ -81,8 +81,8 @@ class PushNotificationService {
         return;
       }
 
-      // In production, use service account credentials
-      if (!this.isDevelopment && process.env.FIREBASE_SERVICE_ACCOUNT) {
+      // Use service account credentials
+      if (process.env.FIREBASE_SERVICE_ACCOUNT) {
         const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
         admin.initializeApp({
           credential: admin.credential.cert(serviceAccount),
@@ -90,7 +90,7 @@ class PushNotificationService {
         this.fcmInitialized = true;
         console.log('FCM initialized with service account');
       } else {
-        console.log('FCM running in mock mode (development)');
+        console.warn('Firebase service account not configured, push notifications disabled');
       }
     } catch (error) {
       console.error('Failed to initialize FCM:', error);
@@ -102,7 +102,7 @@ class PushNotificationService {
    */
   private initializeAPNS() {
     try {
-      if (!this.isDevelopment && process.env.APNS_KEY_PATH && process.env.APNS_KEY_ID && process.env.APNS_TEAM_ID) {
+      if (process.env.APNS_KEY_PATH && process.env.APNS_KEY_ID && process.env.APNS_TEAM_ID) {
         this.apnProvider = new apn.Provider({
           token: {
             key: process.env.APNS_KEY_PATH,
@@ -113,7 +113,7 @@ class PushNotificationService {
         });
         console.log('APNS initialized');
       } else {
-        console.log('APNS running in mock mode (development)');
+        console.warn('APNS credentials not configured, iOS push notifications disabled');
       }
     } catch (error) {
       console.error('Failed to initialize APNS:', error);
@@ -422,13 +422,13 @@ class PushNotificationService {
   }
 
   private async sendToIOS(notification: any, devices: any[], notificationId: string) {
-    if (this.isDevelopment || !this.apnProvider) {
-      console.log(`[MOCK] Sending to ${devices.length} iOS devices:`, notification.title);
-      // Mark as delivered in mock mode
+    if (!this.apnProvider) {
+      const error = 'APNS not initialized - iOS push notifications are disabled';
+      console.error(error);
       for (const device of devices) {
-        await this.updateRecipientStatus(notificationId, device.id, 'delivered');
+        await this.updateRecipientStatus(notificationId, device.id, 'failed', error);
       }
-      return;
+      throw new Error(error);
     }
 
     for (const device of devices) {
@@ -460,13 +460,13 @@ class PushNotificationService {
   }
 
   private async sendToAndroid(notification: any, devices: any[], notificationId: string) {
-    if (this.isDevelopment || !this.fcmInitialized) {
-      console.log(`[MOCK] Sending to ${devices.length} Android devices:`, notification.title);
-      // Mark as delivered in mock mode
+    if (!this.fcmInitialized) {
+      const error = 'FCM not initialized - Android push notifications are disabled';
+      console.error(error);
       for (const device of devices) {
-        await this.updateRecipientStatus(notificationId, device.id, 'delivered');
+        await this.updateRecipientStatus(notificationId, device.id, 'failed', error);
       }
-      return;
+      throw new Error(error);
     }
 
     for (const device of devices) {
