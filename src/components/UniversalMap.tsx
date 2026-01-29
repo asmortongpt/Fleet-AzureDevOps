@@ -444,9 +444,9 @@ export function UniversalMap(props: UniversalMapProps) {
   // --------------------------------------------------------------------------
 
   const {
-    vehicles: propVehicles = [],
-    facilities: propFacilities = [],
-    cameras: propCameras = [],
+    vehicles = [],
+    facilities = [],
+    cameras = [],
     showVehicles = true,
     showFacilities = true,
     showCameras = true,
@@ -462,12 +462,6 @@ export function UniversalMap(props: UniversalMapProps) {
     enablePerformanceMonitoring = import.meta.env.DEV,
     showPerformanceMonitor = import.meta.env.DEV,
   } = props
-
-  // Test environment data injection
-  const testData = (typeof window !== 'undefined' && (window as any).__TEST_DATA__) || {}
-  const vehicles = testData.vehicles || propVehicles
-  const facilities = testData.facilities || propFacilities
-  const cameras = testData.cameras || propCameras
 
   // --------------------------------------------------------------------------
   // State Management

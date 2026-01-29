@@ -553,19 +553,6 @@ class MLTrainingService {
     throw new Error('ML model evaluation requires implementation with actual test data')
   }
 
-  private async _evaluateModelMockPlaceholder(model: any, testData: any[]): Promise<Record<string, any>> {
-    // Placeholder for reference - DO NOT USE
-    return {
-      accuracy: 0.87,
-      precision: 0.85,
-      recall: 0.88,
-      f1_score: 0.86,
-      mae: 12.5,
-      rmse: 18.3,
-      r2_score: 0.82
-    }
-  }
-
   private async createModelVersion(
     tenantId: string,
     userId: string,

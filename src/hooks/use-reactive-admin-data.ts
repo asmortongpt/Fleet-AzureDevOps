@@ -226,83 +226,6 @@ function aggregateActivityByDay(logs: AuditLog[]): ActivityTrendData[] {
   return result
 }
 
-// ============================================================================
-// MOCK DATA GENERATORS (Separate module for testability)
-// ============================================================================
-
-function generateMockAuditLogs(): AuditLog[] {
-  const actions = [
-    'CREATE_VEHICLE',
-    'UPDATE_VEHICLE',
-    'DELETE_VEHICLE',
-    'CREATE_DRIVER',
-    'UPDATE_DRIVER',
-    'LOGIN',
-    'LOGOUT',
-    'UPDATE_SETTINGS',
-    'CREATE_MAINTENANCE',
-    'ASSIGN_VEHICLE',
-  ] as const
-
-  const resources = ['vehicles', 'drivers', 'maintenance', 'settings', 'auth'] as const
-  const users = [
-    'John Admin',
-    'Sarah Manager',
-    'Mike Operator',
-    'Lisa Admin',
-  ] as const
-
-  const logs: AuditLog[] = []
-  const now = Date.now()
-
-  for (let i = 0; i < 50; i++) {
-    const timestamp = new Date(now - Math.random() * 7 * 24 * 60 * 60 * 1000)
-
-    logs.push({
-      id: crypto.randomUUID(),
-      userId: crypto.randomUUID(),
-      userName: users[Math.floor(Math.random() * users.length)],
-      action: actions[Math.floor(Math.random() * actions.length)],
-      resource: resources[Math.floor(Math.random() * resources.length)],
-      timestamp: timestamp.toISOString(),
-      status: Math.random() > 0.1 ? 'success' : 'failure',
-      ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
-    })
-  }
-
-  return logs.sort((a, b) =>
-    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-  )
-}
-
-function generateMockSessions(users: User[]): Session[] {
-  if (users.length === 0) return []
-
-  const activeUsers = users.filter((u) => u.status === 'active').slice(0, 10)
-  const now = Date.now()
-
-  return activeUsers.map((user) => ({
-    id: crypto.randomUUID(),
-    userId: user.id,
-    userName: user.name,
-    startTime: new Date(now - Math.random() * 4 * 60 * 60 * 1000).toISOString(),
-    lastActivity: new Date(now - Math.random() * 30 * 60 * 1000).toISOString(),
-    ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-    status: 'active' as const,
-  }))
-}
-
-function generateMockSystemMetrics(): SystemMetrics {
-  return {
-    cpuUsage: Math.round(Math.random() * 30 + 20),
-    memoryUsage: Math.round(Math.random() * 40 + 30),
-    storageUsed: 67,
-    storageTotal: 100,
-    apiCalls: Math.round(Math.random() * 1000 + 12000),
-    uptime: 99.9,
-  }
-}
 
 // ============================================================================
 // MAIN HOOK: useReactiveAdminData
@@ -359,19 +282,13 @@ export function useReactiveAdminData() {
   } = useQuery<SystemMetrics>({
     queryKey: ['system-metrics'],
     queryFn: async ({ signal }) => {
-      try {
-        const response = await secureFetch(
-          `${API_BASE}/health`,
-          SystemMetricsSchema,
-          signal,
-          false // Health endpoint may not require auth
-        )
-        return response
-      } catch (error) {
-        // Fallback to mock metrics
-        console.warn('Metrics API unavailable, using mock data:', error)
-        return generateMockSystemMetrics()
-      }
+      const response = await secureFetch(
+        `${API_BASE}/health`,
+        SystemMetricsSchema,
+        signal,
+        false // Health endpoint may not require auth
+      )
+      return response
     },
     refetchInterval: REFETCH_INTERVALS.METRICS,
     staleTime: STALE_TIMES.METRICS,
@@ -397,8 +314,8 @@ export function useReactiveAdminData() {
           signal
         )
       } catch (error) {
-        console.warn('Audit logs API unavailable, using mock data:', error)
-        return generateMockAuditLogs()
+        console.warn('Audit logs API unavailable, returning empty array:', error)
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.AUDIT_LOGS,
@@ -425,8 +342,8 @@ export function useReactiveAdminData() {
           signal
         )
       } catch (error) {
-        console.warn('Sessions API unavailable, using mock data:', error)
-        return generateMockSessions(users)
+        console.warn('Sessions API unavailable, returning empty array:', error)
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.SESSIONS,

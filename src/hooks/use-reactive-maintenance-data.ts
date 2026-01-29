@@ -332,87 +332,6 @@ function aggregateRequestTrend(requests: MaintenanceRequest[]): TrendDataPoint[]
   })
 }
 
-// ============================================================================
-// MOCK DATA GENERATORS (Graceful fallback only)
-// ============================================================================
-
-function generateMockWorkOrders(): WorkOrder[] {
-  const types: WorkOrderType[] = ['preventive', 'corrective', 'emergency']
-  const statuses: WorkOrderStatus[] = ['pending', 'in_progress', 'parts_waiting', 'completed']
-  const priorities: WorkOrderPriority[] = ['low', 'medium', 'high', 'urgent']
-
-  const orders: WorkOrder[] = []
-  const now = Date.now()
-
-  for (let i = 0; i < 15; i++) {
-    const createdAt = new Date(now - Math.random() * 7 * 24 * 60 * 60 * 1000)
-
-    orders.push({
-      id: crypto.randomUUID(),
-      vehicleId: crypto.randomUUID(),
-      vehicleName: `Vehicle ${Math.floor(Math.random() * 100) + 1}`,
-      type: types[Math.floor(Math.random() * types.length)],
-      status: statuses[Math.floor(Math.random() * statuses.length)],
-      priority: priorities[Math.floor(Math.random() * priorities.length)],
-      estimatedHours: Math.round(Math.random() * 8 + 1),
-      actualHours: Math.random() > 0.5 ? Math.round(Math.random() * 10 + 1) : undefined,
-      description: 'Routine maintenance work order',
-      createdAt: createdAt.toISOString(),
-      cost: Math.round(Math.random() * 500 + 100),
-    })
-  }
-
-  return orders
-}
-
-function generateMockRequests(): MaintenanceRequest[] {
-  const statuses: z.infer<typeof MaintenanceRequestStatusEnum>[] = ['new', 'review', 'approved', 'completed']
-  const priorities: z.infer<typeof MaintenanceRequestPriorityEnum>[] = ['low', 'medium', 'high', 'urgent']
-
-  const requests: MaintenanceRequest[] = []
-  const now = Date.now()
-
-  for (let i = 0; i < 10; i++) {
-    const createdAt = new Date(now - Math.random() * 7 * 24 * 60 * 60 * 1000)
-
-    requests.push({
-      id: crypto.randomUUID(),
-      vehicleId: crypto.randomUUID(),
-      driverId: crypto.randomUUID(),
-      driverName: `Driver ${i + 1}`,
-      status: statuses[Math.floor(Math.random() * statuses.length)],
-      priority: priorities[Math.floor(Math.random() * priorities.length)],
-      description: 'Maintenance issue reported by driver',
-      category: 'General',
-      createdAt: createdAt.toISOString(),
-    })
-  }
-
-  return requests
-}
-
-function generateMockPredictions(): PredictiveMaintenance[] {
-  const issues = [
-    'Brake wear detected',
-    'Oil change needed',
-    'Tire rotation recommended',
-    'Battery voltage low',
-    'Air filter replacement due',
-  ]
-
-  return issues.slice(0, 3).map((issue, idx) => ({
-    id: crypto.randomUUID(),
-    vehicleId: crypto.randomUUID(),
-    vehicleName: `Vehicle ${idx + 1}`,
-    issue,
-    confidence: Math.round(Math.random() * 15 + 85), // 85-100%
-    daysUntilFailure: Math.round(Math.random() * 30 + 5), // 5-35 days
-    severity: (idx === 0 ? 'high' : 'medium') as 'high' | 'medium',
-    recommendedAction: `Schedule ${issue.toLowerCase()}`,
-    estimatedCost: Math.round(Math.random() * 300 + 100),
-    createdAt: new Date().toISOString(),
-  }))
-}
 
 // ============================================================================
 // MAIN HOOK: useReactiveMaintenanceData
@@ -447,9 +366,8 @@ export function useReactiveMaintenanceData() {
           signal
         )
       } catch (error) {
-        console.warn('Work orders API unavailable, using fallback:', error)
-        // Graceful fallback to mock data
-        return generateMockWorkOrders()
+        console.warn('Work orders API unavailable, returning empty array:', error)
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.WORK_ORDERS,
@@ -480,8 +398,8 @@ export function useReactiveMaintenanceData() {
           signal
         )
       } catch (error) {
-        console.warn('Maintenance requests API unavailable, using fallback:', error)
-        return generateMockRequests()
+        console.warn('Maintenance requests API unavailable, returning empty array:', error)
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.REQUESTS,
@@ -511,8 +429,8 @@ export function useReactiveMaintenanceData() {
           signal
         )
       } catch (error) {
-        console.warn('Predictions API unavailable, using fallback:', error)
-        return generateMockPredictions()
+        console.warn('Predictions API unavailable, returning empty array:', error)
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.PREDICTIONS,
