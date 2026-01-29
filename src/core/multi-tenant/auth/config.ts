@@ -85,8 +85,8 @@ export const AUTH_FEATURE_FLAGS = {
   AUDIT_LOGGING: false,
   DATA_CLASSIFICATION: false,
   ENCRYPTION_AT_REST: false,
-  MOCK_AUTH: true, // Enabled for development
-  DEBUG_AUTH: true
+  MOCK_AUTH: false, // PRODUCTION: Mock auth disabled
+  DEBUG_AUTH: false // PRODUCTION: Debug auth disabled
 };
 
 // Okta domain mapping for different Florida state departments

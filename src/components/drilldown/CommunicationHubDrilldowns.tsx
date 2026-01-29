@@ -35,121 +35,36 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
 // ============================================================================
-// MOCK DATA - In production, this would come from API
+// TODO: Replace with real API calls
+// All data should come from the useReactiveCommunicationData hook
 // ============================================================================
-
-const mockEmails = [
-  {
-    id: 'email-1',
-    subject: 'Weekly Fleet Performance Report',
-    from: 'reports@fleetops.io',
-    fromName: 'Fleet Reports',
-    to: ['fleet-managers@company.com'],
-    date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    body: 'Dear Fleet Managers,\n\nPlease find attached the weekly fleet performance report for your review. Key highlights include...',
-    isRead: true,
-    hasAttachments: true,
-    attachments: [{ id: 'att-1', name: 'Fleet_Report_Week52.pdf', size: 245000, type: 'application/pdf' }],
-    folder: 'Inbox',
-    labels: ['Reports', 'Weekly'],
-  },
-  {
-    id: 'email-2',
-    subject: 'Urgent: Maintenance Required - VH-1234',
-    from: 'maintenance@fleetops.io',
-    fromName: 'Maintenance Alerts',
-    to: ['dispatch@company.com'],
-    date: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-    body: 'Vehicle VH-1234 requires immediate brake inspection. The vehicle has been flagged by the predictive maintenance system.',
-    isRead: false,
-    priority: 'high',
-    relatedVehicleId: 'VH-1234',
-    folder: 'Inbox',
-    labels: ['Maintenance', 'Urgent'],
-  },
-  {
-    id: 'email-3',
-    subject: 'Invoice #INV-2024-0892 - Parts Supply',
-    from: 'billing@autoparts-supplier.com',
-    fromName: 'AutoParts Supplier',
-    to: ['accounts@company.com'],
-    date: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-    body: 'Please find attached invoice for recent parts order. Payment due within 30 days.',
-    isRead: true,
-    hasReceipt: true,
-    hasAttachments: true,
-    attachments: [{ id: 'att-2', name: 'Invoice_INV-2024-0892.pdf', size: 89000, type: 'application/pdf' }],
-    relatedVendorId: 'vendor-1',
-    relatedVendorName: 'AutoParts Supplier',
-    relatedInvoiceId: 'INV-2024-0892',
-    folder: 'Inbox',
-    labels: ['Invoice', 'Vendor'],
-  },
-  {
-    id: 'email-4',
-    subject: 'Driver Certification Renewal - John Smith',
-    from: 'hr@company.com',
-    fromName: 'HR Department',
-    to: ['fleet-ops@company.com'],
-    date: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-    body: 'Driver John Smith\'s CDL certification is due for renewal in 30 days. Please ensure compliance.',
-    isRead: true,
-    relatedDriverId: 'driver-js-001',
-    folder: 'Inbox',
-    labels: ['Compliance', 'Driver'],
-  },
-  {
-    id: 'email-5',
-    subject: 'New Safety Bulletin - Winter Driving Guidelines',
-    from: 'safety@fleetops.io',
-    fromName: 'Safety Department',
-    to: ['all-drivers@company.com'],
-    date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    body: 'Please review the attached winter driving safety guidelines. All drivers must acknowledge receipt.',
-    isRead: false,
-    hasAttachments: true,
-    attachments: [{ id: 'att-3', name: 'Winter_Safety_Guide_2024.pdf', size: 1250000, type: 'application/pdf' }],
-    folder: 'Inbox',
-    labels: ['Safety', 'Training'],
-  },
-  {
-    id: 'email-6',
-    subject: 'Fuel Card Transaction Summary',
-    from: 'fuelcard@provider.com',
-    fromName: 'Fuel Card Provider',
-    to: ['fleet-finance@company.com'],
-    date: new Date(Date.now() - 28 * 60 * 60 * 1000).toISOString(),
-    body: 'Your weekly fuel card transaction summary is ready for review. Total spend: $4,567.89',
-    isRead: true,
-    hasReceipt: true,
-    folder: 'Inbox',
-    labels: ['Fuel', 'Finance'],
-  },
-]
-
-const mockConversations = [
-  { id: 'conv-1', user: 'John Smith', topic: 'Vehicle location query', status: 'resolved', time: new Date(Date.now() - 2 * 60 * 1000).toISOString(), messages: 5, satisfaction: 5 },
-  { id: 'conv-2', user: 'Jane Doe', topic: 'Fuel card PIN reset', status: 'active', time: new Date(Date.now() - 5 * 60 * 1000).toISOString(), messages: 3, satisfaction: null },
-  { id: 'conv-3', user: 'Bob Wilson', topic: 'Route optimization request', status: 'resolved', time: new Date(Date.now() - 12 * 60 * 1000).toISOString(), messages: 8, satisfaction: 4 },
-  { id: 'conv-4', user: 'Alice Brown', topic: 'Maintenance ETA inquiry', status: 'resolved', time: new Date(Date.now() - 18 * 60 * 1000).toISOString(), messages: 4, satisfaction: 5 },
-  { id: 'conv-5', user: 'Mike Johnson', topic: 'DOT compliance question', status: 'escalated', time: new Date(Date.now() - 45 * 60 * 1000).toISOString(), messages: 12, satisfaction: 3 },
-  { id: 'conv-6', user: 'Sarah Davis', topic: 'Schedule change request', status: 'resolved', time: new Date(Date.now() - 60 * 60 * 1000).toISOString(), messages: 6, satisfaction: 5 },
-]
-
-const mockTeamsMessages = [
-  { id: 'msg-1', channel: '#dispatch', author: 'John Smith', content: 'Route 45 completed ahead of schedule', time: new Date(Date.now() - 5 * 60 * 1000).toISOString(), reactions: 3 },
-  { id: 'msg-2', channel: '#maintenance', author: 'Mike Tech', content: 'VH-5678 brake service completed', time: new Date(Date.now() - 15 * 60 * 1000).toISOString(), reactions: 2 },
-  { id: 'msg-3', channel: '#drivers', author: 'Jane Driver', content: 'Traffic delay on I-95, ETA updated', time: new Date(Date.now() - 25 * 60 * 1000).toISOString(), reactions: 0 },
-  { id: 'msg-4', channel: '#safety', author: 'Safety Team', content: 'New incident reported - details pending', time: new Date(Date.now() - 45 * 60 * 1000).toISOString(), reactions: 5 },
-  { id: 'msg-5', channel: '#general', author: 'HR Dept', content: 'Holiday schedule reminder', time: new Date(Date.now() - 60 * 60 * 1000).toISOString(), reactions: 12 },
-]
 
 // ============================================================================
 // HELPER COMPONENTS
 // ============================================================================
 
 interface EmailListItemProps {
-  email: typeof mockEmails[0]
+  email: {
+    id: string
+    subject: string
+    from: string
+    fromName?: string
+    to: string[]
+    date: string
+    body: string
+    isRead: boolean
+    hasAttachments?: boolean
+    attachments?: Array<{ id: string; name: string; size: number; type: string }>
+    folder: string
+    labels?: string[]
+    priority?: string
+    hasReceipt?: boolean
+    relatedVehicleId?: string
+    relatedDriverId?: string
+    relatedVendorId?: string
+    relatedVendorName?: string
+    relatedInvoiceId?: string
+  }
   onClick: () => void
 }
 
@@ -205,7 +120,15 @@ function EmailListItem({ email, onClick }: EmailListItemProps) {
 }
 
 interface ConversationListItemProps {
-  conversation: typeof mockConversations[0]
+  conversation: {
+    id: string
+    user: string
+    topic: string
+    status: string
+    time: string
+    messages: number
+    satisfaction: number | null
+  }
   onClick: () => void
 }
 
@@ -249,7 +172,14 @@ function ConversationListItem({ conversation, onClick }: ConversationListItemPro
 }
 
 interface MessageListItemProps {
-  message: typeof mockTeamsMessages[0]
+  message: {
+    id: string
+    channel: string
+    author: string
+    content: string
+    time: string
+    reactions: number
+  }
   onClick: () => void
 }
 
@@ -289,11 +219,14 @@ export function AiAgentDrilldown() {
   const { push, currentLevel } = useDrilldown()
   const filterType = currentLevel?.data?.filter || 'all'
 
+  // TODO: Replace with real API call - useReactiveCommunicationData hook
+  const conversations: ConversationListItemProps['conversation'][] = []
+
   const filteredConversations = filterType === 'satisfaction'
-    ? mockConversations.filter(c => c.satisfaction && c.satisfaction >= 4)
+    ? conversations.filter(c => c.satisfaction && c.satisfaction >= 4)
     : filterType === 'active'
-    ? mockConversations.filter(c => c.status === 'active')
-    : mockConversations
+    ? conversations.filter(c => c.status === 'active')
+    : conversations
 
   return (
     <div className="space-y-2">
@@ -396,12 +329,15 @@ export function MessagesDrilldown() {
   const { push, currentLevel } = useDrilldown()
   const filterType = currentLevel?.data?.filter || 'all'
 
+  // TODO: Replace with real API call - useReactiveCommunicationData hook
+  const messages: MessageListItemProps['message'][] = []
+
   const channelActivity = [
-    { channel: '#dispatch', messages: 89, active: true, unread: 5 },
-    { channel: '#maintenance', messages: 56, active: true, unread: 2 },
-    { channel: '#drivers', messages: 45, active: true, unread: 8 },
-    { channel: '#safety', messages: 28, active: false, unread: 0 },
-    { channel: '#general', messages: 16, active: false, unread: 0 },
+    { channel: '#dispatch', messages: 0, active: false, unread: 0 },
+    { channel: '#maintenance', messages: 0, active: false, unread: 0 },
+    { channel: '#drivers', messages: 0, active: false, unread: 0 },
+    { channel: '#safety', messages: 0, active: false, unread: 0 },
+    { channel: '#general', messages: 0, active: false, unread: 0 },
   ]
 
   return (
@@ -469,31 +405,35 @@ export function MessagesDrilldown() {
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             Recent Messages
-            <Badge variant="outline" className="text-xs">{mockTeamsMessages.length} shown</Badge>
+            <Badge variant="outline" className="text-xs">{messages.length} shown</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[300px] pr-2">
             <div className="space-y-2">
-              {mockTeamsMessages.map(msg => (
-                <MessageListItem
-                  key={msg.id}
-                  message={msg}
-                  onClick={() => push({
-                    id: msg.id,
-                    type: 'message-detail',
-                    label: `Message from ${msg.author}`,
-                    data: {
-                      messageId: msg.id,
-                      channel: msg.channel,
-                      author: msg.author,
-                      content: msg.content,
-                      time: msg.time,
-                      reactions: msg.reactions,
-                    }
-                  })}
-                />
-              ))}
+              {messages.length === 0 ? (
+                <div className="text-center text-slate-500 py-8">No messages available</div>
+              ) : (
+                messages.map(msg => (
+                  <MessageListItem
+                    key={msg.id}
+                    message={msg}
+                    onClick={() => push({
+                      id: msg.id,
+                      type: 'message-detail',
+                      label: `Message from ${msg.author}`,
+                      data: {
+                        messageId: msg.id,
+                        channel: msg.channel,
+                        author: msg.author,
+                        content: msg.content,
+                        time: msg.time,
+                        reactions: msg.reactions,
+                      }
+                    })}
+                  />
+                ))
+              )}
             </div>
           </ScrollArea>
         </CardContent>
@@ -506,23 +446,22 @@ export function EmailDrilldown() {
   const { push, currentLevel } = useDrilldown()
   const filterType = currentLevel?.data?.filter || 'all'
 
+  // TODO: Replace with real API call - useReactiveCommunicationData hook
+  const emails: EmailListItemProps['email'][] = []
+
   // Filter emails based on drilldown context
   const filteredEmails = filterType === 'sent'
-    ? mockEmails // In real app, filter to sent emails
+    ? emails // In real app, filter to sent emails
     : filterType === 'unread'
-    ? mockEmails.filter(e => !e.isRead)
+    ? emails.filter(e => !e.isRead)
     : filterType === 'receipts'
-    ? mockEmails.filter(e => e.hasReceipt)
+    ? emails.filter(e => e.hasReceipt)
     : filterType === 'scheduled'
-    ? mockEmails.slice(0, 3) // Mock scheduled emails
-    : mockEmails
+    ? emails.slice(0, 3) // Mock scheduled emails
+    : emails
 
-  const emailTemplates = [
-    { id: 'tpl-1', name: 'Weekly Fleet Report', usageCount: 156, lastUsed: '2 days ago' },
-    { id: 'tpl-2', name: 'Maintenance Reminder', usageCount: 89, lastUsed: '1 day ago' },
-    { id: 'tpl-3', name: 'Safety Bulletin', usageCount: 45, lastUsed: '3 days ago' },
-    { id: 'tpl-4', name: 'Driver Notification', usageCount: 234, lastUsed: 'Today' },
-  ]
+  // TODO: Replace with real API call
+  const emailTemplates: Array<{ id: string; name: string; usageCount: number; lastUsed: string }> = []
 
   return (
     <div className="space-y-2">
@@ -697,14 +636,15 @@ export function HistoryDrilldown() {
   const { push, currentLevel } = useDrilldown()
   const filterType = currentLevel?.data?.filter || 'all'
 
-  const history = [
-    { id: 'hist-1', type: 'email', subject: 'Weekly Fleet Report', recipients: 45, time: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), status: 'delivered' },
-    { id: 'hist-2', type: 'sms', subject: 'Route Update Alert', recipients: 12, time: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), status: 'delivered' },
-    { id: 'hist-3', type: 'push', subject: 'Maintenance Reminder', recipients: 8, time: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), status: 'delivered' },
-    { id: 'hist-4', type: 'email', subject: 'Safety Bulletin', recipients: 156, time: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), status: 'delivered' },
-    { id: 'hist-5', type: 'email', subject: 'Fuel Report', recipients: 23, time: new Date(Date.now() - 28 * 60 * 60 * 1000).toISOString(), status: 'delivered' },
-    { id: 'hist-6', type: 'sms', subject: 'Dispatch Update', recipients: 8, time: new Date(Date.now() - 30 * 60 * 60 * 1000).toISOString(), status: 'failed' },
-  ]
+  // TODO: Replace with real API call - useReactiveCommunicationData hook
+  const history: Array<{
+    id: string
+    type: string
+    subject: string
+    recipients: number
+    time: string
+    status: string
+  }> = []
 
   const flaggedMessages = history.filter(h => h.status === 'failed')
 

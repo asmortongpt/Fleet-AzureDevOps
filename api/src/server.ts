@@ -104,6 +104,7 @@ import outlookRouter from './routes/outlook.routes'
 import healthRouter from './routes/health.routes' // Microsoft integration health
 import healthSystemRouter from './routes/health-system.routes' // Comprehensive system health (BACKEND-12)
 import healthDetailedRouter from './routes/health-detailed'
+import healthStartupRouter from './routes/health-startup.routes' // Startup health check
 import performanceRouter from './routes/performance.routes'
 import telemetryRouter from './routes/telemetry'
 import queueRouter from './routes/queue.routes'
@@ -443,6 +444,7 @@ app.use('/api/dashboard', dashboardRouter)
 // app.use('/api/monitoring', monitoringRouter)
 app.use('/api/health', healthSystemRouter) // Comprehensive system health (BACKEND-12)
 app.use('/api/health/microsoft', healthRouter) // Microsoft integration health
+app.use('/api/health', healthStartupRouter) // Startup health check (/startup, /startup/summary, /startup/errors)
 app.use('/api/health-detailed', healthDetailedRouter)
 app.use('/api/performance', performanceRouter)
 app.use('/api/telemetry', telemetryRouter)
@@ -532,11 +534,23 @@ const startServer = async () => {
       console.error('Failed to initialize Connection Manager (Running in Degraded Mode):', error);
     }
 
-    server = app.listen(PORT, () => {
+    server = app.listen(PORT, async () => {
       console.log(`Server running on http://localhost:${PORT}`)
       console.log(`Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
       console.log(`Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
+
+      // Run startup health check
+      try {
+        const { initializeStartupHealthCheck } = await import('./routes/health-startup.routes')
+        const healthReport = await initializeStartupHealthCheck()
+        if (healthReport) {
+          console.log(`\nStartup Health Check: ${healthReport.overallStatus.toUpperCase()}`)
+          console.log(`View full report: http://localhost:${PORT}/api/health/startup\n`)
+        }
+      } catch (error) {
+        console.error('Failed to run startup health check:', error)
+      }
 
       // ARCHITECTURE FIX: Initialize process-level error handlers
       initializeProcessErrorHandlers(server)

@@ -97,7 +97,7 @@ export class DocumentAiService {
     content: string
   ): Promise<DocumentClassification> {
     if (!this.openai) {
-      return this.getMockClassification()
+      throw new Error('OpenAI API key is required for document classification')
     }
 
     try {
@@ -144,7 +144,7 @@ ${content.substring(0, 3000)}...`
       }
     } catch (error) {
       this.logger.error(`Document classification error:`, error)
-      return this.getMockClassification()
+      throw error
     }
   }
 
@@ -157,7 +157,7 @@ ${content.substring(0, 3000)}...`
     content: string
   ): Promise<ExtractedEntity[]> {
     if (!this.openai) {
-      return this.getMockEntities()
+      throw new Error('OpenAI API key is required for entity extraction')
     }
 
     try {
@@ -205,7 +205,7 @@ ${content.substring(0, 4000)}...`
       }))
     } catch (error) {
       this.logger.error('Entity extraction error:', error)
-      return this.getMockEntities()
+      throw error
     }
   }
 
@@ -219,7 +219,7 @@ ${content.substring(0, 4000)}...`
     summaryType: 'brief' | 'detailed' | 'executive' | 'technical' = 'brief'
   ): Promise<DocumentSummary> {
     if (!this.openai) {
-      return this.getMockSummary(content, summaryType)
+      throw new Error('OpenAI API key is required for document summarization')
     }
 
     try {
@@ -283,7 +283,7 @@ ${content}`
       return summary
     } catch (error) {
       this.logger.error(`Summary generation error:`, error)
-      return this.getMockSummary(content, summaryType)
+      throw error
     }
   }
 
@@ -323,16 +323,7 @@ ${content}`
 
       // Generate answer using GPT-4
       if (!this.openai) {
-        return {
-          answer: `Based on the documents: ${searchResults[0].content.substring(0, 200)}... (Mock response - configure OpenAI for full functionality)`,
-          sources: searchResults.map(r => ({
-            documentId: r.id,
-            content: r.content,
-            score: r.score,
-          })),
-          confidence: 0.5,
-          modelUsed: 'mock',
-        }
+        throw new Error('OpenAI API key is required for Q&A functionality')
       }
 
       const response = await this.openai.chat.completions.create({
@@ -382,12 +373,7 @@ If the context doesn't contain enough information, say so clearly. Always cite w
    */
   async validateDocument(content: string): Promise<ValidationResult> {
     if (!this.openai) {
-      return {
-        isValid: true,
-        qualityScore: 0.7,
-        issues: [],
-        suggestions: ['Configure OpenAI API for full validation'],
-      }
+      throw new Error('OpenAI API key is required for document validation')
     }
 
     try {
@@ -644,61 +630,6 @@ ${content.substring(0, 2000)}...`
     }
   }
 
-  // ============================================================================
-  // Mock Data Methods (for development without API keys)
-  // ============================================================================
-
-  private getMockClassification(): DocumentClassification {
-    return {
-      documentType: 'Maintenance Report',
-      confidence: 0.75,
-      primaryCategory: 'Reports',
-      secondaryCategory: 'Maintenance Records',
-      tags: ['maintenance', 'vehicle', 'service'],
-      reasoning: 'Mock classification (configure OpenAI for real analysis)',
-    }
-  }
-
-  private getMockEntities(): ExtractedEntity[] {
-    return [
-      {
-        type: 'date',
-        value: '2025-01-15',
-        normalizedValue: '2025-01-15',
-        confidence: 0.9,
-      },
-      {
-        type: 'amount',
-        value: '$1,234.56',
-        normalizedValue: '1234.56',
-        confidence: 0.85,
-      },
-      {
-        type: 'vendor',
-        value: 'Mock Vendor Inc.',
-        normalizedValue: `Mock Vendor Inc.`,
-        confidence: 0.8,
-      },
-    ]
-  }
-
-  private getMockSummary(content: string, summaryType: string): DocumentSummary {
-    return {
-      summaryType: summaryType as any,
-      summaryText: `This is a mock ${summaryType} summary. Configure OpenAI API for real summarization.`,
-      keyPoints: [
-        `Configure OpenAI API key`,
-        'Real AI analysis will be available',
-        'Mock data provided for development',
-      ],
-      keywords: ['mock', 'development', 'configuration'],
-      sentiment: 'neutral',
-      sentimentScore: 0,
-      originalLength: content.length,
-      summaryLength: 100,
-      compressionRatio: content.length / 100,
-    }
-  }
 }
 
 // Import pool for singleton instance

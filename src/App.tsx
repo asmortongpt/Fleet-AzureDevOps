@@ -98,6 +98,9 @@ const PersonalUsePolicyConfig = lazy(() => import("@/components/modules/personal
 const ReimbursementQueue = lazy(() => import("@/pages/PersonalUse/ReimbursementQueue").then(m => ({ default: m.ReimbursementQueue })))
 const ChargesAndBilling = lazy(() => import("@/pages/PersonalUse/ChargesAndBilling").then(m => ({ default: m.ChargesAndBilling })))
 
+// E2E TEST PAGE (DEVELOPMENT ONLY)
+const E2ETestPage = lazy(() => import("@/pages/E2ETestPage"))
+
 // ASSETS MODULES
 const AssetManagement = lazy(() => import("@/components/modules/assets/AssetManagement").then(m => ({ default: m.AssetManagement })))
 const EquipmentDashboard = lazy(() => import("@/components/modules/assets/EquipmentDashboard").then(m => ({ default: m.EquipmentDashboard })))
@@ -230,6 +233,8 @@ function App() {
     }
 
     switch (activeModule) {
+      case "e2e-test":
+        return <E2ETestPage />
       case "live-fleet-dashboard":
         return <LiveFleetDashboard />
       case "dashboard":
