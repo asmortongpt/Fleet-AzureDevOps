@@ -9,7 +9,7 @@
  */
 
 import { useState, useEffect, useMemo } from 'react'
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Circle, Popup, useMap } from 'react-leaflet'
 
 import type { DocumentCluster, DocumentCategory } from '@/lib/types'
 
@@ -144,10 +144,10 @@ export function DocumentMapCluster({
             const color = getClusterColor(cluster.documentCount, maxClusterCount)
 
             return (
-              <CircleMarker
+              <Circle
                 key={cluster.clusterId}
                 center={[cluster.centerLat, cluster.centerLng]}
-                radius={radius}
+                radius={radius * 1000}
                 pathOptions={{
                   fillColor: color,
                   fillOpacity: 0.6,
@@ -226,7 +226,7 @@ export function DocumentMapCluster({
                     </div>
                   </div>
                 </Popup>
-              </CircleMarker>
+              </Circle>
             )
           })}
         </MapContainer>

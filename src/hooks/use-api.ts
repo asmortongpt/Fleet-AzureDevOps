@@ -64,7 +64,7 @@ export async function getCsrfToken(): Promise<string> {
         return csrfToken;
       } else {
         // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.warn
-        logger.warn('[CSRF] Failed to fetch token:', response.status);
+        logger.warn('[CSRF] Failed to fetch token:', { status: response.status });
         return '';
       }
     } catch (error) {

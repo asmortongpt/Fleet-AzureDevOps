@@ -11,7 +11,7 @@ import {
   FloppyDisk,
   Table,
   ChartLine,
-  PieChart,
+  ChartPie,
   ChartBarHorizontal,
   Plus,
   Trash,
@@ -182,8 +182,8 @@ export function AnalyticsWorkbenchPage() {
     filters.forEach((filter) => {
       if (!filter.value) return
 
-      data = data.filter((vehicle: Record<string, unknown>) => {
-        const fieldValue = vehicle[filter.field]
+      data = data.filter((vehicle) => {
+        const fieldValue = (vehicle as unknown as Record<string, unknown>)[filter.field]
         const filterValue = filter.value
 
         switch (filter.operator) {
@@ -206,10 +206,10 @@ export function AnalyticsWorkbenchPage() {
 
   // Generate Report Data
   const reportData = useMemo(() => {
-    return filteredData.map((vehicle: Record<string, unknown>) => {
+    return filteredData.map((vehicle) => {
       const row: Record<string, unknown> = {}
       selectedColumns.forEach((col) => {
-        row[col.field] = vehicle[col.field]
+        row[col.field] = (vehicle as unknown as Record<string, unknown>)[col.field]
       })
       return row
     })
@@ -623,7 +623,7 @@ export function AnalyticsWorkbenchPage() {
                     { type: "table" as ChartType, icon: Table, label: "Table" },
                     { type: "bar" as ChartType, icon: ChartBar, label: "Bar Chart" },
                     { type: "line" as ChartType, icon: ChartLine, label: "Line Chart" },
-                    { type: "pie" as ChartType, icon: PieChart, label: "Pie Chart" },
+                    { type: "pie" as ChartType, icon: ChartPie, label: "Pie Chart" },
                     {
                       type: "horizontal-bar" as ChartType,
                       icon: ChartBarHorizontal,

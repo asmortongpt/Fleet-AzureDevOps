@@ -119,7 +119,7 @@ const FleetCalendar: React.FC = () => {
 
       const outlookEvents = await outlookCalendarService.getEvents(startDate, endDate);
 
-      const formattedEvents: FleetEvent[] = outlookEvents.map(event => ({
+      const formattedEvents: FleetEvent[] = outlookEvents.map((event: CalendarEvent) => ({
         id: event.id,
         title: event.subject,
         start: new Date(event.start.dateTime),
@@ -143,7 +143,7 @@ const FleetCalendar: React.FC = () => {
     }
   };
 
-  const determineEventType = (event: CalendarEvent): FleetEvent['resource']['type'] => {
+  const determineEventType = (event: CalendarEvent): NonNullable<FleetEvent['resource']>['type'] => {
     if (event.categories?.includes('Maintenance') || event.subject?.toLowerCase().includes('maintenance')) {
       return 'maintenance';
     }
@@ -531,7 +531,7 @@ const FleetCalendar: React.FC = () => {
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onSave={handleSaveEvent}
-        initialData={selectedEvent}
+        initialData={selectedEvent ?? undefined}
       />
     </div>
   );

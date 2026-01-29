@@ -159,7 +159,7 @@ function OverviewContent() {
           value={formatFileSize(metrics?.totalStorage || 0)}
           icon={Database}
           trend="up"
-          change="+2.3 GB"
+          change={2.3}
           description="Total storage"
           loading={isLoading}
         />
@@ -168,7 +168,7 @@ function OverviewContent() {
           value={metrics?.recentUploads?.toString() || '0'}
           icon={Upload}
           trend="up"
-          change="+15"
+          change={15}
           description="Last 7 days"
           loading={isLoading}
         />
@@ -207,7 +207,8 @@ function OverviewContent() {
       <ResponsiveLineChart
         title="Upload Trend"
         description="Monthly document uploads and storage growth"
-        data={uploadTrendData}
+        data={uploadTrendData.map(d => ({ ...d, value: d.uploads }))}
+        dataKeys={['uploads', 'size']}
         height={350}
         showArea
         loading={isLoading}

@@ -1,6 +1,6 @@
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, FilterFnOption } from '@tanstack/react-table';
 
-export interface DrilldownColumn<T = any> extends ColumnDef<T> {
+export interface DrilldownColumn<T = any> extends Omit<ColumnDef<T, unknown>, 'header' | 'filterFn'> {
   id: string;
   header: string;
   accessorKey?: string;
@@ -8,7 +8,7 @@ export interface DrilldownColumn<T = any> extends ColumnDef<T> {
   cell?: (info: any) => React.ReactNode;
   enableSorting?: boolean;
   enableFiltering?: boolean;
-  filterFn?: 'auto' | 'equals' | 'contains' | 'includesString' | 'includesStringSensitive' | 'equalsString' | 'between' | 'inNumberRange' | 'fuzzy';
+  filterFn?: FilterFnOption<T>;
   size?: number;
   minSize?: number;
   maxSize?: number;

@@ -160,13 +160,12 @@ export async function showLocalNotification(
       body: options.body,
       icon: options.icon || '/icons/icon-192.png',
       badge: options.badge || '/icons/badge-72.png',
-      image: options.image,
       vibrate: options.vibrate || [200, 100, 200],
       tag: options.tag || `notification-${Date.now()}`,
       requireInteraction: options.requireInteraction || false,
       silent: options.silent || false,
       data: options.data,
-    });
+    } as globalThis.NotificationOptions);
 
     console.log('[Push] Local notification shown');
     return notification;

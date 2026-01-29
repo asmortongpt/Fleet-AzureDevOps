@@ -9,7 +9,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, PerspectiveCamera } from '@react-three/drei';
 
 // Phase 1: Photo System
-import { MobileCameraCapture } from '@/components/garage/MobileCameraCapture';
+import { MobileCameraCapture, type CapturedPhoto } from '@/components/garage/MobileCameraCapture';
 import { PhotoGallery } from '@/components/garage/PhotoGallery';
 import { photoUploadService } from '@/services/PhotoUploadService';
 
@@ -27,6 +27,7 @@ import { VehicleMaterialFactory, QUALITY_PRESETS } from '@/utils/pbr-materials';
 import {
   initializeDamageDetection,
   getDamageDetectionService,
+  type DamageReport,
 } from '@/services/AIDamageDetectionService';
 
 // ============================================================================
@@ -35,9 +36,9 @@ import {
 
 export function CompleteGarageSystem() {
   const [activeView, setActiveView] = useState<'3d' | 'photos' | 'condition'>('3d');
-  const [photos, setPhotos] = useState([]);
+  const [photos, setPhotos] = useState<CapturedPhoto[]>([]);
   const [showCamera, setShowCamera] = useState(false);
-  const [damageReport, setDamageReport] = useState(null);
+  const [damageReport, setDamageReport] = useState<DamageReport | null>(null);
 
   // Initialize AI service
   useEffect(() => {
@@ -50,7 +51,7 @@ export function CompleteGarageSystem() {
   }, []);
 
   // Handle photo capture
-  const handlePhotosCapture = async (capturedPhotos) => {
+  const handlePhotosCapture = async (capturedPhotos: CapturedPhoto[]) => {
     try {
       // Upload photos
       await photoUploadService.uploadPhotos({

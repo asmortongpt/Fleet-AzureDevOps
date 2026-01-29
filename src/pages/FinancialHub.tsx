@@ -50,6 +50,7 @@ function FinancialOverview() {
   // Prepare chart data for budget by category
   const budgetChartData = budgetByCategory.map((cat) => ({
     name: cat.category.charAt(0).toUpperCase() + cat.category.slice(1),
+    value: cat.spent,
     allocated: cat.allocated,
     spent: cat.spent,
     remaining: cat.remaining,
@@ -101,7 +102,7 @@ function FinancialOverview() {
           value={`$${(metrics?.totalSpent / 1000000 || 0).toFixed(2)}M`}
           icon={Receipt}
           trend="up"
-          change="+5.2%"
+          change={5.2}
           description="Year to date"
           loading={isLoading}
         />
@@ -282,7 +283,7 @@ function BudgetContent() {
           value={`$${(metrics?.totalSpent / 1000000 || 0).toFixed(2)}M`}
           icon={Receipt}
           trend="up"
-          change="+5.2%"
+          change={5.2}
           description="Year to date"
           loading={isLoading}
         />
@@ -454,6 +455,12 @@ function ExpensesContent() {
     lastUpdate,
   } = useReactiveFinancialData()
 
+  // Prepare expense trend data with value property for chart
+  const trendChartData = expenseTrendData.map((item) => ({
+    ...item,
+    value: (item.fuel || 0) + (item.maintenance || 0) + (item.operations || 0) + (item.other || 0),
+  }))
+
   // Prepare expense category chart
   const categoryChartData = expenseByCategory
     .sort((a, b) => b.value - a.value)
@@ -481,7 +488,7 @@ function ExpensesContent() {
           value={`$${(metrics?.monthlyExpenses / 1000 || 0).toFixed(1)}K`}
           icon={Receipt}
           trend="up"
-          change="+8.3%"
+          change={8.3}
           description="Current month"
           loading={isLoading}
         />
@@ -498,7 +505,7 @@ function ExpensesContent() {
           value={metrics?.pendingApprovals?.toString() || '0'}
           icon={Clock}
           trend="down"
-          change="-3"
+          change={-3}
           description="Awaiting approval"
           loading={isLoading}
         />
@@ -518,7 +525,7 @@ function ExpensesContent() {
         <ResponsiveLineChart
           title="Monthly Expense Trend"
           description="Expenses by category over the last 6 months"
-          data={expenseTrendData}
+          data={trendChartData}
           height={300}
           showArea
           loading={isLoading}
@@ -643,7 +650,7 @@ function ReportsContent() {
           value={metrics?.totalInvoices?.toString() || '0'}
           icon={Invoice}
           trend="up"
-          change="+12"
+          change={12}
           description="This month"
           loading={isLoading}
         />
@@ -660,7 +667,7 @@ function ReportsContent() {
           value={`$${(metrics?.outstandingAmount / 1000 || 0).toFixed(1)}K`}
           icon={CreditCard}
           trend="down"
-          change="-$5.2K"
+          change={-5.2}
           description="Unpaid invoices"
           loading={isLoading}
         />

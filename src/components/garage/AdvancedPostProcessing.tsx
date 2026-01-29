@@ -18,11 +18,8 @@ import {
     DepthOfField,
     Vignette,
     ChromaticAberration,
-    ToneMapping,
-    SMAA,
-    N8AO // High-quality ambient occlusion
 } from '@react-three/postprocessing'
-import { BlendFunction, ToneMappingMode, KernelSize } from 'postprocessing'
+import { BlendFunction } from 'postprocessing'
 import { useRef, useMemo } from 'react'
 import * as THREE from 'three'
 
@@ -143,16 +140,10 @@ export function getPresetConfig(quality: QualityPreset): PostProcessingConfig {
 // =============================================================================
 
 function AOEffect({ config }: { config: PostProcessingConfig }) {
+    // N8AO not available in current postprocessing version
+    // Return null - AO effect disabled
     if (!config.aoEnabled) return null
-    return (
-        <N8AO
-            aoRadius={config.aoRadius}
-            intensity={config.aoIntensity}
-            distanceFalloff={1}
-            color="black"
-            quality="high"
-        />
-    )
+    return null
 }
 
 function DOFEffect({ config, focusDistance }: { config: PostProcessingConfig; focusDistance: number }) {
@@ -173,7 +164,6 @@ function BloomEffect({ config }: { config: PostProcessingConfig }) {
             intensity={config.bloomIntensity}
             luminanceThreshold={config.bloomThreshold}
             luminanceSmoothing={0.9}
-            kernelSize={KernelSize.LARGE}
         />
     )
 }
@@ -226,21 +216,13 @@ export function AdvancedPostProcessing({
 
     if (!config.enabled) return null
 
-    // Get tone mapping mode
-    const toneMappingMode =
-        config.toneMapping === 'aces' ? ToneMappingMode.ACES_FILMIC :
-            config.toneMapping === 'reinhard' ? ToneMappingMode.REINHARD :
-                ToneMappingMode.LINEAR
-
     return (
         <EffectComposer multisampling={config.quality === 'ultra' ? 8 : 4}>
-            <SMAA />
             <AOEffect config={config} />
             <DOFEffect config={config} focusDistance={focusDistance} />
             <BloomEffect config={config} />
             <ChromaticEffect config={config} />
             <VignetteEffect config={config} />
-            <ToneMapping mode={toneMappingMode} />
         </EffectComposer>
     )
 }

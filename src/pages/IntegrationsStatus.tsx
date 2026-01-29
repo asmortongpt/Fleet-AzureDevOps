@@ -11,7 +11,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { IntegrationCard, IntegrationHealth } from '@/components/integrations/IntegrationCard';
 import {
   RefreshCw,
   Activity,
@@ -20,6 +19,56 @@ import {
   XCircle,
   HelpCircle
 } from 'lucide-react';
+
+// IntegrationHealth type definition (inline since component module doesn't exist)
+interface IntegrationHealth {
+  name: string;
+  status: 'healthy' | 'degraded' | 'down' | 'unknown';
+  latency?: number;
+  lastChecked?: string;
+  message?: string;
+}
+
+// IntegrationCard component (inline since module doesn't exist)
+function IntegrationCard({ integration, onRefresh, refreshing }: {
+  integration: IntegrationHealth;
+  onRefresh: () => void;
+  refreshing: boolean;
+}) {
+  const statusConfig = {
+    healthy: { color: 'bg-green-100 text-green-800', icon: CheckCircle2 },
+    degraded: { color: 'bg-yellow-100 text-yellow-800', icon: AlertTriangle },
+    down: { color: 'bg-red-100 text-red-800', icon: XCircle },
+    unknown: { color: 'bg-gray-100 text-gray-800', icon: HelpCircle },
+  };
+  const config = statusConfig[integration.status] || statusConfig.unknown;
+  const StatusIcon = config.icon;
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">{integration.name}</CardTitle>
+          <Badge className={config.color}>
+            <StatusIcon className="h-3 w-3 mr-1" />
+            {integration.status}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center justify-between text-sm text-gray-500">
+          <span>Latency: {integration.latency ?? 'N/A'}ms</span>
+          <Button variant="ghost" size="sm" onClick={onRefresh} disabled={refreshing}>
+            <RefreshCw className={`h-3 w-3 ${refreshing ? 'animate-spin' : ''}`} />
+          </Button>
+        </div>
+        {integration.message && (
+          <p className="text-xs text-gray-400 mt-2">{integration.message}</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 import axios from 'axios';
 
 interface IntegrationSummary {

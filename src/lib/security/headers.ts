@@ -101,7 +101,7 @@ export function getSecurityHeaders(): Record<string, string> {
     return { ...DEV_SECURITY_HEADERS };
   }
 
-  const headers = { ...SECURITY_HEADERS };
+  const headers: Record<string, string> = { ...SECURITY_HEADERS };
 
   // Remove HSTS if not HTTPS
   if (!isHTTPS) {

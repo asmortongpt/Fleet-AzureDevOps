@@ -3,6 +3,7 @@
  * Real-time safety incident tracking and compliance monitoring
  */
 
+import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import {
   Shield,
@@ -35,18 +36,53 @@ import ErrorBoundary from '@/components/common/ErrorBoundary'
 function SafetyOverview() {
   const {
     metrics,
+    incidents,
+    violations,
     criticalIncidents,
-    incidentTrendData,
-    incidentSeverityDistribution,
-    violationTypeDistribution,
     isLoading,
     lastUpdate,
   } = useReactiveSafetyComplianceData()
 
+  // Compute incident severity distribution
+  const incidentSeverityDistribution = useMemo(() => {
+    const distribution: Record<string, number> = { low: 0, medium: 0, high: 0, critical: 0 }
+    incidents.forEach((i) => {
+      distribution[i.severity] = (distribution[i.severity] || 0) + 1
+    })
+    return distribution
+  }, [incidents])
+
+  // Compute violation type distribution
+  const violationTypeDistribution = useMemo(() => {
+    const distribution: Record<string, number> = {}
+    violations.forEach((v) => {
+      distribution[v.type] = (distribution[v.type] || 0) + 1
+    })
+    return distribution
+  }, [violations])
+
+  // Compute incident trend data (last 7 days)
+  const incidentTrendData = useMemo(() => {
+    const trend: { name: string; value: number }[] = []
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date()
+      date.setDate(date.getDate() - i)
+      const dateStr = date.toLocaleDateString('en-US', { weekday: 'short' })
+      const dayStart = new Date(date.setHours(0, 0, 0, 0)).getTime()
+      const dayEnd = new Date(date.setHours(23, 59, 59, 999)).getTime()
+      const count = incidents.filter((inc) => {
+        const incDate = new Date(inc.reportedDate).getTime()
+        return incDate >= dayStart && incDate <= dayEnd
+      }).length
+      trend.push({ name: dateStr, value: count })
+    }
+    return trend
+  }, [incidents])
+
   // Prepare severity chart data
   const severityChartData = Object.entries(incidentSeverityDistribution).map(([name, value]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1),
-    value,
+    value: value as number,
     fill:
       name === 'critical'
         ? 'hsl(var(--destructive))'
@@ -60,7 +96,7 @@ function SafetyOverview() {
   // Prepare violations chart data
   const violationsChartData = Object.entries(violationTypeDistribution).map(([name, value]) => ({
     name,
-    value,
+    value: value as number,
   }))
 
   return (
@@ -98,9 +134,9 @@ function SafetyOverview() {
         />
         <StatCard
           title="Compliance Rate"
-          value={`${metrics?.complianceRate || 0}%`}
+          value={`${metrics?.complianceScore || 0}%`}
           icon={CheckCircle}
-          trend={metrics && metrics.complianceRate >= 95 ? 'up' : 'down'}
+          trend={metrics && metrics.complianceScore >= 95 ? 'up' : 'down'}
           description="Overall compliance"
           loading={isLoading}
         />
@@ -235,15 +271,23 @@ function IncidentsContent() {
   const {
     incidents,
     openIncidents,
-    incidentTypeDistribution,
     isLoading,
     lastUpdate,
   } = useReactiveSafetyComplianceData()
 
+  // Compute incident type distribution
+  const incidentTypeDistribution = useMemo(() => {
+    const distribution: Record<string, number> = {}
+    incidents.forEach((i) => {
+      distribution[i.type] = (distribution[i.type] || 0) + 1
+    })
+    return distribution
+  }, [incidents])
+
   // Prepare incident type chart data
   const typeChartData = Object.entries(incidentTypeDistribution).map(([name, value]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1),
-    value,
+    value: value as number,
   }))
 
   // Calculate status metrics
@@ -390,15 +434,23 @@ function InspectionsContent() {
   const {
     inspections,
     metrics,
-    inspectionStatusDistribution,
     isLoading,
     lastUpdate,
   } = useReactiveSafetyComplianceData()
 
+  // Compute inspection status distribution
+  const inspectionStatusDistribution = useMemo(() => {
+    const distribution: Record<string, number> = { pending: 0, scheduled: 0, completed: 0, failed: 0 }
+    inspections.forEach((i) => {
+      distribution[i.status] = (distribution[i.status] || 0) + 1
+    })
+    return distribution
+  }, [inspections])
+
   // Prepare status chart data
   const statusChartData = Object.entries(inspectionStatusDistribution).map(([name, value]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1),
-    value,
+    value: value as number,
     fill:
       name === 'completed'
         ? 'hsl(var(--success))'
@@ -539,15 +591,23 @@ function CertificationsContent() {
     metrics,
     expiringCertifications,
     expiredCertifications,
-    certificationStatusDistribution,
     isLoading,
     lastUpdate,
   } = useReactiveSafetyComplianceData()
 
+  // Compute certification status distribution
+  const certificationStatusDistribution = useMemo(() => {
+    const distribution: Record<string, number> = { current: 0, expiring_soon: 0, expired: 0 }
+    certifications.forEach((c) => {
+      distribution[c.status] = (distribution[c.status] || 0) + 1
+    })
+    return distribution
+  }, [certifications])
+
   // Prepare status chart data
   const statusChartData = Object.entries(certificationStatusDistribution).map(([name, value]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1).replace('_', ' '),
-    value,
+    value: value as number,
     fill:
       name === 'current'
         ? 'hsl(var(--success))'

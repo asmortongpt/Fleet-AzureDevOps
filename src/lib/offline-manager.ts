@@ -303,7 +303,7 @@ export class OfflineManager {
         return response
       } catch (error) {
         // Network failed, fall through to cache
-        logger.warn('[OfflineManager] Network request failed, trying cache:', error)
+        logger.warn('[OfflineManager] Network request failed, trying cache:', { error })
       }
     }
 

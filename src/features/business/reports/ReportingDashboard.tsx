@@ -265,7 +265,7 @@ export default function ReportingDashboard() {
 
       {/* Stats Panel */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
@@ -275,7 +275,7 @@ export default function ReportingDashboard() {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
@@ -287,7 +287,7 @@ export default function ReportingDashboard() {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
@@ -311,7 +311,7 @@ export default function ReportingDashboard() {
         {/* Build Report Tab */}
         <TabPanel value={tabValue} index={0}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Report Type</InputLabel>
                 <Select
@@ -328,7 +328,7 @@ export default function ReportingDashboard() {
               </FormControl>
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 label="Report Name"
@@ -338,7 +338,7 @@ export default function ReportingDashboard() {
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 label="Start Date"
@@ -349,7 +349,7 @@ export default function ReportingDashboard() {
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 label="End Date"
@@ -360,7 +360,7 @@ export default function ReportingDashboard() {
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Export Format</InputLabel>
                 <Select
@@ -375,7 +375,7 @@ export default function ReportingDashboard() {
               </FormControl>
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Button
                 variant="contained"
                 size="large"
@@ -581,7 +581,7 @@ export default function ReportingDashboard() {
         <DialogTitle>Create Scheduled Report</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 fullWidth
                 label="Report Name"
@@ -591,7 +591,7 @@ export default function ReportingDashboard() {
                 }
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormControl fullWidth>
                 <InputLabel>Report Type</InputLabel>
                 <Select
@@ -612,7 +612,7 @@ export default function ReportingDashboard() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormControl fullWidth>
                 <InputLabel>Frequency</InputLabel>
                 <Select
@@ -628,7 +628,7 @@ export default function ReportingDashboard() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormControl fullWidth>
                 <InputLabel>Format</InputLabel>
                 <Select
@@ -644,7 +644,7 @@ export default function ReportingDashboard() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 fullWidth
                 label="Email Recipients (comma-separated)"

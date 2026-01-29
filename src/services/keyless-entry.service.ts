@@ -21,6 +21,60 @@
  * - Web NFC API for NFC reading
  */
 
+// Web Bluetooth API type declarations
+// These extend the Navigator interface and declare Bluetooth types for TypeScript
+declare global {
+  interface Navigator {
+    bluetooth: Bluetooth;
+  }
+
+  interface Bluetooth {
+    requestDevice(options: RequestDeviceOptions): Promise<BluetoothDevice>;
+  }
+
+  interface RequestDeviceOptions {
+    filters?: BluetoothLEScanFilter[];
+    optionalServices?: BluetoothServiceUUID[];
+    acceptAllDevices?: boolean;
+  }
+
+  interface BluetoothLEScanFilter {
+    services?: BluetoothServiceUUID[];
+    name?: string;
+    namePrefix?: string;
+  }
+
+  type BluetoothServiceUUID = string | number;
+
+  interface BluetoothDevice extends EventTarget {
+    id: string;
+    name?: string;
+    gatt?: BluetoothRemoteGATTServer;
+  }
+
+  interface BluetoothRemoteGATTServer {
+    connected: boolean;
+    device: BluetoothDevice;
+    connect(): Promise<BluetoothRemoteGATTServer>;
+    disconnect(): void;
+    getPrimaryService(service: BluetoothServiceUUID): Promise<BluetoothRemoteGATTService>;
+  }
+
+  interface BluetoothRemoteGATTService {
+    device: BluetoothDevice;
+    uuid: string;
+    getCharacteristic(characteristic: BluetoothServiceUUID): Promise<BluetoothRemoteGATTCharacteristic>;
+  }
+
+  interface BluetoothRemoteGATTCharacteristic {
+    service: BluetoothRemoteGATTService;
+    uuid: string;
+    value?: DataView;
+    readValue(): Promise<DataView>;
+    writeValue(value: BufferSource): Promise<void>;
+  }
+}
+
 // Bluetooth Service UUIDs (example - replace with actual vehicle system UUIDs)
 const VEHICLE_SERVICE_UUID = '0000180a-0000-1000-8000-00805f9b34fb';
 const UNLOCK_CHARACTERISTIC_UUID = '00002a29-0000-1000-8000-00805f9b34fb';

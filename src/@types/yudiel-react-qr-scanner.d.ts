@@ -1,34 +1,73 @@
 declare module '@yudiel/react-qr-scanner' {
   import { CSSProperties, ReactNode } from 'react';
 
-  export interface QrScannerProps {
-    onDecode?: (result: string) => void;
-    onError?: (error: Error) => void;
-    onResult?: (result: QrResult) => void;
-    constraints?: MediaTrackConstraints;
-    containerStyle?: CSSProperties;
-    videoStyle?: CSSProperties;
-    ViewFinder?: () => ReactNode;
-    scanDelay?: number;
-    deviceId?: string;
-    aspectRatio?: string;
-    facingMode?: 'user' | 'environment';
-  }
-
-  export interface QrResult {
-    text: string;
-    rawBytes: Uint8Array;
-    numBits: number;
-    resultPoints: ResultPoint[];
+  export interface IDetectedBarcode {
+    boundingBox: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    };
+    cornerPoints: Array<{ x: number; y: number }>;
     format: string;
-    timestamp: number;
-    resultMetadata: Map<string, any>;
+    rawValue: string;
   }
 
-  export interface ResultPoint {
-    x: number;
-    y: number;
+  export interface IScannerComponents {
+    audio?: boolean;
+    torch?: boolean;
+    finder?: boolean;
+    tracker?: ((detectedCodes: IDetectedBarcode[], ctx: CanvasRenderingContext2D) => void) | boolean;
+    onOff?: boolean;
+    zoom?: boolean;
   }
 
-  export const QrScanner: React.FC<QrScannerProps>;
+  export interface IScannerStyles {
+    container?: CSSProperties;
+    video?: CSSProperties;
+    finderBorder?: number;
+  }
+
+  export interface IScannerClassNames {
+    container?: string;
+    video?: string;
+  }
+
+  export interface IScannerProps {
+    onScan: (detectedCodes: IDetectedBarcode[]) => void;
+    onError?: (error: unknown) => void;
+    constraints?: MediaTrackConstraints;
+    formats?: string[];
+    paused?: boolean;
+    children?: ReactNode;
+    components?: IScannerComponents;
+    styles?: IScannerStyles;
+    classNames?: IScannerClassNames;
+    allowMultiple?: boolean;
+    scanDelay?: number;
+    sound?: boolean | string;
+  }
+
+  export function Scanner(props: IScannerProps): JSX.Element;
+
+  export function useDevices(): {
+    devices: MediaDeviceInfo[];
+    loading: boolean;
+    error: Error | null;
+  };
+
+  export function boundingBox(
+    detectedCodes: IDetectedBarcode[],
+    ctx: CanvasRenderingContext2D
+  ): void;
+
+  export function centerText(
+    detectedCodes: IDetectedBarcode[],
+    ctx: CanvasRenderingContext2D
+  ): void;
+
+  export function outline(
+    detectedCodes: IDetectedBarcode[],
+    ctx: CanvasRenderingContext2D
+  ): void;
 }

@@ -124,8 +124,8 @@ export function createCarPaintMaterial(options: CarPaintOptions): THREE.MeshPhys
 
   // Add iridescence for pearl paint
   if (paintType === 'pearl' && quality !== 'low') {
-    material.iridescence = paint.iridescence || 0;
-    material.iridescenceIOR = paint.iridescenceIOR || 1.3;
+    material.iridescence = paintSettings.pearl.iridescence;
+    material.iridescenceIOR = paintSettings.pearl.iridescenceIOR;
     material.iridescenceThicknessRange = [100, 800];
   }
 

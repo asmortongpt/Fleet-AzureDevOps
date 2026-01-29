@@ -59,7 +59,7 @@ const itemVariants = {
     y: 0,
     transition: { type: 'spring', stiffness: 300, damping: 24 },
   },
-}
+} as const
 
 // Status badge color mapping with accessibility-safe colors
 function getStatusVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' {
@@ -257,7 +257,7 @@ const DriversOverview = memo(function DriversOverview() {
           value={metrics.activeDrivers.toString()}
           icon={DriversIcon}
           trend="up"
-          change="+3"
+          change={3}
           description="Currently working"
           loading={isLoading}
         />
@@ -266,7 +266,7 @@ const DriversOverview = memo(function DriversOverview() {
           value={`${metrics.avgSafetyScore}%`}
           icon={Shield}
           trend="up"
-          change="+2%"
+          change={2}
           description="Fleet average"
           loading={isLoading}
         />
@@ -416,10 +416,20 @@ const PerformanceContent = memo(function PerformanceContent() {
   const performanceTrendData = useMemo(() => {
     return performanceTrend.map(item => ({
       name: new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' }),
+      value: item.avgScore,
       avgScore: item.avgScore,
       violations: item.violations,
     }))
   }, [performanceTrend])
+
+  // Transform hours worked data for bar chart
+  const hoursChartData = useMemo(() => {
+    return hoursWorkedData.map(item => ({
+      name: item.name,
+      value: item.hours,
+      hours: item.hours,
+    }))
+  }, [hoursWorkedData])
 
   if (isError) {
     return <ErrorState error={error} onRetry={refresh} />
@@ -450,7 +460,7 @@ const PerformanceContent = memo(function PerformanceContent() {
           value={`${metrics.avgPerformance}%`}
           icon={ChartLine}
           trend="up"
-          change="+5%"
+          change={5}
           description="Fleet average"
           loading={isLoading}
         />
@@ -467,7 +477,7 @@ const PerformanceContent = memo(function PerformanceContent() {
           value={metrics.totalViolations.toString()}
           icon={Warning}
           trend="down"
-          change="-3"
+          change={-3}
           description="This month"
           loading={isLoading}
         />
@@ -488,6 +498,7 @@ const PerformanceContent = memo(function PerformanceContent() {
           title="Weekly Performance Trend"
           description="Average performance score and violations over time"
           data={performanceTrendData}
+          dataKeys={['avgScore', 'violations']}
           height={300}
           showArea
           loading={isLoading}
@@ -497,7 +508,8 @@ const PerformanceContent = memo(function PerformanceContent() {
         <ResponsiveBarChart
           title="Hours Worked (Top 10 Drivers)"
           description="Total hours logged this week"
-          data={hoursWorkedData}
+          data={hoursChartData}
+          dataKey="hours"
           height={300}
           loading={isLoading}
         />

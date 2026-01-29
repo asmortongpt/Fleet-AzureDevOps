@@ -16,6 +16,41 @@ import {
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+
+// ============================================
+// Type Definitions
+// ============================================
+interface ActivityLogEntry {
+  action: string
+  user: string
+  timestamp: string
+}
+
+interface MaintenanceRequest {
+  id: string | number
+  title: string
+  request_number: string
+  status: string
+  priority: string
+  requester_name: string
+  requester_department: string
+  submitted_date: string
+  description?: string
+  request_type?: string
+  category?: string
+  estimated_cost?: number
+  requested_completion_date?: string
+  asset_name?: string
+  asset_number?: string
+  asset_location?: string
+  asset_status?: string
+  asset_id?: string | number
+  reviewer_name?: string
+  review_date?: string
+  review_notes?: string
+  approval_notes?: string
+  activity_log?: ActivityLogEntry[]
+}
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -36,7 +71,7 @@ export function MaintenanceRequestDetailPanel({
   requestId,
 }: MaintenanceRequestDetailPanelProps) {
   const { push } = useDrilldown()
-  const { data: request, error, isLoading, mutate } = useSWR(
+  const { data: request, error, isLoading, mutate } = useSWR<MaintenanceRequest>(
     `/api/maintenance-requests/${requestId}`,
     fetcher
   )
@@ -269,7 +304,7 @@ export function MaintenanceRequestDetailPanel({
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {request.activity_log?.map((activity: any, idx: number) => (
+                    {request.activity_log?.map((activity, idx) => (
                       <div key={idx} className="flex items-start gap-2 p-2 rounded bg-muted/50">
                         <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
                         <div className="flex-1">
@@ -325,7 +360,7 @@ export function MaintenanceRequestListView({
   status,
 }: MaintenanceRequestListViewProps) {
   const { push } = useDrilldown()
-  const { data: requests, error, isLoading } = useSWR(
+  const { data: requests, error, isLoading } = useSWR<MaintenanceRequest[]>(
     status ? `/api/maintenance-requests?status=${status}` : '/api/maintenance-requests',
     fetcher
   )
@@ -383,7 +418,7 @@ export function MaintenanceRequestListView({
         </div>
 
         <div className="space-y-2">
-          {requests?.map((request: any) => (
+          {requests?.map((request) => (
             <Card
               key={request.id}
               className="cursor-pointer hover:bg-accent transition-colors"

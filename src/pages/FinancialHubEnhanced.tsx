@@ -25,10 +25,10 @@ import {
     Calculator,
     Invoice,
     Download,
-    RefreshCw,
+    ArrowsClockwise,
     Bell,
-    Filter,
-    Settings
+    Funnel,
+    Gear
 } from '@phosphor-icons/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { format, startOfMonth, endOfMonth } from 'date-fns'
@@ -45,14 +45,52 @@ import {
     ChartSkeleton
 } from '@/components/ui/loading-states'
 import { StatCard, MetricBadge } from '@/components/ui/stat-card'
-import { useToast } from '@/components/ui/use-toast'
+import { useToast } from '@/hooks/useToast'
 import { VirtualizedTable } from '@/components/ui/virtualized-table'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
 
-// Lazy load heavy visualizations
-const AdvancedChart = lazy(() => import('@/components/charts/AdvancedChart'))
-const RealtimeMetrics = lazy(() => import('@/components/metrics/RealtimeMetrics'))
+// Placeholder components for visualizations (to be implemented)
+interface AdvancedChartProps {
+    title: string
+    type: string
+    data: Array<Record<string, unknown>>
+    height: number
+    interactive?: boolean
+    exportable?: boolean
+}
+
+const AdvancedChart: React.FC<AdvancedChartProps> = ({ title, height }) => (
+    <div
+        className="bg-slate-800/50 rounded-md border border-slate-700/50 p-4"
+        style={{ height }}
+    >
+        <h3 className="text-sm font-semibold text-white mb-2">{title}</h3>
+        <div className="flex items-center justify-center h-full text-slate-400">
+            Chart visualization coming soon...
+        </div>
+    </div>
+)
+
+interface RealtimeMetricsProps {
+    title: string
+    metrics: Array<{ label: string; value: string; trend: string }>
+    refreshInterval?: number
+}
+
+const RealtimeMetrics: React.FC<RealtimeMetricsProps> = ({ title, metrics }) => (
+    <div className="bg-slate-800/50 rounded-md border border-slate-700/50 p-4 h-[400px]">
+        <h3 className="text-sm font-semibold text-white mb-4">{title}</h3>
+        <div className="space-y-3">
+            {metrics.map((metric, idx) => (
+                <div key={idx} className="flex justify-between items-center p-2 bg-slate-700/30 rounded">
+                    <span className="text-slate-300 text-sm">{metric.label}</span>
+                    <span className="text-white font-medium">{metric.value}</span>
+                </div>
+            ))}
+        </div>
+    </div>
+)
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -156,12 +194,25 @@ const useBudgetData = () => {
 // ENHANCED COMPONENTS
 // ============================================================================
 
-const EnhancedStatCard = React.memo<any>(({
+interface EnhancedStatCardProps {
+    title: string
+    value: string
+    variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info'
+    icon?: React.ReactNode
+    trend?: 'up' | 'down' | 'neutral'
+    trendValue?: string
+    onClick?: () => void
+    isLoading?: boolean
+    error?: Error | null
+}
+
+const EnhancedStatCard: React.FC<EnhancedStatCardProps> = ({
     title,
     value,
     variant,
     icon,
     trend,
+    trendValue,
     onClick,
     isLoading = false,
     error = null
@@ -180,12 +231,13 @@ const EnhancedStatCard = React.memo<any>(({
                 variant={variant}
                 icon={icon}
                 trend={trend}
+                trendValue={trendValue}
                 onClick={onClick}
                 className="shadow-sm hover:shadow-sm transition-shadow duration-300"
             />
         </motion.div>
     )
-})
+}
 
 EnhancedStatCard.displayName = 'EnhancedStatCard'
 
@@ -195,7 +247,7 @@ EnhancedStatCard.displayName = 'EnhancedStatCard'
 
 const CostAnalysisContent = React.memo(() => {
     const { push } = useDrilldown()
-    const { toast } = useToast()
+    const { addToast } = useToast()
     const { data: metrics, isLoading, error, refetch } = useFinancialData()
     const [dateRange, setDateRange] = useState({
         start: startOfMonth(new Date()),
@@ -215,21 +267,14 @@ const CostAnalysisContent = React.memo(() => {
             const ws = XLSX.utils.aoa_to_sheet(data)
             const wb = XLSX.utils.book_new()
             XLSX.utils.book_append_sheet(wb, ws, 'Cost Analysis')
-            XLSX.writeFile(wb, `cost_analysis_${format(new Date(), 'yyyy-MM-dd')}.xlsx`)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (XLSX as any).writeFile(wb, `cost_analysis_${format(new Date(), 'yyyy-MM-dd')}.xlsx`)
 
-            toast({
-                title: 'Export Successful',
-                description: 'Cost analysis data exported to Excel',
-                variant: 'success',
-            })
-        } catch (error) {
-            toast({
-                title: 'Export Failed',
-                description: 'Unable to export data',
-                variant: 'destructive',
-            })
+            addToast('Cost analysis data exported to Excel', 'success')
+        } catch (err) {
+            addToast('Unable to export data', 'error')
         }
-    }, [metrics, toast])
+    }, [metrics, addToast])
 
     return (
         <SectionErrorBoundary>
@@ -248,7 +293,7 @@ const CostAnalysisContent = React.memo(() => {
                             className="gap-2"
                             disabled={isLoading}
                         >
-                            <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
+                            <ArrowsClockwise className={cn("w-4 h-4", isLoading && "animate-spin")} />
                             Refresh
                         </Button>
                         <Button
@@ -265,7 +310,7 @@ const CostAnalysisContent = React.memo(() => {
                             size="sm"
                             className="gap-2 bg-blue-600 hover:bg-blue-500"
                         >
-                            <Filter className="w-4 h-4" />
+                            <Funnel className="w-4 h-4" />
                             Filters
                         </Button>
                     </div>
@@ -299,7 +344,8 @@ const CostAnalysisContent = React.memo(() => {
                                 title="Fuel Costs"
                                 value={`$${(data.fuelCosts / 1000).toFixed(1)}K`}
                                 variant="warning"
-                                trend={{ value: "+8.2%", direction: "up" }}
+                                trend="up"
+                                trendValue="+8.2%"
                                 onClick={() => push({
                                     type: 'fuel-costs',
                                     data: { title: 'Fuel Cost Analysis', category: 'fuel' },
@@ -310,7 +356,8 @@ const CostAnalysisContent = React.memo(() => {
                                 title="Maintenance Costs"
                                 value={`$${(data.maintenanceCosts / 1000).toFixed(1)}K`}
                                 variant="success"
-                                trend={{ value: "-3.1%", direction: "down" }}
+                                trend="down"
+                                trendValue="-3.1%"
                                 onClick={() => push({
                                     type: 'maintenance-costs',
                                     data: { title: 'Maintenance Cost Breakdown', category: 'maintenance' },
@@ -520,7 +567,7 @@ export default function EnhancedFinancialHub() {
                             variant="ghost"
                             size="sm"
                         >
-                            <Settings className="w-3 h-3" />
+                            <Gear className="w-3 h-3" />
                         </Button>
                     </div>
                 }
