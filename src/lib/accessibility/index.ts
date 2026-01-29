@@ -39,4 +39,4 @@ export {
 } from './axe-init';
 
 // Re-export audit script
-export { default as runAudit, downloadAuditReport } from '../scripts/accessibility-audit';
+export { default as runAudit, downloadAuditReport } from '../../scripts/accessibility-audit';

@@ -199,7 +199,7 @@ class EncryptionService {
       // Return encrypted container
       return {
         ciphertext: this.arrayBufferToBase64(ciphertext),
-        iv: this.arrayBufferToBase64(iv),
+        iv: this.arrayBufferToBase64(iv.buffer),
         keyVersion: this.currentKeyVersion,
         algorithm: 'AES-256-GCM',
         encryptedAt: new Date().toISOString()

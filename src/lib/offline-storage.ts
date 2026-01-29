@@ -98,6 +98,7 @@ interface FleetDB extends DBSchema {
   cache: {
     key: string;
     value: {
+      key: string;
       data: any;
       timestamp: number;
       ttl: number;

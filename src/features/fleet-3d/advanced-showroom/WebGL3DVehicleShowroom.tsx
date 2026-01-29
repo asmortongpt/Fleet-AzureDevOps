@@ -90,11 +90,12 @@ const WebGL3DVehicleShowroom: React.FC<WebGL3DVehicleShowroomProps> = ({
       return;
     }
 
-    glRef.current = gl as WebGLRenderingContext;
+    const glContext = gl as WebGLRenderingContext;
+    glRef.current = glContext;
 
     // Create shaders
-    const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-    const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+    const vertexShader = createShader(glContext, glContext.VERTEX_SHADER, vertexShaderSource);
+    const fragmentShader = createShader(glContext, glContext.FRAGMENT_SHADER, fragmentShaderSource);
 
     if (!vertexShader || !fragmentShader) {
       console.error('Failed to create shaders');
@@ -103,7 +104,7 @@ const WebGL3DVehicleShowroom: React.FC<WebGL3DVehicleShowroomProps> = ({
     }
 
     // Create program
-    const program = createProgram(gl, vertexShader, fragmentShader);
+    const program = createProgram(glContext, vertexShader, fragmentShader);
     if (!program) {
       console.error('Failed to create program');
       setLoading(false);
@@ -113,13 +114,13 @@ const WebGL3DVehicleShowroom: React.FC<WebGL3DVehicleShowroomProps> = ({
     programRef.current = program;
 
     // Set up viewport and clear settings
-    gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(0.1, 0.1, 0.18, 1.0); // Dark blue background
-    gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.CULL_FACE);
+    glContext.viewport(0, 0, canvas.width, canvas.height);
+    glContext.clearColor(0.1, 0.1, 0.18, 1.0); // Dark blue background
+    glContext.enable(glContext.DEPTH_TEST);
+    glContext.enable(glContext.CULL_FACE);
 
     // Create vehicle geometry
-    createVehicleGeometry(gl, program);
+    createVehicleGeometry(glContext, program);
 
     setLoading(false);
 
@@ -277,7 +278,7 @@ const WebGL3DVehicleShowroom: React.FC<WebGL3DVehicleShowroomProps> = ({
 
       // Draw each vehicle
       enhancedVehicles.forEach((vehicle, index) => {
-        const vehicleMatrix = [...matrix];
+        const vehicleMatrix = new Float32Array(matrix);
 
         // Position vehicle in circle
         const angle = (index / enhancedVehicles.length) * Math.PI * 2;

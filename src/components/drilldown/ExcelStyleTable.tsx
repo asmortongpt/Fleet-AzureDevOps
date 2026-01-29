@@ -223,8 +223,8 @@ const customFilterFn: FilterFn<any> = (row, columnId, filterValue: FilterConfig)
     }
 
     case 'date': {
-      const cellDate = new Date(cellValue)
-      const filterDate = new Date(value)
+      const cellDate = new Date(cellValue as string | number | Date)
+      const filterDate = new Date(value as string | number | Date)
 
       if (!isValid(cellDate) || !isValid(filterDate)) return false
 
@@ -276,8 +276,15 @@ function ColumnFilter<T>({
   const [filterValue2, setFilterValue2] = useState(currentFilter?.value2?.toString() || '')
 
   const applyFilter = () => {
+    // Map ColumnType to FilterConfig type
+    const getFilterType = (): FilterConfig['type'] => {
+      if (columnDef.type === 'select') return 'select'
+      if (columnDef.type === 'number') return 'number'
+      if (columnDef.type === 'date') return 'date'
+      return 'text' // 'string', 'boolean', or undefined all map to 'text'
+    }
     const config: FilterConfig = {
-      type: columnDef.type === 'select' ? 'select' : columnDef.type || 'text',
+      type: getFilterType(),
       operation: filterType,
       value: filterValue,
     }
@@ -552,8 +559,8 @@ export function ExcelStyleTable<T extends Record<string, any>>({
 
           switch (col.type) {
             case 'date':
-              return isValid(new Date(value))
-                ? format(new Date(value), 'MMM d, yyyy')
+              return isValid(new Date(value as string | number | Date))
+                ? format(new Date(value as string | number | Date), 'MMM d, yyyy')
                 : String(value)
             case 'number':
               return typeof value === 'number' ? value.toLocaleString() : String(value)
@@ -698,7 +705,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
     const ws = XLSX.utils.json_to_sheet(exportData)
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Data')
-    XLSX.writeFile(wb, `export_${format(new Date(), 'yyyy-MM-dd_HHmmss')}.xlsx`)
+    ;(XLSX as any).writeFile(wb, `export_${format(new Date(), 'yyyy-MM-dd_HHmmss')}.xlsx`)
   }, [columns, table])
 
   const exportToCSV = useCallback(() => {

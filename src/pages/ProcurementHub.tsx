@@ -221,7 +221,7 @@ const ProcurementOverview = memo(() => {
             value={metrics?.activeVendors?.toString() || '0'}
             icon={Storefront}
             trend="up"
-            change="+5%"
+            change={5}
             description="Qualified suppliers"
             loading={isLoading}
             aria-label="Active vendors count"
@@ -1011,7 +1011,7 @@ const AnalyticsContent = memo(() => {
             value={formatCurrency(metrics?.monthlySpend || 0)}
             icon={CurrencyDollar}
             trend="up"
-            change="+8%"
+            change={8}
             description="This month"
             loading={isLoading}
           />

@@ -16,41 +16,13 @@ import logger from '@/utils/logger'
 /**
  * Login Page Component
  * Supports both traditional email/password login and Microsoft SSO
- *
- * DEV MODE: Automatically bypasses login with demo credentials
  */
 export function Login() {
   const navigate = useNavigate()
   const { login } = useAuth()
 
-  // Pre-fill credentials in DEV mode for quick access
-  const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@fleet.local' : '')
-  const [password, setPassword] = useState(import.meta.env.DEV ? 'demo123' : '')
-
-  // AUTO-LOGIN in DEV mode - ENABLED for bypass as requested
-  // Users must authenticate via Microsoft SSO in PROD
-  useEffect(() => {
-    if (import.meta.env.DEV && true) { // Enabled for bypass
-      logger.debug('[LOGIN] DEV mode detected - auto-logging in with demo user')
-
-      // Create a demo JWT token (accepted by modified auth.middleware)
-      const demoToken = btoa(JSON.stringify({
-        header: { alg: 'HS256', typ: 'JWT' },
-        payload: {
-          id: '34c5e071-2d8c-44d0-8f1f-90b58672dceb', // Real User ID
-          email: 'toby.deckow@capitaltechalliance.com', // Real Email
-          role: 'SuperAdmin',
-          tenant_id: 'ee1e7320-b232-402e-b4f8-288998b5bff7', // Real Tenant ID
-          auth_provider: 'demo',
-          exp: Date.now() + 86400000 // 24 hours
-        }
-      }))
-
-      setAuthToken(demoToken)
-      logger.debug('[LOGIN] Demo token set, redirecting to dashboard')
-      navigate('/', { replace: true })
-    }
-  }, [navigate])
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
   // Handle Microsoft OAuth callback
   // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.log

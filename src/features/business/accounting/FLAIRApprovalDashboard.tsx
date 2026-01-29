@@ -6,8 +6,58 @@
 
 import React, { useState, useEffect } from 'react';
 
-import { useAuth } from '../../contexts/AuthContext';
-import { flairIntegrationService, FLAIRExpenseEntry } from '../../services/FLAIRIntegration';
+import { useAuth } from '@/contexts/AuthContext';
+
+// FLAIR expense entry type - defined locally since FLAIRIntegration service is not yet implemented
+export interface FLAIRExpenseEntry {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  department: string;
+  expenseType: string;
+  amount: number;
+  transactionDate: string;
+  description: string;
+  accountCodes: {
+    fundCode: string;
+    appUnitCode: string;
+    objectCode: string;
+    locationCode: string;
+  };
+  supportingDocuments: string[];
+  travelDetails?: {
+    originAddress: string;
+    destinationAddress: string;
+    mileage: number;
+    mileageRate: number;
+    purposeCode: string;
+  };
+  approvalStatus: 'pending' | 'supervisor_approved' | 'finance_approved' | 'submitted_to_flair' | 'processed' | 'rejected';
+  approvalHistory: ApprovalRecord[];
+}
+
+interface ApprovalRecord {
+  approverEmployeeId: string;
+  approverName: string;
+  approverTitle: string;
+  approvalLevel: string;
+  approvedAt: string;
+  comments?: string;
+}
+
+// Mock FLAIR integration service until the actual service is implemented
+const flairIntegrationService = {
+  approveExpense: async (_entryId: string, _approval: {
+    approverEmployeeId: string;
+    approverName: string;
+    approverTitle: string;
+    approvalLevel: string;
+    comments?: string;
+  }): Promise<boolean> => {
+    // Mock implementation
+    return Promise.resolve(true);
+  }
+};
 
 // Component props
 interface FLAIRApprovalDashboardProps {
@@ -46,7 +96,7 @@ const ExpenseEntryCard: React.FC<{
       rejected: { color: 'bg-red-100 text-red-800', text: 'Rejected' }
     };
 
-    const config = statusConfig[entry.approvalStatus];
+    const config = statusConfig[entry.approvalStatus as keyof typeof statusConfig] || statusConfig.pending;
     return <span className={`px-2 py-1 text-xs rounded-full ${config.color}`}>{config.text}</span>;
   };
 
@@ -129,7 +179,7 @@ const ExpenseEntryCard: React.FC<{
         <div className="bg-gray-50 rounded-lg p-3 mb-2">
           <h4 className="text-sm font-medium text-gray-900 mb-2">Approval History</h4>
           <div className="space-y-1">
-            {entry.approvalHistory.map((approval, index) => (
+            {entry.approvalHistory.map((approval: ApprovalRecord, index: number) => (
               <div key={index} className="text-xs text-slate-700">
                 <strong>{approval.approverName}</strong> ({approval.approvalLevel}) approved on{' '}
                 {new Date(approval.approvedAt).toLocaleString()}
@@ -434,12 +484,12 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
 
   const handleApproval = async (entryId: string, comments?: string) => {
     try {
-      const approvalLevel = user?.role === 'finance_manager' ? 'finance_manager' : 'supervisor';
+      const approvalLevel = user?.role === 'Admin' || user?.role === 'SuperAdmin' ? 'finance_manager' : 'supervisor';
 
       const success = await flairIntegrationService.approveExpense(entryId, {
-        approverEmployeeId: user?.employeeId || '',
-        approverName: user?.fullName || '',
-        approverTitle: user?.jobTitle || '',
+        approverEmployeeId: user?.id || '',
+        approverName: user ? `${user.firstName} ${user.lastName}`.trim() : '',
+        approverTitle: user?.role || '',
         approvalLevel,
         comments
       });
@@ -549,7 +599,7 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
           <p className="text-slate-700">Review and approve expense submissions</p>
         </div>
         <div className="text-sm text-gray-500">
-          Logged in as: {user?.fullName} ({user?.role})
+          Logged in as: {user ? `${user.firstName} ${user.lastName}`.trim() : ''} ({user?.role})
         </div>
       </div>
 

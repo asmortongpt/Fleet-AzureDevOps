@@ -7,20 +7,109 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Shield, Eye, Brain, Zap, TrendingUp, Clock, Phone, Car, Activity, Target, BookOpen, Award, Bell, Gauge, Coffee, AlertCircle, CheckCircle, Timer, Users, BarChart3, LineChart } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
 
-import type {
-  AIDriverBehaviorAnalysis,
-  DriverFatigueAnalysis,
-  DistractionAnalysis,
-  AccidentPrediction,
-  SafetyIntervention,
-  SafetyDashboardMetrics,
-  Driver,
-  Vehicle
-} from '../../types';
-import { Badge } from '../ui/Badge';
-import { Button } from '../ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
-import { Progress } from '../ui/Progress';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+
+// Local type definitions for safety dashboard
+interface Driver {
+  id: string;
+  firstName: string;
+  lastName: string;
+  department: string;
+}
+
+interface Vehicle {
+  id: string;
+  make: string;
+  model: string;
+}
+
+interface DrivingEvent {
+  timestamp: Date;
+  severity: number;
+  location?: { lat: number; lng: number };
+}
+
+interface GoalProgress {
+  goal: string;
+  title: string;
+  progress: number;
+  currentValue: number;
+  targetValue: number;
+}
+
+interface AIDriverBehaviorAnalysis {
+  driverId: string;
+  vehicleId: string;
+  safetyScore: number;
+  attentionScore: number;
+  aggressionScore: number;
+  efficiencyScore: number;
+  risk: {
+    prediction?: {
+      timeToIntervention?: number;
+      accidentRisk: number;
+    };
+  };
+  events: {
+    harshBraking: DrivingEvent[];
+    harshAcceleration: DrivingEvent[];
+    speedingViolations: DrivingEvent[];
+    distractedDriving: DrivingEvent[];
+  };
+  coaching: {
+    improvements: string[];
+    goalProgress: GoalProgress[];
+    trainingRecommendations: string[];
+  };
+}
+
+interface DriverFatigueAnalysis {
+  driverId: string;
+  fatigueLevel: number;
+  timestamp: Date;
+}
+
+interface DistractionAnalysis {
+  driverId: string;
+  riskLevel: number;
+  timestamp: Date;
+}
+
+interface AccidentPrediction {
+  driverId: string;
+  risk: {
+    overall: number;
+  };
+  timestamp: Date;
+}
+
+interface SafetyIntervention {
+  type: string;
+  severity: string;
+  trigger: string;
+}
+
+interface SafetyDashboardMetrics {
+  realTime: {
+    activeDrivers: number;
+    criticalAlerts: number;
+    activeSafetyInterventions: number;
+    averageFleetSafetyScore: number;
+    fatigueAlerts: number;
+    distractionAlerts: number;
+  };
+  coaching: {
+    driversInProgram: number;
+    averageImprovement: number;
+    completionRate: number;
+  };
+  predictions: {
+    accidentRisks: AccidentPrediction[];
+  };
+}
 
 interface DriverSafetyDashboardProps {
   drivers: Driver[];
@@ -83,7 +172,14 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
 
   // Calculate critical alerts
   const criticalAlerts = useMemo(() => {
-    const alerts: any[] = [];
+    const alerts: Array<{
+      id: string;
+      type: string;
+      driverId: string;
+      severity: 'critical' | 'high' | 'medium';
+      message: string;
+      timestamp: Date;
+    }> = [];
 
     // High-risk accident predictions
     accidentPredictions.forEach((prediction) => {
@@ -347,14 +443,14 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
               )}
 
               {/* Accident risk */}
-              {analysis.risk.prediction?.accidentRisk > 0.7 && (
+              {(analysis.risk.prediction?.accidentRisk ?? 0) > 0.7 && (
                 <div className="flex items-center justify-between p-2 bg-red-50 rounded border border-red-200">
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-red-600" />
                     <span className="text-sm font-medium">High Accident Risk</span>
                   </div>
                   <div className="text-sm">
-                    {Math.round(analysis.risk.prediction.accidentRisk * 100)}%
+                    {Math.round((analysis.risk.prediction?.accidentRisk ?? 0) * 100)}%
                   </div>
                 </div>
               )}

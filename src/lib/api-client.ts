@@ -95,7 +95,7 @@ class APIClient {
           this.csrfToken = data.csrfToken || data.token || ''
           logger.debug('[CSRF] Token initialized successfully')
         } else {
-          logger.warn('[CSRF] Failed to fetch token:', response.status)
+          logger.warn('[CSRF] Failed to fetch token:', { status: response.status })
         }
       } catch (error) {
         logger.error('[CSRF] Error fetching token:', error)

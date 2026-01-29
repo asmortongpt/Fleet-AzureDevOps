@@ -64,7 +64,7 @@ export class AnalyticsProvider {
         api_host: import.meta.env.VITE_POSTHOG_HOST || 'https://app.posthog.com',
 
         // Callback when PostHog is loaded
-        loaded: (ph) => {
+        loaded: (ph: typeof posthog) => {
           if (import.meta.env.DEV) {
             console.log('PostHog initialized');
             ph.debug(true);
@@ -90,7 +90,7 @@ export class AnalyticsProvider {
 
         // Performance
         property_blacklist: [], // Properties to never send
-        sanitize_properties: (properties) => {
+        sanitize_properties: (properties: Record<string, unknown>) => {
           // Remove sensitive data
           const sanitized = { ...properties };
           delete sanitized.password;

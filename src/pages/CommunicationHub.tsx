@@ -89,7 +89,7 @@ function CommunicationOverview() {
           value={metrics?.totalMessages?.toString() || '0'}
           icon={Envelope}
           trend="up"
-          change="+12"
+          change={12}
           description="All channels"
           loading={isLoading}
         />
@@ -98,7 +98,7 @@ function CommunicationOverview() {
           value={metrics?.sentToday?.toString() || '0'}
           icon={PaperPlaneTilt}
           trend="up"
-          change="+8"
+          change={8}
           description="Messages sent"
           loading={isLoading}
         />
@@ -107,7 +107,7 @@ function CommunicationOverview() {
           value={metrics?.unreadNotifications?.toString() || '0'}
           icon={Bell}
           trend="down"
-          change="-3"
+          change={-3}
           description="Require attention"
           loading={isLoading}
         />
@@ -136,7 +136,8 @@ function CommunicationOverview() {
         <ResponsiveLineChart
           title="Message Activity (Last 7 Days)"
           description="Daily message volume across all channels"
-          data={messagesOverTimeData}
+          data={messagesOverTimeData.map((d) => ({ ...d, value: d.messages }))}
+          dataKeys={['messages']}
           height={300}
           showArea
           loading={isLoading}
@@ -285,7 +286,7 @@ function MessagesContent() {
           value={metrics?.messagesFailed?.toString() || '0'}
           icon={Warning}
           trend="down"
-          change="-2"
+          change={-2}
           description="Requires retry"
           loading={isLoading}
         />
@@ -294,7 +295,7 @@ function MessagesContent() {
           value={metrics?.avgResponseTime || 'N/A'}
           icon={Clock}
           trend="down"
-          change="-15min"
+          change={-15}
           description="Faster than last week"
           loading={isLoading}
         />
@@ -438,7 +439,7 @@ function NotificationsContent() {
           value={unreadNotifications.length.toString()}
           icon={Warning}
           trend="down"
-          change="-5"
+          change={-5}
           description="Require attention"
           loading={isLoading}
         />
@@ -447,7 +448,7 @@ function NotificationsContent() {
           value={`${readRate}%`}
           icon={TrendUp}
           trend="up"
-          change="+3%"
+          change={3}
           description="User engagement"
           loading={isLoading}
         />
@@ -589,7 +590,7 @@ function AnnouncementsContent() {
           value={totalViews.toString()}
           icon={Eye}
           trend="up"
-          change="+28"
+          change={28}
           description="All announcements"
           loading={isLoading}
         />
@@ -606,7 +607,7 @@ function AnnouncementsContent() {
           value={`${avgEngagement}%`}
           icon={TrendUp}
           trend="up"
-          change="+5%"
+          change={5}
           description="Acknowledgment rate"
           loading={isLoading}
         />
@@ -616,7 +617,8 @@ function AnnouncementsContent() {
       <ResponsiveBarChart
         title="Announcement Engagement"
         description="Views and acknowledgments for recent announcements"
-        data={announcementEngagementData}
+        data={announcementEngagementData.map((d) => ({ ...d, value: d.views }))}
+        dataKey="views"
         height={300}
         loading={isLoading}
       />

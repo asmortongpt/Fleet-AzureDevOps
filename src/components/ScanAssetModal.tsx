@@ -2,12 +2,11 @@ import { BrowserMultiFormatReader, Result } from '@zxing/library';
 import axios from 'axios';
 import React, { useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
-import { toast } from 'react-toastify';
 import Webcam from 'react-webcam';
 
-import { useFleetLocalContext } from '../../context/FleetLocalContext';
-
+import { useFleetLocalContext } from '@/context/FleetLocalContext';
 import logger from '@/utils/logger';
+import { toast } from '@/utils/toast';
 
 interface ScanAssetModalProps {
   tenantId: string;
@@ -51,7 +50,7 @@ const ScanAssetModal: React.FC<ScanAssetModalProps> = ({ tenantId, onClose }) =>
     }
   }, []);
 
-  const handleError = (error: Error) => {
+  const handleError = (error: string | DOMException) => {
     logger.error('Camera error:', error);
     toast.error('Camera error occurred.');
   };

@@ -254,29 +254,29 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
       {realtimeKPIs && (
         <Paper sx={{ p: 2, mb: 3, bgcolor: 'primary: main', color: 'primary: contrastText' }}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={2}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <Typography variant="body2">Active Vehicles</Typography>
               <Typography variant="h6">{realtimeKPIs.activeVehicles}</Typography>
             </Grid>
-            <Grid item xs={12} md={2}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <Typography variant="body2">In Transit</Typography>
               <Typography variant="h6">{realtimeKPIs.vehiclesInTransit}</Typography>
             </Grid>
-            <Grid item xs={12} md={2}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <Typography variant="body2">Utilization</Typography>
               <Typography variant="h6">{realtimeKPIs.utilizationRateNow}%</Typography>
             </Grid>
-            <Grid item xs={12} md={2}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <Typography variant="body2">Revenue Today</Typography>
               <Typography variant="h6">${realtimeKPIs.revenueToday.toLocaleString()}</Typography>
             </Grid>
-            <Grid item xs={12} md={2}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <Typography variant="body2">Fuel Today</Typography>
               <Typography variant="h6">{realtimeKPIs.fuelConsumptionToday}L</Typography>
             </Grid>
-            <Grid item xs={12} md={2}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <Typography variant="body2">Safety Incidents</Typography>
-              <Typography variant="h6" color={realtimeKPIs.safetyIncidentsToday === 0 ? 'success: main' : 'error: main'}>
+              <Typography variant="h6" color={realtimeKPIs.safetyIncidentsToday === 0 ? 'success.main' : 'error.main'}>
                 {realtimeKPIs.safetyIncidentsToday}
               </Typography>
             </Grid>
@@ -297,14 +297,14 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
         <TabPanel value={tabValue} index={0}>
           {fleetMetrics && (
             <Grid container spacing={3}>
-              <Grid item xs={12} md={3}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" color="primary" gutterBottom>
                       Fleet Overview
                     </Typography>
                     <Typography variant="h4">{fleetMetrics.totalVehicles}</Typography>
-                    <Typography variant="body2" color="text: secondary">
+                    <Typography variant="body2" color="text.secondary">
                       Total Vehicles
                     </Typography>
                     <Box sx={{ mt: 2 }}>
@@ -316,14 +316,14 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                 </Card>
               </Grid>
 
-              <Grid item xs={12} md={3}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <Card>
                   <CardContent>
-                    <Typography variant="h6" color="success: main" gutterBottom>
+                    <Typography variant="h6" color="success.main" gutterBottom>
                       Utilization Rate
                     </Typography>
                     <Typography variant="h4">{fleetMetrics.utilizationRate}%</Typography>
-                    <Typography variant="body2" color="text: secondary">
+                    <Typography variant="body2" color="text.secondary">
                       Fleet Efficiency
                     </Typography>
                     <LinearProgress
@@ -336,14 +336,14 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                 </Card>
               </Grid>
 
-              <Grid item xs={12} md={3}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <Card>
                   <CardContent>
-                    <Typography variant="h6" color="info: main" gutterBottom>
+                    <Typography variant="h6" color="info.main" gutterBottom>
                       Fuel Efficiency
                     </Typography>
                     <Typography variant="h4">{fleetMetrics.fuelEfficiency} MPG</Typography>
-                    <Typography variant="body2" color="text: secondary">
+                    <Typography variant="body2" color="text.secondary">
                       Average Across Fleet
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>
@@ -353,14 +353,14 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                 </Card>
               </Grid>
 
-              <Grid item xs={12} md={3}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <Card>
                   <CardContent>
-                    <Typography variant="h6" color="warning: main" gutterBottom>
+                    <Typography variant="h6" color="warning.main" gutterBottom>
                       Profit Margin
                     </Typography>
                     <Typography variant="h4">{fleetMetrics.profitMargin}%</Typography>
-                    <Typography variant="body2" color="text: secondary">
+                    <Typography variant="body2" color="text.secondary">
                       Revenue Efficiency
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>
@@ -370,7 +370,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                 </Card>
               </Grid>
 
-              <Grid item xs={12} md={8}>
+              <Grid size={{ xs: 12, md: 8 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
@@ -390,7 +390,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                 </Card>
               </Grid>
 
-              <Grid item xs={12} md={4}>
+              <Grid size={{ xs: 12, md: 4 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
@@ -438,14 +438,14 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
             <Typography variant="h6" gutterBottom>
               AI-Powered Predictive Insights
             </Typography>
-            <Typography variant="body2" color="text: secondary">
+            <Typography variant="body2" color="text.secondary">
               Machine learning models analyze fleet data to predict issues and identify opportunities
             </Typography>
           </Box>
 
           <Grid container spacing={3}>
             {insights.map((insight) => (
-              <Grid item xs={12} md={6} key={insight.id}>
+              <Grid size={{ xs: 12, md: 6 }} key={insight.id}>
                 <Card sx={{ height: '100%' }}>
                   <CardContent>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
@@ -537,7 +537,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
 
           <Grid container spacing={3}>
             {kpiTrends.map((kpi, index) => (
-              <Grid item xs={12} md={6} key={index}>
+              <Grid size={{ xs: 12, md: 6 }} key={index}>
                 <Card>
                   <CardContent>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -556,7 +556,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
 
                     {kpi.target && (
                       <Box sx={{ mb: 2 }}>
-                        <Typography variant="body2" color="text: secondary">
+                        <Typography variant="body2" color="text.secondary">
                           Target: {kpi.target} | Status:
                         </Typography>
                         <Chip
@@ -588,7 +588,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
           <Typography variant="h6" gutterBottom>
             Industry Benchmarks
           </Typography>
-          <Typography variant="body2" color="text: secondary" gutterBottom>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
             Compare your fleet performance against industry standards
           </Typography>
 
@@ -625,7 +625,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                     <TableCell>
                       <Typography
                         variant="body2"
-                        color={benchmark.improvement >= 0 ? 'success: main' : 'error: main'}
+                        color={benchmark.improvement >= 0 ? 'success.main' : 'error.main'}
                       >
                         {benchmark.improvement >= 0 ? '+' : ''}{benchmark.improvement}
                       </Typography>
@@ -644,7 +644,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
 
           <Grid container spacing={3}>
             {optimizations.map((opt) => (
-              <Grid item xs={12} key={opt.id}>
+              <Grid size={{ xs: 12 }} key={opt.id}>
                 <Card>
                   <CardContent>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
@@ -657,15 +657,15 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                           <Chip label={opt.implementation} size="small" variant="outlined" />
                           <Chip label={`${opt.effort} effort`} size="small" />
                         </Box>
-                        <Typography variant="body2" color="text: secondary">
+                        <Typography variant="body2" color="text.secondary">
                           {opt.details}
                         </Typography>
                       </Box>
                       <Box sx={{ textAlign: 'right', minWidth: 150 }}>
-                        <Typography variant="h5" color="success: main">
+                        <Typography variant="h5" color="success.main">
                           ${opt.savings.toLocaleString()}
                         </Typography>
-                        <Typography variant="body2" color="text: secondary">
+                        <Typography variant="body2" color="text.secondary">
                           Annual Savings
                         </Typography>
                         <Typography variant="body2">
@@ -700,26 +700,26 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                 Total Optimization Impact
               </Typography>
               <Grid container spacing={3}>
-                <Grid item xs={12} md={3}>
-                  <Typography variant="body2" color="text: secondary">Total Potential Savings</Typography>
-                  <Typography variant="h4" color="success: main">
+                <Grid size={{ xs: 12, md: 3 }}>
+                  <Typography variant="body2" color="text.secondary">Total Potential Savings</Typography>
+                  <Typography variant="h4" color="success.main">
                     ${optimizations.reduce((sum, opt) => sum + opt.savings, 0).toLocaleString()}
                   </Typography>
                 </Grid>
-                <Grid item xs={12} md={3}>
-                  <Typography variant="body2" color="text: secondary">Average ROI</Typography>
+                <Grid size={{ xs: 12, md: 3 }}>
+                  <Typography variant="body2" color="text.secondary">Average ROI</Typography>
                   <Typography variant="h4">
                     {(optimizations.reduce((sum, opt) => sum + opt.roi, 0) / optimizations.length).toFixed(0)}%
                   </Typography>
                 </Grid>
-                <Grid item xs={12} md={3}>
-                  <Typography variant="body2" color="text: secondary">Immediate Opportunities</Typography>
+                <Grid size={{ xs: 12, md: 3 }}>
+                  <Typography variant="body2" color="text.secondary">Immediate Opportunities</Typography>
                   <Typography variant="h4">
                     {optimizations.filter(opt => opt.implementation === 'IMMEDIATE').length}
                   </Typography>
                 </Grid>
-                <Grid item xs={12} md={3}>
-                  <Typography variant="body2" color="text: secondary">Cost Reduction</Typography>
+                <Grid size={{ xs: 12, md: 3 }}>
+                  <Typography variant="body2" color="text.secondary">Cost Reduction</Typography>
                   <Typography variant="h4">
                     {(optimizations.reduce((sum, opt) => sum + opt.savings, 0) / optimizations.reduce((sum, opt) => sum + opt.currentCost, 0) * 100).toFixed(1)}%
                   </Typography>
@@ -736,33 +736,33 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                 <Typography variant="h6">
                   Executive Summary Report
                 </Typography>
-                <Typography variant="body2" color="text: secondary">
+                <Typography variant="body2" color="text.secondary">
                   Generated: {format(parseISO(executiveReport.reportDate), 'MMM dd, yyyy HH:mm')}
                 </Typography>
               </Box>
 
               <Grid container spacing={3}>
-                <Grid item xs={12} md={8}>
+                <Grid size={{ xs: 12, md: 8 }}>
                   <Card sx={{ mb: 3 }}>
                     <CardContent>
                       <Typography variant="h6" gutterBottom>
                         Fleet Summary
                       </Typography>
                       <Grid container spacing={2}>
-                        <Grid item xs={6}>
-                          <Typography variant="body2" color="text: secondary">Total Fleet Value</Typography>
+                        <Grid size={{ xs: 6 }}>
+                          <Typography variant="body2" color="text.secondary">Total Fleet Value</Typography>
                           <Typography variant="h6">${executiveReport.summary.totalFleetValue.toLocaleString()}</Typography>
                         </Grid>
-                        <Grid item xs={6}>
-                          <Typography variant="body2" color="text: secondary">Operational Cost</Typography>
+                        <Grid size={{ xs: 6 }}>
+                          <Typography variant="body2" color="text.secondary">Operational Cost</Typography>
                           <Typography variant="h6">${executiveReport.summary.operationalCost.toLocaleString()}</Typography>
                         </Grid>
-                        <Grid item xs={6}>
-                          <Typography variant="body2" color="text: secondary">Revenue</Typography>
+                        <Grid size={{ xs: 6 }}>
+                          <Typography variant="body2" color="text.secondary">Revenue</Typography>
                           <Typography variant="h6">${executiveReport.summary.revenue.toLocaleString()}</Typography>
                         </Grid>
-                        <Grid item xs={6}>
-                          <Typography variant="body2" color="text: secondary">Profitability</Typography>
+                        <Grid size={{ xs: 6 }}>
+                          <Typography variant="body2" color="text.secondary">Profitability</Typography>
                           <Typography variant="h6">{executiveReport.summary.profitability}%</Typography>
                         </Grid>
                       </Grid>
@@ -824,14 +824,14 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                   </Accordion>
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <Card sx={{ mb: 3 }}>
                     <CardContent>
                       <Typography variant="h6" gutterBottom>
                         Financial Projections
                       </Typography>
                       <Box sx={{ mb: 2 }}>
-                        <Typography variant="body2" color="text: secondary">Next Quarter</Typography>
+                        <Typography variant="body2" color="text.secondary">Next Quarter</Typography>
                         <Typography variant="body2">
                           Revenue: ${executiveReport.financialProjections.nextQuarter.revenue.toLocaleString()}
                         </Typography>
@@ -841,7 +841,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                       </Box>
                       <Divider sx={{ my: 1 }} />
                       <Box>
-                        <Typography variant="body2" color="text: secondary">Next Year</Typography>
+                        <Typography variant="body2" color="text.secondary">Next Year</Typography>
                         <Typography variant="body2">
                           Revenue: ${executiveReport.financialProjections.nextYear.revenue.toLocaleString()}
                         </Typography>
@@ -862,11 +862,11 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                           <Typography variant="body2" fontWeight="bold">
                             {insight.title}
                           </Typography>
-                          <Typography variant="caption" color="text: secondary">
+                          <Typography variant="caption" color="text.secondary">
                             {insight.timeframe} • {insight.confidence}% confidence
                           </Typography>
                           {insight.potentialSavings && (
-                            <Typography variant="body2" color="success: main">
+                            <Typography variant="body2" color="success.main">
                               Potential savings: ${insight.potentialSavings.toLocaleString()}
                             </Typography>
                           )}
@@ -888,12 +888,12 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
             <DialogTitle>{selectedInsight.title}</DialogTitle>
             <DialogContent>
               <Grid container spacing={2}>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <Typography variant="body1" paragraph>
                     {selectedInsight.description}
                   </Typography>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Typography variant="h6" gutterBottom>Analysis Details</Typography>
                   <Box sx={{ mb: 2 }}>
                     <Typography variant="body2">Category: {selectedInsight.category}</Typography>
@@ -903,7 +903,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                     <Typography variant="body2">Trend: {selectedInsight.trend}</Typography>
                   </Box>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Typography variant="h6" gutterBottom>Recommendations</Typography>
                   <Typography variant="body2">{selectedInsight.recommendedAction}</Typography>
                   {selectedInsight.potentialSavings && (
@@ -913,7 +913,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                   )}
                 </Grid>
                 {selectedInsight.affectedVehicles.length > 0 && (
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <Typography variant="h6" gutterBottom>Affected Vehicles</Typography>
                     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                       {selectedInsight.affectedVehicles.map((vehicle) => (

@@ -498,235 +498,56 @@ app.get('/api/telemetry', async (req, res) => {
 // to match the Zod validation schemas in use-reactive-operations-data.ts
 // ============================================================================
 
-// Mock routes data
-const mockRoutes = [
-  {
-    id: '1',
-    driverId: '1',
-    vehicleId: '1',
-    status: 'in_transit',
-    startTime: '2024-01-15T08:00:00Z',
-    endTime: '2024-01-15T16:00:00Z',
-    distance: 125.5,
-    estimatedDuration: 480,
-    actualDuration: 450,
-    origin: 'Chicago Depot',
-    destination: 'Milwaukee Distribution Center',
-    stops: 3,
-    priority: 'high',
-    createdAt: '2024-01-14T10:00:00Z',
-    updatedAt: '2024-01-15T08:30:00Z'
-  },
-  {
-    id: '2',
-    driverId: '2',
-    vehicleId: '2',
-    status: 'completed',
-    startTime: '2024-01-14T06:00:00Z',
-    endTime: '2024-01-14T14:00:00Z',
-    distance: 89.2,
-    estimatedDuration: 360,
-    actualDuration: 380,
-    origin: 'Downtown Terminal',
-    destination: 'O\'Hare Airport',
-    stops: 5,
-    priority: 'medium',
-    createdAt: '2024-01-13T14:00:00Z',
-    updatedAt: '2024-01-14T14:30:00Z'
-  },
-  {
-    id: '3',
-    driverId: '3',
-    vehicleId: '3',
-    status: 'scheduled',
-    startTime: '2024-01-16T07:00:00Z',
-    distance: 156.8,
-    estimatedDuration: 540,
-    origin: 'North Side Facility',
-    destination: 'Gary Industrial Park',
-    stops: 4,
-    priority: 'low',
-    createdAt: '2024-01-15T09:00:00Z',
-    updatedAt: '2024-01-15T09:00:00Z'
-  },
-  {
-    id: '4',
-    driverId: '4',
-    vehicleId: '4',
-    status: 'delayed',
-    startTime: '2024-01-15T09:00:00Z',
-    distance: 78.3,
-    estimatedDuration: 300,
-    actualDuration: 420,
-    origin: 'South Loop',
-    destination: 'Naperville Hub',
-    stops: 2,
-    priority: 'critical',
-    createdAt: '2024-01-14T16:00:00Z',
-    updatedAt: '2024-01-15T12:00:00Z'
-  },
-  {
-    id: '5',
-    driverId: '5',
-    vehicleId: '5',
-    status: 'completed',
-    startTime: '2024-01-13T05:30:00Z',
-    endTime: '2024-01-13T11:30:00Z',
-    distance: 112.0,
-    estimatedDuration: 360,
-    actualDuration: 340,
-    origin: 'West Side Depot',
-    destination: 'Aurora Distribution',
-    stops: 6,
-    priority: 'medium',
-    createdAt: '2024-01-12T14:00:00Z',
-    updatedAt: '2024-01-13T12:00:00Z'
-  }
-];
-
-// Mock fuel transactions data
-const mockFuelTransactions = [
-  {
-    id: '1',
-    vehicleId: '1',
-    driverId: '1',
-    amount: 45.5,
-    cost: 156.75,
-    pricePerUnit: 3.45,
-    fuelType: 'diesel',
-    location: 'Shell Station - I-94',
-    odometer: 125432,
-    createdAt: '2024-01-15T10:30:00Z',
-    receiptNumber: 'SH-2024-001234',
-    notes: 'Regular fill-up'
-  },
-  {
-    id: '2',
-    vehicleId: '2',
-    driverId: '2',
-    amount: 38.2,
-    cost: 131.79,
-    pricePerUnit: 3.45,
-    fuelType: 'diesel',
-    location: 'BP Station - Downtown',
-    odometer: 89234,
-    createdAt: '2024-01-14T14:15:00Z',
-    receiptNumber: 'BP-2024-005678'
-  },
-  {
-    id: '3',
-    vehicleId: '3',
-    driverId: '3',
-    amount: 52.0,
-    cost: 179.40,
-    pricePerUnit: 3.45,
-    fuelType: 'diesel',
-    location: 'Pilot Travel Center',
-    odometer: 156789,
-    createdAt: '2024-01-14T08:00:00Z',
-    receiptNumber: 'PIL-2024-009012'
-  },
-  {
-    id: '4',
-    vehicleId: '4',
-    driverId: '4',
-    amount: 28.5,
-    cost: 107.73,
-    pricePerUnit: 3.78,
-    fuelType: 'gasoline',
-    location: 'Mobil Station - Naperville',
-    odometer: 78456,
-    createdAt: '2024-01-13T16:45:00Z',
-    receiptNumber: 'MOB-2024-003456'
-  },
-  {
-    id: '5',
-    vehicleId: '5',
-    driverId: '5',
-    amount: 41.0,
-    cost: 141.45,
-    pricePerUnit: 3.45,
-    fuelType: 'diesel',
-    location: 'Love\'s Travel Stop',
-    odometer: 112567,
-    createdAt: '2024-01-13T11:20:00Z',
-    receiptNumber: 'LOV-2024-007890'
-  }
-];
-
-// Mock tasks data
-const mockTasks = [
-  {
-    id: '1',
-    title: 'Complete vehicle inspection for Bus #101',
-    description: 'Monthly safety inspection including brakes, lights, and tire condition',
-    status: 'open',
-    priority: 'high',
-    assignedTo: 'John Smith',
-    dueDate: '2024-01-16T17:00:00Z',
-    createdAt: '2024-01-14T09:00:00Z',
-    updatedAt: '2024-01-14T09:00:00Z'
-  },
-  {
-    id: '2',
-    title: 'Review driver training records',
-    description: 'Ensure all drivers have completed annual safety training',
-    status: 'in_progress',
-    priority: 'medium',
-    assignedTo: 'Sarah Johnson',
-    dueDate: '2024-01-18T17:00:00Z',
-    createdAt: '2024-01-13T10:00:00Z',
-    updatedAt: '2024-01-15T08:30:00Z'
-  },
-  {
-    id: '3',
-    title: 'Schedule oil change for Fleet Vehicle #205',
-    description: 'Vehicle approaching 5000 mile service interval',
-    status: 'completed',
-    priority: 'low',
-    assignedTo: 'Mike Davis',
-    dueDate: '2024-01-14T17:00:00Z',
-    completedAt: '2024-01-14T15:00:00Z',
-    createdAt: '2024-01-10T14:00:00Z',
-    updatedAt: '2024-01-14T15:00:00Z'
-  },
-  {
-    id: '4',
-    title: 'Update route optimization parameters',
-    description: 'Adjust routing algorithm for new construction zones',
-    status: 'overdue',
-    priority: 'critical',
-    assignedTo: 'Emily Chen',
-    dueDate: '2024-01-12T17:00:00Z',
-    createdAt: '2024-01-08T11:00:00Z',
-    updatedAt: '2024-01-12T17:00:00Z'
-  },
-  {
-    id: '5',
-    title: 'Process fuel expense reports',
-    description: 'Monthly fuel expense reconciliation for accounting',
-    status: 'open',
-    priority: 'medium',
-    assignedTo: 'Tom Wilson',
-    dueDate: '2024-01-20T17:00:00Z',
-    createdAt: '2024-01-15T08:00:00Z',
-    updatedAt: '2024-01-15T08:00:00Z'
-  }
-];
-
 // Routes endpoint - returns array directly for Zod validation
-app.get('/api/routes', (req, res) => {
-  res.json(mockRoutes);
+app.get('/api/routes', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT r.*, v.make || ' ' || v.model as vehicle_name, v.license_plate,
+              d.first_name || ' ' || d.last_name as driver_name
+       FROM routes r
+       LEFT JOIN vehicles v ON r.vehicle_id = v.id
+       LEFT JOIN drivers d ON r.driver_id = d.id
+       ORDER BY r.created_at DESC LIMIT 100`
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Routes endpoint error:', error);
+    res.json([]);
+  }
 });
 
 // Fuel transactions endpoint - returns array directly for Zod validation
-app.get('/api/fuel-transactions', (req, res) => {
-  res.json(mockFuelTransactions);
+app.get('/api/fuel-transactions', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT ft.*, v.make || ' ' || v.model as vehicle_name, v.license_plate,
+              d.first_name || ' ' || d.last_name as driver_name
+       FROM fuel_transactions ft
+       LEFT JOIN vehicles v ON ft.vehicle_id = v.id
+       LEFT JOIN drivers d ON ft.driver_id = d.id
+       ORDER BY ft.transaction_date DESC LIMIT 100`
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Fuel transactions endpoint error:', error);
+    res.json([]);
+  }
 });
 
 // Tasks endpoint - returns array directly for Zod validation
-app.get('/api/tasks', (req, res) => {
-  res.json(mockTasks);
+app.get('/api/tasks', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT wo.*, v.make || ' ' || v.model as vehicle_name, v.license_plate
+       FROM work_orders wo
+       LEFT JOIN vehicles v ON wo.vehicle_id = v.id
+       ORDER BY wo.created_at DESC LIMIT 100`
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Tasks endpoint error:', error);
+    res.json([]);
+  }
 });
 
 // ============================================================================
@@ -734,66 +555,53 @@ app.get('/api/tasks', (req, res) => {
 // These endpoints return arrays directly for Zod validation
 // ============================================================================
 
-// Mock assignments data
-const mockAssignments = [
-  {
-    id: '1',
-    driverId: '1',
-    vehicleId: '1',
-    startDate: '2024-01-01T08:00:00Z',
-    endDate: '2024-01-15T17:00:00Z',
-    status: 'completed'
-  },
-  {
-    id: '2',
-    driverId: '2',
-    vehicleId: '2',
-    startDate: '2024-01-10T08:00:00Z',
-    status: 'active'
-  },
-  {
-    id: '3',
-    driverId: '3',
-    vehicleId: '3',
-    startDate: '2024-01-12T08:00:00Z',
-    status: 'active'
-  },
-  {
-    id: '4',
-    driverId: '4',
-    vehicleId: '4',
-    startDate: '2024-01-20T08:00:00Z',
-    status: 'pending'
-  },
-  {
-    id: '5',
-    driverId: '5',
-    vehicleId: '5',
-    startDate: '2024-01-05T08:00:00Z',
-    endDate: '2024-01-18T17:00:00Z',
-    status: 'completed'
-  }
-];
-
-// Mock performance trend data (last 7 days)
-const mockPerformanceTrend = [
-  { date: '2024-01-09T00:00:00Z', avgScore: 82, violations: 3 },
-  { date: '2024-01-10T00:00:00Z', avgScore: 85, violations: 2 },
-  { date: '2024-01-11T00:00:00Z', avgScore: 84, violations: 4 },
-  { date: '2024-01-12T00:00:00Z', avgScore: 86, violations: 1 },
-  { date: '2024-01-13T00:00:00Z', avgScore: 88, violations: 2 },
-  { date: '2024-01-14T00:00:00Z', avgScore: 87, violations: 3 },
-  { date: '2024-01-15T00:00:00Z', avgScore: 89, violations: 1 }
-];
-
 // Assignments endpoint - returns array directly for Zod validation
-app.get('/api/assignments', (req, res) => {
-  res.json(mockAssignments);
+app.get('/api/assignments', async (req, res) => {
+  try {
+    // Derive assignments from vehicles-drivers relationship
+    const result = await pool.query(
+      `SELECT
+        v.id as id,
+        d.id as "driverId",
+        v.id as "vehicleId",
+        v.created_at as "startDate",
+        CASE WHEN v.status = 'active' THEN 'active' ELSE 'pending' END as status,
+        v.make || ' ' || v.model as vehicle_name,
+        d.first_name || ' ' || d.last_name as driver_name
+       FROM vehicles v
+       LEFT JOIN drivers d ON v.assigned_driver_id = d.id
+       WHERE v.assigned_driver_id IS NOT NULL
+       ORDER BY v.created_at DESC LIMIT 100`
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Assignments endpoint error:', error);
+    res.json([]);
+  }
 });
 
 // Performance trend endpoint - returns array directly for Zod validation
-app.get('/api/performance-trend', (req, res) => {
-  res.json(mockPerformanceTrend);
+app.get('/api/performance-trend', async (req, res) => {
+  try {
+    // Aggregate safety data over last 7 days
+    const result = await pool.query(
+      `SELECT
+        date_trunc('day', si.incident_date) as date,
+        COUNT(*) as violations,
+        COALESCE(AVG(d.safety_score), 85)::int as "avgScore"
+       FROM safety_incidents si
+       LEFT JOIN drivers d ON si.driver_id = d.id
+       WHERE si.incident_date > NOW() - INTERVAL '7 days'
+       GROUP BY date_trunc('day', si.incident_date)
+       ORDER BY date DESC`
+    );
+    res.json(result.rows.length > 0 ? result.rows : [
+      { date: new Date().toISOString(), avgScore: 85, violations: 0 }
+    ]);
+  } catch (error) {
+    console.error('Performance trend endpoint error:', error);
+    res.json([]);
+  }
 });
 
 app.get('/api/alerts/notifications', (req, res) => {

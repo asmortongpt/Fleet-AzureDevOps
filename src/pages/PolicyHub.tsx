@@ -105,7 +105,7 @@ function PolicyOverview() {
           value={metrics?.activePolicies?.toString() || '0'}
           icon={CheckCircle}
           trend="up"
-          change="+5"
+          change={5}
           description="Currently enforced"
           loading={isLoading}
         />
@@ -114,7 +114,7 @@ function PolicyOverview() {
           value={`${metrics?.acknowledgementRate || 0}%`}
           icon={Users}
           trend="up"
-          change="+3%"
+          change={3}
           description="Employee adoption"
           loading={isLoading}
         />
@@ -123,7 +123,7 @@ function PolicyOverview() {
           value={metrics?.totalViolations?.toString() || '0'}
           icon={Warning}
           trend="down"
-          change="-2"
+          change={-2}
           description="Policy violations"
           loading={isLoading}
         />
@@ -417,7 +417,7 @@ function ComplianceContent() {
           value={`${metrics?.avgComplianceScore || 0}%`}
           icon={TrendUp}
           trend="up"
-          change="+2%"
+          change={2}
           description="Overall compliance"
           loading={isLoading}
         />
@@ -426,7 +426,7 @@ function ComplianceContent() {
           value={`${metrics?.acknowledgementRate || 0}%`}
           icon={Certificate}
           trend="up"
-          change="+3%"
+          change={3}
           description="Employee adoption"
           loading={isLoading}
         />
@@ -435,7 +435,7 @@ function ComplianceContent() {
           value={`${metrics?.trainingCompletionRate || 0}%`}
           icon={Users}
           trend="up"
-          change="+1%"
+          change={1}
           description="Training complete"
           loading={isLoading}
         />
@@ -444,7 +444,7 @@ function ComplianceContent() {
           value={metrics?.totalViolations?.toString() || '0'}
           icon={Warning}
           trend="down"
-          change="-5"
+          change={-5}
           description="Policy violations"
           loading={isLoading}
         />
@@ -456,7 +456,8 @@ function ComplianceContent() {
         <ResponsiveLineChart
           title="Weekly Compliance Trend"
           description="Acknowledgement and training completion rates over time"
-          data={complianceTrendData}
+          data={complianceTrendData.map(d => ({ ...d, value: d.acknowledgement }))}
+          dataKeys={['acknowledgement', 'training', 'violations']}
           height={300}
           showArea
           loading={isLoading}
@@ -466,7 +467,8 @@ function ComplianceContent() {
         <ResponsiveBarChart
           title="Policy Adoption by Category"
           description="Employee adoption rates across policy categories"
-          data={adoptionByCategory}
+          data={adoptionByCategory.map(d => ({ ...d, value: d.rate }))}
+          dataKey="rate"
           height={300}
           loading={isLoading}
         />

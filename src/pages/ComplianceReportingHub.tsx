@@ -614,7 +614,7 @@ const ReportsTab = React.memo<{
       includeDetails: true,
     };
     const result = await data.generateReport(params);
-    if (result.success && result.downloadUrl) {
+    if (result.success && 'downloadUrl' in result) {
       window.open(result.downloadUrl, '_blank');
     }
   }, [data]);

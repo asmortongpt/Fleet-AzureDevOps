@@ -133,20 +133,20 @@ export function useReactiveInsightsData() {
 
   // Cost savings trend data (last 6 months)
   const costSavingsTrend = [
-    { name: 'Jan', savings: 12500, target: 10000 },
-    { name: 'Feb', savings: 15200, target: 12000 },
-    { name: 'Mar', savings: 14800, target: 13000 },
-    { name: 'Apr', savings: 18900, target: 15000 },
-    { name: 'May', savings: 21300, target: 17000 },
-    { name: 'Jun', savings: 23700, target: 20000 },
+    { name: 'Jan', value: 12500, savings: 12500, target: 10000 },
+    { name: 'Feb', value: 15200, savings: 15200, target: 12000 },
+    { name: 'Mar', value: 14800, savings: 14800, target: 13000 },
+    { name: 'Apr', value: 18900, savings: 18900, target: 15000 },
+    { name: 'May', value: 21300, savings: 21300, target: 17000 },
+    { name: 'Jun', value: 23700, savings: 23700, target: 20000 },
   ]
 
   // Efficiency metrics trend
   const efficiencyTrend = [
-    { name: 'Week 1', utilization: 78, mpg: 8.2, downtime: 5 },
-    { name: 'Week 2', utilization: 82, mpg: 8.5, downtime: 3 },
-    { name: 'Week 3', utilization: 85, mpg: 8.7, downtime: 2 },
-    { name: 'Week 4', utilization: 87, mpg: 8.9, downtime: 4 },
+    { name: 'Week 1', value: 78, utilization: 78, mpg: 8.2, downtime: 5 },
+    { name: 'Week 2', value: 82, utilization: 82, mpg: 8.5, downtime: 3 },
+    { name: 'Week 3', value: 85, utilization: 85, mpg: 8.7, downtime: 2 },
+    { name: 'Week 4', value: 87, utilization: 87, mpg: 8.9, downtime: 4 },
   ]
 
   // Category distribution for pie chart
@@ -176,10 +176,10 @@ export function useReactiveInsightsData() {
 
   // ROI by recommendation category
   const roiByCategory = [
-    { name: 'Cost Reduction', roi: 245, savings: 45000 },
-    { name: 'Efficiency', roi: 180, savings: 32000 },
-    { name: 'Safety', roi: 150, savings: 18000 },
-    { name: 'Optimization', roi: 210, savings: 38000 },
+    { name: 'Cost Reduction', value: 245, roi: 245, savings: 45000 },
+    { name: 'Efficiency', value: 180, roi: 180, savings: 32000 },
+    { name: 'Safety', value: 150, roi: 150, savings: 18000 },
+    { name: 'Optimization', value: 210, roi: 210, savings: 38000 },
   ]
 
   // Top insights (sorted by priority and confidence)

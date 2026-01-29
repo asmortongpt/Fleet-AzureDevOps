@@ -16,7 +16,7 @@ import {
   CheckCircle,
   Clock,
   CurrencyDollar,
-  Activity,
+  Pulse,
   ChartPie,
 } from '@phosphor-icons/react'
 import HubPage from '@/components/ui/hub-page'
@@ -67,7 +67,7 @@ function InsightsOverview() {
           value={aggregatedMetrics?.totalInsights?.toString() || '0'}
           icon={Brain}
           trend="up"
-          change="+12"
+          change={12}
           description="AI-generated insights"
           loading={isLoading}
         />
@@ -76,7 +76,7 @@ function InsightsOverview() {
           value={aggregatedMetrics?.criticalAlerts?.toString() || '0'}
           icon={Warning}
           trend="down"
-          change="-3"
+          change={-3}
           description="Requiring attention"
           loading={isLoading}
         />
@@ -85,7 +85,7 @@ function InsightsOverview() {
           value={`$${(aggregatedMetrics?.potentialSavings || 0).toLocaleString()}`}
           icon={CurrencyDollar}
           trend="up"
-          change="+$15k"
+          change={15}
           description="From recommendations"
           loading={isLoading}
         />
@@ -94,7 +94,7 @@ function InsightsOverview() {
           value={`${aggregatedMetrics?.avgConfidence || 0}%`}
           icon={Target}
           trend="up"
-          change="+5%"
+          change={5}
           description="Model accuracy"
           loading={isLoading}
         />
@@ -210,14 +210,14 @@ function AIInsightsContent() {
           value={insightPriorityDistribution?.critical?.toString() || '0'}
           icon={Warning}
           trend="down"
-          change="-2"
+          change={-2}
           description="High priority alerts"
           loading={isLoading}
         />
         <StatCard
           title="High Priority"
           value={insightPriorityDistribution?.high?.toString() || '0'}
-          icon={Activity}
+          icon={Pulse}
           trend="neutral"
           description="Requires attention"
           loading={isLoading}
@@ -235,7 +235,7 @@ function AIInsightsContent() {
           value={aggregatedMetrics?.totalInsights?.toString() || '0'}
           icon={Sparkle}
           trend="up"
-          change="+8"
+          change={8}
           description="All insights"
           loading={isLoading}
         />
@@ -374,7 +374,7 @@ function PredictionsContent() {
           value="82%"
           icon={ChartPie}
           trend="up"
-          change="+3%"
+          change={3}
           description="Model accuracy"
           loading={isLoading}
         />
@@ -496,7 +496,7 @@ function RecommendationsContent() {
           value={aggregatedMetrics?.totalRecommendations?.toString() || '0'}
           icon={Lightbulb}
           trend="up"
-          change="+4"
+          change={4}
           description="Active recommendations"
           loading={isLoading}
         />
@@ -505,7 +505,7 @@ function RecommendationsContent() {
           value={`$${(aggregatedMetrics?.potentialSavings || 0).toLocaleString()}`}
           icon={CurrencyDollar}
           trend="up"
-          change="+$15k"
+          change={15}
           description="Total identified"
           loading={isLoading}
         />
@@ -514,7 +514,7 @@ function RecommendationsContent() {
           value="195%"
           icon={TrendUp}
           trend="up"
-          change="+12%"
+          change={12}
           description="Return on investment"
           loading={isLoading}
         />

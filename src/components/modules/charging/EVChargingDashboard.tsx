@@ -1,11 +1,11 @@
 import {
-  BoltIcon,
-  Battery0Icon,
-  ChartBarIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  ExclamationTriangleIcon
-} from '@heroicons/react/24/outline';
+  Lightning,
+  BatteryEmpty,
+  ChartBar,
+  CheckCircle,
+  XCircle,
+  Warning
+} from '@phosphor-icons/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 
@@ -214,13 +214,13 @@ const EVChargingDashboard: React.FC = () => {
   const getStatusIcon = (status: string): JSX.Element => {
     switch (status) {
       case 'Available':
-        return <CheckCircleIcon className="w-3 h-3 text-green-500" />;
+        return <CheckCircle className="w-3 h-3 text-green-500" />;
       case 'Charging':
-        return <BoltIcon className="w-3 h-3 text-blue-800 animate-pulse" />;
+        return <Lightning className="w-3 h-3 text-blue-800 animate-pulse" />;
       case 'Faulted':
-        return <XCircleIcon className="w-3 h-3 text-red-500" />;
+        return <XCircle className="w-3 h-3 text-red-500" />;
       default:
-        return <ExclamationTriangleIcon className="w-3 h-3 text-yellow-500" />;
+        return <Warning className="w-3 h-3 text-yellow-500" />;
     }
   };
 
@@ -295,7 +295,7 @@ const EVChargingDashboard: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <BoltIcon className="w-16 h-16 mx-auto text-blue-800 animate-spin" />
+          <Lightning className="w-16 h-16 mx-auto text-blue-800 animate-spin" />
           <p className="mt-2 text-sm text-slate-700">Loading charging dashboard...</p>
         </div>
       </div>
@@ -326,7 +326,7 @@ const EVChargingDashboard: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">Online Stations</CardTitle>
-            <CheckCircleIcon className="w-3 h-3 text-green-500" />
+            <CheckCircle className="w-3 h-3 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold">{onlineStations}/{stations.length}</div>
@@ -339,7 +339,7 @@ const EVChargingDashboard: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">Active Sessions</CardTitle>
-            <BoltIcon className="w-3 h-3 text-blue-800" />
+            <Lightning className="w-3 h-3 text-blue-800" />
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold">{totalSessions}</div>
@@ -352,7 +352,7 @@ const EVChargingDashboard: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">Energy Delivered</CardTitle>
-            <Battery0Icon className="w-3 h-3 text-yellow-500" />
+            <BatteryEmpty className="w-3 h-3 text-yellow-500" />
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold">{formatEnergy(totalEnergyDelivered)}</div>
@@ -365,7 +365,7 @@ const EVChargingDashboard: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">Avg Utilization</CardTitle>
-            <ChartBarIcon className="w-3 h-3 text-purple-500" />
+            <ChartBar className="w-3 h-3 text-purple-500" />
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold">

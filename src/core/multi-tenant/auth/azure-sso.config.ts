@@ -15,13 +15,10 @@ export const msalConfig: Configuration = {
     clientId: process.env.REACT_APP_AZURE_AD_CLIENT_ID || '4c8641fa-3a56-448f-985a-e763017d70d7',
     authority: process.env.REACT_APP_AZURE_AD_AUTHORITY || 'https://login.microsoftonline.com/0ec14b81-7b82-45ee-8f3d-cbc31ced5347',
     redirectUri: process.env.REACT_APP_AZURE_AD_REDIRECT_URI || window.location.origin + '/auth/callback',
-    postLogoutRedirectUri: window.location.origin,
-    navigateToLoginRequestUrl: true
+    postLogoutRedirectUri: window.location.origin
   },
   cache: {
-    cacheLocation: 'sessionStorage', // More secure than localStorage
-    storeAuthStateInCookie: true, // Set to true for IE11/Edge support
-    secureCookies: true
+    cacheLocation: 'sessionStorage' // More secure than localStorage
   },
   system: {
     loggerOptions: {
@@ -43,11 +40,7 @@ export const msalConfig: Configuration = {
         }
       },
       piiLoggingEnabled: false
-    },
-    windowHashTimeout: 60000,
-    iframeHashTimeout: 6000,
-    loadFrameTimeout: 0,
-    asyncPopups: false
+    }
   }
 };
 
@@ -233,8 +226,9 @@ export class AzureAuthService {
     const roles = new Set<string>(['viewer']); // Everyone gets viewer role
 
     groups.forEach(group => {
-      if (group.displayName && roleMapping[group.displayName]) {
-        roles.add(roleMapping[group.displayName]);
+      const displayName = group.displayName as keyof typeof roleMapping;
+      if (displayName && displayName in roleMapping) {
+        roles.add(roleMapping[displayName]);
       }
     });
 

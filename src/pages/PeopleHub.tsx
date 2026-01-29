@@ -109,7 +109,7 @@ function PeopleOverview() {
           value={metrics?.activeEmployees?.toString() || '0'}
           icon={User}
           trend="up"
-          change="+5"
+          change={5}
           description="Currently working"
           loading={isLoading}
         />
@@ -118,7 +118,7 @@ function PeopleOverview() {
           value={`${metrics?.avgPerformanceRating || 0}%`}
           icon={ChartLine}
           trend="up"
-          change="+3%"
+          change={3}
           description="Organization average"
           loading={isLoading}
         />
@@ -427,7 +427,7 @@ function TeamsContent() {
           value={metrics?.totalTeams?.toString() || '0'}
           icon={UsersThree}
           trend="up"
-          change="+2"
+          change={2}
           description="Active teams"
           loading={isLoading}
         />
@@ -458,7 +458,7 @@ function TeamsContent() {
       <ResponsiveBarChart
         title="Team Size Distribution"
         description="Number of members in each team"
-        data={teamSizeData}
+        data={teamSizeData.map(item => ({ ...item, value: item.members }))}
         height={350}
         loading={isLoading}
       />
@@ -561,7 +561,7 @@ function PerformanceContent() {
           value={`${metrics?.avgPerformanceRating || 0}%`}
           icon={ChartLine}
           trend="up"
-          change="+3%"
+          change={3}
           description="Organization average"
           loading={isLoading}
         />
@@ -597,7 +597,7 @@ function PerformanceContent() {
         <ResponsiveLineChart
           title="Monthly Performance Trend"
           description="Average performance rating and completed reviews"
-          data={performanceTrendData}
+          data={performanceTrendData.map(item => ({ ...item, value: item.avgRating }))}
           height={300}
           showArea
           loading={isLoading}
@@ -617,7 +617,7 @@ function PerformanceContent() {
       <ResponsiveBarChart
         title="Department Performance"
         description="Average performance rating by department"
-        data={departmentPerformanceData}
+        data={departmentPerformanceData.map(item => ({ ...item, value: item.avgRating }))}
         height={350}
         loading={isLoading}
       />

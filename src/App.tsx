@@ -6,7 +6,6 @@ import { Toaster } from 'react-hot-toast'
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { AIAssistantChat } from "@/components/ai/AIAssistantChat"
 import { ToastContainer } from "@/components/common/ToastContainer"
-import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
 import { EnhancedErrorBoundary } from "@/components/errors/EnhancedErrorBoundary"
 import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
 import { CommandCenterLayout } from "@/components/layout/CommandCenterLayout"
@@ -486,11 +485,6 @@ function App() {
           </QueryErrorBoundary>
         </EnhancedErrorBoundary>
       </CommandCenterLayout>
-
-      {/* Role Switcher FAB button - Floating UI with proper ARIA */}
-      <div role="complementary" aria-label="Role switcher">
-        <RoleSwitcher />
-      </div>
 
       {/* Toast notifications - Legacy */}
       <div role="status" aria-live="polite" aria-label="Toast notifications">

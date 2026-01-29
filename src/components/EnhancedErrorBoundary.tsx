@@ -5,9 +5,15 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import logger from '@/utils/logger';
+interface FallbackRenderProps {
+  error: Error;
+  resetErrorBoundary: () => void;
+}
+
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  fallbackRender?: (props: FallbackRenderProps) => ReactNode;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
   showDetails?: boolean;
 }
@@ -174,6 +180,14 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
       // Use custom fallback if provided
       if (this.props.fallback) {
         return this.props.fallback;
+      }
+
+      // Use fallbackRender if provided
+      if (this.props.fallbackRender && this.state.error) {
+        return this.props.fallbackRender({
+          error: this.state.error,
+          resetErrorBoundary: this.handleReset,
+        });
       }
 
       const { error, errorInfo, errorCount } = this.state;

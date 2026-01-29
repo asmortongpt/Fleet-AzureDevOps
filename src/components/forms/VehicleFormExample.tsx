@@ -16,6 +16,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -24,8 +25,11 @@ import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { vehicleSchema, type VehicleFormData } from '@/schemas'
 
+// Input type for form fields (before validation/transforms apply defaults)
+type VehicleFormInput = z.input<typeof vehicleSchema>
+
 interface VehicleFormProps {
-  initialData?: Partial<VehicleFormData>
+  initialData?: Partial<VehicleFormInput>
   onSubmit: (data: VehicleFormData) => Promise<void>
   onCancel?: () => void
 }
@@ -36,7 +40,7 @@ export function VehicleForm({ initialData, onSubmit, onCancel }: VehicleFormProp
     handleSubmit,
     formState: { errors, isSubmitting, touchedFields, dirtyFields: _dirtyFields },
     watch,
-  } = useForm<VehicleFormData>({
+  } = useForm<VehicleFormInput, unknown, VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
     mode: 'onBlur', // Validate on blur for real-time feedback
     defaultValues: initialData,
@@ -46,7 +50,7 @@ export function VehicleForm({ initialData, onSubmit, onCancel }: VehicleFormProp
   const _watchedFields = watch()
 
   // Helper to check if field is valid (touched + no errors)
-  const isFieldValid = (fieldName: keyof VehicleFormData) => {
+  const isFieldValid = (fieldName: keyof VehicleFormInput) => {
     return touchedFields[fieldName] && !errors[fieldName]
   }
 

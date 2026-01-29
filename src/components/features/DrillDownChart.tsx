@@ -222,7 +222,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
           <BarChart
             data={currentData}
             margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-            onClick={(data) => {
+            onClick={(data: any) => {
               if (data && data.activePayload && data.activePayload[0]) {
                 handleBarClick(data.activePayload[0].payload)
               }
@@ -254,7 +254,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
             <Bar
               dataKey="value"
               radius={[4, 4, 0, 0]}
-              onMouseEnter={(data) => setHoveredBar(data.name)}
+              onMouseEnter={(data) => setHoveredBar(data.name ?? null)}
               onMouseLeave={() => setHoveredBar(null)}
               cursor={currentLevel < 3 ? 'pointer' : 'default'}
             >

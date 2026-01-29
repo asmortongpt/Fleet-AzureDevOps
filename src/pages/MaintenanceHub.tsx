@@ -240,7 +240,7 @@ const GarageOverview: FC = memo(() => {
           value={metrics?.urgentOrders?.toString() || '0'}
           icon={Lightning}
           trend="down"
-          change="-2"
+          change={-2}
           description="High priority"
           loading={isLoading}
           aria-label="Urgent orders"
@@ -360,7 +360,7 @@ const PredictiveContent: FC = memo(() => {
           value={predictiveMetrics.activePredictions.toString()}
           icon={ChartLine}
           trend="up"
-          change="+12"
+          change={12}
           description="Vehicles monitored"
           loading={isLoading}
           aria-label="Active predictions"
@@ -370,7 +370,7 @@ const PredictiveContent: FC = memo(() => {
           value={predictiveMetrics.criticalAlerts.toString()}
           icon={Lightning}
           trend="down"
-          change="-3"
+          change={-3}
           description="Requiring attention"
           loading={isLoading}
           aria-label="Critical alerts"
@@ -588,7 +588,7 @@ const RequestsContent: FC = memo(() => {
           value={requestMetrics?.completed?.toString() || '0'}
           icon={Wrench}
           trend="up"
-          change="+12"
+          change={12}
           description="This week"
           loading={isLoading}
           aria-label="Completed requests"
@@ -599,7 +599,7 @@ const RequestsContent: FC = memo(() => {
       <ResponsiveLineChart
         title="Request Volume Trend"
         description="Daily maintenance request submissions over the past week"
-        data={requestTrendData}
+        data={requestTrendData.map(d => ({ name: d.name, value: (d.count as number) || 0 }))}
         height={300}
         showArea
         loading={isLoading}

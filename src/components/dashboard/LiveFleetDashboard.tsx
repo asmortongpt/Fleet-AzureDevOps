@@ -154,7 +154,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
         }
 
         if (vehicleArray.length > 0) {
-          logger.info('[LiveFleetDashboard] API data loaded successfully:', vehicleArray.length, 'vehicles');
+          logger.info(`[LiveFleetDashboard] API data loaded successfully: ${vehicleArray.length} vehicles`);
           setVehicles(vehicleArray);
           setIsLoading(false);
         } else {

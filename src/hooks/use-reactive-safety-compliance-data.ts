@@ -251,6 +251,12 @@ export function useReactiveSafetyComplianceData() {
       : 999
   }, [incidents])
 
+  // Active violations (defined early as it's used in complianceScore)
+  const activeViolations = useMemo(() =>
+    violations.filter((v) => v.status === 'open' || v.status === 'appealed'),
+    [violations]
+  )
+
   // Enhanced compliance score calculation
   const complianceScore = useMemo(() => {
     let score = 100
@@ -323,12 +329,6 @@ export function useReactiveSafetyComplianceData() {
   const expiredCertifications = useMemo(() =>
     certifications.filter((c) => c.status === 'expired'),
     [certifications]
-  )
-
-  // Active violations
-  const activeViolations = useMemo(() =>
-    violations.filter((v) => v.status === 'open' || v.status === 'appealed'),
-    [violations]
   )
 
   // Total fines

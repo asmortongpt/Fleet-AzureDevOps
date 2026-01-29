@@ -98,9 +98,9 @@ export function DrilldownList<T extends DrilldownListItem>({
       label: recordLabel,
       data: {
         [`${recordType}Id`]: recordId,
-        id: recordId,
         ...additionalData,
         ...item,
+        id: recordId,
       },
     })
   }
