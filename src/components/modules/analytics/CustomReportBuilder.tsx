@@ -2,10 +2,10 @@ import {
   Plus,
   Play,
   FolderOpen,
-  MagicWand,
-  ChartBar,
+  Wand2,
+  BarChart,
   Clock
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
@@ -386,11 +386,11 @@ export function CustomReportBuilder() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="builder">
-            <ChartBar className="w-4 h-4 mr-2" />
+            <BarChart className="w-4 h-4 mr-2" />
             Report Builder
           </TabsTrigger>
           <TabsTrigger value="templates">
-            <MagicWand className="w-4 h-4 mr-2" />
+            <Wand2 className="w-4 h-4 mr-2" />
             Templates
           </TabsTrigger>
           <TabsTrigger value="my-reports">
@@ -478,7 +478,7 @@ export function CustomReportBuilder() {
                         className="w-full"
                         onClick={() => handleLoadTemplate(template.id, template.template_name)}
                       >
-                        <MagicWand className="w-4 h-4 mr-2" />
+                        <Wand2 className="w-4 h-4 mr-2" />
                         Use Template
                       </Button>
                     </CardContent>

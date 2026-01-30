@@ -1,4 +1,4 @@
-import { Car, Plus, Info } from "@phosphor-icons/react"
+import { Car, Plus, Info } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 

@@ -3,16 +3,7 @@
  * Supports OSHA-required training, expiration alerts, and completion tracking
  */
 
-import {
-    GraduationCap,
-    Certificate,
-    Calendar,
-    CheckCircle,
-    Warning,
-    Clock,
-    TrendUp,
-    Download
-} from '@phosphor-icons/react'
+import { GraduationCap, Certificate, Calendar, CheckCircle, AlertTriangle, Clock, TrendingUp, Download } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -63,7 +54,7 @@ const OSHA_REQUIRED_TRAINING = [
     'Lockout/Tagout (29 CFR 1910.147)',
     'Personal Protective Equipment (29 CFR 1910.132)',
     'Emergency Action Plan (29 CFR 1910.38)',
-    'Fire Extinguisher Use (29 CFR 1910.157)',
+    'Flame Extinguisher Use (29 CFR 1910.157)',
     'Bloodborne Pathogens (29 CFR 1910.1030)',
     'Respiratory Protection (29 CFR 1910.134)',
     'Confined Space Entry (29 CFR 1910.146)',
@@ -144,8 +135,8 @@ export function SafetyTrainingTracker() {
     const getStatusBadge = (status: TrainingRecord['status']) => {
         const variants = {
             current: { variant: 'default' as const, icon: <CheckCircle className="w-3 h-3" />, label: 'Current', color: 'bg-green-500' },
-            expiring_soon: { variant: 'secondary' as const, icon: <Warning className="w-3 h-3" />, label: 'Expiring Soon', color: 'bg-yellow-500' },
-            expired: { variant: 'destructive' as const, icon: <Warning className="w-3 h-3" />, label: 'Expired', color: 'bg-red-500' },
+            expiring_soon: { variant: 'secondary' as const, icon: <AlertTriangle className="w-3 h-3" />, label: 'Expiring Soon', color: 'bg-yellow-500' },
+            expired: { variant: 'destructive' as const, icon: <AlertTriangle className="w-3 h-3" />, label: 'Expired', color: 'bg-red-500' },
             pending: { variant: 'outline' as const, icon: <Clock className="w-3 h-3" />, label: 'Pending', color: 'bg-gray-500' }
         }
 
@@ -194,7 +185,7 @@ export function SafetyTrainingTracker() {
                     <CardContent>
                         <div className="flex items-baseline gap-2">
                             <span className="text-base font-bold text-white">{stats.compliance_rate}%</span>
-                            <TrendUp className="w-4 h-4 text-green-400" />
+                            <TrendingUp className="w-4 h-4 text-green-400" />
                         </div>
                         <Progress value={stats.compliance_rate} className="mt-2 h-2" />
                     </CardContent>
@@ -219,7 +210,7 @@ export function SafetyTrainingTracker() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
-                            <Warning className="w-3 h-3 text-yellow-400" />
+                            <AlertTriangle className="w-3 h-3 text-yellow-400" />
                             <span className="text-base font-bold text-white">{stats.expiring_soon}</span>
                         </div>
                         <p className="text-xs text-slate-400 mt-1">Within 30 days</p>
@@ -232,7 +223,7 @@ export function SafetyTrainingTracker() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
-                            <Warning className="w-3 h-3 text-red-400" />
+                            <AlertTriangle className="w-3 h-3 text-red-400" />
                             <span className="text-base font-bold text-white">{stats.expired_certifications}</span>
                         </div>
                         <p className="text-xs text-slate-400 mt-1">Requires renewal</p>

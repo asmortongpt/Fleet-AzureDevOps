@@ -286,7 +286,7 @@ const mockParts: Part[] = [
   { id: 'p1', name: 'Oil Filter', partNumber: 'OF-2024A', quantity: 45, reorderPoint: 20, status: 'in_stock', location: 'Shelf A-1' },
   { id: 'p2', name: 'Brake Pads (Front)', partNumber: 'BP-F100', quantity: 8, reorderPoint: 15, status: 'low_stock', location: 'Shelf B-3' },
   { id: 'p3', name: 'Air Filter', partNumber: 'AF-2024B', quantity: 32, reorderPoint: 10, status: 'in_stock', location: 'Shelf A-2' },
-  { id: 'p4', name: 'Spark Plugs (4-pack)', partNumber: 'SP-4PK', quantity: 0, reorderPoint: 12, status: 'on_order', location: 'Shelf C-1' },
+  { id: 'p4', name: 'Spark Plug (4-pack)', partNumber: 'SP-4PK', quantity: 0, reorderPoint: 12, status: 'on_order', location: 'Shelf C-1' },
   { id: 'p5', name: 'Transmission Fluid', partNumber: 'TF-ATF4', quantity: 24, reorderPoint: 8, status: 'in_stock', location: 'Shelf D-2' },
 ]
 

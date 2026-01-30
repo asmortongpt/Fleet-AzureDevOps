@@ -185,7 +185,7 @@ const VehicleShowroom: React.FC = () => {
           'Tinted Windows',
           'Emergency Exits',
           'First Aid Kit',
-          'Fire Extinguisher',
+          'Flame Extinguisher',
           'Two-Way Radio'
         ],
         maintenanceHistory: [

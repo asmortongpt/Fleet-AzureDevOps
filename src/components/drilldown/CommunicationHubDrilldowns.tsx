@@ -4,28 +4,7 @@
  * Each stat card in CommunicationHub drills down to a filtered list of actual records.
  * From the list, users can click individual items to view full details.
  */
-import {
-  ChatCircle,
-  EnvelopeSimple,
-  Robot,
-  Bell,
-  Archive,
-  Envelope,
-  PaperPlaneTilt,
-  Clock,
-  CheckCircle,
-  Warning,
-  Star,
-  Paperclip,
-  Eye,
-  Flag,
-  Calendar,
-  TrendUp,
-  Hash,
-  Users,
-  Sparkle,
-  ArrowRight,
-} from '@phosphor-icons/react'
+import { MessageCircle, Mail, Bot, Bell, Archive, Send, Clock, CheckCircle, AlertTriangle, Star, Paperclip, Eye, Flag, Calendar, TrendingUp, Hash, Users, Sparkles, ArrowRight } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 
 import { Badge } from '@/components/ui/badge'
@@ -78,11 +57,11 @@ function EmailListItem({ email, onClick }: EmailListItemProps) {
     >
       <div className="flex-shrink-0 mt-1">
         {email.priority === 'high' ? (
-          <Warning className="w-3 h-3 text-red-400" />
+          <AlertTriangle className="w-3 h-3 text-red-400" />
         ) : email.hasReceipt ? (
           <CheckCircle className="w-3 h-3 text-emerald-400" />
         ) : (
-          <Envelope className={`w-3 h-3 ${!email.isRead ? 'text-blue-400' : 'text-slate-500'}`} />
+          <Mail className={`w-3 h-3 ${!email.isRead ? 'text-blue-400' : 'text-slate-500'}`} />
         )}
       </div>
       <div className="flex-1 min-w-0">
@@ -162,7 +141,7 @@ function ConversationListItem({ conversation, onClick }: ConversationListItemPro
         </Badge>
         {conversation.satisfaction && (
           <div className="flex items-center gap-1 text-xs text-slate-500">
-            <Star className="w-3 h-3 text-yellow-500" weight="fill" />
+            <Star className="w-3 h-3 text-yellow-500" />
             {conversation.satisfaction}/5
           </div>
         )}
@@ -235,7 +214,7 @@ export function AiAgentDrilldown() {
         <Card className="bg-emerald-900/30 border-emerald-700/50 cursor-pointer hover:border-emerald-500/50 transition-colors"
               onClick={() => push({ type: 'ai-satisfaction', data: { filter: 'satisfaction', title: 'High Satisfaction' } } as any)}>
           <CardContent className="p-2 text-center">
-            <Robot className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
+            <Bot className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
             <div className="text-sm font-bold text-white">94%</div>
             <div className="text-xs text-slate-400">Satisfaction</div>
           </CardContent>
@@ -249,7 +228,7 @@ export function AiAgentDrilldown() {
         </Card>
         <Card className="bg-purple-900/30 border-purple-700/50">
           <CardContent className="p-2 text-center">
-            <ChatCircle className="w-4 h-4 text-purple-400 mx-auto mb-2" />
+            <MessageCircle className="w-4 h-4 text-purple-400 mx-auto mb-2" />
             <div className="text-sm font-bold text-purple-400">{filteredConversations.length}</div>
             <div className="text-xs text-slate-400">Conversations</div>
           </CardContent>
@@ -261,7 +240,7 @@ export function AiAgentDrilldown() {
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkle className="w-3 h-3 text-purple-400" />
+              <Sparkles className="w-3 h-3 text-purple-400" />
               AI Conversations
             </div>
             <Badge variant="outline" className="text-xs">
@@ -346,7 +325,7 @@ export function MessagesDrilldown() {
       <div className="grid grid-cols-3 gap-3">
         <Card className="bg-blue-900/30 border-blue-700/50">
           <CardContent className="p-2 text-center">
-            <ChatCircle className="w-4 h-4 text-blue-400 mx-auto mb-2" />
+            <MessageCircle className="w-4 h-4 text-blue-400 mx-auto mb-2" />
             <div className="text-sm font-bold text-white">234</div>
             <div className="text-xs text-slate-400">Messages Today</div>
           </CardContent>
@@ -472,7 +451,7 @@ export function EmailDrilldown() {
           onClick={() => push({ type: 'email', data: { filter: 'sent', title: 'Sent Today' } } as any)}
         >
           <CardContent className="p-2 text-center">
-            <PaperPlaneTilt className="w-4 h-4 text-blue-400 mx-auto mb-2" />
+            <Send className="w-4 h-4 text-blue-400 mx-auto mb-2" />
             <div className="text-sm font-bold text-white">156</div>
             <div className="text-xs text-slate-400">Sent Today</div>
           </CardContent>
@@ -482,7 +461,7 @@ export function EmailDrilldown() {
           onClick={() => push({ type: 'email-templates', data: { filter: 'templates', title: 'Templates' } } as any)}
         >
           <CardContent className="p-2 text-center">
-            <EnvelopeSimple className="w-4 h-4 text-slate-400 mx-auto mb-2" />
+            <Mail className="w-4 h-4 text-slate-400 mx-auto mb-2" />
             <div className="text-sm font-bold text-slate-300">24</div>
             <div className="text-xs text-slate-400">Templates</div>
           </CardContent>
@@ -511,7 +490,7 @@ export function EmailDrilldown() {
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Envelope className="w-3 h-3 text-blue-400" />
+              <Mail className="w-3 h-3 text-blue-400" />
               {filterType === 'sent' ? 'Sent Emails' :
                filterType === 'unread' ? 'Unread Emails' :
                filterType === 'receipts' ? 'Receipt Emails' :
@@ -579,7 +558,7 @@ export function EmailDrilldown() {
               })}
             >
               <div className="flex items-center gap-3">
-                <EnvelopeSimple className="w-3 h-3 text-slate-500" />
+                <Mail className="w-3 h-3 text-slate-500" />
                 <div>
                   <div className="font-medium text-white">{template.name}</div>
                   <div className="text-xs text-slate-500">Used {template.usageCount} times • Last: {template.lastUsed}</div>
@@ -595,7 +574,7 @@ export function EmailDrilldown() {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <TrendUp className="w-3 h-3 text-emerald-400" />
+            <TrendingUp className="w-3 h-3 text-emerald-400" />
             Campaign Performance
           </CardTitle>
         </CardHeader>
@@ -692,7 +671,7 @@ export function HistoryDrilldown() {
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <ChatCircle className="w-3 h-3 text-blue-400" />
+              <MessageCircle className="w-3 h-3 text-blue-400" />
               {filterType === 'flagged' ? 'Flagged Messages' :
                filterType === 'archived' ? 'Archived Messages' :
                'Communication History'}
@@ -723,9 +702,9 @@ export function HistoryDrilldown() {
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     {item.type === 'email' ? (
-                      <Envelope className="w-3 h-3 text-blue-400 flex-shrink-0" />
+                      <Mail className="w-3 h-3 text-blue-400 flex-shrink-0" />
                     ) : item.type === 'sms' ? (
-                      <ChatCircle className="w-3 h-3 text-emerald-400 flex-shrink-0" />
+                      <MessageCircle className="w-3 h-3 text-emerald-400 flex-shrink-0" />
                     ) : (
                       <Bell className="w-3 h-3 text-purple-400 flex-shrink-0" />
                     )}

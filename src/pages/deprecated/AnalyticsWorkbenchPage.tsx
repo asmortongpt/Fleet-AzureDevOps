@@ -4,26 +4,26 @@
  */
 
 import {
-  ChartBar,
+  BarChart,
   Database,
   Download,
-  Faders,
-  FloppyDisk,
+  Sliders,
+  Save,
   Table,
-  ChartLine,
+  LineChart,
   PieChart,
-  ChartBarHorizontal,
+  BarChartHorizontal,
   Plus,
-  Trash,
+  Trash2,
   FileText,
-  FilePdf,
-  FileCsv,
-  FunnelSimple,
-  ArrowsClockwise,
-  CaretDown,
+  File,
+  FileSpreadsheet,
+  Filter,
+  RefreshCw,
+  ChevronDown,
   Check,
   X
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import { useState, useMemo } from "react"
@@ -346,7 +346,7 @@ export function AnalyticsWorkbenchPage() {
                 toast("Report cleared")
               }}
             >
-              <ArrowsClockwise className="w-4 h-4 mr-2" />
+              <RefreshCw className="w-4 h-4 mr-2" />
               Clear
             </Button>
             <DropdownMenu>
@@ -354,24 +354,24 @@ export function AnalyticsWorkbenchPage() {
                 <Button variant="outline">
                   <Download className="w-4 h-4 mr-2" />
                   Export
-                  <CaretDown className="w-4 h-4 ml-2" />
+                  <ChevronDown className="w-4 h-4 ml-2" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Export Format</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={exportToCSV}>
-                  <FileCsv className="w-4 h-4 mr-2" />
+                  <FileSpreadsheet className="w-4 h-4 mr-2" />
                   Export as CSV
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={exportToPDF}>
-                  <FilePdf className="w-4 h-4 mr-2" />
+                  <File className="w-4 h-4 mr-2" />
                   Export as PDF
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <Button onClick={() => setIsSaveDialogOpen(true)}>
-              <FloppyDisk className="w-4 h-4 mr-2" />
+              <Save className="w-4 h-4 mr-2" />
               Save Report
             </Button>
           </div>
@@ -408,7 +408,7 @@ export function AnalyticsWorkbenchPage() {
                   <p className="text-sm font-medium text-muted-foreground">Filters Active</p>
                   <p className="text-sm font-bold">{stats.filtersApplied}</p>
                 </div>
-                <FunnelSimple className="w-4 h-4 text-muted-foreground" />
+                <Filter className="w-4 h-4 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
@@ -431,15 +431,15 @@ export function AnalyticsWorkbenchPage() {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full max-w-md grid-cols-3">
             <TabsTrigger value="builder">
-              <Faders className="w-4 h-4 mr-2" />
+              <Sliders className="w-4 h-4 mr-2" />
               Report Builder
             </TabsTrigger>
             <TabsTrigger value="preview">
-              <ChartBar className="w-4 h-4 mr-2" />
+              <BarChart className="w-4 h-4 mr-2" />
               Preview
             </TabsTrigger>
             <TabsTrigger value="saved">
-              <FloppyDisk className="w-4 h-4 mr-2" />
+              <Save className="w-4 h-4 mr-2" />
               Saved Reports
             </TabsTrigger>
           </TabsList>
@@ -499,7 +499,7 @@ export function AnalyticsWorkbenchPage() {
                               size="sm"
                               onClick={() => removeColumn(col.id)}
                             >
-                              <Trash className="w-4 h-4 text-destructive" />
+                              <Trash2 className="w-4 h-4 text-destructive" />
                             </Button>
                           </div>
                         ))}
@@ -513,7 +513,7 @@ export function AnalyticsWorkbenchPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <FunnelSimple className="w-3 h-3" />
+                    <Filter className="w-3 h-3" />
                     Data Filters
                   </CardTitle>
                   <CardDescription>
@@ -610,7 +610,7 @@ export function AnalyticsWorkbenchPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <ChartLine className="w-3 h-3" />
+                  <LineChart className="w-3 h-3" />
                   Visualization Type
                 </CardTitle>
                 <CardDescription>
@@ -621,12 +621,12 @@ export function AnalyticsWorkbenchPage() {
                 <div className="grid grid-cols-5 gap-2">
                   {[
                     { type: "table" as ChartType, icon: Table, label: "Table" },
-                    { type: "bar" as ChartType, icon: ChartBar, label: "Bar Chart" },
-                    { type: "line" as ChartType, icon: ChartLine, label: "Line Chart" },
+                    { type: "bar" as ChartType, icon: BarChart, label: "Bar Chart" },
+                    { type: "line" as ChartType, icon: LineChart, label: "Line Chart" },
                     { type: "pie" as ChartType, icon: PieChart, label: "Pie Chart" },
                     {
                       type: "horizontal-bar" as ChartType,
-                      icon: ChartBarHorizontal,
+                      icon: BarChartHorizontal,
                       label: "H-Bar Chart"
                     }
                   ].map(({ type, icon: Icon, label }) => (
@@ -757,7 +757,7 @@ export function AnalyticsWorkbenchPage() {
                               size="sm"
                               onClick={() => deleteReport(report.id)}
                             >
-                              <Trash className="w-4 h-4 text-destructive" />
+                              <Trash2 className="w-4 h-4 text-destructive" />
                             </Button>
                           </div>
                         </div>
@@ -814,7 +814,7 @@ export function AnalyticsWorkbenchPage() {
               Cancel
             </Button>
             <Button onClick={saveReport}>
-              <FloppyDisk className="w-4 h-4 mr-2" />
+              <Save className="w-4 h-4 mr-2" />
               Save Report
             </Button>
           </DialogFooter>

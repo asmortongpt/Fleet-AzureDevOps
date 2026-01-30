@@ -11,7 +11,7 @@
  * Meets FAANG-level quality standards
  */
 
-import { Warning, ArrowClockwise, House, EnvelopeSimple } from '@phosphor-icons/react'
+import { AlertTriangle, RotateCw, Home, Mail } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import React, { Component, ErrorInfo, ReactNode } from 'react'
 
@@ -281,7 +281,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                 className="inline-flex mx-auto mb-2"
               >
                 <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
-                  <Warning className="w-4 h-4 text-red-600 dark:text-red-400" />
+                  <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
                 </div>
               </motion.div>
 
@@ -389,7 +389,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                 className="gap-2"
                 variant="default"
               >
-                <ArrowClockwise className="w-4 h-4" />
+                <RotateCw className="w-4 h-4" />
                 Try Again
               </Button>
 
@@ -398,7 +398,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                 className="gap-2"
                 variant="outline"
               >
-                <House className="w-4 h-4" />
+                <Home className="w-4 h-4" />
                 Go Home
               </Button>
 
@@ -408,7 +408,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                   className="gap-2"
                   variant="outline"
                 >
-                  <EnvelopeSimple className="w-4 h-4" />
+                  <Mail className="w-4 h-4" />
                   Contact Support
                 </Button>
               )}

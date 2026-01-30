@@ -4,7 +4,7 @@
  */
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { User, Check, X, Upload, LinkedinLogo, GithubLogo, TwitterLogo } from '@phosphor-icons/react'
+import { User, Check, X, Upload, Linkedin, Github, Twitter } from 'lucide-react'
 import { useAtom } from 'jotai'
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
@@ -391,7 +391,7 @@ export default function ProfilePage() {
           <CardContent className="space-y-2">
             <div className="space-y-2">
               <Label htmlFor="linkedin" className="flex items-center gap-2">
-                <LinkedinLogo className="h-4 w-4" />
+                <Linkedin className="h-4 w-4" />
                 LinkedIn
               </Label>
               <Input
@@ -409,7 +409,7 @@ export default function ProfilePage() {
 
             <div className="space-y-2">
               <Label htmlFor="github" className="flex items-center gap-2">
-                <GithubLogo className="h-4 w-4" />
+                <Github className="h-4 w-4" />
                 GitHub
               </Label>
               <Input
@@ -427,7 +427,7 @@ export default function ProfilePage() {
 
             <div className="space-y-2">
               <Label htmlFor="twitter" className="flex items-center gap-2">
-                <TwitterLogo className="h-4 w-4" />
+                <Twitter className="h-4 w-4" />
                 Twitter
               </Label>
               <Input

@@ -3,15 +3,7 @@
  * Password, 2FA, sessions, and API keys
  */
 
-import {
-  ShieldCheck,
-  Key,
-  DeviceMobile,
-  ClockCounterClockwise,
-  Desktop,
-  SignOut,
-  Shield
-} from '@phosphor-icons/react'
+import { ShieldCheck, Key, Smartphone, RotateCcw, Monitor, LogOut, Shield } from 'lucide-react'
 import { useAtom } from 'jotai'
 import { useState } from 'react'
 
@@ -38,7 +30,7 @@ import logger from '@/utils/logger';
 const mockActiveSessions = [
   {
     id: '1',
-    device: 'Desktop',
+    device: 'Monitor',
     browser: 'Chrome 120.0',
     lastActive: '2 minutes ago',
     ip: '192.168.1.100',
@@ -59,7 +51,7 @@ const mockLoginHistory = [
   {
     id: '1',
     timestamp: '2025-11-28 09:30 AM',
-    device: 'Desktop - Chrome',
+    device: 'Monitor - Chrome',
     location: 'New York, NY',
     ip: '192.168.1.100',
   },
@@ -73,7 +65,7 @@ const mockLoginHistory = [
   {
     id: '3',
     timestamp: '2025-11-26 11:20 AM',
-    device: 'Desktop - Chrome',
+    device: 'Monitor - Chrome',
     location: 'New York, NY',
     ip: '192.168.1.100',
   },
@@ -233,7 +225,7 @@ export function SecuritySettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <ClockCounterClockwise className="w-3 h-3" />
+            <RotateCcw className="w-3 h-3" />
             <CardTitle>Session Timeout</CardTitle>
           </div>
           <CardDescription>Automatically log out after inactivity</CardDescription>
@@ -260,7 +252,7 @@ export function SecuritySettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Desktop className="w-3 h-3" />
+            <Monitor className="w-3 h-3" />
             <CardTitle>Active Sessions</CardTitle>
           </div>
           <CardDescription>Manage devices with access to your account</CardDescription>
@@ -273,7 +265,7 @@ export function SecuritySettings() {
                 className="flex items-center justify-between p-3 border rounded-lg"
               >
                 <div className="flex items-center gap-3">
-                  <DeviceMobile className="w-3 h-3 text-muted-foreground" />
+                  <Smartphone className="w-3 h-3 text-muted-foreground" />
                   <div>
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-sm">{session.device}</p>
@@ -295,7 +287,7 @@ export function SecuritySettings() {
                     size="sm"
                     onClick={() => handleTerminateSession(session.id)}
                   >
-                    <SignOut className="w-4 h-4 mr-1" />
+                    <LogOut className="w-4 h-4 mr-1" />
                     Sign Out
                   </Button>
                 )}
@@ -309,7 +301,7 @@ export function SecuritySettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <ClockCounterClockwise className="w-3 h-3" />
+            <RotateCcw className="w-3 h-3" />
             <CardTitle>Login History</CardTitle>
           </div>
           <CardDescription>Recent login activity on your account</CardDescription>

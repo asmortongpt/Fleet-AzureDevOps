@@ -1,4 +1,4 @@
-import { MagnifyingGlass, X, Funnel } from '@phosphor-icons/react'
+import { Search, X, Filter } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -85,7 +85,7 @@ export function FilterBar({
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Funnel className="w-3 h-3 text-primary" />
+            <Filter className="w-3 h-3 text-primary" />
             <h3 className="font-semibold">Filters</h3>
             {showFilterCount && hasActiveFilters && (
               <Badge variant="secondary" className="ml-2">
@@ -110,7 +110,7 @@ export function FilterBar({
                 Search
               </Label>
               <div className="relative">
-                <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="search"
                   placeholder="Search vehicles..."

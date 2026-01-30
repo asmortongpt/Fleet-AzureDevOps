@@ -3,17 +3,7 @@
  * Tracks recordable incidents, DART rate, TRIR, and regulatory compliance
  */
 
-import {
-    ShieldCheck,
-    Warning,
-    FirstAid,
-    FileText,
-    TrendDown,
-    TrendUp,
-    Calendar,
-    ClipboardText,
-    Download
-} from '@phosphor-icons/react'
+import { ShieldCheck, AlertTriangle, FirstAid, FileText, TrendingDown, TrendingUp, Calendar, Clipboard, Download } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -195,7 +185,7 @@ export function OSHAComplianceDashboard() {
                 <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border-blue-500/30">
                     <CardHeader className="pb-3">
                         <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                            <ClipboardText className="w-4 h-4" />
+                            <Clipboard className="w-4 h-4" />
                             TRIR
                         </CardTitle>
                         <CardDescription className="text-xs text-slate-400">
@@ -210,7 +200,7 @@ export function OSHAComplianceDashboard() {
                             </Badge>
                         </div>
                         <div className="flex items-center gap-1 text-xs text-slate-400">
-                            <TrendDown className="w-3 h-3 text-green-400" />
+                            <TrendingDown className="w-3 h-3 text-green-400" />
                             <span>12% improvement YoY</span>
                         </div>
                         <p className="text-xs text-slate-500 mt-2">
@@ -234,7 +224,7 @@ export function OSHAComplianceDashboard() {
                             <span className="text-base font-bold text-white">{metrics.dart_rate}</span>
                         </div>
                         <div className="flex items-center gap-1 text-xs text-slate-400">
-                            <TrendDown className="w-3 h-3 text-green-400" />
+                            <TrendingDown className="w-3 h-3 text-green-400" />
                             <span>8% improvement YoY</span>
                         </div>
                         <p className="text-xs text-slate-500 mt-2">
@@ -259,7 +249,7 @@ export function OSHAComplianceDashboard() {
                         </div>
                         <Progress value={metrics.compliance_score} className="h-2 mb-2" />
                         <div className="flex items-center gap-1 text-xs text-slate-400">
-                            <TrendUp className="w-3 h-3 text-green-400" />
+                            <TrendingUp className="w-3 h-3 text-green-400" />
                             <span>+3% this quarter</span>
                         </div>
                     </CardContent>
@@ -268,7 +258,7 @@ export function OSHAComplianceDashboard() {
                 <Card className="bg-gradient-to-br from-red-500/10 to-red-600/10 border-red-500/30">
                     <CardHeader className="pb-3">
                         <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                            <Warning className="w-4 h-4" />
+                            <AlertTriangle className="w-4 h-4" />
                             Recordable Incidents
                         </CardTitle>
                         <CardDescription className="text-xs text-slate-400">

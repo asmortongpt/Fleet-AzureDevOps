@@ -3,16 +3,7 @@
  * Push notifications for critical safety events, compliance deadlines, and incidents
  */
 
-import {
-    Bell,
-    Warning,
-    Info,
-    CheckCircle,
-    X,
-    Eye,
-    Clock,
-    Siren
-} from '@phosphor-icons/react'
+import { Bell, AlertTriangle, Info, CheckCircle, X, Eye, Clock, Siren } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -179,7 +170,7 @@ export function SafetyNotificationSystem() {
             case 'critical':
                 return <Siren className="w-3 h-3 text-red-400" />
             case 'warning':
-                return <Warning className="w-3 h-3 text-yellow-400" />
+                return <AlertTriangle className="w-3 h-3 text-yellow-400" />
             case 'info':
                 return <Info className="w-3 h-3 text-blue-400" />
             case 'success':

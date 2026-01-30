@@ -19,18 +19,7 @@
 
 import { motion } from 'framer-motion'
 import { Suspense, memo, useCallback, useMemo } from 'react'
-import {
-  Shield as ComplianceIcon,
-  CheckCircle,
-  Warning,
-  ClipboardText,
-  Certificate,
-  CalendarX,
-  TrendUp,
-  FileText,
-  ListChecks,
-  XCircle,
-} from '@phosphor-icons/react'
+import { Shield as ComplianceIcon, CheckCircle, AlertTriangle, Clipboard, Certificate, CalendarX, TrendingUp, FileText, ListChecks, XCircle } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveComplianceData } from '@/hooks/use-reactive-compliance-data'
 import type { ComplianceRecord, Inspection } from '@/hooks/use-reactive-compliance-data'
@@ -336,7 +325,7 @@ const ComplianceOverview = memo(function ComplianceOverview() {
         <StatCard
           title="Total Records"
           value={metrics?.totalRecords?.toString() || '0'}
-          icon={ClipboardText}
+          icon={Clipboard}
           trend="neutral"
           description="All compliance items"
           loading={isLoading}
@@ -362,7 +351,7 @@ const ComplianceOverview = memo(function ComplianceOverview() {
         <StatCard
           title="Non-Compliant"
           value={metrics?.nonCompliant?.toString() || '0'}
-          icon={Warning}
+          icon={AlertTriangle}
           trend="down"
           change="-5"
           description="Requires attention"
@@ -422,7 +411,7 @@ const ComplianceOverview = memo(function ComplianceOverview() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Warning className="h-5 w-5 text-red-500" aria-hidden="true" />
+                <AlertTriangle className="h-5 w-5 text-red-500" aria-hidden="true" />
                 <CardTitle>Non-Compliant Items</CardTitle>
               </div>
               <CardDescription>Items requiring immediate attention</CardDescription>
@@ -510,7 +499,7 @@ const InspectionsContent = memo(function InspectionsContent() {
         <StatCard
           title="Pass Rate"
           value={`${passRate}%`}
-          icon={TrendUp}
+          icon={TrendingUp}
           trend="up"
           change="+3%"
           description="Success rate"
@@ -595,7 +584,7 @@ const ReportsContent = memo(function ReportsContent() {
         <StatCard
           title="Avg Compliance Rate"
           value={`${avgComplianceRate}%`}
-          icon={TrendUp}
+          icon={TrendingUp}
           trend="up"
           change="+1.5%"
           description="Across all categories"
@@ -689,7 +678,7 @@ const ViolationsContent = memo(function ViolationsContent() {
         <StatCard
           title="Total Violations"
           value={metrics?.totalViolations?.toString() || '0'}
-          icon={Warning}
+          icon={AlertTriangle}
           trend="down"
           change="-8"
           description="All violations"
@@ -719,7 +708,7 @@ const ViolationsContent = memo(function ViolationsContent() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Warning className="h-5 w-5 text-amber-500" aria-hidden="true" />
+            <AlertTriangle className="h-5 w-5 text-amber-500" aria-hidden="true" />
             <CardTitle>Active Violations</CardTitle>
           </div>
           <CardDescription>Violations requiring resolution</CardDescription>
@@ -832,7 +821,7 @@ export default function ComplianceHub() {
     {
       id: 'violations',
       label: 'Violations',
-      icon: <Warning className="h-4 w-4" />,
+      icon: <AlertTriangle className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <Suspense fallback={<div className="p-6" role="status" aria-live="polite">Loading violation data...</div>}>

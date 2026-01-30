@@ -1,4 +1,4 @@
-import { TrendUp, TrendDown, Minus } from "@phosphor-icons/react"
+import { TrendingUp, TrendingDown, Minus } from "lucide-react"
 import { motion } from "framer-motion"
 
 import { Badge } from "@/components/ui/badge"
@@ -24,9 +24,9 @@ export function MetricCard({
   status
 }: MetricCardProps) {
   const getTrendIcon = () => {
-    if (trend === "up") return <TrendUp className="w-2.5 h-2.5" weight="bold" />
-    if (trend === "down") return <TrendDown className="w-2.5 h-2.5" weight="bold" />
-    return <Minus className="w-2.5 h-2.5" weight="bold" />
+    if (trend === "up") return <TrendingUp className="w-2.5 h-2.5" />
+    if (trend === "down") return <TrendingDown className="w-2.5 h-2.5" />
+    return <Minus className="w-2.5 h-2.5" />
   }
 
   const getTrendColor = () => {

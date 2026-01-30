@@ -1,9 +1,7 @@
 /**
  * AdminHubDrilldowns - Drilldown components for Admin hub
  */
-import {
-    Cpu, HardDrive, Users, Bell, CheckCircle, Warning, Pulse
-} from '@phosphor-icons/react'
+import { Cpu, HardDrive, Users, Bell, CheckCircle, AlertTriangle, Activity } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -44,7 +42,7 @@ export function SystemHealthDrilldown() {
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
-                        <Pulse className="w-3 h-3 text-blue-400" />
+                        <Activity className="w-3 h-3 text-blue-400" />
                         Service Status
                     </CardTitle>
                 </CardHeader>
@@ -114,7 +112,7 @@ export function AlertsDrilldown() {
                         <div key={alert.id} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
                             <div className="flex items-center gap-3">
                                 {alert.severity === 'warning' ?
-                                    <Warning className="w-3 h-3 text-amber-400" /> :
+                                    <AlertTriangle className="w-3 h-3 text-amber-400" /> :
                                     <Bell className="w-3 h-3 text-blue-400" />
                                 }
                                 <div>

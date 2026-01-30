@@ -49,11 +49,7 @@ export const setTenantContext = async (
   res: Response,
   next: NextFunction
 ) => {
-  // DEVELOPMENT MODE: In development, still set up dbClient but skip RLS
   const isDevelopment = process.env.NODE_ENV === 'development'
-  if (isDevelopment) {
-    logger.debug('🔓 TENANT CONTEXT - Development mode, setting up dbClient without RLS')
-  }
 
   // Skip if user is not authenticated (will be caught by authenticateJWT)
   if (!req.user) {
@@ -92,61 +88,22 @@ export const setTenantContext = async (
   }
 
   try {
-    // Get a connection from the pool
-    const client = await pool.connect()
+    // Validate tenant context without holding a connection
+    // Each query will set its own tenant context when it acquires a connection
+    // This prevents connection pool exhaustion
 
-    try {
-      // Set the session variable for this transaction (skip in development)
-      // Using SET LOCAL ensures the variable is cleared after the transaction
-      // This is critical for connection pooling security
-      if (!isDevelopment) {
-        await client.query(
-          'SET LOCAL app.current_tenant_id = $1',
-          [req.user.tenant_id]
-        )
+    console.log('✅ TENANT CONTEXT - Tenant validated', {
+      tenantId: req.user.tenant_id,
+      userId: req.user.id,
+      method: req.method,
+      path: req.path,
+      environment: isDevelopment ? 'development' : 'production'
+    })
 
-        console.log('✅ TENANT CONTEXT - Session variable set', {
-          tenantId: req.user.tenant_id,
-          userId: req.user.id,
-          method: req.method,
-          path: req.path
-        })
-      } else {
-        console.log('✅ TENANT CONTEXT - Development mode, dbClient set without RLS', {
-          tenantId: req.user.tenant_id,
-          userId: req.user.id,
-          method: req.method,
-          path: req.path
-        })
-      }
+    // Store tenant_id on request for easy access by routes
+    ;(req as any).tenantId = req.user.tenant_id
 
-      // Store the client on the request object for the route handlers to use
-      // This ensures all queries in this request use the same connection
-      // with the tenant context set
-      ;(req as any).dbClient = client
-
-      // Release the client back to the pool after the response is sent
-      res.on('finish', () => {
-        if ((req as any).dbClient) {
-          (req as any).dbClient.release()
-          ;(req as any).dbClient = null
-        }
-      })
-
-      // Release on error as well
-      res.on('close', () => {
-        if ((req as any).dbClient) {
-          (req as any).dbClient.release()
-          ;(req as any).dbClient = null
-        }
-      })
-
-      next()
-    } catch (queryError) {
-      // Release client on error
-      client.release()
-      throw queryError
-    }
+    next()
   } catch (error) {
     console.error('❌ TENANT CONTEXT - Failed to set session variable', {
       error: error instanceof Error ? error.message : 'Unknown error',

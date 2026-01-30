@@ -2,13 +2,13 @@ import {
   Radio as RadioIcon,
   Mic,
   MicOff,
-  Warning,
-  People,
-  VolumeUp,
-  VolumeOff,
-  Emergency,
-  Sensors
-} from '@mui/icons-material';
+  AlertTriangle,
+  Users as People,
+  Volume2 as VolumeUp,
+  VolumeX as VolumeOff,
+  Siren as Emergency,
+  Radar as Sensors
+} from 'lucide-react';
 import {
   Box,
   Card,
@@ -407,7 +407,7 @@ export default function DispatchConsole() {
           <Card elevation={3} sx={{ height: '100%' }}>
             <CardContent>
               <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} variant="fullWidth">
-                <Tab label="Alerts" icon={<Warning />} iconPosition="start" />
+                <Tab label="Alerts" icon={<AlertTriangle />} iconPosition="start" />
                 <Tab label="History" icon={<RadioIcon />} iconPosition="start" />
               </Tabs>
 

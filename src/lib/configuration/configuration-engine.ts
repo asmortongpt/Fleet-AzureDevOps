@@ -494,7 +494,7 @@ export const CONFIGURATION_SCHEMA: ConfigurationSchema = {
       id: 'integrations',
       name: 'Integrations & APIs',
       description: 'Configure external system integrations',
-      icon: 'Plugs',
+      icon: 'Plug',
       order: 4,
       requiredRole: 'CTAOwner',
       sections: [

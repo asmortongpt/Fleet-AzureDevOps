@@ -1,4 +1,4 @@
-import { ArrowUp, ArrowDown, Minus } from "@phosphor-icons/react"
+import { ArrowUp, ArrowDown, Minus } from "lucide-react"
 import { ReactNode } from "react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -52,7 +52,7 @@ export interface MetricCardProps {
  *   value={523}
  *   change={2.5}
  *   trend="up"
- *   icon={<Truck weight="duotone" />}
+ *   icon={<Truck />}
  *   variant="info"
  * />
  * ```
@@ -170,7 +170,7 @@ export function MetricCard({
                   >
                     <TrendIcon
                       className={`w-3.5 h-3.5 transition-transform duration-300 ${trend === "up" ? "group-hover:-translate-y-0.5" : trend === "down" ? "group-hover:translate-y-0.5" : ""}`}
-                      weight="bold"
+                     
                     />
                     <span className="text-xs font-bold tabular-nums">
                       {Math.abs(change).toFixed(1)}%

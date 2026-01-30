@@ -1,10 +1,10 @@
 import { 
-  Warning,
+  AlertTriangle,
   Wrench,
   Calendar,
-  TrendUp,
-  Lightning
-} from "@phosphor-icons/react"
+  TrendingUp,
+  Zap
+} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -42,7 +42,7 @@ export function PredictiveMaintenance() {
           <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-warning/10 text-warning">
-                <Warning className="w-3 h-3" />
+                <AlertTriangle className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">At Risk</p>
             </div>
@@ -55,7 +55,7 @@ export function PredictiveMaintenance() {
           <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-destructive/10 text-destructive">
-                <Lightning className="w-3 h-3" />
+                <Zap className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">Critical</p>
             </div>
@@ -70,7 +70,7 @@ export function PredictiveMaintenance() {
           <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-success/10 text-success">
-                <TrendUp className="w-3 h-3" />
+                <TrendingUp className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">Potential Savings</p>
             </div>

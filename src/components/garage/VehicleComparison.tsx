@@ -3,13 +3,7 @@
  * Side-by-side comparison of two vehicles in the 3D Garage
  */
 
-import {
-    Car,
-    ArrowsLeftRight,
-    X,
-    Check,
-    Gauge
-} from '@phosphor-icons/react'
+import { Car, ArrowsLeftRight, X, Check, Gauge } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'

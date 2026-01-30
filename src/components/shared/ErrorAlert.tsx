@@ -1,4 +1,4 @@
-import { Warning, ArrowClockwise } from "@phosphor-icons/react"
+import { AlertTriangle, RotateCw } from "lucide-react"
 
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -15,7 +15,7 @@ export function ErrorAlert({ error, onRetry, title = "Error", className }: Error
 
   return (
     <Alert variant="destructive" className={className} role="alert">
-      <Warning className="h-4 w-4" aria-hidden="true" />
+      <AlertTriangle className="h-4 w-4" aria-hidden="true" />
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription className="mt-2 space-y-3">
         <p>{errorMessage}</p>
@@ -27,7 +27,7 @@ export function ErrorAlert({ error, onRetry, title = "Error", className }: Error
             className="mt-2"
             aria-label="Retry failed operation"
           >
-            <ArrowClockwise className="w-4 h-4 mr-2" aria-hidden="true" />
+            <RotateCw className="w-4 h-4 mr-2" aria-hidden="true" />
             Try Again
           </Button>
         )}
@@ -71,7 +71,7 @@ export function ErrorBanner({ error, onDismiss, onRetry }: ErrorBannerProps) {
     <Alert variant="destructive" className="mb-2" role="alert" aria-live="assertive">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-start gap-2 flex-1">
-          <Warning className="h-4 w-4 mt-0.5 flex-shrink-0" aria-hidden="true" />
+          <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" aria-hidden="true" />
           <div className="flex-1">
             <AlertDescription>{errorMessage}</AlertDescription>
           </div>
@@ -84,7 +84,7 @@ export function ErrorBanner({ error, onDismiss, onRetry }: ErrorBannerProps) {
               onClick={onRetry}
               aria-label="Retry failed operation"
             >
-              <ArrowClockwise className="w-4 h-4" aria-hidden="true" />
+              <RotateCw className="w-4 h-4" aria-hidden="true" />
             </Button>
           )}
           {onDismiss && (

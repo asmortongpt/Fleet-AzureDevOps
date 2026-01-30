@@ -9,7 +9,7 @@ import {
   Comment as CommentIcon,
   Delegate as DelegateIcon,
   AccessTime as AccessTimeIcon,
-  TrendingUp as TrendingUpIcon
+  TrendUp as TrendUpIcon
 } from '@mui/icons-material';
 import {
   Box,
@@ -354,7 +354,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <TrendingUpIcon color="warning" sx={{ mr: 1 }} />
+                  <TrendUpIcon color="warning" sx={{ mr: 1 }} />
                   <Typography variant="h6">Bottlenecks</Typography>
                 </Box>
                 <Typography variant="h4">{analytics.bottlenecks.length}</Typography>

@@ -1,9 +1,7 @@
 /**
  * AdditionalHubDrilldowns - Drilldown components for Safety, Operations, and Procurement hubs
  */
-import {
-    Warning, ShieldCheck, VideoCamera, Truck, Package, MapTrifold, Play, Eye
-} from '@phosphor-icons/react'
+import { AlertTriangle, ShieldCheck, Video, Truck, Package, Map, Play, Eye } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -49,7 +47,7 @@ export function IncidentsDrilldown() {
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
-                        <Warning className="w-3 h-3 text-amber-400" />
+                        <AlertTriangle className="w-3 h-3 text-amber-400" />
                         Recent Incidents
                     </CardTitle>
                 </CardHeader>
@@ -130,7 +128,7 @@ export function VideoTelematicsDrilldown() {
             <div className="grid grid-cols-2 gap-3">
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <VideoCamera className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
+                        <Video className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
                         <div className="text-sm font-bold text-white">148</div>
                         <div className="text-xs text-slate-400">Cameras Online</div>
                     </CardContent>
@@ -258,7 +256,7 @@ export function RoutesDrilldown() {
             <div className="grid grid-cols-3 gap-3">
                 <Card className="bg-blue-900/30 border-blue-700/50">
                     <CardContent className="p-2 text-center">
-                        <MapTrifold className="w-4 h-4 text-blue-400 mx-auto mb-2" />
+                        <Map className="w-4 h-4 text-blue-400 mx-auto mb-2" />
                         <div className="text-sm font-bold text-white">45</div>
                         <div className="text-xs text-slate-400">Active Routes</div>
                     </CardContent>

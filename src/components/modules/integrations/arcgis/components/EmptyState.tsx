@@ -3,7 +3,7 @@
  * @module ArcGIS/components/EmptyState
  */
 
-import { GlobeHemisphereWest } from "@phosphor-icons/react"
+import { GlobeHemisphereWest } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
 

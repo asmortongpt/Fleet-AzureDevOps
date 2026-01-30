@@ -1,4 +1,4 @@
-import { Plus } from "@phosphor-icons/react"
+import { Plus } from "lucide-react"
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 

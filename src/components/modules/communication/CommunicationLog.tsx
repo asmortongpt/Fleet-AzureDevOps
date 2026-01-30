@@ -1,15 +1,15 @@
-import { 
-  Plus, 
-  MagnifyingGlass, 
-  Envelope, 
-  Phone, 
-  ChatsCircle,
-  DeviceMobile,
+import {
+  Plus,
+  Search,
+  Mail,
+  Phone,
+  MessageCircle,
+  Smartphone,
   Users,
   Calendar,
   CheckCircle,
   Clock
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -142,10 +142,10 @@ export function CommunicationLog() {
 
   const getTypeIcon = (type: CommunicationLogType["type"]) => {
     const icons = {
-      email: <Envelope className="w-4 h-4" />,
-      teams: <ChatsCircle className="w-4 h-4" />,
+      email: <Mail className="w-4 h-4" />,
+      teams: <MessageCircle className="w-4 h-4" />,
       phone: <Phone className="w-4 h-4" />,
-      sms: <DeviceMobile className="w-4 h-4" />,
+      sms: <Smartphone className="w-4 h-4" />,
       "in-person": <Users className="w-4 h-4" />
     }
     return icons[type]
@@ -337,7 +337,7 @@ export function CommunicationLog() {
           <CardContent>
             <div className="text-sm font-bold">{(logs || []).length}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <ChatsCircle className="w-3 h-3" />
+              <MessageCircle className="w-3 h-3" />
               All time
             </div>
           </CardContent>
@@ -385,7 +385,7 @@ export function CommunicationLog() {
 
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search communications..."
             value={searchTerm}

@@ -1,4 +1,4 @@
-import { Refresh, Assessment, Error, Warning, CheckCircle } from '@mui/icons-material';
+import { Refresh, Assessment, Error, AlertTriangle, CheckCircle } from '@mui/icons-material';
 import { Grid, Card, CardContent, Typography, Box, Paper, Alert, CircularProgress } from '@mui/material';
 import React, { useState, useEffect, useCallback } from 'react';
 
@@ -326,7 +326,7 @@ const MonitoringDashboard: React.FC = () => {
             </Grid>
             <Grid size={{ xs: 6, md: 3 }}>
               <Paper sx={{ p: 2, textAlign: 'center' }}>
-                <Warning color="warning" />
+                <AlertTriangle color="warning" />
                 <Typography variant="h6">
                   {data.alerts?.filter(a => a.status === 'active').length || 0}
                 </Typography>

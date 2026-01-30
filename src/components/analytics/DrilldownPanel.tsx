@@ -3,7 +3,7 @@
  * Features: Multi-level drilling, breadcrumb navigation, detail views
  */
 
-import { X, CaretRight, ArrowLeft, Download, Share } from '@phosphor-icons/react'
+import { X, ChevronRight, ArrowLeft, Download, Share } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { memo, useState, useCallback } from 'react'
 
@@ -259,7 +259,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                                             {crumb.title}
                                         </button>
                                         {index < breadcrumbs.length - 1 && (
-                                            <CaretRight className="w-4 h-4 text-slate-500" />
+                                            <ChevronRight className="w-4 h-4 text-slate-500" />
                                         )}
                                     </div>
                                 ))}
@@ -321,7 +321,7 @@ const CategoryCard = memo<{
         </p>
         <div className="flex items-center gap-2 mt-2 text-blue-400 text-sm group-hover:translate-x-1 transition-transform">
             <span>View details</span>
-            <CaretRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4" />
         </div>
     </button>
 ))
@@ -347,7 +347,7 @@ const VehicleList = memo<{ onVehicleClick: (vehicle: any) => void }>(({ onVehicl
                         </div>
                         <div className="text-right">
                             <p className="text-white font-semibold">{vehicle.cost}</p>
-                            <CaretRight className="w-4 h-4 text-slate-400 ml-auto" />
+                            <ChevronRight className="w-4 h-4 text-slate-400 ml-auto" />
                         </div>
                     </div>
                 </button>

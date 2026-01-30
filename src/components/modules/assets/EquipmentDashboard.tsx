@@ -1,8 +1,8 @@
 import {
-  Warning,
+  AlertTriangle,
   Clock,
-  Engine
-} from "@phosphor-icons/react"
+  Cog
+} from "lucide-react"
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
@@ -176,7 +176,7 @@ export function EquipmentDashboard() {
           <CardContent>
             <div className="text-sm font-bold">{totalEquipment}</div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-              <Engine className="w-3 h-3" />
+              <Cog className="w-3 h-3" />
               <span>{availableEquipment} available</span>
             </div>
           </CardContent>
@@ -201,7 +201,7 @@ export function EquipmentDashboard() {
           <CardContent>
             <div className="text-sm font-bold text-yellow-600">{upcomingMaintenance}</div>
             <div className="flex items-center gap-1 text-xs text-red-600 mt-1">
-              <Warning className="w-3 h-3" />
+              <AlertTriangle className="w-3 h-3" />
               {overdueMaintenance} overdue
             </div>
           </CardContent>
@@ -214,7 +214,7 @@ export function EquipmentDashboard() {
           <CardContent>
             <div className="text-sm font-bold text-orange-600">{expiringCertifications}</div>
             <div className="flex items-center gap-1 text-xs text-red-600 mt-1">
-              <Warning className="w-3 h-3" />
+              <AlertTriangle className="w-3 h-3" />
               {expiredCertifications} expired
             </div>
           </CardContent>
@@ -366,7 +366,7 @@ export function EquipmentDashboard() {
                 <Card className="border-red-200 bg-red-50">
                   <CardHeader className="pb-3">
                     <div className="flex items-center gap-2">
-                      <Warning className="w-3 h-3 text-red-600" />
+                      <AlertTriangle className="w-3 h-3 text-red-600" />
                       <CardTitle className="text-red-700">Overdue Maintenance</CardTitle>
                     </div>
                   </CardHeader>

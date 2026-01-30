@@ -1,4 +1,4 @@
-import { Plus, MagnifyingGlass, Star, Envelope, Phone, MapPin } from "@phosphor-icons/react"
+import { Plus, Search, Star, Mail, Phone, MapPin } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -297,7 +297,7 @@ export function VendorManagement() {
 
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search vendors..."
             value={searchTerm}
@@ -371,7 +371,7 @@ export function VendorManagement() {
                     <TableCell>
                       <div className="space-y-1 text-sm">
                         <div className="flex items-center gap-2">
-                          <Envelope className="w-3 h-3 text-muted-foreground" />
+                          <Mail className="w-3 h-3 text-muted-foreground" />
                           {vendor.email}
                         </div>
                         <div className="flex items-center gap-2">
@@ -382,7 +382,7 @@ export function VendorManagement() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-yellow-500" weight="fill" />
+                        <Star className="w-4 h-4 text-yellow-500" />
                         <span>{vendor.rating.toFixed(1)}</span>
                       </div>
                     </TableCell>
@@ -409,7 +409,7 @@ export function VendorManagement() {
                           size="sm"
                           onClick={() => window.location.href = `mailto:${vendor.email}`}
                         >
-                          <Envelope className="w-4 h-4 mr-1" />
+                          <Mail className="w-4 h-4 mr-1" />
                           Email
                         </Button>
                         <Button
@@ -485,7 +485,7 @@ export function VendorManagement() {
                           variant="outline"
                           onClick={() => window.location.href = `mailto:${selectedVendor.email}`}
                         >
-                          <Envelope className="w-3 h-3 mr-1" />
+                          <Mail className="w-3 h-3 mr-1" />
                           Email
                         </Button>
                       </div>
@@ -560,7 +560,7 @@ export function VendorManagement() {
                     <div>
                       <span className="text-muted-foreground">Rating:</span>
                       <div className="flex items-center gap-2 mt-1">
-                        <Star className="w-3 h-3 text-yellow-500" weight="fill" />
+                        <Star className="w-3 h-3 text-yellow-500" />
                         <span className="font-medium text-sm">{selectedVendor.rating.toFixed(1)}</span>
                       </div>
                     </div>

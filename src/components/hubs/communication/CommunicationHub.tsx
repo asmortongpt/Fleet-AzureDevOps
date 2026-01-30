@@ -223,7 +223,7 @@ const ChatPanel = ({ threads, onThreadSelect }: { threads: ChatThread[]; onThrea
   )
 }
 
-// Broadcast Panel Component
+// Radio Panel Component
 const BroadcastPanel = ({ zones }: { zones: BroadcastZone[] }) => {
   const [selectedZone, setSelectedZone] = useState<string>("")
   const [broadcastMessage, setBroadcastMessage] = useState("")
@@ -236,7 +236,7 @@ const BroadcastPanel = ({ zones }: { zones: BroadcastZone[] }) => {
   return (
     <ScrollArea className="h-full">
       <div className="p-2 space-y-2">
-        <h3 className="font-semibold mb-3">Broadcast Control</h3>
+        <h3 className="font-semibold mb-3">Radio Control</h3>
 
         <Card className="p-2">
           <div className="space-y-3">
@@ -274,13 +274,13 @@ const BroadcastPanel = ({ zones }: { zones: BroadcastZone[] }) => {
               disabled={!selectedZone || !broadcastMessage}
             >
               <Megaphone className="h-4 w-4 mr-2" />
-              Send Broadcast
+              Send Radio
             </Button>
           </div>
         </Card>
 
         <div>
-          <h4 className="text-sm font-medium mb-2">Broadcast Zones</h4>
+          <h4 className="text-sm font-medium mb-2">Radio Zones</h4>
           <div className="space-y-2">
             {zones.map(zone => (
               <Card key={zone.id} className="p-3">
@@ -467,7 +467,7 @@ export function CommunicationHub() {
             <TabsList className="grid grid-cols-3 m-2">
               <TabsTrigger value="messages">Messages</TabsTrigger>
               <TabsTrigger value="chats">Chats</TabsTrigger>
-              <TabsTrigger value="broadcast">Broadcast</TabsTrigger>
+              <TabsTrigger value="broadcast">Radio</TabsTrigger>
             </TabsList>
             <TabsContent value="messages" className="h-[calc(100%-60px)]">
               <div className="flex h-full">

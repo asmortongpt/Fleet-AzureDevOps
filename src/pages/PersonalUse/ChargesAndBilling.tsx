@@ -1,14 +1,4 @@
-import {
-  CurrencyDollar,
-  Receipt,
-  Calendar,
-  Download,
-  FileText,
-  Clock,
-  CheckCircle,
-  Warning,
-  TrendUp
-} from '@phosphor-icons/react'
+import { DollarSign, Receipt, Calendar, Download, FileText, Clock, CheckCircle, AlertTriangle, TrendingUp } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { useState, useEffect } from 'react'
@@ -256,7 +246,7 @@ export function ChargesAndBilling() {
       {/* Header */}
       <div>
         <h1 className="text-base font-bold flex items-center gap-2">
-          <CurrencyDollar className="w-4 h-4" />
+          <DollarSign className="w-4 h-4" />
           Charges & Billing
         </h1>
         <p className="text-muted-foreground">
@@ -303,7 +293,7 @@ export function ChargesAndBilling() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Overdue</CardTitle>
-              <Warning className="h-4 w-4 text-destructive" />
+              <AlertTriangle className="h-4 w-4 text-destructive" />
             </CardHeader>
             <CardContent>
               <div className="text-sm font-bold text-destructive">
@@ -382,7 +372,7 @@ export function ChargesAndBilling() {
             Charge Records
           </TabsTrigger>
           <TabsTrigger value="analytics">
-            <TrendUp className="w-4 h-4 mr-2" />
+            <TrendingUp className="w-4 h-4 mr-2" />
             Analytics
           </TabsTrigger>
         </TabsList>

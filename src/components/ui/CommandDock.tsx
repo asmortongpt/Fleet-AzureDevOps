@@ -3,8 +3,8 @@ import {
     Truck,
     Wrench,
     Radio,
-    GasPump
-} from "@phosphor-icons/react";
+    Fuel
+} from "lucide-react";
 import React, { useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -22,7 +22,7 @@ export const CommandDock: React.FC<CommandDockProps> = ({ activePanel, onPanelSe
         { id: "team", icon: Users, label: "Team" },
         { id: "comms", icon: Radio, label: "Comms" },
         { id: "service", icon: Wrench, label: "Service" },
-        { id: "fuel", icon: GasPump, label: "Fuel" },
+        { id: "fuel", icon: Fuel, label: "Fuel" },
     ];
 
     return (

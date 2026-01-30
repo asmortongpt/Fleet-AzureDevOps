@@ -1,4 +1,4 @@
-import { CalendarDots, Wrench, Clock, CheckCircle, Warning } from "@phosphor-icons/react"
+import { Calendar, Wrench, Clock, CheckCircle, AlertTriangle } from "lucide-react"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { useState, useMemo } from "react"
@@ -209,7 +209,7 @@ export function MaintenanceScheduling() {
           <p className="text-muted-foreground">Schedule and track maintenance appointments</p>
         </div>
         <Button onClick={handleScheduleMaintenance}>
-          <CalendarDots className="w-4 h-4 mr-2" />
+          <Calendar className="w-4 h-4 mr-2" />
           Schedule Maintenance
         </Button>
       </div>
@@ -222,7 +222,7 @@ export function MaintenanceScheduling() {
           <CardContent>
             <div className="text-sm font-bold">{(schedules || []).length}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <CalendarDots className="w-3 h-3" />
+              <Calendar className="w-3 h-3" />
               All services
             </div>
           </CardContent>
@@ -248,7 +248,7 @@ export function MaintenanceScheduling() {
           <CardContent>
             <div className="text-sm font-bold text-red-600">{overdueSchedules.length}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Warning className="w-3 h-3" />
+              <AlertTriangle className="w-3 h-3" />
               Requires attention
             </div>
           </CardContent>

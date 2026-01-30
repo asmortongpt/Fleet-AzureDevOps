@@ -3,7 +3,7 @@
  * Features: MPG trends, utilization rates, idle time, efficiency scores
  */
 
-import { Gauge, Lightning, Clock, Pulse } from '@phosphor-icons/react'
+import { Gauge, Zap, Clock, Activity } from 'lucide-react'
 import { memo, useMemo } from 'react'
 import {
     ComposedChart,
@@ -199,7 +199,7 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
                     </div>
                     <div className="bg-slate-800/40 rounded-lg p-2">
                         <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-                            <Pulse className="w-4 h-4" />
+                            <Activity className="w-4 h-4" />
                             <span>Utilization</span>
                         </div>
                         <p className="text-sm font-bold text-white">
@@ -217,7 +217,7 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
                     </div>
                     <div className="bg-slate-800/40 rounded-lg p-2">
                         <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-                            <Lightning className="w-4 h-4" />
+                            <Zap className="w-4 h-4" />
                             <span>Efficiency</span>
                         </div>
                         <p className="text-sm font-bold text-white">

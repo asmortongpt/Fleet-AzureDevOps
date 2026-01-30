@@ -1,15 +1,4 @@
-import {
-  Receipt,
-  Check,
-  X,
-  Eye,
-  Download,
-  Funnel,
-  CheckCircle,
-  XCircle,
-  Clock,
-  CreditCard
-} from '@phosphor-icons/react'
+import { Receipt, Check, X, Eye, Download, Filter, CheckCircle, XCircle, Clock, CreditCard } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { useState, useEffect } from 'react'
@@ -332,7 +321,7 @@ export function ReimbursementQueue() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Funnel className="w-3 h-3" />
+            <Filter className="w-3 h-3" />
             Filters & Actions
           </CardTitle>
         </CardHeader>

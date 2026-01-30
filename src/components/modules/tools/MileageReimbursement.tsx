@@ -1,14 +1,14 @@
 import { 
   Receipt,
   Plus,
-  CurrencyDollar,
+  DollarSign,
   Car,
   MapPin,
   Calendar,
   CheckCircle,
   Clock,
   X
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -160,7 +160,7 @@ export function MileageReimbursement() {
           <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-accent/10 text-accent">
-                <CurrencyDollar className="w-3 h-3" />
+                <DollarSign className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">Paid</p>
             </div>

@@ -1,4 +1,4 @@
-import { Envelope, PaperPlaneTilt, Paperclip, Star, ArrowLeft } from "@phosphor-icons/react"
+import { Mail, Send, Paperclip, Star, ArrowLeft } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -166,7 +166,7 @@ export function EmailCenter() {
             <Dialog open={isComposeOpen} onOpenChange={setIsComposeOpen}>
               <DialogTrigger asChild>
                 <Button className="w-full">
-                  <PaperPlaneTilt className="w-4 h-4 mr-2" />
+                  <Send className="w-4 h-4 mr-2" />
                   Compose Email
                 </Button>
               </DialogTrigger>
@@ -221,7 +221,7 @@ export function EmailCenter() {
                     Cancel
                   </Button>
                   <Button onClick={handleSendEmail}>
-                    <PaperPlaneTilt className="w-4 h-4 mr-2" />
+                    <Send className="w-4 h-4 mr-2" />
                     Send Email
                   </Button>
                 </DialogFooter>
@@ -250,7 +250,7 @@ export function EmailCenter() {
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Envelope className="w-3 h-3" />
+              <Mail className="w-3 h-3" />
               Inbox
             </CardTitle>
             <CardDescription>{filteredEmails.length} messages</CardDescription>
@@ -259,7 +259,7 @@ export function EmailCenter() {
             <ScrollArea className="h-[calc(100vh-24rem)]">
               {filteredEmails.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full p-3 text-center">
-                  <Envelope className="w-12 h-9 text-muted-foreground mb-2" />
+                  <Mail className="w-12 h-9 text-muted-foreground mb-2" />
                   <p className="text-muted-foreground">No emails in this category</p>
                 </div>
               ) : (
@@ -317,7 +317,7 @@ export function EmailCenter() {
           <CardContent className="flex-1">
             {!selectedEmail ? (
               <div className="flex flex-col items-center justify-center h-full text-center">
-                <Envelope className="w-12 h-9 text-muted-foreground mb-2" />
+                <Mail className="w-12 h-9 text-muted-foreground mb-2" />
                 <p className="text-muted-foreground">Select an email to view details</p>
               </div>
             ) : (

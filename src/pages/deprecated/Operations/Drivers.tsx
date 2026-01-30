@@ -11,7 +11,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { User, Plus, MagnifyingGlass, CheckCircle, Car, Trophy, Trash, Warning } from '@phosphor-icons/react';
+import { User, Plus, Search, CheckCircle, Car, Trophy, Trash2, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 
@@ -134,7 +134,7 @@ export function DriversOperations() {
           <div className="flex items-start gap-3 flex-1 min-w-0">
             {/* Avatar */}
             <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-400/20 to-teal-500/20 flex items-center justify-center border border-emerald-400/30 flex-shrink-0">
-              <User className="w-6 h-6 text-emerald-400" weight="bold" />
+              <User className="w-6 h-6 text-emerald-400" />
             </div>
 
             {/* Driver Info */}
@@ -295,7 +295,7 @@ export function DriversOperations() {
         {/* Performance Metrics */}
         <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-emerald-400/30 p-4">
           <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-emerald-400" weight="bold" />
+            <Trophy className="w-4 h-4 text-emerald-400" />
             Performance Metrics
           </h4>
           <div className="grid grid-cols-3 gap-3 text-sm">
@@ -336,7 +336,7 @@ export function DriversOperations() {
           className="w-full border-red-500/30 text-red-400 hover:bg-red-500/10"
           disabled={deleteMutation.isPending}
         >
-          <Trash className="w-4 h-4" weight="bold" />
+          <Trash2 className="w-4 h-4" />
           <span className="ml-2">Delete Driver</span>
         </Button>
       </div>
@@ -349,7 +349,7 @@ export function DriversOperations() {
       {/* Search bar */}
       <div className="p-4 border-b border-slate-700/50">
         <div className="relative">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" weight="bold" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -372,7 +372,7 @@ export function DriversOperations() {
         ) : error ? (
           <div className="flex items-center justify-center h-full p-4">
             <div className="text-center">
-              <Warning className="w-8 h-8 text-red-400 mx-auto mb-3" weight="bold" />
+              <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-3" />
               <p className="text-sm text-slate-400">Failed to load drivers</p>
               <p className="text-xs text-slate-500 mt-1">Please try refreshing the page</p>
             </div>
@@ -380,7 +380,7 @@ export function DriversOperations() {
         ) : filteredDrivers.length === 0 ? (
           <div className="flex items-center justify-center h-full p-4">
             <div className="text-center">
-              <User className="w-8 h-8 text-slate-500 mx-auto mb-3" weight="bold" />
+              <User className="w-8 h-8 text-slate-500 mx-auto mb-3" />
               <p className="text-sm text-slate-400">
                 {searchQuery ? 'No drivers found' : 'No drivers yet'}
               </p>
@@ -421,7 +421,7 @@ export function DriversOperations() {
               className="bg-emerald-500 hover:bg-emerald-400 text-white"
               disabled={isLoading}
             >
-              <Plus className="w-4 h-4" weight="bold" />
+              <Plus className="w-4 h-4" />
               <span className="ml-2">Add Driver</span>
             </Button>
           )

@@ -3,16 +3,7 @@
  * Gamified driver performance ranking with scores and achievements
  */
 
-import {
-    Trophy,
-    Medal,
-    TrendUp,
-    TrendDown,
-    Minus,
-    Shield,
-    Timer,
-    GasPump
-} from '@phosphor-icons/react'
+import { Trophy, Medal, TrendingUp, TrendingDown, Minus, Shield, Timer, Fuel } from 'lucide-react'
 import { useState } from 'react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -120,21 +111,21 @@ function RankBadge({ rank }: { rank: number }) {
     if (rank === 1) {
         return (
             <div className="w-4 h-4 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-sm shadow-yellow-500/20">
-                <Trophy className="w-4 h-4 text-yellow-900" weight="fill" />
+                <Trophy className="w-4 h-4 text-yellow-900" />
             </div>
         )
     }
     if (rank === 2) {
         return (
             <div className="w-4 h-4 rounded-full bg-gradient-to-br from-slate-300 to-slate-500 flex items-center justify-center shadow-sm shadow-slate-400/20">
-                <Medal className="w-4 h-4 text-slate-700" weight="fill" />
+                <Medal className="w-4 h-4 text-slate-700" />
             </div>
         )
     }
     if (rank === 3) {
         return (
             <div className="w-4 h-4 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center shadow-sm shadow-amber-600/20">
-                <Medal className="w-4 h-4 text-amber-200" weight="fill" />
+                <Medal className="w-4 h-4 text-amber-200" />
             </div>
         )
     }
@@ -150,7 +141,7 @@ function RankChange({ previous, current }: { previous: number; current: number }
     if (change > 0) {
         return (
             <div className="flex items-center gap-1 text-emerald-400">
-                <TrendUp className="w-3 h-3" weight="bold" />
+                <TrendingUp className="w-3 h-3" />
                 <span className="text-xs font-medium">+{change}</span>
             </div>
         )
@@ -158,7 +149,7 @@ function RankChange({ previous, current }: { previous: number; current: number }
     if (change < 0) {
         return (
             <div className="flex items-center gap-1 text-red-400">
-                <TrendDown className="w-3 h-3" weight="bold" />
+                <TrendingDown className="w-3 h-3" />
                 <span className="text-xs font-medium">{change}</span>
             </div>
         )
@@ -190,7 +181,7 @@ export function DriverLeaderboard({
             <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <Trophy className="w-3 h-3 text-yellow-400" weight="fill" />
+                        <Trophy className="w-3 h-3 text-yellow-400" />
                         <CardTitle className="text-sm">Driver Leaderboard</CardTitle>
                     </div>
                     <Tabs value={selectedPeriod} onValueChange={handlePeriodChange}>
@@ -272,7 +263,7 @@ export function DriverLeaderboard({
                         <span>On-Time</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                        <GasPump className="w-3.5 h-3.5" />
+                        <Fuel className="w-3.5 h-3.5" />
                         <span>Efficiency</span>
                     </div>
                 </div>

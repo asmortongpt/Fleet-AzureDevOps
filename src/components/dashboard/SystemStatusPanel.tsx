@@ -5,16 +5,16 @@
 
 import {
   Circle,
-  Broadcast,
+  Radio,
   PlayCircle,
   StopCircle,
   CheckCircle,
   XCircle,
   Clock,
-  ChartLine,
+  LineChart,
   Cpu,
   Database
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useState } from 'react'
 
 import { Badge } from "@/components/ui/badge"
@@ -70,11 +70,11 @@ export function SystemStatusPanel({
     const iconClass = "w-4 h-4"
     switch (type) {
       case 'vehicle':
-        return <Broadcast className={iconClass} />
+        return <Radio className={iconClass} />
       case 'obd2':
         return <Cpu className={iconClass} />
       case 'gps':
-        return <ChartLine className={iconClass} />
+        return <LineChart className={iconClass} />
       default:
         return <Database className={iconClass} />
     }
@@ -85,7 +85,7 @@ export function SystemStatusPanel({
       <CardHeader className="px-2 py-3 border-b border-border/50 bg-muted/30">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <ChartLine className="w-4 h-4 text-primary" />
+            <LineChart className="w-4 h-4 text-primary" />
             System Status
           </CardTitle>
           <Badge className={getHealthBadgeColor(healthMetrics.overall)}>
@@ -129,7 +129,7 @@ export function SystemStatusPanel({
             className="w-full flex items-center justify-between py-2 px-2 rounded hover:bg-muted/50 transition-colors"
           >
             <span className="text-xs font-semibold flex items-center gap-1.5">
-              <Broadcast className="w-3.5 h-3.5" />
+              <Radio className="w-3.5 h-3.5" />
               Emulators ({emulators.filter(e => e.status === 'connected').length}/{emulators.length})
             </span>
             <Circle
@@ -157,7 +157,7 @@ export function SystemStatusPanel({
                               ? 'fill-green-500 text-green-500 animate-pulse'
                               : 'fill-gray-400 text-gray-400'
                           }`}
-                          weight="fill"
+                         
                         />
                       </div>
                       {emulator.lastUpdate && (

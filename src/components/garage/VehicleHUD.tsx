@@ -12,18 +12,7 @@
  * Created: 2025-11-24
  */
 
-import {
-  Gauge,
-  Engine,
-  Car,
-  Lightning,
-  Warning,
-  GasPump,
-  Thermometer,
-  GearSix,
-  Drop,
-  Tire
-} from '@phosphor-icons/react'
+import { Gauge, Engine, Car, Zap, AlertTriangle, Fuel, Thermometer, GearSix, Drop, Tire } from 'lucide-react'
 import React from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -203,10 +192,10 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
   if (compact) {
     return (
       <div className={cn('space-y-2', className)}>
-        {/* Warning Banner */}
+        {/* AlertTriangle Banner */}
         {hasWarning && (
           <div className="flex items-center gap-2 p-2 rounded-lg bg-red-950/50 border border-red-500/50">
-            <Warning className="w-4 h-4 text-red-400 animate-pulse" />
+            <AlertTriangle className="w-4 h-4 text-red-400 animate-pulse" />
             <span className="text-xs text-red-300">Check Engine</span>
             {stats.dtcCodes && stats.dtcCodes.length > 0 && (
               <Badge variant="destructive" className="text-xs ml-auto">
@@ -225,7 +214,7 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
             unit="mi"
           />
           <StatCard
-            icon={GasPump}
+            icon={Fuel}
             label="Fuel"
             value={stats.fuelLevel || 0}
             unit="%"
@@ -258,11 +247,11 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
         </div>
       </div>
 
-      {/* Warning Banner */}
+      {/* AlertTriangle Banner */}
       {hasWarning && (
         <div className="p-3 rounded-lg bg-red-950/50 border border-red-500/50 animate-pulse">
           <div className="flex items-center gap-2">
-            <Warning className="w-3 h-3 text-red-400" />
+            <AlertTriangle className="w-3 h-3 text-red-400" />
             <span className="text-sm font-medium text-red-300">Check Engine Light Active</span>
           </div>
           {stats.dtcCodes && stats.dtcCodes.length > 0 && (
@@ -298,7 +287,7 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
           max={100}
           label="Fuel"
           unit="%"
-          icon={GasPump}
+          icon={Fuel}
           warning={(stats.fuelLevel || 0) < 20}
         />
       </div>
@@ -348,7 +337,7 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
             warning={(stats.tireHealth || 0) < 30}
           />
           <StatCard
-            icon={Lightning}
+            icon={Zap}
             label="Battery"
             value={stats.batteryVoltage?.toFixed(1) || '0.0'}
             unit="V"

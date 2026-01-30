@@ -10,20 +10,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import {
-  Wrench,
-  Calendar,
-  Package,
-  Warning,
-  CheckCircle,
-  Clock,
-  Users,
-  TrendUp,
-  Gauge,
-  ListChecks,
-  CarSimple,
-  Toolbox
-} from '@phosphor-icons/react';
+import { Wrench, Calendar, Package, AlertTriangle, CheckCircle, Clock, Users, TrendingUp, Gauge, ListChecks, CarSimple, Toolbox } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
@@ -264,7 +251,7 @@ export function MaintenanceManagerDashboard() {
         <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Warning className="w-4 h-4 text-red-400" />
+              <AlertTriangle className="w-4 h-4 text-red-400" />
               <h2 className="text-sm font-bold text-white">
                 Overdue Maintenance ({overdueMaintenanceItems.length} Vehicles)
               </h2>
@@ -370,7 +357,7 @@ export function MaintenanceManagerDashboard() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <Warning className="w-4 h-4 text-amber-400" />
+                    <AlertTriangle className="w-4 h-4 text-amber-400" />
                     <span className="text-sm text-slate-300">Below Reorder Level</span>
                   </div>
                   <span className="text-sm font-bold text-white">

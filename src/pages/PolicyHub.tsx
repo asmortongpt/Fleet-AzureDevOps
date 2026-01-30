@@ -5,20 +5,7 @@
 
 import { motion } from 'framer-motion'
 import { Suspense } from 'react'
-import {
-  BookOpen as PolicyIcon,
-  FileText,
-  Shield,
-  Bell,
-  Warning,
-  CheckCircle,
-  ClockCounterClockwise,
-  Certificate,
-  Plus,
-  Users,
-  TrendUp,
-  CalendarCheck,
-} from '@phosphor-icons/react'
+import { BookOpen as PolicyIcon, FileText, Shield, Bell, AlertTriangle, CheckCircle, RotateCcw, Award, Plus, Users, TrendingUp, CalendarCheck } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactivePolicyData } from '@/hooks/use-reactive-policy-data'
 import {
@@ -121,7 +108,7 @@ function PolicyOverview() {
         <StatCard
           title="Violations"
           value={metrics?.totalViolations?.toString() || '0'}
-          icon={Warning}
+          icon={AlertTriangle}
           trend="down"
           change="-2"
           description="Policy violations"
@@ -204,7 +191,7 @@ function PolicyOverview() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Warning className="h-5 w-5 text-red-500" />
+                <AlertTriangle className="h-5 w-5 text-red-500" />
                 <CardTitle>Policies with Violations</CardTitle>
               </div>
               <CardDescription>Policies requiring attention</CardDescription>
@@ -295,7 +282,7 @@ function PoliciesContent() {
         <StatCard
           title="Under Review"
           value={underReviewPolicies.length.toString()}
-          icon={ClockCounterClockwise}
+          icon={RotateCcw}
           trend="neutral"
           description="Pending approval"
           loading={isLoading}
@@ -415,7 +402,7 @@ function ComplianceContent() {
         <StatCard
           title="Avg Compliance Score"
           value={`${metrics?.avgComplianceScore || 0}%`}
-          icon={TrendUp}
+          icon={TrendingUp}
           trend="up"
           change="+2%"
           description="Overall compliance"
@@ -424,7 +411,7 @@ function ComplianceContent() {
         <StatCard
           title="Acknowledgement Rate"
           value={`${metrics?.acknowledgementRate || 0}%`}
-          icon={Certificate}
+          icon={Award}
           trend="up"
           change="+3%"
           description="Employee adoption"
@@ -442,7 +429,7 @@ function ComplianceContent() {
         <StatCard
           title="Total Violations"
           value={metrics?.totalViolations?.toString() || '0'}
-          icon={Warning}
+          icon={AlertTriangle}
           trend="down"
           change="-5"
           description="Policy violations"
@@ -477,7 +464,7 @@ function ComplianceContent() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Warning className="h-5 w-5 text-amber-500" />
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
               <CardTitle>Low Compliance Policies</CardTitle>
             </div>
             <CardDescription>Policies with acknowledgement rates below 80%</CardDescription>
@@ -638,7 +625,7 @@ function UpdatesContent() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <ClockCounterClockwise className="h-5 w-5 text-blue-500" />
+            <RotateCcw className="h-5 w-5 text-blue-500" />
             <CardTitle>Recent Activity</CardTitle>
           </div>
           <CardDescription>Latest policy changes and updates</CardDescription>

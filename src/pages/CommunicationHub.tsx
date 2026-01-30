@@ -5,21 +5,7 @@
 
 import { motion } from 'framer-motion'
 import { Suspense } from 'react'
-import {
-  ChatsCircle as CommunicationIcon,
-  Envelope,
-  Bell,
-  Megaphone,
-  PaperPlaneTilt,
-  CheckCircle,
-  Warning,
-  Clock,
-  Eye,
-  TrendUp,
-  ChartLine,
-  Users,
-  Plus,
-} from '@phosphor-icons/react'
+import { MessageCircle as CommunicationIcon, Mail, Bell, Megaphone, Send, CheckCircle, AlertTriangle, Clock, Eye, TrendingUp, LineChart, Users, Plus } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveCommunicationData } from '@/hooks/use-reactive-communication-data'
 import {
@@ -87,7 +73,7 @@ function CommunicationOverview() {
         <StatCard
           title="Total Messages"
           value={metrics?.totalMessages?.toString() || '0'}
-          icon={Envelope}
+          icon={Mail}
           trend="up"
           change="+12"
           description="All channels"
@@ -96,7 +82,7 @@ function CommunicationOverview() {
         <StatCard
           title="Sent Today"
           value={metrics?.sentToday?.toString() || '0'}
-          icon={PaperPlaneTilt}
+          icon={Send}
           trend="up"
           change="+8"
           description="Messages sent"
@@ -150,7 +136,7 @@ function CommunicationOverview() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Warning className="h-5 w-5 text-amber-500" />
+                <AlertTriangle className="h-5 w-5 text-amber-500" />
                 <CardTitle>High Priority Messages</CardTitle>
               </div>
               <CardDescription>Messages requiring immediate attention</CardDescription>
@@ -267,7 +253,7 @@ function MessagesContent() {
         <StatCard
           title="Total Messages"
           value={metrics?.totalMessages?.toString() || '0'}
-          icon={Envelope}
+          icon={Mail}
           trend="up"
           description="All time"
           loading={isLoading}
@@ -283,7 +269,7 @@ function MessagesContent() {
         <StatCard
           title="Failed"
           value={metrics?.messagesFailed?.toString() || '0'}
-          icon={Warning}
+          icon={AlertTriangle}
           trend="down"
           change="-2"
           description="Requires retry"
@@ -304,7 +290,7 @@ function MessagesContent() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Envelope className="h-5 w-5 text-blue-500" />
+            <Mail className="h-5 w-5 text-blue-500" />
             <CardTitle>Recent Messages</CardTitle>
           </div>
           <CardDescription>Latest communications across all channels</CardDescription>
@@ -369,7 +355,7 @@ function MessagesContent() {
             </div>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
-              <Envelope className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <Mail className="h-12 w-12 mx-auto mb-2 opacity-50" />
               <p>No messages found</p>
             </div>
           )}
@@ -436,7 +422,7 @@ function NotificationsContent() {
         <StatCard
           title="Unread"
           value={unreadNotifications.length.toString()}
-          icon={Warning}
+          icon={AlertTriangle}
           trend="down"
           change="-5"
           description="Require attention"
@@ -445,7 +431,7 @@ function NotificationsContent() {
         <StatCard
           title="Read Rate"
           value={`${readRate}%`}
-          icon={TrendUp}
+          icon={TrendingUp}
           trend="up"
           change="+3%"
           description="User engagement"
@@ -604,7 +590,7 @@ function AnnouncementsContent() {
         <StatCard
           title="Avg Engagement"
           value={`${avgEngagement}%`}
-          icon={TrendUp}
+          icon={TrendingUp}
           trend="up"
           change="+5%"
           description="Acknowledgment rate"
@@ -735,7 +721,7 @@ export default function CommunicationHub() {
     {
       id: 'messages',
       label: 'Messages',
-      icon: <Envelope className="h-4 w-4" />,
+      icon: <Mail className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <Suspense fallback={<div className="p-6">Loading messages...</div>}>

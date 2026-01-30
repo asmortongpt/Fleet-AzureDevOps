@@ -1,4 +1,4 @@
-import { Warning, Lightning, Wrench, Info, Circle, Clock } from "@phosphor-icons/react"
+import { AlertTriangle, Zap, Wrench, Info, Circle, Clock } from "lucide-react"
 import { motion } from "framer-motion"
 import { useMemo } from "react"
 
@@ -36,13 +36,13 @@ export function AlertsFeed({
   const getAlertIcon = (type: Alert["type"]) => {
     switch (type) {
       case "critical":
-        return <Warning className="w-3.5 h-3.5" weight="fill" />
+        return <AlertTriangle className="w-3.5 h-3.5" />
       case "warning":
-        return <Lightning className="w-3.5 h-3.5" weight="fill" />
+        return <Zap className="w-3.5 h-3.5" />
       case "maintenance":
-        return <Wrench className="w-3.5 h-3.5" weight="fill" />
+        return <Wrench className="w-3.5 h-3.5" />
       default:
-        return <Info className="w-3.5 h-3.5" weight="fill" />
+        return <Info className="w-3.5 h-3.5" />
     }
   }
 
@@ -81,7 +81,7 @@ export function AlertsFeed({
     <div className="compact-card h-full">
       <div className="compact-card-header">
         <div className="compact-card-title">
-          <Warning className="w-4 h-4" />
+          <AlertTriangle className="w-4 h-4" />
           Alerts & Notifications
         </div>
         <div className="flex items-center gap-2">
@@ -133,7 +133,7 @@ export function AlertsFeed({
                       {!alert.isRead && (
                         <Circle
                           className="w-2 h-2 fill-blue-500 text-blue-800 flex-shrink-0 mt-1"
-                          weight="fill"
+                         
                         />
                       )}
                     </div>
@@ -199,7 +199,7 @@ export function ActivityFeed({ activities, maxHeight = "100%", maxItems }: Activ
     <div className="compact-card h-full">
       <div className="compact-card-header">
         <div className="compact-card-title">
-          <Circle className="w-4 h-4 animate-pulse" weight="fill" />
+          <Circle className="w-4 h-4 animate-pulse" />
           Live Activity
         </div>
         <div className="text-xs text-muted-foreground">
@@ -223,7 +223,7 @@ export function ActivityFeed({ activities, maxHeight = "100%", maxItems }: Activ
               >
                 <Circle
                   className="w-1.5 h-1.5 mt-1.5 fill-blue-500 text-blue-800 flex-shrink-0"
-                  weight="fill"
+                 
                 />
                 <div className="flex-1 min-w-0">
                   <div className="text-[10px] font-medium text-foreground leading-tight mb-0.5">

@@ -1,4 +1,4 @@
-import { Car, Briefcase, Coffee, SplitHorizontal, CurrencyDollar, Check, X, Info } from '@phosphor-icons/react'
+import { Car, Briefcase, Coffee, SplitHorizontal, DollarSign, Check, X, Info } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -330,7 +330,7 @@ export function TripMarker({
         {/* Cost Preview */}
         {showCostPreview && miles > 0 && (
           <Alert>
-            <CurrencyDollar className="h-4 w-4" />
+            <DollarSign className="h-4 w-4" />
             <AlertDescription>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">

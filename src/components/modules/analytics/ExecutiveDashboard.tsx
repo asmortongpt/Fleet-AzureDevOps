@@ -1,17 +1,4 @@
-import {
-  ChartLine,
-  TrendUp,
-  TrendDown,
-  Warning,
-  CurrencyDollar,
-  Gauge,
-  Truck,
-  Fire,
-  Download,
-  ArrowsClockwise,
-  Brain,
-  Lightning
-} from '@phosphor-icons/react'
+import { LineChart, TrendingUp, TrendingDown, AlertTriangle, DollarSign, Gauge, Truck, Flame, Download, RefreshCw, Brain, Zap } from 'lucide-react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
@@ -305,13 +292,13 @@ export function ExecutiveDashboard() {
   const getInsightIcon = (type: string) => {
     switch (type) {
       case 'critical':
-        return <Fire className="w-3 h-3" weight="fill" />
+        return <Flame className="w-3 h-3" />
       case 'warning':
-        return <Warning className="w-3 h-3" weight="fill" />
+        return <AlertTriangle className="w-3 h-3" />
       case 'recommendation':
-        return <Lightning className="w-3 h-3" weight="fill" />
+        return <Zap className="w-3 h-3" />
       default:
-        return <Brain className="w-3 h-3" weight="fill" />
+        return <Brain className="w-3 h-3" />
     }
   }
 
@@ -332,7 +319,7 @@ export function ExecutiveDashboard() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <ArrowsClockwise className="w-12 h-9 animate-spin mx-auto mb-2 text-primary" />
+          <RefreshCw className="w-12 h-9 animate-spin mx-auto mb-2 text-primary" />
           <p className="text-muted-foreground">Loading executive dashboard...</p>
         </div>
       </div>
@@ -367,7 +354,7 @@ export function ExecutiveDashboard() {
             onClick={handleRefresh}
             disabled={loading}
           >
-            <ArrowsClockwise className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <Button variant="outline" size="sm" onClick={handleExportPDF}>
@@ -455,7 +442,7 @@ export function ExecutiveDashboard() {
                   {kpis.activeVehicles} active • {kpis.maintenanceVehicles} in maintenance
                 </p>
               </div>
-              <Truck className="w-4 h-4 text-primary" weight="duotone" />
+              <Truck className="w-4 h-4 text-primary" />
             </div>
           </CardContent>
         </Card>
@@ -478,7 +465,7 @@ export function ExecutiveDashboard() {
                   {kpis.assetUtilizationPercentage.toFixed(1)}% assets active
                 </Badge>
               </div>
-              <ChartLine className="w-4 h-4 text-success" weight="duotone" />
+              <LineChart className="w-4 h-4 text-success" />
             </div>
           </CardContent>
         </Card>
@@ -499,16 +486,16 @@ export function ExecutiveDashboard() {
                 <p className="text-sm font-bold">{kpis.totalMileageThisMonth.toLocaleString()}</p>
                 <div className="flex items-center gap-1 mt-1">
                   {kpis.mileageChange >= 0 ? (
-                    <TrendUp className="w-4 h-4 text-success" />
+                    <TrendingUp className="w-4 h-4 text-success" />
                   ) : (
-                    <TrendDown className="w-4 h-4 text-danger" />
+                    <TrendingDown className="w-4 h-4 text-danger" />
                   )}
                   <span className={`text-xs ${kpis.mileageChange >= 0 ? 'text-success' : 'text-danger'}`}>
                     {kpis.mileageChange.toFixed(1)}% from last month
                   </span>
                 </div>
               </div>
-              <Gauge className="w-4 h-4 text-primary" weight="duotone" />
+              <Gauge className="w-4 h-4 text-primary" />
             </div>
           </CardContent>
         </Card>
@@ -529,7 +516,7 @@ export function ExecutiveDashboard() {
                 <p className="text-sm font-bold">{kpis.avgFuelEfficiency.toFixed(1)} MPG</p>
                 <p className="text-xs text-muted-foreground mt-1">Fleet average</p>
               </div>
-              <CurrencyDollar className="w-4 h-4 text-warning" weight="duotone" />
+              <DollarSign className="w-4 h-4 text-warning" />
             </div>
           </CardContent>
         </Card>

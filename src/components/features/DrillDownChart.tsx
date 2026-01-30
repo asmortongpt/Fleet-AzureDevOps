@@ -9,7 +9,7 @@
  * - Back navigation support
  */
 
-import { CaretLeft, CaretRight } from '@phosphor-icons/react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import {
   BarChart,
@@ -210,7 +210,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
               {crumb.label}
             </button>
             {index < breadcrumbs.length - 1 && (
-              <CaretRight className="w-4 h-4 text-slate-400" />
+              <ChevronRight className="w-4 h-4 text-slate-400" />
             )}
           </div>
         ))}
@@ -286,7 +286,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
             onClick={() => handleBreadcrumbClick(breadcrumbs.length - 2)}
             className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-blue-800 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
           >
-            <CaretLeft className="w-4 h-4" />
+            <ChevronLeft className="w-4 h-4" />
             Back to {breadcrumbs[breadcrumbs.length - 2]?.label}
           </button>
         )}

@@ -5,20 +5,7 @@
 
 import { motion } from 'framer-motion'
 import { Suspense } from 'react'
-import {
-  ChartLine as InsightsIcon,
-  Brain,
-  TrendUp,
-  Lightbulb,
-  Target,
-  Sparkle,
-  Warning,
-  CheckCircle,
-  Clock,
-  CurrencyDollar,
-  Activity,
-  ChartPie,
-} from '@phosphor-icons/react'
+import { LineChart as InsightsIcon, Brain, TrendingUp, Lightbulb, Target, Sparkles, AlertTriangle, CheckCircle, Clock, DollarSign, Activity, PieChart } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveInsightsData } from '@/hooks/use-reactive-insights-data'
 import {
@@ -74,7 +61,7 @@ function InsightsOverview() {
         <StatCard
           title="Critical Alerts"
           value={aggregatedMetrics?.criticalAlerts?.toString() || '0'}
-          icon={Warning}
+          icon={AlertTriangle}
           trend="down"
           change="-3"
           description="Requiring attention"
@@ -83,7 +70,7 @@ function InsightsOverview() {
         <StatCard
           title="Potential Savings"
           value={`$${(aggregatedMetrics?.potentialSavings || 0).toLocaleString()}`}
-          icon={CurrencyDollar}
+          icon={DollarSign}
           trend="up"
           change="+$15k"
           description="From recommendations"
@@ -135,7 +122,7 @@ function InsightsOverview() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Sparkle className="h-5 w-5 text-amber-500" />
+            <Sparkles className="h-5 w-5 text-amber-500" />
             <CardTitle>Key Performance Indicators</CardTitle>
           </div>
           <CardDescription>Current fleet performance snapshot</CardDescription>
@@ -145,7 +132,7 @@ function InsightsOverview() {
             <div className="rounded-lg border p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-muted-foreground">Fleet Utilization</span>
-                <TrendUp className="h-4 w-4 text-green-500" />
+                <TrendingUp className="h-4 w-4 text-green-500" />
               </div>
               <p className="text-2xl font-bold">87%</p>
               <p className="text-xs text-muted-foreground mt-1">+5% from last month</p>
@@ -153,7 +140,7 @@ function InsightsOverview() {
             <div className="rounded-lg border p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-muted-foreground">Avg Fuel Efficiency</span>
-                <TrendUp className="h-4 w-4 text-green-500" />
+                <TrendingUp className="h-4 w-4 text-green-500" />
               </div>
               <p className="text-2xl font-bold">8.9 MPG</p>
               <p className="text-xs text-muted-foreground mt-1">+0.7 MPG improvement</p>
@@ -161,7 +148,7 @@ function InsightsOverview() {
             <div className="rounded-lg border p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-muted-foreground">Downtime</span>
-                <TrendUp className="h-4 w-4 text-amber-500" />
+                <TrendingUp className="h-4 w-4 text-amber-500" />
               </div>
               <p className="text-2xl font-bold">4 hrs</p>
               <p className="text-xs text-muted-foreground mt-1">Avg per vehicle/week</p>
@@ -208,7 +195,7 @@ function AIInsightsContent() {
         <StatCard
           title="Critical Insights"
           value={insightPriorityDistribution?.critical?.toString() || '0'}
-          icon={Warning}
+          icon={AlertTriangle}
           trend="down"
           change="-2"
           description="High priority alerts"
@@ -233,7 +220,7 @@ function AIInsightsContent() {
         <StatCard
           title="Total Insights"
           value={aggregatedMetrics?.totalInsights?.toString() || '0'}
-          icon={Sparkle}
+          icon={Sparkles}
           trend="up"
           change="+8"
           description="All insights"
@@ -372,7 +359,7 @@ function PredictionsContent() {
         <StatCard
           title="Avg Confidence"
           value="82%"
-          icon={ChartPie}
+          icon={PieChart}
           trend="up"
           change="+3%"
           description="Model accuracy"
@@ -503,7 +490,7 @@ function RecommendationsContent() {
         <StatCard
           title="Potential Savings"
           value={`$${(aggregatedMetrics?.potentialSavings || 0).toLocaleString()}`}
-          icon={CurrencyDollar}
+          icon={DollarSign}
           trend="up"
           change="+$15k"
           description="Total identified"
@@ -512,7 +499,7 @@ function RecommendationsContent() {
         <StatCard
           title="Avg ROI"
           value="195%"
-          icon={TrendUp}
+          icon={TrendingUp}
           trend="up"
           change="+12%"
           description="Return on investment"
@@ -577,7 +564,7 @@ function RecommendationsContent() {
                       <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
                         {rec.potentialSavings && (
                           <span className="flex items-center gap-1">
-                            <CurrencyDollar className="h-3 w-3" />
+                            <DollarSign className="h-3 w-3" />
                             Savings: ${rec.potentialSavings.toLocaleString()}
                           </span>
                         )}
@@ -629,7 +616,7 @@ export default function InsightsHub() {
     {
       id: 'overview',
       label: 'Overview',
-      icon: <ChartPie className="h-4 w-4" />,
+      icon: <PieChart className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <InsightsOverview />

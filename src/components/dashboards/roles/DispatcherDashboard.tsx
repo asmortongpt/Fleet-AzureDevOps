@@ -10,20 +10,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import {
-  MapTrifold,
-  Radio,
-  Siren,
-  Path,
-  CarSimple,
-  Clock,
-  CheckCircle,
-  Warning,
-  Users,
-  Phone,
-  ChatCircle,
-  Lightning
-} from '@phosphor-icons/react';
+import { Map, Radio, Siren, Path, CarSimple, Clock, CheckCircle, AlertTriangle, Users, Phone, MessageCircle, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
@@ -164,7 +151,7 @@ export function DispatcherDashboard() {
       {/* Active Operations Summary */}
       <Card className="bg-slate-800/50 backdrop-blur-xl border-cyan-500/30 p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
-          <Lightning className="w-4 h-4 text-cyan-400" />
+          <Zap className="w-4 h-4 text-cyan-400" />
           <h2 className="text-sm font-bold text-white">Active Operations</h2>
         </div>
 
@@ -187,7 +174,7 @@ export function DispatcherDashboard() {
             className="bg-blue-950/30 rounded-md p-2 border border-blue-500/30 hover:border-blue-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <MapTrifold className="w-4 h-4 text-blue-400" />
+              <Map className="w-4 h-4 text-blue-400" />
               <span className="text-sm font-black text-white">{operationStats.en_route}</span>
             </div>
             <p className="text-blue-300 font-semibold">En Route</p>
@@ -199,7 +186,7 @@ export function DispatcherDashboard() {
             className="bg-red-950/30 rounded-md p-2 border border-red-500/30 hover:border-red-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <Warning className="w-4 h-4 text-red-400" />
+              <AlertTriangle className="w-4 h-4 text-red-400" />
               <span className="text-sm font-black text-white">{operationStats.delayed}</span>
             </div>
             <p className="text-red-300 font-semibold">Delayed</p>
@@ -249,7 +236,7 @@ export function DispatcherDashboard() {
         <Card className="lg:col-span-2 bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <MapTrifold className="w-4 h-4 text-cyan-400" />
+              <Map className="w-4 h-4 text-cyan-400" />
               <h2 className="text-sm font-bold text-white">Live Fleet Map</h2>
             </div>
             <div className="flex gap-2">
@@ -280,7 +267,7 @@ export function DispatcherDashboard() {
           {/* Map Placeholder */}
           <div className="bg-slate-900/50 rounded-md border border-slate-700 aspect-video flex items-center justify-center mb-3">
             <div className="text-center">
-              <MapTrifold className="w-16 h-16 text-slate-600 mx-auto mb-3" />
+              <Map className="w-16 h-16 text-slate-600 mx-auto mb-3" />
               <p className="text-slate-400 mb-2">Interactive Fleet Map</p>
               <p className="text-sm text-slate-500">Google Maps with vehicle markers & routes</p>
             </div>
@@ -390,7 +377,7 @@ export function DispatcherDashboard() {
                     : "bg-slate-700 hover:bg-slate-600 text-sm text-slate-300"
                 )}
               >
-                <ChatCircle className="w-4 h-4 mr-2" />
+                <MessageCircle className="w-4 h-4 mr-2" />
                 {channel.status === 'active' ? 'Join' : 'Activate'}
               </Button>
             </motion.div>
