@@ -64,6 +64,7 @@ import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'react-hot-toast'
+import logger from '@/utils/logger';
 import {
   StatCard,
   ResponsiveBarChart,
@@ -99,7 +100,7 @@ const AdminTabContent = memo(function AdminTabContent() {
   // Handler for managing user groups
   const handleManageUsers = (role: string) => {
     toast.success(`Managing users: ${role}`)
-    console.log('Manage users clicked:', role)
+    logger.info('Manage users clicked:', role)
     // TODO: Navigate to user management page or open modal
   }
 
@@ -254,14 +255,14 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
   // Handler for configuring settings
   const handleConfigureSettings = (category: string) => {
     toast.success(`Configuring settings: ${category}`)
-    console.log('Configure settings clicked:', category)
+    logger.info('Configure settings clicked:', category)
     // TODO: Navigate to settings page or open configuration modal
   }
 
   // Handler for toggling feature flags
   const handleToggleFeature = (feature: string) => {
     toast.success(`Toggling feature: ${feature}`)
-    console.log('Toggle feature clicked:', feature)
+    logger.info('Toggle feature clicked:', feature)
     // TODO: Add real API call to toggle feature flag
   }
 
@@ -358,7 +359,7 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
   // Handler for running backups
   const handleRunBackup = (backupType: string) => {
     toast.success(`Running backup: ${backupType}`)
-    console.log('Run backup clicked:', backupType)
+    logger.info('Run backup clicked:', backupType)
     // TODO: Add real API call to trigger backup
   }
 
@@ -477,7 +478,7 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
   // Handler for configuring integrations
   const handleConfigureIntegration = (integrationName: string) => {
     toast.success(`Configuring integration: ${integrationName}`)
-    console.log('Configure integration clicked:', integrationName)
+    logger.info('Configure integration clicked:', integrationName)
     // TODO: Navigate to integration configuration page or open modal
   }
 
@@ -604,14 +605,14 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
   // Handler for browsing document categories
   const handleBrowseDocuments = (category: string) => {
     toast.success(`Browsing documents: ${category}`)
-    console.log('Browse documents clicked:', category)
+    logger.info('Browse documents clicked:', category)
     // TODO: Navigate to document browser or open file explorer
   }
 
   // Handler for downloading documents
   const handleDownloadDocument = (documentName: string) => {
     toast.success(`Downloading document: ${documentName}`)
-    console.log('Download document clicked:', documentName)
+    logger.info('Download document clicked:', documentName)
     // TODO: Add real API call to download document
   }
 

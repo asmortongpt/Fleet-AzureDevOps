@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import FDOTMileageCalculator from '../mileage/FDOTMileageCalculator';
+import logger from '@/utils/logger';
 
 interface MileageData {
   startMileage: number;
@@ -32,7 +33,7 @@ const MileageFormView: React.FC<MileageFormViewProps> = ({ currentTheme, setActi
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // console.log('Mileage Reimbursement Submitted:', {
+    // logger.info('Mileage Reimbursement Submitted:', {
     //   ...formData,
     //   totalMiles,
     //   reimbursement,
@@ -121,7 +122,7 @@ const MileageFormView: React.FC<MileageFormViewProps> = ({ currentTheme, setActi
             employeeId="FL123456"
             vehicleId={formData.vehicleId}
             onCalculationComplete={(result) => {
-              // console.log('FDOT Calculation Complete:', result);
+              // logger.info('FDOT Calculation Complete:', result);
             }}
           />
         </div>

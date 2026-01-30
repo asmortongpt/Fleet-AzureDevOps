@@ -14,6 +14,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import OpenAI from 'openai'
+import logger from '@/utils/logger';
 
 // ============================================================================
 // Types & Interfaces
@@ -341,7 +342,7 @@ Return as JSON array of conflicts.`
       const detected = JSON.parse(response)
       return Array.isArray(detected) ? detected : []
     } catch {
-      console.error('Failed to parse conflict detection response')
+      logger.error('Failed to parse conflict detection response')
       return []
     }
   }
@@ -422,7 +423,7 @@ Return as JSON array of gaps.`
       const gaps = JSON.parse(response)
       return Array.isArray(gaps) ? gaps : []
     } catch {
-      console.error('Failed to parse compliance gap analysis')
+      logger.error('Failed to parse compliance gap analysis')
       return []
     }
   }
@@ -545,7 +546,7 @@ Return as JSON.`
           ...result,
         })
       } catch {
-        console.error(`Failed to simulate scenario: ${scenario.name}`)
+        logger.error(`Failed to simulate scenario: ${scenario.name}`)
       }
     }
 
@@ -589,7 +590,7 @@ Return as JSON array sorted by relevance.`
         explanation: r.explanation,
       }))
     } catch {
-      console.error('Failed to perform semantic search')
+      logger.error('Failed to perform semantic search')
       return []
     }
   }

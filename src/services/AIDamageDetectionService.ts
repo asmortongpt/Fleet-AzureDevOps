@@ -12,6 +12,7 @@
 
 import type { CapturedPhoto } from '@/components/garage/MobileCameraCapture';
 import type { DamagePoint, DamageSeverity } from '@/components/garage/DamageOverlay';
+import logger from '@/utils/logger';
 
 // ============================================================================
 // TYPES
@@ -143,7 +144,7 @@ export class AIDamageDetectionService {
         modelVersion: this.config.modelVersion,
       };
     } catch (error) {
-      console.error('Damage detection failed:', error);
+      logger.error('Damage detection failed:', error);
       throw error;
     }
   }
@@ -334,7 +335,7 @@ export class AIDamageDetectionService {
             const result = await this.analyzePhoto(photo);
             return { photoId: photo.id, result };
           } catch (error) {
-            console.error(`Analysis failed for photo ${photo.id}:`, error);
+            logger.error(`Analysis failed for photo ${photo.id}:`, error);
             return null;
           }
         })

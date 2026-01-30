@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
 import { MemoryLeakDetector } from '@/utils/performance';
+import logger from '@/utils/logger';
 
 // ============================================================================
 // Types & Interfaces
@@ -228,7 +229,7 @@ export function usePerformanceMonitor(
       detector = new MemoryLeakDetector(callback);
       detector.start();
     } catch (error) {
-      console.warn('[usePerformanceMonitor] Failed to initialize memory leak detector:', error);
+      logger.warn('[usePerformanceMonitor] Failed to initialize memory leak detector:', error);
     }
 
     return () => {

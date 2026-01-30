@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 
 import { AccurateVehicleImageService } from '../../services/AccurateVehicleImageService';
 import { RealDataService } from '../../services/RealDataService';
+import logger from '@/utils/logger';
 
 interface PhotorealisticVehicleShowroomProps {
   currentTheme: any;
@@ -98,7 +99,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
 
       setVehicles(enhancedVehicles);
     } catch (error) {
-      console.error('Error loading vehicles:', error);
+      logger.error('Error loading vehicles:', error);
     } finally {
       setLoading(false);
     }
@@ -111,7 +112,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
       const referenceGenerator = new ReferenceBasedVehicleGenerator();
       const generationResult = await referenceGenerator.generateAllFleetVehicles();
 
-      console.log(`Generated ${generationResult.totalGenerated} images with ${generationResult.successRate}% success rate`);
+      logger.info(`Generated ${generationResult.totalGenerated} images with ${generationResult.successRate}% success rate`);
 
       // Save the generated images to localStorage for persistence
       localStorage.setItem('fleet-generated-images', JSON.stringify({
@@ -178,7 +179,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
       setVehicles(updatedVehicles);
 
     } catch (error) {
-      console.error('Image generation error:', error);
+      logger.error('Image generation error:', error);
       alert('Image generation failed. Please check your OpenAI API key in the environment variables.');
     } finally {
       setLoading(false);

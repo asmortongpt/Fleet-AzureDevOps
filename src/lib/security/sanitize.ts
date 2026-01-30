@@ -6,6 +6,7 @@
  */
 
 import DOMPurify from 'dompurify';
+import logger from '@/utils/logger';
 
 /**
  * HTML Sanitization Options
@@ -457,18 +458,18 @@ export function initSanitization(config: Partial<SanitizationConfig> = {}): void
   if (finalConfig.logViolations) {
     DOMPurify.addHook('uponSanitizeElement', (node, data) => {
       if (data.allowedTags && !data.allowedTags[data.tagName || '']) {
-        console.warn('[Sanitization] Removed disallowed tag:', data.tagName);
+        logger.warn('[Sanitization] Removed disallowed tag:', data.tagName);
       }
     });
 
     DOMPurify.addHook('uponSanitizeAttribute', (node, data) => {
       if (data.allowedAttributes && !data.allowedAttributes[data.attrName || '']) {
-        console.warn('[Sanitization] Removed disallowed attribute:', data.attrName);
+        logger.warn('[Sanitization] Removed disallowed attribute:', data.attrName);
       }
     });
   }
 
   if (import.meta.env.DEV) {
-    console.log('[Sanitization] Initialized with config:', finalConfig);
+    logger.info('[Sanitization] Initialized with config:', finalConfig);
   }
 }

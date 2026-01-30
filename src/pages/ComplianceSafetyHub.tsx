@@ -50,6 +50,7 @@ import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'react-hot-toast'
+import logger from '@/utils/logger';
 import {
   StatCard,
   ResponsiveBarChart,
@@ -86,7 +87,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
   const handleScheduleRenewal = (itemName: string) => {
     toast.success(`Scheduling renewal for: ${itemName}`)
     // TODO: Open scheduling dialog or navigate to scheduling page
-    console.log('Schedule renewal clicked:', itemName)
+    logger.info('Schedule renewal clicked:', itemName)
   }
 
   return (
@@ -375,7 +376,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
   const handleViewPolicy = (category: string) => {
     toast.success(`Opening policy details for: ${category}`)
     // TODO: Open policy details modal or navigate to policy page
-    console.log('View policy clicked:', category)
+    logger.info('View policy clicked:', category)
   }
 
   return (
@@ -505,14 +506,14 @@ const ReportingTabContent = memo(function ReportingTabContent() {
   const handleViewReport = (reportName: string) => {
     toast.success(`Opening report: ${reportName}`)
     // TODO: Open report viewer modal or download report
-    console.log('View report clicked:', reportName)
+    logger.info('View report clicked:', reportName)
   }
 
   // Handler for generating reports
   const handleGenerateReport = (reportName: string) => {
     toast.success(`Generating report: ${reportName}`)
     // TODO: Trigger report generation API call
-    console.log('Generate report clicked:', reportName)
+    logger.info('Generate report clicked:', reportName)
   }
 
   return (

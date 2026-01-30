@@ -35,6 +35,8 @@ import ErrorBoundary from '@/components/common/ErrorBoundary'
 // TYPES
 // ============================================================================
 
+import logger from '@/utils/logger';
+
 import type {
   ReportTemplate,
   GeneratedReport,
@@ -421,7 +423,7 @@ const TemplatesTab = memo(() => {
   }, [domainDistribution])
 
   const handleCreateTemplate = useCallback(() => {
-    console.log('Create template clicked')
+    logger.info('Create template clicked')
     // TODO: Implement template creation dialog
   }, [])
 
@@ -580,7 +582,7 @@ const ScheduledTab = memo(() => {
   }, [scheduledReports])
 
   const handleNewSchedule = useCallback(() => {
-    console.log('New schedule clicked')
+    logger.info('New schedule clicked')
     // TODO: Implement schedule creation dialog
   }, [])
 

@@ -13,6 +13,7 @@
  */
 
 import type { Policy } from '../policy-engine/types'
+import logger from '@/utils/logger';
 
 // ============================================================================
 // Configuration Schema Types
@@ -1007,12 +1008,12 @@ export class ConfigurationEngine {
     localStorage.setItem('fleet-configuration', JSON.stringify(all))
 
     // Log configuration change
-    console.log(`Configuration updated: ${key} = ${value} by ${modifiedBy}`)
+    logger.info(`Configuration updated: ${key} = ${value} by ${modifiedBy}`)
   }
 
   private async createApprovalRequest(key: string, value: any, requestedBy: string): Promise<void> {
     // TODO: Create approval workflow
-    console.log(`Approval required for ${key} = ${value} by ${requestedBy}`)
+    logger.info(`Approval required for ${key} = ${value} by ${requestedBy}`)
   }
 
   private async handleSideEffects(key: string, value: any): Promise<void> {

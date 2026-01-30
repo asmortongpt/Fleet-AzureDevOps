@@ -3,6 +3,7 @@
 // Based on: FLEET_CRITICAL_GAP_ANALYSIS.md Implementation 1
 
 import { EventEmitter } from 'events';
+import logger from '@/utils/logger';
 
 interface QueuedMessage {
   message: any;
@@ -40,11 +41,11 @@ export class FleetWebSocketService extends EventEmitter {
 
   private connect(): void {
     try {
-      console.log('[WebSocket] Connecting to', this.config.url);
+      logger.info('[WebSocket] Connecting to', this.config.url);
       this.ws = new WebSocket(this.config.url);
 
       this.ws.onopen = () => {
-        console.log('[WebSocket] Connected');
+        logger.info('[WebSocket] Connected');
         this.emit('connected');
         this.flushMessageQueue();
         this.startHeartbeat();
@@ -58,7 +59,7 @@ export class FleetWebSocketService extends EventEmitter {
       };
 
       this.ws.onerror = (error) => {
-        console.error('[WebSocket] Error:', error);
+        logger.error('[WebSocket] Error:', error);
         this.emit('error', error);
       };
 
@@ -66,7 +67,7 @@ export class FleetWebSocketService extends EventEmitter {
         this.handleDisconnect();
       };
     } catch (error) {
-      console.error('[WebSocket] Connection failed:', error);
+      logger.error('[WebSocket] Connection failed:', error);
       this.handleDisconnect();
     }
   }
@@ -92,7 +93,7 @@ export class FleetWebSocketService extends EventEmitter {
         });
       }
     } catch (error) {
-      console.error('[WebSocket] Failed to handle message:', error);
+      logger.error('[WebSocket] Failed to handle message:', error);
     }
   }
 
@@ -127,7 +128,7 @@ export class FleetWebSocketService extends EventEmitter {
   }
 
   private resubscribe(): void {
-    console.log('[WebSocket] Resubscribing to', this.subscriptions.size, 'entities');
+    logger.info('[WebSocket] Resubscribing to', this.subscriptions.size, 'entities');
     for (const [entity, ids] of this.subscriptions) {
       for (const id of ids) {
         this.send({
@@ -158,7 +159,7 @@ export class FleetWebSocketService extends EventEmitter {
   }
 
   private flushMessageQueue(): void {
-    console.log('[WebSocket] Flushing', this.messageQueue.length, 'queued messages');
+    logger.info('[WebSocket] Flushing', this.messageQueue.length, 'queued messages');
     while (this.messageQueue.length > 0) {
       const queued = this.messageQueue.shift();
       if (queued) {
@@ -182,7 +183,7 @@ export class FleetWebSocketService extends EventEmitter {
   }
 
   private handleDisconnect(): void {
-    console.log('[WebSocket] Disconnected');
+    logger.info('[WebSocket] Disconnected');
     this.emit('disconnected');
     this.stopHeartbeat();
     this.scheduleReconnect();
@@ -191,7 +192,7 @@ export class FleetWebSocketService extends EventEmitter {
   private scheduleReconnect(): void {
     if (this.reconnectTimer) return;
 
-    console.log('[WebSocket] Reconnecting in', this.config.reconnectDelay, 'ms');
+    logger.info('[WebSocket] Reconnecting in', this.config.reconnectDelay, 'ms');
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
       this.connect();
@@ -205,7 +206,7 @@ export class FleetWebSocketService extends EventEmitter {
   }
 
   public disconnect(): void {
-    console.log('[WebSocket] Manually disconnecting');
+    logger.info('[WebSocket] Manually disconnecting');
     this.stopHeartbeat();
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);

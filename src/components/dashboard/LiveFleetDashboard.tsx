@@ -179,26 +179,26 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
       id: 'dispatch',
       label: 'Dispatch',
       icon: <Truck className="h-5 w-5" />,
-      onClick: () => console.log('Dispatch clicked')
+      onClick: () => logger.info('Dispatch clicked')
     },
     {
       id: 'maintenance',
       label: 'Maintenance',
       icon: <Wrench className="h-5 w-5" />,
-      onClick: () => console.log('Maintenance clicked')
+      onClick: () => logger.info('Maintenance clicked')
     },
     {
       id: 'alerts',
       label: 'Alerts',
       icon: <AlertCircle className="h-5 w-5" />,
-      onClick: () => console.log('Alerts clicked'),
+      onClick: () => logger.info('Alerts clicked'),
       badge: maintenanceCount
     },
     {
       id: 'fuel',
       label: 'Fuel',
       icon: <Fuel className="h-5 w-5" />,
-      onClick: () => console.log('Fuel clicked')
+      onClick: () => logger.info('Fuel clicked')
     }
   ];
 
@@ -410,10 +410,10 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   // Map controls for mobile
   const mapControls = (
     <MobileMapControls
-      onZoomIn={() => console.log('Zoom in')}
-      onZoomOut={() => console.log('Zoom out')}
-      onLocate={() => console.log('Locate me')}
-      onToggleLayers={() => console.log('Toggle layers')}
+      onZoomIn={() => logger.info('Zoom in')}
+      onZoomOut={() => logger.info('Zoom out')}
+      onLocate={() => logger.info('Locate me')}
+      onToggleLayers={() => logger.info('Toggle layers')}
     />
   );
 

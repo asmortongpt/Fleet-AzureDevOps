@@ -28,6 +28,7 @@ import {
   alpha
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
+import logger from '@/utils/logger';
 
 interface VehicleEditFormProps {
   vehicle: Vehicle;
@@ -148,7 +149,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
       onSave(formData);
     } catch (error) {
-      console.error('Error saving vehicle:', error);
+      logger.error('Error saving vehicle:', error);
     } finally {
       setIsSubmitting(false);
     }

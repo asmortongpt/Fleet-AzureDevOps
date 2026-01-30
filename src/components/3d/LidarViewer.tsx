@@ -23,6 +23,7 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import logger from '@/utils/logger';
 
 interface LiDARPoint {
   x: number;
@@ -217,7 +218,7 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
       // Download model
       window.open(model.fileUrl, '_blank');
     } catch (err) {
-      console.error('Export error:', err);
+      logger.error('Export error:', err);
       alert('Failed to export model');
     }
   };

@@ -10,6 +10,7 @@ import { useDrilldown } from '@/contexts/DrilldownContext';
 import { useMultiLevelDrilldown } from '@/hooks/useMultiLevelDrilldown';
 import { api } from '@/services/api';
 import { Vehicle } from '@/types';
+import logger from '@/utils/logger';
 
 /**
  * DrilldownSystem - Universal Multi-Level Drilldown with Excel Views
@@ -52,7 +53,7 @@ export function DrilldownSystem() {
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load drilldown');
-      console.error('Drilldown error:', err);
+      logger.error('Drilldown error:', err);
     } finally {
       setLoading(false);
     }
@@ -163,7 +164,7 @@ export function DrilldownSystem() {
         />
       );
     } catch (err) {
-      console.error('Failed to load vehicles:', err);
+      logger.error('Failed to load vehicles:', err);
       return <div className="p-3 text-center text-red-400">Failed to load vehicle data</div>;
     }
   };
@@ -238,7 +239,7 @@ export function DrilldownSystem() {
         />
       );
     } catch (err) {
-      console.error('Failed to load maintenance records:', err);
+      logger.error('Failed to load maintenance records:', err);
       return <div className="p-3 text-center text-red-400">Failed to load maintenance data</div>;
     }
   };
@@ -299,7 +300,7 @@ export function DrilldownSystem() {
         />
       );
     } catch (err) {
-      console.error('Failed to load drivers:', err);
+      logger.error('Failed to load drivers:', err);
       return <div className="p-3 text-center text-red-400">Failed to load driver data</div>;
     }
   };

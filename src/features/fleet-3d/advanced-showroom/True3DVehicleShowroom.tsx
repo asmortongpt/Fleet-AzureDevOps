@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import logger from '@/utils/logger';
 
 interface True3DVehicleShowroomProps {
   vehicles: any[];
@@ -162,11 +163,11 @@ const True3DVehicleShowroom: React.FC<True3DVehicleShowroomProps> = ({
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
       }).catch((error) => {
-        console.error('Three.js loading error:', error);
+        logger.error('Three.js loading error:', error);
         setLoading(false);
       });
     } catch (error) {
-      console.error('Scene initialization error:', error);
+      logger.error('Scene initialization error:', error);
       setLoading(false);
     }
   }, [enhancedVehicles, animationEnabled]);
@@ -284,7 +285,7 @@ const True3DVehicleShowroom: React.FC<True3DVehicleShowroomProps> = ({
         group.add(label);
       }
     } catch (error) {
-      console.error('Label creation error:', error);
+      logger.error('Label creation error:', error);
     }
 
     return group;

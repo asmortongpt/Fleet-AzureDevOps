@@ -1,4 +1,5 @@
 import { Configuration, PopupRequest } from '@azure/msal-browser';
+import logger from '@/utils/logger';
 
 /**
  * MSAL Configuration for Azure AD SSO
@@ -21,16 +22,16 @@ export const msalConfig: Configuration = {
         if (containsPii) return;
         switch (level) {
           case 0: // Error
-            console.error('[MSAL]', message);
+            logger.error('[MSAL]', message);
             break;
           case 1: // Warning
-            console.warn('[MSAL]', message);
+            logger.warn('[MSAL]', message);
             break;
           case 2: // Info
-            console.info('[MSAL]', message);
+            logger.info('[MSAL]', message);
             break;
           case 3: // Verbose
-            console.debug('[MSAL]', message);
+            logger.debug('[MSAL]', message);
             break;
         }
       },

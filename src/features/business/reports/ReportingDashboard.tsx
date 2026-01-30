@@ -38,6 +38,7 @@ import {
   Alert,
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
+import logger from '@/utils/logger';
 
 const API_URL = 'http://localhost:8081';
 
@@ -105,7 +106,7 @@ export default function ReportingDashboard() {
       const data = await response.json();
       setReports(data);
     } catch (error) {
-      console.error('Failed to fetch reports:', error)
+      logger.error('Failed to fetch reports:', error)
     }
   };
 
@@ -115,7 +116,7 @@ export default function ReportingDashboard() {
       const data = await response.json();
       setScheduledReports(data);
     } catch (error) {
-      console.error('Failed to fetch scheduled reports:', error)
+      logger.error('Failed to fetch scheduled reports:', error)
     }
   };
 

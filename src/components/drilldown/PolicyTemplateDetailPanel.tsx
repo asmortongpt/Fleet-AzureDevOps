@@ -30,6 +30,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import logger from '@/utils/logger';
 
 interface PolicyTemplateDetailPanelProps {
   templateId: string
@@ -237,7 +238,7 @@ export function PolicyTemplateDetailPanel({
       pop() // Go back to template list
     } catch (error) {
       toast.error('Failed to create policy from template')
-      console.error(error)
+      logger.error(error)
     } finally {
       setIsLoading(false)
     }

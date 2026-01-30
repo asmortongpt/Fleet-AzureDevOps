@@ -28,6 +28,7 @@ import { Separator } from '@/components/ui/separator'
 import { useVehicles, useFacilities } from '@/hooks/use-api'
 import type { Vehicle, GISFacility } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import logger from '@/utils/logger';
 
 /**
  * Compliance Map View - Map-First Architecture
@@ -302,7 +303,7 @@ export function ComplianceMapView() {
   }, [])
 
   const handleViewDetails = useCallback((zoneId: string) => {
-    console.log('View details for zone:', zoneId)
+    logger.info('View details for zone:', zoneId)
     // In production, this would navigate to detailed compliance view
   }, [])
 

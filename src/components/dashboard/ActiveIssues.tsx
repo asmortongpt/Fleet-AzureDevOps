@@ -4,6 +4,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import logger from '@/utils/logger';
 
 type IssueSeverity = 'critical' | 'warning' | 'info';
 
@@ -133,7 +134,7 @@ export function ActiveIssues({ className }: ActiveIssuesProps) {
 
         setIssues(sortedIssues);
       } catch (error) {
-        console.error('Failed to fetch active issues:', error);
+        logger.error('Failed to fetch active issues:', error);
         setIssues([]);
       } finally {
         setLoading(false);

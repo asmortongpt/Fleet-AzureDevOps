@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import { Request, Response, NextFunction } from 'express';
 
 import { cacheService } from './RedisService';
+import logger from '@/utils/logger';
 
 interface CacheOptions {
   ttl?: number;
@@ -65,7 +66,7 @@ export function cacheMiddleware(options: CacheOptions = {}) {
             body,
           },
           ttl
-        ).catch(err => console.error('Cache set error:', err));
+        ).catch(err => logger.error('Cache set error:', err));
 
         // Set cache header
         res.set('X-Cache', 'MISS');
@@ -76,7 +77,7 @@ export function cacheMiddleware(options: CacheOptions = {}) {
 
       next();
     } catch (error) {
-      console.error('Cache middleware error:', error);
+      logger.error('Cache middleware error:', error);
       next();
     }
   };
@@ -127,7 +128,7 @@ export function invalidateCacheMiddleware(patterns: string[]) {
       if (res.statusCode >= 200 && res.statusCode < 300) {
         patterns.forEach(pattern => {
           cacheService.invalidatePattern(pattern).catch(err => {
-            console.error('Cache invalidation error:', err);
+            logger.error('Cache invalidation error:', err);
           });
         });
       }

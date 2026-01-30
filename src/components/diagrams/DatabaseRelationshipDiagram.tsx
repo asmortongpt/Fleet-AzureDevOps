@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import logger from '@/utils/logger';
 
 interface TableInfo {
   name: string
@@ -414,7 +415,7 @@ erDiagram
       mermaid.run({
         nodes: mermaidRef.current.querySelectorAll(".mermaid")
       }).catch(error => {
-        console.error("Mermaid rendering error:", error)
+        logger.error("Mermaid rendering error:", error)
       })
     }
   }, [viewMode])

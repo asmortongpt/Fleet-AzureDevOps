@@ -25,6 +25,33 @@ import { swrFetcher } from '@/lib/fetcher'
 const fetcher = swrFetcher
 
 // ============================================
+// Schedule Item Interface
+// ============================================
+interface ScheduleItem {
+  id: string | number
+  title: string
+  type: string
+  item_number: string
+  status: string
+  start_time: string
+  end_time: string
+  description?: string
+  duration_hours?: number
+  priority?: string
+  created_by?: string
+  created_date?: string
+  assigned_driver?: string
+  assigned_vehicle?: string
+  driver_id?: string | number
+  vehicle_id?: string | number
+  start_location?: string
+  end_location?: string
+  distance?: number
+  notes?: string
+  special_instructions?: string
+}
+
+// ============================================
 // Scheduled Item Detail Panel
 // ============================================
 interface ScheduledItemDetailPanelProps {
@@ -33,7 +60,7 @@ interface ScheduledItemDetailPanelProps {
 
 export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelProps) {
   const { push } = useDrilldown()
-  const { data: item, error, isLoading, mutate } = useSWR(
+  const { data: item, error, isLoading, mutate } = useSWR<ScheduleItem>(
     `/api/schedule/${itemId}`,
     fetcher
   )
@@ -343,7 +370,7 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
     return `/api/schedule?${params.toString()}`
   }
 
-  const { data: items, error, isLoading } = useSWR(buildUrl(), fetcher)
+  const { data: items, error, isLoading } = useSWR<ScheduleItem[]>(buildUrl(), fetcher)
 
   const timeframeLabels = {
     today: "Today's Schedule",

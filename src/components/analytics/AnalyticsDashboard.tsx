@@ -25,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useVehicles } from '@/hooks/use-api';
 import type { Vehicle } from '@/types';
+import logger from '@/utils/logger';
 
 type AnalyticsType = 'heatmap' | 'routes' | 'performance' | 'fuel';
 
@@ -81,12 +82,12 @@ export function AnalyticsDashboard() {
 
   const handleExport = () => {
     // Implement export functionality
-    console.log(`Exporting analytics report as ${exportFormat}`);
+    logger.info(`Exporting analytics report as ${exportFormat}`);
   };
 
   const handleShare = () => {
     // Implement share functionality
-    console.log('Sharing analytics report');
+    logger.info('Sharing analytics report');
   };
 
   if (error) {

@@ -42,6 +42,7 @@ import {
 } from 'lucide-react';
 import { VEHICLE_COLORS, type MaterialQuality, type PaintType } from '@/lib/3d/pbr-materials';
 import { useNavigate } from 'react-router-dom';
+import logger from '@/utils/logger';
 
 interface Vehicle {
   id: number;
@@ -157,7 +158,7 @@ export default function VehicleShowroom3D() {
         alert('Link copied to clipboard!');
       }
     } catch (err) {
-      console.error('Error sharing:', err);
+      logger.error('Error sharing:', err);
     }
   }, [selectedVehicle]);
 

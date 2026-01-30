@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios'
+import logger from '@/utils/logger';
 
 // TypeScript Types
 export interface DamageReport {
@@ -81,15 +82,15 @@ const handleApiError = (error: AxiosError): never => {
     // Server responded with error status
     const errorMessage =
       (error.response.data as any)?.error || 'An error occurred on the server'
-    console.error('API Error:', errorMessage, error.response.data)
+    logger.error('API Error:', errorMessage, error.response.data)
     throw new Error(errorMessage)
   } else if (error.request) {
     // Request was made but no response received
-    console.error('Network Error:', error.request)
+    logger.error('Network Error:', error.request)
     throw new Error('Network error - please check your connection')
   } else {
     // Something else happened
-    console.error('Request Error:', error.message)
+    logger.error('Request Error:', error.message)
     throw new Error('Failed to make request')
   }
 }
@@ -188,7 +189,7 @@ export const damageReportsApi = {
               const percentCompleted = Math.round(
                 (progressEvent.loaded * 100) / progressEvent.total
               )
-              console.log(`Upload progress: ${percentCompleted}%`)
+              logger.info(`Upload progress: ${percentCompleted}%`)
             }
           },
         }

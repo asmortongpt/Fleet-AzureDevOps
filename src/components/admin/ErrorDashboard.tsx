@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import logger from '@/utils/logger';
 
 
 interface ErrorSummary {
@@ -131,7 +132,7 @@ export function ErrorDashboard() {
       setErrors(mockErrors);
       setErrorHistory(mockHistory);
     } catch (error) {
-      console.error('Failed to fetch error data:', error);
+      logger.error('Failed to fetch error data:', error);
     } finally {
       setIsLoading(false);
     }

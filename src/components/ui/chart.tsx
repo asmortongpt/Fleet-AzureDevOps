@@ -2,6 +2,7 @@ import { ComponentProps, ComponentType, createContext, CSSProperties, ReactNode,
 import { ResponsiveContainer, Tooltip, Legend, LegendProps } from "recharts"
 
 import { cn } from "@/lib/utils"
+import logger from '@/utils/logger';
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const
@@ -121,7 +122,7 @@ function sanitizeColor(color: string | undefined): string | null {
   }
 
   // If none of the above, reject the color
-  console.warn(`Invalid color value rejected: ${color}`)
+  logger.warn(`Invalid color value rejected: ${color}`)
   return null
 }
 

@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { flairIntegrationService, FLAIRExpenseEntry } from '../../services/FLAIRIntegration';
+import logger from '@/utils/logger';
 
 // Component props
 interface FLAIRApprovalDashboardProps {
@@ -367,7 +368,7 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
       const mockEntries = generateMockEntries();
       setEntries(mockEntries);
     } catch (error) {
-      console.error('Error loading expense entries:', error);
+      logger.error('Error loading expense entries:', error);
     } finally {
       setIsLoading(false);
     }
@@ -449,24 +450,24 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
         onApprovalComplete?.(entryId, true);
       }
     } catch (error) {
-      console.error('Error approving expense:', error);
+      logger.error('Error approving expense:', error);
     }
   };
 
   const handleRejection = async (entryId: string, reason: string) => {
     try {
       // In production, this would call a rejection API
-      console.log('Rejecting expense:', entryId, reason);
+      logger.info('Rejecting expense:', entryId, reason);
       await loadExpenseEntries();
       onApprovalComplete?.(entryId, false);
     } catch (error) {
-      console.error('Error rejecting expense:', error);
+      logger.error('Error rejecting expense:', error);
     }
   };
 
   const handleViewDetails = (entryId: string) => {
     // In production, this would open a detailed view modal
-    console.log('Viewing details for expense:', entryId);
+    logger.info('Viewing details for expense:', entryId);
   };
 
   const generateMockEntries = (): FLAIRExpenseEntry[] => {

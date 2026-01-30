@@ -37,6 +37,7 @@ import {
   type BottleneckAnalysis
 } from "@/lib/policy-engine/ai-policy-generator"
 import { cn } from "@/lib/utils"
+import logger from '@/utils/logger';
 
 type OnboardingStep = 'profile' | 'analysis' | 'recommendations' | 'implementation'
 
@@ -202,7 +203,7 @@ export function PolicyOnboarding() {
       toast.success('AI Analysis Complete!')
     } catch (error) {
       toast.error('Analysis failed. Please try again.')
-      console.error('Analysis error:', error)
+      logger.error('Analysis error:', error)
     } finally {
       setIsAnalyzing(false)
     }
@@ -225,7 +226,7 @@ export function PolicyOnboarding() {
       setCurrentStep('implementation')
     } catch (error) {
       toast.error('Failed to implement policies')
-      console.error('Implementation error:', error)
+      logger.error('Implementation error:', error)
     }
   }
 

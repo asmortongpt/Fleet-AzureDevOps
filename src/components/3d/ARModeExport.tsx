@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import logger from '@/utils/logger';
 import {
   Camera,
   Smartphone,
@@ -171,7 +172,7 @@ export default function ARModeExport({
         alert('AR link copied to clipboard!');
       }
     } catch (err) {
-      console.error('Error sharing:', err);
+      logger.error('Error sharing:', err);
     }
   }, [generatedUrl, vehicleData]);
 

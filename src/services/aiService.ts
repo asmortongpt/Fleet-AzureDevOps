@@ -1,4 +1,5 @@
 /**
+import logger from '@/utils/logger';
  * AI Service - Real API Integration
  *
  * Provides integration with Claude (Anthropic), OpenAI, and Gemini APIs
@@ -147,7 +148,7 @@ export async function sendMessageToClaude(
       model: 'claude'
     };
   } catch (error) {
-    console.error('Claude API error:', error);
+    logger.error('Claude API error:', error);
     return {
       content: '',
       model: 'claude',
@@ -255,7 +256,7 @@ export async function sendMessageToOpenAI(
       model: 'openai'
     };
   } catch (error) {
-    console.error('OpenAI API error:', error);
+    logger.error('OpenAI API error:', error);
     return {
       content: '',
       model: 'openai',
@@ -360,7 +361,7 @@ export async function sendMessageToGemini(
       model: 'gemini'
     };
   } catch (error) {
-    console.error('Gemini API error:', error);
+    logger.error('Gemini API error:', error);
     return {
       content: '',
       model: 'gemini',

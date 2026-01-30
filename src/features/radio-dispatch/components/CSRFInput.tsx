@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import { api } from '@/lib/api';
+import logger from '@/utils/logger';
 
 /**
  * CSRFInput Component
@@ -62,7 +63,7 @@ export function CSRFInput() {
  * Usage:
  * ```tsx
  * const csrfToken = useCSRFToken();
- * console.log('Current CSRF token:', csrfToken);
+ * logger.info('Current CSRF token:', csrfToken);
  * ```
  */
 export function useCSRFToken(): string | null {

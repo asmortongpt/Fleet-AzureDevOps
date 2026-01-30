@@ -53,6 +53,7 @@ import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'react-hot-toast'
+import logger from '@/utils/logger';
 import {
   StatCard,
   ResponsiveBarChart,
@@ -493,14 +494,14 @@ const ReportsTabContent = memo(function ReportsTabContent() {
   // Handler for generating reports
   const handleGenerateReport = (reportName: string) => {
     toast.success(`Generating report: ${reportName}`)
-    console.log('Generate report:', reportName)
+    logger.info('Generate report:', reportName)
     // TODO: Add real API call to generate report
   }
 
   // Handler for downloading reports
   const handleDownloadReport = (reportName: string) => {
     toast.success(`Downloading report: ${reportName}`)
-    console.log('Download report:', reportName)
+    logger.info('Download report:', reportName)
     // TODO: Add real API call to download report
   }
 

@@ -16,6 +16,7 @@
 import React, { useState, useEffect } from 'react';
 import { Wifi, WifiOff, RefreshCw, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 import { offlineSyncService, type SyncStatus } from '../../services/offline-sync.service';
+import logger from '@/utils/logger';
 
 interface OfflineIndicatorProps {
   showDetails?: boolean;
@@ -74,7 +75,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
       const count = await offlineSyncService.getPendingSyncCount();
       setPendingCount(count);
     } catch (error) {
-      console.error('Failed to load pending count:', error);
+      logger.error('Failed to load pending count:', error);
     }
   };
 
@@ -87,7 +88,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
     try {
       await offlineSyncService.syncWhenOnline();
     } catch (error) {
-      console.error('Manual sync failed:', error);
+      logger.error('Manual sync failed:', error);
       alert('Sync failed. Please try again.');
     }
   };

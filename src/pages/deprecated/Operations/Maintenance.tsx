@@ -31,6 +31,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import logger from '@/utils/logger';
 
 // Type definitions for maintenance records
 interface MaintenanceRecord {
@@ -94,7 +95,7 @@ export function MaintenanceOperations() {
         setStats(data.data);
       }
     } catch (error) {
-      console.error('Failed to fetch maintenance data:', error);
+      logger.error('Failed to fetch maintenance data:', error);
       toast.error('Failed to load maintenance data');
     } finally {
       setLoading(false);
@@ -210,7 +211,7 @@ export function MaintenanceOperations() {
       await fetchMaintenanceData();
       handleCloseDetail();
     } catch (error) {
-      console.error('Error saving maintenance:', error);
+      logger.error('Error saving maintenance:', error);
       toast.error('Failed to schedule maintenance');
     } finally {
       setIsSaving(false);
@@ -241,7 +242,7 @@ export function MaintenanceOperations() {
       await fetchMaintenanceData();
       setIsEditing(false);
     } catch (error) {
-      console.error('Error completing maintenance:', error);
+      logger.error('Error completing maintenance:', error);
       toast.error('Failed to complete maintenance');
     } finally {
       setIsSaving(false);
@@ -271,7 +272,7 @@ export function MaintenanceOperations() {
       await fetchMaintenanceData();
       setIsEditing(false);
     } catch (error) {
-      console.error('Error rescheduling maintenance:', error);
+      logger.error('Error rescheduling maintenance:', error);
       toast.error('Failed to reschedule maintenance');
     } finally {
       setIsSaving(false);

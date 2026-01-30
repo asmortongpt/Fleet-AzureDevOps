@@ -22,6 +22,7 @@ import {
 } from 'recharts';
 
 import type { ReportDefinition, ReportVisual, ReportMeasure } from '../../services/ReportLoaderService';
+import logger from '@/utils/logger';
 
 interface DynamicReportRendererProps {
   report: ReportDefinition;
@@ -186,7 +187,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
 
         return typeof result === 'number' ? result : 0;
       } catch (error) {
-        console.warn(`Failed to evaluate expression: ${measure.expression}`, error);
+        logger.warn(`Failed to evaluate expression: ${measure.expression}`, error);
         return 0;
       }
     }

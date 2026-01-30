@@ -4,6 +4,7 @@
 
 import { Mail, MessageSquare, Calendar, Send } from 'lucide-react';
 import React, { useState } from 'react';
+import logger from '@/utils/logger';
 
 // Microsoft Graph API configuration
 const GRAPH_CONFIG = {
@@ -45,7 +46,7 @@ export const OutlookEmailButton: React.FC<{
         alert('Email sent successfully!');
       }
     } catch (error) {
-      console.error('Failed to send email:', error);
+      logger.error('Failed to send email:', error);
       alert('Failed to send email');
     } finally {
       setSending(false);
@@ -112,7 +113,7 @@ export const TeamsChatButton: React.FC<{
       window.open(`https://teams.microsoft.com/l/chat/0/0?users=${userEmail}`, '_blank');
 
     } catch (error) {
-      console.error('Failed to start Teams chat:', error);
+      logger.error('Failed to start Teams chat:', error);
     }
   };
 
@@ -166,7 +167,7 @@ export const CalendarEventButton: React.FC<{
         alert('Calendar event created!');
       }
     } catch (error) {
-      console.error('Failed to create event:', error);
+      logger.error('Failed to create event:', error);
       alert('Failed to create calendar event');
     } finally {
       setCreating(false);

@@ -11,6 +11,7 @@
  */
 
 import type { CapturedPhoto } from '@/components/garage/MobileCameraCapture';
+import logger from '@/utils/logger';
 
 export interface UploadProgress {
   photoId: string;
@@ -82,7 +83,7 @@ class PhotoUploadService {
       // Notify completion
       onProgress?.(new Map(this.progressMap));
     } catch (error) {
-      console.error('Upload failed:', error);
+      logger.error('Upload failed:', error);
       throw error;
     }
   }
@@ -231,7 +232,7 @@ class PhotoUploadService {
       try {
         await this.uploadPhotos({ assetId, photos });
       } catch (error) {
-        console.error('Queued upload failed:', error);
+        logger.error('Queued upload failed:', error);
         // Re-queue if still offline
         if (!this.isOnline) {
           this.uploadQueue.set(assetId, photos);
@@ -258,7 +259,7 @@ class PhotoUploadService {
 
       localStorage.setItem('photoUploadQueue', JSON.stringify(queueData));
     } catch (error) {
-      console.error('Failed to save queue:', error);
+      logger.error('Failed to save queue:', error);
     }
   }
 
@@ -271,10 +272,10 @@ class PhotoUploadService {
       if (data) {
         const queueData = JSON.parse(data);
         // Note: Blobs are lost, would need to reconstruct from dataUrl
-        console.log('Loaded queued uploads:', queueData.length);
+        logger.info('Loaded queued uploads:', queueData.length);
       }
     } catch (error) {
-      console.error('Failed to load queue:', error);
+      logger.error('Failed to load queue:', error);
     }
   }
 

@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
+import logger from '@/utils/logger';
 
 // ============================================================================
 // Example 1: Basic Usage
@@ -128,11 +129,11 @@ export function VehicleDetailsPageExample() {
           <HardwareConfigurationPanel
             vehicleId={vehicleId}
             onProviderAdded={(provider) => {
-              console.log('Provider added:', provider)
+              logger.info('Provider added:', provider)
               // Update analytics, refresh dashboard, etc.
             }}
             onProviderRemoved={(provider) => {
-              console.log('Provider removed:', provider)
+              logger.info('Provider removed:', provider)
               // Update analytics, refresh dashboard, etc.
             }}
           />

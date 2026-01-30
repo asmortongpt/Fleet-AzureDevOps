@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import logger from '@/utils/logger';
 
 interface HealthMetric {
   name: string;
@@ -122,7 +123,7 @@ export function SystemHealth({ className }: SystemHealthProps) {
 
         setMetrics(metricsData);
       } catch (error) {
-        console.error('Failed to fetch health metrics:', error);
+        logger.error('Failed to fetch health metrics:', error);
         // Provide degraded state on error
         setMetrics([
           {

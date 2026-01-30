@@ -35,7 +35,7 @@ export const msalConfig: Configuration = {
             logger.info(message);
             break;
           case LogLevel.Verbose:
-            console.debug(message);
+            logger.debug(message);
             break;
           case LogLevel.Warning:
             logger.warn(message);

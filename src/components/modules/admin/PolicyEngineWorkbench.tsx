@@ -54,6 +54,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { usePolicies } from "@/contexts/PolicyContext"
 import type { Policy, PolicyType, PolicyMode, PolicyStatus } from "@/lib/policy-engine/types"
+import logger from '@/utils/logger';
 
 // Check if demo mode is enabled (default: true)
 const isDemoMode = () => {
@@ -146,7 +147,7 @@ export function PolicyEngineWorkbench() {
       setIsAddDialogOpen(false)
       resetForm()
     } catch (error) {
-      console.error('Error saving policy:', error)
+      logger.error('Error saving policy:', error)
     }
   }
 
@@ -154,7 +155,7 @@ export function PolicyEngineWorkbench() {
     try {
       await activatePolicy(policyId)
     } catch (error) {
-      console.error('Error activating policy:', error)
+      logger.error('Error activating policy:', error)
     }
   }
 
@@ -162,7 +163,7 @@ export function PolicyEngineWorkbench() {
     try {
       await deactivatePolicy(policyId)
     } catch (error) {
-      console.error('Error deactivating policy:', error)
+      logger.error('Error deactivating policy:', error)
     }
   }
 
@@ -174,7 +175,7 @@ export function PolicyEngineWorkbench() {
         await updatePolicy(policyId, { status: "testing" as PolicyStatus })
         toast.success("Policy test completed successfully")
       } catch (error) {
-        console.error('Error testing policy:', error)
+        logger.error('Error testing policy:', error)
         toast.error("Policy test failed")
       }
     }, 2000)

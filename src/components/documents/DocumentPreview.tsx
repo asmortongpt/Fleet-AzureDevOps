@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import logger from '@/utils/logger';
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -81,7 +82,7 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
   };
 
   const onDocumentLoadError = (error: Error) => {
-    console.error('Error loading PDF:', error);
+    logger.error('Error loading PDF:', error);
     setError('Failed to load PDF document');
     setLoading(false);
   };

@@ -94,6 +94,7 @@ import lidarRouter from './routes/lidar.routes'
 // External Integrations Routes
 import outlookRouter from './routes/outlook.routes'
 import reservationsRouter from './routes/reservations'
+import hosRouter from './routes/hos'
 
 // Emulator & Testing Routes
 // import emulatorRouter from './routes/emulator.routes'
@@ -148,7 +149,6 @@ import presenceRouter from './routes/presence.routes'
 import purchaseOrdersRouter from './routes/purchase-orders'
 import pushNotificationsRouter from './routes/push-notifications.routes'
 import qualityGatesRouter from './routes/quality-gates'
-import reservationsRouter from './routes/reservations.routes'
 // import routeEmulatorRouter from './routes/route-emulator.routes'
 import routesRouter from './routes/routes'
 import safetyIncidentsRouter from './routes/safety-incidents'
@@ -328,6 +328,7 @@ app.use('/api/invoices', invoicesRouter)
 app.use('/api/purchase-orders', purchaseOrdersRouter)
 app.use('/api/tasks', tasksRouter)
 app.use('/api/reservations', reservationsRouter)
+app.use('/api/hos', hosRouter)
 
 // Asset Management Routes
 app.use('/api/assets', assetManagementRouter)

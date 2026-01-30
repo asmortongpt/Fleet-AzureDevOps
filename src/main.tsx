@@ -36,7 +36,7 @@ if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
   // If needed, use sessionStorage or cookies for non-sensitive data
   // Object.freeze(localStorage); // Uncomment if strict security is required
 
-  console.log('[Fleet] Production mode: All authentication bypass mechanisms removed');
+  logger.info('[Fleet] Production mode: All authentication bypass mechanisms removed');
 }
 
 // Initialize Sentry before all other imports for proper error tracking
@@ -99,6 +99,7 @@ import "./styles/dark-mode-enhancements.css"
 
 // WCAG 2.1 AA Accessibility Styles
 import "./styles/accessibility.css"
+import logger from '@/utils/logger';
 
 // Legacy fleet theme - DISABLED to prevent conflicts
 // import "./styles/fleet-theme.css"
@@ -133,34 +134,34 @@ const SentryRoutes = Routes
  * TODO: Call backend /api/health or /api/config endpoint from frontend
  */
 async function validateStartupConfiguration(): Promise<void> {
-  console.log('[Fleet] Starting application configuration validation...');
-  console.log('[Fleet] ⚠️  NOTICE: Azure Key Vault validation disabled (frontend)');
-  console.log('[Fleet] ⚠️  Secret validation must be implemented in backend API');
+  logger.info('[Fleet] Starting application configuration validation...');
+  logger.info('[Fleet] ⚠️  NOTICE: Azure Key Vault validation disabled (frontend)');
+  logger.info('[Fleet] ⚠️  Secret validation must be implemented in backend API');
 
   // TEMP: Skip all Key Vault validation in frontend
   // This allows the app to start in development mode
-  console.log('[Fleet] ✅ Frontend startup validation: PASSED (Key Vault disabled)');
+  logger.info('[Fleet] ✅ Frontend startup validation: PASSED (Key Vault disabled)');
 
   /* COMMENTED OUT - CAUSES BROWSER CRASH
   try {
     // Only validate secrets in production mode
     if (import.meta.env.MODE === 'production') {
-      console.log('[Fleet] Production mode detected - validating Key Vault connectivity...');
+      logger.info('[Fleet] Production mode detected - validating Key Vault connectivity...');
 
       // Step 1: Check Key Vault connectivity
       const healthCheck = await checkKeyVaultHealth();
       if (!healthCheck.healthy) {
         throw new Error(`Key Vault health check failed: ${healthCheck.error}`);
       }
-      console.log('[Fleet] ✓ Key Vault connectivity verified');
+      logger.info('[Fleet] ✓ Key Vault connectivity verified');
 
       // Step 2: Validate all required secrets
-      console.log('[Fleet] Validating required secrets...');
+      logger.info('[Fleet] Validating required secrets...');
       await validateSecrets();
-      console.log('[Fleet] ✓ All required secrets validated');
+      logger.info('[Fleet] ✓ All required secrets validated');
 
       // Step 3: Validate JWT configuration
-      console.log('[Fleet] Validating JWT configuration...');
+      logger.info('[Fleet] Validating JWT configuration...');
       const jwtSecret = await getSecret("JWT-SECRET");
 
       if (jwtSecret.length < 32) {
@@ -168,15 +169,15 @@ async function validateStartupConfiguration(): Promise<void> {
           `JWT-SECRET must be at least 32 characters for security (current: ${jwtSecret.length} chars)`
         );
       }
-      console.log('[Fleet] ✓ JWT configuration valid');
+      logger.info('[Fleet] ✓ JWT configuration valid');
 
-      console.log('[Fleet] ✅ Startup validation: PASSED');
+      logger.info('[Fleet] ✅ Startup validation: PASSED');
     } else {
-      console.log('[Fleet] Development mode - skipping Key Vault validation');
-      console.log('[Fleet] ⚠️  WARNING: Using local environment variables');
+      logger.info('[Fleet] Development mode - skipping Key Vault validation');
+      logger.info('[Fleet] ⚠️  WARNING: Using local environment variables');
     }
   } catch (error) {
-    console.error('[Fleet] ❌ FATAL: Startup validation failed:', error);
+    logger.error('[Fleet] ❌ FATAL: Startup validation failed:', error);
 
     // Show user-friendly error page instead of blank screen
     const rootElement = document.getElementById("root");
@@ -243,7 +244,7 @@ validateStartupConfiguration().then(() => {
   const allAccounts = msalInstance.getAllAccounts();
   const activeAccount = msalInstance.getActiveAccount();
 
-  console.log('[MSAL] Initialization complete:', {
+  logger.info('[MSAL] Initialization complete:', {
     totalAccounts: allAccounts.length,
     hasActiveAccount: !!activeAccount,
     activeAccountEmail: activeAccount?.username,
@@ -252,25 +253,25 @@ validateStartupConfiguration().then(() => {
 
   if (!activeAccount && allAccounts.length > 0) {
     msalInstance.setActiveAccount(allAccounts[0]);
-    console.log('[MSAL] Restored active account on startup:', allAccounts[0].username);
+    logger.info('[MSAL] Restored active account on startup:', allAccounts[0].username);
   }
 
   // CRITICAL: Listen for LOGIN_SUCCESS and set the active account
   msalInstance.addEventCallback((event) => {
-    console.log('[MSAL] Event received:', event.eventType);
+    logger.info('[MSAL] Event received:', event.eventType);
 
     if (event.eventType === 'msal:loginSuccess' && event.payload?.account) {
       const account = event.payload.account;
       msalInstance.setActiveAccount(account);
-      console.log('[MSAL] Active account set after login:', account.username);
+      logger.info('[MSAL] Active account set after login:', account.username);
     }
 
     if (event.eventType === 'msal:handleRedirectEnd') {
-      console.log('[MSAL] Redirect handling complete');
+      logger.info('[MSAL] Redirect handling complete');
     }
   });
 
-  console.log('[Fleet] MSAL initialized, starting application...');
+  logger.info('[Fleet] MSAL initialized, starting application...');
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
     // TEMP DISABLED: React.StrictMode to debug infinite loop
@@ -335,10 +336,10 @@ validateStartupConfiguration().then(() => {
       }
     },
     onOfflineReady() {
-      console.log('App ready to work offline')
+      logger.info('App ready to work offline')
     },
   })
 }).catch((error) => {
   // P0-3: Validation failed - app will not start
-  console.error('[Fleet] Application startup aborted due to validation failure:', error);
+  logger.error('[Fleet] Application startup aborted due to validation failure:', error);
 });

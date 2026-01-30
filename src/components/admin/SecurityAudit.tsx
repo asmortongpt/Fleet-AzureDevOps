@@ -24,6 +24,7 @@ import { validateCSPConfig } from '@/lib/security/csp';
 import { auditSecurityHeaders } from '@/lib/security/headers';
 import { apiRateLimiter } from '@/lib/security/rate-limiter';
 import { auditResourceSRI } from '@/lib/security/sri';
+import logger from '@/utils/logger';
 
 interface SecurityCheck {
   name: string;
@@ -247,7 +248,7 @@ export function SecurityAudit() {
       calculateScore(results);
       setLastAudit(new Date());
     } catch (error) {
-      console.error('Security audit failed:', error);
+      logger.error('Security audit failed:', error);
     } finally {
       setIsLoading(false);
     }
