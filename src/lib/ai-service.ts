@@ -1,4 +1,5 @@
 /**
+import logger from '@/utils/logger';
  * Production AI Service - Real LLM Integration
  *
  * Supports multiple providers:
@@ -71,7 +72,7 @@ class AIService {
       this.provider = 'anthropic';
     } else {
       this.provider = 'mock';
-      console.warn('[AI Service] No API key found. Using mock responses. Set VITE_OPENAI_API_KEY or VITE_ANTHROPIC_API_KEY for production.');
+      logger.warn('[AI Service] No API key found. Using mock responses. Set VITE_OPENAI_API_KEY or VITE_ANTHROPIC_API_KEY for production.');
     }
   }
 
@@ -109,7 +110,7 @@ class AIService {
 
       return assistantMessage;
     } catch (error) {
-      console.error('[AI Service] Chat error:', error);
+      logger.error('[AI Service] Chat error:', error);
 
       // Return error message
       const errorMessage: Message = {

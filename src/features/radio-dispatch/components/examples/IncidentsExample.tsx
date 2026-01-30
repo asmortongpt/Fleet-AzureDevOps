@@ -18,6 +18,7 @@ import { ErrorPanel } from '@/components/ErrorPanel';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { api, type Incident } from '@/lib/api';
 import { useApiData } from '@/lib/hooks/useApiData';
+import logger from '@/utils/logger';
 
 
 export function IncidentsExample() {
@@ -36,10 +37,10 @@ export function IncidentsExample() {
       dependencies: [filter],
       // Optional: callbacks for success/error
       onSuccess: (data) => {
-        console.log(`Loaded ${data.length} incidents`);
+        logger.info(`Loaded ${data.length} incidents`);
       },
       onError: (error) => {
-        console.error('Failed to load incidents:', error);
+        logger.error('Failed to load incidents:', error);
       },
     }
   );
@@ -75,7 +76,7 @@ export function IncidentsExample() {
           label: "Create Incident",
           onClick: () => {
             // Navigate to create page or open modal
-            console.log('Create incident');
+            logger.info('Create incident');
           }
         }}
         secondaryAction={

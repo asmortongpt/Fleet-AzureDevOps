@@ -1,4 +1,5 @@
 /**
+import logger from '@/utils/logger';
  * Content Security Policy (CSP) Configuration
  * Implements enterprise-grade CSP to prevent XSS, clickjacking, and other attacks
  *
@@ -213,7 +214,7 @@ export function handleCSPViolation(event: SecurityPolicyViolationEvent): void {
 
   // Log to console in development
   if (import.meta.env.DEV) {
-    console.warn('[CSP Violation]', report);
+    logger.warn('[CSP Violation]', report);
   }
 
   // Send to monitoring service in production
@@ -239,7 +240,7 @@ async function sendCSPViolationReport(report: CSPViolationReport): Promise<void>
       }),
     });
   } catch (error) {
-    console.error('Failed to send CSP violation report:', error);
+    logger.error('Failed to send CSP violation report:', error);
   }
 }
 

@@ -6,12 +6,13 @@
  */
 
 import { runAccessibilityAudit, generateAccessibilityReport, logAccessibilityViolations } from '../lib/accessibility/axe-init';
+import logger from '@/utils/logger';
 
 /**
  * Run accessibility audit and generate report
  */
 export async function runAudit() {
-  console.log('🔍 Starting WCAG 2.1 AA Accessibility Audit...\n');
+  logger.info('🔍 Starting WCAG 2.1 AA Accessibility Audit...\n');
 
   try {
     // Wait for the page to be fully loaded
@@ -31,20 +32,20 @@ export async function runAudit() {
     const report = generateAccessibilityReport(results);
 
     // Log summary
-    console.log('\n📊 Audit Summary:');
-    console.log(`   Total Violations: ${results.summary.total}`);
-    console.log(`   Critical: ${results.summary.critical}`);
-    console.log(`   Serious: ${results.summary.serious}`);
-    console.log(`   Moderate: ${results.summary.moderate}`);
-    console.log(`   Minor: ${results.summary.minor}`);
-    console.log(`   Passed Checks: ${results.passes.length}`);
-    console.log(`   Needs Review: ${results.incomplete.length}\n`);
+    logger.info('\n📊 Audit Summary:');
+    logger.info(`   Total Violations: ${results.summary.total}`);
+    logger.info(`   Critical: ${results.summary.critical}`);
+    logger.info(`   Serious: ${results.summary.serious}`);
+    logger.info(`   Moderate: ${results.summary.moderate}`);
+    logger.info(`   Minor: ${results.summary.minor}`);
+    logger.info(`   Passed Checks: ${results.passes.length}`);
+    logger.info(`   Needs Review: ${results.incomplete.length}\n`);
 
     // Save report to localStorage for easy access
     if (typeof window !== 'undefined') {
       localStorage.setItem('accessibility-audit-report', report);
       localStorage.setItem('accessibility-audit-date', new Date().toISOString());
-      console.log('💾 Full report saved to localStorage (key: "accessibility-audit-report")');
+      logger.info('💾 Full report saved to localStorage (key: "accessibility-audit-report")');
     }
 
     // Return results for programmatic access
@@ -54,7 +55,7 @@ export async function runAudit() {
       report,
     };
   } catch (error) {
-    console.error('❌ Accessibility audit failed:', error);
+    logger.error('❌ Accessibility audit failed:', error);
     throw error;
   }
 }
@@ -65,7 +66,7 @@ export async function runAudit() {
 export function downloadAuditReport() {
   const report = localStorage.getItem('accessibility-audit-report');
   if (!report) {
-    console.error('No audit report found. Run audit first.');
+    logger.error('No audit report found. Run audit first.');
     return;
   }
 
@@ -79,7 +80,7 @@ export function downloadAuditReport() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 
-  console.log('📥 Report downloaded');
+  logger.info('📥 Report downloaded');
 }
 
 /**
@@ -89,15 +90,15 @@ if (typeof window !== 'undefined' && import.meta.env.DEV) {
   (window as any).runAccessibilityAudit = runAudit;
   (window as any).downloadAuditReport = downloadAuditReport;
 
-  console.log(
+  logger.info(
     '%c🔍 Accessibility Audit Available',
     'color: #3b82f6; font-weight: bold; font-size: 12px;'
   );
-  console.log(
+  logger.info(
     '%cRun: window.runAccessibilityAudit()',
     'color: #6b7280; font-size: 11px;'
   );
-  console.log(
+  logger.info(
     '%cDownload Report: window.downloadAuditReport()',
     'color: #6b7280; font-size: 11px;'
   );

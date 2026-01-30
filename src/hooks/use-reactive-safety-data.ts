@@ -20,6 +20,7 @@ import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { z } from 'zod'
 import DOMPurify from 'dompurify'
+import logger from '@/utils/logger';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 const WS_BASE = import.meta.env.VITE_WS_URL || 'ws://localhost:3000'
@@ -349,7 +350,7 @@ export function useReactiveSafetyData(options?: {
 
         ws.onopen = () => {
           setIsConnected(true)
-          console.log('[SafetyData] WebSocket connected')
+          logger.info('[SafetyData] WebSocket connected')
         }
 
         ws.onmessage = (event) => {
@@ -370,21 +371,21 @@ export function useReactiveSafetyData(options?: {
               queryClient.invalidateQueries({ queryKey: ['driver-safety'] })
             }
           } catch (error) {
-            console.error('[SafetyData] Failed to parse WebSocket message:', error)
+            logger.error('[SafetyData] Failed to parse WebSocket message:', error)
           }
         }
 
         ws.onclose = () => {
           setIsConnected(false)
-          console.log('[SafetyData] WebSocket disconnected, reconnecting...')
+          logger.info('[SafetyData] WebSocket disconnected, reconnecting...')
           reconnectTimeout = setTimeout(connect, 5000)
         }
 
         ws.onerror = (error) => {
-          console.error('[SafetyData] WebSocket error:', error)
+          logger.error('[SafetyData] WebSocket error:', error)
         }
       } catch (error) {
-        console.error('[SafetyData] Failed to establish WebSocket connection:', error)
+        logger.error('[SafetyData] Failed to establish WebSocket connection:', error)
         reconnectTimeout = setTimeout(connect, 10000)
       }
     }

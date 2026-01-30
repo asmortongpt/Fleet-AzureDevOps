@@ -21,6 +21,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import { dashboardApi, dashboardQueryKeys } from '@/services/dashboardApi';
 import type { DriverVehicle, DriverTrip } from '@/services/dashboardApi';
+import logger from '@/utils/logger';
 
 interface InspectionItem {
   id: string;
@@ -130,7 +131,7 @@ export function DriverDashboard() {
         prev.map(item => ({ ...item, completed: false }))
       );
     } catch (error) {
-      console.error('Inspection submission failed:', error);
+      logger.error('Inspection submission failed:', error);
       toast.error('Failed to submit inspection');
     }
   };

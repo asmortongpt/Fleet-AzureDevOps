@@ -54,6 +54,7 @@ import {
 import { format, parseISO, differenceInHours } from 'date-fns';
 import React, { useState, useEffect } from 'react';
 
+import logger from '@/utils/logger';
 import PurchaseOrderWorkflowService, {
   PurchaseOrder,
   POStatus,
@@ -119,7 +120,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
       setPendingApprovals(pendingPOs);
       setAnalytics(analyticsData);
     } catch (error) {
-      console.error('Error initializing purchase order data:', error);
+      logger.error('Error initializing purchase order data:', error);
     } finally {
       setLoading(false);
     }
@@ -179,7 +180,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
       setActionComments('');
       await initializeData();
     } catch (error) {
-      console.error('Error approving purchase order:', error);
+      logger.error('Error approving purchase order:', error);
     }
   };
 
@@ -196,7 +197,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
       setRejectionReason('');
       await initializeData();
     } catch (error) {
-      console.error('Error rejecting purchase order:', error);
+      logger.error('Error rejecting purchase order:', error);
     }
   };
 
@@ -214,7 +215,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
       setDelegateToUser('');
       await initializeData();
     } catch (error) {
-      console.error('Error delegating approval:', error);
+      logger.error('Error delegating approval:', error);
     }
   };
 
@@ -234,7 +235,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
       const updatedPO = await PurchaseOrderWorkflowService.getPurchaseOrder(selectedPO.id);
       if (updatedPO) setSelectedPO(updatedPO);
     } catch (error) {
-      console.error('Error adding comment:', error);
+      logger.error('Error adding comment:', error);
     }
   };
 

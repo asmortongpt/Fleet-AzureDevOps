@@ -18,6 +18,7 @@
 import { useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
 import { useState, useCallback, useMemo } from 'react'
 import { z } from 'zod'
+import logger from '@/utils/logger';
 
 // Environment configuration with validation
 // Use relative path to leverage Vite's proxy in development
@@ -196,7 +197,7 @@ async function secureFetch<T>(
       return validated
     } catch (error) {
       if (error instanceof z.ZodError) {
-        console.error('[Operations] Validation error:', error.errors, endpoint)
+        logger.error('[Operations] Validation error:', error.errors, endpoint)
         throw new ValidationError('Invalid API response format', error.errors)
       }
       throw error
@@ -324,7 +325,7 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
       try {
         return await secureFetch('/routes', RoutesResponseSchema, signal)
       } catch (error) {
-        console.error('[Operations] Failed to fetch routes:', error)
+        logger.error('[Operations] Failed to fetch routes:', error)
         // Return empty array instead of throwing to prevent UI crashes
         return []
       }
@@ -343,7 +344,7 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
       try {
         return await secureFetch('/fuel-transactions', FuelTransactionsResponseSchema, signal)
       } catch (error) {
-        console.error('[Operations] Failed to fetch fuel transactions:', error)
+        logger.error('[Operations] Failed to fetch fuel transactions:', error)
         return []
       }
     },
@@ -361,7 +362,7 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
       try {
         return await secureFetch('/tasks', TasksResponseSchema, signal)
       } catch (error) {
-        console.error('[Operations] Failed to fetch tasks:', error)
+        logger.error('[Operations] Failed to fetch tasks:', error)
         return []
       }
     },

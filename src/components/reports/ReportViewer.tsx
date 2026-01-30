@@ -10,6 +10,7 @@ import { TrendChart, TrendDataPoint } from './visualizations/TrendChart';
 
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import logger from '@/utils/logger';
 
 
 interface ReportDefinition {
@@ -128,7 +129,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
         const definition = await response.json();
         setReportDef(definition);
       } catch (err) {
-        console.error('Error loading report:', err);
+        logger.error('Error loading report:', err);
         setError(err instanceof Error ? err.message : 'Failed to load report');
       } finally {
         setLoading(false);
@@ -164,7 +165,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
       const data = await response.json();
       setReportData(data);
     } catch (err) {
-      console.error('Error fetching report data:', err);
+      logger.error('Error fetching report data:', err);
       // Use mock data for demo
       setReportData(generateMockData(reportDef));
     } finally {
@@ -247,7 +248,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('Export error:', err);
+      logger.error('Export error:', err);
       alert('Export failed. Please try again.');
     }
   }, [reportDef, filters, user]);

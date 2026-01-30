@@ -7,6 +7,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import logger from '@/utils/logger';
 
 let axeInitialized = false;
 
@@ -37,12 +38,12 @@ export async function initializeAxe() {
       });
 
       axeInitialized = true;
-      console.log(
+      logger.info(
         '%c[Accessibility] Axe-core initialized - WCAG 2.1 AA compliance checking enabled',
         'color: #16a34a; font-weight: bold;'
       );
     } catch (error) {
-      console.error('[Accessibility] Failed to initialize axe-core:', error);
+      logger.error('[Accessibility] Failed to initialize axe-core:', error);
     }
   }
 }
@@ -90,7 +91,7 @@ export async function runAccessibilityAudit(
       summary,
     };
   } catch (error) {
-    console.error('[Accessibility] Audit failed:', error);
+    logger.error('[Accessibility] Audit failed:', error);
     throw error;
   }
 }
@@ -186,7 +187,7 @@ export function generateAccessibilityReport(auditResults: Awaited<ReturnType<typ
  */
 export function logAccessibilityViolations(violations: any[]) {
   if (violations.length === 0) {
-    console.log(
+    logger.info(
       '%c✅ No accessibility violations found',
       'color: #16a34a; font-weight: bold; font-size: 14px;'
     );
@@ -204,16 +205,16 @@ export function logAccessibilityViolations(violations: any[]) {
       `color: ${violation.impact === 'critical' || violation.impact === 'serious' ? '#dc2626' : '#f59e0b'}; font-weight: bold;`
     );
 
-    console.log('Description:', violation.description);
-    console.log('WCAG Tags:', violation.tags.filter((t: string) => t.startsWith('wcag')));
-    console.log('Affected Elements:', violation.nodes.length);
-    console.log('Help:', violation.helpUrl);
+    logger.info('Description:', violation.description);
+    logger.info('WCAG Tags:', violation.tags.filter((t: string) => t.startsWith('wcag')));
+    logger.info('Affected Elements:', violation.nodes.length);
+    logger.info('Help:', violation.helpUrl);
 
     console.groupCollapsed('Affected Elements');
     for (const node of violation.nodes) {
-      console.log(node.html);
+      logger.info(node.html);
       if (node.failureSummary) {
-        console.log('Issue:', node.failureSummary);
+        logger.info('Issue:', node.failureSummary);
       }
     }
     console.groupEnd();

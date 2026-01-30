@@ -1,4 +1,5 @@
 /**
+import logger from '@/utils/logger';
  * Role-Based Navigation Configuration
  *
  * Maps RBAC roles to navigation items based on workflow requirements
@@ -365,7 +366,7 @@ export function getNavigationItemsForRole(userRole: string): string[] {
   }
 
   // Fallback to viewer access if role not found
-  console.warn(`[Navigation] Unknown role "${userRole}", falling back to viewer access`);
+  logger.warn(`[Navigation] Unknown role "${userRole}", falling back to viewer access`);
   return ROLE_NAVIGATION_CONFIG.viewer;
 }
 

@@ -33,6 +33,7 @@ import type {
   BudgetTracking,
   ProcurementAlert,
 } from '@/types/procurement'
+import logger from '@/utils/logger';
 import {
   VendorSchema,
   PurchaseOrderSchema,
@@ -153,13 +154,13 @@ async function secureFetch<T>(
   } catch (error) {
     // Handle Zod validation errors
     if (error instanceof z.ZodError) {
-      console.error('Validation error:', error.errors)
+      logger.error('Validation error:', error.errors)
       throw new ValidationError('Invalid API response format', error.errors)
     }
 
     // Handle abort errors
     if (error instanceof Error && error.name === 'AbortError') {
-      console.warn('Request aborted:', url)
+      logger.warn('Request aborted:', url)
       throw error
     }
 
@@ -294,7 +295,7 @@ export function useReactiveProcurementData() {
           signal
         )
       } catch (error) {
-        console.warn('Vendors API unavailable, returning empty array:', error)
+        logger.warn('Vendors API unavailable, returning empty array:', error)
         return []
       }
     },
@@ -324,7 +325,7 @@ export function useReactiveProcurementData() {
           signal
         )
       } catch (error) {
-        console.warn('Purchase Orders API unavailable, returning empty array:', error)
+        logger.warn('Purchase Orders API unavailable, returning empty array:', error)
         return []
       }
     },
@@ -354,7 +355,7 @@ export function useReactiveProcurementData() {
           signal
         )
       } catch (error) {
-        console.warn('Contracts API unavailable, returning empty array:', error)
+        logger.warn('Contracts API unavailable, returning empty array:', error)
         return []
       }
     },

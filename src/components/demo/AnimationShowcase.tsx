@@ -49,6 +49,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import logger from '@/utils/logger';
 
 export function AnimationShowcase() {
   const [activeTab, setActiveTab] = useState("markers");
@@ -255,8 +256,8 @@ export function AnimationShowcase() {
                   <div className="flex gap-2">
                     <InteractiveTooltip
                       data={vehicleData}
-                      onViewDetails={(id) => console.log("View details:", id)}
-                      onTrack={(id) => console.log("Track:", id)}
+                      onViewDetails={(id) => logger.info("View details:", id)}
+                      onTrack={(id) => logger.info("Track:", id)}
                     >
                       <Button>Hover for Vehicle Info</Button>
                     </InteractiveTooltip>

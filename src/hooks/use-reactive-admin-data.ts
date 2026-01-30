@@ -16,6 +16,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useCallback, useRef, useEffect } from 'react'
 import { z } from 'zod'
+import logger from '@/utils/logger';
 
 // ============================================================================
 // CONFIGURATION
@@ -261,7 +262,7 @@ export function useReactiveAdminData() {
         )
       } catch (error) {
         // Graceful fallback to mock data if API fails
-        console.warn('Users API unavailable, using mock data:', error)
+        logger.warn('Users API unavailable, using mock data:', error)
         return [] // Return empty array, let components handle empty state
       }
     },
@@ -314,7 +315,7 @@ export function useReactiveAdminData() {
           signal
         )
       } catch (error) {
-        console.warn('Audit logs API unavailable, returning empty array:', error)
+        logger.warn('Audit logs API unavailable, returning empty array:', error)
         return []
       }
     },
@@ -342,7 +343,7 @@ export function useReactiveAdminData() {
           signal
         )
       } catch (error) {
-        console.warn('Sessions API unavailable, returning empty array:', error)
+        logger.warn('Sessions API unavailable, returning empty array:', error)
         return []
       }
     },

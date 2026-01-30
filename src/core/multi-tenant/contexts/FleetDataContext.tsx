@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import logger from '@/utils/logger';
 
 export interface Vehicle {
   id: string;
@@ -161,7 +162,7 @@ export const FleetDataProvider: React.FC<FleetDataProviderProps> = ({ children }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch fleet data';
       setError(errorMessage);
-      console.error('Fleet data fetch error:', err)
+      logger.error('Fleet data fetch error:', err)
     } finally {
       setIsLoading(false);
     }

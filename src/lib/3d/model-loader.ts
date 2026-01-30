@@ -12,6 +12,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
+import logger from '@/utils/logger';
 
 export interface ModelLoadOptions {
   url: string;
@@ -141,7 +142,7 @@ export async function loadFallbackModel(
   try {
     return await loadVehicleModel({ url: fallbackUrl });
   } catch (error) {
-    console.error('Failed to load fallback model, using placeholder', error);
+    logger.error('Failed to load fallback model, using placeholder', error);
     return createPlaceholderModel();
   }
 }
@@ -256,7 +257,7 @@ export function clearModelCache(): void {
 export async function preloadModels(urls: string[]): Promise<void> {
   const promises = urls.map(url =>
     loadVehicleModel({ url }).catch(err => {
-      console.warn(`Failed to preload model ${url}:`, err);
+      logger.warn(`Failed to preload model ${url}:`, err);
     })
   );
 

@@ -18,6 +18,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import logger from '@/utils/logger';
 
 interface Props {
   children: ReactNode
@@ -76,9 +77,9 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
     // Log to console in development
     if (process.env.NODE_ENV === 'development') {
       console.group('🚨 Error Boundary Caught Error')
-      console.error('Error:', error)
-      console.error('Error Info:', errorInfo)
-      console.error('Component Stack:', errorInfo.componentStack)
+      logger.error('Error:', error)
+      logger.error('Error Info:', errorInfo)
+      logger.error('Component Stack:', errorInfo.componentStack)
       console.groupEnd()
     }
 

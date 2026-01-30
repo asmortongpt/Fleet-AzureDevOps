@@ -20,6 +20,7 @@
 import { useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
 import { useMemo, useCallback, useRef, useEffect } from 'react'
 import { z } from 'zod'
+import logger from '@/utils/logger';
 
 // ============================================================================
 // CONFIGURATION
@@ -273,7 +274,7 @@ export function useReactiveReportsData() {
           signal
         )
       } catch (error) {
-        console.warn('Templates API unavailable:', error)
+        logger.warn('Templates API unavailable:', error)
         return []
       }
     },
@@ -301,7 +302,7 @@ export function useReactiveReportsData() {
           signal
         )
       } catch (error) {
-        console.warn('Scheduled reports API unavailable:', error)
+        logger.warn('Scheduled reports API unavailable:', error)
         return []
       }
     },
@@ -329,7 +330,7 @@ export function useReactiveReportsData() {
           signal
         )
       } catch (error) {
-        console.warn('Report history API unavailable:', error)
+        logger.warn('Report history API unavailable:', error)
         return []
       }
     },

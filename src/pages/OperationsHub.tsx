@@ -33,6 +33,7 @@ import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { sanitizeHTML } from '@/lib/security/xss-prevention'
+import logger from '@/utils/logger';
 
 // Constants for animation configuration
 const ANIMATION_CONFIG = {
@@ -181,27 +182,27 @@ const DispatchOverview = memo(() => {
 
   // Memoized handlers
   const handleNewJob = useCallback(() => {
-    console.log('[Operations] Create new job')
+    logger.info('[Operations] Create new job')
     // TODO: Implement new job functionality
   }, [])
 
   const handleViewRoute = useCallback((id: string) => {
-    console.log('[Operations] View route:', id)
+    logger.info('[Operations] View route:', id)
     // TODO: Implement view route functionality
   }, [])
 
   const handleUpdateRoute = useCallback((id: string) => {
-    console.log('[Operations] Update route:', id)
+    logger.info('[Operations] Update route:', id)
     // TODO: Implement update route functionality
   }, [])
 
   const handleOptimizeRoutes = useCallback(() => {
-    console.log('[Operations] Optimize routes')
+    logger.info('[Operations] Optimize routes')
     // TODO: Implement route optimization
   }, [])
 
   const handleViewMap = useCallback(() => {
-    console.log('[Operations] View map')
+    logger.info('[Operations] View map')
     // TODO: Implement map view
   }, [])
 
@@ -403,7 +404,7 @@ const RoutesContent = memo(() => {
   const lastUpdateString = useMemo(() => formatDate(lastUpdate, { timeStyle: 'medium' }), [lastUpdate])
 
   const handleNewRoute = useCallback(() => {
-    console.log('[Operations] Create new route')
+    logger.info('[Operations] Create new route')
     // TODO: Implement new route functionality
   }, [])
 
@@ -544,7 +545,7 @@ const TasksContent = memo(() => {
   const lastUpdateString = useMemo(() => formatDate(lastUpdate, { timeStyle: 'medium' }), [lastUpdate])
 
   const handleNewTask = useCallback(() => {
-    console.log('[Operations] Create new task')
+    logger.info('[Operations] Create new task')
     // TODO: Implement new task functionality
   }, [])
 

@@ -3,6 +3,7 @@
 // FedRAMP/SOC 2 compliance: Ensure all interfaces include tenant_id for multi-tenant isolation
 
 // Interface for ScanSession
+import logger from '@/utils/logger';
 export interface ScanSession {
   tenant_id: string;
   session_id: string;
@@ -122,7 +123,7 @@ export interface LicenseAllocation {
 // Mock logger class to replace external dependency
 class MockLogger {
   error(message: string, error: unknown): void {
-    console.error(message, error);
+    logger.error(message, error);
   }
 }
 

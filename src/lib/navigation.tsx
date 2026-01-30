@@ -4,7 +4,8 @@ import {
   MessageCircle,
   DollarSign,
   Settings,
-  Box
+  Box,
+  Clock
 } from "lucide-react"
 import { ReactNode } from "react"
 
@@ -49,6 +50,14 @@ export const navigationItems: NavigationItem[] = [
     section: "hubs",
     category: "Safety & Compliance",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'SafetyOfficer', 'Auditor']
+  },
+  {
+    id: "hos",
+    label: "Hours of Service",
+    icon: <Clock className="w-3 h-3" />,
+    section: "hubs",
+    category: "Safety & Compliance",
+    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Dispatcher', 'Driver', 'SafetyOfficer', 'Auditor']
   },
   {
     id: "procurement-hub-consolidated",

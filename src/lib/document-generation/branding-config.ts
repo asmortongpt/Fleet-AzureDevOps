@@ -1,4 +1,5 @@
 /**
+import logger from '@/utils/logger';
  * Document Branding Configuration System
  * Allows organizations to customize policy/SOP document branding
  */
@@ -196,7 +197,7 @@ export function loadBrandingConfig(): BrandingConfig {
       return { ...defaultBrandingConfig, ...JSON.parse(stored) }
     }
   } catch (error) {
-    console.error('Error loading branding config:', error)
+    logger.error('Error loading branding config:', error)
   }
   return defaultBrandingConfig
 }
@@ -208,7 +209,7 @@ export function saveBrandingConfig(config: BrandingConfig): void {
   try {
     localStorage.setItem('fleet_branding_config', JSON.stringify(config))
   } catch (error) {
-    console.error('Error saving branding config:', error)
+    logger.error('Error saving branding config:', error)
   }
 }
 

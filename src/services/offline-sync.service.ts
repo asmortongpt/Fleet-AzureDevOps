@@ -15,6 +15,7 @@
  */
 
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
+import logger from '@/utils/logger';
 
 // Database schema
 interface FleetOfflineDB extends DBSchema {
@@ -202,9 +203,9 @@ export class OfflineSyncService {
         },
       });
 
-      console.log('[OfflineSyncService] Database initialized successfully');
+      logger.info('[OfflineSyncService] Database initialized successfully');
     } catch (error) {
-      console.error('[OfflineSyncService] Failed to initialize database:', error);
+      logger.error('[OfflineSyncService] Failed to initialize database:', error);
       throw error;
     }
   }
@@ -214,12 +215,12 @@ export class OfflineSyncService {
    */
   private setupNetworkListeners(): void {
     window.addEventListener('online', () => {
-      console.log('[OfflineSyncService] Network connection restored');
+      logger.info('[OfflineSyncService] Network connection restored');
       this.syncWhenOnline();
     });
 
     window.addEventListener('offline', () => {
-      console.log('[OfflineSyncService] Network connection lost');
+      logger.info('[OfflineSyncService] Network connection lost');
       this.notifySyncStatus({ status: 'offline', message: 'Working offline' });
     });
   }
@@ -240,12 +241,12 @@ export class OfflineSyncService {
    */
   public async syncWhenOnline(): Promise<void> {
     if (!navigator.onLine) {
-      console.log('[OfflineSyncService] Cannot sync - offline');
+      logger.info('[OfflineSyncService] Cannot sync - offline');
       return;
     }
 
     if (this.syncInProgress) {
-      console.log('[OfflineSyncService] Sync already in progress');
+      logger.info('[OfflineSyncService] Sync already in progress');
       return;
     }
 
@@ -261,7 +262,7 @@ export class OfflineSyncService {
 
       this.notifySyncStatus({ status: 'synced', message: 'All data synchronized' });
     } catch (error) {
-      console.error('[OfflineSyncService] Sync failed:', error);
+      logger.error('[OfflineSyncService] Sync failed:', error);
       this.notifySyncStatus({ status: 'error', message: 'Sync failed', error });
     } finally {
       this.syncInProgress = false;
@@ -281,7 +282,7 @@ export class OfflineSyncService {
         await this.executeSyncOperation(operation);
         await this.db.delete('syncQueue', operation.id);
       } catch (error) {
-        console.error('[OfflineSyncService] Failed to execute operation:', operation, error);
+        logger.error('[OfflineSyncService] Failed to execute operation:', operation, error);
 
         // Update retry count
         operation.retryCount++;
@@ -292,7 +293,7 @@ export class OfflineSyncService {
         } else {
           // Move to failed operations
           await this.db.delete('syncQueue', operation.id);
-          console.error('[OfflineSyncService] Operation failed after 3 retries:', operation);
+          logger.error('[OfflineSyncService] Operation failed after 3 retries:', operation);
         }
       }
     }
@@ -501,7 +502,7 @@ export class OfflineSyncService {
       await this.db.clear(store);
     }
 
-    console.log('[OfflineSyncService] All offline data cleared');
+    logger.info('[OfflineSyncService] All offline data cleared');
   }
 
   // Helper methods
@@ -557,7 +558,7 @@ export class OfflineSyncService {
       try {
         callback(status);
       } catch (error) {
-        console.error('[OfflineSyncService] Callback error:', error);
+        logger.error('[OfflineSyncService] Callback error:', error);
       }
     });
   }

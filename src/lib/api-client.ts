@@ -1,4 +1,5 @@
 import { createLogger } from '@/utils/logger'
+import logger from '@/utils/logger';
 
 const logger = createLogger();
 
@@ -292,7 +293,7 @@ class APIClient {
    * ])
    *
    * if (results[0].success) {
-   *   console.log('Vehicles:', results[0].data)
+   *   logger.info('Vehicles:', results[0].data)
    * }
    */
   async batch<T = unknown>(

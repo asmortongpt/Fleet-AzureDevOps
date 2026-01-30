@@ -66,6 +66,7 @@ import {
   Cell
 } from 'recharts';
 
+import logger from '@/utils/logger';
 import AdvancedAnalyticsService, {
   FleetMetrics,
   PredictiveInsight,
@@ -145,7 +146,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
       setExecutiveReport(reportData);
       setRealtimeKPIs(realtimeData);
     } catch (error) {
-      console.error('Error initializing analytics data:', error);
+      logger.error('Error initializing analytics data:', error);
     } finally {
       setLoading(false);
     }
@@ -157,7 +158,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
       const realtimeData = await AdvancedAnalyticsService.getRealtimeKPIs();
       setRealtimeKPIs(realtimeData);
     } catch (error) {
-      console.error('Error refreshing real-time data:', error);
+      logger.error('Error refreshing real-time data:', error);
     } finally {
       setRefreshing(false);
     }

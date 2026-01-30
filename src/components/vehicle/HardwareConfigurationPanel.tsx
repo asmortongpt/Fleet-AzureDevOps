@@ -66,6 +66,7 @@ import { Label } from '@/components/ui/label'
 import { Badge, StatusBadge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Spinner } from '@/components/ui/spinner'
+import logger from '@/utils/logger';
 
 // ============================================================================
 // Types & Interfaces
@@ -567,7 +568,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
       setProviders(data.providers || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load providers')
-      console.error('Error fetching providers:', err)
+      logger.error('Error fetching providers:', err)
     } finally {
       setIsLoading(false)
     }
@@ -591,7 +592,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
       setIsAddDialogOpen(false)
       onProviderAdded?.(type)
     } catch (err) {
-      console.error('Error adding provider:', err)
+      logger.error('Error adding provider:', err)
       alert(err instanceof Error ? err.message : 'Failed to add provider')
     } finally {
       setIsAdding(false)
@@ -614,7 +615,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
       setProviderToRemove(null)
       onProviderRemoved?.(removedProvider?.type || '')
     } catch (err) {
-      console.error('Error removing provider:', err)
+      logger.error('Error removing provider:', err)
       alert(err instanceof Error ? err.message : 'Failed to remove provider')
     }
   }
@@ -642,7 +643,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
         ))
       }
     } catch (err) {
-      console.error('Error testing connection:', err)
+      logger.error('Error testing connection:', err)
       alert('Connection test failed')
     } finally {
       setTestingConnectionId(null)

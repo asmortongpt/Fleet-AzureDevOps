@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { CSRFInput, useCSRFToken } from '@/components/CSRFInput';
 import { api } from '@/lib/api';
 import { useMutation } from '@/lib/hooks/useMutation';
+import logger from '@/utils/logger';
 
 /**
  * CSRF Protection Examples
@@ -43,14 +44,14 @@ export function CreateIncidentExample() {
     (data) => api.post('/api/incidents', data),
     {
       onSuccess: (incident) => {
-        console.log('Incident created successfully:', incident.id);
+        logger.info('Incident created successfully:', incident.id);
         // Clear form
         setTitle('');
         setDescription('');
         setPriority('medium');
       },
       onError: (error) => {
-        console.error('Failed to create incident:', error.message);
+        logger.error('Failed to create incident:', error.message);
       },
     }
   );
@@ -209,10 +210,10 @@ export function DeleteIncidentExample({ incidentId }: { incidentId: string }) {
     (id) => api.delete(`/api/incidents/${id}`),
     {
       onSuccess: () => {
-        console.log('Incident deleted successfully');
+        logger.info('Incident deleted successfully');
       },
       onError: (error) => {
-        console.error('Failed to delete incident:', error.message);
+        logger.error('Failed to delete incident:', error.message);
       },
     }
   );

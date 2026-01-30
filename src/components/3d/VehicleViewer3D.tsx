@@ -35,6 +35,7 @@ import {
   analyzeVehicleModel,
   type VehicleModelMetadata,
 } from '@/lib/3d/model-loader';
+import logger from '@/utils/logger';
 import {
   applyVehicleMaterials,
   createCarPaintMaterial,
@@ -179,7 +180,7 @@ function VehicleModel({
         const loadedModel = await loadVehicleModel({
           url: modelUrl,
           onProgress: (progress) => {
-            console.log(`Loading model: ${progress.toFixed(0)}%`);
+            logger.info(`Loading model: ${progress.toFixed(0)}%`);
           },
           castShadow: true,
           receiveShadow: true,
@@ -204,7 +205,7 @@ function VehicleModel({
           setLoading(false);
         }
       } catch (err) {
-        console.error('Failed to load vehicle model:', err);
+        logger.error('Failed to load vehicle model:', err);
         if (mounted) {
           setError(err instanceof Error ? err.message : 'Failed to load model');
           // Use placeholder

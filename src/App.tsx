@@ -166,6 +166,7 @@ const DataGovernanceHubPage = lazy(() => import("@/pages/DataGovernanceHub"))
 const DocumentsHubPage = lazy(() => import("@/pages/DocumentsHub"))
 const PeopleHubPage = lazy(() => import("@/pages/PeopleHub"))
 const WorkHubPage = lazy(() => import("@/pages/WorkHub"))
+const HOSHubPage = lazy(() => import("@/pages/HOSHub"))
 
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
@@ -190,6 +191,7 @@ import { useFleetData } from "@/hooks/use-fleet-data"
 import { navigationItems } from "@/lib/navigation"
 // import { initializePolicyEngine } from '@/lib/policy-engine/global-policy-integration' // DISABLED - missing dependencies
 import telemetryService from '@/lib/telemetry'
+import logger from '@/utils/logger';
 
 // ... existing imports
 
@@ -204,11 +206,11 @@ function App() {
   useEffect(() => {
     const initPolicies = async () => {
       try {
-        console.log('🔒 Policy Enforcement Engine disabled (missing dependencies)')
+        logger.info('🔒 Policy Enforcement Engine disabled (missing dependencies)')
         // await initializePolicyEngine()  // DISABLED - missing dependencies
-        console.log('✅ App initialized without policy engine')
+        logger.info('✅ App initialized without policy engine')
       } catch (error) {
-        console.error('❌ Failed to initialize App:', error)
+        logger.error('❌ Failed to initialize App:', error)
         // Application will continue but without policy enforcement
         // TODO: Show admin notification
       }
@@ -394,6 +396,9 @@ function App() {
         return <DocumentQA />
       case "fuel-purchasing":
         return <FuelPurchasing />
+      case "hos":
+      case "hours-of-service":
+        return <HOSHubPage />
       case "endpoint-monitor":
         return <EndpointMonitor />
       case "driver-mgmt":
@@ -511,7 +516,7 @@ function App() {
         <EnhancedErrorBoundary
           showDetails={import.meta.env.DEV}
           onError={(error, errorInfo) => {
-            console.error('App Error Boundary:', error, errorInfo);
+            logger.error('App Error Boundary:', error, errorInfo);
           }}
         >
           <QueryErrorBoundary>

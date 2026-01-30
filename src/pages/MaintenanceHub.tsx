@@ -35,6 +35,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import logger from '@/utils/logger';
 
 // ============================================================================
 // TYPES AND INTERFACES
@@ -475,13 +476,13 @@ const CalendarContent: FC = memo(() => {
           notes: ''
         })
         // TODO: Show success toast
-        console.log('Maintenance scheduled successfully')
+        logger.info('Maintenance scheduled successfully')
       } else {
         // TODO: Show error toast
-        console.error('Failed to schedule maintenance')
+        logger.error('Failed to schedule maintenance')
       }
     } catch (error) {
-      console.error('Error scheduling maintenance:', error)
+      logger.error('Error scheduling maintenance:', error)
       // TODO: Show error toast
     }
   }, [scheduleForm])

@@ -9,6 +9,7 @@ import * as Sentry from '@sentry/react';
 import { BrowserTracing } from '@sentry/tracing';
 
 import type { User } from '@/types';
+import logger from '@/utils/logger';
 
 /**
  * Sentry Configuration
@@ -46,7 +47,7 @@ export function initSentry(config: Partial<SentryConfig> = {}): void {
 
   if (!finalConfig.enabled || !finalConfig.dsn) {
     if (import.meta.env.DEV) {
-      console.log('[Sentry] Not initialized - disabled or missing DSN');
+      logger.info('[Sentry] Not initialized - disabled or missing DSN');
     }
     return;
   }
@@ -222,12 +223,12 @@ export function initSentry(config: Partial<SentryConfig> = {}): void {
     });
 
     if (import.meta.env.DEV) {
-      console.log('[Sentry] Initialized successfully');
-      console.log('[Sentry] Environment:', finalConfig.environment);
-      console.log('[Sentry] Release:', finalConfig.release);
+      logger.info('[Sentry] Initialized successfully');
+      logger.info('[Sentry] Environment:', finalConfig.environment);
+      logger.info('[Sentry] Release:', finalConfig.release);
     }
   } catch (error) {
-    console.error('[Sentry] Failed to initialize:', error);
+    logger.error('[Sentry] Failed to initialize:', error);
   }
 }
 
@@ -376,7 +377,7 @@ export async function flushSentry(timeout: number = 2000): Promise<boolean> {
   try {
     return await Sentry.flush(timeout);
   } catch (error) {
-    console.error('[Sentry] Failed to flush events:', error);
+    logger.error('[Sentry] Failed to flush events:', error);
     return false;
   }
 }
@@ -388,7 +389,7 @@ export async function closeSentry(timeout: number = 2000): Promise<boolean> {
   try {
     return await Sentry.close(timeout);
   } catch (error) {
-    console.error('[Sentry] Failed to close:', error);
+    logger.error('[Sentry] Failed to close:', error);
     return false;
   }
 }
@@ -457,7 +458,7 @@ export class SentryPerformanceMarks {
         );
       }
     } catch (error) {
-      console.warn('[Sentry] Failed to measure performance:', error);
+      logger.warn('[Sentry] Failed to measure performance:', error);
     }
   }
 

@@ -65,6 +65,7 @@ import {
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import logger from '@/utils/logger';
 import {
   PolicyViolation,
   ViolationType,
@@ -169,7 +170,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       const data = await response.json();
       setViolations(data.data || []);
     } catch (error) {
-      console.error('Failed to load violations:', error);
+      logger.error('Failed to load violations:', error);
       // Load demo data for development
       setViolations(generateDemoViolations());
     } finally {
@@ -183,7 +184,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       const data = await response.json();
       setStatistics(data.data);
     } catch (error) {
-      console.error('Failed to load statistics:', error);
+      logger.error('Failed to load statistics:', error);
       setStatistics(generateDemoStatistics());
     }
   };
@@ -267,7 +268,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       const data = await response.json();
       setComments(data.data || []);
     } catch (error) {
-      console.error('Failed to load comments:', error);
+      logger.error('Failed to load comments:', error);
       setComments([]);
     }
   };
@@ -287,7 +288,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       loadViolations();
       loadStatistics();
     } catch (error) {
-      console.error('Failed to resolve violation:', error);
+      logger.error('Failed to resolve violation:', error);
     }
   };
 
@@ -305,7 +306,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       setOverrideReason('');
       loadViolations();
     } catch (error) {
-      console.error('Failed to request override:', error);
+      logger.error('Failed to request override:', error);
     }
   };
 
@@ -325,7 +326,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       const data = await response.json();
       setComments(data.data || []);
     } catch (error) {
-      console.error('Failed to add comment:', error);
+      logger.error('Failed to add comment:', error);
     }
   };
 
@@ -350,7 +351,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Export failed:', error);
+      logger.error('Export failed:', error);
     }
   };
 

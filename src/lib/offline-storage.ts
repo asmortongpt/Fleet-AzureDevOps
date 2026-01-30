@@ -9,6 +9,7 @@
  */
 
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
+import logger from '@/utils/logger';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -124,7 +125,7 @@ export async function initDB(): Promise<IDBPDatabase<FleetDB>> {
 
   dbInstance = await openDB<FleetDB>(DB_NAME, DB_VERSION, {
     upgrade(db, oldVersion, newVersion, transaction) {
-      console.log(`[DB] Upgrading database from v${oldVersion} to v${newVersion}`);
+      logger.info(`[DB] Upgrading database from v${oldVersion} to v${newVersion}`);
 
       // Vehicles store
       if (!db.objectStoreNames.contains('vehicles')) {
@@ -132,7 +133,7 @@ export async function initDB(): Promise<IDBPDatabase<FleetDB>> {
         vehicleStore.createIndex('by-status', 'status');
         vehicleStore.createIndex('by-updated', 'lastUpdated');
         vehicleStore.createIndex('by-make', 'make');
-        console.log('[DB] Created vehicles store');
+        logger.info('[DB] Created vehicles store');
       }
 
       // Drivers store
@@ -140,7 +141,7 @@ export async function initDB(): Promise<IDBPDatabase<FleetDB>> {
         const driverStore = db.createObjectStore('drivers', { keyPath: 'id' });
         driverStore.createIndex('by-status', 'status');
         driverStore.createIndex('by-email', 'email', { unique: true });
-        console.log('[DB] Created drivers store');
+        logger.info('[DB] Created drivers store');
       }
 
       // Sync queue store
@@ -151,30 +152,30 @@ export async function initDB(): Promise<IDBPDatabase<FleetDB>> {
         });
         syncStore.createIndex('by-priority', 'priority');
         syncStore.createIndex('by-timestamp', 'timestamp');
-        console.log('[DB] Created sync-queue store');
+        logger.info('[DB] Created sync-queue store');
       }
 
       // Metadata store
       if (!db.objectStoreNames.contains('metadata')) {
         db.createObjectStore('metadata', { keyPath: 'key' });
-        console.log('[DB] Created metadata store');
+        logger.info('[DB] Created metadata store');
       }
 
       // Cache store
       if (!db.objectStoreNames.contains('cache')) {
         db.createObjectStore('cache', { keyPath: 'key' });
-        console.log('[DB] Created cache store');
+        logger.info('[DB] Created cache store');
       }
     },
     blocked() {
-      console.warn('[DB] Database upgrade blocked - close other tabs');
+      logger.warn('[DB] Database upgrade blocked - close other tabs');
     },
     blocking() {
-      console.warn('[DB] This tab is blocking a database upgrade');
+      logger.warn('[DB] This tab is blocking a database upgrade');
     },
   });
 
-  console.log('[DB] Database initialized successfully');
+  logger.info('[DB] Database initialized successfully');
   return dbInstance;
 }
 
@@ -201,7 +202,7 @@ export async function saveVehicle(vehicle: Vehicle): Promise<void> {
     ...vehicle,
     lastUpdated: Date.now(),
   });
-  console.log('[DB] Vehicle saved:', vehicle.id);
+  logger.info('[DB] Vehicle saved:', vehicle.id);
 }
 
 /**
@@ -221,7 +222,7 @@ export async function saveVehicles(vehicles: Vehicle[]): Promise<void> {
     tx.done,
   ]);
 
-  console.log(`[DB] Saved ${vehicles.length} vehicles`);
+  logger.info(`[DB] Saved ${vehicles.length} vehicles`);
 }
 
 /**
@@ -256,7 +257,7 @@ export async function getVehiclesByStatus(
 export async function deleteVehicle(id: string): Promise<void> {
   const db = await getDB();
   await db.delete('vehicles', id);
-  console.log('[DB] Vehicle deleted:', id);
+  logger.info('[DB] Vehicle deleted:', id);
 }
 
 /**
@@ -265,7 +266,7 @@ export async function deleteVehicle(id: string): Promise<void> {
 export async function clearVehicles(): Promise<void> {
   const db = await getDB();
   await db.clear('vehicles');
-  console.log('[DB] All vehicles cleared');
+  logger.info('[DB] All vehicles cleared');
 }
 
 // ============================================================================
@@ -281,7 +282,7 @@ export async function saveDriver(driver: Driver): Promise<void> {
     ...driver,
     lastUpdated: Date.now(),
   });
-  console.log('[DB] Driver saved:', driver.id);
+  logger.info('[DB] Driver saved:', driver.id);
 }
 
 /**
@@ -301,7 +302,7 @@ export async function saveDrivers(drivers: Driver[]): Promise<void> {
     tx.done,
   ]);
 
-  console.log(`[DB] Saved ${drivers.length} drivers`);
+  logger.info(`[DB] Saved ${drivers.length} drivers`);
 }
 
 /**
@@ -334,7 +335,7 @@ export async function getDriverByEmail(email: string): Promise<Driver | undefine
 export async function deleteDriver(id: string): Promise<void> {
   const db = await getDB();
   await db.delete('drivers', id);
-  console.log('[DB] Driver deleted:', id);
+  logger.info('[DB] Driver deleted:', id);
 }
 
 // ============================================================================
@@ -366,16 +367,16 @@ export async function queueForSync(
   };
 
   const id = await db.add('sync-queue', item as SyncQueueItem);
-  console.log(`[DB] Queued for sync: ${method} ${url}`);
+  logger.info(`[DB] Queued for sync: ${method} ${url}`);
 
   // Request background sync if available
   if ('serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
     try {
       const registration = await navigator.serviceWorker.ready;
       await registration.sync.register('sync-fleet-data');
-      console.log('[DB] Background sync requested');
+      logger.info('[DB] Background sync requested');
     } catch (error) {
-      console.error('[DB] Background sync registration failed:', error);
+      logger.error('[DB] Background sync registration failed:', error);
     }
   }
 
@@ -406,7 +407,7 @@ export async function getSyncQueueByPriority(
 export async function removeFromSyncQueue(id: number): Promise<void> {
   const db = await getDB();
   await db.delete('sync-queue', id);
-  console.log('[DB] Removed from sync queue:', id);
+  logger.info('[DB] Removed from sync queue:', id);
 }
 
 /**
@@ -421,10 +422,10 @@ export async function incrementSyncRetry(id: number): Promise<void> {
 
     if (item.retryCount >= item.maxRetries) {
       await db.delete('sync-queue', id);
-      console.log('[DB] Max retries reached, removing:', id);
+      logger.info('[DB] Max retries reached, removing:', id);
     } else {
       await db.put('sync-queue', item);
-      console.log(`[DB] Retry count incremented: ${item.retryCount}/${item.maxRetries}`);
+      logger.info(`[DB] Retry count incremented: ${item.retryCount}/${item.maxRetries}`);
     }
   }
 }
@@ -435,7 +436,7 @@ export async function incrementSyncRetry(id: number): Promise<void> {
 export async function clearSyncQueue(): Promise<void> {
   const db = await getDB();
   await db.clear('sync-queue');
-  console.log('[DB] Sync queue cleared');
+  logger.info('[DB] Sync queue cleared');
 }
 
 // ============================================================================
@@ -526,7 +527,7 @@ export async function clearExpiredCache(): Promise<number> {
     }
   }
 
-  console.log(`[DB] Cleared ${cleared} expired cache entries`);
+  logger.info(`[DB] Cleared ${cleared} expired cache entries`);
   return cleared;
 }
 
@@ -571,7 +572,7 @@ export async function clearAllData(): Promise<void> {
     db.clear('cache'),
   ]);
 
-  console.log('[DB] All data cleared');
+  logger.info('[DB] All data cleared');
 }
 
 /**
@@ -633,7 +634,7 @@ export async function importAllData(data: {
   }
 
   await Promise.all(promises);
-  console.log('[DB] Data imported successfully');
+  logger.info('[DB] Data imported successfully');
 }
 
 /**
@@ -651,21 +652,21 @@ export function setupOfflineListeners(
   onOffline?: () => void
 ): () => void {
   const handleOnline = () => {
-    console.log('[DB] Connection restored - triggering sync');
+    logger.info('[DB] Connection restored - triggering sync');
     if (onOnline) onOnline();
 
     // Trigger sync
     if ('serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
       navigator.serviceWorker.ready.then((registration) => {
         registration.sync.register('sync-fleet-data').catch((error) => {
-          console.error('[DB] Sync registration failed:', error);
+          logger.error('[DB] Sync registration failed:', error);
         });
       });
     }
   };
 
   const handleOffline = () => {
-    console.log('[DB] Connection lost - entering offline mode');
+    logger.info('[DB] Connection lost - entering offline mode');
     if (onOffline) onOffline();
   };
 

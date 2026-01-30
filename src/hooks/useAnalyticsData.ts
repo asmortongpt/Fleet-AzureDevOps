@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 
 import type { CostDataPoint } from '@/components/analytics/CostAnalyticsChart'
 import type { EfficiencyDataPoint } from '@/components/analytics/EfficiencyMetricsChart'
+import logger from '@/utils/logger';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 
@@ -264,16 +265,16 @@ export function useRealtimeAnalytics(enabled = true) {
                         break
                 }
             } catch (error) {
-                console.error('Error processing realtime analytics update:', error)
+                logger.error('Error processing realtime analytics update:', error)
             }
         }
 
         ws.onerror = (error) => {
-            console.error('WebSocket error:', error)
+            logger.error('WebSocket error:', error)
         }
 
         ws.onclose = () => {
-            console.log('WebSocket connection closed')
+            logger.info('WebSocket connection closed')
         }
 
         return () => {

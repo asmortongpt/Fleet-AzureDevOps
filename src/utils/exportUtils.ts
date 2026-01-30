@@ -1,12 +1,13 @@
 // Export utilities
+import logger from '@/utils/logger';
 export function exportToCSV(_data: unknown): void {
-  console.log('Export to CSV')
+  logger.info('Export to CSV')
 }
 
 export function exportToPDF(_data: unknown): void {
-  console.log('Export to PDF')
+  logger.info('Export to PDF')
 }
 
 export function exportToExcel(_data: unknown): void {
-  console.log('Export to Excel')
+  logger.info('Export to Excel')
 }

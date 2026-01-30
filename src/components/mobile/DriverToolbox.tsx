@@ -17,6 +17,7 @@ import React, { useState, useEffect } from 'react';
 import { Camera, Clipboard, AlertTriangle, Wrench, MapPin, FileText, Clock, CheckCircle } from 'lucide-react';
 import { offlineSyncService } from '../../services/offline-sync.service';
 import { pushNotificationService } from '../../services/push-notifications.service';
+import logger from '@/utils/logger';
 
 interface Vehicle {
   id: string;
@@ -62,7 +63,7 @@ export const DriverToolbox: React.FC = () => {
       try {
         setActiveVehicle(JSON.parse(savedVehicle));
       } catch (error) {
-        console.error('Failed to parse active vehicle:', error);
+        logger.error('Failed to parse active vehicle:', error);
       }
     }
   }, []);
@@ -85,7 +86,7 @@ export const DriverToolbox: React.FC = () => {
         pendingSyncCount: pendingCount,
       });
     } catch (error) {
-      console.error('Failed to load dashboard data:', error);
+      logger.error('Failed to load dashboard data:', error);
     }
   };
 
@@ -152,7 +153,7 @@ export const DriverToolbox: React.FC = () => {
       await offlineSyncService.syncWhenOnline();
       setLastSyncTime(new Date());
     } catch (error) {
-      console.error('Manual sync failed:', error);
+      logger.error('Manual sync failed:', error);
       alert('Sync failed. Please check your connection.');
     }
   };

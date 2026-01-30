@@ -3,6 +3,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 import { ErrorFallback } from './ErrorFallback';
+import logger from '@/utils/logger';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -49,12 +50,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     // Log error details
     if (process.env.NODE_ENV === 'development') {
-      console.error('ErrorBoundary caught an error:', error);
-      console.error('Error Info:', errorInfo);
-      console.error('Component Stack:', errorInfo.componentStack);
+      logger.error('ErrorBoundary caught an error:', error);
+      logger.error('Error Info:', errorInfo);
+      logger.error('Component Stack:', errorInfo.componentStack);
     } else {
       // In production, you might want to send to error tracking service
-      console.error('Application error:', error.message);
+      logger.error('Application error:', error.message);
     }
 
     // Update state with error info

@@ -16,6 +16,7 @@
 import { useEffect } from 'react';
 
 import { api } from './api';
+import logger from '@/utils/logger';
 
 /**
  * Hook to initialize CSRF protection on application load
@@ -24,7 +25,7 @@ export function useCSRFProtection() {
   useEffect(() => {
     // Initialize CSRF token when component mounts
     api.initializeCSRF().catch((error) => {
-      console.error('[useCSRFProtection] Failed to initialize CSRF token:', error);
+      logger.error('[useCSRFProtection] Failed to initialize CSRF token:', error);
     });
   }, []);
 }
@@ -36,9 +37,9 @@ export function useCSRFRefresh() {
   return async () => {
     try {
       await api.refreshCSRFToken();
-      console.log('[useCSRFRefresh] CSRF token refreshed');
+      logger.info('[useCSRFRefresh] CSRF token refreshed');
     } catch (error) {
-      console.error('[useCSRFRefresh] Failed to refresh CSRF token:', error);
+      logger.error('[useCSRFRefresh] Failed to refresh CSRF token:', error);
     }
   };
 }

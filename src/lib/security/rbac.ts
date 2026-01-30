@@ -1,4 +1,5 @@
 /**
+import logger from '@/utils/logger';
  * Role-Based Access Control (RBAC) and Attribute-Based Access Control (ABAC)
  * FedRAMP-compliant authorization framework
  */
@@ -307,7 +308,7 @@ export function hasPermission(
   // Check if user has the permission
   const hasDirectPermission = userPermissions.includes(requiredPermission)
   if (!hasDirectPermission) {
-    console.info('[RBAC] Permission denied - user lacks permission', {
+    logger.info('[RBAC] Permission denied - user lacks permission', {
       role: userRole,
       requiredPermission,
       hasPermission: false
@@ -317,7 +318,7 @@ export function hasPermission(
 
   // If no constraints, permission is granted
   if (!constraints) {
-    console.info('[RBAC] Permission granted', {
+    logger.info('[RBAC] Permission granted', {
       role: userRole,
       requiredPermission,
       hasPermission: true
@@ -327,7 +328,7 @@ export function hasPermission(
 
   // If constraints are specified but user has no attributes, deny access
   if (!userAttributes) {
-    console.info('[RBAC] Permission denied - constraints specified but no user attributes', {
+    logger.info('[RBAC] Permission denied - constraints specified but no user attributes', {
       role: userRole,
       requiredPermission,
       constraints
@@ -343,7 +344,7 @@ export function hasPermission(
     const hasAccess = userAttributes.departments?.includes(constraints.department) ?? false
     constraintChecks.department = hasAccess
     if (!hasAccess) {
-      console.info('[RBAC] Permission denied - department constraint failed', {
+      logger.info('[RBAC] Permission denied - department constraint failed', {
         role: userRole,
         requiredPermission,
         requiredDepartment: constraints.department,
@@ -358,7 +359,7 @@ export function hasPermission(
     const hasAccess = userAttributes.sites?.includes(constraints.site) ?? false
     constraintChecks.site = hasAccess
     if (!hasAccess) {
-      console.info('[RBAC] Permission denied - site constraint failed', {
+      logger.info('[RBAC] Permission denied - site constraint failed', {
         role: userRole,
         requiredSite: constraints.site,
         userSites: userAttributes.sites
@@ -372,7 +373,7 @@ export function hasPermission(
     const hasAccess = userAttributes.regions?.includes(constraints.region) ?? false
     constraintChecks.region = hasAccess
     if (!hasAccess) {
-      console.info('[RBAC] Permission denied - region constraint failed', {
+      logger.info('[RBAC] Permission denied - region constraint failed', {
         role: userRole,
         requiredRegion: constraints.region,
         userRegions: userAttributes.regions
@@ -386,7 +387,7 @@ export function hasPermission(
     const hasAccess = userAttributes.vehicleTypes?.includes(constraints.vehicleType) ?? false
     constraintChecks.vehicleType = hasAccess
     if (!hasAccess) {
-      console.info('[RBAC] Permission denied - vehicle type constraint failed', {
+      logger.info('[RBAC] Permission denied - vehicle type constraint failed', {
         role: userRole,
         requiredVehicleType: constraints.vehicleType,
         userVehicleTypes: userAttributes.vehicleTypes
@@ -396,7 +397,7 @@ export function hasPermission(
   }
 
   // All constraints passed
-  console.info('[RBAC] Permission granted with constraints', {
+  logger.info('[RBAC] Permission granted with constraints', {
     role: userRole,
     requiredPermission,
     constraints,
@@ -443,5 +444,5 @@ export interface PermissionAuditLog {
  */
 export function logPermissionCheck(entry: PermissionAuditLog): void {
   // In production, this would write to audit log storage
-  console.info("[RBAC Audit]", { entry })
+  logger.info("[RBAC Audit]", { entry })
 }

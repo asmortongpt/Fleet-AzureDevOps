@@ -8,6 +8,7 @@ import { Download, Filter } from 'lucide-react';
 import React, { useState, useCallback } from 'react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import logger from '@/utils/logger';
 
 interface RowData {
   vehicle: string;
@@ -77,7 +78,7 @@ export const DataWorkbench: React.FC = () => {
   };
 
   const onCellValueChanged = useCallback((params: CellValueChangedEvent<RowData>) => {
-    console.log('Cell changed:', params.data);
+    logger.info('Cell changed:', params.data);
   }, []);
 
   const exportToExcel = () => {

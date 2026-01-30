@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import logger from '@/utils/logger';
 
 interface PolicyFlowNode {
   id: string
@@ -151,7 +152,7 @@ flowchart TB
       mermaid.run({
         nodes: mermaidRef.current.querySelectorAll(".mermaid")
       }).catch(error => {
-        console.error("Mermaid rendering error:", error)
+        logger.error("Mermaid rendering error:", error)
       })
     }
   }, [flowMode])

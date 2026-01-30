@@ -20,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import type { Vehicle } from "@/types"
+import logger from '@/utils/logger';
 
 // Mock communication data
 const mockMessages = [
@@ -229,7 +230,7 @@ const BroadcastPanel = ({ zones }: { zones: BroadcastZone[] }) => {
   const [broadcastMessage, setBroadcastMessage] = useState("")
 
   const handleBroadcast = () => {
-    console.log("Broadcasting to zone:", selectedZone, "Message:", broadcastMessage)
+    logger.info("Broadcasting to zone:", selectedZone, "Message:", broadcastMessage)
     setBroadcastMessage("")
   }
 

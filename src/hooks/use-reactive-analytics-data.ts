@@ -16,6 +16,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, useCallback, useMemo } from 'react'
 import { z } from 'zod'
+import logger from '@/utils/logger';
 
 // Environment configuration with validation
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
@@ -144,7 +145,7 @@ async function secureFetch<T>(
     return validated
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error('Validation error:', error.errors)
+      logger.error('Validation error:', error.errors)
       throw new ValidationError('Invalid API response format', error.errors)
     }
     throw error
@@ -177,7 +178,7 @@ export function useReactiveAnalyticsData() {
         )
         return data
       } catch (error) {
-        console.error('Failed to fetch reports:', error)
+        logger.error('Failed to fetch reports:', error)
         // Return empty array on error rather than throwing
         return []
       }
@@ -201,7 +202,7 @@ export function useReactiveAnalyticsData() {
         const data = await secureFetch('/dashboards', z.array(DashboardWidgetSchema), signal)
         return data
       } catch (error) {
-        console.warn('Dashboards API unavailable, returning empty array:', error)
+        logger.warn('Dashboards API unavailable, returning empty array:', error)
         return []
       }
     },

@@ -3,6 +3,7 @@
 
 import { Client } from '@microsoft/microsoft-graph-client';
 import { Pool } from 'pg';
+import logger from '@/utils/logger';
 
 interface ReservationEmailData {
   driverEmail: string;
@@ -238,7 +239,7 @@ export class OutlookIntegrationService {
     try {
       await this.graphClient.api(`/me/events/${eventId}`).delete();
     } catch (error) {
-      console.error('Failed to delete calendar event:', error);
+      logger.error('Failed to delete calendar event:', error);
     }
 
     // Clear event ID from reservation
@@ -270,7 +271,7 @@ export class OutlookIntegrationService {
         await this.createCalendarEvent(reservation.id);
         synced++;
       } catch (error) {
-        console.error(`Failed to sync reservation ${reservation.id}:`, error);
+        logger.error(`Failed to sync reservation ${reservation.id}:`, error);
         failed++;
       }
     }

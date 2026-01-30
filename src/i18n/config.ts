@@ -10,6 +10,7 @@ import enUS from './locales/en-US.json';
 import esES from './locales/es-ES.json';
 import frFR from './locales/fr-FR.json';
 import heIL from './locales/he-IL.json';
+import logger from '@/utils/logger';
 
 export const languages = {
   'en': { name: 'English', nativeName: 'English', dir: 'ltr', flag: '🇺🇸' },
@@ -75,7 +76,7 @@ i18n
     saveMissing: import.meta.env.DEV,
     missingKeyHandler: (lngs, ns, key) => {
       if (import.meta.env.DEV) {
-        console.warn(`Missing translation key: ${key} for languages: ${lngs.join(', ')}`);
+        logger.warn(`Missing translation key: ${key} for languages: ${lngs.join(', ')}`);
       }
     },
   });

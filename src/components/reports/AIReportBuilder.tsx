@@ -4,6 +4,7 @@ import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import logger from '@/utils/logger';
 
 interface AIReportBuilderProps {
   onBack: () => void;
@@ -64,7 +65,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
       setGeneratedReport(reportDefinition);
       setShowPreview(true);
     } catch (err) {
-      console.error('Generation error:', err);
+      logger.error('Generation error:', err);
       setError(err instanceof Error ? err.message : 'Failed to generate report');
 
       // Mock report for demo
@@ -112,7 +113,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
       const { reportId } = await response.json();
       onReportCreated(reportId);
     } catch (err) {
-      console.error('Save error:', err);
+      logger.error('Save error:', err);
       alert('Failed to save report. Please try again.');
     }
   }, [generatedReport, onReportCreated]);

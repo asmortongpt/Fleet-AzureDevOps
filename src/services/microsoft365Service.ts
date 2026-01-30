@@ -15,6 +15,7 @@
  */
 
 import { Client } from '@microsoft/microsoft-graph-client'
+import logger from '@/utils/logger';
 
 export interface CalendarEvent {
   subject: string
@@ -143,7 +144,7 @@ class Microsoft365Service {
     try {
       await this.graphClient!.api(`/me/events/${eventId}`).delete()
     } catch (error) {
-      console.error('Failed to delete calendar event:', error)
+      logger.error('Failed to delete calendar event:', error)
       throw error
     }
   }

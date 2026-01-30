@@ -71,6 +71,7 @@ import {
   AreaChart
 } from 'recharts';
 
+import logger from '@/utils/logger';
 import {
   predictiveReorderingService,
   ReorderRecommendation,
@@ -210,7 +211,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
       setRecommendations(recs);
       setLastUpdated(new Date());
     } catch (error) {
-      console.error('Error loading recommendations:', error);
+      logger.error('Error loading recommendations:', error);
     } finally {
       setLoading(false);
     }
@@ -223,7 +224,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
 
   const handleApproveOrder = async (recommendation: ReorderRecommendation) => {
     // Integrate with purchase order system
-    // console.log('Approving order for:', recommendation.partNumber);
+    // logger.info('Approving order for:', recommendation.partNumber);
     // Remove from recommendations after approval
     setRecommendations(prev => prev.filter(r => r.partId !== recommendation.partId));
   };

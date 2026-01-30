@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import { maintenanceService } from '../../services/maintenanceService';
 import { vehicleService, Vehicle } from '../../services/vehicleService';
+import logger from '@/utils/logger';
 
 interface MaintenanceSchedulerProps {
   currentTheme: any;
@@ -51,7 +52,7 @@ const MaintenanceScheduler: React.FC<MaintenanceSchedulerProps> = ({
       const data = await vehicleService.getAll();
       setVehicles(data);
     } catch (err) {
-      console.error('Failed to fetch vehicles:', err);
+      logger.error('Failed to fetch vehicles:', err);
       setError('Failed to load vehicles');
     }
   };
@@ -101,7 +102,7 @@ const MaintenanceScheduler: React.FC<MaintenanceSchedulerProps> = ({
         setTimeout(onSuccess, 1500);
       }
     } catch (err: any) {
-      console.error('Failed to schedule maintenance:', err);
+      logger.error('Failed to schedule maintenance:', err);
       setError(err.message || 'Failed to schedule maintenance');
     } finally {
       setLoading(false);
