@@ -11,10 +11,10 @@ import {
   Keyboard,
   CheckCircle,
   AlertTriangle,
-  CircleNotch,
+  Loader2,
   Zap
 } from "lucide-react"
-import { Scanner, IDetectedBarcode } from '@yudiel/react-qr-scanner'
+import { QrScanner } from '@yudiel/react-qr-scanner'
 import { useState, useRef, useEffect, useCallback } from "react"
 import { createWorker, Worker, OEM, PSM } from 'tesseract.js'
 
@@ -399,7 +399,7 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
     setFacingMode(prev => prev === 'user' ? 'environment' : 'user')
   }
 
-  const handleBarcodeScan = useCallback((detectedCodes: IDetectedBarcode[]) => {
+  const handleBarcodeScan = useCallback((detectedCodes: any[]) => {
     if (detectedCodes.length === 0 || paused) return
 
     const code = detectedCodes[0]
@@ -528,7 +528,7 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
         <div className="flex items-center gap-2 bg-black/70 px-3 py-2 rounded-lg">
           {isProcessingOCR ? (
             <>
-              <CircleNotch className="w-4 h-4 text-yellow-400 animate-spin" />
+              <Loader2 className="w-4 h-4 text-yellow-400 animate-spin" />
               <span className="text-white text-xs">Reading plate...</span>
               <div className="flex-1">
                 <Progress value={ocrProgress} className="h-1" />
@@ -563,7 +563,7 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
           onClick={() => setUseAdaptiveThreshold(!useAdaptiveThreshold)}
           title="Toggle adaptive image enhancement for difficult lighting"
         >
-          <Zap className="w-4 h-4 mr-1" weight={useAdaptiveThreshold ? "fill" : "regular"} />
+          <Zap className="w-4 h-4 mr-1" />
           Enhance
         </Button>
         <Button
@@ -592,7 +592,7 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
   // Render barcode scanner (QR/VIN)
   const renderBarcodeScanner = () => (
     <div className="relative">
-      <Scanner
+      <QrScanner
         onScan={handleBarcodeScan}
         onError={handleError}
         formats={getFormats()}

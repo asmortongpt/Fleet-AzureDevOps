@@ -10,7 +10,7 @@
  * - Props match Task 4.4 specification
  */
 
-import { Link, LinkBreak, Clock, Plus, AlertTriangle, CheckCircle, CalendarBlank } from 'lucide-react'
+import { Link, Unlink, Clock, Plus, AlertTriangle, CheckCircle, Calendar } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
@@ -355,7 +355,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                     </div>
                     <div className="flex items-center gap-2 mt-2 text-sm text-slate-700">
                       <div className="flex items-center gap-1">
-                        <CalendarBlank className="w-4 h-4" />
+                        <Calendar className="w-4 h-4" />
                         <span>Attached: {new Date(combo.effective_from).toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center gap-1">
@@ -369,7 +369,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button variant="destructive" size="sm">
-                        <LinkBreak className="w-4 h-4 mr-2" />
+                        <Unlink className="w-4 h-4 mr-2" />
                         Detach
                       </Button>
                     </AlertDialogTrigger>

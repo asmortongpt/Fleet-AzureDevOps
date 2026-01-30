@@ -12,7 +12,7 @@
  * - Group and location filtering
  */
 
-import { Filter, X, Truck, Engine, Wrench, CheckCircle, Calendar } from 'lucide-react'
+import { Filter, X, Truck, Settings, Wrench, CheckCircle, Calendar } from 'lucide-react'
 import React, { useState } from 'react'
 
 // Import types from frontend types
@@ -48,9 +48,9 @@ export interface FilterState {
 // Filter options derived from backend enums
 const assetCategories: { value: AssetCategory; label: string; icon: typeof Truck }[] = [
   { value: 'PASSENGER_VEHICLE' as AssetCategory, label: 'Passenger Vehicle', icon: Truck },
-  { value: 'HEAVY_EQUIPMENT' as AssetCategory, label: 'Heavy Equipment', icon: Engine },
+  { value: 'HEAVY_EQUIPMENT' as AssetCategory, label: 'Heavy Equipment', icon: Settings },
   { value: 'TRAILER' as AssetCategory, label: 'Trailer', icon: Truck },
-  { value: 'TRACTOR' as AssetCategory, label: 'Tractor', icon: Engine },
+  { value: 'TRACTOR' as AssetCategory, label: 'Tractor', icon: Settings },
   { value: 'SPECIALTY' as AssetCategory, label: 'Specialty Equipment', icon: Wrench },
   { value: 'NON_POWERED' as AssetCategory, label: 'Non-Powered Asset', icon: Truck }
 ]
@@ -255,7 +255,7 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
           {filters.asset_category && availableAssetTypes.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Engine className="w-4 h-4 inline mr-1" />
+                <Settings className="w-4 h-4 inline mr-1" />
                 Asset Type
               </label>
               <select
@@ -276,7 +276,7 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
           {/* Power Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Engine className="w-4 h-4 inline mr-1" />
+              <Settings className="w-4 h-4 inline mr-1" />
               Power Type
             </label>
             <select
