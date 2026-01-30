@@ -130,7 +130,22 @@ const CommunicationHub = lazy(() => import("@/components/hubs/communication/Comm
 const SafetyHub = lazy(() => import("@/components/hubs/safety/SafetyHub").then(m => ({ default: m.SafetyHub })))
 const AssetsHub = lazy(() => import("@/components/hubs/assets/AssetsHub").then(m => ({ default: m.AssetsHub })))
 
-// NEW CONSOLIDATED HUB PAGES (Production Readiness Phase 3)
+// ============================================================================
+// CONSOLIDATED HUB PAGES (Screen Consolidation - Phase 4)
+// ============================================================================
+// These 5 hubs replace 24 individual hub pages for better UX
+
+const FleetOperationsHub = lazy(() => import("@/pages/FleetOperationsHub"))
+const ComplianceSafetyHub = lazy(() => import("@/pages/ComplianceSafetyHub"))
+const BusinessManagementHub = lazy(() => import("@/pages/BusinessManagementHub"))
+const PeopleCommunicationHub = lazy(() => import("@/pages/PeopleCommunicationHub"))
+const AdminConfigurationHub = lazy(() => import("@/pages/AdminConfigurationHub"))
+const VehicleShowroom3D = lazy(() => import("@/pages/VehicleShowroom3D"))
+
+// ============================================================================
+// DEPRECATED: OLD INDIVIDUAL HUB PAGES (kept for backward compatibility)
+// ============================================================================
+// TODO: Remove after migration complete and routing updated
 const FleetHubPage = lazy(() => import("@/pages/FleetHub"))
 const OperationsHubPage = lazy(() => import("@/pages/OperationsHub"))
 const MaintenanceHubPage = lazy(() => import("@/pages/MaintenanceHub"))
@@ -149,6 +164,8 @@ const SafetyComplianceHubPage = lazy(() => import("@/pages/SafetyComplianceHub")
 const CTAConfigurationHubPage = lazy(() => import("@/pages/CTAConfigurationHub"))
 const DataGovernanceHubPage = lazy(() => import("@/pages/DataGovernanceHub"))
 const DocumentsHubPage = lazy(() => import("@/pages/DocumentsHub"))
+const PeopleHubPage = lazy(() => import("@/pages/PeopleHub"))
+const WorkHubPage = lazy(() => import("@/pages/WorkHub"))
 
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
@@ -257,19 +274,29 @@ function App() {
       case "compliance-workspace":
         return <ComplianceWorkspace />
 
-      case "reports-hub":
+      // DEPRECATED: Consolidated into BusinessManagementHub
+      // case "reports-hub":
       case "reports":
         return <ReportsHubPage />
-      case "operations-hub":
-        return <OperationsHub />
-      case "procurement-hub":
-        return <ProcurementHub />
-      case "communication-hub":
-        return <CommunicationHub />
+
+      // DEPRECATED: Consolidated into FleetOperationsHub
+      // case "operations-hub":
+      //   return <OperationsHub />
+
+      // DEPRECATED: Consolidated into BusinessManagementHub
+      // case "procurement-hub":
+      //   return <ProcurementHub />
+
+      // DEPRECATED: Consolidated into PeopleCommunicationHub
+      // case "communication-hub":
+      //   return <CommunicationHub />
+
       case "dispatch-console":
         return <DispatchConsole />
-      case "fleet-hub":
-        return <FleetHubPage />
+
+      // DEPRECATED: Consolidated into FleetOperationsHub
+      // case "fleet-hub":
+      //   return <FleetHubPage />
 
       case "garage":
         return <GarageService />
@@ -378,90 +405,93 @@ function App() {
         return <FleetOptimizer />
       case "cost-analysis":
         return <CostAnalysisCenter />
-      case "maintenance-hub":
-        return <MaintenanceHub />
+
+      // DEPRECATED: Consolidated into FleetOperationsHub
+      // case "maintenance-hub":
+      //   return <MaintenanceHub />
+
       case "custom-reports":
         return <CustomReportBuilder />
       case "analytics":
         return <AnalyticsHubPage />
       case "maintenance-request":
         return <MaintenanceRequest data={fleetData} />
-      case "safety-hub":
-        return <SafetyHub />
+
+      // DEPRECATED: Consolidated into ComplianceSafetyHub
+      // case "safety-hub":
+      //   return <SafetyHub />
+
       case "safety-alerts":
         return <SafetyAlertsPage />
       case "heavy-equipment":
         return <EquipmentDashboard /> // TODO: Replace with HeavyEquipmentPage when implemented
-      case "assets-hub":
-        return <AssetsHub />
+
+      // DEPRECATED: Consolidated into FleetOperationsHub
+      // case "assets-hub":
+      //   return <AssetsHub />
       case "settings":
         return <SettingsPage />
       case "profile":
         return <ProfilePage />
-      // NEW CONSOLIDATED HUB PAGES (Production Readiness Phase 3)
-      case "fleet-hub-consolidated":
-        return <FleetHubPage />
-      case "operations-hub-consolidated":
-        return <OperationsHubPage />
-      case "maintenance-hub-consolidated":
-        return <MaintenanceHubPage />
-      case "drivers-hub-consolidated":
-        return <DriversHubPage />
-      case "analytics-hub-consolidated":
-        return <AnalyticsHubPage />
-      case "compliance-hub-consolidated":
-        return <ComplianceHubPage />
-      case "procurement-hub-consolidated":
-        return <ProcurementHubPage />
-      case "admin-hub-consolidated":
-        return <AdminHubPage />
-      case "safety-hub-consolidated":
-        return <SafetyHubPage />
-      case "assets-hub-consolidated":
-        return <AssetsHubPage />
-      case "communication-hub-consolidated":
-        return <CommunicationHubPage />
-      case "financial-hub-consolidated":
-        return <FinancialHubPage />
-      case "integrations-hub-consolidated":
-        return <IntegrationsHubPage />
-      case "policy-hub":
-        return <PolicyHubPage />
-      case "safety-compliance-hub":
-        return <SafetyComplianceHubPage />
-      case "cta-configuration-hub":
-        return <CTAConfigurationHubPage />
-      case "data-governance-hub":
-        return <DataGovernanceHubPage />
-      case "documents-hub":
-        return <DocumentsHubPage />
+      // ============================================================================
+      // NEW CONSOLIDATED HUB PAGES (Screen Consolidation - 24 hubs → 5 hubs)
+      // ============================================================================
 
-      // SHORT URL HANDLERS - Fix routing mismatch (URLs use /financial but cases were -hub-consolidated)
-      // Issue: Navigation generates /financial, /fleet, etc. but switch only handled -hub-consolidated
-      // Result: All hubs fell through to default (CommandCenter map view) instead of proper hub pages
-      case "financial":
-        return <FinancialHubPage />
+      // FLEET OPERATIONS HUB - Consolidates: Fleet, Drivers, Operations, Maintenance, Assets
+      case "fleet-hub-consolidated":
+      case "operations-hub-consolidated":
+      case "maintenance-hub-consolidated":
+      case "drivers-hub-consolidated":
+      case "assets-hub-consolidated":
       case "fleet":
-        return <FleetHubPage />
-      case "maintenance":
-        return <MaintenanceHubPage />
-      case "procurement":
-        return <ProcurementHubPage />
       case "operations":
-        return <OperationsHubPage />
+      case "maintenance":
       case "drivers":
-        return <DriversHubPage />
+      case "assets":
+        return <FleetOperationsHub />
+
+      // COMPLIANCE & SAFETY HUB - Consolidates: Compliance, Safety, Policy
+      case "compliance-hub-consolidated":
+      case "safety-hub-consolidated":
+      case "safety-compliance-hub":
+      case "policy-hub":
       case "safety":
       case "compliance":
-        return <SafetyComplianceHubPage />
-      case "admin":
-        return <AdminHubPage />
-      case "assets":
-        return <AssetsHubPage />
+        return <ComplianceSafetyHub />
+
+      // BUSINESS MANAGEMENT HUB - Consolidates: Financial, Procurement, Analytics, Reports
+      case "financial-hub-consolidated":
+      case "procurement-hub-consolidated":
+      case "analytics-hub-consolidated":
+      case "reports-hub":
+      case "insights-hub":
+      case "financial":
+      case "procurement":
+        return <BusinessManagementHub />
+
+      // PEOPLE & COMMUNICATION HUB - Consolidates: People, Communication, Work
+      case "communication-hub-consolidated":
+      case "people-hub":
+      case "work-hub":
       case "communication":
-        return <CommunicationHubPage />
+        return <PeopleCommunicationHub />
+
+      // ADMIN & CONFIGURATION HUB - Consolidates: Admin, Integrations, Documents, CTA Config, Data Governance
+      case "admin-hub-consolidated":
+      case "integrations-hub-consolidated":
+      case "documents-hub":
+      case "cta-configuration-hub":
+      case "data-governance-hub":
+      case "configuration-hub":
+      case "admin":
       case "integrations":
-        return <IntegrationsHubPage />
+        return <AdminConfigurationHub />
+
+      // 3D GARAGE - Interactive Vehicle Showroom
+      case "3d-garage":
+      case "vehicle-showroom":
+      case "showroom":
+        return <VehicleShowroom3D />
 
       // DESIGN SYSTEM DEMO - No auth required
       //   case "fleet-design-demo":

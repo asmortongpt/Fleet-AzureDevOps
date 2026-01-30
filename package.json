@@ -15,12 +15,12 @@
     "test:coverage": "vitest --coverage",
     "test:a11y": "vitest --run src/tests/accessibility.test.tsx",
     "test:a11y:watch": "vitest --watch src/tests/accessibility.test.tsx",
-    "claws": "npx tsx /Users/andrewmorton/Documents/GitHub/CLAWS.BOT/claws-cli.ts",
-    "claws:verify": "npm run claws -- 'Verify all code is correct and complete' --project . --validate",
-    "claws:finish": "npm run claws -- 'Finish all incomplete features and implementations' --project . --validate",
-    "claws:fix": "npm run claws -- 'Fix all errors, warnings, and issues' --project . --validate",
-    "claws:test": "npm run claws -- 'Add comprehensive test coverage for untested code' --project . --validate",
-    "claws:secure": "npm run claws -- 'Fix all security vulnerabilities and issues' --project . --validate"
+    "clawd": "npx tsx /Users/andrewmorton/Documents/GitHub/CLAWD.BOT/claws-cli.ts",
+    "clawd:verify": "npm run clawd -- 'Verify all code is correct and complete' --project . --validate",
+    "clawd:finish": "npm run clawd -- 'Finish all incomplete features and implementations' --project . --validate",
+    "clawd:fix": "npm run clawd -- 'Fix all errors, warnings, and issues' --project . --validate",
+    "clawd:test": "npm run clawd -- 'Add comprehensive test coverage for untested code' --project . --validate",
+    "clawd:secure": "npm run clawd -- 'Fix all security vulnerabilities and issues' --project . --validate"
   },
   "dependencies": {
     "@azure/msal-browser": "^5.0.2",
@@ -138,6 +138,7 @@
     "@eslint/js": "^9.39.2",
     "@faker-js/faker": "^10.2.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
+    "@playwright/test": "^1.58.0",
     "@storybook/react": "^8.5.3",
     "@tailwindcss/vite": "^4.1.18",
     "@testing-library/jest-dom": "^6.9.1",

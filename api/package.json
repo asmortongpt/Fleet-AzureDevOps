@@ -4,7 +4,7 @@
   "description": "Fleet Management System - Backend API",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "dotenv -e .env -- tsx watch --tsconfig tsconfig.json src/server-simple.ts",
+    "dev": "dotenv -e .env -- tsx watch --tsconfig tsconfig.json src/server.ts",
     "dev:full": "dotenv -e .env -- tsx watch --tsconfig tsconfig.json src/server.ts",
     "build": "tsc --project tsconfig.build.json",
     "build:strict": "tsc",

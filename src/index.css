@@ -51,52 +51,80 @@
 }
 
 /*
-  PREMIUM MODERN THEME
-  Fleet Management Platform - Next-Gen Design System
-  High-contrast, vibrant, and glassmorphic aesthetic
+  CAPITAL TECH ALLIANCE (CTA) BRAND THEME - VIBRANT PALETTE
+  Fleet Management Platform - ArchonY: Intelligent Performance
+  Professional, modern, and highly accessible
   WCAG AAA Compliant (7:1 contrast ratio minimum)
+
+  Brand Colors (Vibrant Palette):
+  - DAYTIME: #2B3A67 (Navy - Headers, primary text)
+  - BLUE SKIES: #00D4FF (Cyan - Interactive, links, highlights)
+  - MIDNIGHT: #1A0B2E (Purple - Backgrounds, dark sections)
+  - NOON: #FF5722 (Orange - CTAs, alerts, important highlights)
+  - GOLDEN HOUR: #FDB813 (Yellow - Accents, secondary highlights, badges)
+  - Gradient Bar: linear-gradient(90deg, #FDB813 0%, #FF5722 100%)
+
+  Taglines:
+  - "Intelligent Technology. Integrated Partnership."
+  - "Intelligent Performance"
 */
 :root {
-  /* FORCED DARK THEME - Deep Midnight (Default) */
-  --background: #0F1419;
-  --foreground: #F9FAFB;
+  /* CTA DARK THEME - Vibrant Enterprise (Default) */
+  --background: #1A0B2E; /* MIDNIGHT - Deep purple background */
+  --foreground: #F8FAFC; /* White text */
 
-  --card: #1A1F2E;
-  --card-foreground: #F9FAFB;
+  --card: #2B1E3F; /* Slightly lighter than background for cards */
+  --card-foreground: #F8FAFC;
 
-  --popover: #242B3D;
-  --popover-foreground: #F9FAFB;
+  --popover: #2B1E3F;
+  --popover-foreground: #F8FAFC;
 
-  --primary: #3b82f6;
-  /* Blue 500 */
+  /* CTA Primary Brand Color - DAYTIME Navy */
+  --primary: #2B3A67; /* DAYTIME - Navy for primary elements */
   --primary-foreground: #ffffff;
 
-  --secondary: #2A3347;
-  --secondary-foreground: #D1D5DB;
+  /* CTA Secondary - BLUE SKIES Cyan */
+  --secondary: #00D4FF; /* BLUE SKIES - Cyan for interactive elements */
+  --secondary-foreground: #ffffff;
 
-  --muted: #242B3D;
-  --muted-foreground: #9CA3AF;
+  --muted: #3D2A54; /* Muted purple */
+  --muted-foreground: #A5B4C6; /* Light gray-blue */
 
-  --accent: #2A3347;
-  --accent-foreground: #F9FAFB;
+  /* CTA Accent - NOON Orange */
+  --accent: #FF5722; /* NOON - Orange for CTAs and highlights */
+  --accent-foreground: #ffffff;
 
-  --destructive: #7f1d1d;
-  --destructive-foreground: #fef2f2;
+  --destructive: #DC2626;
+  --destructive-foreground: #FECACA;
 
-  --success: #059669;
-  --warning: #d97706;
+  /* CTA Success - Emerald Green */
+  --success: #10B981;
+  /* CTA Warning - GOLDEN HOUR Yellow */
+  --warning: #FDB813; /* GOLDEN HOUR - Yellow for warnings */
 
-  --border: rgba(75, 85, 99, 0.3);
-  --input: #242B3D;
-  --ring: #3b82f6;
+  --border: rgba(0, 212, 255, 0.15); /* BLUE SKIES with transparency */
+  --input: #2B1E3F;
+  --ring: #00D4FF; /* BLUE SKIES for focus rings */
 
-  --radius: 0.75rem;
+  --radius: 0.5rem;
 
-  /* WCAG AAA Compliant Colors (7:1 contrast on white) */
-  --blue-badge-bg: #1e3a8a; /* Blue 900 - 8.59:1 contrast on #e9f0fd */
-  --blue-badge-text: #1e3a8a; /* Blue 900 - 8.59:1 contrast on white */
-  --gray-text: #334155; /* Slate 700 - 8.34:1 contrast on white */
-  --link-color: #1e40af; /* Blue 800 - 7.04:1 contrast on white */
+  /* CTA Brand Colors - Direct Variables */
+  --cta-daytime: #2B3A67;
+  --cta-blue-skies: #00D4FF;
+  --cta-midnight: #1A0B2E;
+  --cta-noon: #FF5722;
+  --cta-golden-hour: #FDB813;
+
+  /* CTA Brand Gradients */
+  --cta-gradient-primary: linear-gradient(90deg, #FDB813 0%, #FF5722 100%); /* GOLDEN HOUR to NOON */
+  --cta-gradient-secondary: linear-gradient(135deg, #00D4FF 0%, #2B3A67 100%); /* BLUE SKIES to DAYTIME */
+  --cta-gradient-accent: linear-gradient(135deg, #2B3A67 0%, #1A0B2E 100%); /* DAYTIME to MIDNIGHT */
+
+  /* WCAG AAA Compliant Colors */
+  --blue-badge-bg: #2B3A67; /* DAYTIME Navy */
+  --blue-badge-text: #2B3A67; /* DAYTIME Navy */
+  --gray-text: #334155; /* Slate 700 */
+  --link-color: #00D4FF; /* BLUE SKIES for links */
 }
 
 .light {
@@ -164,6 +192,13 @@
 
   --color-success: var(--success);
   --color-warning: var(--warning);
+
+  /* CTA Brand Colors for Tailwind */
+  --color-cta-daytime: var(--cta-daytime);
+  --color-cta-blue-skies: var(--cta-blue-skies);
+  --color-cta-midnight: var(--cta-midnight);
+  --color-cta-noon: var(--cta-noon);
+  --color-cta-golden-hour: var(--cta-golden-hour);
 
   --radius-sm: calc(var(--radius) * 0.5);
   --radius-md: var(--radius);
