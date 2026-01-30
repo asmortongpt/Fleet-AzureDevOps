@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Wrench, Calendar, Package, AlertTriangle, CheckCircle, Clock, Users, TrendingUp, Gauge, ListChecks, CarSimple, Toolbox } from 'lucide-react';
+import { Wrench, Calendar, Package, AlertTriangle, CheckCircle, Clock, Users, TrendingUp, Gauge, ListChecks, Car, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
@@ -267,7 +267,7 @@ export function MaintenanceManagerDashboard() {
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-3">
-                    <CarSimple className="w-4 h-4 text-red-400" />
+                    <Car className="w-4 h-4 text-red-400" />
                     <div>
                       <p className="font-bold text-white">{item.vehicle_name}</p>
                       <p className="text-sm text-slate-300">{item.maintenance_type}</p>

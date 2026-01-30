@@ -3,7 +3,7 @@
  * Uses HLS.js for adaptive bitrate streaming
  */
 
-import { Play, Pause, SpeakerHigh, SpeakerSlash, CornersOut, CornersIn, Record, Camera, AlertTriangle } from 'lucide-react'
+import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Circle, Camera, AlertTriangle } from 'lucide-react'
 import Hls from 'hls.js'
 import { useRef, useState, useEffect, useCallback } from 'react'
 
@@ -290,7 +290,7 @@ export function VideoPlayer({
       {/* Recording Indicator */}
       {status === 'recording' && (
         <div className="absolute top-2 right-2 z-10">
-          <Record className="w-4 h-4 text-red-500 animate-pulse" />
+          <Circle className="w-4 h-4 text-red-500 animate-pulse" />
         </div>
       )}
 
@@ -344,7 +344,7 @@ export function VideoPlayer({
                     className="h-8 w-8 text-white hover:bg-white/20"
                     onClick={(e) => { e.stopPropagation(); toggleMute() }}
                   >
-                    {isMuted ? <SpeakerSlash /> : <SpeakerHigh />}
+                    {isMuted ? <VolumeX /> : <Volume2 />}
                   </Button>
 
                   {!live && duration > 0 && (
@@ -362,7 +362,7 @@ export function VideoPlayer({
                       className="h-8 w-8 text-white hover:bg-white/20"
                       onClick={(e) => { e.stopPropagation(); toggleFullscreen() }}
                     >
-                      {isFullscreen ? <CornersIn /> : <CornersOut />}
+                      {isFullscreen ? <Minimize /> : <Maximize />}
                     </Button>
                   )}
                 </div>

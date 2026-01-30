@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Map, Radio, Siren, Path, CarSimple, Clock, CheckCircle, AlertTriangle, Users, Phone, MessageCircle, Zap } from 'lucide-react';
+import { Map, Radio, Siren, Route, Car, Clock, CheckCircle, AlertTriangle, Users, Phone, MessageCircle, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
@@ -162,7 +162,7 @@ export function DispatcherDashboard() {
             className="bg-cyan-950/30 rounded-md p-2 border border-cyan-500/30 hover:border-cyan-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <CarSimple className="w-4 h-4 text-cyan-400" />
+              <Car className="w-4 h-4 text-cyan-400" />
               <span className="text-sm font-black text-white">{operationStats.active_trips}</span>
             </div>
             <p className="text-cyan-300 font-semibold">Active Trips</p>
@@ -226,7 +226,7 @@ export function DispatcherDashboard() {
           onClick={handleCreateRoute}
           className="bg-cyan-600 hover:bg-cyan-700 text-white"
         >
-          <Path className="w-4 h-4 mr-2" />
+          <Route className="w-4 h-4 mr-2" />
           New Route
         </Button>
       </div>
@@ -285,7 +285,7 @@ export function DispatcherDashboard() {
         {/* Active Trips List */}
         <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
           <div className="flex items-center gap-2 mb-3">
-            <Path className="w-4 h-4 text-violet-400" />
+            <Route className="w-4 h-4 text-violet-400" />
             <h2 className="text-sm font-bold text-white">Active Trips</h2>
           </div>
 

@@ -1,4 +1,4 @@
-import { Link, LinkBreak, Clock, Plus, X, AlertTriangle, CheckCircle, CalendarBlank, User } from 'lucide-react'
+import { Link, Unlink, Clock, Plus, X, AlertTriangle, CheckCircle, Calendar, User } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 
 import type {
@@ -278,7 +278,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                     </div>
                     <div className="flex items-center gap-2 mt-2 text-sm text-slate-700">
                       <div className="flex items-center gap-1">
-                        <CalendarBlank className="w-4 h-4" />
+                        <Calendar className="w-4 h-4" />
                         <span>Effective from: {new Date(combo.effective_from).toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center gap-1">
@@ -295,7 +295,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                     onClick={() => handleDeactivateRelationship(combo.relationship_id)}
                     className="flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
                   >
-                    <LinkBreak className="w-4 h-4" />
+                    <Unlink className="w-4 h-4" />
                     Deactivate
                   </button>
                 </div>

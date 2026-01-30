@@ -3,7 +3,7 @@
  * Displays and monitors ALL available API endpoints and emulator connections
  */
 
-import { Circle, Search, ChevronDown, ChevronRight, Play, RotateCw, CheckCircle, AlertTriangle, XCircle, Question, Clock } from 'lucide-react'
+import { Circle, Search, ChevronDown, ChevronRight, Play, RotateCw, CheckCircle, AlertTriangle, XCircle, HelpCircle, Clock } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -91,7 +91,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
       case 'error':
         return <XCircle className="w-3 h-3 text-red-600" />
       default:
-        return <Question className="w-3 h-3 text-gray-400" />
+        return <HelpCircle className="w-3 h-3 text-gray-400" />
     }
   }
 
@@ -211,7 +211,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
           </div>
         </div>
         <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-gray-950/20 border border-gray-200 dark:border-gray-900">
-          <Question className="w-3 h-3 text-gray-400" />
+          <HelpCircle className="w-3 h-3 text-gray-400" />
           <div>
             <p className="text-[10px] text-muted-foreground">Unknown</p>
             <p className="text-sm font-semibold text-gray-700 dark:text-gray-400">{summary.unknownCount}</p>
