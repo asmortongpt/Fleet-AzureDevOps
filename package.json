@@ -14,7 +14,13 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "test:a11y": "vitest --run src/tests/accessibility.test.tsx",
-    "test:a11y:watch": "vitest --watch src/tests/accessibility.test.tsx"
+    "test:a11y:watch": "vitest --watch src/tests/accessibility.test.tsx",
+    "claws": "npx tsx /Users/andrewmorton/Documents/GitHub/CLAWS.BOT/claws-cli.ts",
+    "claws:verify": "npm run claws -- 'Verify all code is correct and complete' --project . --validate",
+    "claws:finish": "npm run claws -- 'Finish all incomplete features and implementations' --project . --validate",
+    "claws:fix": "npm run claws -- 'Fix all errors, warnings, and issues' --project . --validate",
+    "claws:test": "npm run claws -- 'Add comprehensive test coverage for untested code' --project . --validate",
+    "claws:secure": "npm run claws -- 'Fix all security vulnerabilities and issues' --project . --validate"
   },
   "dependencies": {
     "@azure/msal-browser": "^5.0.2",
