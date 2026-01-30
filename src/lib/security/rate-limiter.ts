@@ -1,4 +1,5 @@
 /**
+import logger from '@/utils/logger';
  * Advanced Rate Limiting System
  * Implements sophisticated rate limiting with blocking, sliding windows, and distributed support
  *
@@ -209,7 +210,7 @@ export class RateLimiter {
 
     // Log in development
     if (import.meta.env.DEV) {
-      console.warn('[Rate Limit] Violation detected:', violation);
+      logger.warn('[Rate Limit] Violation detected:', violation);
     }
 
     // Send to monitoring in production
@@ -231,7 +232,7 @@ export class RateLimiter {
         body: JSON.stringify(violation),
       });
     } catch (error) {
-      console.error('Failed to report rate limit violation:', error);
+      logger.error('Failed to report rate limit violation:', error);
     }
   }
 

@@ -30,6 +30,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
+import logger from '@/utils/logger';
 
 interface TrainingCourse {
   id: string;
@@ -428,17 +429,17 @@ const FleetTrainingAcademy: React.FC = () => {
 
   const startCourse = (course: TrainingCourse) => {
     // In real implementation, this would navigate to course player
-    console.log('Starting course:', course.id);
+    logger.info('Starting course:', course.id);
   };
 
   const continueCourse = (course: TrainingCourse) => {
     // In real implementation, this would navigate to last accessed module
-    console.log('Continuing course:', course.id);
+    logger.info('Continuing course:', course.id);
   };
 
   const viewCertification = (course: TrainingCourse) => {
     // In real implementation, this would show certification details
-    console.log('Viewing certification for:', course.id);
+    logger.info('Viewing certification for:', course.id);
   };
 
   return (

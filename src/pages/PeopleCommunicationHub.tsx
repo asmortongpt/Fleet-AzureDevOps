@@ -54,6 +54,7 @@ import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'react-hot-toast'
+import logger from '@/utils/logger';
 import {
   StatCard,
   ResponsiveBarChart,
@@ -391,7 +392,7 @@ const WorkTabContent = memo(function WorkTabContent() {
   // Handler for joining meetings
   const handleJoinMeeting = (eventName: string) => {
     toast.success(`Joining meeting: ${eventName}`)
-    console.log('Join meeting clicked:', eventName)
+    logger.info('Join meeting clicked:', eventName)
     // TODO: Add real meeting join functionality (Teams/Outlook integration)
   }
 

@@ -3,6 +3,7 @@ import { Loader } from '@googlemaps/js-api-loader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { MapPin, AlertCircle } from 'lucide-react';
+import logger from '@/utils/logger';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
@@ -67,7 +68,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
           setLoading(false);
         }
       } catch (err: unknown) {
-        console.error('Error loading Google Maps:', err);
+        logger.error('Error loading Google Maps:', err);
         setError('Failed to load Google Maps. Please check your API key configuration.');
         setLoading(false);
       }

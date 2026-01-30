@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import logger from '@/utils/logger';
 
 type TimeWindow = '5m' | '1h' | '24h';
 type TrendDirection = 'up' | 'down' | 'stable';
@@ -181,7 +182,7 @@ export function RecentActivity({ className }: RecentActivityProps) {
           '24h': events24h.sort(sortByTimestamp)
         });
       } catch (error) {
-        console.error('Failed to fetch recent activity:', error);
+        logger.error('Failed to fetch recent activity:', error);
         setActivities({ '5m': [], '1h': [], '24h': [] });
       } finally {
         setLoading(false);

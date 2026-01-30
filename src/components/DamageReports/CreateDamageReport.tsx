@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { damageReportsApi } from '@/services/damageReportsApi'
+import logger from '@/utils/logger';
 
 const damageReportSchema = z.object({
   vehicle_id: z.string().uuid('Invalid vehicle ID'),
@@ -174,7 +175,7 @@ export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportP
         navigate(`/damage-reports/${createdReport.id}`)
       }
     } catch (error: any) {
-      console.error('Error creating damage report:', error)
+      logger.error('Error creating damage report:', error)
       setSubmitError(
         error.response?.data?.error || 'Failed to create damage report'
       )

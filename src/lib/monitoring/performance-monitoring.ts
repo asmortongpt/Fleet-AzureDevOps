@@ -9,6 +9,7 @@ import { onCLS, onLCP, onFCP, onTTFB, onINP, type MetricType } from 'web-vitals'
 
 import { captureMessage, setContext } from './sentry';
 import { metrics, telemetry } from './telemetry';
+import logger from '@/utils/logger';
 
 /**
  * Performance Metric
@@ -96,10 +97,10 @@ class PerformanceMonitorService {
       this.initialized = true;
 
       if (import.meta.env.DEV) {
-        console.log('[Performance Monitor] Initialized successfully');
+        logger.info('[Performance Monitor] Initialized successfully');
       }
     } catch (error) {
-      console.error('[Performance Monitor] Failed to initialize:', error);
+      logger.error('[Performance Monitor] Failed to initialize:', error);
     }
   }
 
@@ -143,7 +144,7 @@ class PerformanceMonitorService {
 
     // Log to console in dev
     if (import.meta.env.DEV) {
-      console.log(
+      logger.info(
         `[Performance] ${metric.name}:`,
         metric.value.toFixed(2),
         rating
@@ -223,7 +224,7 @@ class PerformanceMonitorService {
       observer.observe({ entryTypes: ['navigation'] });
       this.observers.push(observer);
     } catch (error) {
-      console.warn('[Performance Monitor] Failed to observe navigation timing:', error);
+      logger.warn('[Performance Monitor] Failed to observe navigation timing:', error);
     }
   }
 
@@ -269,7 +270,7 @@ class PerformanceMonitorService {
 
             // Log slow resource
             if (import.meta.env.DEV) {
-              console.warn('[Performance] Slow resource:', resource.name, resource.duration);
+              logger.warn('[Performance] Slow resource:', resource.name, resource.duration);
             }
           }
         });
@@ -285,7 +286,7 @@ class PerformanceMonitorService {
       observer.observe({ entryTypes: ['resource'] });
       this.observers.push(observer);
     } catch (error) {
-      console.warn('[Performance Monitor] Failed to observe resource timing:', error);
+      logger.warn('[Performance Monitor] Failed to observe resource timing:', error);
     }
   }
 
@@ -309,7 +310,7 @@ class PerformanceMonitorService {
 
           // Log long task
           if (import.meta.env.DEV) {
-            console.warn('[Performance] Long task detected:', entry.duration, 'ms');
+            logger.warn('[Performance] Long task detected:', entry.duration, 'ms');
           }
 
           // Report to Sentry
@@ -329,7 +330,7 @@ class PerformanceMonitorService {
       observer.observe({ entryTypes: ['longtask'] });
       this.observers.push(observer);
     } catch (error) {
-      console.warn('[Performance Monitor] Failed to observe long tasks:', error);
+      logger.warn('[Performance Monitor] Failed to observe long tasks:', error);
     }
   }
 
@@ -354,7 +355,7 @@ class PerformanceMonitorService {
           metrics.record(entry.name, entry.startTime);
 
           if (import.meta.env.DEV) {
-            console.log(`[Performance] ${entry.name}:`, entry.startTime, 'ms');
+            logger.info(`[Performance] ${entry.name}:`, entry.startTime, 'ms');
           }
         }
       });
@@ -362,7 +363,7 @@ class PerformanceMonitorService {
       observer.observe({ entryTypes: ['paint'] });
       this.observers.push(observer);
     } catch (error) {
-      console.warn('[Performance Monitor] Failed to observe paint timing:', error);
+      logger.warn('[Performance Monitor] Failed to observe paint timing:', error);
     }
   }
 
@@ -414,7 +415,7 @@ class PerformanceMonitorService {
     metrics.record('time-to-interactive', tti);
 
     if (import.meta.env.DEV) {
-      console.log('[Performance] Time to Interactive:', tti, 'ms');
+      logger.info('[Performance] Time to Interactive:', tti, 'ms');
     }
   }
 
@@ -457,7 +458,7 @@ class PerformanceMonitorService {
       observer.observe({ entryTypes: ['resource'] });
       this.observers.push(observer);
     } catch (error) {
-      console.warn('[Performance Monitor] Failed to track API response times:', error);
+      logger.warn('[Performance Monitor] Failed to track API response times:', error);
     }
   }
 
@@ -490,7 +491,7 @@ class PerformanceMonitorService {
       observer.observe({ entryTypes: ['measure'] });
       this.observers.push(observer);
     } catch (error) {
-      console.warn('[Performance Monitor] Failed to track component renders:', error);
+      logger.warn('[Performance Monitor] Failed to track component renders:', error);
     }
   }
 
@@ -636,7 +637,7 @@ export function measure(
     try {
       return performance.measure(name, startMark, endMark);
     } catch (error) {
-      console.warn('[Performance] Failed to measure:', error);
+      logger.warn('[Performance] Failed to measure:', error);
       return null;
     }
   }

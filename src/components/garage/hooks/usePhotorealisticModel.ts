@@ -15,6 +15,7 @@
 import { useState, useEffect } from 'react'
 
 import { generateVehicleModel, getCacheStats } from '@/services/meshyAI'
+import logger from '@/utils/logger';
 
 export interface PhotorealisticModelState {
   url: string | null
@@ -120,7 +121,7 @@ export function usePhotorealisticModel({
           })
         }
       } catch (error) {
-        console.error('[usePhotorealisticModel] Generation error:', error)
+        logger.error('[usePhotorealisticModel] Generation error:', error)
 
         if (!cancelled) {
           setState(prev => ({

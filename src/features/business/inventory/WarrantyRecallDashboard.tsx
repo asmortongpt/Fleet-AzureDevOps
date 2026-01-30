@@ -55,6 +55,7 @@ import {
 import { format, parseISO, differenceInDays } from 'date-fns';
 import React, { useState, useEffect } from 'react';
 
+import logger from '@/utils/logger';
 import WarrantyRecallService, {
   WarrantyInfo,
   RecallInfo,
@@ -129,7 +130,7 @@ const WarrantyRecallDashboard: React.FC = () => {
       );
       setNotificationCount(totalNotifications);
     } catch (error) {
-      console.error('Error initializing warranty/recall data:', error);
+      logger.error('Error initializing warranty/recall data:', error);
     } finally {
       setLoading(false);
     }
@@ -185,7 +186,7 @@ const WarrantyRecallDashboard: React.FC = () => {
       setNewClaim({ claimNumber: '', issueDescription: '', claimType: 'DEFECT' });
       await initializeData();
     } catch (error) {
-      console.error('Error submitting warranty claim:', error);
+      logger.error('Error submitting warranty claim:', error);
     }
   };
 
@@ -197,7 +198,7 @@ const WarrantyRecallDashboard: React.FC = () => {
       });
       await initializeData();
     } catch (error) {
-      console.error('Error processing recall action:', error);
+      logger.error('Error processing recall action:', error);
     }
   };
 
@@ -212,7 +213,7 @@ const WarrantyRecallDashboard: React.FC = () => {
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error generating compliance report:', error);
+      logger.error('Error generating compliance report:', error);
     }
   };
 

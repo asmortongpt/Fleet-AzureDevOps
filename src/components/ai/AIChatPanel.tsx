@@ -23,6 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import logger from '@/utils/logger';
 import {
   sendMessage,
   generateContextPrompt,
@@ -95,7 +96,7 @@ export function AIChatPanel({ hubType = 'general', onClose }: AIChatPanelProps) 
         setIsLoading(false);
       },
       onError: (error: Error) => {
-        console.error('Streaming error:', error);
+        logger.error('Streaming error:', error);
         toast.error('AI Error', {
           description: error.message || 'Failed to get response from AI'
         });
@@ -113,7 +114,7 @@ export function AIChatPanel({ hubType = 'general', onClose }: AIChatPanelProps) 
         streamCallback
       );
     } catch (error) {
-      console.error('AI error:', error);
+      logger.error('AI error:', error);
       toast.error('AI Error', {
         description: error instanceof Error ? error.message : 'Failed to send message'
       });

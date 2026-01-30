@@ -1,4 +1,5 @@
 /**
+import logger from '@/utils/logger';
  * Keyless Entry Service
  *
  * Bluetooth and NFC integration for vehicle access
@@ -109,7 +110,7 @@ export class KeylessEntryService {
         },
       ];
     } catch (error) {
-      console.error('[KeylessEntry] Failed to scan for vehicles:', error);
+      logger.error('[KeylessEntry] Failed to scan for vehicles:', error);
       throw error;
     }
   }
@@ -135,11 +136,11 @@ export class KeylessEntryService {
 
       // Connect to GATT server
       const server = await device.gatt.connect();
-      console.log('[KeylessEntry] Connected to GATT server');
+      logger.info('[KeylessEntry] Connected to GATT server');
 
       // Get service
       const service = await server.getPrimaryService(VEHICLE_SERVICE_UUID);
-      console.log('[KeylessEntry] Got vehicle service');
+      logger.info('[KeylessEntry] Got vehicle service');
 
       // Get characteristics
       const unlockChar = await service.getCharacteristic(UNLOCK_CHARACTERISTIC_UUID);
@@ -155,10 +156,10 @@ export class KeylessEntryService {
       // Setup disconnect listener
       device.addEventListener('gattserverdisconnected', this.handleDisconnect.bind(this));
 
-      console.log('[KeylessEntry] Vehicle connected successfully');
+      logger.info('[KeylessEntry] Vehicle connected successfully');
       return true;
     } catch (error) {
-      console.error('[KeylessEntry] Failed to connect to vehicle:', error);
+      logger.error('[KeylessEntry] Failed to connect to vehicle:', error);
       throw error;
     }
   }
@@ -206,10 +207,10 @@ export class KeylessEntryService {
         location: await this.getCurrentLocation(),
       });
 
-      console.log('[KeylessEntry] Vehicle unlocked successfully');
+      logger.info('[KeylessEntry] Vehicle unlocked successfully');
       return true;
     } catch (error) {
-      console.error('[KeylessEntry] Failed to unlock vehicle:', error);
+      logger.error('[KeylessEntry] Failed to unlock vehicle:', error);
 
       // Log failed attempt
       await this.logAccess({
@@ -258,10 +259,10 @@ export class KeylessEntryService {
         location: await this.getCurrentLocation(),
       });
 
-      console.log('[KeylessEntry] Vehicle locked successfully');
+      logger.info('[KeylessEntry] Vehicle locked successfully');
       return true;
     } catch (error) {
-      console.error('[KeylessEntry] Failed to lock vehicle:', error);
+      logger.error('[KeylessEntry] Failed to lock vehicle:', error);
 
       // Log failed attempt
       await this.logAccess({
@@ -295,7 +296,7 @@ export class KeylessEntryService {
       const value = await statusChar.readValue();
       return this.parseStatusValue(value);
     } catch (error) {
-      console.error('[KeylessEntry] Failed to get vehicle status:', error);
+      logger.error('[KeylessEntry] Failed to get vehicle status:', error);
       throw error;
     }
   }
@@ -313,7 +314,7 @@ export class KeylessEntryService {
 
       // Start scanning
       await ndef.scan();
-      console.log('[KeylessEntry] NFC scan started');
+      logger.info('[KeylessEntry] NFC scan started');
 
       return new Promise((resolve, reject) => {
         const timeout = setTimeout(() => {
@@ -344,7 +345,7 @@ export class KeylessEntryService {
         });
       });
     } catch (error) {
-      console.error('[KeylessEntry] NFC scan failed:', error);
+      logger.error('[KeylessEntry] NFC scan failed:', error);
       throw error;
     }
   }
@@ -394,7 +395,7 @@ export class KeylessEntryService {
       const data = await response.json();
       return data.token;
     } catch (error) {
-      console.error('[KeylessEntry] Failed to get access token:', error);
+      logger.error('[KeylessEntry] Failed to get access token:', error);
       throw error;
     }
   }
@@ -449,7 +450,7 @@ export class KeylessEntryService {
   }
 
   private handleDisconnect(): void {
-    console.log('[KeylessEntry] Vehicle disconnected');
+    logger.info('[KeylessEntry] Vehicle disconnected');
     this.connectedDevice = null;
     this.deviceCharacteristics.clear();
   }
@@ -493,7 +494,7 @@ export class KeylessEntryService {
         body: JSON.stringify(log),
       });
     } catch (error) {
-      console.error('[KeylessEntry] Failed to send access log to server:', error);
+      logger.error('[KeylessEntry] Failed to send access log to server:', error);
     }
   }
 
@@ -504,7 +505,7 @@ export class KeylessEntryService {
         this.accessLogs = JSON.parse(stored);
       }
     } catch (error) {
-      console.error('[KeylessEntry] Failed to load access logs:', error);
+      logger.error('[KeylessEntry] Failed to load access logs:', error);
     }
   }
 

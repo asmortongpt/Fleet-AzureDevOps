@@ -20,6 +20,7 @@ import {
 
 import { useDispatchSocket } from "@/hooks/useDispatchSocket";
 import { usePTT } from "@/hooks/usePTT";
+import logger from '@/utils/logger';
 
 interface DispatchPanelProps {
     open: boolean;
@@ -36,17 +37,17 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
     const dispatch = useDispatchSocket({
         channelId: selectedChannelId || undefined,
         autoConnect: open, // Only connect when panel is open to save resources
-        onEmergencyAlert: (alert) => console.log('Emergency alert:', alert),
-        onTransmission: (t) => console.log('Transmission:', t)
+        onEmergencyAlert: (alert) => logger.info('Emergency alert:', alert),
+        onTransmission: (t) => logger.info('Transmission:', t)
     });
 
     const ptt = usePTT({
         onAudioChunk: (data) => {
             if (ptt.currentTransmissionId) dispatch.sendAudioChunk(data, ptt.currentTransmissionId);
         },
-        onTransmissionStart: () => console.log('PTT Start'),
+        onTransmissionStart: () => logger.info('PTT Start'),
         onTransmissionEnd: (blob) => {
-            console.log('PTT End');
+            logger.info('PTT End');
             if (ptt.currentTransmissionId) {
                 const reader = new FileReader();
                 reader.onloadend = () => {

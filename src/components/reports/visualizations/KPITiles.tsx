@@ -2,6 +2,7 @@ import { TrendingUp, TrendingDown, Minus, ArrowUpRight } from 'lucide-react';
 import React from 'react';
 
 import { Card } from '@/components/ui/card';
+import logger from '@/utils/logger';
 
 export interface KPIMeasure {
   id: string;
@@ -160,7 +161,7 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
                 className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
                 onClick={() => {
                   // Handle drill-down
-                  console.log('Drill down into', measure.id);
+                  logger.info('Drill down into', measure.id);
                 }}
               >
                 <span>View Details</span>

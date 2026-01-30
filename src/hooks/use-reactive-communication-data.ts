@@ -5,6 +5,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
+import logger from '@/utils/logger';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 
@@ -57,12 +58,12 @@ export function useReactiveCommunicationData() {
       try {
         const response = await fetch(`${API_BASE}/communications/messages`)
         if (!response.ok) {
-          console.warn('Messages API unavailable, returning empty array')
+          logger.warn('Messages API unavailable, returning empty array')
           return []
         }
         return response.json()
       } catch (error) {
-        console.warn('Failed to fetch messages:', error)
+        logger.warn('Failed to fetch messages:', error)
         return []
       }
     },
@@ -77,12 +78,12 @@ export function useReactiveCommunicationData() {
       try {
         const response = await fetch(`${API_BASE}/notifications`)
         if (!response.ok) {
-          console.warn('Notifications API unavailable, returning empty array')
+          logger.warn('Notifications API unavailable, returning empty array')
           return []
         }
         return response.json()
       } catch (error) {
-        console.warn('Failed to fetch notifications:', error)
+        logger.warn('Failed to fetch notifications:', error)
         return []
       }
     },
@@ -97,12 +98,12 @@ export function useReactiveCommunicationData() {
       try {
         const response = await fetch(`${API_BASE}/announcements`)
         if (!response.ok) {
-          console.warn('Announcements API unavailable, returning empty array')
+          logger.warn('Announcements API unavailable, returning empty array')
           return []
         }
         return response.json()
       } catch (error) {
-        console.warn('Failed to fetch announcements:', error)
+        logger.warn('Failed to fetch announcements:', error)
         return []
       }
     },

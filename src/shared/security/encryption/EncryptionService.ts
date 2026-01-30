@@ -1,4 +1,5 @@
 /**
+import logger from '@/utils/logger';
  * Encryption Service (AES-256-GCM)
  *
  * Military-grade encryption for sensitive data
@@ -96,7 +97,7 @@ export class EncryptionService {
       // Convert to base64
       return this.arrayBufferToBase64(combined)
     } catch (error) {
-      console.error('Encryption failed:', error)
+      logger.error('Encryption failed:', error)
       throw new Error('Failed to encrypt data')
     }
   }
@@ -131,7 +132,7 @@ export class EncryptionService {
       const decoder = new TextDecoder()
       return decoder.decode(decryptedBuffer)
     } catch (error) {
-      console.error('Decryption failed:', error)
+      logger.error('Decryption failed:', error)
       throw new Error('Failed to decrypt data - data may be corrupted or tampered with')
     }
   }
@@ -209,6 +210,6 @@ export class EncryptionService {
     // 4. Monitor re-encryption progress
     // 5. Audit key rotation event
 
-    console.log('Key rotation not implemented in development mode')
+    logger.info('Key rotation not implemented in development mode')
   }
 }

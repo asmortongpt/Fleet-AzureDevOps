@@ -24,6 +24,7 @@ import { outlookCalendarService, CalendarEvent } from '../../services/outlookCal
 import { format, addMinutes } from 'date-fns';
 
 import EventCreateModal from './EventCreateModal';
+import logger from '@/utils/logger';
 
 const localizer = momentLocalizer(moment);
 
@@ -76,7 +77,7 @@ const FleetCalendar: React.FC = () => {
         setUserProfile(profile);
         await syncWithOutlook();
       } catch (error) {
-        console.error('Failed to get user profile:', error);
+        logger.error('Failed to get user profile:', error);
       }
     }
   };
@@ -92,7 +93,7 @@ const FleetCalendar: React.FC = () => {
         await syncWithOutlook();
       }
     } catch (error) {
-      console.error('Sign in failed:', error);
+      logger.error('Sign in failed:', error);
     } finally {
       setLoading(false);
     }
@@ -105,7 +106,7 @@ const FleetCalendar: React.FC = () => {
       setUserProfile(null);
       loadLocalEvents(); // Revert to local events
     } catch (error) {
-      console.error('Sign out failed:', error);
+      logger.error('Sign out failed:', error);
     }
   };
 
@@ -137,7 +138,7 @@ const FleetCalendar: React.FC = () => {
 
       setEvents(formattedEvents);
     } catch (error) {
-      console.error('Failed to sync with Outlook:', error);
+      logger.error('Failed to sync with Outlook:', error);
     } finally {
       setLoading(false);
     }
@@ -261,7 +262,7 @@ const FleetCalendar: React.FC = () => {
           driverId: eventData.resource?.driverId
         });
       } catch (error) {
-        console.error('Failed to create event in Outlook:', error);
+        logger.error('Failed to create event in Outlook:', error);
       }
     }
   };

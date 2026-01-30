@@ -4,6 +4,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import logger from '@/utils/logger';
 
 interface Signal {
   id: string;
@@ -187,7 +188,7 @@ export function TopSignals({ className }: TopSignalsProps) {
 
         setSignals(topSignals);
       } catch (error) {
-        console.error('Failed to fetch top signals:', error);
+        logger.error('Failed to fetch top signals:', error);
         setSignals([]);
       } finally {
         setLoading(false);

@@ -1,4 +1,5 @@
 /**
+import logger from '@/utils/logger';
  * Reports Service - Client-side API calls for Reports Hub
  *
  * This service provides typed methods for interacting with the backend Reports API.
@@ -94,7 +95,7 @@ class ReportsService {
       }
       return await response.json();
     } catch (error) {
-      console.error('Error fetching reports:', error);
+      logger.error('Error fetching reports:', error);
       throw error;
     }
   }
@@ -110,7 +111,7 @@ class ReportsService {
       }
       return await response.json();
     } catch (error) {
-      console.error(`Error fetching report ${reportId}:`, error);
+      logger.error(`Error fetching report ${reportId}:`, error);
       throw error;
     }
   }
@@ -132,7 +133,7 @@ class ReportsService {
 
       return await response.json();
     } catch (error) {
-      console.error('Error executing report:', error);
+      logger.error('Error executing report:', error);
       throw error;
     }
   }
@@ -154,7 +155,7 @@ class ReportsService {
 
       return await response.json();
     } catch (error) {
-      console.error('Error saving custom report:', error);
+      logger.error('Error saving custom report:', error);
       throw error;
     }
   }
@@ -179,7 +180,7 @@ class ReportsService {
 
       return await response.json();
     } catch (error) {
-      console.error('Error generating report:', error);
+      logger.error('Error generating report:', error);
       throw error;
     }
   }
@@ -205,7 +206,7 @@ class ReportsService {
 
       return await response.json();
     } catch (error) {
-      console.error('Error processing chat query:', error);
+      logger.error('Error processing chat query:', error);
       throw error;
     }
   }
@@ -227,7 +228,7 @@ class ReportsService {
 
       return await response.blob();
     } catch (error) {
-      console.error('Error exporting report:', error);
+      logger.error('Error exporting report:', error);
       throw error;
     }
   }

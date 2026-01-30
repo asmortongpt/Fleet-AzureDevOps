@@ -43,6 +43,7 @@ import ErrorBoundary from '@/components/common/ErrorBoundary'
 import type { AnalyticsReport } from '@/hooks/use-reactive-analytics-data'
 import { exportToCSV, exportToExcel, exportToPDF } from '@/lib/export-utils'
 import { Download as DownloadIcon, Share } from 'lucide-react'
+import logger from '@/utils/logger';
 
 // Lazy load consolidated components from deprecated folder
 const InsightsHubContent = lazy(() => import('./deprecated/InsightsHub').then(m => ({ default: m.default })))
@@ -390,17 +391,17 @@ const ReportsContent = memo(() => {
 
   // Memoized handlers
   const handleDownload = useCallback((id: string) => {
-    console.log('Download report:', id)
+    logger.info('Download report:', id)
     // TODO: Implement download functionality
   }, [])
 
   const handleView = useCallback((id: string) => {
-    console.log('View report:', id)
+    logger.info('View report:', id)
     // TODO: Implement view functionality
   }, [])
 
   const handleNewReport = useCallback(() => {
-    console.log('Create new report')
+    logger.info('Create new report')
     // TODO: Implement new report functionality
   }, [])
 
@@ -580,7 +581,7 @@ const DashboardsContent = memo(() => {
   const { dashboards, dashboardStats, typeChartData, isLoading, error, lastUpdate } = useReactiveAnalyticsData()
 
   const handleNewDashboard = useCallback(() => {
-    console.log('Create new dashboard')
+    logger.info('Create new dashboard')
     // TODO: Implement new dashboard functionality
   }, [])
 
@@ -703,7 +704,7 @@ const DashboardsContent = memo(() => {
                     tabIndex={0}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
-                        console.log('View dashboard:', dashboard.id)
+                        logger.info('View dashboard:', dashboard.id)
                       }
                     }}
                   >

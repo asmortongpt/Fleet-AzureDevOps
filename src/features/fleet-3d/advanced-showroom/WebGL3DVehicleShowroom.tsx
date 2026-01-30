@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
+import logger from '@/utils/logger';
 
 interface WebGL3DVehicleShowroomProps {
   vehicles: any[];
@@ -85,7 +86,7 @@ const WebGL3DVehicleShowroom: React.FC<WebGL3DVehicleShowroomProps> = ({
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 
     if (!gl) {
-      console.error('WebGL not supported');
+      logger.error('WebGL not supported');
       setLoading(false);
       return;
     }
@@ -97,7 +98,7 @@ const WebGL3DVehicleShowroom: React.FC<WebGL3DVehicleShowroomProps> = ({
     const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
     if (!vertexShader || !fragmentShader) {
-      console.error('Failed to create shaders');
+      logger.error('Failed to create shaders');
       setLoading(false);
       return;
     }
@@ -105,7 +106,7 @@ const WebGL3DVehicleShowroom: React.FC<WebGL3DVehicleShowroomProps> = ({
     // Create program
     const program = createProgram(gl, vertexShader, fragmentShader);
     if (!program) {
-      console.error('Failed to create program');
+      logger.error('Failed to create program');
       setLoading(false);
       return;
     }
@@ -144,7 +145,7 @@ const WebGL3DVehicleShowroom: React.FC<WebGL3DVehicleShowroomProps> = ({
     gl.compileShader(shader);
 
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+      logger.error('Shader compile error:', gl.getShaderInfoLog(shader));
       gl.deleteShader(shader);
       return null;
     }
@@ -162,7 +163,7 @@ const WebGL3DVehicleShowroom: React.FC<WebGL3DVehicleShowroomProps> = ({
     gl.linkProgram(program);
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      console.error('Program link error:', gl.getProgramInfoLog(program));
+      logger.error('Program link error:', gl.getProgramInfoLog(program));
       gl.deleteProgram(program);
       return null;
     }

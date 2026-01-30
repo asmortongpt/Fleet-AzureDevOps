@@ -57,7 +57,7 @@ import {
   X,
   ArrowRight,
   ClipboardList,
-  Tool,
+  Wrench as Tool,
   Settings as SettingsIcon,
   FileText,
   DollarSign
@@ -76,6 +76,7 @@ import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
 import { useReactiveDriversData } from '@/hooks/use-reactive-drivers-data'
 import { useReactiveOperationsData } from '@/hooks/use-reactive-operations-data'
 import { toast } from 'react-hot-toast'
+import logger from '@/utils/logger';
 import {
   StatCard,
   ResponsiveBarChart,
@@ -591,21 +592,21 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
   // Handler for creating new work order
   const handleCreateWorkOrder = () => {
     toast.success('Opening work order creation form')
-    console.log('Create work order clicked')
+    logger.info('Create work order clicked')
     // TODO: Add real API call to create work order
   }
 
   // Handler for viewing work order details
   const handleViewWorkOrder = (workOrderId: string) => {
     toast.success(`Opening work order: ${workOrderId}`)
-    console.log('View work order clicked:', workOrderId)
+    logger.info('View work order clicked:', workOrderId)
     // TODO: Navigate to work order details page or open modal
   }
 
   // Handler for scheduling maintenance
   const handleScheduleMaintenance = (vehicleId: string) => {
     toast.success(`Scheduling maintenance for vehicle: ${vehicleId}`)
-    console.log('Schedule maintenance clicked:', vehicleId)
+    logger.info('Schedule maintenance clicked:', vehicleId)
     // TODO: Add real API call to schedule maintenance
   }
 
@@ -826,21 +827,21 @@ const AssetsTabContent = memo(function AssetsTabContent() {
   // Handler for viewing asset details
   const handleViewAsset = (assetId: string) => {
     toast.success(`Opening asset details: ${assetId}`)
-    console.log('View asset clicked:', assetId)
+    logger.info('View asset clicked:', assetId)
     // TODO: Navigate to asset details page or open modal
   }
 
   // Handler for adding new asset
   const handleAddAsset = () => {
     toast.success('Opening add asset form')
-    console.log('Add asset clicked')
+    logger.info('Add asset clicked')
     // TODO: Add real API call to create new asset
   }
 
   // Handler for scheduling asset maintenance
   const handleScheduleAssetMaintenance = (assetId: string) => {
     toast.success(`Scheduling maintenance for asset: ${assetId}`)
-    console.log('Schedule asset maintenance clicked:', assetId)
+    logger.info('Schedule asset maintenance clicked:', assetId)
     // TODO: Add real API call to schedule asset maintenance
   }
 

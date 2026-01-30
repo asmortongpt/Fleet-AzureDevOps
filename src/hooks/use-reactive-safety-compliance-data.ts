@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { z } from 'zod'
 import DOMPurify from 'dompurify'
+import logger from '@/utils/logger';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 
@@ -582,12 +583,12 @@ export function useReactiveSafetyComplianceData() {
           setRealTimeUpdate(prev => prev + 1) // Trigger refetch
         }
       } catch (error) {
-        console.error('WebSocket message error:', error)
+        logger.error('WebSocket message error:', error)
       }
     }
 
     ws.onerror = (error) => {
-      console.error('WebSocket error:', error)
+      logger.error('WebSocket error:', error)
     }
 
     ws.onclose = () => {

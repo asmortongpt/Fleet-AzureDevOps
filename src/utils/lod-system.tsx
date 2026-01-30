@@ -13,6 +13,7 @@
 import * as THREE from 'three';
 import { useRef, useMemo, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
+import logger from '@/utils/logger';
 
 // ============================================================================
 // TYPES
@@ -103,7 +104,7 @@ export function LODVehicleModel({
     position: positionVec,
     config: lodConfig,
     onLODChange: (level) => {
-      console.log(`Switched to LOD level ${level}`);
+      logger.info(`Switched to LOD level ${level}`);
     },
   });
 

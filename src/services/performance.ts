@@ -1,4 +1,5 @@
 /**
+import logger from '@/utils/logger';
  * Performance Monitoring Service
  */
 
@@ -38,7 +39,7 @@ class PerformanceMonitor {
   }
 
   async reportToAnalytics(): Promise<void> {
-    console.log('Performance metrics reported');
+    logger.info('Performance metrics reported');
   }
 }
 

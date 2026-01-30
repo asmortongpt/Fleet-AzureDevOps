@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import logger from '@/utils/logger';
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -104,7 +105,7 @@ export function DocumentComparison({
         aiSummary
       });
     } catch (error) {
-      console.error('Comparison failed:', error);
+      logger.error('Comparison failed:', error);
     } finally {
       setLoading(false);
     }
@@ -189,7 +190,7 @@ export function DocumentComparison({
       const data = await response.json();
       return data.summary || 'Changes detected between versions.';
     } catch (error) {
-      console.error('AI summary error:', error);
+      logger.error('AI summary error:', error);
       return `${diff.totalChanges} changes detected (${diff.added.length} additions, ${diff.removed.length} deletions, ${diff.modified.length} modifications)`;
     }
   };

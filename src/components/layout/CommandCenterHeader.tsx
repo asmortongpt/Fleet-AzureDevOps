@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { cn } from '@/lib/utils';
+import logger from '@/utils/logger';
 
 interface CommandCenterHeaderProps {
     isMobile?: boolean;
@@ -32,7 +33,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
     }, []);
 
     const handleSearch = useCallback((query: string) => {
-        console.log('Global search:', query);
+        logger.info('Global search:', query);
     }, []);
 
     return (

@@ -27,6 +27,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import logger from '@/utils/logger';
 
 // Animation variants for stagger children
 const containerVariants = {
@@ -214,7 +215,7 @@ const DriversOverview = memo(function DriversOverview() {
           <Button
             className="gap-2"
             aria-label="Add new driver to roster"
-            onClick={() => console.log('Add driver modal')}
+            onClick={() => logger.info('Add driver modal')}
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
             Add Driver
@@ -754,7 +755,7 @@ const AssignmentsContent = memo(function AssignmentsContent() {
           <Button
             className="gap-2"
             aria-label="Create new driver assignment"
-            onClick={() => console.log('New assignment modal')}
+            onClick={() => logger.info('New assignment modal')}
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
             New Assignment

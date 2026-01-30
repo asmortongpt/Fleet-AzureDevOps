@@ -12,20 +12,26 @@ const router = Router()
 
 // Validation schemas
 const createReservationSchema = z.object({
-  vehicle_id: z.number(),
-  user_id: z.number(),
-  start_date: z.string().datetime(),
-  end_date: z.string().datetime(),
+  vehicle_id: z.string().uuid().optional(),
+  asset_id: z.string().uuid().optional(),
+  user_id: z.string().uuid(),
+  driver_id: z.string().uuid().optional(),
+  start_time: z.string().datetime(),
+  end_time: z.string().datetime(),
   purpose: z.string().min(1).max(500),
+  destination: z.string().max(500).optional(),
   notes: z.string().optional(),
 })
 
 const updateReservationSchema = z.object({
-  start_date: z.string().datetime().optional(),
-  end_date: z.string().datetime().optional(),
+  start_time: z.string().datetime().optional(),
+  end_time: z.string().datetime().optional(),
   purpose: z.string().min(1).max(500).optional(),
+  destination: z.string().max(500).optional(),
   notes: z.string().optional(),
   status: z.enum(['pending', 'approved', 'rejected', 'cancelled']).optional(),
+  start_odometer: z.number().optional(),
+  end_odometer: z.number().optional(),
 })
 
 /**
@@ -34,36 +40,38 @@ const updateReservationSchema = z.object({
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const { vehicle_id, user_id, status, start_date, end_date } = req.query
+    const { vehicle_id, user_id, status, start_time, end_time } = req.query
     const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
 
     let query = `
       SELECT
         r.*,
         v.make, v.model, v.year, v.license_plate,
-        u.name as user_name, u.email as user_email
+        CONCAT(u.first_name, ' ', u.last_name) as user_name, u.email as user_email,
+        CONCAT(d.first_name, ' ', d.last_name) as driver_name
       FROM reservations r
       LEFT JOIN vehicles v ON r.vehicle_id = v.id
       LEFT JOIN users u ON r.user_id = u.id
+      LEFT JOIN drivers d ON r.driver_id = d.id
       WHERE 1=1
     `
     const params: any[] = []
     let paramCount = 1
 
     if (tenant_id) {
-      query += ` AND r.tenant_id = $${paramCount}`
+      query += ` AND r.tenant_id = $${paramCount}::uuid`
       params.push(tenant_id)
       paramCount++
     }
 
     if (vehicle_id) {
-      query += ` AND r.vehicle_id = $${paramCount}`
+      query += ` AND r.vehicle_id = $${paramCount}::uuid`
       params.push(vehicle_id)
       paramCount++
     }
 
     if (user_id) {
-      query += ` AND r.user_id = $${paramCount}`
+      query += ` AND r.user_id = $${paramCount}::uuid`
       params.push(user_id)
       paramCount++
     }
@@ -74,19 +82,19 @@ router.get('/', async (req: Request, res: Response) => {
       paramCount++
     }
 
-    if (start_date) {
-      query += ` AND r.start_date >= $${paramCount}`
-      params.push(start_date)
+    if (start_time) {
+      query += ` AND r.start_time >= $${paramCount}`
+      params.push(start_time)
       paramCount++
     }
 
-    if (end_date) {
-      query += ` AND r.end_date <= $${paramCount}`
-      params.push(end_date)
+    if (end_time) {
+      query += ` AND r.end_time <= $${paramCount}`
+      params.push(end_time)
       paramCount++
     }
 
-    query += ' ORDER BY r.start_date DESC'
+    query += ' ORDER BY r.start_time DESC'
 
     const result = await pool.query(query, params)
 
@@ -117,11 +125,15 @@ router.get('/:id', async (req: Request, res: Response) => {
       `SELECT
         r.*,
         v.make, v.model, v.year, v.license_plate,
-        u.name as user_name, u.email as user_email
+        CONCAT(u.first_name, ' ', u.last_name) as user_name, u.email as user_email,
+        CONCAT(d.first_name, ' ', d.last_name) as driver_name,
+        a.name as asset_name
       FROM reservations r
       LEFT JOIN vehicles v ON r.vehicle_id = v.id
       LEFT JOIN users u ON r.user_id = u.id
-      WHERE r.id = $1 AND r.tenant_id = $2`,
+      LEFT JOIN drivers d ON r.driver_id = d.id
+      LEFT JOIN assets a ON r.asset_id = a.id
+      WHERE r.id = $1::uuid AND r.tenant_id = $2::uuid`,
       [id, tenant_id]
     )
 
@@ -154,40 +166,53 @@ router.post('/', async (req: Request, res: Response) => {
     const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
     const validatedData = createReservationSchema.parse(req.body)
 
-    // Check for conflicts
-    const conflictCheck = await pool.query(
-      `SELECT id FROM reservations
-       WHERE vehicle_id = $1
-       AND tenant_id = $2
-       AND status NOT IN ('cancelled', 'rejected')
-       AND (
-         (start_date <= $3 AND end_date >= $3) OR
-         (start_date <= $4 AND end_date >= $4) OR
-         (start_date >= $3 AND end_date <= $4)
-       )`,
-      [validatedData.vehicle_id, tenant_id, validatedData.start_date, validatedData.end_date]
-    )
-
-    if (conflictCheck.rows.length > 0) {
-      return res.status(409).json({
+    // Ensure at least vehicle_id or asset_id is provided
+    if (!validatedData.vehicle_id && !validatedData.asset_id) {
+      return res.status(400).json({
         success: false,
-        error: 'Vehicle is already reserved for this time period',
-        conflicting_reservation_id: conflictCheck.rows[0].id
+        error: 'Either vehicle_id or asset_id must be provided'
       })
+    }
+
+    // Check for conflicts (only check vehicle if vehicle_id provided)
+    if (validatedData.vehicle_id) {
+      const conflictCheck = await pool.query(
+        `SELECT id FROM reservations
+         WHERE vehicle_id = $1::uuid
+         AND tenant_id = $2::uuid
+         AND status NOT IN ('cancelled', 'rejected')
+         AND (
+           (start_time <= $3 AND end_time >= $3) OR
+           (start_time <= $4 AND end_time >= $4) OR
+           (start_time >= $3 AND end_time <= $4)
+         )`,
+        [validatedData.vehicle_id, tenant_id, validatedData.start_time, validatedData.end_time]
+      )
+
+      if (conflictCheck.rows.length > 0) {
+        return res.status(409).json({
+          success: false,
+          error: 'Vehicle is already reserved for this time period',
+          conflicting_reservation_id: conflictCheck.rows[0].id
+        })
+      }
     }
 
     // Create reservation
     const result = await pool.query(
       `INSERT INTO reservations
-       (vehicle_id, user_id, start_date, end_date, purpose, notes, status, tenant_id, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, 'pending', $7, NOW(), NOW())
+       (vehicle_id, asset_id, user_id, driver_id, start_time, end_time, purpose, destination, notes, status, tenant_id, created_at, updated_at)
+       VALUES ($1::uuid, $2::uuid, $3::uuid, $4::uuid, $5, $6, $7, $8, $9, 'pending', $10::uuid, NOW(), NOW())
        RETURNING *`,
       [
-        validatedData.vehicle_id,
+        validatedData.vehicle_id || null,
+        validatedData.asset_id || null,
         validatedData.user_id,
-        validatedData.start_date,
-        validatedData.end_date,
+        validatedData.driver_id || null,
+        validatedData.start_time,
+        validatedData.end_time,
         validatedData.purpose,
+        validatedData.destination || null,
         validatedData.notes || null,
         tenant_id
       ]
@@ -205,7 +230,7 @@ router.post('/', async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         error: 'Validation error',
-        details: error.errors
+        details: error.issues
       })
     }
     logger.error('Error creating reservation:', error)
@@ -228,7 +253,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
 
     // Check if reservation exists
     const existing = await pool.query(
-      'SELECT * FROM reservations WHERE id = $1 AND tenant_id = $2',
+      'SELECT * FROM reservations WHERE id = $1::uuid AND tenant_id = $2::uuid',
       [id, tenant_id]
     )
 
@@ -265,7 +290,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
     const query = `
       UPDATE reservations
       SET ${updates.join(', ')}
-      WHERE id = $${paramCount} AND tenant_id = $${paramCount + 1}
+      WHERE id = $${paramCount}::uuid AND tenant_id = $${paramCount + 1}::uuid
       RETURNING *
     `
 
@@ -283,7 +308,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         error: 'Validation error',
-        details: error.errors
+        details: error.issues
       })
     }
     logger.error('Error updating reservation:', error)
@@ -307,13 +332,12 @@ router.post('/:id/approve', async (req: Request, res: Response) => {
     const result = await pool.query(
       `UPDATE reservations
        SET status = 'approved',
-           approved_by = $1,
-           approval_notes = $2,
+           approved_by = $1::uuid,
            approved_at = NOW(),
            updated_at = NOW()
-       WHERE id = $3 AND tenant_id = $4
+       WHERE id = $2::uuid AND tenant_id = $3::uuid
        RETURNING *`,
-      [approved_by, notes, id, tenant_id]
+      [approved_by, id, tenant_id]
     )
 
     if (result.rows.length === 0) {
@@ -352,13 +376,11 @@ router.post('/:id/reject', async (req: Request, res: Response) => {
     const result = await pool.query(
       `UPDATE reservations
        SET status = 'rejected',
-           rejected_by = $1,
-           rejection_reason = $2,
-           rejected_at = NOW(),
+           notes = $1,
            updated_at = NOW()
-       WHERE id = $3 AND tenant_id = $4
+       WHERE id = $2::uuid AND tenant_id = $3::uuid
        RETURNING *`,
-      [rejected_by, reason, id, tenant_id]
+      [reason, id, tenant_id]
     )
 
     if (result.rows.length === 0) {
@@ -397,13 +419,11 @@ router.post('/:id/cancel', async (req: Request, res: Response) => {
     const result = await pool.query(
       `UPDATE reservations
        SET status = 'cancelled',
-           cancelled_by = $1,
-           cancellation_reason = $2,
-           cancelled_at = NOW(),
+           notes = $1,
            updated_at = NOW()
-       WHERE id = $3 AND tenant_id = $4
+       WHERE id = $2::uuid AND tenant_id = $3::uuid
        RETURNING *`,
-      [cancelled_by, reason, id, tenant_id]
+      [reason, id, tenant_id]
     )
 
     if (result.rows.length === 0) {
@@ -439,7 +459,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
 
     const result = await pool.query(
-      'DELETE FROM reservations WHERE id = $1 AND tenant_id = $2 RETURNING *',
+      'DELETE FROM reservations WHERE id = $1::uuid AND tenant_id = $2::uuid RETURNING *',
       [id, tenant_id]
     )
 
@@ -472,42 +492,43 @@ router.delete('/:id', async (req: Request, res: Response) => {
 router.get('/availability/:vehicle_id', async (req: Request, res: Response) => {
   try {
     const { vehicle_id } = req.params
-    const { start_date, end_date } = req.query
+    const { start_time, end_time } = req.query
     const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
 
-    if (!start_date || !end_date) {
+    if (!start_time || !end_time) {
       return res.status(400).json({
         success: false,
-        error: 'start_date and end_date are required'
+        error: 'start_time and end_time are required'
       })
     }
 
     // Check for reservations
     const reservations = await pool.query(
       `SELECT * FROM reservations
-       WHERE vehicle_id = $1
-       AND tenant_id = $2
+       WHERE vehicle_id = $1::uuid
+       AND tenant_id = $2::uuid
        AND status NOT IN ('cancelled', 'rejected')
        AND (
-         (start_date <= $3 AND end_date >= $3) OR
-         (start_date <= $4 AND end_date >= $4) OR
-         (start_date >= $3 AND end_date <= $4)
+         (start_time <= $3 AND end_time >= $3) OR
+         (start_time <= $4 AND end_time >= $4) OR
+         (start_time >= $3 AND end_time <= $4)
        )`,
-      [vehicle_id, tenant_id, start_date, end_date]
+      [vehicle_id, tenant_id, start_time, end_time]
     )
 
-    // Check for maintenance
+    // Check for maintenance work orders
     const maintenance = await pool.query(
-      `SELECT * FROM maintenance_schedules
-       WHERE vehicle_id = $1
-       AND tenant_id = $2
+      `SELECT * FROM work_orders
+       WHERE vehicle_id = $1::uuid
+       AND tenant_id = $2::uuid
        AND status IN ('scheduled', 'in_progress')
+       AND scheduled_date IS NOT NULL
        AND (
-         (scheduled_date <= $3 AND completion_date >= $3) OR
-         (scheduled_date <= $4 AND completion_date >= $4) OR
-         (scheduled_date >= $3 AND completion_date <= $4)
+         (scheduled_date <= $3 AND COALESCE(completed_at, scheduled_date + INTERVAL '4 hours') >= $3) OR
+         (scheduled_date <= $4 AND COALESCE(completed_at, scheduled_date + INTERVAL '4 hours') >= $4) OR
+         (scheduled_date >= $3 AND COALESCE(completed_at, scheduled_date + INTERVAL '4 hours') <= $4)
        )`,
-      [vehicle_id, tenant_id, start_date, end_date]
+      [vehicle_id, tenant_id, start_time, end_time]
     )
 
     const isAvailable = reservations.rows.length === 0 && maintenance.rows.length === 0

@@ -1,4 +1,5 @@
 /**
+import logger from '@/utils/logger';
  * Role-Based Access Control (RBAC) System - COMPLETE IMPLEMENTATION
  *
  * Features:
@@ -144,7 +145,7 @@ export function checkAccess(
 
   // Log to console in development
   if (process.env.NODE_ENV === 'development' && !allowed) {
-    console.warn('[RBAC] Access Denied:', log);
+    logger.warn('[RBAC] Access Denied:', log);
   }
 
   return allowed;

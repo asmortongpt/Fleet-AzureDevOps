@@ -15,6 +15,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useCallback, useRef, useEffect } from 'react'
 import { z } from 'zod'
+import logger from '@/utils/logger';
 
 // ============================================================================
 // CONFIGURATION
@@ -227,7 +228,7 @@ function calculateInspectionTrend(inspections: Inspection[]): InspectionTrendDat
 
       monthMap.set(monthKey, entry)
     } catch (error) {
-      console.warn('Invalid inspection date:', inspection.inspectionDate, error)
+      logger.warn('Invalid inspection date:', inspection.inspectionDate, error)
     }
   }
 
@@ -326,7 +327,7 @@ export function useReactiveComplianceData() {
           signal
         )
       } catch (error) {
-        console.warn('Compliance records API unavailable, using empty dataset:', error)
+        logger.warn('Compliance records API unavailable, using empty dataset:', error)
         // Return empty array for graceful degradation
         return []
       }
@@ -355,7 +356,7 @@ export function useReactiveComplianceData() {
           signal
         )
       } catch (error) {
-        console.warn('Inspections API unavailable, using empty dataset:', error)
+        logger.warn('Inspections API unavailable, using empty dataset:', error)
         return []
       }
     },

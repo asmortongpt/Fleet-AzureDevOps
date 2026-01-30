@@ -69,6 +69,25 @@ const VEHICLE_TEMPLATES = [
 ];
 
 // ============================================================================
+// ASSET TEMPLATES FOR HEAVY EQUIPMENT GENERATION
+// ============================================================================
+const ASSET_TEMPLATES = [
+  { type: 'excavator', make: 'Caterpillar', model: '320 GC', priceRange: [120000, 180000], category: 'heavy_equipment' },
+  { type: 'bulldozer', make: 'John Deere', model: '750K', priceRange: [150000, 220000], category: 'heavy_equipment' },
+  { type: 'backhoe', make: 'Case', model: '590 Super N', priceRange: [80000, 120000], category: 'heavy_equipment' },
+  { type: 'loader', make: 'Volvo', model: 'L60H', priceRange: [100000, 150000], category: 'heavy_equipment' },
+  { type: 'forklift', make: 'Toyota', model: '8FGU25', priceRange: [25000, 40000], category: 'material_handling' },
+  { type: 'pallet_jack', make: 'Crown', model: 'PE 4500', priceRange: [15000, 25000], category: 'material_handling' },
+  { type: 'welder', make: 'Miller', model: 'Bobcat 260', priceRange: [8000, 15000], category: 'tool' },
+  { type: 'generator', make: 'Generac', model: 'MDG100', priceRange: [12000, 22000], category: 'power' },
+  { type: 'air_compressor', make: 'Ingersoll Rand', model: '2475N7.5', priceRange: [3000, 6000], category: 'tool' },
+  { type: 'crane', make: 'Manitowoc', model: '16000', priceRange: [250000, 400000], category: 'heavy_equipment' },
+  { type: 'scissor_lift', make: 'Genie', model: 'GS-2632', priceRange: [15000, 25000], category: 'access' },
+  { type: 'boom_lift', make: 'JLG', model: '600S', priceRange: [55000, 85000], category: 'access' },
+  { type: 'trailer', make: 'Big Tex', model: '14GX', priceRange: [8000, 15000], category: 'transport' }
+];
+
+// ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
 function generatePhone(): string {
@@ -234,6 +253,33 @@ function generateVehicle(index: number) {
     sketchfabUrl: sketchfab?.url || null,
     sketchfabId: sketchfab?.id || null,
     model3dPath: sketchfab ? `/models/vehicles/${template.type}s/${template.make.toLowerCase()}_${template.model.toLowerCase().replace(/ /g, '_')}.glb` : null
+  };
+}
+
+function generateAsset(index: number) {
+  const template = faker.helpers.arrayElement(ASSET_TEMPLATES);
+  const year = faker.number.int({ min: 2015, max: 2024 });
+  const purchasePrice = faker.number.int({ min: template.priceRange[0], max: template.priceRange[1] });
+  const location = generateCoordNear(REGION.center, 3);
+
+  return {
+    assetNumber: `ASSET-${String(index + 1).padStart(4, '0')}`,
+    name: `${template.make} ${template.model}`,
+    type: template.type,
+    category: template.category,
+    make: template.make,
+    model: template.model,
+    year,
+    serialNumber: faker.string.alphanumeric(12).toUpperCase(),
+    status: faker.helpers.arrayElement(['active', 'active', 'active', 'idle', 'maintenance']),
+    purchasePrice,
+    currentValue: Math.round(purchasePrice * faker.number.float({ min: 0.5, max: 0.85 })),
+    location,
+    condition: faker.helpers.arrayElement(['excellent', 'good', 'good', 'fair']),
+    hoursUsed: template.category === 'heavy_equipment' ? faker.number.int({ min: 500, max: 5000 }) : null,
+    lastServiceDate: faker.date.recent({ days: 60 }),
+    nextServiceDate: faker.date.soon({ days: 60 }),
+    operatingCostPerHour: faker.number.float({ min: 25, max: 150, fractionDigits: 2 })
   };
 }
 
@@ -514,6 +560,7 @@ async function seedTallahasseeCompany() {
       mechanicUserIds: [],
       managerUserIds: [],
       vehicleIds: [],
+      assetIds: [],
       driverIds: [],
       facilityIds: [],
       vendorIds: [],
@@ -522,22 +569,23 @@ async function seedTallahasseeCompany() {
       model3dIds: {} as Record<string, string>  // Maps "make model" to id
     };
 
-    // Configuration for data generation
+    // Configuration for data generation (updated per requirements: 40 vehicles, 40 assets, 100 employees)
     const CONFIG = {
-      employees: { admins: 2, managers: 3, supervisors: 2, dispatchers: 3, mechanics: 3, drivers: 12, viewers: 2 },
-      facilities: 3,
-      vehicles: 15,
-      vendors: 8,
-      parts: 30,
-      workOrders: 50,
-      fuelTransactions: 200,
-      routes: 25,
-      inspections: 150,
+      employees: { admins: 5, managers: 8, supervisors: 10, dispatchers: 12, mechanics: 15, drivers: 40, viewers: 10 },
+      facilities: 5,
+      vehicles: 40,
+      assets: 40,
+      vendors: 15,
+      parts: 60,
+      workOrders: 100,
+      fuelTransactions: 400,
+      routes: 50,
+      inspections: 300,
       gpsTracksPerVehicle: 100,
-      geofences: 8,
-      incidents: 15,
-      chargingStations: 4,
-      chargingSessions: 40
+      geofences: 15,
+      incidents: 30,
+      chargingStations: 8,
+      chargingSessions: 80
     };
 
     // ========================================================================
@@ -749,9 +797,37 @@ async function seedTallahasseeCompany() {
     console.log(`   Created ${CONFIG.vehicles} vehicles with Sketchfab 3D model references\n`);
 
     // ========================================================================
-    // 6. CREATE VENDORS
+    // 6. CREATE ASSETS (HEAVY EQUIPMENT & TOOLS)
     // ========================================================================
-    console.log('7. Creating vendors...');
+    console.log('7. Creating assets...');
+    for (let i = 0; i < CONFIG.assets; i++) {
+      const asset = generateAsset(i);
+
+      const result = await client.query(`
+        INSERT INTO assets (tenant_id, asset_number, name, type, category, make, model, year, serial_number, status, purchase_date, purchase_price, current_value, latitude, longitude, location_address, assigned_facility_id, condition, last_service_date, next_service_date, operating_cost_per_hour, metadata, is_active)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+        RETURNING id
+      `, [
+        ids.tenantId, asset.assetNumber, asset.name, asset.type, asset.category, asset.make, asset.model,
+        asset.year, asset.serialNumber, asset.status,
+        faker.date.past({ years: 5 }),
+        asset.purchasePrice, asset.currentValue,
+        asset.location.lat, asset.location.lng,
+        `${generateAddress()}, ${REGION.city}, ${REGION.state}`,
+        faker.helpers.arrayElement(ids.facilityIds),
+        asset.condition,
+        asset.lastServiceDate, asset.nextServiceDate, asset.operatingCostPerHour,
+        JSON.stringify({ hoursUsed: asset.hoursUsed }),
+        true
+      ]);
+      ids.assetIds.push(result.rows[0].id);
+    }
+    console.log(`   Created ${CONFIG.assets} assets (heavy equipment, tools, generators, etc.)\n`);
+
+    // ========================================================================
+    // 7. CREATE VENDORS
+    // ========================================================================
+    console.log('8. Creating vendors...');
     const vendorTypes = ['parts', 'fuel', 'service', 'insurance', 'parts', 'service', 'parts', 'fuel'];
 
     for (let i = 0; i < CONFIG.vendors; i++) {
@@ -1014,10 +1090,11 @@ async function seedTallahasseeCompany() {
     console.log('Data Generated:');
     console.log(`  - 1 Tenant`);
     console.log(`  - ${Object.keys(ids.model3dIds).length} 3D Vehicle Models (from Sketchfab)`);
-    console.log(`  - ${roles.length} Users`);
+    console.log(`  - ${roles.length} Users (100 total: admins, managers, supervisors, dispatchers, mechanics, drivers, viewers)`);
     console.log(`  - ${CONFIG.facilities} Facilities`);
     console.log(`  - ${driverUsers.length} Drivers`);
     console.log(`  - ${CONFIG.vehicles} Vehicles (linked to 3D models)`);
+    console.log(`  - ${CONFIG.assets} Assets (heavy equipment, tools, generators, welders, forklifts, cranes, etc.)`);
     console.log(`  - ${CONFIG.vendors} Vendors`);
     console.log(`  - ${CONFIG.parts} Parts`);
     console.log(`  - ${CONFIG.workOrders} Work Orders`);
@@ -1029,7 +1106,8 @@ async function seedTallahasseeCompany() {
     console.log(`  - ${CONFIG.incidents} Incidents`);
     console.log(`  - ${CONFIG.chargingStations} Charging Stations`);
     console.log(`  - ${CONFIG.chargingSessions} Charging Sessions`);
-    console.log('\nAll data dynamically generated - no hardcoded values!\n');
+    console.log('\nAll data dynamically generated - no hardcoded values!');
+    console.log('Requirements Met: 40 vehicles, 40 assets, 100 employees\n');
 
   } catch (error) {
     console.error('Error seeding database:', error);

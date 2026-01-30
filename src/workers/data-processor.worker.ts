@@ -1,4 +1,5 @@
 /**
+import logger from '@/utils/logger';
  * Data Processor Web Worker
  *
  * Handles CPU-intensive operations off the main thread:
@@ -592,4 +593,4 @@ function calculateSavings(
 // WORKER READY
 // ============================================================================
 
-console.log('[Worker] Data processor worker initialized');
+logger.info('[Worker] Data processor worker initialized');

@@ -1,4 +1,5 @@
 import { getSession } from 'next-auth/react';
+import logger from '@/utils/logger';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
@@ -78,12 +79,12 @@ class ApiClient {
           sessionStorage.setItem(CSRF_TOKEN_KEY, csrfToken);
         }
 
-        console.log('[API] CSRF token initialized');
+        logger.info('[API] CSRF token initialized');
       } else {
-        console.warn('[API] Failed to initialize CSRF token');
+        logger.warn('[API] Failed to initialize CSRF token');
       }
     } catch (error) {
-      console.error('[API] Error initializing CSRF token:', error);
+      logger.error('[API] Error initializing CSRF token:', error);
     }
   }
 
@@ -139,7 +140,7 @@ class ApiClient {
           [CSRF_HEADER_NAME]: token,
         };
       } else {
-        console.warn('[API] CSRF token not available for state-changing request');
+        logger.warn('[API] CSRF token not available for state-changing request');
       }
     }
 
@@ -176,7 +177,7 @@ class ApiClient {
 
     // Log request for debugging (only in development)
     if (process.env.NODE_ENV === 'development') {
-      console.log(`[API] ${method} ${url}`);
+      logger.info(`[API] ${method} ${url}`);
     }
 
     let lastError: Error | null = null;
@@ -188,7 +189,7 @@ class ApiClient {
         if (attempt > 0) {
           await delay(attempt - 1);
           if (process.env.NODE_ENV === 'development') {
-            console.log(`[API] Retry attempt ${attempt} for ${url}`);
+            logger.info(`[API] Retry attempt ${attempt} for ${url}`);
           }
         }
 

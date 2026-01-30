@@ -4,6 +4,7 @@
  */
 
 import type { Policy } from '../policy-engine/types'
+import logger from '@/utils/logger';
 
 export interface AIGenerationRequest {
   type: 'policy' | 'sop' | 'training' | 'workflow'
@@ -118,7 +119,7 @@ export async function generatePolicyWithAI(
       ruleEngineConfig
     }
   } catch (error) {
-    console.error('AI policy generation error:', error)
+    logger.error('AI policy generation error:', error)
     throw error
   }
 }
@@ -367,7 +368,7 @@ function parseAIResponse(response: string, type: string): any {
 
     return JSON.parse(jsonString)
   } catch (error) {
-    console.error('Error parsing AI response:', error)
+    logger.error('Error parsing AI response:', error)
     // Return basic structure if parsing fails
     return {
       metadata: { title: 'Generated ' + type, version: '1.0' },
@@ -483,7 +484,7 @@ export async function batchGeneratePolicies(
       const result = await generatePolicyWithAI(request)
       results.push(result)
     } catch (error) {
-      console.error(`Failed to generate ${request.category}:`, error)
+      logger.error(`Failed to generate ${request.category}:`, error)
       // Continue with other requests
     }
   }

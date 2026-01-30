@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 
 import { ApiError } from '@/lib/api';
+import logger from '@/utils/logger';
 
 /**
  * State interface for mutation operations
@@ -53,7 +54,7 @@ interface UseMutationOptions<TData, TVariables> {
  *   (data) => api.post('/api/incidents', data),
  *   {
  *     onSuccess: (incident) => {
- *       console.log('Incident created:', incident.id);
+ *       logger.info('Incident created:', incident.id);
  *       refetchIncidents();
  *     },
  *     onError: (error) => {

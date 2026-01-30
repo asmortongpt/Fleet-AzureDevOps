@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 
 import { ErrorFallback } from '@/components/ErrorFallback';
+import logger from '@/utils/logger';
 
 /**
  * Error boundary for the incidents route
@@ -19,7 +20,7 @@ export default function IncidentsError({
 }) {
   useEffect(() => {
     // Log the error to an error reporting service
-    console.error('Incidents route error:', error);
+    logger.error('Incidents route error:', error);
   }, [error]);
 
   return (

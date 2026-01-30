@@ -40,6 +40,7 @@ import {
 } from '@/components/ui/select'
 import { useVehicleScheduleWithUtils } from '@/hooks/useVehicleSchedule'
 import { toast } from 'react-hot-toast'
+import logger from '@/utils/logger';
 
 interface VehicleReservationProps {
   vehicleId?: string
@@ -104,7 +105,7 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
 
     // TODO: Submit reservation to API
     toast.success('Reservation request submitted! Pending approval.')
-    console.log('Creating reservation:', {
+    logger.info('Creating reservation:', {
       vehicleId: selectedVehicle,
       driverId,
       startDate: start.toISOString(),

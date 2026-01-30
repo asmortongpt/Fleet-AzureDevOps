@@ -22,6 +22,7 @@
 import { useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
 import { useMemo, useCallback, useRef, useEffect } from 'react'
 import { z } from 'zod'
+import logger from '@/utils/logger';
 
 // ============================================================================
 // CONFIGURATION CONSTANTS
@@ -263,7 +264,7 @@ async function secureFetch<T>(
     return validatedData
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error('Schema validation error:', error.errors)
+      logger.error('Schema validation error:', error.errors)
       throw new ValidationError('Invalid API response format', error)
     }
     throw error
@@ -366,7 +367,7 @@ export function useReactiveMaintenanceData() {
           signal
         )
       } catch (error) {
-        console.warn('Work orders API unavailable, returning empty array:', error)
+        logger.warn('Work orders API unavailable, returning empty array:', error)
         return []
       }
     },
@@ -398,7 +399,7 @@ export function useReactiveMaintenanceData() {
           signal
         )
       } catch (error) {
-        console.warn('Maintenance requests API unavailable, returning empty array:', error)
+        logger.warn('Maintenance requests API unavailable, returning empty array:', error)
         return []
       }
     },
@@ -429,7 +430,7 @@ export function useReactiveMaintenanceData() {
           signal
         )
       } catch (error) {
-        console.warn('Predictions API unavailable, returning empty array:', error)
+        logger.warn('Predictions API unavailable, returning empty array:', error)
         return []
       }
     },

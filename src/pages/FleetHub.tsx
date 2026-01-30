@@ -36,6 +36,7 @@ import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useAuth } from '@/contexts/AuthContext'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import logger from '@/utils/logger';
 
 // ============================================================================
 // LAZY-LOADED COMPONENTS
@@ -276,7 +277,7 @@ const FleetOverview = memo(() => {
 
   // Alert click handlers - memoized
   const handleVehicleClick = useCallback((vehicle: AlertVehicle) => {
-    console.log('Vehicle clicked:', vehicle)
+    logger.info('Vehicle clicked:', vehicle)
     // Navigate to vehicle detail panel using drilldown
     pushDrilldown({
       id: `vehicle-${vehicle.id}`,

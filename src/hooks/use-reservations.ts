@@ -9,6 +9,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api-client'
 import { microsoft365Service } from '@/services/microsoft365Service'
 import { toast } from 'react-hot-toast'
+import logger from '@/utils/logger';
 
 export interface Reservation {
   id: string
@@ -144,7 +145,7 @@ export function useCreateReservation() {
       //     endDateTime: reservation.end_date,
       //   })
       // } catch (error) {
-      //   console.error('Failed to create calendar event:', error)
+      //   logger.error('Failed to create calendar event:', error)
       // }
 
       toast.success('Reservation created successfully!')
@@ -214,7 +215,7 @@ export function useApproveReservation() {
       //     )
       //   }
       // } catch (error) {
-      //   console.error('Failed to send confirmation:', error)
+      //   logger.error('Failed to send confirmation:', error)
       // }
 
       toast.success('Reservation approved!')
@@ -274,7 +275,7 @@ export function useCancelReservation() {
       //     await microsoft365Service.deleteCalendarEvent(reservation.outlook_event_id)
       //   }
       // } catch (error) {
-      //   console.error('Failed to delete calendar event:', error)
+      //   logger.error('Failed to delete calendar event:', error)
       // }
 
       toast.success('Reservation cancelled')

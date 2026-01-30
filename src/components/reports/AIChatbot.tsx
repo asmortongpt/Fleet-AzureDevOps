@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
+import logger from '@/utils/logger';
 
 interface Message {
   id: string;
@@ -100,7 +101,7 @@ export function AIChatbot() {
 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (err) {
-      console.error('Chat error:', err);
+      logger.error('Chat error:', err);
 
       // Mock response for demo
       const mockResponse: Message = {

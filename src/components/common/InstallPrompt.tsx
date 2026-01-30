@@ -14,6 +14,7 @@ import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import logger from '@/utils/logger';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -83,7 +84,7 @@ export function InstallPrompt({
 
     // Check if already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
-      console.log('[InstallPrompt] App is already installed');
+      logger.info('[InstallPrompt] App is already installed');
       return;
     }
 
@@ -92,7 +93,7 @@ export function InstallPrompt({
     if (dismissedTimestamp) {
       const timeSinceDismissal = Date.now() - parseInt(dismissedTimestamp, 10);
       if (timeSinceDismissal < DISMISS_DURATION) {
-        console.log('[InstallPrompt] Prompt recently dismissed, not showing');
+        logger.info('[InstallPrompt] Prompt recently dismissed, not showing');
         return;
       }
     }
@@ -102,14 +103,14 @@ export function InstallPrompt({
       e.preventDefault();
       const event = e as BeforeInstallPromptEvent;
 
-      console.log('[InstallPrompt] beforeinstallprompt event captured');
+      logger.info('[InstallPrompt] beforeinstallprompt event captured');
       setDeferredPrompt(event);
 
       // Show prompt after delay
       const timer = setTimeout(() => {
         const wasDismissed = localStorage.getItem(STORAGE_KEY) === 'true';
         if (!wasDismissed) {
-          console.log('[InstallPrompt] Showing install prompt');
+          logger.info('[InstallPrompt] Showing install prompt');
           setShowPrompt(true);
         }
       }, delay);
@@ -119,7 +120,7 @@ export function InstallPrompt({
 
     // Listen for app installed event
     const handleAppInstalled = () => {
-      console.log('[InstallPrompt] App was installed');
+      logger.info('[InstallPrompt] App was installed');
       setShowPrompt(false);
       setDeferredPrompt(null);
 
@@ -145,7 +146,7 @@ export function InstallPrompt({
    */
   const handleInstall = async () => {
     if (!deferredPrompt) {
-      console.warn('[InstallPrompt] No deferred prompt available');
+      logger.warn('[InstallPrompt] No deferred prompt available');
       return;
     }
 
@@ -158,17 +159,17 @@ export function InstallPrompt({
       // Wait for the user to respond
       const { outcome } = await deferredPrompt.userChoice;
 
-      console.log('[InstallPrompt] User choice:', outcome);
+      logger.info('[InstallPrompt] User choice:', outcome);
 
       if (outcome === 'accepted') {
-        console.log('[InstallPrompt] User accepted the install');
+        logger.info('[InstallPrompt] User accepted the install');
         trackInstallation('accepted');
 
         if (onInstall) {
           onInstall();
         }
       } else {
-        console.log('[InstallPrompt] User dismissed the install');
+        logger.info('[InstallPrompt] User dismissed the install');
         trackInstallation('dismissed');
       }
 
@@ -176,7 +177,7 @@ export function InstallPrompt({
       setDeferredPrompt(null);
       setShowPrompt(false);
     } catch (error) {
-      console.error('[InstallPrompt] Install prompt failed:', error);
+      logger.error('[InstallPrompt] Install prompt failed:', error);
       trackInstallation('error');
     } finally {
       setIsInstalling(false);
@@ -187,7 +188,7 @@ export function InstallPrompt({
    * Handle dismiss button click
    */
   const handleDismiss = () => {
-    console.log('[InstallPrompt] User dismissed the prompt');
+    logger.info('[InstallPrompt] User dismissed the prompt');
 
     setShowPrompt(false);
     localStorage.setItem(STORAGE_KEY, 'true');
@@ -224,7 +225,7 @@ export function InstallPrompt({
         userAgent: navigator.userAgent,
       }),
     }).catch((error) => {
-      console.error('[InstallPrompt] Failed to track installation:', error);
+      logger.error('[InstallPrompt] Failed to track installation:', error);
     });
   };
 

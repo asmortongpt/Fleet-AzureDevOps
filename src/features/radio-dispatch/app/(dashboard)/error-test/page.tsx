@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import logger from '@/utils/logger';
 
 /**
  * Error Boundary Test Page
@@ -81,7 +82,7 @@ export default function ErrorTestPage() {
                   setTimeout(() => reject(new Error('Async error')), 1000)
                 );
               } catch (error) {
-                console.error('Async error caught:', error);
+                logger.error('Async error caught:', error);
                 alert('Async error caught! Check console.');
               }
             }}
@@ -102,7 +103,7 @@ export default function ErrorTestPage() {
               try {
                 throw new Error('Event handler error');
               } catch (error) {
-                console.error('Event error caught:', error);
+                logger.error('Event error caught:', error);
                 alert('Event handler error caught! Check console.');
               }
             }}

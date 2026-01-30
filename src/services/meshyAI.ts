@@ -14,6 +14,7 @@
  */
 
 import { openDB, IDBPDatabase } from 'idb'
+import logger from '@/utils/logger';
 
 // =============================================================================
 // TYPES
@@ -115,10 +116,10 @@ async function getCachedModel(cacheKey: string): Promise<string | null> {
     cached.lastAccessedAt = Date.now()
     await database.put(CACHE_STORE_NAME, cached)
 
-    console.log(`[Meshy] Cache HIT: ${cacheKey}`)
+    logger.info(`[Meshy] Cache HIT: ${cacheKey}`)
     return cached.url
   } catch (error) {
-    console.error('[Meshy] Cache read error:', error)
+    logger.error('[Meshy] Cache read error:', error)
     return null
   }
 }
@@ -138,15 +139,15 @@ async function cacheModel(cacheKey: string, model: CachedModel): Promise<void> {
       for (const old of sorted) {
         await database.delete(CACHE_STORE_NAME, old.cacheKey)
         freedSpace += old.size || 0
-        console.log(`[Meshy] Evicted cache entry: ${old.cacheKey}`)
+        logger.info(`[Meshy] Evicted cache entry: ${old.cacheKey}`)
         if (freedSpace >= model.size) break
       }
     }
 
     await database.put(CACHE_STORE_NAME, { ...model, cacheKey })
-    console.log(`[Meshy] Cached model: ${cacheKey}`)
+    logger.info(`[Meshy] Cached model: ${cacheKey}`)
   } catch (error) {
-    console.error('[Meshy] Cache write error:', error)
+    logger.error('[Meshy] Cache write error:', error)
   }
 }
 
@@ -243,8 +244,8 @@ export async function generateVehicleModel(
 
   const negativePrompt = 'low quality, blurry, distorted, deformed, cartoon, unrealistic, flat colors, bad topology'
 
-  console.log(`[Meshy] Generating: ${cacheKey}`)
-  console.log(`[Meshy] Prompt: ${prompt}`)
+  logger.info(`[Meshy] Generating: ${cacheKey}`)
+  logger.info(`[Meshy] Prompt: ${prompt}`)
 
   try {
     // Create generation task
@@ -258,12 +259,12 @@ export async function generateVehicleModel(
       target_polycount: 100000,  // High quality
     })
 
-    console.log(`[Meshy] Task created: ${taskId}`)
+    logger.info(`[Meshy] Task created: ${taskId}`)
 
     // Poll for completion
     const modelUrl = await pollForCompletion(taskId, onProgress)
 
-    console.log(`[Meshy] Generation complete: ${modelUrl}`)
+    logger.info(`[Meshy] Generation complete: ${modelUrl}`)
 
     // Cache the result
     await cacheModel(cacheKey, {
@@ -277,7 +278,7 @@ export async function generateVehicleModel(
 
     return modelUrl
   } catch (error) {
-    console.error('[Meshy] Generation error:', error)
+    logger.error('[Meshy] Generation error:', error)
     throw error
   }
 }
@@ -300,13 +301,13 @@ export async function preloadCommonModels(
         vehicle.year,
         vehicle.color,
         (progress) => {
-          console.log(`[Meshy] Preload ${vehicle.make} ${vehicle.model}: ${progress}%`)
+          logger.info(`[Meshy] Preload ${vehicle.make} ${vehicle.model}: ${progress}%`)
         }
       )
       completed++
       if (onProgress) onProgress(completed, total)
     } catch (error) {
-      console.error(`[Meshy] Preload failed: ${vehicle.make} ${vehicle.model}`, error)
+      logger.error(`[Meshy] Preload failed: ${vehicle.make} ${vehicle.model}`, error)
       completed++
       if (onProgress) onProgress(completed, total)
     }
@@ -333,10 +334,10 @@ export async function cleanCache(): Promise<number> {
       }
     }
 
-    console.log(`[Meshy] Cleaned ${removed} expired cache entries`)
+    logger.info(`[Meshy] Cleaned ${removed} expired cache entries`)
     return removed
   } catch (error) {
-    console.error('[Meshy] Cache clean error:', error)
+    logger.error('[Meshy] Cache clean error:', error)
     return 0
   }
 }
@@ -361,7 +362,7 @@ export async function getCacheStats(): Promise<{
       newestEntry: Math.max(...allModels.map(m => m.createdAt)),
     }
   } catch (error) {
-    console.error('[Meshy] Cache stats error:', error)
+    logger.error('[Meshy] Cache stats error:', error)
     return {
       entries: 0,
       totalSize: 0,

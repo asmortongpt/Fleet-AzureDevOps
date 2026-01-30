@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 
 import { geotabService } from '../services/GeotabService';
 import { samsaraService } from '../services/SamsaraService';
+import logger from '@/utils/logger';
 
 export const TelematicsHub: React.FC = () => {
   const [vehicles, setVehicles] = useState<any[]>([]);
@@ -51,7 +52,7 @@ export const TelematicsHub: React.FC = () => {
         })));
       }
     } catch (error) {
-      console.error('Failed to load telematics data:', error);
+      logger.error('Failed to load telematics data:', error);
     } finally {
       setLoading(false);
     }
