@@ -157,7 +157,17 @@ export function FleetOverviewDrilldown() {
 // Active Vehicles Drilldown
 export function ActiveVehiclesDrilldown() {
     const { push } = useDrilldown()
-    const vehicles = [].filter(v => v.status === 'active')
+    // Type the empty array to avoid 'never' type inference
+    const vehicles = ([] as Array<{
+        id: string;
+        status: string;
+        number: string;
+        name: string;
+        driver?: string;
+        location: { address: string };
+        fuelLevel: number;
+        mileage: number;
+    }>).filter(v => v.status === 'active')
 
     return (
         <div className="space-y-2">

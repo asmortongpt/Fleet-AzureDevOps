@@ -93,6 +93,7 @@ import lidarRouter from './routes/lidar.routes'
 
 // External Integrations Routes
 import outlookRouter from './routes/outlook.routes'
+import reservationsRouter from './routes/reservations'
 
 // Emulator & Testing Routes
 // import emulatorRouter from './routes/emulator.routes'
@@ -326,6 +327,7 @@ app.use('/api/vendors', vendorsRouter)
 app.use('/api/invoices', invoicesRouter)
 app.use('/api/purchase-orders', purchaseOrdersRouter)
 app.use('/api/tasks', tasksRouter)
+app.use('/api/reservations', reservationsRouter)
 
 // Asset Management Routes
 app.use('/api/assets', assetManagementRouter)
