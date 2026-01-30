@@ -19,7 +19,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { MapPin, Plus, MagnifyingGlass, Lightning, Briefcase, CheckCircle, Warning, Spinner } from '@phosphor-icons/react';
+import { MapPin, Plus, Search, Zap, Briefcase, CheckCircle, AlertTriangle, Spinner } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { useQuery } from '@tanstack/react-query';
@@ -184,7 +184,7 @@ export function RoutesOperations() {
 
       toast.success('Route optimized successfully!', {
         duration: 3000,
-        icon: <Lightning className="w-5 h-5" weight="bold" />,
+        icon: <Zap className="w-5 h-5" />,
       });
 
       // Refetch routes to get updated data
@@ -221,7 +221,7 @@ export function RoutesOperations() {
         <div className="flex items-start justify-between gap-3">
           {/* Route Icon */}
           <div className="w-12 h-12 flex-shrink-0 rounded-lg bg-gradient-to-br from-violet-400/20 to-pink-500/20 flex items-center justify-center border border-violet-400/30">
-            <MapPin className="w-6 h-6 text-violet-400" weight="bold" />
+            <MapPin className="w-6 h-6 text-violet-400" />
           </div>
 
           {/* Route Info */}
@@ -361,7 +361,7 @@ export function RoutesOperations() {
             size="sm"
             className="bg-violet-500 hover:bg-violet-400 text-white w-full"
           >
-            <Lightning className="w-4 h-4" weight="bold" />
+            <Zap className="w-4 h-4" />
             <span className="ml-2">Optimize Route</span>
           </Button>
         </div>
@@ -411,9 +411,9 @@ export function RoutesOperations() {
       {/* Search Bar */}
       <div className="p-4 border-b border-slate-700/50">
         <div className="relative">
-          <MagnifyingGlass
+          <Search
             className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
-            weight="bold"
+           
           />
           <Input
             value={searchQuery}
@@ -435,7 +435,7 @@ export function RoutesOperations() {
 
         {error && (
           <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-            <Warning className="w-8 h-8 text-red-400 mb-2" />
+            <AlertTriangle className="w-8 h-8 text-red-400 mb-2" />
             <p className="text-sm text-red-400 mb-2">Failed to load routes</p>
             <Button
               onClick={() => refetch()}
@@ -483,7 +483,7 @@ export function RoutesOperations() {
             size="sm"
             className="bg-violet-500 hover:bg-violet-400 text-white"
           >
-            <Plus className="w-4 h-4" weight="bold" />
+            <Plus className="w-4 h-4" />
             <span className="ml-2">New Route</span>
           </Button>
         ),

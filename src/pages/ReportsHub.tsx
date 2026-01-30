@@ -16,20 +16,7 @@
 
 import { motion } from 'framer-motion'
 import { Suspense, memo, useCallback, useMemo } from 'react'
-import {
-  ChartBar,
-  FileText,
-  Clock,
-  FolderOpen,
-  Lightning,
-  Download,
-  Calendar,
-  TrendUp,
-  Users,
-  PlayCircle,
-  Plus,
-  Warning,
-} from '@phosphor-icons/react'
+import { BarChart, FileText, Clock, FolderOpen, Zap, Download, Calendar, TrendingUp, Users, PlayCircle, Plus, AlertTriangle } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveReportsData } from '@/hooks/use-reactive-reports-data'
 import {
@@ -236,7 +223,7 @@ const OverviewTab = memo(() => {
           <StatCard
             title="Generated Today"
             value={metrics?.generatedToday?.toString() || '0'}
-            icon={TrendUp}
+            icon={TrendingUp}
             trend="up"
             description="Reports created"
             loading={isLoading}
@@ -245,7 +232,7 @@ const OverviewTab = memo(() => {
           <StatCard
             title="Popular Templates"
             value={popularTemplates?.length?.toString() || '0'}
-            icon={ChartBar}
+            icon={BarChart}
             trend="neutral"
             description="Most used"
             loading={isLoading}
@@ -321,7 +308,7 @@ const OverviewTab = memo(() => {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <TrendUp className="h-5 w-5 text-green-500" aria-hidden="true" />
+                <TrendingUp className="h-5 w-5 text-green-500" aria-hidden="true" />
                 <CardTitle>Popular Templates</CardTitle>
               </div>
               <CardDescription>Most frequently generated reports</CardDescription>
@@ -353,7 +340,7 @@ const OverviewTab = memo(() => {
                 </ul>
               ) : (
                 <EmptyState
-                  icon={TrendUp}
+                  icon={TrendingUp}
                   message="No usage data available"
                 />
               )}
@@ -481,7 +468,7 @@ const TemplatesTab = memo(() => {
           <StatCard
             title="Categories"
             value={Object.keys(domainDistribution).length.toString()}
-            icon={ChartBar}
+            icon={BarChart}
             trend="neutral"
             description="Unique domains"
             loading={isLoading}
@@ -489,7 +476,7 @@ const TemplatesTab = memo(() => {
           <StatCard
             title="Most Popular"
             value={templates.length > 0 ? truncate(templates[0]?.title || 'N/A', 15) : 'N/A'}
-            icon={TrendUp}
+            icon={TrendingUp}
             trend="up"
             description="Top template"
             loading={isLoading}
@@ -647,7 +634,7 @@ const ScheduledTab = memo(() => {
           <StatCard
             title="Next Run"
             value={upcomingScheduled.length > 0 ? 'In 2h' : 'N/A'}
-            icon={Lightning}
+            icon={Zap}
             trend="neutral"
             description="Upcoming execution"
             loading={isLoading}
@@ -817,7 +804,7 @@ const HistoryTab = memo(() => {
           <StatCard
             title="Generated Today"
             value={metrics?.generatedToday?.toString() || '0'}
-            icon={TrendUp}
+            icon={TrendingUp}
             trend="up"
             change={`+${metrics?.generatedToday || 0}`}
             description="Today's reports"
@@ -826,7 +813,7 @@ const HistoryTab = memo(() => {
           <StatCard
             title="Failed Today"
             value={metrics?.failedToday?.toString() || '0'}
-            icon={Warning}
+            icon={AlertTriangle}
             trend={metrics && metrics.failedToday > 0 ? 'down' : 'neutral'}
             description="Generation errors"
             loading={isLoading}
@@ -834,7 +821,7 @@ const HistoryTab = memo(() => {
           <StatCard
             title="Average Daily"
             value={Math.round((metrics?.totalGenerated || 0) / 30).toString()}
-            icon={ChartBar}
+            icon={BarChart}
             trend="up"
             description="Last 30 days"
             loading={isLoading}
@@ -873,7 +860,7 @@ const HistoryTab = memo(() => {
         <Card className="border-destructive" role="alert" aria-live="assertive">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Warning className="h-5 w-5 text-destructive" aria-hidden="true" />
+              <AlertTriangle className="h-5 w-5 text-destructive" aria-hidden="true" />
               <CardTitle className="text-destructive">Failed Reports</CardTitle>
             </div>
             <CardDescription>Reports that failed to generate today</CardDescription>
@@ -990,7 +977,7 @@ export default function ReportsHub() {
     {
       id: 'overview',
       label: 'Overview',
-      icon: <ChartBar className="h-4 w-4" />,
+      icon: <BarChart className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <OverviewTab />
@@ -1039,7 +1026,7 @@ export default function ReportsHub() {
     <HubPage
       title="Reports Hub"
       description="Comprehensive report generation and analytics"
-      icon={<ChartBar className="h-8 w-8" />}
+      icon={<BarChart className="h-8 w-8" />}
       tabs={tabs}
       defaultTab="overview"
     />

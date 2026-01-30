@@ -16,25 +16,7 @@
 
 import { memo, useMemo, Suspense, lazy, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import {
-  Gear as AdminIcon,
-  Users,
-  ChartLine,
-  Shield,
-  Warning,
-  CheckCircle,
-  Database,
-  CloudArrowUp,
-  Lock,
-  ClipboardText,
-  IdentificationCard,
-  GearSix,
-  UserCircle,
-  Pulse as Activity,
-  Clock,
-  XCircle,
-  Key,
-} from '@phosphor-icons/react'
+import { Settings as AdminIcon, Users, LineChart, Shield, AlertTriangle, CheckCircle, Database, UploadCloud, Lock, Clipboard, BadgeCheck, SearSix, UserCircle2, Activity as Activity, Clock, XCircle, Key, Sliders } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveAdminData } from '@/hooks/use-reactive-admin-data'
 import type {
@@ -57,6 +39,7 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { UserManagement } from '@/components/admin/UserManagement'
+import { ConfigurationContent } from '@/components/admin/ConfigurationContent'
 
 // ============================================================================
 // CONSTANTS
@@ -179,7 +162,7 @@ const SessionItem = memo<SessionItemProps>(({ session, index }) => (
     role="listitem"
   >
     <div className="flex items-center gap-3">
-      <UserCircle className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
+      <UserCircle2 className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
       <div>
         <p className="font-medium">{session.userName}</p>
         <p className="text-xs text-muted-foreground" aria-label={`IP Address: ${session.ipAddress}`}>
@@ -218,7 +201,7 @@ const UserItem = memo<UserItemProps>(({ user, index }) => {
       role="listitem"
     >
       <div className="flex items-center gap-3 flex-1">
-        <IdentificationCard className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
+        <IdCard className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
         <div>
           <p className="font-medium">{user.name}</p>
           <p className="text-sm text-muted-foreground">{user.email}</p>
@@ -388,7 +371,7 @@ const AdminOverview = memo(() => {
           <StatCard
             title="API Calls Today"
             value={systemMetrics ? `${(systemMetrics.apiCalls / 1000).toFixed(1)}K` : '0'}
-            icon={CloudArrowUp}
+            icon={CloudUpload}
             trend="up"
             change="+12%"
             description="API requests"
@@ -424,7 +407,7 @@ const AdminOverview = memo(() => {
           <ResourceCard
             title="CPU Usage"
             description="Current processor utilization"
-            icon={ChartLine}
+            icon={LineChart}
             iconColor="text-blue-500"
             usage={systemMetrics?.cpuUsage || 0}
             threshold={THRESHOLD_CPU_WARNING}
@@ -792,7 +775,7 @@ const AuditContent = memo(() => {
           <StatCard
             title="Total Logs"
             value={metrics?.totalAuditLogs?.toString() || '0'}
-            icon={ClipboardText}
+            icon={Clipboard}
             trend="up"
             description="All audit entries"
             loading={isLoading}
@@ -853,7 +836,7 @@ const AuditContent = memo(() => {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <ClipboardText className="h-5 w-5 text-blue-500" aria-hidden="true" />
+                <Clipboard className="h-5 w-5 text-blue-500" aria-hidden="true" />
                 <CardTitle>Recent Activity</CardTitle>
               </div>
               <CardDescription>Latest audit log entries</CardDescription>
@@ -880,7 +863,7 @@ const AuditContent = memo(() => {
                 </motion.div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground" role="status">
-                  <ClipboardText className="h-12 w-12 mx-auto mb-2" aria-hidden="true" />
+                  <Clipboard className="h-12 w-12 mx-auto mb-2" aria-hidden="true" />
                   <p>No audit logs available</p>
                 </div>
               )}
@@ -892,7 +875,7 @@ const AuditContent = memo(() => {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <Warning className="h-5 w-5 text-red-500" aria-hidden="true" />
+                  <AlertTriangle className="h-5 w-5 text-red-500" aria-hidden="true" />
                   <CardTitle>Failed Actions</CardTitle>
                 </div>
                 <CardDescription>Unsuccessful operations requiring attention</CardDescription>
@@ -931,7 +914,7 @@ export default function AdminHub() {
       {
         id: 'overview',
         label: 'Overview',
-        icon: <ChartLine className="h-4 w-4" aria-hidden="true" />,
+        icon: <LineChart className="h-4 w-4" aria-hidden="true" />,
         content: (
           <ErrorBoundary>
             <Suspense fallback={<div className="p-6" role="status" aria-live="polite">Loading overview...</div>}>
@@ -953,6 +936,18 @@ export default function AdminHub() {
         ),
       },
       {
+        id: 'configuration',
+        label: 'Configuration',
+        icon: <Sliders className="h-4 w-4" aria-hidden="true" />,
+        content: (
+          <ErrorBoundary>
+            <Suspense fallback={<div className="p-6" role="status" aria-live="polite">Loading configuration...</div>}>
+              <ConfigurationContent />
+            </Suspense>
+          </ErrorBoundary>
+        ),
+      },
+      {
         id: 'settings',
         label: 'Settings',
         icon: <GearSix className="h-4 w-4" aria-hidden="true" />,
@@ -967,7 +962,7 @@ export default function AdminHub() {
       {
         id: 'audit',
         label: 'Audit',
-        icon: <ClipboardText className="h-4 w-4" aria-hidden="true" />,
+        icon: <Clipboard className="h-4 w-4" aria-hidden="true" />,
         content: (
           <ErrorBoundary>
             <Suspense fallback={<div className="p-6" role="status" aria-live="polite">Loading audit logs...</div>}>

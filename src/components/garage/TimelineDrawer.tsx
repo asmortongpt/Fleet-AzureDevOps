@@ -11,20 +11,7 @@
  * Created: 2025-11-24
  */
 
-import {
-  Clock,
-  Wrench,
-  Warning,
-  CheckCircle,
-  Camera,
-  CaretRight,
-  CaretDown,
-  Car,
-  GasPump,
-  ShieldCheck,
-  X,
-  CaretDoubleRight
-} from '@phosphor-icons/react'
+import { Clock, Wrench, AlertTriangle, CheckCircle, Camera, ChevronRight, ChevronDown, Car, Fuel, ShieldCheck, X, CaretDoubleRight } from 'lucide-react'
 import { format, formatDistanceToNow } from 'date-fns'
 import React, { useState } from 'react'
 
@@ -65,11 +52,11 @@ interface TimelineDrawerProps {
 // Event type colors and icons
 const EVENT_CONFIG: Record<EventType, { icon: any; color: string; bgColor: string }> = {
   maintenance: { icon: Wrench, color: 'text-blue-400', bgColor: 'bg-blue-950/50' },
-  damage: { icon: Warning, color: 'text-red-400', bgColor: 'bg-red-950/50' },
+  damage: { icon: AlertTriangle, color: 'text-red-400', bgColor: 'bg-red-950/50' },
   inspection: { icon: ShieldCheck, color: 'text-green-400', bgColor: 'bg-green-950/50' },
-  service: { icon: GasPump, color: 'text-amber-400', bgColor: 'bg-amber-950/50' },
+  service: { icon: Fuel, color: 'text-amber-400', bgColor: 'bg-amber-950/50' },
   milestone: { icon: CheckCircle, color: 'text-purple-400', bgColor: 'bg-purple-950/50' },
-  recall: { icon: Warning, color: 'text-orange-400', bgColor: 'bg-orange-950/50' }
+  recall: { icon: AlertTriangle, color: 'text-orange-400', bgColor: 'bg-orange-950/50' }
 }
 
 // Timeline Event Component
@@ -147,9 +134,9 @@ function TimelineEventCard({
               }}
             >
               {isExpanded ? (
-                <CaretDown className="w-4 h-4" />
+                <ChevronDown className="w-4 h-4" />
               ) : (
-                <CaretRight className="w-4 h-4" />
+                <ChevronRight className="w-4 h-4" />
               )}
             </Button>
           </div>

@@ -1,12 +1,29 @@
+/**
+ * AdminDashboard - Legacy MUI-based Administration Dashboard
+ *
+ * @deprecated This component has been consolidated into the modern AdminHub.
+ * Use /admin route instead.
+ *
+ * Migrated features:
+ * - User Management → AdminHub Users tab
+ * - System Monitoring → AdminHub Overview tab
+ * - Security & Compliance → AdminHub Audit tab
+ * - System Configuration → AdminHub Settings tab
+ *
+ * Migration date: 2026-01-29
+ * New location: src/pages/AdminHub.tsx (modern HubPage architecture)
+ */
+
 import { Dashboard, Security, Settings, People, Analytics, ArrowBack } from '@mui/icons-material';
 import { Container, Box, Typography, Alert, Button, Tabs, Tab, Paper, IconButton } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import MonitoringDashboard from '../components/admin/MonitoringDashboard';
-import { UserManagement } from '../components/admin/UserManagement';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
-import { useAuth } from '../hooks/useAuth';
+// Imports disabled - component deprecated and moved to AdminHub
+// import MonitoringDashboard from '../components/admin/MonitoringDashboard';
+// import { UserManagement } from '../components/admin/UserManagement';
+// import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+// import { useAuth } from '../hooks/useAuth';
 import { logger } from '@/utils/logger';
 
 interface TabPanelProps {
@@ -40,10 +57,12 @@ function a11yProps(index: number) {
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
-  const [currentTab, setCurrentTab] = useState(0);
-  const [hasAccess, setHasAccess] = useState(false);
-  const [loading, setLoading] = useState(true);
+
+  // Redirect to AdminHub
+  React.useEffect(() => {
+    logger.info('AdminDashboard is deprecated, redirecting to AdminHub');
+    navigate('/admin', { replace: true });
+  }, [navigate]);
 
   // Check if user has admin access
   useEffect(() => {

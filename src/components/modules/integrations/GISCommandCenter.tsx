@@ -1,12 +1,12 @@
 import {
-  Buildings,
+  Building2,
   Circle,
   CheckCircle,
-  Warning,
-  GasPump,
+  AlertTriangle,
+  Fuel,
   Wrench,
-  CarProfile
-} from "@phosphor-icons/react"
+  Car
+} from "lucide-react"
 import { useMemo, useState } from "react"
 
 import { MetricCard } from "@/components/MetricCard"
@@ -81,11 +81,11 @@ export function GISCommandCenter() {
   const _getStatusIcon = (status: Vehicle["status"]) => {
     switch (status) {
       case "active":
-        return <CheckCircle className="w-4 h-4" weight="fill" />
+        return <CheckCircle className="w-4 h-4" />
       case "emergency":
-        return <Warning className="w-4 h-4" weight="fill" />
+        return <AlertTriangle className="w-4 h-4" />
       default:
-        return <Circle className="w-4 h-4" weight="fill" />
+        return <Circle className="w-4 h-4" />
     }
   }
 
@@ -104,13 +104,13 @@ export function GISCommandCenter() {
   const getFacilityIcon = (type: "office" | "depot" | "service-center" | "fueling-station") => {
     switch (type) {
       case "office":
-        return <Buildings className="w-3 h-3" />
+        return <Building2 className="w-3 h-3" />
       case "depot":
-        return <CarProfile className="w-3 h-3" />
+        return <Car className="w-3 h-3" />
       case "service-center":
         return <Wrench className="w-3 h-3" />
       case "fueling-station":
-        return <GasPump className="w-3 h-3" />
+        return <Fuel className="w-3 h-3" />
       default:
         const _exhaustive: never = type
         return _exhaustive
@@ -164,7 +164,7 @@ export function GISCommandCenter() {
           title="Total Vehicles"
           value={metrics.totalVehicles}
           subtitle="in region"
-          icon={<CarProfile className="w-3 h-3" />}
+          icon={<Car className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
@@ -178,14 +178,14 @@ export function GISCommandCenter() {
           title="Facilities"
           value={metrics.facilities}
           subtitle="operational"
-          icon={<Buildings className="w-3 h-3" />}
+          icon={<Building2 className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
           title="Emergency"
           value={metrics.emergency}
           subtitle="urgent response"
-          icon={<Warning className="w-3 h-3" />}
+          icon={<AlertTriangle className="w-3 h-3" />}
           status="warning"
         />
         <MetricCard
@@ -256,15 +256,15 @@ export function GISCommandCenter() {
             <div className="mt-2 flex items-center justify-between p-3 border rounded-lg">
               <div className="flex gap-2">
                 <div className="flex items-center gap-2">
-                  <Circle className="w-3 h-3 text-success" weight="fill" />
+                  <Circle className="w-3 h-3 text-success" />
                   <span className="text-sm">Active ({metrics.active})</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Circle className="w-3 h-3 text-muted-foreground" weight="fill" />
+                  <Circle className="w-3 h-3 text-muted-foreground" />
                   <span className="text-sm">Idle ({filteredVehicles.filter(v => v.status === "idle").length})</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Circle className="w-3 h-3 text-destructive" weight="fill" />
+                  <Circle className="w-3 h-3 text-destructive" />
                   <span className="text-sm">Emergency ({metrics.emergency})</span>
                 </div>
               </div>

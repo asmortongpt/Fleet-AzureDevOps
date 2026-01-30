@@ -2,7 +2,7 @@ import {
   Car,
   MapPin,
   Circle,
-  Zap as Lightning,
+  Zap as Zap,
   Wrench,
   BatteryMedium as Battery,
   AlertTriangle
@@ -113,7 +113,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
       bgColor: 'bg-gray-50'
     },
     {
-      icon: <Lightning className="w-4 h-4" />,
+      icon: <Zap className="w-4 h-4" />,
       label: 'Charging',
       count: statusMetrics.charging,
       color: 'bg-blue-500',

@@ -18,20 +18,7 @@
 
 import { memo, useCallback, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import {
-  Package,
-  Storefront,
-  ShoppingCart,
-  FileText,
-  ChartBar,
-  Warning,
-  TrendUp,
-  CurrencyDollar,
-  CalendarBlank,
-  CheckCircle,
-  Clock,
-  Truck,
-} from '@phosphor-icons/react'
+import { Package, Store, ShoppingCart, FileText, BarChart, AlertTriangle, TrendingUp, DollarSign, Calendar, CheckCircle, Clock, Truck } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveProcurementData } from '@/hooks/use-reactive-procurement-data'
 import {
@@ -219,7 +206,7 @@ const ProcurementOverview = memo(() => {
           <StatCard
             title="Active Vendors"
             value={metrics?.activeVendors?.toString() || '0'}
-            icon={Storefront}
+            icon={Store}
             trend="up"
             change="+5%"
             description="Qualified suppliers"
@@ -238,7 +225,7 @@ const ProcurementOverview = memo(() => {
           <StatCard
             title="Total Spend (YTD)"
             value={formatCurrency(metrics?.totalSpend || 0)}
-            icon={CurrencyDollar}
+            icon={DollarSign}
             trend="up"
             description="Year to date"
             loading={isLoading}
@@ -278,7 +265,7 @@ const ProcurementOverview = memo(() => {
         <Card className={budgetAlerts ? 'border-amber-500' : ''}>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <CurrencyDollar className="h-5 w-5 text-emerald-500" aria-hidden="true" />
+              <DollarSign className="h-5 w-5 text-emerald-500" aria-hidden="true" />
               <CardTitle>Budget Status</CardTitle>
             </div>
             <CardDescription>Monthly budget tracking and alerts</CardDescription>
@@ -314,7 +301,7 @@ const ProcurementOverview = memo(() => {
                 </div>
                 {budgetAlerts && (
                   <div className="flex items-center gap-2 text-amber-600 text-sm" role="alert">
-                    <Warning className="h-4 w-4" aria-hidden="true" />
+                    <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                     <p>Budget usage exceeds 75% - Review spending carefully</p>
                   </div>
                 )}
@@ -357,7 +344,7 @@ const PendingApprovalsCard = memo<{
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <Warning className="h-5 w-5 text-amber-500" aria-hidden="true" />
+          <AlertTriangle className="h-5 w-5 text-amber-500" aria-hidden="true" />
           <CardTitle>Pending Approvals</CardTitle>
         </div>
         <CardDescription>Purchase orders awaiting approval</CardDescription>
@@ -421,7 +408,7 @@ const TopVendorsCard = memo<{
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <TrendUp className="h-5 w-5 text-cyan-500" aria-hidden="true" />
+          <TrendingUp className="h-5 w-5 text-cyan-500" aria-hidden="true" />
           <CardTitle>Top Vendors by Spend</CardTitle>
         </div>
         <CardDescription>Highest spending vendors this period</CardDescription>
@@ -538,7 +525,7 @@ const PurchaseOrdersContent = memo(() => {
           <StatCard
             title="Avg Order Value"
             value={formatCurrency(metrics?.avgOrderValue || 0)}
-            icon={CurrencyDollar}
+            icon={DollarSign}
             trend="neutral"
             description="Per PO"
             loading={isLoading}
@@ -587,7 +574,7 @@ const OverdueOrdersCard = memo<{
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <Warning className="h-5 w-5 text-red-500" aria-hidden="true" />
+          <AlertTriangle className="h-5 w-5 text-red-500" aria-hidden="true" />
           <CardTitle>Overdue Deliveries</CardTitle>
         </div>
         <CardDescription>Orders past expected delivery date</CardDescription>
@@ -755,7 +742,7 @@ const VendorsContent = memo(() => {
           <StatCard
             title="Total Vendors"
             value={vendors.length.toString()}
-            icon={Storefront}
+            icon={Store}
             trend="neutral"
             description="All vendors"
             loading={isLoading}
@@ -779,7 +766,7 @@ const VendorsContent = memo(() => {
           <StatCard
             title="Expiring Contracts"
             value={expiringContracts.length.toString()}
-            icon={CalendarBlank}
+            icon={Calendar}
             trend={expiringContracts.length > 0 ? 'down' : 'neutral'}
             description="Within 30 days"
             loading={isLoading}
@@ -828,7 +815,7 @@ const ExpiringContractsCard = memo<{
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <CalendarBlank className="h-5 w-5 text-amber-500" aria-hidden="true" />
+          <Calendar className="h-5 w-5 text-amber-500" aria-hidden="true" />
           <CardTitle>Expiring Contracts</CardTitle>
         </div>
         <CardDescription>Contracts expiring within 30 days</CardDescription>
@@ -901,7 +888,7 @@ const TopPerformingVendorsCard = memo<{
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <TrendUp className="h-5 w-5 text-emerald-500" aria-hidden="true" />
+          <TrendingUp className="h-5 w-5 text-emerald-500" aria-hidden="true" />
           <CardTitle>Top Performing Vendors</CardTitle>
         </div>
         <CardDescription>Highest rated vendors by performance</CardDescription>
@@ -1009,7 +996,7 @@ const AnalyticsContent = memo(() => {
           <StatCard
             title="Monthly Spend"
             value={formatCurrency(metrics?.monthlySpend || 0)}
-            icon={CurrencyDollar}
+            icon={DollarSign}
             trend="up"
             change="+8%"
             description="This month"
@@ -1026,7 +1013,7 @@ const AnalyticsContent = memo(() => {
           <StatCard
             title="Budget Usage"
             value={`${budgetPercentage}%`}
-            icon={ChartBar}
+            icon={BarChart}
             trend={Number(budgetPercentage) > 75 ? 'down' : 'up'}
             description="Of monthly budget"
             loading={isLoading}
@@ -1121,7 +1108,7 @@ const ProcurementHub = memo(() => {
       {
         id: 'overview',
         label: 'Overview',
-        icon: <ChartBar className="h-4 w-4" />,
+        icon: <BarChart className="h-4 w-4" />,
         content: (
           <ErrorBoundary>
             <ProcurementOverview />
@@ -1141,7 +1128,7 @@ const ProcurementHub = memo(() => {
       {
         id: 'vendors',
         label: 'Vendors',
-        icon: <Storefront className="h-4 w-4" />,
+        icon: <Store className="h-4 w-4" />,
         content: (
           <ErrorBoundary>
             <VendorsContent />
@@ -1151,7 +1138,7 @@ const ProcurementHub = memo(() => {
       {
         id: 'analytics',
         label: 'Analytics',
-        icon: <TrendUp className="h-4 w-4" />,
+        icon: <TrendingUp className="h-4 w-4" />,
         content: (
           <ErrorBoundary>
             <AnalyticsContent />

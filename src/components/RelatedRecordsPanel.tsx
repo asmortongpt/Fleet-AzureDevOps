@@ -13,11 +13,7 @@
  * Created: 2025-11-23
  */
 
-import {
-  Car, User, Wrench, GasPump, Package, FileText,
-  ArrowRight, CaretRight, Link as LinkIcon, Stack,
-  Warning, Clock, CurrencyDollar, MapPin, Truck
-} from '@phosphor-icons/react'
+import { Car, User, Wrench, Fuel, Package, FileText, ArrowRight, ChevronRight, Link as LinkIcon, Stack, AlertTriangle, Clock, DollarSign, MapPin, Truck } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import React, { useMemo } from 'react'
 
@@ -69,12 +65,12 @@ const SECTION_CONFIGS: SectionConfig[] = [
   { type: 'driver', key: 'drivers', label: 'Drivers', icon: User, color: 'text-green-500', badgeVariant: 'secondary' },
   { type: 'work-order', key: 'workOrders', label: 'Work Orders', icon: Wrench, color: 'text-orange-500', badgeVariant: 'outline' },
   { type: 'maintenance', key: 'maintenanceRecords', label: 'Maintenance', icon: Clock, color: 'text-purple-500', badgeVariant: 'secondary' },
-  { type: 'fuel', key: 'fuelTransactions', label: 'Fuel', icon: GasPump, color: 'text-amber-500', badgeVariant: 'outline' },
+  { type: 'fuel', key: 'fuelTransactions', label: 'Fuel', icon: Fuel, color: 'text-amber-500', badgeVariant: 'outline' },
   { type: 'part', key: 'parts', label: 'Parts', icon: Package, color: 'text-cyan-500', badgeVariant: 'secondary' },
   { type: 'vendor', key: 'vendors', label: 'Vendors', icon: Truck, color: 'text-indigo-500', badgeVariant: 'outline' },
-  { type: 'invoice', key: 'invoices', label: 'Invoices', icon: CurrencyDollar, color: 'text-emerald-500', badgeVariant: 'default' },
+  { type: 'invoice', key: 'invoices', label: 'Invoices', icon: DollarSign, color: 'text-emerald-500', badgeVariant: 'default' },
   { type: 'asset', key: 'assets', label: 'Assets', icon: Stack, color: 'text-slate-500', badgeVariant: 'secondary' },
-  { type: 'alert', key: 'alerts', label: 'Alerts', icon: Warning, color: 'text-red-500', badgeVariant: 'destructive' },
+  { type: 'alert', key: 'alerts', label: 'Alerts', icon: AlertTriangle, color: 'text-red-500', badgeVariant: 'destructive' },
   { type: 'document', key: 'documents', label: 'Documents', icon: FileText, color: 'text-gray-500', badgeVariant: 'outline' },
   { type: 'facility', key: 'facilities', label: 'Facilities', icon: MapPin, color: 'text-teal-500', badgeVariant: 'secondary' }
 ]
@@ -123,7 +119,7 @@ function RelatedRecordItem({ reference, config, compact, onNavigate }: RelatedRe
         )}
       </div>
 
-      <CaretRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+      <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
     </motion.div>
   )
 }

@@ -1,6 +1,6 @@
 import {
   Security,
-  Warning,
+  AlertTriangle,
   CheckCircle,
   ReportProblem,
   Assignment,
@@ -441,7 +441,7 @@ const SafetyComplianceSystem: React.FC = () => {
       <Paper sx={{ width: '100%', mb: 2 }}>
         <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)}>
           <Tab icon={<Assessment />} label="Dashboard" />
-          <Tab icon={<Warning />} label="Incidents" />
+          <Tab icon={<AlertTriangle />} label="Incidents" />
           <Tab icon={<School />} label="Training" />
           <Tab icon={<Assignment />} label="Inspections" />
           <Tab icon={<Gavel />} label="Compliance" />
@@ -500,7 +500,7 @@ const SafetyComplianceSystem: React.FC = () => {
                       {metrics.injuryIncidents} with injuries
                     </Typography>
                   </Box>
-                  <Warning color="warning" sx={{ fontSize: 40 }} />
+                  <AlertTriangle color="warning" sx={{ fontSize: 40 }} />
                 </Box>
               </CardContent>
             </Card>
@@ -1159,7 +1159,7 @@ const SafetyComplianceSystem: React.FC = () => {
                   <ListItem>
                     <ListItemIcon>
                       <Avatar sx={{ bgcolor: 'warning: main' }}>
-                        <Warning />
+                        <AlertTriangle />
                       </Avatar>
                     </ListItemIcon>
                     <ListItemText

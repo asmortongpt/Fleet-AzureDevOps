@@ -1,12 +1,12 @@
 import { 
-  GasPump, 
-  CurrencyDollar,
+  Fuel, 
+  DollarSign,
   Gauge,
-  TrendUp,
+  TrendingUp,
   CreditCard,
   MapPin,
   Plus
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useMemo , useState } from "react"
 
 import { ChartCard } from "@/components/ChartCard"
@@ -89,7 +89,7 @@ export function FuelManagement() {
           change={8.3}
           trend="up"
           subtitle="last 90 days"
-          icon={<CurrencyDollar className="w-3 h-3" />}
+          icon={<DollarSign className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
@@ -98,7 +98,7 @@ export function FuelManagement() {
           change={5.1}
           trend="up"
           subtitle="consumed"
-          icon={<GasPump className="w-3 h-3" />}
+          icon={<Fuel className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
@@ -107,7 +107,7 @@ export function FuelManagement() {
           change={2.4}
           trend="down"
           subtitle="trending down"
-          icon={<TrendUp className="w-3 h-3" />}
+          icon={<TrendingUp className="w-3 h-3" />}
           status="success"
         />
         <MetricCard
@@ -282,7 +282,7 @@ export function FuelManagement() {
               <div className="space-y-2">
                 <div className="p-2 border rounded-lg bg-success/5">
                   <h3 className="font-semibold mb-2 flex items-center gap-2">
-                    <TrendUp className="w-4 h-4 text-success" />
+                    <TrendingUp className="w-4 h-4 text-success" />
                     Route Optimization Potential
                   </h3>
                   <p className="text-sm text-muted-foreground">

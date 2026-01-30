@@ -1,11 +1,11 @@
 import {
     Wrench,
-    TrendUp,
-    Warning,
+    TrendingUp,
+    AlertTriangle,
     CheckCircle,
-    Lightning,
+    Zap,
     Clock
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useMemo } from "react"
 
 import { Badge } from "@/components/ui/badge"
@@ -83,7 +83,7 @@ export function PredictiveMaintenanceWidget() {
                 <div className="flex items-center justify-between">
                     <div>
                         <CardTitle className="flex items-center gap-2 text-sm">
-                            <Lightning className="h-5 w-5 text-amber-500" weight="fill" />
+                            <Zap className="h-5 w-5 text-amber-500" />
                             Predictive Maintenance
                         </CardTitle>
                         <CardDescription>AI-driven failure prediction</CardDescription>
@@ -117,9 +117,9 @@ export function PredictiveMaintenanceWidget() {
                                 <div key={risk.vehicleId} className="flex items-center justify-between p-2 rounded-md hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-800">
                                     <div className="flex items-center gap-3">
                                         {risk.riskLevel === 'critical' ? (
-                                            <Warning className="text-red-500 h-4 w-4" weight="fill" />
+                                            <AlertTriangle className="text-red-500 h-4 w-4" />
                                         ) : risk.riskLevel === 'high' ? (
-                                            <Warning className="text-orange-500 h-4 w-4" weight="bold" />
+                                            <AlertTriangle className="text-orange-500 h-4 w-4" />
                                         ) : (
                                             <Wrench className="text-blue-800 h-4 w-4" />
                                         )}

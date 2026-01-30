@@ -15,26 +15,7 @@
  * - Data Retention policies
  */
 
-import {
-  Database,
-  ChartBar,
-  FlowArrow,
-  BookOpen,
-  ShieldCheck,
-  Clock,
-  Warning as WarningIcon,
-  CheckCircle,
-  Eye,
-  Lock,
-  Users,
-  Table,
-  MagnifyingGlass,
-  Download,
-  Upload,
-  Pencil,
-  Trash,
-  Info
-} from '@phosphor-icons/react'
+import { Database, BarChart, Workflow, BookOpen, ShieldCheck, Clock, AlertTriangle as WarningIcon, CheckCircle, Eye, Lock, Users, Table, Search, Download, Upload, Pencil, Trash2, Info } from 'lucide-react'
 import { useState } from 'react'
 
 import { HubPage, HubTab } from '@/components/ui/hub-page'
@@ -320,7 +301,7 @@ function MasterDataContent() {
           <h3 className="text-sm font-semibold text-slate-900 dark:text-white capitalize">{selectedDomain} Master Data</h3>
           <div className="flex items-center gap-3">
             <div className="relative">
-              <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search master data..."
@@ -431,7 +412,7 @@ function MasterDataRow({
             <Pencil className="w-4 h-4" />
           </button>
           <button className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors">
-            <Trash className="w-4 h-4" />
+            <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </td>
@@ -1000,7 +981,7 @@ function DataCatalogContent() {
           <p className="text-slate-600 dark:text-slate-400 mt-1">Searchable inventory of all data assets with metadata</p>
         </div>
         <div className="relative">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
           <input
             type="text"
             placeholder="Search data catalog..."
@@ -1125,13 +1106,13 @@ export default function DataGovernanceHub() {
     {
       id: 'data-quality',
       label: 'Data Quality',
-      icon: <ChartBar className="w-3 h-3" />,
+      icon: <BarChart className="w-3 h-3" />,
       content: <DataQualityContent />
     },
     {
       id: 'lineage',
       label: 'Data Lineage',
-      icon: <FlowArrow className="w-3 h-3" />,
+      icon: <Workflow className="w-3 h-3" />,
       content: <DataLineageContent />
     },
     {
@@ -1149,7 +1130,7 @@ export default function DataGovernanceHub() {
     {
       id: 'catalog',
       label: 'Data Catalog',
-      icon: <MagnifyingGlass className="w-3 h-3" />,
+      icon: <Search className="w-3 h-3" />,
       content: <DataCatalogContent />
     }
   ]

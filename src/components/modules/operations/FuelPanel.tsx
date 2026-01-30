@@ -1,10 +1,10 @@
 import {
-    GasPump,
-    TrendUp,
-    CurrencyDollar,
+    Fuel,
+    TrendingUp,
+    DollarSign,
     Drop,
     MapPin
-} from "@phosphor-icons/react";
+} from "lucide-react";
 import React from "react";
 
 import {
@@ -50,7 +50,7 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                 <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
                     <div className="flex items-center justify-between">
                         <SheetTitle className="text-base font-semibold flex items-center gap-2 text-white">
-                            <GasPump className="w-4 h-4 text-emerald-400" weight="fill" />
+                            <Fuel className="w-4 h-4 text-emerald-400" />
                             Fuel Intelligence
                         </SheetTitle>
                     </div>
@@ -64,13 +64,13 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                     <div className="grid grid-cols-2 gap-2 p-2">
                         <div className="bg-card p-2 rounded-md border shadow-sm">
                             <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium uppercase tracking-wider mb-2">
-                                <CurrencyDollar className="w-4 h-4" /> Total Spend
+                                <DollarSign className="w-4 h-4" /> Total Spend
                             </div>
                             <div className="text-sm font-bold font-mono">
                                 ${totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                             </div>
                             <div className="text-xs text-green-500 flex items-center mt-1">
-                                <TrendUp className="w-3 h-3 mr-1" /> +2.4% vs last week
+                                <TrendingUp className="w-3 h-3 mr-1" /> +2.4% vs last week
                             </div>
                         </div>
 
@@ -95,7 +95,7 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                                 <div key={tx.id} className={`p-3 flex items-center justify-between border-b last:border-0 hover:bg-muted/50 transition-colors`}>
                                     <div className="flex items-center gap-3">
                                         <div className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center text-green-700">
-                                            <GasPump className="w-4 h-4" />
+                                            <Fuel className="w-4 h-4" />
                                         </div>
                                         <div>
                                             <div className="font-semibold text-sm">{tx.vehicleNumber}</div>
@@ -121,7 +121,7 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                     <div className="p-2">
                         <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
                             <h4 className="font-semibold text-blue-800 text-sm mb-1 flex items-center gap-2">
-                                <TrendUp className="w-4 h-4" /> Optimization Insight
+                                <TrendingUp className="w-4 h-4" /> Optimization Insight
                             </h4>
                             <p className="text-xs text-blue-800">
                                 Average fuel price at "Shell Station 42" is $0.15 higher than regional average. Consider redirecting units to "Chevron West".

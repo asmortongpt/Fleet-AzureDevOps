@@ -1,6 +1,6 @@
 import {
-  TrendingUp as TrendingUpIcon,
-  TrendingDown as TrendingDownIcon,
+  TrendUp as TrendUpIcon,
+  TrendDown as TrendDownIcon,
   Assessment as AssessmentIcon,
   PsychologyAlt as AIIcon,
   Speed as SpeedIcon,
@@ -178,8 +178,8 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'UP': return <TrendingUpIcon color="success" />;
-      case 'DOWN': return <TrendingDownIcon color="error" />;
+      case 'UP': return <TrendUpIcon color="success" />;
+      case 'DOWN': return <TrendDownIcon color="error" />;
       default: return <SpeedIcon color="info" />;
     }
   };
@@ -471,8 +471,8 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                           />
                         </Box>
                       </Box>
-                      {insight.trend === 'IMPROVING' && <TrendingUpIcon color="success" />}
-                      {insight.trend === 'DECLINING' && <TrendingDownIcon color="error" />}
+                      {insight.trend === 'IMPROVING' && <TrendUpIcon color="success" />}
+                      {insight.trend === 'DECLINING' && <TrendDownIcon color="error" />}
                       {insight.trend === 'STABLE' && <SpeedIcon color="info" />}
                     </Box>
 

@@ -1,14 +1,4 @@
-import {
-  Link,
-  LinkBreak,
-  Clock,
-  Plus,
-  X,
-  Warning,
-  CheckCircle,
-  CalendarBlank,
-  User
-} from '@phosphor-icons/react'
+import { Link, LinkBreak, Clock, Plus, X, AlertTriangle, CheckCircle, CalendarBlank, User } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 
 import type {
@@ -246,7 +236,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       {/* Error Alert */}
       {error && (
         <div className="flex items-center gap-2 p-2 bg-red-50 border border-red-200 rounded-md text-red-700">
-          <Warning className="w-3 h-3 flex-shrink-0" />
+          <AlertTriangle className="w-3 h-3 flex-shrink-0" />
           <span>{error}</span>
           <button onClick={() => setError(null)} className="ml-auto">
             <X className="w-4 h-4" />

@@ -13,9 +13,9 @@
 
 import {
   Barcode,
-  TrendUp,
-  ChartLine
-} from "@phosphor-icons/react"
+  TrendingUp,
+  LineChart
+} from "lucide-react"
 import { GoogleMap, LoadScript, Marker, HeatmapLayer } from "@react-google-maps/api"
 import { useState, useMemo } from "react"
 
@@ -362,7 +362,7 @@ export function AssetsHub() {
           </div>
           <div className="flex gap-2">
             <Button variant="outline">
-              <ChartLine className="w-4 h-4 mr-2" />
+              <LineChart className="w-4 h-4 mr-2" />
               Analytics Report
             </Button>
             <Button>
@@ -387,7 +387,7 @@ export function AssetsHub() {
                 <div className="text-base font-bold">
                   ${(demoAssetMetrics.totalValue / 1000000).toFixed(2)}M
                 </div>
-                <TrendUp className="w-3 h-3 text-green-500" />
+                <TrendingUp className="w-3 h-3 text-green-500" />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 {demoAssetMetrics.totalAssets} total assets
@@ -423,7 +423,7 @@ export function AssetsHub() {
                 <div className="text-base font-bold text-green-500">
                   {demoAssetMetrics.roi}%
                 </div>
-                <TrendUp className="w-3 h-3 text-green-500" />
+                <TrendingUp className="w-3 h-3 text-green-500" />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 +2.4% from last quarter

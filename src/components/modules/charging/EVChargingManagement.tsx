@@ -1,12 +1,12 @@
 import {
   Plus,
-  MagnifyingGlass,
-  Lightning,
+  Search,
+  Zap,
   BatteryCharging,
-  CurrencyDollar,
+  DollarSign,
   CheckCircle,
   Leaf
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -513,7 +513,7 @@ export function EVChargingManagement() {
           <CardContent>
             <div className="text-sm font-bold">{totalStations}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Lightning className="w-3 h-3" />
+              <Zap className="w-3 h-3" />
               Registered
             </div>
           </CardContent>
@@ -577,7 +577,7 @@ export function EVChargingManagement() {
                 <div key={station.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <Lightning className="w-4 h-4 text-blue-800" />
+                      <Zap className="w-4 h-4 text-blue-800" />
                       <span className="font-medium">{station.name}</span>
                     </div>
                     <div className="text-sm text-muted-foreground mt-1">
@@ -630,7 +630,7 @@ export function EVChargingManagement() {
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CurrencyDollar className="w-3 h-3 text-green-600" />
+                  <DollarSign className="w-3 h-3 text-green-600" />
                   <span className="text-sm font-medium">Total Cost</span>
                 </div>
                 <span className="text-sm font-bold">${totalCost.toFixed(2)}</span>
@@ -655,7 +655,7 @@ export function EVChargingManagement() {
 
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search sessions..."
             value={searchTerm}

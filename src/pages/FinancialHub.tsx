@@ -5,21 +5,7 @@
 
 import { motion } from 'framer-motion'
 import { Suspense } from 'react'
-import {
-  CurrencyDollar as FinancialIcon,
-  Wallet,
-  Receipt,
-  ChartBar,
-  TrendUp,
-  TrendDown,
-  Warning,
-  CheckCircle,
-  Clock,
-  CreditCard,
-  Invoice,
-  Calendar,
-  Plus,
-} from '@phosphor-icons/react'
+import { DollarSign as FinancialIcon, Wallet, Receipt, BarChart, TrendingUp, TrendingDown, AlertTriangle, CheckCircle, Clock, CreditCard, FileText as Invoice, Calendar, Plus } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveFinancialData } from '@/hooks/use-reactive-financial-data'
 import {
@@ -108,7 +94,7 @@ function FinancialOverview() {
         <StatCard
           title="Budget Utilization"
           value={`${metrics?.budgetUtilization || 0}%`}
-          icon={ChartBar}
+          icon={BarChart}
           trend={metrics?.budgetUtilization > 90 ? 'up' : 'neutral'}
           description="Of total budget"
           loading={isLoading}
@@ -116,7 +102,7 @@ function FinancialOverview() {
         <StatCard
           title="Remaining Budget"
           value={`$${(metrics?.totalRemaining / 1000000 || 0).toFixed(2)}M`}
-          icon={TrendDown}
+          icon={TrendingDown}
           trend="down"
           description="Available funds"
           loading={isLoading}
@@ -151,7 +137,7 @@ function FinancialOverview() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Warning className="h-5 w-5 text-red-500" />
+                <AlertTriangle className="h-5 w-5 text-red-500" />
                 <CardTitle>Overdue Invoices</CardTitle>
               </div>
               <CardDescription>Invoices requiring immediate payment</CardDescription>
@@ -289,7 +275,7 @@ function BudgetContent() {
         <StatCard
           title="Utilization Rate"
           value={`${metrics?.budgetUtilization || 0}%`}
-          icon={ChartBar}
+          icon={BarChart}
           trend={metrics?.budgetUtilization > 90 ? 'up' : 'neutral'}
           description="Budget used"
           loading={isLoading}
@@ -297,7 +283,7 @@ function BudgetContent() {
         <StatCard
           title="Available Funds"
           value={`$${(metrics?.totalRemaining / 1000000 || 0).toFixed(2)}M`}
-          icon={TrendDown}
+          icon={TrendingDown}
           trend="down"
           description="Remaining budget"
           loading={isLoading}
@@ -341,9 +327,9 @@ function BudgetContent() {
                       <span className="font-medium">{variance.category}</span>
                       <div className="flex items-center gap-2">
                         {variance.status === 'under' ? (
-                          <TrendDown className="h-4 w-4 text-green-500" />
+                          <TrendingDown className="h-4 w-4 text-green-500" />
                         ) : (
-                          <TrendUp className="h-4 w-4 text-red-500" />
+                          <TrendingUp className="h-4 w-4 text-red-500" />
                         )}
                         <Badge
                           variant={variance.status === 'under' ? 'default' : 'destructive'}
@@ -488,7 +474,7 @@ function ExpensesContent() {
         <StatCard
           title="Total Expenses"
           value={`$${(metrics?.totalExpenses / 1000000 || 0).toFixed(2)}M`}
-          icon={ChartBar}
+          icon={BarChart}
           trend="neutral"
           description="Year to date"
           loading={isLoading}
@@ -505,7 +491,7 @@ function ExpensesContent() {
         <StatCard
           title="Avg Daily Spend"
           value={`$${Math.round((metrics?.monthlyExpenses || 0) / 30).toLocaleString()}`}
-          icon={TrendUp}
+          icon={TrendingUp}
           trend="neutral"
           description="Last 30 days"
           loading={isLoading}
@@ -725,7 +711,7 @@ function ReportsContent() {
 
                 <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <Warning className="h-5 w-5 text-red-600" />
+                    <AlertTriangle className="h-5 w-5 text-red-600" />
                     <span className="font-medium">Overdue</span>
                   </div>
                   <span className="font-bold">{metrics?.overdueInvoices || 0}</span>
@@ -834,7 +820,7 @@ export default function FinancialHub() {
     {
       id: 'reports',
       label: 'Reports',
-      icon: <ChartBar className="h-4 w-4" />,
+      icon: <BarChart className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <Suspense fallback={<div className="p-6">Loading report data...</div>}>

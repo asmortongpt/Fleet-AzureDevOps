@@ -3,7 +3,7 @@
  * Developer mode, API endpoint, feature flags, and debug settings
  */
 
-import { Code, Cpu, Flag, Bug, ChartBar, Warning } from '@phosphor-icons/react'
+import { Code, Cpu, Flag, Bug, BarChart, AlertTriangle } from 'lucide-react'
 import { useAtom } from 'jotai'
 
 import { Badge } from '@/components/ui/badge'
@@ -82,9 +82,9 @@ export function AdvancedSettings() {
 
   return (
     <div className="space-y-2">
-      {/* Warning Banner */}
+      {/* AlertTriangle Banner */}
       <div className="flex items-start gap-3 p-2 bg-warning/10 border border-warning/20 rounded-lg">
-        <Warning className="w-3 h-3 text-warning mt-0.5" />
+        <AlertTriangle className="w-3 h-3 text-warning mt-0.5" />
         <div className="flex-1 text-sm">
           <p className="font-medium">Advanced Settings</p>
           <p className="text-muted-foreground mt-1">
@@ -243,7 +243,7 @@ export function AdvancedSettings() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <ChartBar className="w-3 h-3" />
+              <BarChart className="w-3 h-3" />
               <CardTitle>Performance Metrics</CardTitle>
             </div>
             <CardDescription>Real-time application performance data</CardDescription>

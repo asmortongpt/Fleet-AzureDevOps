@@ -11,15 +11,7 @@
  * Created: 2025-11-24
  */
 
-import {
-  Warning,
-  Eye,
-  EyeSlash,
-  PushPin,
-  Plus,
-  CaretUp,
-  CaretDown
-} from '@phosphor-icons/react'
+import { AlertTriangle, Eye, EyeOff, PushPin, Plus, ChevronUp, ChevronDown } from 'lucide-react'
 import React, { useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -148,7 +140,7 @@ function DamagePinMarker({
             {damage.repaired ? (
               <span className="text-[10px] text-white font-bold">R</span>
             ) : (
-              <Warning className="w-3 h-3 text-white" />
+              <AlertTriangle className="w-3 h-3 text-white" />
             )}
           </button>
         </TooltipTrigger>
@@ -293,14 +285,14 @@ export function DamageStrip({
             onClick={onToggleExpand}
           >
             {isExpanded ? (
-              <CaretDown className="w-3 h-3" />
+              <ChevronDown className="w-3 h-3" />
             ) : (
-              <CaretUp className="w-3 h-3" />
+              <ChevronUp className="w-3 h-3" />
             )}
           </Button>
 
           <div className="flex items-center gap-2">
-            <Warning className="w-3 h-3 text-amber-400" />
+            <AlertTriangle className="w-3 h-3 text-amber-400" />
             <span className="font-medium text-white">Damage Inspector</span>
           </div>
 
@@ -327,7 +319,7 @@ export function DamageStrip({
             {showPins ? (
               <Eye className="w-4 h-4 mr-2" />
             ) : (
-              <EyeSlash className="w-4 h-4 mr-2" />
+              <EyeOff className="w-4 h-4 mr-2" />
             )}
             {showPins ? 'Hide' : 'Show'} Pins
           </Button>

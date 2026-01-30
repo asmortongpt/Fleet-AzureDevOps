@@ -3,7 +3,7 @@
  * Language, timezone, date/time format, and display preferences
  */
 
-import { Globe, Calendar, House } from '@phosphor-icons/react'
+import { Globe, Calendar, Home } from 'lucide-react'
 import { useAtom } from 'jotai'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -204,7 +204,7 @@ export function GeneralSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <House className="w-3 h-3" />
+            <Home className="w-3 h-3" />
             <CardTitle>Default Preferences</CardTitle>
           </div>
           <CardDescription>Set your default dashboard and display options</CardDescription>

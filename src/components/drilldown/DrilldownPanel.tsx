@@ -3,7 +3,7 @@
  * Provides consistent header, close button, back navigation, and keyboard handling
  */
 
-import { X, ArrowLeft } from '@phosphor-icons/react'
+import { X, ArrowLeft } from 'lucide-react'
 import React, { useEffect } from 'react'
 
 import { useDrilldown } from '@/contexts/DrilldownContext'
@@ -112,7 +112,7 @@ export function DrilldownPanel({
                 aria-label="Go back"
                 data-testid="back-button"
               >
-                <ArrowLeft className="w-3 h-3 text-slate-400" weight="bold" />
+                <ArrowLeft className="w-3 h-3 text-slate-400" />
               </button>
             )}
 
@@ -147,7 +147,7 @@ export function DrilldownPanel({
             className="shrink-0 p-2 hover:bg-slate-700 rounded-lg transition-colors"
             aria-label="Close panel"
           >
-            <X className="w-3 h-3 text-slate-400" weight="bold" />
+            <X className="w-3 h-3 text-slate-400" />
           </button>
         </div>
       </div>

@@ -1,30 +1,23 @@
 /**
  * ConfigurationHub - Modern System Configuration Dashboard
  * Real-time system settings, integrations, and security monitoring with responsive visualizations
+ *
+ * @deprecated This component has been consolidated into AdminHub as the "Configuration" tab.
+ * Use /admin?tab=configuration route instead.
+ *
+ * Migrated features:
+ * - System Performance Monitoring → AdminHub Configuration tab
+ * - Integration Health Status → AdminHub Configuration tab
+ * - Security Event Monitoring → AdminHub Configuration tab
+ * - Configuration Distribution → AdminHub Configuration tab
+ *
+ * Migration date: 2026-01-29
+ * New location: src/components/admin/ConfigurationContent.tsx
  */
 
 import { motion } from 'framer-motion'
 import { Suspense } from 'react'
-import {
-  Settings as ConfigIcon,
-  Database,
-  Cpu,
-  HardDrive,
-  Activity,
-  Plug,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Shield,
-  Lock,
-  Key,
-  Eye,
-  Server,
-  BarChart3,
-  TrendingUp,
-  RefreshCw,
-  Clock,
-} from '@phosphor-icons/react'
+import { Settings as ConfigIcon, Database, Cpu, HardDrive, Activity, Plug, CheckCircle, XCircle, AlertTriangle, Shield, Lock, Key, Eye, Server, BarChart3, TrendingUp, RefreshCw, Clock } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveConfigurationData } from '@/hooks/use-reactive-configuration-data'
 import {

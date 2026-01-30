@@ -99,12 +99,12 @@ export class StartupHealthCheckService {
       'personal_use_data',
       'communication_logs',
       'geofences',
-      'vehicle_telemetry',
+      'telemetry_data',
       'vehicles',
       'drivers',
       'users',
       'tenants',
-      'maintenance',
+      'maintenance_requests',
       'incidents',
       'alerts'
     ]

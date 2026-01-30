@@ -1,4 +1,4 @@
-import { TrendUp, TrendDown, Minus } from "@phosphor-icons/react"
+import { TrendingUp, TrendingDown, Minus } from "lucide-react"
 import { motion } from "framer-motion"
 
 import { cn } from "@/lib/utils"
@@ -31,9 +31,9 @@ export function CompactMetricCard({
   valueTestId
 }: CompactMetricCardProps) {
   const getTrendIcon = () => {
-    if (trend === "up") return <TrendUp className="w-3 h-3" weight="bold" />
-    if (trend === "down") return <TrendDown className="w-3 h-3" weight="bold" />
-    return <Minus className="w-3 h-3" weight="bold" />
+    if (trend === "up") return <TrendingUp className="w-3 h-3" />
+    if (trend === "down") return <TrendingDown className="w-3 h-3" />
+    return <Minus className="w-3 h-3" />
   }
 
   const getTrendColor = () => {

@@ -16,10 +16,10 @@
 import {
   Plus,
   CheckCircle,
-  Lightning,
-  Sparkle,
+  Zap,
+  Sparkles,
   Brain
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useState, useEffect, useMemo } from "react"
 import { toast } from "sonner"
 
@@ -386,7 +386,7 @@ export function EnhancedTaskManagement() {
                   variant="outline"
                   onClick={() => setIsNLPDialogOpen(true)}
                 >
-                  <Sparkle className="w-4 h-4 mr-2" />
+                  <Sparkles className="w-4 h-4 mr-2" />
                   AI Create
                 </Button>
               </TooltipTrigger>
@@ -436,7 +436,7 @@ export function EnhancedTaskManagement() {
                   <Card className="bg-blue-50 border-blue-200">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm flex items-center gap-2">
-                        <Lightning className="w-4 h-4" />
+                        <Zap className="w-4 h-4" />
                         AI Recommendations
                       </CardTitle>
                     </CardHeader>

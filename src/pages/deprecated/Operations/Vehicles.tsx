@@ -11,21 +11,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Car,
-  Plus,
-  MagnifyingGlass,
-  Funnel,
-  Gauge,
-  Drop,
-  CheckCircle,
-  Trash,
-  PencilSimple,
-  X,
-  FuelPump,
-  Wrench,
-  Clock
-} from '@phosphor-icons/react';
+import { Car, Plus, Search, Filter, Gauge, Drop, CheckCircle, Trash2, PencilSimple, X, FuelPump, Wrench, Clock } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 import { SplitView } from '@/components/operations/SplitView';
@@ -268,7 +254,7 @@ export function VehiclesOperations() {
           {/* Mileage */}
           <div className="col-span-2">
             <div className="flex items-center gap-2 text-slate-300">
-              <Gauge className="w-4 h-4 text-cyan-400" weight="bold" />
+              <Gauge className="w-4 h-4 text-cyan-400" />
               <span className="font-mono">{(vehicle.mileage || 0).toLocaleString()} mi</span>
             </div>
             <p className="text-xs text-slate-400 mt-1">Current Mileage</p>
@@ -277,7 +263,7 @@ export function VehiclesOperations() {
           {/* Fuel Level */}
           <div className="col-span-2">
             <div className="flex items-center gap-2 text-slate-300">
-              <Drop className="w-4 h-4 text-blue-400" weight="bold" />
+              <Drop className="w-4 h-4 text-blue-400" />
               <span className="font-mono">{vehicle.fuelLevel || 0}%</span>
             </div>
             <p className="text-xs text-slate-400 mt-1">Fuel Level</p>
@@ -497,14 +483,14 @@ export function VehiclesOperations() {
               <div className="grid grid-cols-2 gap-4 pt-3 border-t border-slate-700/50">
                 <div>
                   <span className="text-slate-400 text-xs flex items-center gap-1">
-                    <Gauge className="w-3 h-3" weight="bold" />
+                    <Gauge className="w-3 h-3" />
                     Mileage
                   </span>
                   <p className="text-white font-mono font-semibold mt-1">{(selectedVehicle.mileage || 0).toLocaleString()} mi</p>
                 </div>
                 <div>
                   <span className="text-slate-400 text-xs flex items-center gap-1">
-                    <FuelPump className="w-3 h-3" weight="bold" />
+                    <FuelPump className="w-3 h-3" />
                     Fuel Type
                   </span>
                   <p className="text-white font-semibold mt-1">{selectedVehicle.fuelType || 'N/A'}</p>
@@ -514,7 +500,7 @@ export function VehiclesOperations() {
               {/* Fuel Level */}
               <div>
                 <span className="text-slate-400 text-xs flex items-center gap-1">
-                  <Drop className="w-3 h-3" weight="bold" />
+                  <Drop className="w-3 h-3" />
                   Fuel Level
                 </span>
                 <div className="mt-2 flex items-center gap-3">
@@ -535,17 +521,17 @@ export function VehiclesOperations() {
         {!isEditing && (
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/20 p-3 text-center">
-              <Wrench className="w-4 h-4 text-cyan-400 mx-auto mb-1" weight="bold" />
+              <Wrench className="w-4 h-4 text-cyan-400 mx-auto mb-1" />
               <p className="text-xs text-slate-400">Maintenance Due</p>
               <p className="text-white font-semibold text-sm mt-1">Soon</p>
             </div>
             <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/20 p-3 text-center">
-              <Clock className="w-4 h-4 text-cyan-400 mx-auto mb-1" weight="bold" />
+              <Clock className="w-4 h-4 text-cyan-400 mx-auto mb-1" />
               <p className="text-xs text-slate-400">Last Service</p>
               <p className="text-white font-semibold text-sm mt-1">30 days ago</p>
             </div>
             <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/20 p-3 text-center">
-              <FuelPump className="w-4 h-4 text-cyan-400 mx-auto mb-1" weight="bold" />
+              <FuelPump className="w-4 h-4 text-cyan-400 mx-auto mb-1" />
               <p className="text-xs text-slate-400">Efficiency</p>
               <p className="text-white font-semibold text-sm mt-1">18 MPG</p>
             </div>
@@ -577,7 +563,7 @@ export function VehiclesOperations() {
               size="sm"
               className="border-red-500 text-red-400 hover:bg-red-500/10"
             >
-              <Trash className="w-4 h-4" weight="bold" />
+              <Trash2 className="w-4 h-4" />
               <span className="ml-2">Delete Vehicle</span>
             </Button>
           </div>
@@ -593,7 +579,7 @@ export function VehiclesOperations() {
       <div className="p-4 space-y-3 border-b border-slate-700/50">
         {/* Search */}
         <div className="relative">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" weight="bold" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -604,7 +590,7 @@ export function VehiclesOperations() {
 
         {/* Status Filter */}
         <div className="flex items-center gap-2">
-          <Funnel className="w-4 h-4 text-slate-400 flex-shrink-0" weight="bold" />
+          <Filter className="w-4 h-4 text-slate-400 flex-shrink-0" />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -636,7 +622,7 @@ export function VehiclesOperations() {
           </div>
         ) : filteredVehicles.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 text-center p-4">
-            <Car className="w-12 h-12 text-slate-600 mb-3" weight="bold" />
+            <Car className="w-12 h-12 text-slate-600 mb-3" />
             <p className="text-sm font-semibold text-slate-400">No vehicles found</p>
             <p className="text-xs text-slate-500 mt-1">
               {searchQuery || filterStatus !== 'all'
@@ -668,7 +654,7 @@ export function VehiclesOperations() {
               size="sm"
               className="bg-cyan-400 hover:bg-cyan-300 text-slate-900 font-bold shadow-[0_0_15px_rgba(34,211,238,0.3)]"
             >
-              <Plus className="w-4 h-4" weight="bold" />
+              <Plus className="w-4 h-4" />
               <span className="ml-2">Add Vehicle</span>
             </Button>
           )

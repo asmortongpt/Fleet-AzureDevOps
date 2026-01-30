@@ -1,14 +1,14 @@
 import {
-  MagnifyingGlass,
-  VideoCamera,
-  Warning,
+  Search,
+  Video,
+  AlertTriangle,
   Eye,
   Play,
   Download,
   Lock,
   ShieldCheck,
   Clock
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -354,7 +354,7 @@ export function VideoTelematics() {
           <CardContent>
             <div className="text-sm font-bold">{totalEvents}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <VideoCamera className="w-3 h-3" />
+              <Video className="w-3 h-3" />
               All time
             </div>
           </CardContent>
@@ -399,7 +399,7 @@ export function VideoTelematics() {
           <CardContent>
             <div className="text-sm font-bold text-red-600">{criticalEvents}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Warning className="w-3 h-3" />
+              <AlertTriangle className="w-3 h-3" />
               High priority
             </div>
           </CardContent>
@@ -408,7 +408,7 @@ export function VideoTelematics() {
 
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search events..."
             value={searchTerm}
@@ -577,7 +577,7 @@ export function VideoTelematics() {
             <div className="space-y-2">
               <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
                 <div className="text-center text-gray-400">
-                  <VideoCamera className="w-16 h-16 mx-auto mb-2" />
+                  <Video className="w-16 h-16 mx-auto mb-2" />
                   <p>Video Player</p>
                   <p className="text-sm">
                     {selectedEvent.duration}s clip at {selectedEvent.speed} mph

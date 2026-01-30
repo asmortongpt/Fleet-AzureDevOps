@@ -1,4 +1,4 @@
-import { Package, CurrencyDollar, TrendDown } from "@phosphor-icons/react"
+import { Package, DollarSign, TrendingDown } from "lucide-react"
 
 import { Card } from "@/components/ui/card"
 
@@ -44,7 +44,7 @@ export function AssetStatsBar({
       <Card className="p-2">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-warning/10">
-            <TrendDown className="w-3 h-3 text-warning" />
+            <TrendingDown className="w-3 h-3 text-warning" />
           </div>
           <div>
             <p className="text-sm font-bold">{maintenanceAssets}</p>
@@ -56,7 +56,7 @@ export function AssetStatsBar({
       <Card className="p-2">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-primary/10">
-            <CurrencyDollar className="w-3 h-3 text-primary" />
+            <DollarSign className="w-3 h-3 text-primary" />
           </div>
           <div>
             <p className="text-sm font-bold">${totalValue.toLocaleString()}</p>

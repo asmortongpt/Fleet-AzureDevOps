@@ -3,7 +3,7 @@
  * Fleet-specific preferences: units, view defaults, and map settings
  */
 
-import { Car, Ruler, MapTrifold, ArrowsClockwise } from '@phosphor-icons/react'
+import { Car, Ruler, Map, RefreshCw } from 'lucide-react'
 import { useAtom } from 'jotai'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -85,7 +85,7 @@ export function FleetSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <ArrowsClockwise className="w-3 h-3" />
+            <RefreshCw className="w-3 h-3" />
             <CardTitle>Auto-Refresh Interval</CardTitle>
           </div>
           <CardDescription>
@@ -177,7 +177,7 @@ export function FleetSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <MapTrifold className="w-3 h-3" />
+            <Map className="w-3 h-3" />
             <CardTitle>Map Settings</CardTitle>
           </div>
           <CardDescription>Map provider and geofence preferences</CardDescription>

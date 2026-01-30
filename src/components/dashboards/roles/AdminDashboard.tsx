@@ -10,22 +10,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import {
-  Shield,
-  Users,
-  ChartLine,
-  FileText,
-  Warning,
-  CheckCircle,
-  Lock,
-  Database,
-  Cpu,
-  Clock,
-  TrendUp,
-  UserPlus,
-  Download,
-  Eye
-} from '@phosphor-icons/react';
+import { Shield, Users, LineChart, FileText, AlertTriangle, CheckCircle, Lock, Database, Cpu, Clock, TrendingUp, UserPlus, Download, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
@@ -199,7 +184,7 @@ export function AdminDashboard() {
           : "bg-red-950/20 border-red-500/30"
       )}>
         <div className="flex items-center gap-2 mb-3">
-          <ChartLine className={cn(
+          <LineChart className={cn(
             "w-4 h-4",
             systemHealth.status === 'healthy' ? "text-green-400" : "text-amber-400"
           )} />
@@ -225,7 +210,7 @@ export function AdminDashboard() {
           {/* Error Rate */}
           <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
             <div className="flex items-center gap-2 mb-2">
-              <Warning className="w-4 h-4 text-amber-400" />
+              <AlertTriangle className="w-4 h-4 text-amber-400" />
               <span className="text-sm text-slate-300 text-sm">Error Rate</span>
             </div>
             <p className="text-sm font-bold text-white">{systemHealth.api_error_rate}%</p>
@@ -301,7 +286,7 @@ export function AdminDashboard() {
                 <span className="text-sm font-bold text-white">{userStats.total_users}</span>
               </div>
               <div className="flex items-center gap-1 text-sm text-green-400">
-                <TrendUp className="w-4 h-4" />
+                <TrendingUp className="w-4 h-4" />
                 <span>{userStats.active_today} active today</span>
               </div>
             </div>
@@ -391,7 +376,7 @@ export function AdminDashboard() {
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
                   {securityMetrics.compliance_violations > 0 ? (
-                    <Warning className="w-4 h-4 text-red-400" />
+                    <AlertTriangle className="w-4 h-4 text-red-400" />
                   ) : (
                     <CheckCircle className="w-4 h-4 text-green-400" />
                   )}
@@ -431,7 +416,7 @@ export function AdminDashboard() {
         <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <ChartLine className="w-4 h-4 text-amber-400" />
+              <LineChart className="w-4 h-4 text-amber-400" />
               <h2 className="text-sm font-bold text-white">Recent Activity</h2>
             </div>
           </div>

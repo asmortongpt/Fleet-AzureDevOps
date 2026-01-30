@@ -12,15 +12,7 @@
  * - Group and location filtering
  */
 
-import {
-  Funnel,
-  X,
-  Truck,
-  Engine,
-  Wrench,
-  CheckCircle,
-  Calendar
-} from '@phosphor-icons/react'
+import { Filter, X, Truck, Engine, Wrench, CheckCircle, Calendar } from 'lucide-react'
 import React, { useState } from 'react'
 
 // Import types from frontend types
@@ -168,7 +160,7 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
       {/* Filter Header */}
       <div className="flex items-center justify-between p-2 border-b border-gray-200">
         <div className="flex items-center gap-2">
-          <Funnel className="w-3 h-3 text-slate-700" />
+          <Filter className="w-3 h-3 text-slate-700" />
           <h3 className="font-semibold text-gray-900">Asset Filters</h3>
           {activeFilterCount > 0 && (
             <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
@@ -189,7 +181,7 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
             onClick={() => setIsExpanded(!isExpanded)}
             className="text-gray-400 hover:text-slate-700 transition-colors"
           >
-            {isExpanded ? <X className="w-3 h-3" /> : <Funnel className="w-3 h-3" />}
+            {isExpanded ? <X className="w-3 h-3" /> : <Filter className="w-3 h-3" />}
           </button>
         </div>
       </div>

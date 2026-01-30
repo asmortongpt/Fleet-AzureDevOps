@@ -11,7 +11,7 @@
  * - Auto-refresh every 30 seconds
  */
 
-import { Bell } from '@phosphor-icons/react'
+import { Bell } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 import { Badge } from '@/components/ui/badge'

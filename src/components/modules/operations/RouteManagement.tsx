@@ -1,11 +1,11 @@
 import {
-  MapTrifold,
+  Map,
   Plus,
   MapPin,
-  Path,
-  TrendUp,
+  Route,
+  TrendingUp,
   CheckCircle
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
 
@@ -268,7 +268,7 @@ export function RouteManagement() {
           title="Active Routes"
           value={metrics.active}
           subtitle="in progress"
-          icon={<Path className="w-3 h-3" />}
+          icon={<Route className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
@@ -289,7 +289,7 @@ export function RouteManagement() {
           title="Avg Efficiency"
           value={`${metrics.avgEfficiency}%`}
           subtitle="route completion"
-          icon={<TrendUp className="w-3 h-3" />}
+          icon={<TrendingUp className="w-3 h-3" />}
           status="success"
         />
       </div>
@@ -330,7 +330,7 @@ export function RouteManagement() {
         <CardContent>
           {(filteredRoutes || []).length === 0 ? (
             <div className="text-center py-12">
-              <MapTrifold className="w-12 h-9 mx-auto text-muted-foreground mb-2" />
+              <Map className="w-12 h-9 mx-auto text-muted-foreground mb-2" />
               <p className="text-muted-foreground">No routes found. Create your first route to get started.</p>
             </div>
           ) : (

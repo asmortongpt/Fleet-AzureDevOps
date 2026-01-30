@@ -11,7 +11,7 @@ import {
   Reply,
   ReplyAll,
   Forward,
-  Trash,
+  Trash2,
   Archive,
   Tag,
   Clock,
@@ -451,7 +451,7 @@ export function EmailDetailPanel({ emailId, email: providedEmail }: EmailDetailP
             Archive
           </Button>
           <Button variant="outline" size="sm" className="gap-2 text-destructive">
-            <Trash className="w-4 h-4" />
+            <Trash2 className="w-4 h-4" />
             Delete
           </Button>
         </div>

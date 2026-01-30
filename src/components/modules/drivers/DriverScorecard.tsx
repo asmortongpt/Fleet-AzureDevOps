@@ -1,15 +1,15 @@
 import {
   Trophy,
-  TrendUp,
-  TrendDown,
+  TrendingUp,
+  TrendingDown,
   Minus,
   Medal,
-  Lightning,
+  Zap,
   ShieldCheck,
-  GasPump,
+  Fuel,
   CheckCircle,
   Target
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
@@ -127,9 +127,9 @@ export function DriverScorecard() {
   }
 
   const getTrendIcon = (trend: string) => {
-    if (trend === 'improving') return <TrendUp className="h-4 w-4 text-green-500" weight="bold" />
-    if (trend === 'declining') return <TrendDown className="h-4 w-4 text-red-500" weight="bold" />
-    return <Minus className="h-4 w-4 text-gray-500" weight="bold" />
+    if (trend === 'improving') return <TrendingUp className="h-4 w-4 text-green-500" />
+    if (trend === 'declining') return <TrendingDown className="h-4 w-4 text-red-500" />
+    return <Minus className="h-4 w-4 text-gray-500" />
   }
 
   const getScoreColor = (score: number) => {
@@ -150,13 +150,13 @@ export function DriverScorecard() {
     const iconMap: Record<string, any> = {
       'trophy': Trophy,
       'shield-check': ShieldCheck,
-      'gas-pump': GasPump,
+      'gas-pump': Fuel,
       'check-circle': CheckCircle,
-      'lightning': Lightning,
+      'lightning': Zap,
       'medal': Medal
     }
     const IconComponent = iconMap[icon] || Trophy
-    return <IconComponent className="h-6 w-6" weight="fill" />
+    return <IconComponent className="h-6 w-6" />
   }
 
   if (loading) {
@@ -174,7 +174,7 @@ export function DriverScorecard() {
     <div className="space-y-2">
       <div>
         <h1 className="text-base font-bold flex items-center gap-2">
-          <Trophy className="h-8 w-8 text-yellow-600" weight="fill" />
+          <Trophy className="h-8 w-8 text-yellow-600" />
           Driver Scorecard & Gamification
         </h1>
         <p className="text-slate-700 mt-2">
@@ -201,7 +201,7 @@ export function DriverScorecard() {
               >
                 <CardHeader className="text-center pb-3">
                   <div className="flex justify-center mb-2">
-                    <Medal className="h-9 w-12 text-gray-400" weight="fill" />
+                    <Medal className="h-9 w-12 text-gray-400" />
                   </div>
                   <CardTitle className="text-sm">{leaderboard[1]?.driverName}</CardTitle>
                   <CardDescription>2nd Place</CardDescription>
@@ -228,7 +228,7 @@ export function DriverScorecard() {
               >
                 <CardHeader className="text-center pb-3 bg-gradient-to-b from-yellow-50 to-transparent">
                   <div className="flex justify-center mb-2">
-                    <Trophy className="h-16 w-16 text-yellow-500" weight="fill" />
+                    <Trophy className="h-16 w-16 text-yellow-500" />
                   </div>
                   <CardTitle className="text-base">{leaderboard[0]?.driverName}</CardTitle>
                   <CardDescription className="font-semibold">1st Place - Champion!</CardDescription>
@@ -256,7 +256,7 @@ export function DriverScorecard() {
               >
                 <CardHeader className="text-center pb-3">
                   <div className="flex justify-center mb-2">
-                    <Medal className="h-9 w-12 text-orange-600" weight="fill" />
+                    <Medal className="h-9 w-12 text-orange-600" />
                   </div>
                   <CardTitle className="text-sm">{leaderboard[2]?.driverName}</CardTitle>
                   <CardDescription>3rd Place</CardDescription>
@@ -365,7 +365,7 @@ export function DriverScorecard() {
                   <div className="grid grid-cols-3 gap-2">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <ShieldCheck className="h-5 w-5 text-blue-800" weight="fill" />
+                        <ShieldCheck className="h-5 w-5 text-blue-800" />
                         <span className="text-sm font-medium">Safety</span>
                       </div>
                       <div className="text-sm font-bold">{selectedDriver.safetyScore.toFixed(1)}</div>
@@ -374,7 +374,7 @@ export function DriverScorecard() {
 
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <GasPump className="h-5 w-5 text-green-600" weight="fill" />
+                        <Fuel className="h-5 w-5 text-green-600" />
                         <span className="text-sm font-medium">Efficiency</span>
                       </div>
                       <div className="text-sm font-bold">{selectedDriver.efficiencyScore.toFixed(1)}</div>
@@ -383,7 +383,7 @@ export function DriverScorecard() {
 
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="h-5 w-5 text-purple-600" weight="fill" />
+                        <CheckCircle className="h-5 w-5 text-purple-600" />
                         <span className="text-sm font-medium">Compliance</span>
                       </div>
                       <div className="text-sm font-bold">{selectedDriver.complianceScore.toFixed(1)}</div>
@@ -397,7 +397,7 @@ export function DriverScorecard() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Medal className="h-5 w-5" weight="fill" />
+                    <Medal className="h-5 w-5" />
                     Achievements Earned
                   </CardTitle>
                   <CardDescription>Recognition badges and awards</CardDescription>
@@ -420,7 +420,7 @@ export function DriverScorecard() {
                     </div>
                   ) : (
                     <div className="text-center py-3 text-gray-500">
-                      <Target className="h-9 w-12 mx-auto mb-3 text-gray-400" weight="duotone" />
+                      <Target className="h-9 w-12 mx-auto mb-3 text-gray-400" />
                       <p>No achievements earned yet. Keep driving safely!</p>
                     </div>
                   )}

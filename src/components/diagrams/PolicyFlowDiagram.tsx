@@ -1,11 +1,11 @@
 import {
   Play,
   Pause,
-  ArrowsClockwise,
+  RefreshCw,
   Info,
   CheckCircle,
   Clock
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import mermaid from "mermaid"
 import { useEffect, useRef, useState } from "react"
 
@@ -251,7 +251,7 @@ flowchart TB
                 size="sm"
                 onClick={() => window.location.reload()}
               >
-                <ArrowsClockwise className="w-4 h-4" />
+                <RefreshCw className="w-4 h-4" />
               </Button>
             </div>
           </div>

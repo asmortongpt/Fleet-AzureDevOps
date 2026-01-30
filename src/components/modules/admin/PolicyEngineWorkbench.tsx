@@ -1,19 +1,19 @@
 import {
   Plus,
-  MagnifyingGlass,
-  Robot,
+  Search,
+  Bot,
   Play,
   Pause,
   CheckCircle,
-  Warning,
+  AlertTriangle,
   Brain,
-  Lightning,
+  Zap,
   Eye,
   ShieldCheck,
-  FlowArrow,
+  ArrowRight,
   Database as DatabaseIcon,
   GitBranch
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -256,7 +256,7 @@ export function PolicyEngineWorkbench() {
     const icons = {
       monitor: <Eye className="w-4 h-4" />,
       "human-in-loop": <ShieldCheck className="w-4 h-4" />,
-      autonomous: <Lightning className="w-4 h-4" />
+      autonomous: <Zap className="w-4 h-4" />
     }
     return icons[mode]
   }
@@ -491,7 +491,7 @@ export function PolicyEngineWorkbench() {
           <CardContent>
             <div className="text-sm font-bold">{totalPolicies}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Robot className="w-3 h-3" />
+              <Bot className="w-3 h-3" />
               All policies
             </div>
           </CardContent>
@@ -536,7 +536,7 @@ export function PolicyEngineWorkbench() {
           <CardContent>
             <div className="text-sm font-bold text-orange-600">{totalViolations}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Warning className="w-3 h-3" />
+              <AlertTriangle className="w-3 h-3" />
               Flagged
             </div>
           </CardContent>
@@ -545,7 +545,7 @@ export function PolicyEngineWorkbench() {
 
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search policies..."
             value={searchTerm}
@@ -582,11 +582,11 @@ export function PolicyEngineWorkbench() {
       <Tabs defaultValue="policies" className="space-y-2">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="policies">
-            <Robot className="w-4 h-4 mr-2" />
+            <Bot className="w-4 h-4 mr-2" />
             Policies
           </TabsTrigger>
           <TabsTrigger value="flow">
-            <FlowArrow className="w-4 h-4 mr-2" />
+            <ArrowRight className="w-4 h-4 mr-2" />
             Policy Flow
           </TabsTrigger>
           <TabsTrigger value="database">

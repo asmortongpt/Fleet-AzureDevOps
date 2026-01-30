@@ -17,15 +17,15 @@
  */
 
 import {
-  MagnifyingGlass,
-  VideoCamera,
-  ArrowsClockwise,
+  Search,
+  Video,
+  RefreshCw,
   CheckCircle,
-  WarningCircle,
+  AlertCircle,
   CircleDashed,
   XCircle,
   Info
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import React, { useState, useCallback, useMemo, useRef, useEffect } from "react"
 import { toast } from "sonner"
@@ -401,7 +401,7 @@ export function TrafficCameras(): JSX.Element {
           <h3 className="text-sm font-semibold text-foreground mb-2">Failed to Load Cameras</h3>
           <p className="text-sm text-muted-foreground mb-2">{state.error}</p>
           <Button onClick={reloadData}>
-            <ArrowsClockwise className="w-4 h-4 mr-2" />
+            <RefreshCw className="w-4 h-4 mr-2" />
             Retry
           </Button>
         </div>
@@ -425,7 +425,7 @@ export function TrafficCameras(): JSX.Element {
           )}
         </div>
         <Button onClick={handleSync} disabled={state.isSyncing}>
-          <ArrowsClockwise
+          <RefreshCw
             className={`w-4 h-4 mr-2 ${state.isSyncing ? 'animate-spin' : ''}`}
           />
           {state.isSyncing ? 'Syncing...' : 'Sync Cameras'}
@@ -437,7 +437,7 @@ export function TrafficCameras(): JSX.Element {
         <Card className="border-destructive">
           <CardContent className="pt-3">
             <div className="flex items-start gap-3">
-              <WarningCircle className="w-3 h-3 text-destructive flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-3 h-3 text-destructive flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <h4 className="font-medium text-destructive">Sync Error</h4>
                 <p className="text-sm text-muted-foreground mt-1">{state.error}</p>
@@ -459,7 +459,7 @@ export function TrafficCameras(): JSX.Element {
                 <p className="text-sm text-muted-foreground">Total Cameras</p>
                 <p className="text-base font-bold">{stats.total}</p>
               </div>
-              <VideoCamera className="w-4 h-4 text-primary" weight="fill" />
+              <Video className="w-4 h-4 text-primary" />
             </div>
           </CardContent>
         </Card>
@@ -471,7 +471,7 @@ export function TrafficCameras(): JSX.Element {
                 <p className="text-sm text-muted-foreground">Operational</p>
                 <p className="text-base font-bold text-green-600">{stats.operational}</p>
               </div>
-              <CheckCircle className="w-4 h-4 text-green-600" weight="fill" />
+              <CheckCircle className="w-4 h-4 text-green-600" />
             </div>
           </CardContent>
         </Card>
@@ -483,7 +483,7 @@ export function TrafficCameras(): JSX.Element {
                 <p className="text-sm text-muted-foreground">Offline</p>
                 <p className="text-base font-bold text-red-600">{stats.offline}</p>
               </div>
-              <WarningCircle className="w-4 h-4 text-red-600" weight="fill" />
+              <AlertCircle className="w-4 h-4 text-red-600" />
             </div>
           </CardContent>
         </Card>
@@ -495,7 +495,7 @@ export function TrafficCameras(): JSX.Element {
                 <p className="text-sm text-muted-foreground">Enabled</p>
                 <p className="text-base font-bold text-blue-800">{stats.enabled}</p>
               </div>
-              <CheckCircle className="w-4 h-4 text-blue-800" weight="fill" />
+              <CheckCircle className="w-4 h-4 text-blue-800" />
             </div>
           </CardContent>
         </Card>
@@ -506,7 +506,7 @@ export function TrafficCameras(): JSX.Element {
         <CardContent className="pt-3">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <div className="relative">
-              <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search cameras..."
                 value={state.searchTerm}
@@ -585,7 +585,7 @@ export function TrafficCameras(): JSX.Element {
                     variant="outline"
                     onClick={(e) => handleViewFeed(state.selectedCamera as TrafficCamera, e)}
                   >
-                    <VideoCamera className="w-4 h-4 mr-2" />
+                    <Video className="w-4 h-4 mr-2" />
                     View Feed
                   </Button>
                 </div>

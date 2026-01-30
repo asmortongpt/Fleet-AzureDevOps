@@ -37,7 +37,7 @@ interface VehicleEditFormProps {
 
 const departmentOptions = [
   'Police Department',
-  'Fire Department',
+  'Flame Department',
   'Public Works',
   'Parks & Recreation',
   'Administration',

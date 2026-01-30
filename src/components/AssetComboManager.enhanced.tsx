@@ -10,15 +10,7 @@
  * - Props match Task 4.4 specification
  */
 
-import {
-  Link,
-  LinkBreak,
-  Clock,
-  Plus,
-  Warning,
-  CheckCircle,
-  CalendarBlank
-} from '@phosphor-icons/react'
+import { Link, LinkBreak, Clock, Plus, AlertTriangle, CheckCircle, CalendarBlank } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
@@ -328,7 +320,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       {/* No available assets warning */}
       {availableAssets.length === 0 && !loading && (
         <div className="flex items-center gap-2 p-2 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-700">
-          <Warning className="w-3 h-3 flex-shrink-0" />
+          <AlertTriangle className="w-3 h-3 flex-shrink-0" />
           <span>No compatible assets available to attach. All assets are either in use or incompatible.</span>
         </div>
       )}
@@ -356,7 +348,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                       <div className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
                         {combo.relationship_type}
                       </div>
-                      <CheckCircle className="w-3 h-3 text-green-600" weight="fill" />
+                      <CheckCircle className="w-3 h-3 text-green-600" />
                     </div>
                     <div className="text-sm font-medium text-gray-900">
                       {combo.child_asset_name}

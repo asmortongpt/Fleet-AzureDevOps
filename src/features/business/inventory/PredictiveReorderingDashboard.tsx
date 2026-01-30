@@ -7,7 +7,7 @@ import {
   Psychology,
   TrendingUp,
   TrendingDown,
-  Warning,
+  AlertTriangle,
   CheckCircle,
   Schedule,
   Analytics,
@@ -239,7 +239,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
 
   const getActionIcon = (action: string) => {
     switch (action) {
-      case 'reorder_now': return <Warning color="error" />;
+      case 'reorder_now': return <AlertTriangle color="error" />;
       case 'reorder_soon': return <Schedule color="warning" />;
       case 'monitor': return <CheckCircle color="success" />;
       case 'reduce_stock': return <TrendingDown color="info" />;
@@ -327,7 +327,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
                     <Typography color="textSecondary" gutterBottom>Critical Items</Typography>
                     <Typography variant="h4" color="error">{metrics.criticalItems}</Typography>
                   </Box>
-                  <Warning color="error" sx={{ fontSize: 40 }} />
+                  <AlertTriangle color="error" sx={{ fontSize: 40 }} />
                 </Box>
               </CardContent>
             </Card>

@@ -1,13 +1,13 @@
 import {
-    MagnifyingGlass,
+    Search,
     Plus,
-    Trash,
+    Trash2,
     Pencil,
     Copy,
     X,
     MapPin,
-    Funnel
-} from "@phosphor-icons/react"
+    Filter
+} from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -194,7 +194,7 @@ export function GeofenceControlPanel({
                     <div>
                         <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800">
                             <div className="p-1.5 bg-blue-500/10 rounded-md border border-blue-500/20">
-                                <MapPin weight="fill" className="text-blue-800 w-4 h-4" />
+                                <MapPin className="text-blue-800 w-4 h-4" />
                             </div>
                             Geofences
                         </CardTitle>
@@ -220,7 +220,7 @@ export function GeofenceControlPanel({
                     <div className="space-y-3 shrink-0 mb-2">
                         <div className="flex gap-2">
                             <div className="relative flex-1">
-                                <MagnifyingGlass className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-muted-foreground" />
+                                <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-muted-foreground" />
                                 <Input
                                     placeholder="Search..."
                                     value={searchTerm}
@@ -231,7 +231,7 @@ export function GeofenceControlPanel({
                             </div>
                             <Select value={filterType} onValueChange={setFilterType}>
                                 <SelectTrigger className="w-[100px] h-8 text-sm px-2">
-                                    <Funnel className="w-3 h-3 mr-1" />
+                                    <Filter className="w-3 h-3 mr-1" />
                                     <SelectValue placeholder="Type" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -292,7 +292,7 @@ export function GeofenceControlPanel({
                                                 <Copy className="w-3 h-3" />
                                             </Button>
                                             <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:text-red-500" onClick={() => handleDelete(geofence.id)} aria-label={`Delete ${geofence.name}`}>
-                                                <Trash className="w-3 h-3" />
+                                                <Trash2 className="w-3 h-3" />
                                             </Button>
                                         </div>
                                     </div>

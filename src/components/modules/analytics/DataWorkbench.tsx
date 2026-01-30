@@ -3,10 +3,10 @@ import {
   Download,
   Upload,
   Plus,
-  ArrowsClockwise,
-  Warning,
+  RefreshCw,
+  AlertTriangle,
   CheckCircle
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useState, Dispatch, SetStateAction } from "react"
 import { toast } from "sonner"
 
@@ -160,7 +160,7 @@ export function DataWorkbench() {
             Export
           </Button>
           <Button variant="outline" onClick={handleRefresh}>
-            <ArrowsClockwise className="w-4 h-4 mr-2" />
+            <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>
           <Button onClick={() => setIsAddVehicleDialogOpen(true)}>
@@ -190,7 +190,7 @@ export function DataWorkbench() {
           title="In Maintenance"
           value={metrics.maintenance}
           subtitle="being serviced"
-          icon={<Warning className="w-3 h-3" />}
+          icon={<AlertTriangle className="w-3 h-3" />}
           status="warning"
         />
         <MetricCard
@@ -204,7 +204,7 @@ export function DataWorkbench() {
           title="Active Alerts"
           value={metrics.alerts}
           subtitle="need attention"
-          icon={<Warning className="w-3 h-3" />}
+          icon={<AlertTriangle className="w-3 h-3" />}
           status={metrics.alerts > 10 ? "warning" : "success"}
         />
       </div>

@@ -10,7 +10,7 @@
  * - Smooth animations and transitions
  */
 
-import { ArrowUp, ArrowDown, Minus, CaretRight } from '@phosphor-icons/react'
+import { ArrowUp, ArrowDown, Minus, ChevronRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 import { cn } from '@/lib/utils'
@@ -202,7 +202,7 @@ export function StatCard({
                             )}
                             {trend && trendValue && (
                                 <div className={cn('flex items-center gap-0.5 font-medium', trendColor, sizes.subtitle)}>
-                                    <TrendIcon className="w-3 h-3" weight="bold" />
+                                    <TrendIcon className="w-3 h-3" />
                                     <span>{trendValue}</span>
                                 </div>
                             )}
@@ -228,7 +228,7 @@ export function StatCard({
             {/* Drilldown indicator */}
             {isClickable && (
                 <div className="absolute bottom-3 right-3 opacity-0 translate-x-1 group-hover:opacity-60 group-hover:translate-x-0 transition-all duration-300">
-                    <CaretRight className="w-4 h-4 text-primary" weight="bold" />
+                    <ChevronRight className="w-4 h-4 text-primary" />
                 </div>
             )}
         </motion.div>
@@ -404,11 +404,11 @@ export function QuickStat({ label, value, trend, onClick }: QuickStatProps) {
                         trend === 'up' ? 'text-success' : 'text-destructive',
                         isClickable && 'group-hover:scale-110'
                     )}>
-                        {trend === 'up' ? <ArrowUp className="w-3.5 h-3.5" weight="bold" /> : <ArrowDown className="w-3.5 h-3.5" weight="bold" />}
+                        {trend === 'up' ? <ArrowUp className="w-3.5 h-3.5" /> : <ArrowDown className="w-3.5 h-3.5" />}
                     </span>
                 )}
                 {isClickable && (
-                    <CaretRight className="w-3.5 h-3.5 text-muted-foreground opacity-50" />
+                    <ChevronRight className="w-3.5 h-3.5 text-muted-foreground opacity-50" />
                 )}
             </div>
         </motion.div>

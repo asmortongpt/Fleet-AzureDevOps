@@ -3,17 +3,7 @@
  * Tabbed interface with left sidebar navigation on desktop, top tabs on mobile
  */
 
-import {
-  Gear,
-  Palette,
-  Bell,
-  Car,
-  ShieldCheck,
-  Lock,
-  Code,
-  FloppyDisk,
-  Check,
-} from '@phosphor-icons/react'
+import { Settings, Palette, Bell, Car, ShieldCheck, Lock, Code, Save, Check } from 'lucide-react'
 import { useAtom } from 'jotai'
 import { useState, useEffect } from 'react'
 
@@ -61,7 +51,7 @@ const settingsCategories: SettingsCategory[] = [
   {
     id: 'general',
     label: 'General',
-    icon: <Gear className="w-4 h-4" />,
+    icon: <Settings className="w-4 h-4" />,
     description: 'Language, timezone, and format preferences',
   },
   {
@@ -198,7 +188,7 @@ export default function SettingsPage() {
         {/* Save Button */}
         {hasUnsavedChanges && (
           <Button onClick={handleSave} className="gap-2">
-            <FloppyDisk className="w-4 h-4" />
+            <Save className="w-4 h-4" />
             Save Changes
           </Button>
         )}
