@@ -26,6 +26,53 @@ import { swrFetcher } from '@/lib/fetcher'
 const fetcher = swrFetcher
 
 // ============================================
+// Type Definitions
+// ============================================
+interface MaintenanceRequest {
+  id: string;
+  title: string;
+  request_number: string;
+  status: string;
+  priority: string;
+  requester_name?: string;
+  requester_department?: string;
+  submitted_date?: string;
+  description?: string;
+  request_type?: string;
+  category?: string;
+  estimated_cost?: number;
+  requested_completion_date?: string;
+  vehicle_id?: string;
+  asset_id?: string;
+  asset_name?: string;
+  asset_number?: string;
+  asset_status?: string;
+  asset_location?: string;
+  reviewer_name?: string;
+  approval_date?: string;
+  approval_notes?: string;
+  review_comments?: string;
+  review_date?: string;
+  review_notes?: string;
+  work_order_id?: string;
+  rejection_reason?: string;
+  activity_log?: Array<{
+    id: string;
+    action: string;
+    timestamp: string;
+    user: string;
+    comments?: string;
+  }>;
+  history?: Array<{
+    id: string;
+    action: string;
+    timestamp: string;
+    user: string;
+    comments?: string;
+  }>;
+}
+
+// ============================================
 // Maintenance Request Detail Panel
 // ============================================
 interface MaintenanceRequestDetailPanelProps {
@@ -36,7 +83,7 @@ export function MaintenanceRequestDetailPanel({
   requestId,
 }: MaintenanceRequestDetailPanelProps) {
   const { push } = useDrilldown()
-  const { data: request, error, isLoading, mutate } = useSWR(
+  const { data: request, error, isLoading, mutate } = useSWR<MaintenanceRequest>(
     `/api/maintenance-requests/${requestId}`,
     fetcher
   )
@@ -325,7 +372,7 @@ export function MaintenanceRequestListView({
   status,
 }: MaintenanceRequestListViewProps) {
   const { push } = useDrilldown()
-  const { data: requests, error, isLoading } = useSWR(
+  const { data: requests, error, isLoading } = useSWR<MaintenanceRequest[]>(
     status ? `/api/maintenance-requests?status=${status}` : '/api/maintenance-requests',
     fetcher
   )
