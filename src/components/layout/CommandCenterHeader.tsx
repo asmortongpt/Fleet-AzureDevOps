@@ -36,35 +36,55 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
     }, []);
 
     return (
-        <header className={cn(
-            "h-11 border-b border-minimalist-medium bg-minimalist-secondary z-30 flex items-center justify-between shrink-0 transition-all duration-200",
-            isMobile ? "px-3" : "px-2"
-        )}>
-            {/* Search Bar */}
+        <header className="relative shrink-0">
             <div className={cn(
-                "flex-1 max-w-md transition-all duration-300",
-                isSearchFocused && "max-w-lg"
+                "h-11 border-b border-border/50 bg-card/95 backdrop-blur-sm z-30 flex items-center justify-between transition-all duration-200",
+                isMobile ? "px-3" : "px-2"
             )}>
-                <div className="relative">
-                    <SearchInput
-                        value={searchQuery}
-                        onChange={setSearchQuery}
-                        onDebouncedChange={handleSearch}
-                        placeholder={isMobile ? "Search..." : "Search fleet, drivers, or assets..."}
-                        ariaLabel="Search fleet, drivers, or assets"
-                        className={cn(
-                            "[&_input]:rounded-md [&_input]:bg-minimalist-tertiary [&_input]:border-minimalist-subtle",
-                            "[&_input]:h-7 [&_input]:text-xs",
-                            "[&_input]:transition-all [&_input]:duration-200",
-                            "[&_input:focus]:bg-minimalist-elevated [&_input:focus]:border-primary/40"
+                {/* Left: CTA Branding */}
+                <div className="flex items-center gap-3 shrink-0">
+                    <div className="flex items-center gap-2">
+                        {/* CTA Logo Placeholder - Replace with actual logo when available */}
+                        <div className="h-7 px-2 flex items-center justify-center bg-gradient-to-r from-[#FDB813] to-[#FF5722] rounded">
+                            <span className="text-white font-bold text-xs tracking-wide">CTA</span>
+                        </div>
+                        {!isMobile && (
+                            <>
+                                <div className="h-4 w-px bg-border/50" />
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] font-semibold text-foreground leading-none">ArchonY</span>
+                                    <span className="text-[9px] text-muted-foreground leading-none mt-0.5">Intelligent Performance</span>
+                                </div>
+                            </>
                         )}
-                        onFocus={() => setIsSearchFocused(true)}
-                        onBlur={() => setIsSearchFocused(false)}
-                    />
+                    </div>
                 </div>
-            </div>
 
-            {/* Right Actions */}
+                {/* Center: Search Bar */}
+                <div className={cn(
+                    "flex-1 max-w-md mx-4 transition-all duration-300",
+                    isSearchFocused && "max-w-lg"
+                )}>
+                    <div className="relative">
+                        <SearchInput
+                            value={searchQuery}
+                            onChange={setSearchQuery}
+                            onDebouncedChange={handleSearch}
+                            placeholder={isMobile ? "Search..." : "Search fleet, drivers, or assets..."}
+                            ariaLabel="Search fleet, drivers, or assets"
+                            className={cn(
+                                "[&_input]:rounded-md [&_input]:bg-background/50 [&_input]:border-border/50",
+                                "[&_input]:h-7 [&_input]:text-xs",
+                                "[&_input]:transition-all [&_input]:duration-200",
+                                "[&_input:focus]:bg-background [&_input:focus]:border-secondary/40 [&_input:focus]:shadow-sm [&_input:focus]:shadow-secondary/10"
+                            )}
+                            onFocus={() => setIsSearchFocused(true)}
+                            onBlur={() => setIsSearchFocused(false)}
+                        />
+                    </div>
+                </div>
+
+                {/* Right Actions */}
             <div className="flex items-center gap-1 ml-2">
                 {/* Theme Toggle */}
                 <ThemeToggle />
@@ -140,6 +160,9 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
+            </div>
+            {/* CTA Gradient Bar Accent */}
+            <div className="h-0.5 bg-gradient-to-r from-[#FDB813] to-[#FF5722]" aria-hidden="true" />
         </header>
     );
 }

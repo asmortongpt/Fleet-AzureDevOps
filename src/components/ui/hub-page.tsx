@@ -128,18 +128,22 @@ export function HubPage({
             )}
             data-testid="hub-page"
         >
-            {/* Hub Header - Enhanced with glassmorphism */}
+            {/* Hub Header - CTA Brand Enhanced */}
             <motion.header
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
                 className={cn(
                     "flex items-center justify-between px-3 py-2 border-b",
-                    "bg-gradient-to-r from-slate-900/80 via-slate-800/60 to-slate-900/80",
-                    "backdrop-blur-md border-slate-700/50",
-                    "shadow-sm"
+                    "bg-gradient-to-r from-[#003D5B]/90 via-[#0066CC]/80 to-[#003D5B]/90",
+                    "backdrop-blur-lg border-[#0066CC]/30",
+                    "shadow-lg shadow-[#0066CC]/20"
                 )}
                 data-testid="hub-header"
+                style={{
+                    borderBottom: '1px solid rgba(0, 102, 204, 0.3)',
+                    boxShadow: '0 4px 20px rgba(0, 102, 204, 0.15), 0 1px 3px rgba(0, 61, 91, 0.2)'
+                }}
             >
                 <div className="flex items-center gap-3 sm:gap-2 min-w-0">
                     {icon && (
@@ -149,11 +153,11 @@ export function HubPage({
                             transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
                             className={cn(
                                 "flex items-center justify-center w-10 h-8 rounded-lg",
-                                "bg-primary/20 backdrop-blur-sm border border-primary/30",
-                                "text-primary shadow-sm"
+                                "bg-[#0066CC]/25 backdrop-blur-sm border border-[#00B4D8]/40",
+                                "text-[#00B4D8] shadow-md shadow-[#0066CC]/20"
                             )}
                         >
-                            {icon}
+                            {React.isValidElement(icon) ? icon : React.createElement(icon as React.ComponentType, { className: 'h-5 w-5' })}
                         </motion.div>
                     )}
                     <motion.div
@@ -183,65 +187,73 @@ export function HubPage({
             {/* Breadcrumb Navigation */}
             <DrilldownBreadcrumbs />
 
-            {/* Tab Navigation */}
-            <Tabs
-                value={activeTab}
-                onValueChange={handleTabChange}
-                className="flex flex-col flex-1 min-h-0"
-            >
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.25, duration: 0.3 }}
+            {/* Tab Navigation - Only render Tabs wrapper if we have tabs configured */}
+            {allTabs.length > 0 ? (
+                <Tabs
+                    value={activeTab}
+                    onValueChange={handleTabChange}
+                    className="flex flex-col flex-1 min-h-0"
                 >
-                    <TabsList
-                        className={cn(
-                            "w-full justify-start rounded-none border-b px-3 h-9",
-                            "bg-gradient-to-b from-slate-900/60 to-slate-900/40",
-                            "backdrop-blur-sm border-slate-700/50",
-                            "shadow-md"
-                        )}
-                        data-testid="hub-tabs"
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.25, duration: 0.3 }}
                     >
-                        {allTabs.map((tab, index) => (
-                            <motion.div
-                                key={tab.id}
-                                initial={{ opacity: 0, y: -5 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 + index * 0.05, duration: 0.2 }}
-                            >
-                                <TabsTrigger
-                                    value={tab.id}
-                                    disabled={tab.disabled}
-                                    aria-label={tab.ariaLabel || tab.label}
-                                    className={cn(
-                                        "gap-2 rounded-none px-2",
-                                        "data-[state=active]:bg-gradient-to-b data-[state=active]:from-primary/10 data-[state=active]:to-transparent",
-                                        "data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary",
-                                        "transition-all duration-200"
-                                    )}
-                                    data-testid={`hub-tab-${tab.id}`}
+                        <TabsList
+                            className={cn(
+                                "w-full justify-start rounded-none border-b px-3 h-9",
+                                "bg-gradient-to-b from-[#003D5B]/70 to-[#0A0E1A]/60",
+                                "backdrop-blur-sm border-[#0066CC]/30",
+                                "shadow-md shadow-[#0066CC]/10"
+                            )}
+                            data-testid="hub-tabs"
+                        >
+                            {allTabs.map((tab, index) => (
+                                <motion.div
+                                    key={tab.id}
+                                    initial={{ opacity: 0, y: -5 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 + index * 0.05, duration: 0.2 }}
                                 >
-                                    {tab.icon}
-                                    {tab.label}
-                                </TabsTrigger>
-                            </motion.div>
-                        ))}
-                    </TabsList>
-                </motion.div>
+                                    <TabsTrigger
+                                        value={tab.id}
+                                        disabled={tab.disabled}
+                                        aria-label={tab.ariaLabel || tab.label}
+                                        className={cn(
+                                            "gap-2 rounded-none px-2",
+                                            "data-[state=active]:bg-gradient-to-b data-[state=active]:from-[#0066CC]/15 data-[state=active]:to-transparent",
+                                            "data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#00B4D8]",
+                                            "hover:bg-[#0066CC]/10 hover:text-[#00B4D8]",
+                                            "transition-all duration-200"
+                                        )}
+                                        data-testid={`hub-tab-${tab.id}`}
+                                    >
+                                        {tab.icon && (React.isValidElement(tab.icon) ? tab.icon : React.createElement(tab.icon as React.ComponentType, { className: 'h-4 w-4' }))}
+                                        {tab.label}
+                                    </TabsTrigger>
+                                </motion.div>
+                            ))}
+                        </TabsList>
+                    </motion.div>
 
-                {/* Tab Content */}
-                {allTabs.map((tab) => (
-                    <TabsContent
-                        key={tab.id}
-                        value={tab.id}
-                        className="flex-1 min-h-0 m-0 outline-none animate-fade-in"
-                        data-testid={`hub-content-${tab.id}`}
-                    >
-                        {tab.content}
-                    </TabsContent>
-                ))}
-            </Tabs>
+                    {/* Tab Content */}
+                    {allTabs.map((tab) => (
+                        <TabsContent
+                            key={tab.id}
+                            value={tab.id}
+                            className="flex-1 min-h-0 m-0 outline-none animate-fade-in"
+                            data-testid={`hub-content-${tab.id}`}
+                        >
+                            {tab.content}
+                        </TabsContent>
+                    ))}
+                </Tabs>
+            ) : (
+                /* Render children directly if no tabs configured - allows hubs to manage their own tabs */
+                <div className="flex flex-col flex-1 min-h-0">
+                    {children}
+                </div>
+            )}
         </div>
     )
 }
