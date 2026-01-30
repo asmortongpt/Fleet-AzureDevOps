@@ -1,12 +1,12 @@
 import {
-  CurrencyDollar,
-  TrendUp,
-  TrendDown,
-  Warning,
-  ChartPie,
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  PieChart,
   Download,
   Target
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
@@ -155,9 +155,9 @@ export function CostAnalysisCenter() {
   }
 
   const getTrendIcon = (trend: string) => {
-    if (trend === 'increasing') return <TrendUp className="h-4 w-4 text-red-500" weight="bold" />
-    if (trend === 'decreasing') return <TrendDown className="h-4 w-4 text-green-500" weight="bold" />
-    return <TrendDown className="h-4 w-4 text-gray-500" weight="bold" />
+    if (trend === 'increasing') return <TrendingUp className="h-4 w-4 text-red-500" />
+    if (trend === 'decreasing') return <TrendingDown className="h-4 w-4 text-green-500" />
+    return <TrendingDown className="h-4 w-4 text-gray-500" />
   }
 
   const getCategoryColor = (category: string) => {
@@ -188,7 +188,7 @@ export function CostAnalysisCenter() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-base font-bold flex items-center gap-2">
-            <CurrencyDollar className="h-8 w-8 text-green-600" weight="fill" />
+            <DollarSign className="h-8 w-8 text-green-600" />
             Cost Analysis Command Center
           </h1>
           <p className="text-slate-700 mt-2">
@@ -197,7 +197,7 @@ export function CostAnalysisCenter() {
         </div>
         {(isAdmin || canViewFinancial) && (
           <Button onClick={exportData} className="flex items-center gap-2">
-            <Download className="h-4 w-4" weight="bold" />
+            <Download className="h-4 w-4" />
             Export to Excel
           </Button>
         )}
@@ -209,7 +209,7 @@ export function CostAnalysisCenter() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <CurrencyDollar className="h-4 w-4" weight="fill" />
+                <DollarSign className="h-4 w-4" />
                 Total Costs
               </CardTitle>
             </CardHeader>
@@ -224,7 +224,7 @@ export function CostAnalysisCenter() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <ChartPie className="h-4 w-4" weight="fill" />
+                <PieChart className="h-4 w-4" />
                 Categories
               </CardTitle>
             </CardHeader>
@@ -239,7 +239,7 @@ export function CostAnalysisCenter() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Warning className="h-4 w-4 text-red-600" weight="fill" />
+                <AlertTriangle className="h-4 w-4 text-red-600" />
                 Anomalies
               </CardTitle>
             </CardHeader>
@@ -254,7 +254,7 @@ export function CostAnalysisCenter() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Target className="h-4 w-4" weight="fill" />
+                <Target className="h-4 w-4" />
                 Budget Status
               </CardTitle>
             </CardHeader>

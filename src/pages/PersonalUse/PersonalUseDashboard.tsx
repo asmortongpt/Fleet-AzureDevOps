@@ -1,14 +1,4 @@
-import {
-  Car,
-  CurrencyDollar,
-  Receipt,
-  CalendarDots,
-  Warning,
-  TrendUp,
-  Check,
-  Clock,
-  X
-} from '@phosphor-icons/react'
+import { Car, DollarSign, Receipt, Calendar, AlertTriangle, TrendingUp, Check, Clock, X } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { useState, useEffect } from 'react'
@@ -185,10 +175,10 @@ export function PersonalUseDashboard() {
         </p>
       </div>
 
-      {/* Warning Alerts */}
+      {/* AlertTriangle Alerts */}
       {(monthlyExceeded || yearlyExceeded) && (
         <Alert variant="destructive">
-          <Warning className="h-4 w-4" />
+          <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             {monthlyExceeded && (
               <p>You have exceeded your monthly personal use limit by {(monthlyPercentage - 100).toFixed(0)}%</p>
@@ -206,7 +196,7 @@ export function PersonalUseDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <CalendarDots className="w-3 h-3" />
+              <Calendar className="w-3 h-3" />
               This Month
             </CardTitle>
             <CardDescription>
@@ -236,7 +226,7 @@ export function PersonalUseDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendUp className="w-3 h-3" />
+              <TrendingUp className="w-3 h-3" />
               This Year
             </CardTitle>
             <CardDescription>
@@ -281,7 +271,7 @@ export function PersonalUseDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Charges</CardTitle>
-            <CurrencyDollar className="h-4 w-4 text-muted-foreground" />
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-sm font-bold">
@@ -311,7 +301,7 @@ export function PersonalUseDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Next Payment</CardTitle>
-            <CalendarDots className="h-4 w-4 text-muted-foreground" />
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-sm font-bold">
@@ -334,7 +324,7 @@ export function PersonalUseDashboard() {
             Recent Trips
           </TabsTrigger>
           <TabsTrigger value="charges">
-            <CurrencyDollar className="w-4 h-4 mr-2" />
+            <DollarSign className="w-4 h-4 mr-2" />
             Pending Charges
           </TabsTrigger>
           <TabsTrigger value="reimbursements">

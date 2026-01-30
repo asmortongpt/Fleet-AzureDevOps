@@ -16,19 +16,7 @@
 
 import { motion } from 'framer-motion'
 import { Suspense, memo, useCallback, useMemo, useState, type FC, type ReactNode } from 'react'
-import {
-  Wrench,
-  Warehouse,
-  ChartLine,
-  CalendarDots,
-  ClipboardText,
-  Lightning,
-  CurrencyDollar,
-  Plus,
-  TrendUp,
-  Clock,
-  CheckCircle,
-} from '@phosphor-icons/react'
+import { Wrench, Warehouse, LineChart, Calendar, Clipboard, Zap, DollarSign, Plus, TrendingUp, Clock, CheckCircle } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveMaintenanceData, type WorkOrder, type PredictiveMaintenance } from '@/hooks/use-reactive-maintenance-data'
 import {
@@ -234,7 +222,7 @@ const GarageOverview: FC = memo(() => {
         <StatCard
           title="Total Work Orders"
           value={metrics?.totalWorkOrders?.toString() || '0'}
-          icon={ClipboardText}
+          icon={Clipboard}
           trend="neutral"
           description="All orders"
           loading={isLoading}
@@ -243,7 +231,7 @@ const GarageOverview: FC = memo(() => {
         <StatCard
           title="Urgent Orders"
           value={metrics?.urgentOrders?.toString() || '0'}
-          icon={Lightning}
+          icon={Zap}
           trend="down"
           change="-2"
           description="High priority"
@@ -295,7 +283,7 @@ const GarageOverview: FC = memo(() => {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Lightning className="h-5 w-5 text-amber-500" aria-hidden="true" />
+            <Zap className="h-5 w-5 text-amber-500" aria-hidden="true" />
             <CardTitle id="urgent-orders-heading">Urgent Work Orders</CardTitle>
           </div>
           <CardDescription>High-priority orders requiring immediate attention</CardDescription>
@@ -363,7 +351,7 @@ const PredictiveContent: FC = memo(() => {
         <StatCard
           title="Active Predictions"
           value={predictiveMetrics.activePredictions.toString()}
-          icon={ChartLine}
+          icon={LineChart}
           trend="up"
           change="+12"
           description="Vehicles monitored"
@@ -373,7 +361,7 @@ const PredictiveContent: FC = memo(() => {
         <StatCard
           title="Critical Alerts"
           value={predictiveMetrics.criticalAlerts.toString()}
-          icon={Lightning}
+          icon={Zap}
           trend="down"
           change="-3"
           description="Requiring attention"
@@ -383,7 +371,7 @@ const PredictiveContent: FC = memo(() => {
         <StatCard
           title="Prevented Failures"
           value={predictiveMetrics.preventedFailures.toString()}
-          icon={TrendUp}
+          icon={TrendingUp}
           trend="up"
           description="This month"
           loading={isLoading}
@@ -392,7 +380,7 @@ const PredictiveContent: FC = memo(() => {
         <StatCard
           title="Cost Savings"
           value={`$${(predictiveMetrics.costSavings / 1000).toFixed(0)}K`}
-          icon={CurrencyDollar}
+          icon={DollarSign}
           trend="up"
           description="YTD savings"
           loading={isLoading}
@@ -404,7 +392,7 @@ const PredictiveContent: FC = memo(() => {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Lightning className="h-5 w-5 text-amber-500" aria-hidden="true" />
+            <Zap className="h-5 w-5 text-amber-500" aria-hidden="true" />
             <CardTitle id="ai-insights-heading">AI-Powered Insights</CardTitle>
           </div>
           <CardDescription>ML Model v2.4 • 94% Accuracy</CardDescription>
@@ -529,7 +517,7 @@ const CalendarContent: FC = memo(() => {
         <StatCard
           title="Today"
           value="4"
-          icon={CalendarDots}
+          icon={Calendar}
           description="Scheduled today"
           loading={isLoading}
           aria-label="Maintenance scheduled today"
@@ -537,7 +525,7 @@ const CalendarContent: FC = memo(() => {
         <StatCard
           title="This Week"
           value="18"
-          icon={CalendarDots}
+          icon={Calendar}
           trend="up"
           description="7-day schedule"
           loading={isLoading}
@@ -546,7 +534,7 @@ const CalendarContent: FC = memo(() => {
         <StatCard
           title="Overdue"
           value="2"
-          icon={Lightning}
+          icon={Zap}
           trend="down"
           description="Needs attention"
           loading={isLoading}
@@ -701,7 +689,7 @@ const RequestsContent: FC = memo(() => {
         <StatCard
           title="New Requests"
           value={requestMetrics?.newRequests?.toString() || '0'}
-          icon={ClipboardText}
+          icon={Clipboard}
           trend="neutral"
           description="Awaiting review"
           loading={isLoading}
@@ -710,7 +698,7 @@ const RequestsContent: FC = memo(() => {
         <StatCard
           title="In Review"
           value={requestMetrics?.inReview?.toString() || '0'}
-          icon={ChartLine}
+          icon={LineChart}
           trend="neutral"
           description="Being evaluated"
           loading={isLoading}
@@ -719,7 +707,7 @@ const RequestsContent: FC = memo(() => {
         <StatCard
           title="Approved"
           value={requestMetrics?.approved?.toString() || '0'}
-          icon={TrendUp}
+          icon={TrendingUp}
           trend="up"
           description="Ready to schedule"
           loading={isLoading}
@@ -772,7 +760,7 @@ const MaintenanceHub: FC = () => {
     {
       id: 'predictive',
       label: 'Predictive',
-      icon: <ChartLine className="h-4 w-4" aria-hidden="true" />,
+      icon: <LineChart className="h-4 w-4" aria-hidden="true" />,
       content: (
         <ErrorBoundary>
           <Suspense fallback={
@@ -788,7 +776,7 @@ const MaintenanceHub: FC = () => {
     {
       id: 'calendar',
       label: 'Calendar',
-      icon: <CalendarDots className="h-4 w-4" aria-hidden="true" />,
+      icon: <Calendar className="h-4 w-4" aria-hidden="true" />,
       content: (
         <ErrorBoundary>
           <Suspense fallback={
@@ -804,7 +792,7 @@ const MaintenanceHub: FC = () => {
     {
       id: 'requests',
       label: 'Requests',
-      icon: <ClipboardText className="h-4 w-4" aria-hidden="true" />,
+      icon: <Clipboard className="h-4 w-4" aria-hidden="true" />,
       content: (
         <ErrorBoundary>
           <Suspense fallback={

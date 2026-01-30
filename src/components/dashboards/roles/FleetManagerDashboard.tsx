@@ -14,14 +14,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import {
-  Warning,
-  Wrench,
-  Users,
-  FileText,
-  Calendar,
-  WarningCircle
-} from '@phosphor-icons/react';
+import { AlertTriangle, Wrench, Users, FileText, Calendar, AlertCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -125,7 +118,7 @@ export function FleetManagerDashboard() {
     return (
       <div className="min-h-screen bg-[var(--minimalist-bg-primary)] p-2">
         <Alert variant="destructive">
-          <WarningCircle className="h-4 w-4" />
+          <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error Loading Data</AlertTitle>
           <AlertDescription>
             {maintenanceError instanceof Error ? maintenanceError.message : 'Failed to load dashboard data'}
@@ -150,7 +143,7 @@ export function FleetManagerDashboard() {
       {/* Attention Needed Section - Minimalist Alert Cards */}
       <Card className="p-2 mb-2 border-[var(--minimalist-border-medium)]">
         <div className="flex items-center gap-2 mb-3">
-          <WarningCircle className="w-4 h-4 text-[var(--minimalist-text-secondary)]" />
+          <AlertCircle className="w-4 h-4 text-[var(--minimalist-text-secondary)]" />
           <h2 className="text-base font-medium text-[var(--minimalist-text-primary)]">
             Attention Needed
           </h2>
@@ -167,7 +160,7 @@ export function FleetManagerDashboard() {
             onClick={handleViewOverdue}
           >
             <div className="flex items-start justify-between mb-2">
-              <Warning className="w-3 h-3 text-red-400" />
+              <AlertTriangle className="w-3 h-3 text-red-400" />
               <span className="text-sm font-semibold text-[var(--minimalist-text-primary)]">
                 {overdueCount}
               </span>
@@ -376,7 +369,7 @@ export function FleetManagerDashboard() {
                     ${costSummary.cost_per_mile.toFixed(2)}
                   </span>
                   {costSummary.cost_per_mile > costSummary.target_cost_per_mile && (
-                    <Warning className="w-4 h-4 text-amber-400" />
+                    <AlertTriangle className="w-4 h-4 text-amber-400" />
                   )}
                 </div>
               </div>

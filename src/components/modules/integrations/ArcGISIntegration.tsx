@@ -26,22 +26,22 @@
 
 import {
   Plus,
-  Trash,
+  Trash2,
   Eye,
-  EyeSlash,
-  GlobeHemisphereWest,
+  EyeOff,
+  Globe,
   CheckCircle,
-  Warning,
+  AlertTriangle,
   Download,
   Upload,
-  ArrowClockwise,
-  DotsThree,
+  RotateCw,
+  MoreHorizontal,
   Copy,
-  CaretUp,
-  CaretDown,
+  ChevronUp,
+  ChevronDown,
   Info,
   XCircle,
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -750,7 +750,7 @@ export function ArcGISIntegration() {
             {layer.enabled ? (
               <Eye className="h-4 w-4 text-green-500" />
             ) : (
-              <EyeSlash className="h-4 w-4 text-gray-400" />
+              <EyeOff className="h-4 w-4 text-gray-400" />
             )}
             <span className="font-medium truncate">{layer.name}</span>
             <Badge variant={layer.health === 'healthy' ? 'default' : 'destructive'}>
@@ -779,12 +779,12 @@ export function ArcGISIntegration() {
             onClick={() => handleToggleLayer(layer.id)}
             disabled={isLoading}
           >
-            {layer.enabled ? <EyeSlash className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {layer.enabled ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" disabled={isLoading}>
-                <DotsThree className="h-4 w-4" />
+                <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -793,16 +793,16 @@ export function ArcGISIntegration() {
                 Duplicate
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleMoveLayerUp(index)}>
-                <CaretUp className="h-4 w-4 mr-2" />
+                <ChevronUp className="h-4 w-4 mr-2" />
                 Move Up
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleMoveLayerDown(index)}>
-                <CaretDown className="h-4 w-4 mr-2" />
+                <ChevronDown className="h-4 w-4 mr-2" />
                 Move Down
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => handleDeleteLayer(layer.id)} className="text-red-500">
-                <Trash className="h-4 w-4 mr-2" />
+                <Trash2 className="h-4 w-4 mr-2" />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -821,7 +821,7 @@ export function ArcGISIntegration() {
         {connectionResult.success ? (
           <CheckCircle className="h-4 w-4 text-green-500" />
         ) : (
-          <Warning className="h-4 w-4 text-red-500" />
+          <AlertTriangle className="h-4 w-4 text-red-500" />
         )}
         <AlertTitle>{connectionResult.success ? 'Success' : 'Error'}</AlertTitle>
         <AlertDescription>{connectionResult.message}</AlertDescription>
@@ -986,7 +986,7 @@ export function ArcGISIntegration() {
             Export
           </Button>
           <Button variant="outline" onClick={refreshAllLayerHealth} disabled={globalLoading}>
-            <ArrowClockwise className="h-4 w-4 mr-2" />
+            <RotateCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
         </div>
@@ -1006,7 +1006,7 @@ export function ArcGISIntegration() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Warnings</CardTitle>
-            <Warning className="h-4 w-4 text-yellow-500" />
+            <AlertTriangle className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
             <div className="text-sm font-bold">{warningLayers.length}</div>
@@ -1026,7 +1026,7 @@ export function ArcGISIntegration() {
       {/* Global Error State */}
       {globalError && (
         <Alert variant="destructive">
-          <Warning className="h-4 w-4" />
+          <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{globalError}</AlertDescription>
         </Alert>
@@ -1046,7 +1046,7 @@ export function ArcGISIntegration() {
           <CardContent>
             {layers.length === 0 ? (
               <div className="text-center py-3 text-gray-500">
-                <GlobeHemisphereWest className="h-9 w-12 mx-auto mb-2 text-gray-400" />
+                <Globe className="h-9 w-12 mx-auto mb-2 text-gray-400" />
                 <p>No ArcGIS layers added yet. Click "Add Layer" to get started.</p>
               </div>
             ) : (

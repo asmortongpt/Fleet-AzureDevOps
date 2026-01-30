@@ -1,12 +1,12 @@
 import {
-  CarProfile,
-  TrendUp,
+  Car,
+  TrendingUp,
   Star,
-  Warning,
+  AlertTriangle,
   CheckCircle,
   Trophy,
   Target
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useMemo, useState } from "react"
 
 import { ChartCard } from "@/components/ChartCard"
@@ -143,7 +143,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
           title="Total Drivers"
           value={metrics.totalDrivers}
           subtitle={`${metrics.activeDrivers} active`}
-          icon={<CarProfile className="w-3 h-3" />}
+          icon={<Car className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
@@ -164,7 +164,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
           title="Total Incidents"
           value={metrics.totalIncidents}
           subtitle="reported"
-          icon={<Warning className="w-3 h-3" />}
+          icon={<AlertTriangle className="w-3 h-3" />}
           status={metrics.totalIncidents < 10 ? "success" : "warning"}
         />
       </div>
@@ -255,7 +255,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                               {badge.label}
                             </Badge>
                             {(driver as any).trend === "up" && (
-                              <TrendUp className="w-4 h-4 text-success" weight="bold" />
+                              <TrendingUp className="w-4 h-4 text-success" />
                             )}
                           </div>
                           <p className="text-sm text-muted-foreground mb-3">
@@ -350,7 +350,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                           </span> • {(driver as any).trips} trips • {((driver as any).miles || 0).toLocaleString()} miles
                         </p>
                       </div>
-                      <Trophy className="w-4 h-4 text-warning" weight="fill" />
+                      <Trophy className="w-4 h-4 text-warning" />
                     </div>
                   </CardContent>
                 </Card>
@@ -375,7 +375,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                     <div className="flex items-start justify-between">
                       <div className="flex gap-2 flex-1">
                         <div className="w-12 h-9 rounded-full bg-destructive/10 text-destructive flex items-center justify-center">
-                          <Warning className="w-4 h-4" weight="fill" />
+                          <AlertTriangle className="w-4 h-4" />
                         </div>
                         <div className="flex-1">
                           <h3 className="font-semibold text-sm mb-1">{driver.name}</h3>

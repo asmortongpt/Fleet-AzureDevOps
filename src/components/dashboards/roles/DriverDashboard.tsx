@@ -12,20 +12,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import {
-  Car,
-  MapPin,
-  GasPump,
-  Warning,
-  CheckCircle,
-  PlayCircle,
-  ClipboardText,
-  Clock,
-  Path,
-  Gauge,
-  Calendar,
-  WarningCircle
-} from '@phosphor-icons/react';
+import { Car, MapPin, Fuel, AlertTriangle, CheckCircle, PlayCircle, Clipboard, Clock, Route, Gauge, Calendar, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
@@ -197,7 +184,7 @@ export function DriverDashboard() {
     return (
       <div className="min-h-screen bg-slate-900 p-2">
         <Alert variant="destructive" className="bg-red-950/50 border-red-500/50">
-          <WarningCircle className="h-4 w-4 text-red-400" />
+          <AlertCircle className="h-4 w-4 text-red-400" />
           <AlertTitle className="text-red-400">Error Loading Data</AlertTitle>
           <AlertDescription className="text-red-300">
             {vehicleError instanceof Error ? vehicleError.message : 'Failed to load your dashboard data'}
@@ -246,7 +233,7 @@ export function DriverDashboard() {
             {/* Fuel Level */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <GasPump className="w-4 h-4 text-slate-400" />
+                <Fuel className="w-4 h-4 text-slate-400" />
                 <span className="text-sm text-slate-300 text-sm">Fuel</span>
               </div>
               <div className="flex items-center gap-2">
@@ -289,7 +276,7 @@ export function DriverDashboard() {
       {/* Today's Trips */}
       <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
-          <Path className="w-4 h-4 text-violet-400" />
+          <Route className="w-4 h-4 text-violet-400" />
           <h2 className="text-sm font-bold text-white">Today's Trips</h2>
         </div>
 
@@ -359,14 +346,14 @@ export function DriverDashboard() {
           onClick={handleLogFuel}
           className="bg-cyan-600 hover:bg-cyan-700 text-white"
         >
-          <GasPump className="w-4 h-4 mr-2" />
+          <Fuel className="w-4 h-4 mr-2" />
           Log Fuel
         </Button>
         <Button size="sm"
           onClick={handleReportIssue}
           className="bg-red-600 hover:bg-red-700 text-white"
         >
-          <Warning className="w-4 h-4 mr-2" />
+          <AlertTriangle className="w-4 h-4 mr-2" />
           Report Issue
         </Button>
       </div>
@@ -374,7 +361,7 @@ export function DriverDashboard() {
       {/* Pre-Trip Inspection Checklist */}
       <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
         <div className="flex items-center gap-2 mb-3">
-          <ClipboardText className="w-4 h-4 text-amber-400" />
+          <Clipboard className="w-4 h-4 text-amber-400" />
           <h2 className="text-sm font-bold text-white">Pre-Trip Inspection Checklist</h2>
         </div>
 
@@ -396,7 +383,7 @@ export function DriverDashboard() {
                   ? "bg-green-500 border-green-500"
                   : "border-slate-600"
               )}>
-                {item.completed && <CheckCircle className="w-4 h-4 text-white" weight="fill" />}
+                {item.completed && <CheckCircle className="w-4 h-4 text-white" />}
               </div>
               <span className={cn(
                 "text-sm",

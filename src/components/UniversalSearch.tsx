@@ -14,11 +14,7 @@
  * Created: 2025-11-23
  */
 
-import {
-  MagnifyingGlass, Car, User, Wrench, Package,
-  Truck, MapPin, FileText,
-  Keyboard, CaretRight, Spinner
-} from '@phosphor-icons/react'
+import { Search, Car, User, Wrench, Package, Truck, MapPin, FileText, Keyboard, ChevronRight, Spinner } from 'lucide-react'
 import { motion } from 'framer-motion'
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 
@@ -341,7 +337,7 @@ function SearchResultItem({ result, isSelected, onClick }: SearchResultItemProps
         )}
       </div>
 
-      <CaretRight className="w-4 h-4 text-muted-foreground shrink-0" />
+      <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
     </motion.div>
   )
 }
@@ -420,7 +416,7 @@ export function UniversalSearch({
       <DialogContent className={cn("sm:max-w-[600px] p-0", className)}>
         <DialogHeader className="px-2 pt-2 pb-2">
           <div className="flex items-center gap-2">
-            <MagnifyingGlass className="w-3 h-3 text-muted-foreground" />
+            <Search className="w-3 h-3 text-muted-foreground" />
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -446,7 +442,7 @@ export function UniversalSearch({
               </div>
             ) : results.length === 0 && !isSearching ? (
               <div className="text-center py-3 text-muted-foreground">
-                <MagnifyingGlass className="w-4 h-4 mx-auto mb-2 opacity-50" />
+                <Search className="w-4 h-4 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">No results found for "{query}"</p>
               </div>
             ) : (

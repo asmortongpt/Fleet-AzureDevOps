@@ -1,10 +1,10 @@
 import {
     Wrench,
     CheckCircle,
-    Warning,
+    AlertTriangle,
     Clock,
     CalendarCheck
-} from "@phosphor-icons/react";
+} from "lucide-react";
 import React, { useState } from "react";
 
 import { Badge } from "../../ui/badge";
@@ -61,7 +61,7 @@ export const MaintenancePanel: React.FC<MaintenancePanelProps> = ({ open, onOpen
                 <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
                     <div className="flex items-center justify-between">
                         <SheetTitle className="text-base font-semibold flex items-center gap-2 text-white">
-                            <Wrench className="w-4 h-4 text-orange-500" weight="fill" />
+                            <Wrench className="w-4 h-4 text-orange-500" />
                             Maintenance
                         </SheetTitle>
                         <div className="flex gap-2">
@@ -122,7 +122,7 @@ export const MaintenancePanel: React.FC<MaintenancePanelProps> = ({ open, onOpen
                                     </div>
                                     {task.status === 'overdue' && (
                                         <Badge variant="destructive" className="flex items-center gap-1">
-                                            <Warning className="w-3 h-3" /> Overdue
+                                            <AlertTriangle className="w-3 h-3" /> Overdue
                                         </Badge>
                                     )}
                                     {task.status === 'due-soon' && (

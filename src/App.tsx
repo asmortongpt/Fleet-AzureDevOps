@@ -32,7 +32,8 @@ const AnalyticsDashboard = lazy(() => import("@/components/analytics/AnalyticsDa
 
 // ADMIN MODULES
 // const CommandCenter = lazy(() => import("@/pages/CommandCenter"))
-const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"))
+// AdminDashboard has been consolidated into AdminHub
+const AdminDashboard = lazy(() => import("@/pages/AdminHub"))
 
 const PolicyEngineWorkbench = lazy(() => import("@/components/modules/admin/PolicyEngineWorkbench").then(m => ({ default: m.PolicyEngineWorkbench })))
 const Notifications = lazy(() => import("@/components/modules/admin/Notifications").then(m => ({ default: m.Notifications })))

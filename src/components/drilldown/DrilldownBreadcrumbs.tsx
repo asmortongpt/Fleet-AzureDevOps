@@ -3,7 +3,7 @@
  * Shows current location in navigation hierarchy and enables quick navigation back
  */
 
-import { CaretRight, House } from '@phosphor-icons/react'
+import { ChevronRight, Home } from 'lucide-react'
 
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
@@ -27,14 +27,14 @@ export function DrilldownBreadcrumbs() {
         data-testid="breadcrumb-0"
         aria-label="Go to home"
       >
-        <House className="w-4 h-4" weight="fill" />
+        <Home className="w-4 h-4" />
         <span className="text-sm font-medium">Home</span>
       </button>
 
       {/* Breadcrumb trail */}
       {levels.map((level, index) => (
         <div key={level.id} className="flex items-center gap-2 shrink-0">
-          <CaretRight className="w-4 h-4 text-slate-600" />
+          <ChevronRight className="w-4 h-4 text-slate-600" />
           <button
             onClick={() => goToLevel(index)}
             className={cn(

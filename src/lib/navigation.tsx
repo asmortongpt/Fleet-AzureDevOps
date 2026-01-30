@@ -1,20 +1,20 @@
 import {
-  MapTrifold,
-  Broadcast,
+  Map,
+  Radio,
   Wrench,
   Users,
-  ChartLine,
+  LineChart,
   Shield,
   Package,
-  Gear,
+  Settings,
   Barcode,
-  ChatsCircle,
-  CurrencyDollar,
-  Plugs,
+  MessageCircle,
+  DollarSign,
+  Plug,
   BookOpen,
   Database,
   FileText
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { ReactNode } from "react"
 
 export interface NavigationItem {
@@ -50,7 +50,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "fleet-hub-consolidated",
     label: "Fleet Hub",
-    icon: <MapTrifold className="w-3 h-3" />,
+    icon: <Map className="w-3 h-3" />,
     section: "hubs",
     category: "Operations",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Dispatcher', 'Driver', 'Analyst', 'Auditor']
@@ -58,7 +58,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "operations-hub-consolidated",
     label: "Operations Hub",
-    icon: <Broadcast className="w-3 h-3" />,
+    icon: <Radio className="w-3 h-3" />,
     section: "hubs",
     category: "Operations",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Dispatcher', 'Analyst', 'Auditor']
@@ -84,7 +84,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "analytics-hub-consolidated",
     label: "Analytics Hub",
-    icon: <ChartLine className="w-3 h-3" />,
+    icon: <LineChart className="w-3 h-3" />,
     section: "hubs",
     category: "Analytics",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Analyst', 'Auditor']
@@ -92,7 +92,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "reports-hub",
     label: "Reports Hub",
-    icon: <ChartLine className="w-3 h-3" />,
+    icon: <LineChart className="w-3 h-3" />,
     section: "hubs",
     category: "Analytics",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Analyst', 'Auditor']
@@ -146,7 +146,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "admin-hub-consolidated",
     label: "Admin Hub",
-    icon: <Gear className="w-3 h-3" />,
+    icon: <Settings className="w-3 h-3" />,
     section: "hubs",
     category: "Admin",
     roles: ['SuperAdmin', 'Admin', 'FleetAdmin']
@@ -154,7 +154,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "communication-hub-consolidated",
     label: "Communication Hub",
-    icon: <ChatsCircle className="w-3 h-3" />,
+    icon: <MessageCircle className="w-3 h-3" />,
     section: "hubs",
     category: "Communication",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Dispatcher', 'SafetyOfficer']
@@ -164,7 +164,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "financial-hub-consolidated",
     label: "Financial Hub",
-    icon: <CurrencyDollar className="w-3 h-3" />,
+    icon: <DollarSign className="w-3 h-3" />,
     section: "hubs",
     category: "Financial",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Analyst', 'Auditor']
@@ -172,7 +172,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "integrations-hub-consolidated",
     label: "Integrations Hub",
-    icon: <Plugs className="w-3 h-3" />,
+    icon: <Plug className="w-3 h-3" />,
     section: "hubs",
     category: "Integrations",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'Finance']
@@ -182,7 +182,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "cta-configuration-hub",
     label: "CTA Configuration",
-    icon: <Gear className="w-3 h-3" />,
+    icon: <Settings className="w-3 h-3" />,
     section: "hubs",
     category: "CTA Admin",
     roles: ['SuperAdmin', 'CTAOwner']
@@ -224,7 +224,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "insights-hub",
     label: "Insights Hub",
-    icon: <ChartLine className="w-3 h-3" />,
+    icon: <LineChart className="w-3 h-3" />,
     section: "hubs",
     category: "Analytics",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Analyst', 'Auditor']
@@ -232,7 +232,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "configuration-hub",
     label: "Configuration Hub",
-    icon: <Gear className="w-3 h-3" />,
+    icon: <Settings className="w-3 h-3" />,
     section: "hubs",
     category: "Admin",
     roles: ['Admin', 'FleetAdmin']

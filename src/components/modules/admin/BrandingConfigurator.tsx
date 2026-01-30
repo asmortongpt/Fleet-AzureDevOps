@@ -3,17 +3,7 @@
  * Allows administrators to customize document branding
  */
 
-import {
-  Building,
-  Palette,
-  FileText,
-  Image as ImageIcon,
-  Type,
-  Save,
-  Eye,
-  RotateCcw,
-  Upload
-} from '@phosphor-icons/react'
+import { Building, Palette, FileText, Image as ImageIcon, Type, Save, Eye, RotateCcw, Upload } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 

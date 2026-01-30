@@ -13,23 +13,7 @@
  * - SOP-driven RBAC configuration
  */
 
-import {
-  Gear,
-  Building,
-  SquaresFour,
-  Sliders,
-  Plugs,
-  Bell,
-  Shield,
-  Code,
-  Export,
-  Upload,
-  MagicWand,
-  Eye,
-  CheckCircle,
-  Warning as WarningIcon,
-  Info
-} from '@phosphor-icons/react'
+import { Settings, Building, Grid, Sliders, Plug, Bell, Shield, Code, Download as Export, Upload, Wand2, Eye, CheckCircle, AlertTriangle as WarningIcon, Info } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 import { HubPage, HubTab } from '@/components/ui/hub-page'
@@ -78,7 +62,7 @@ function OverviewContent() {
         </div>
         <div className="flex items-center gap-3">
           <button className="px-2 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2">
-            <MagicWand className="w-3 h-3" />
+            <Wand2 className="w-3 h-3" />
             Auto-Configure from Policies
           </button>
           <button className="px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
@@ -97,7 +81,7 @@ function OverviewContent() {
         <StatCard
           title="Total Settings"
           value={configStats.totalSettings.toString()}
-          icon={<Gear className="w-4 h-4" />}
+          icon={<Settings className="w-4 h-4" />}
         />
         <StatCard
           title="Configured"
@@ -109,7 +93,7 @@ function OverviewContent() {
           title="Policy-Driven"
           value={configStats.policyDriven.toString()}
           variant="info"
-          icon={<MagicWand className="w-4 h-4" />}
+          icon={<Wand2 className="w-4 h-4" />}
         />
         <StatCard
           title="Needs Approval"
@@ -170,7 +154,7 @@ function CategoryCard({ category }: { category: ConfigCategory }) {
     <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3 hover:border-blue-300 transition-all cursor-pointer">
       <div className="flex items-start gap-2">
         <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-          <Gear className="w-4 h-4 text-blue-800" />
+          <Settings className="w-4 h-4 text-blue-800" />
         </div>
         <div className="flex-1">
           <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{category.name}</h3>
@@ -179,7 +163,7 @@ function CategoryCard({ category }: { category: ConfigCategory }) {
             <span className="text-slate-600 dark:text-slate-400">{totalSettings} settings</span>
             {policyDriven > 0 && (
               <span className="flex items-center gap-1 text-purple-600">
-                <MagicWand className="w-4 h-4" />
+                <Wand2 className="w-4 h-4" />
                 {policyDriven} policy-driven
               </span>
             )}
@@ -222,7 +206,7 @@ function ConfigChangeItem({
             <>
               <span>•</span>
               <span className="flex items-center gap-1 text-purple-600">
-                <MagicWand className="w-3 h-3" />
+                <Wand2 className="w-3 h-3" />
                 {source}
               </span>
             </>
@@ -295,7 +279,7 @@ function BusinessRulesContent() {
           <p className="text-slate-600 dark:text-slate-400 mt-1">Most of these are automatically configured by policies</p>
         </div>
         <div className="flex items-center gap-2 px-2 py-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-          <MagicWand className="w-3 h-3 text-purple-600" />
+          <Wand2 className="w-3 h-3 text-purple-600" />
           <span className="text-sm font-medium text-purple-900 dark:text-purple-100">Policy-Driven</span>
         </div>
       </div>
@@ -337,7 +321,7 @@ function RBACConfiguration() {
           <p className="text-slate-600 dark:text-slate-400 mt-1">Permissions automatically configured from SOPs and policies</p>
         </div>
         <button className="px-2 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2">
-          <MagicWand className="w-3 h-3" />
+          <Wand2 className="w-3 h-3" />
           Sync from SOPs
         </button>
       </div>
@@ -546,7 +530,7 @@ function ConfigSection({
         </div>
         {policyDriven && (
           <div className="flex items-center gap-2 px-3 py-1 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-            <MagicWand className="w-4 h-4 text-purple-600" />
+            <Wand2 className="w-4 h-4 text-purple-600" />
             <span className="text-xs font-medium text-purple-900 dark:text-purple-100">Policy-Driven</span>
           </div>
         )}
@@ -657,7 +641,7 @@ function ConfigSettingInput({ setting }: { setting: ConfigSetting }) {
 
         {setting.policySource && (
           <div className="mt-2 flex items-center gap-2 text-xs text-purple-600">
-            <MagicWand className="w-3 h-3" />
+            <Wand2 className="w-3 h-3" />
             <span>Auto-configured by policy: {setting.policySource}</span>
           </div>
         )}
@@ -827,7 +811,7 @@ function AdvancedContent() {
                 Reset All Configuration to Defaults
               </button>
               <button className="w-full px-2 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2 justify-center">
-                <MagicWand className="w-3 h-3" />
+                <Wand2 className="w-3 h-3" />
                 Recalculate All Policy-Driven Settings
               </button>
             </div>
@@ -847,7 +831,7 @@ export default function CTAConfigurationHub() {
     {
       id: 'overview',
       label: 'Overview',
-      icon: <Gear className="w-3 h-3" />,
+      icon: <Settings className="w-3 h-3" />,
       content: <OverviewContent />
     },
     {
@@ -859,7 +843,7 @@ export default function CTAConfigurationHub() {
     {
       id: 'modules',
       label: 'Modules & Features',
-      icon: <SquaresFour className="w-3 h-3" />,
+      icon: <Grid className="w-3 h-3" />,
       content: <ModulesFeaturesContent />
     },
     {
@@ -877,7 +861,7 @@ export default function CTAConfigurationHub() {
     {
       id: 'integrations',
       label: 'Integrations & APIs',
-      icon: <Plugs className="w-3 h-3" />,
+      icon: <Plug className="w-3 h-3" />,
       content: <IntegrationsContent />
     },
     {
@@ -904,7 +888,7 @@ export default function CTAConfigurationHub() {
     <HubPage
       title="CTA Configuration"
       description="Complete control over every aspect of the Fleet application"
-      icon={<Gear className="w-4 h-4" />}
+      icon={<Settings className="w-4 h-4" />}
       tabs={tabs}
       defaultTab="overview"
       gradient="from-purple-900/20 via-blue-900/10 to-transparent"

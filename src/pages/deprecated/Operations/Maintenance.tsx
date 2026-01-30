@@ -19,17 +19,7 @@
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Wrench,
-  Plus,
-  MagnifyingGlass,
-  CheckCircle,
-  Calendar,
-  Car,
-  Clock,
-  CurrencyDollar,
-  ArrowsClockwise
-} from '@phosphor-icons/react';
+import { Wrench, Plus, Search, CheckCircle, Calendar, Car, Clock, DollarSign, RefreshCw } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 import { SplitView } from '@/components/operations/SplitView';
@@ -324,7 +314,7 @@ export function MaintenanceOperations() {
               colors.bg,
               colors.text
             )}>
-              <Wrench className="w-6 h-6" weight="bold" />
+              <Wrench className="w-6 h-6" />
             </div>
 
             <div className="min-w-0 flex-1">
@@ -333,16 +323,16 @@ export function MaintenanceOperations() {
               </h3>
               <div className="space-y-1">
                 <p className="text-xs text-slate-400 truncate flex items-center gap-1">
-                  <Car className="w-3 h-3 flex-shrink-0" weight="bold" />
+                  <Car className="w-3 h-3 flex-shrink-0" />
                   {task.vehicle_number || `Vehicle #${task.vehicle_id}`}
                 </p>
                 <p className="text-xs text-slate-400 truncate flex items-center gap-1">
-                  <Calendar className="w-3 h-3 flex-shrink-0" weight="bold" />
+                  <Calendar className="w-3 h-3 flex-shrink-0" />
                   {new Date(task.scheduled_date).toLocaleDateString()}
                 </p>
                 {task.total_cost && (
                   <p className="text-xs text-slate-400 truncate flex items-center gap-1">
-                    <CurrencyDollar className="w-3 h-3 flex-shrink-0" weight="bold" />
+                    <DollarSign className="w-3 h-3 flex-shrink-0" />
                     ${task.total_cost.toFixed(2)}
                   </p>
                 )}
@@ -360,17 +350,17 @@ export function MaintenanceOperations() {
           <div className="mt-2 ml-15 text-xs font-semibold">
             {daysUntilDue < 0 ? (
               <span className="text-red-400">
-                <Clock className="w-3 h-3 inline mr-1" weight="bold" />
+                <Clock className="w-3 h-3 inline mr-1" />
                 {Math.abs(daysUntilDue)} days overdue
               </span>
             ) : daysUntilDue === 0 ? (
               <span className="text-amber-400">
-                <Clock className="w-3 h-3 inline mr-1" weight="bold" />
+                <Clock className="w-3 h-3 inline mr-1" />
                 Due today
               </span>
             ) : (
               <span className="text-blue-400">
-                <Clock className="w-3 h-3 inline mr-1" weight="bold" />
+                <Clock className="w-3 h-3 inline mr-1" />
                 {daysUntilDue} days remaining
               </span>
             )}
@@ -514,7 +504,7 @@ export function MaintenanceOperations() {
         {(selectedTask.total_cost || selectedTask.labor_cost || selectedTask.parts_cost) && (
           <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-emerald-400/30 p-4">
             <div className="flex items-center gap-2 mb-3">
-              <CurrencyDollar className="w-4 h-4 text-emerald-400" weight="bold" />
+              <DollarSign className="w-4 h-4 text-emerald-400" />
               <h4 className="text-sm font-bold text-white">Cost Tracking</h4>
             </div>
             <div className="space-y-2 text-sm">
@@ -618,7 +608,7 @@ export function MaintenanceOperations() {
     <div className="flex flex-col h-full">
       <div className="p-4 space-y-3 border-b border-slate-700/50">
         <div className="relative">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" weight="bold" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -667,7 +657,7 @@ export function MaintenanceOperations() {
       <div className="flex-1 overflow-y-auto">
         {loading ? (
           <div className="flex items-center justify-center h-full">
-            <ArrowsClockwise className="w-6 h-6 text-cyan-400 animate-spin" weight="bold" />
+            <RefreshCw className="w-6 h-6 text-cyan-400 animate-spin" />
           </div>
         ) : filteredTasks.length > 0 ? (
           filteredTasks.map(renderTaskItem)
@@ -695,7 +685,7 @@ export function MaintenanceOperations() {
             size="sm"
             className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold disabled:opacity-50"
           >
-            <Plus className="w-4 h-4" weight="bold" />
+            <Plus className="w-4 h-4" />
             <span className="ml-2">Schedule</span>
           </Button>
         )

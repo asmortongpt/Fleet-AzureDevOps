@@ -3,14 +3,7 @@
  * Route: /assets
  */
 
-import {
-    Barcode as AssetsIcon,
-    ListDashes,
-    Engine,
-    Package,
-    MapPin,
-    Tag
-} from '@phosphor-icons/react'
+import { Barcode as AssetsIcon, List, Cog, Package, MapPin, Tag } from 'lucide-react'
 
 import { HubPage, HubTab } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
@@ -94,7 +87,7 @@ function EquipmentContent() {
                     title="Heavy Equipment"
                     value="24"
                     variant="primary"
-                    icon={<Engine className="w-4 h-4" />}
+                    icon={<Cog className="w-4 h-4" />}
                     onClick={() => push({ type: 'equipment', label: 'Heavy Equipment', data: { filter: 'heavy' } })}
                 />
                 <StatCard
@@ -160,8 +153,8 @@ function InventoryContent() {
 
 export function AssetsHub() {
     const tabs: HubTab[] = [
-        { id: 'assets', label: 'Assets', icon: <ListDashes className="w-4 h-4" />, content: <AssetsContent /> },
-        { id: 'equipment', label: 'Equipment', icon: <Engine className="w-4 h-4" />, content: <EquipmentContent /> },
+        { id: 'assets', label: 'Assets', icon: <List className="w-4 h-4" />, content: <AssetsContent /> },
+        { id: 'equipment', label: 'Equipment', icon: <Cog className="w-4 h-4" />, content: <EquipmentContent /> },
         { id: 'inventory', label: 'Inventory', icon: <Package className="w-4 h-4" />, content: <InventoryContent /> },
     ]
 

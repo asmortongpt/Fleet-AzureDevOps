@@ -17,10 +17,10 @@ import {
   Download,
   Play,
   Plus,
-  MagnifyingGlass,
+  Search,
   FolderOpen,
-  Lightning
-} from "@phosphor-icons/react"
+  Zap
+} from "lucide-react"
 import { useState, useMemo } from "react"
 
 import { Badge } from "@/components/ui/badge"
@@ -383,7 +383,7 @@ export function ReportsHub() {
             <CardContent>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline">
-                  <Lightning className="w-3 h-3 mr-1" />
+                  <Zap className="w-3 h-3 mr-1" />
                   Quick Report
                 </Button>
               </div>
@@ -413,7 +413,7 @@ export function ReportsHub() {
 
             <div className="flex gap-2">
               <div className="relative">
-                <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Search reports..."
                   value={searchQuery}

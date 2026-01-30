@@ -11,14 +11,7 @@
  * - Third-party APIs
  */
 
-import {
-    Plugs,
-    Users,
-    GasPump,
-    Key,
-    ShieldCheck,
-    Pulse as Activity
-} from '@phosphor-icons/react'
+import { Plug, Users, Fuel, Key, ShieldCheck, Activity as Activity } from 'lucide-react'
 
 import { HubPage, HubTabItem } from '@/components/ui/hub-page'
 import { StatCard, ProgressRing, QuickStat } from '@/components/ui/stat-card'
@@ -157,7 +150,7 @@ function FuelMasterContent() {
                     title="Connection Status"
                     value="Active"
                     variant="success"
-                    icon={<GasPump className="w-4 h-4" />}
+                    icon={<Fuel className="w-4 h-4" />}
                     onClick={() => push({
                         type: 'fuelmaster-status',
                         data: { title: 'Fuel Master Connection Status' },
@@ -382,7 +375,7 @@ function APIManagementContent() {
                     title="Active Integrations"
                     value="12"
                     variant="primary"
-                    icon={<Plugs className="w-4 h-4" />}
+                    icon={<Plug className="w-4 h-4" />}
                     onClick={() => push({
                         type: 'active-integrations',
                         data: { title: 'Active API Integrations' },
@@ -474,13 +467,13 @@ export default function IntegrationsHub() {
         <HubPage
             title="Business Integrations"
             description="Enterprise system integrations and API management"
-            icon={<Plugs className="w-4 h-4" />}
+            icon={<Plug className="w-4 h-4" />}
         >
             <HubTabItem value="peoplesoft" label="PeopleSoft" icon={<Users className="w-3 h-3" />}>
                 <PeopleSoftContent />
             </HubTabItem>
 
-            <HubTabItem value="fuelmaster" label="Fuel Master" icon={<GasPump className="w-3 h-3" />}>
+            <HubTabItem value="fuelmaster" label="Fuel Master" icon={<Fuel className="w-3 h-3" />}>
                 <FuelMasterContent />
             </HubTabItem>
 

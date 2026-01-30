@@ -17,27 +17,7 @@
 
 import { motion } from 'framer-motion'
 import { Suspense, memo, useCallback, useMemo } from 'react'
-import {
-  Broadcast as OperationsIcon,
-  MapTrifold,
-  RadioButton,
-  CheckSquare,
-  CalendarDots,
-  Truck,
-  Package,
-  Warning,
-  Plus,
-  Clock,
-  Lightning,
-  Path,
-  MapPin,
-  GasPump,
-  CheckCircle,
-  X,
-  ArrowUp,
-  ArrowDown,
-  ArrowRight,
-} from '@phosphor-icons/react'
+import { Radio as OperationsIcon, Map, Circle, CheckSquare, Calendar, Truck, Package, AlertTriangle, Plus, Clock, Zap, Route, MapPin, Fuel, CheckCircle, X, ArrowUp, ArrowDown, ArrowRight } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveOperationsData, type Route, type FuelTransaction, type Task } from '@/hooks/use-reactive-operations-data'
 import {
@@ -312,7 +292,7 @@ const DispatchOverview = memo(() => {
           <StatCard
             title="Delayed"
             value={metrics?.delayed?.toString() || '0'}
-            icon={Warning}
+            icon={AlertTriangle}
             trend="down"
             change="-2"
             description="Behind schedule"
@@ -354,7 +334,7 @@ const DispatchOverview = memo(() => {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Warning className="h-5 w-5 text-amber-500" aria-hidden="true" />
+              <AlertTriangle className="h-5 w-5 text-amber-500" aria-hidden="true" />
               <CardTitle id="delayed-routes-heading">Delayed Routes</CardTitle>
             </div>
             <CardDescription>Routes behind schedule requiring attention</CardDescription>
@@ -391,7 +371,7 @@ const DispatchOverview = memo(() => {
           className="inline-flex items-center gap-2"
           aria-label="Optimize Routes"
         >
-          <Lightning className="h-4 w-4" aria-hidden="true" />
+          <Zap className="h-4 w-4" aria-hidden="true" />
           Optimize Routes
         </Button>
         <Button
@@ -400,11 +380,11 @@ const DispatchOverview = memo(() => {
           className="inline-flex items-center gap-2"
           aria-label="View Map"
         >
-          <MapTrifold className="h-4 w-4" aria-hidden="true" />
+          <Map className="h-4 w-4" aria-hidden="true" />
           View Map
         </Button>
         <Button variant="outline" onClick={refresh} className="inline-flex items-center gap-2" aria-label="Refresh Data">
-          <RadioButton className="h-4 w-4" aria-hidden="true" />
+          <Circle className="h-4 w-4" aria-hidden="true" />
           Refresh
         </Button>
       </footer>
@@ -465,7 +445,7 @@ const RoutesContent = memo(() => {
           <StatCard
             title="Active Routes"
             value={routes?.length?.toString() || '0'}
-            icon={MapTrifold}
+            icon={Map}
             description="Currently active"
             loading={isLoading}
             aria-label="Active Routes"
@@ -473,7 +453,7 @@ const RoutesContent = memo(() => {
           <StatCard
             title="Total Distance"
             value={`${formatNumber(totalDistance, { maximumFractionDigits: 0 })} mi`}
-            icon={Path}
+            icon={Route}
             trend="up"
             description="Distance covered"
             loading={isLoading}
@@ -494,7 +474,7 @@ const RoutesContent = memo(() => {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Lightning className="h-5 w-5 text-amber-500" aria-hidden="true" />
+            <Zap className="h-5 w-5 text-amber-500" aria-hidden="true" />
             <CardTitle id="optimization-insights-heading">Optimization Insights</CardTitle>
           </div>
           <CardDescription>AI-powered route optimization suggestions</CardDescription>
@@ -513,7 +493,7 @@ const RoutesContent = memo(() => {
                   className="flex items-start gap-3 p-3 rounded-lg border"
                   role="listitem"
                 >
-                  <Path className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" aria-hidden="true" />
+                  <Route className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" aria-hidden="true" />
                   <div>
                     <p className="font-medium">Route clustering saved 156 miles today</p>
                     <p className="text-sm text-muted-foreground">3.2 hours of drive time reduced</p>
@@ -631,7 +611,7 @@ const TasksContent = memo(() => {
           <StatCard
             title="Overdue"
             value={metrics?.overdueTasks?.toString() || '0'}
-            icon={Warning}
+            icon={AlertTriangle}
             trend="down"
             description="Needs attention"
             loading={isLoading}
@@ -702,7 +682,7 @@ const FuelContent = memo(() => {
           <StatCard
             title="Total Fuel Cost"
             value={`$${formatNumber(totalFuelCost, { maximumFractionDigits: 0 })}`}
-            icon={GasPump}
+            icon={Fuel}
             trend="up"
             description="This week"
             loading={isLoading}
@@ -719,7 +699,7 @@ const FuelContent = memo(() => {
           <StatCard
             title="Avg Cost/Gallon"
             value={`$${formatNumber(avgCostPerGallon, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-            icon={GasPump}
+            icon={Fuel}
             trend="down"
             description="Current average"
             loading={isLoading}
@@ -743,7 +723,7 @@ const FuelContent = memo(() => {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <GasPump className="h-5 w-5 text-primary" aria-hidden="true" />
+              <Fuel className="h-5 w-5 text-primary" aria-hidden="true" />
               <CardTitle id="recent-transactions-heading">Recent Fuel Transactions</CardTitle>
             </div>
             <CardDescription>Latest fuel purchases across the fleet</CardDescription>
@@ -802,7 +782,7 @@ export default function OperationsHub() {
       {
         id: 'dispatch',
         label: 'Dispatch',
-        icon: <RadioButton className="h-4 w-4" aria-hidden="true" />,
+        icon: <Circle className="h-4 w-4" aria-hidden="true" />,
         content: (
           <ErrorBoundary>
             <Suspense
@@ -820,7 +800,7 @@ export default function OperationsHub() {
       {
         id: 'routes',
         label: 'Routes',
-        icon: <MapTrifold className="h-4 w-4" aria-hidden="true" />,
+        icon: <Map className="h-4 w-4" aria-hidden="true" />,
         content: (
           <ErrorBoundary>
             <Suspense
@@ -856,7 +836,7 @@ export default function OperationsHub() {
       {
         id: 'fuel',
         label: 'Fuel',
-        icon: <GasPump className="h-4 w-4" aria-hidden="true" />,
+        icon: <Fuel className="h-4 w-4" aria-hidden="true" />,
         content: (
           <ErrorBoundary>
             <Suspense

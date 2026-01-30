@@ -1,4 +1,4 @@
-import { Car, BatteryMedium, Circle, ArrowRight } from "@phosphor-icons/react"
+import { Car, BatteryMedium, Circle, ArrowRight } from "lucide-react"
 import { motion } from "framer-motion"
 import { useMemo, useRef, useEffect, useState } from "react"
 
@@ -113,11 +113,11 @@ export function CompactVehicleList({
                 data-vehicle-id={vehicle.id}
               >
                 <div className={cn("compact-list-item-icon", getStatusColor(vehicle.status))}>
-                  <Car className="w-3.5 h-3.5" weight="fill" />
+                  <Car className="w-3.5 h-3.5" />
                   {wasRecentlyUpdated && (
                     <Circle
                       className="absolute -top-0.5 -right-0.5 w-2 h-2 fill-blue-500 text-blue-800 animate-pulse"
-                      weight="fill"
+                     
                     />
                   )}
                 </div>
@@ -208,7 +208,7 @@ export function CompactVehicleListMini({
           transition={{ duration: 0.2, delay: index * 0.05 }}
         >
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <Car className={cn("w-3.5 h-3.5", getStatusColor(vehicle.status))} weight="fill" />
+            <Car className={cn("w-3.5 h-3.5", getStatusColor(vehicle.status))} />
             <div className="min-w-0">
               <div className="text-xs font-semibold text-foreground truncate">
                 {vehicle.number}

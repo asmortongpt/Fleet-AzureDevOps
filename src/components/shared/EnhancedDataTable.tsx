@@ -38,16 +38,7 @@
  * ```
  */
 
-import {
-  CaretUp,
-  CaretDown,
-  CaretUpDown,
-  MagnifyingGlass,
-  DownloadSimple,
-  Columns,
-  CaretLeft,
-  CaretRight
-} from '@phosphor-icons/react'
+import { ChevronUp, ChevronDown, CaretUpDown, Search, DownloadSimple, Columns, ChevronLeft, ChevronRight } from 'lucide-react'
 import {
   ColumnDef,
   flexRender,
@@ -254,7 +245,7 @@ export function EnhancedDataTable<T extends { id: string | number }>({
           {/* Search */}
           {enableFiltering && (
             <div className="flex items-center gap-2 flex-1 max-w-sm">
-              <MagnifyingGlass className="w-4 h-4 text-muted-foreground" />
+              <Search className="w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search..."
                 value={globalFilter}
@@ -335,9 +326,9 @@ export function EnhancedDataTable<T extends { id: string | number }>({
                           {enableSorting && header.column.getCanSort() && (
                             <span className="text-muted-foreground">
                               {header.column.getIsSorted() === 'asc' ? (
-                                <CaretUp className="w-4 h-4" />
+                                <ChevronUp className="w-4 h-4" />
                               ) : header.column.getIsSorted() === 'desc' ? (
-                                <CaretDown className="w-4 h-4" />
+                                <ChevronDown className="w-4 h-4" />
                               ) : (
                                 <CaretUpDown className="w-4 h-4 opacity-50" />
                               )}
@@ -419,7 +410,7 @@ export function EnhancedDataTable<T extends { id: string | number }>({
                   onClick={() => table.previousPage()}
                   disabled={!table.getCanPreviousPage()}
                 >
-                  <CaretLeft className="w-4 h-4" />
+                  <ChevronLeft className="w-4 h-4" />
                 </Button>
                 <Button
                   variant="outline"
@@ -427,7 +418,7 @@ export function EnhancedDataTable<T extends { id: string | number }>({
                   onClick={() => table.nextPage()}
                   disabled={!table.getCanNextPage()}
                 >
-                  <CaretRight className="w-4 h-4" />
+                  <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
             </div>

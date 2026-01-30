@@ -4,18 +4,7 @@
  */
 
 import { motion } from 'framer-motion'
-import {
-  Shield,
-  Warning,
-  CheckCircle,
-  FirstAid,
-  FileText,
-  TrendUp,
-  WarningCircle,
-  ClipboardText,
-  Certificate,
-  ChartBar,
-} from '@phosphor-icons/react'
+import { Shield, AlertTriangle, CheckCircle, Cross, FileText, TrendingUp, AlertCircle, Clipboard, Award, BarChart } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveSafetyComplianceData } from '@/hooks/use-reactive-safety-compliance-data'
 import {
@@ -83,7 +72,7 @@ function SafetyOverview() {
         <StatCard
           title="Total Incidents"
           value={metrics?.totalIncidents?.toString() || '0'}
-          icon={WarningCircle}
+          icon={AlertCircle}
           trend="neutral"
           description="All incidents"
           loading={isLoading}
@@ -91,7 +80,7 @@ function SafetyOverview() {
         <StatCard
           title="Open Cases"
           value={metrics?.openCases?.toString() || '0'}
-          icon={ClipboardText}
+          icon={Clipboard}
           trend={metrics && metrics.openCases > 5 ? 'down' : 'up'}
           description="Active investigations"
           loading={isLoading}
@@ -107,7 +96,7 @@ function SafetyOverview() {
         <StatCard
           title="Training Completion"
           value={`${metrics?.trainingCompletion || 0}%`}
-          icon={Certificate}
+          icon={Award}
           trend={metrics && metrics.trainingCompletion >= 90 ? 'up' : 'down'}
           description="Safety training"
           loading={isLoading}
@@ -127,7 +116,7 @@ function SafetyOverview() {
         <StatCard
           title="OSHA Compliance"
           value={`${metrics?.oshaCompliance || 100}%`}
-          icon={FirstAid}
+          icon={Cross}
           trend="up"
           description="Workplace safety"
           loading={isLoading}
@@ -135,7 +124,7 @@ function SafetyOverview() {
         <StatCard
           title="Active Violations"
           value={metrics?.activeViolations?.toString() || '0'}
-          icon={Warning}
+          icon={AlertTriangle}
           trend={metrics && metrics.activeViolations > 0 ? 'down' : 'neutral'}
           description="Pending violations"
           loading={isLoading}
@@ -185,7 +174,7 @@ function SafetyOverview() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Warning className="h-5 w-5 text-red-500" />
+            <AlertTriangle className="h-5 w-5 text-red-500" />
             <CardTitle>Critical Incidents</CardTitle>
           </div>
           <CardDescription>High-severity incidents requiring immediate attention</CardDescription>
@@ -271,7 +260,7 @@ function IncidentsContent() {
         <StatCard
           title="Open Incidents"
           value={openIncidents.length.toString()}
-          icon={WarningCircle}
+          icon={AlertCircle}
           trend="neutral"
           description="Requires action"
           loading={isLoading}
@@ -279,7 +268,7 @@ function IncidentsContent() {
         <StatCard
           title="Under Investigation"
           value={investigatingCount.toString()}
-          icon={ClipboardText}
+          icon={Clipboard}
           trend="neutral"
           description="Active investigations"
           loading={isLoading}
@@ -440,7 +429,7 @@ function InspectionsContent() {
         <StatCard
           title="Pending Inspections"
           value={metrics?.pendingInspections?.toString() || '0'}
-          icon={ClipboardText}
+          icon={Clipboard}
           trend="neutral"
           description="Scheduled/pending"
           loading={isLoading}
@@ -464,7 +453,7 @@ function InspectionsContent() {
         <StatCard
           title="OSHA Inspections"
           value={oshaInspections.toString()}
-          icon={FirstAid}
+          icon={Cross}
           trend="up"
           description="Workplace safety"
           loading={isLoading}
@@ -582,7 +571,7 @@ function CertificationsContent() {
         <StatCard
           title="CDL Licenses"
           value={cdlCount.toString()}
-          icon={Certificate}
+          icon={Award}
           trend="neutral"
           description="Commercial drivers"
           loading={isLoading}
@@ -590,7 +579,7 @@ function CertificationsContent() {
         <StatCard
           title="Medical Cards"
           value={medicalCards.toString()}
-          icon={FirstAid}
+          icon={Cross}
           trend="neutral"
           description="Medical certifications"
           loading={isLoading}
@@ -598,7 +587,7 @@ function CertificationsContent() {
         <StatCard
           title="Expiring Soon"
           value={metrics?.expiringCertifications?.toString() || '0'}
-          icon={Warning}
+          icon={AlertTriangle}
           trend={metrics && metrics.expiringCertifications > 5 ? 'down' : 'neutral'}
           description="Within 30 days"
           loading={isLoading}
@@ -606,7 +595,7 @@ function CertificationsContent() {
         <StatCard
           title="Expired"
           value={metrics?.expiredCertifications?.toString() || '0'}
-          icon={WarningCircle}
+          icon={AlertCircle}
           trend={metrics && metrics.expiredCertifications > 0 ? 'down' : 'neutral'}
           description="Needs renewal"
           loading={isLoading}
@@ -657,7 +646,7 @@ function CertificationsContent() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Warning className="h-5 w-5 text-amber-500" />
+            <AlertTriangle className="h-5 w-5 text-amber-500" />
             <CardTitle>Expiring Certifications</CardTitle>
           </div>
           <CardDescription>Certifications expiring within the next 30 days</CardDescription>
@@ -709,7 +698,7 @@ function CertificationsContent() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <WarningCircle className="h-5 w-5 text-red-500" />
+              <AlertCircle className="h-5 w-5 text-red-500" />
               <CardTitle>Expired Certifications</CardTitle>
             </div>
             <CardDescription>Certifications that require immediate renewal</CardDescription>
@@ -750,7 +739,7 @@ export default function SafetyComplianceHub() {
     {
       id: 'overview',
       label: 'Overview',
-      icon: <ChartBar className="h-4 w-4" />,
+      icon: <BarChart className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <SafetyOverview />
@@ -760,7 +749,7 @@ export default function SafetyComplianceHub() {
     {
       id: 'incidents',
       label: 'Incidents',
-      icon: <Warning className="h-4 w-4" />,
+      icon: <AlertTriangle className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <IncidentsContent />
@@ -770,7 +759,7 @@ export default function SafetyComplianceHub() {
     {
       id: 'inspections',
       label: 'Inspections',
-      icon: <ClipboardText className="h-4 w-4" />,
+      icon: <Clipboard className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <InspectionsContent />
@@ -780,7 +769,7 @@ export default function SafetyComplianceHub() {
     {
       id: 'certifications',
       label: 'Certifications',
-      icon: <Certificate className="h-4 w-4" />,
+      icon: <Award className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <CertificationsContent />

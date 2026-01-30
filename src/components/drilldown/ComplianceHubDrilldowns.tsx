@@ -1,10 +1,7 @@
 /**
  * ComplianceHubDrilldowns - Drilldown components for Compliance hub
  */
-import {
-    ShieldCheck, Clock, FileText,
-    MapPin, GasPump
-} from '@phosphor-icons/react'
+import { ShieldCheck, Clock, FileText, MapPin, Fuel } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -165,7 +162,7 @@ export function IFTADrilldown() {
             <div className="grid grid-cols-2 gap-3">
                 <Card className="bg-blue-900/30 border-blue-700/50">
                     <CardContent className="p-2 text-center">
-                        <GasPump className="w-4 h-4 text-blue-400 mx-auto mb-2" />
+                        <Fuel className="w-4 h-4 text-blue-400 mx-auto mb-2" />
                         <div className="text-sm font-bold text-white">2.4M</div>
                         <div className="text-xs text-slate-400">Miles Tracked</div>
                     </CardContent>

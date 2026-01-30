@@ -2,13 +2,7 @@
  * SafetyHubDrilldowns - List/Detail views for Safety Hub drill-down navigation
  */
 
-import {
-  Warning,
-  ShieldCheck,
-  Calendar,
-  CheckCircle,
-  XCircle
-} from '@phosphor-icons/react'
+import { AlertTriangle, ShieldCheck, Calendar, CheckCircle, XCircle } from 'lucide-react'
 import { useMemo } from 'react'
 import useSWR from 'swr'
 
@@ -226,7 +220,7 @@ export function IncidentListView({ filter }: { filter?: string }) {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <Warning className="w-3 h-3 text-amber-400" />
+            <AlertTriangle className="w-3 h-3 text-amber-400" />
             {filter ? `Filtered Incidents (${filteredIncidents.length})` : `All Incidents (${filteredIncidents.length})`}
           </CardTitle>
         </CardHeader>
@@ -316,7 +310,7 @@ export function LostTimeIncidentsView() {
       {/* Summary */}
       <Card className="bg-red-900/30 border-red-700/50">
         <CardContent className="p-3 text-center">
-          <Warning className="w-10 h-8 text-red-400 mx-auto mb-2" />
+          <AlertTriangle className="w-10 h-8 text-red-400 mx-auto mb-2" />
           <div className="text-sm font-bold text-white">{totalDaysLost}</div>
           <div className="text-sm text-slate-400">Total Work Days Lost</div>
           <div className="text-xs text-slate-500 mt-1">

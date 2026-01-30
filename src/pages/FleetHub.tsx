@@ -18,22 +18,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { Suspense, lazy, memo, useMemo, useCallback } from 'react'
-import {
-  Car,
-  MapPin,
-  Gauge,
-  VideoCamera,
-  ChargingStation,
-  Cube,
-  ChartBar,
-  Warning,
-  TrendUp,
-  GasPump,
-  Wrench,
-  ArrowUp,
-  ArrowDown,
-  XCircle,
-} from '@phosphor-icons/react'
+import { Car, MapPin, Gauge, Video, Plug, Box, BarChart, AlertTriangle, TrendingUp, Fuel, Wrench, ArrowUp, ArrowDown, XCircle } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
 import type { AlertVehicle } from '@/hooks/use-reactive-fleet-data'
@@ -373,7 +358,7 @@ const FleetOverview = memo(() => {
         <StatCard
           title="Active Vehicles"
           value={metrics?.activeVehicles?.toString() || '0'}
-          icon={TrendUp}
+          icon={TrendingUp}
           trend="up"
           change="+12%"
           description="Currently in use"
@@ -392,7 +377,7 @@ const FleetOverview = memo(() => {
         <StatCard
           title="Avg Fuel Level"
           value={`${metrics?.averageFuelLevel?.toFixed(0) || '0'}%`}
-          icon={GasPump}
+          icon={Fuel}
           trend={metrics && metrics.averageFuelLevel < 40 ? 'down' : 'up'}
           description="Fleet average"
           loading={isLoading}
@@ -437,7 +422,7 @@ const FleetOverview = memo(() => {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Warning className="h-5 w-5 text-amber-500" aria-hidden="true" />
+              <AlertTriangle className="h-5 w-5 text-amber-500" aria-hidden="true" />
               <CardTitle id="low-fuel-heading">Low Fuel Alerts</CardTitle>
             </div>
             <CardDescription>Vehicles with fuel level below 25%</CardDescription>
@@ -459,7 +444,7 @@ const FleetOverview = memo(() => {
               </div>
             ) : (
               <EmptyState
-                icon={GasPump}
+                icon={Fuel}
                 message="All vehicles have adequate fuel levels"
                 description="No low fuel alerts at this time"
               />
@@ -551,7 +536,7 @@ export default function FleetHub() {
       {
         id: 'overview',
         label: 'Overview',
-        icon: <ChartBar className="h-4 w-4" />,
+        icon: <BarChart className="h-4 w-4" />,
         content: (
           <ErrorBoundary>
             <FleetOverview />
@@ -597,7 +582,7 @@ export default function FleetHub() {
       {
         id: '3d-garage',
         label: '3D Garage',
-        icon: <Cube className="h-4 w-4" />,
+        icon: <Box className="h-4 w-4" />,
         content: (
           <ErrorBoundary>
             <Suspense fallback={<LoadingFallback message="Loading 3D garage..." />}>
@@ -609,7 +594,7 @@ export default function FleetHub() {
       {
         id: 'video',
         label: 'Video',
-        icon: <VideoCamera className="h-4 w-4" />,
+        icon: <Video className="h-4 w-4" />,
         content: (
           <ErrorBoundary>
             <Suspense fallback={<LoadingFallback message="Loading video telematics..." />}>
@@ -621,7 +606,7 @@ export default function FleetHub() {
       {
         id: 'ev-charging',
         label: 'EV Charging',
-        icon: <ChargingStation className="h-4 w-4" />,
+        icon: <Plug className="h-4 w-4" />,
         content: (
           <ErrorBoundary>
             <Suspense fallback={<LoadingFallback message="Loading EV charging management..." />}>

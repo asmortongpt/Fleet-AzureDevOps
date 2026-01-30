@@ -3,19 +3,7 @@
  * Displays and monitors ALL available API endpoints and emulator connections
  */
 
-import {
-  Circle,
-  MagnifyingGlass,
-  CaretDown,
-  CaretRight,
-  Play,
-  ArrowClockwise,
-  CheckCircle,
-  Warning,
-  XCircle,
-  Question,
-  Clock
-} from '@phosphor-icons/react'
+import { Circle, Search, ChevronDown, ChevronRight, Play, RotateCw, CheckCircle, AlertTriangle, XCircle, Question, Clock } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -97,13 +85,13 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
   const getStatusIndicator = (status: EndpointStatus) => {
     switch (status) {
       case 'healthy':
-        return <CheckCircle className="w-3 h-3 text-green-600" weight="fill" />
+        return <CheckCircle className="w-3 h-3 text-green-600" />
       case 'warning':
-        return <Warning className="w-3 h-3 text-yellow-600" weight="fill" />
+        return <AlertTriangle className="w-3 h-3 text-yellow-600" />
       case 'error':
-        return <XCircle className="w-3 h-3 text-red-600" weight="fill" />
+        return <XCircle className="w-3 h-3 text-red-600" />
       default:
-        return <Question className="w-3 h-3 text-gray-400" weight="fill" />
+        return <Question className="w-3 h-3 text-gray-400" />
     }
   }
 
@@ -154,7 +142,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
       {/* Header Controls */}
       <div className="flex items-center justify-between gap-2">
         <div className="relative flex-1">
-          <MagnifyingGlass className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
           <Input
             placeholder="Search endpoints..."
             value={searchQuery}
@@ -187,7 +175,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
             className="h-7 text-xs px-2"
             aria-label="Refresh all endpoints"
           >
-            <ArrowClockwise className={cn('w-3 h-3', isLoading && 'animate-spin')} />
+            <RotateCw className={cn('w-3 h-3', isLoading && 'animate-spin')} />
           </Button>
         </div>
       </div>
@@ -195,35 +183,35 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
       {/* Summary Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
         <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 border border-border/50">
-          <Circle className="w-2 h-2 fill-blue-500 text-blue-800" weight="fill" />
+          <Circle className="w-2 h-2 fill-blue-500 text-blue-800" />
           <div>
             <p className="text-[10px] text-muted-foreground">Total</p>
             <p className="text-sm font-semibold">{summary.totalEndpoints}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 p-2 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900">
-          <CheckCircle className="w-3 h-3 text-green-600" weight="fill" />
+          <CheckCircle className="w-3 h-3 text-green-600" />
           <div>
             <p className="text-[10px] text-muted-foreground">Healthy</p>
             <p className="text-sm font-semibold text-green-700 dark:text-green-400">{summary.healthyCount}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 p-2 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900">
-          <Warning className="w-3 h-3 text-yellow-600" weight="fill" />
+          <AlertTriangle className="w-3 h-3 text-yellow-600" />
           <div>
-            <p className="text-[10px] text-muted-foreground">Warning</p>
+            <p className="text-[10px] text-muted-foreground">AlertTriangle</p>
             <p className="text-sm font-semibold text-yellow-700 dark:text-yellow-400">{summary.warningCount}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 p-2 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900">
-          <XCircle className="w-3 h-3 text-red-600" weight="fill" />
+          <XCircle className="w-3 h-3 text-red-600" />
           <div>
             <p className="text-[10px] text-muted-foreground">Error</p>
             <p className="text-sm font-semibold text-red-700 dark:text-red-400">{summary.errorCount}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-gray-950/20 border border-gray-200 dark:border-gray-900">
-          <Question className="w-3 h-3 text-gray-400" weight="fill" />
+          <Question className="w-3 h-3 text-gray-400" />
           <div>
             <p className="text-[10px] text-muted-foreground">Unknown</p>
             <p className="text-sm font-semibold text-gray-700 dark:text-gray-400">{summary.unknownCount}</p>
@@ -260,9 +248,9 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
                       <CardTitle className="text-xs font-semibold flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           {isExpanded ? (
-                            <CaretDown className="w-3 h-3 text-muted-foreground" />
+                            <ChevronDown className="w-3 h-3 text-muted-foreground" />
                           ) : (
-                            <CaretRight className="w-3 h-3 text-muted-foreground" />
+                            <ChevronRight className="w-3 h-3 text-muted-foreground" />
                           )}
                           <span>{category.name}</span>
                           <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
@@ -361,9 +349,9 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
                   <CardTitle className="text-xs font-semibold flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {expandedCategories.has('WebSockets') ? (
-                        <CaretDown className="w-3 h-3 text-muted-foreground" />
+                        <ChevronDown className="w-3 h-3 text-muted-foreground" />
                       ) : (
-                        <CaretRight className="w-3 h-3 text-muted-foreground" />
+                        <ChevronRight className="w-3 h-3 text-muted-foreground" />
                       )}
                       <span>WebSockets</span>
                       <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">

@@ -9,19 +9,7 @@
  * Note: AlertDetailPanel is provided by AlertDrilldowns.tsx
  */
 
-import {
-  Package,
-  NavigationArrow,
-  CheckCircle,
-  Clock,
-  Warning,
-  MapPin,
-  User,
-  Truck,
-  XCircle,
-  TrendUp,
-  ListChecks
-} from '@phosphor-icons/react'
+import { Package, NavigationArrow, CheckCircle, Clock, AlertTriangle, MapPin, User, Truck, XCircle, TrendingUp, ListChecks } from 'lucide-react'
 import { useMemo } from 'react'
 import useSWR from 'swr'
 
@@ -427,7 +415,7 @@ export function JobListView({ filter }: { filter?: string }) {
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
           <CardContent className="p-2 text-center">
-            <Warning className="w-4 h-4 text-red-400 mx-auto mb-1" />
+            <AlertTriangle className="w-4 h-4 text-red-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-red-400">
               {filteredJobs.filter(j => j.status === 'delayed').length}
             </div>
@@ -567,7 +555,7 @@ export function RouteListView({ filter }: { filter?: string }) {
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
           <CardContent className="p-2 text-center">
-            <TrendUp className="w-4 h-4 text-green-400 mx-auto mb-1" />
+            <TrendingUp className="w-4 h-4 text-green-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-green-400">
               {filteredRoutes.filter(r => r.optimized).length}
             </div>
@@ -724,7 +712,7 @@ export function TaskListView({ filter }: { filter?: string }) {
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
           <CardContent className="p-2 text-center">
-            <Warning className="w-4 h-4 text-red-400 mx-auto mb-1" />
+            <AlertTriangle className="w-4 h-4 text-red-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-red-400">
               {filteredTasks.filter(t => t.status === 'blocked').length}
             </div>

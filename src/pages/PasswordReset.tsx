@@ -1,4 +1,4 @@
-import { CarProfile } from '@phosphor-icons/react'
+import { Car } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -55,7 +55,7 @@ export function PasswordReset() {
         {/* Company Branding */}
         <div className="text-center mb-8 animate-in fade-in slide-in-from-top-4 duration-700">
           <div className="inline-flex items-center justify-center p-3 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-lg mb-4">
-            <CarProfile className="w-12 h-12 text-white" weight="bold" />
+            <Car className="w-12 h-12 text-white" />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
             Capital Tech Alliance

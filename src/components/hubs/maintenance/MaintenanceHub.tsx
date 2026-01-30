@@ -1,12 +1,4 @@
-import {
-  Wrench,
-  Clock,
-  Warning,
-  CurrencyDollar,
-  CalendarDots,
-  CarProfile,
-  ListChecks
-} from '@phosphor-icons/react';
+import { Wrench, Clock, AlertTriangle, DollarSign, Calendar, Car, ListChecks } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 
 import { MaintenanceHubMap } from './MaintenanceHubMap';
@@ -211,7 +203,7 @@ export function MaintenanceHub() {
         <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('workOrder', 'urgent')}>
           <CardContent className="p-2">
             <div className="flex items-center gap-2">
-              <Warning className="w-3 h-3 text-red-500" />
+              <AlertTriangle className="w-3 h-3 text-red-500" />
               <div>
                 <p className="text-xs text-muted-foreground">Urgent</p>
                 <p className="text-sm font-bold">{metrics.urgentCount}</p>
@@ -223,7 +215,7 @@ export function MaintenanceHub() {
         <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('workOrder', 'scheduled')}>
           <CardContent className="p-2">
             <div className="flex items-center gap-2">
-              <CalendarDots className="w-3 h-3 text-amber-500" />
+              <Calendar className="w-3 h-3 text-amber-500" />
               <div>
                 <p className="text-xs text-muted-foreground">Scheduled</p>
                 <p className="text-sm font-bold">{metrics.scheduledCount}</p>
@@ -235,7 +227,7 @@ export function MaintenanceHub() {
         <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleMetricClick('maintenance-costs', 'all')}>
           <CardContent className="p-2">
             <div className="flex items-center gap-2">
-              <CurrencyDollar className="w-3 h-3 text-green-500" />
+              <DollarSign className="w-3 h-3 text-green-500" />
               <div>
                 <p className="text-xs text-muted-foreground">Est. Cost</p>
                 <p className="text-sm font-bold">${metrics.totalCost.toFixed(0)}</p>
@@ -281,7 +273,7 @@ export function MaintenanceHub() {
                           {wo.estimatedTime}
                         </span>
                         <span className="flex items-center gap-1">
-                          <CurrencyDollar className="w-3 h-3" />
+                          <DollarSign className="w-3 h-3" />
                           ${wo.estimatedCost.toFixed(0)}
                         </span>
                       </div>
@@ -379,7 +371,7 @@ export function MaintenanceHub() {
                 <div className="space-y-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
-                      <CarProfile className="w-3 h-3" />
+                      <Car className="w-3 h-3" />
                       <div>
                         <p className="font-semibold">{vh.vehicleUnit}</p>
                         <p className="text-xs text-muted-foreground">{vh.vehicleId}</p>
@@ -432,7 +424,7 @@ export function MaintenanceHub() {
                   .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime())
                   .map((wo) => (
                     <div key={wo.id} className="flex items-start gap-3 p-3 border rounded-lg">
-                      <CalendarDots className="w-3 h-3 text-amber-500 mt-0.5" />
+                      <Calendar className="w-3 h-3 text-amber-500 mt-0.5" />
                       <div className="flex-1">
                         <p className="font-medium text-sm">{wo.vehicleUnit}</p>
                         <p className="text-xs text-muted-foreground">{wo.description}</p>

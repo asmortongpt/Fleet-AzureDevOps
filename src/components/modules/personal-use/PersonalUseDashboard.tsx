@@ -1,14 +1,4 @@
-import {
-  Car,
-  Warning,
-  CheckCircle,
-  Clock,
-  XCircle,
-  Calendar,
-  Download,
-  ArrowsClockwise,
-  Plus
-} from '@phosphor-icons/react'
+import { Car, AlertTriangle, CheckCircle, Clock, XCircle, Calendar, Download, RefreshCw, Plus } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient, MutationFunction } from '@tanstack/react-query'
 import React, { useState } from 'react'
 import { toast } from 'sonner'
@@ -71,7 +61,7 @@ const ErrorDisplay = ({ error, onRetry }: { error: string; onRetry: () => void }
     <AlertDescription className="flex items-center justify-between">
       <span>{error}</span>
       <Button variant="outline" size="sm" onClick={onRetry}>
-        <ArrowsClockwise className="w-4 h-4 mr-2" />
+        <RefreshCw className="w-4 h-4 mr-2" />
         Retry
       </Button>
     </AlertDescription>
@@ -313,7 +303,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
               queryClient.invalidateQueries({ queryKey: ['trip-usage-pending-approval'] })
             }
           }}>
-            <ArrowsClockwise className="w-4 h-4 mr-2" />
+            <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>
           <Button variant="outline" onClick={exportToCSV}>
@@ -402,7 +392,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
 
                     {usageLimits?.current_month?.exceeds_limit && (
                       <Alert variant="destructive">
-                        <Warning className="h-4 w-4" />
+                        <AlertTriangle className="h-4 w-4" />
                         <AlertDescription>
                           Monthly limit exceeded! Additional usage may require approval.
                         </AlertDescription>
@@ -412,7 +402,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                     {!usageLimits?.current_month?.exceeds_limit &&
                      (usageLimits?.current_month?.percentage_used || 0) >= 80 && (
                       <Alert>
-                        <Warning className="h-4 w-4" />
+                        <AlertTriangle className="h-4 w-4" />
                         <AlertDescription>
                           Approaching monthly limit ({(usageLimits?.current_month?.percentage_used ?? 0).toFixed(0)}% used)
                         </AlertDescription>
@@ -461,7 +451,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
 
                     {usageLimits?.current_year?.exceeds_limit && (
                       <Alert variant="destructive">
-                        <Warning className="h-4 w-4" />
+                        <AlertTriangle className="h-4 w-4" />
                         <AlertDescription>
                           Annual limit exceeded! Additional usage may require approval.
                         </AlertDescription>
@@ -471,7 +461,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                     {!usageLimits?.current_year?.exceeds_limit &&
                      (usageLimits?.current_year?.percentage_used || 0) >= 80 && (
                       <Alert>
-                        <Warning className="h-4 w-4" />
+                        <AlertTriangle className="h-4 w-4" />
                         <AlertDescription>
                           Approaching annual limit ({(usageLimits?.current_year?.percentage_used ?? 0).toFixed(0)}% used)
                         </AlertDescription>
@@ -484,7 +474,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
               {/* Warnings/Alerts */}
               {usageLimits?.warnings?.length > 0 && (
                 <Alert variant="destructive" className="mb-3">
-                  <Warning className="h-4 w-4" />
+                  <AlertTriangle className="h-4 w-4" />
                   <AlertTitle>Usage Alerts</AlertTitle>
                   <AlertDescription className="space-y-2">
                     {usageLimits.warnings.map((warning: string, idx: number) => (

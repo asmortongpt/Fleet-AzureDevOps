@@ -1,11 +1,11 @@
 import {
-  GasPump,
+  Fuel,
   MapPin,
   Lightbulb,
   Target,
   CheckCircle,
-  Warning
-} from "@phosphor-icons/react"
+  AlertTriangle
+} from "lucide-react"
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
@@ -189,11 +189,11 @@ export function FuelPurchasing() {
   const getRecommendationIcon = (rec: string) => {
     switch (rec) {
       case 'buy_now':
-        return <CheckCircle className="h-5 w-5" weight="fill" />
+        return <CheckCircle className="h-5 w-5" />
       case 'wait':
-        return <Warning className="h-5 w-5" weight="fill" />
+        return <AlertTriangle className="h-5 w-5" />
       default:
-        return <Target className="h-5 w-5" weight="fill" />
+        return <Target className="h-5 w-5" />
     }
   }
 
@@ -205,7 +205,7 @@ export function FuelPurchasing() {
     <div className="space-y-2">
       <div>
         <h1 className="text-base font-bold flex items-center gap-2">
-          <GasPump className="h-8 w-8 text-blue-800" weight="fill" />
+          <Fuel className="h-8 w-8 text-blue-800" />
           Fuel Purchasing Intelligence
         </h1>
         <p className="text-slate-700 mt-2">
@@ -271,7 +271,7 @@ export function FuelPurchasing() {
         <Card className="border-l-4 border-l-blue-600">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="h-5 w-5 text-yellow-600" weight="fill" />
+              <Lightbulb className="h-5 w-5 text-yellow-600" />
               Purchase Timing Recommendation
             </CardTitle>
           </CardHeader>

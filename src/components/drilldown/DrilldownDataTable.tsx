@@ -30,7 +30,7 @@
  * ```
  */
 
-import { CaretUp, CaretDown } from '@phosphor-icons/react'
+import { ChevronUp, ChevronDown } from 'lucide-react'
 import { ChevronRight, ExternalLink } from 'lucide-react'
 import { useState, useMemo, ReactNode } from 'react'
 
@@ -353,9 +353,9 @@ export function DrilldownDataTable<T extends Record<string, any>>({
                   {column.sortable && sortColumn === column.key && (
                     <span className="text-muted-foreground">
                       {sortDirection === 'asc' ? (
-                        <CaretUp className="w-4 h-4" />
+                        <ChevronUp className="w-4 h-4" />
                       ) : (
-                        <CaretDown className="w-4 h-4" />
+                        <ChevronDown className="w-4 h-4" />
                       )}
                     </span>
                   )}

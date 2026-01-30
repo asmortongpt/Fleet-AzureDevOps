@@ -1,10 +1,10 @@
 import {
     Microphone,
     Radio,
-    Warning,
+    AlertTriangle,
     SpeakerHigh,
     SpeakerSlash
-} from "@phosphor-icons/react";
+} from "lucide-react";
 import React, { useState, useEffect } from "react";
 
 import { Badge } from "../../ui/badge";
@@ -81,7 +81,7 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                 <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
                     <div className="flex items-center justify-between">
                         <SheetTitle className="text-base font-semibold flex items-center gap-2 text-white">
-                            <Radio className="w-4 h-4 text-emerald-400" weight="fill" />
+                            <Radio className="w-4 h-4 text-emerald-400" />
                             Dispatch Radio
                         </SheetTitle>
                         <div className={`w-3 h-3 rounded-full ${dispatch.isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
@@ -124,7 +124,7 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                             )}
 
                             <div className="relative z-10 flex flex-col items-center">
-                                <Microphone className={`w-4 h-4 mb-1 ${(ptt.isTransmitting || isPressing) ? "animate-pulse" : ""}`} weight="fill" />
+                                <Microphone className={`w-4 h-4 mb-1 ${(ptt.isTransmitting || isPressing) ? "animate-pulse" : ""}`} />
                                 <span className="font-bold tracking-wider font-mono">
                                     {(ptt.isTransmitting || isPressing) ? "TRANSMITTING" : "PUSH TO TALK"}
                                 </span>
@@ -197,7 +197,7 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                 {/* Emergency Footer */}
                 <div className="p-2 border-t bg-destructive/5">
                     <Button variant="destructive" className="w-full font-bold" size="lg">
-                        <Warning className="w-3 h-3 mr-2" />
+                        <AlertTriangle className="w-3 h-3 mr-2" />
                         EMERGENCY ALERT
                     </Button>
                 </div>

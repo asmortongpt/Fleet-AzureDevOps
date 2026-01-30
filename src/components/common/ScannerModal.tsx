@@ -10,10 +10,10 @@ import {
   FlipHorizontal,
   Keyboard,
   CheckCircle,
-  Warning,
+  AlertTriangle,
   CircleNotch,
-  Lightning
-} from "@phosphor-icons/react"
+  Zap
+} from "lucide-react"
 import { Scanner, IDetectedBarcode } from '@yudiel/react-qr-scanner'
 import { useState, useRef, useEffect, useCallback } from "react"
 import { createWorker, Worker, OEM, PSM } from 'tesseract.js'
@@ -563,7 +563,7 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
           onClick={() => setUseAdaptiveThreshold(!useAdaptiveThreshold)}
           title="Toggle adaptive image enhancement for difficult lighting"
         >
-          <Lightning className="w-4 h-4 mr-1" weight={useAdaptiveThreshold ? "fill" : "regular"} />
+          <Zap className="w-4 h-4 mr-1" weight={useAdaptiveThreshold ? "fill" : "regular"} />
           Enhance
         </Button>
         <Button
@@ -674,9 +674,9 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
             <div className="p-3 bg-background">
               <div className="text-center space-y-2">
                 {scanResult.confidence > 70 ? (
-                  <CheckCircle className="w-16 h-16 text-green-500 mx-auto" weight="fill" />
+                  <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
                 ) : (
-                  <Warning className="w-16 h-16 text-yellow-500 mx-auto" weight="fill" />
+                  <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto" />
                 )}
 
                 <div>

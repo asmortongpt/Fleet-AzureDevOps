@@ -1,10 +1,4 @@
-import {
-  Wrench,
-  MapPin,
-  Clock,
-  CheckCircle,
-  Warning
-} from '@phosphor-icons/react';
+import { Wrench, MapPin, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
 import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import { useMemo, useState } from 'react';
 
@@ -182,7 +176,7 @@ export function MaintenanceHubMap({
 
   const getWorkOrderIcon = (type: WorkOrder['type']) => {
     switch (type) {
-      case 'urgent': return <Warning className="w-4 h-4 text-red-500" />;
+      case 'urgent': return <AlertTriangle className="w-4 h-4 text-red-500" />;
       case 'active': return <Wrench className="w-4 h-4 text-blue-800" />;
       case 'scheduled': return <Clock className="w-4 h-4 text-amber-500" />;
       case 'completed': return <CheckCircle className="w-4 h-4 text-green-500" />;

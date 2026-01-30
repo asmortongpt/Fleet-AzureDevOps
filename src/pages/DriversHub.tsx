@@ -12,20 +12,7 @@
 
 import { motion } from 'framer-motion'
 import { memo, useMemo, type ReactNode } from 'react'
-import {
-  User as DriversIcon,
-  Users,
-  Shield,
-  ChartLine,
-  Warning,
-  Trophy,
-  CarProfile,
-  IdentificationCard,
-  Clock,
-  Plus,
-  Certificate,
-  CalendarX,
-} from '@phosphor-icons/react'
+import { User as DriversIcon, Users, Shield, LineChart, AlertTriangle, Trophy, Car, BadgeCheck, Clock, Plus, Award, CalendarX } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveDriversData, type Driver } from '@/hooks/use-reactive-drivers-data'
 import {
@@ -116,7 +103,7 @@ const ErrorState = memo(function ErrorState({
 }) {
   return (
     <Alert variant="destructive" className="my-6">
-      <Warning className="h-4 w-4" />
+      <AlertTriangle className="h-4 w-4" />
       <AlertTitle>Error Loading Data</AlertTitle>
       <AlertDescription className="mt-2">
         {error?.message || 'An unexpected error occurred while fetching driver data.'}
@@ -273,7 +260,7 @@ const DriversOverview = memo(function DriversOverview() {
         <StatCard
           title="Active Assignments"
           value={metrics.activeAssignments.toString()}
-          icon={CarProfile}
+          icon={Car}
           trend="neutral"
           description="Vehicle assignments"
           loading={isLoading}
@@ -307,7 +294,7 @@ const DriversOverview = memo(function DriversOverview() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Warning className="h-5 w-5 text-amber-500" aria-hidden="true" />
+              <AlertTriangle className="h-5 w-5 text-amber-500" aria-hidden="true" />
               <CardTitle>Low Safety Scores</CardTitle>
             </div>
             <CardDescription>Drivers requiring safety training</CardDescription>
@@ -364,7 +351,7 @@ const DriversOverview = memo(function DriversOverview() {
               </div>
             ) : expiringLicenses.length === 0 ? (
               <EmptyState
-                icon={IdentificationCard}
+                icon={BadgeCheck}
                 title="All Licenses Current"
                 description="No licenses are expiring in the next 30 days."
               />
@@ -448,7 +435,7 @@ const PerformanceContent = memo(function PerformanceContent() {
         <StatCard
           title="Avg Performance"
           value={`${metrics.avgPerformance}%`}
-          icon={ChartLine}
+          icon={LineChart}
           trend="up"
           change="+5%"
           description="Fleet average"
@@ -465,7 +452,7 @@ const PerformanceContent = memo(function PerformanceContent() {
         <StatCard
           title="Total Violations"
           value={metrics.totalViolations.toString()}
-          icon={Warning}
+          icon={AlertTriangle}
           trend="down"
           change="-3"
           description="This month"
@@ -474,7 +461,7 @@ const PerformanceContent = memo(function PerformanceContent() {
         <StatCard
           title="Training Needed"
           value={topPerformers.filter(d => d.performanceRating < 75).length.toString()}
-          icon={Certificate}
+          icon={Award}
           trend="down"
           description="Require refresher"
           loading={isLoading}
@@ -609,7 +596,7 @@ const ComplianceContent = memo(function ComplianceContent() {
         <StatCard
           title="Valid Licenses"
           value={(metrics.totalDrivers - expiringLicenses.length).toString()}
-          icon={IdentificationCard}
+          icon={BadgeCheck}
           trend="up"
           description="Current and valid"
           loading={isLoading}
@@ -625,7 +612,7 @@ const ComplianceContent = memo(function ComplianceContent() {
         <StatCard
           title="Certified Drivers"
           value={metrics.totalDrivers.toString()}
-          icon={Certificate}
+          icon={Award}
           trend="neutral"
           description="All certifications current"
           loading={isLoading}
@@ -786,7 +773,7 @@ const AssignmentsContent = memo(function AssignmentsContent() {
         <StatCard
           title="Active Assignments"
           value={metrics.activeAssignments.toString()}
-          icon={CarProfile}
+          icon={Car}
           description="Currently assigned"
           loading={isLoading}
         />
@@ -828,7 +815,7 @@ export default function DriversHub() {
       {
         id: 'performance',
         label: 'Performance',
-        icon: <ChartLine className="h-4 w-4" />,
+        icon: <LineChart className="h-4 w-4" />,
         content: (
           <ErrorBoundary>
             <PerformanceContent />
@@ -848,7 +835,7 @@ export default function DriversHub() {
       {
         id: 'assignments',
         label: 'Assignments',
-        icon: <CarProfile className="h-4 w-4" />,
+        icon: <Car className="h-4 w-4" />,
         content: (
           <ErrorBoundary>
             <AssignmentsContent />

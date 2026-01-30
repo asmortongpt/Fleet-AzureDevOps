@@ -5,20 +5,7 @@
 
 import { motion } from 'framer-motion'
 import { Suspense } from 'react'
-import {
-  Users as PeopleIcon,
-  User,
-  UsersThree,
-  ChartLine,
-  Trophy,
-  Warning,
-  Clock,
-  Plus,
-  Briefcase,
-  UserCircle,
-  CalendarCheck,
-  Buildings,
-} from '@phosphor-icons/react'
+import { Users as PeopleIcon, User, Users, LineChart, Trophy, AlertTriangle, Clock, Plus, Briefcase, UserCircle2, CalendarCheck, Building2 } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactivePeopleData } from '@/hooks/use-reactive-people-data'
 import {
@@ -116,7 +103,7 @@ function PeopleOverview() {
         <StatCard
           title="Avg Performance"
           value={`${metrics?.avgPerformanceRating || 0}%`}
-          icon={ChartLine}
+          icon={LineChart}
           trend="up"
           change="+3%"
           description="Organization average"
@@ -125,7 +112,7 @@ function PeopleOverview() {
         <StatCard
           title="Active Teams"
           value={metrics?.totalTeams?.toString() || '0'}
-          icon={UsersThree}
+          icon={Users}
           trend="neutral"
           description="Organizational units"
           loading={isLoading}
@@ -160,7 +147,7 @@ function PeopleOverview() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <UserCircle className="h-5 w-5 text-blue-500" />
+                <UserCircle2 className="h-5 w-5 text-blue-500" />
                 <CardTitle>Recent New Hires</CardTitle>
               </div>
               <CardDescription>Employees who joined in the last 90 days</CardDescription>
@@ -304,7 +291,7 @@ function DirectoryContent() {
         <StatCard
           title="Contractors"
           value={metrics?.contractors?.toString() || '0'}
-          icon={UserCircle}
+          icon={UserCircle2}
           trend="neutral"
           description="Contract workers"
           loading={isLoading}
@@ -425,7 +412,7 @@ function TeamsContent() {
         <StatCard
           title="Total Teams"
           value={metrics?.totalTeams?.toString() || '0'}
-          icon={UsersThree}
+          icon={Users}
           trend="up"
           change="+2"
           description="Active teams"
@@ -447,7 +434,7 @@ function TeamsContent() {
               return acc
             }, {} as Record<string, boolean>)
           ).length.toString()}
-          icon={Buildings}
+          icon={Building2}
           trend="neutral"
           description="Unique departments"
           loading={isLoading}
@@ -467,7 +454,7 @@ function TeamsContent() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <UsersThree className="h-5 w-5 text-primary" />
+            <Users className="h-5 w-5 text-primary" />
             <CardTitle>All Teams</CardTitle>
           </div>
           <CardDescription>Overview of all organizational teams</CardDescription>
@@ -559,7 +546,7 @@ function PerformanceContent() {
         <StatCard
           title="Avg Performance"
           value={`${metrics?.avgPerformanceRating || 0}%`}
-          icon={ChartLine}
+          icon={LineChart}
           trend="up"
           change="+3%"
           description="Organization average"
@@ -584,7 +571,7 @@ function PerformanceContent() {
         <StatCard
           title="Needs Attention"
           value={needsAttention.length.toString()}
-          icon={Warning}
+          icon={AlertTriangle}
           trend="down"
           description="Require support"
           loading={isLoading}
@@ -670,7 +657,7 @@ function PerformanceContent() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Warning className="h-5 w-5 text-amber-500" />
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
               <CardTitle>Needs Attention</CardTitle>
             </div>
             <CardDescription>Employees requiring support or performance improvement</CardDescription>
@@ -747,7 +734,7 @@ export default function PeopleHub() {
     {
       id: 'teams',
       label: 'Teams',
-      icon: <UsersThree className="h-4 w-4" />,
+      icon: <Users className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <Suspense fallback={<div className="p-6">Loading teams...</div>}>
@@ -759,7 +746,7 @@ export default function PeopleHub() {
     {
       id: 'performance',
       label: 'Performance',
-      icon: <ChartLine className="h-4 w-4" />,
+      icon: <LineChart className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <Suspense fallback={<div className="p-6">Loading performance data...</div>}>

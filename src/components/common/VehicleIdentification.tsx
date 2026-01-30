@@ -2,11 +2,11 @@ import {
   QrCode,
   Barcode,
   Camera,
-  MagnifyingGlass,
+  Search,
   CarProfile,
   Check,
   X
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { toast } from "sonner"
@@ -275,7 +275,7 @@ export function VehicleIdentification({
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Check className="w-3 h-3 text-green-600" weight="bold" />
+                <Check className="w-3 h-3 text-green-600" />
                 <CardTitle className="text-sm text-green-700">Vehicle Selected</CardTitle>
               </div>
               <Button
@@ -332,7 +332,7 @@ export function VehicleIdentification({
             <Tabs defaultValue="search" className="w-full">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="search">
-                  <MagnifyingGlass className="w-4 h-4 mr-1" />
+                  <Search className="w-4 h-4 mr-1" />
                   Search
                 </TabsTrigger>
                 <TabsTrigger value="qr">

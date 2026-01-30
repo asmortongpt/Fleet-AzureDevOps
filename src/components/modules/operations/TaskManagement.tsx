@@ -2,9 +2,9 @@ import {
   Plus,
   CheckCircle,
   Clock,
-  CalendarDots,
+  Calendar,
   ListChecks
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
@@ -462,7 +462,7 @@ export function TaskManagement() {
           <CardContent>
             <div className="text-sm font-bold text-red-600">{overdueTasks}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <CalendarDots className="w-3 h-3" />
+              <Calendar className="w-3 h-3" />
               Past due date
             </div>
           </CardContent>

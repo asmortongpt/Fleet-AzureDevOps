@@ -1,7 +1,7 @@
 import {
   LocalGasStation as FuelIcon,
   Build as MaintenanceIcon,
-  TrendingUp as TrendingUpIcon
+  TrendUp as TrendUpIcon
 } from '@mui/icons-material';
 import {
   Box,
@@ -114,7 +114,7 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
                 <Typography variant="h6" fontWeight={600}>
                   Cost Comparison
                 </Typography>
-                <TrendingUpIcon color="primary" />
+                <TrendUpIcon color="primary" />
               </Box>
 
               <ResponsiveContainer width="100%" height={280}>

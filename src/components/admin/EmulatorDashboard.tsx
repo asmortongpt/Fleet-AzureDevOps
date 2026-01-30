@@ -51,7 +51,7 @@ import {
   Radio,
   Person,
   RemoveRedEye,
-  Warning,
+  AlertTriangle,
   CheckCircle,
   Error as ErrorIcon,
   Pause,
@@ -326,7 +326,7 @@ const EmulatorDashboard: React.FC = () => {
   const getHealthIcon = (health: string) => {
     switch (health) {
       case 'healthy': return <CheckCircle color="success" />;
-      case 'warning': return <Warning color="warning" />;
+      case 'warning': return <AlertTriangle color="warning" />;
       case 'error': return <ErrorIcon color="error" />;
       default: return <Stop color="disabled" />;
     }
@@ -470,7 +470,7 @@ const EmulatorDashboard: React.FC = () => {
               <Card>
                 <CardContent>
                   <Box display="flex" alignItems="center" gap={1} mb={1}>
-                    <Warning color="primary" />
+                    <AlertTriangle color="primary" />
                     <Typography variant="subtitle2">Events</Typography>
                   </Box>
                   <Typography variant="h4">
@@ -571,7 +571,7 @@ const EmulatorDashboard: React.FC = () => {
                                     onClick={() => handleTriggerEvent(emulator.vehicleId, 'harsh_braking')}
                                     disabled={!emulator.isRunning}
                                   >
-                                    <Warning />
+                                    <AlertTriangle />
                                   </IconButton>
                                 </Tooltip>
                               </>
@@ -780,7 +780,7 @@ const EmulatorDashboard: React.FC = () => {
             {[
               { icon: <RemoveRedEye />, label: 'Object Detection', desc: 'Vehicles, pedestrians, cyclists, obstacles' },
               { icon: <Person />, label: 'Driver Monitoring', desc: 'Distraction, drowsiness, compliance' },
-              { icon: <Warning />, label: 'Collision Prediction', desc: 'Forward collision warnings with TTC' },
+              { icon: <AlertTriangle />, label: 'Collision Prediction', desc: 'Forward collision warnings with TTC' },
               { icon: <DirectionsCar />, label: 'Lane Detection', desc: 'Lane departure warnings' },
               { icon: <Security />, label: 'Facial Recognition', desc: 'Driver identification & authentication' },
               { icon: <Sensors />, label: 'Blind Spot Detection', desc: 'Left/right monitoring' }
