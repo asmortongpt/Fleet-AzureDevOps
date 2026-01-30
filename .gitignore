@@ -159,3 +159,7 @@ azure-test-agents/
 incoming_data/
 *.env.bak*
 .env.bak
+
+# CLAWS.BOT
+claws-reports/
+logs/verification-*.log
