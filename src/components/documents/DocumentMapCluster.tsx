@@ -9,7 +9,9 @@
  */
 
 import { useState, useEffect, useMemo } from 'react'
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Popup, useMap } from 'react-leaflet'
+// CircleMarker imported separately due to TypeScript resolution issue
+import { CircleMarker } from 'react-leaflet/CircleMarker'
 
 import type { DocumentCluster, DocumentCategory } from '@/lib/types'
 

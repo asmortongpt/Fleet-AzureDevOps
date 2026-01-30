@@ -59,7 +59,8 @@ import {
   ClipboardList,
   Tool,
   Settings as SettingsIcon,
-  FileText
+  FileText,
+  DollarSign
 } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'

@@ -223,8 +223,12 @@ const customFilterFn: FilterFn<any> = (row, columnId, filterValue: FilterConfig)
     }
 
     case 'date': {
-      const cellDate = new Date(cellValue)
-      const filterDate = new Date(value)
+      // Type guard for valid date inputs
+      if (cellValue === null || cellValue === undefined || typeof cellValue === 'object') return false
+      if (value === null || value === undefined || typeof value === 'object') return false
+
+      const cellDate = new Date(cellValue as string | number)
+      const filterDate = new Date(value as string | number)
 
       if (!isValid(cellDate) || !isValid(filterDate)) return false
 
@@ -236,7 +240,8 @@ const customFilterFn: FilterFn<any> = (row, columnId, filterValue: FilterConfig)
         case 'after':
           return cellDate > filterDate
         case 'between':
-          const filterDate2 = new Date(value2!)
+          if (value2 === null || value2 === undefined || typeof value2 === 'object') return false
+          const filterDate2 = new Date(value2 as string | number)
           return cellDate >= filterDate && cellDate <= filterDate2
         default:
           return true
@@ -276,8 +281,10 @@ function ColumnFilter<T>({
   const [filterValue2, setFilterValue2] = useState(currentFilter?.value2?.toString() || '')
 
   const applyFilter = () => {
+    // Narrow the type properly
+    const cellType = columnDef.type === 'select' ? 'select' : (columnDef.type === 'boolean' ? 'text' : (columnDef.type || 'text'))
     const config: FilterConfig = {
-      type: columnDef.type === 'select' ? 'select' : columnDef.type || 'text',
+      type: cellType as 'text' | 'number' | 'date' | 'select',
       operation: filterType,
       value: filterValue,
     }
@@ -552,8 +559,9 @@ export function ExcelStyleTable<T extends Record<string, any>>({
 
           switch (col.type) {
             case 'date':
-              return isValid(new Date(value))
-                ? format(new Date(value), 'MMM d, yyyy')
+              if (typeof value === 'object') return '-'
+              return isValid(new Date(value as string | number))
+                ? format(new Date(value as string | number), 'MMM d, yyyy')
                 : String(value)
             case 'number':
               return typeof value === 'number' ? value.toLocaleString() : String(value)
@@ -614,8 +622,8 @@ export function ExcelStyleTable<T extends Record<string, any>>({
     enabled: virtualized && !enablePagination,
   })
 
-  const virtualRows = virtualized && !enablePagination
-    ? rowVirtualizer.getVirtualItems()
+  const virtualRows = (virtualized && !enablePagination && typeof rowVirtualizer.getVirtualItems === 'function')
+    ? (rowVirtualizer.getVirtualItems() as Array<{ index: number; size: number }>)
     : rows.map((row, index) => ({ index, size: compact ? 32 : 48 }))
 
   // ============================================================================
@@ -698,7 +706,10 @@ export function ExcelStyleTable<T extends Record<string, any>>({
     const ws = XLSX.utils.json_to_sheet(exportData)
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Data')
-    XLSX.writeFile(wb, `export_${format(new Date(), 'yyyy-MM-dd_HHmmss')}.xlsx`)
+    // Type assertion for writeFile which exists at runtime
+    if ('writeFile' in XLSX) {
+      (XLSX as any).writeFile(wb, `export_${format(new Date(), 'yyyy-MM-dd_HHmmss')}.xlsx`)
+    }
   }, [columns, table])
 
   const exportToCSV = useCallback(() => {
@@ -911,7 +922,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
           <tbody>
             {virtualized && !enablePagination ? (
               <>
-                {virtualRows.map((virtualRow) => {
+                {virtualRows.map((virtualRow: { index: number; size: number }) => {
                   const row = rows[virtualRow.index]
                   return (
                     <tr
