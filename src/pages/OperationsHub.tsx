@@ -17,7 +17,7 @@
 
 import { motion } from 'framer-motion'
 import { Suspense, memo, useCallback, useMemo } from 'react'
-import { Radio as OperationsIcon, Map, Circle, CheckSquare, Calendar, Truck, Package, AlertTriangle, Plus, Clock, Zap, Route, MapPin, Fuel, CheckCircle, X, ArrowUp, ArrowDown, ArrowRight } from 'lucide-react'
+import { Radio as OperationsIcon, Map, Circle, CheckSquare, Calendar, Truck, Package, AlertTriangle, Plus, Clock, Zap, Route as RouteIcon, MapPin, Fuel, CheckCircle, X, ArrowUp, ArrowDown, ArrowRight } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveOperationsData, type Route, type FuelTransaction, type Task } from '@/hooks/use-reactive-operations-data'
 import {
@@ -493,7 +493,7 @@ const RoutesContent = memo(() => {
                   className="flex items-start gap-3 p-3 rounded-lg border"
                   role="listitem"
                 >
-                  <Route className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" aria-hidden="true" />
+                  <RouteIcon className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" aria-hidden="true" />
                   <div>
                     <p className="font-medium">Route clustering saved 156 miles today</p>
                     <p className="text-sm text-muted-foreground">3.2 hours of drive time reduced</p>

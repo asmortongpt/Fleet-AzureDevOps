@@ -1,4 +1,4 @@
-import { CheckCircle, AlertTriangle, Error, HourglassEmpty } from '@mui/icons-material';
+import { CheckCircle, Warning, Error, HourglassEmpty } from '@mui/icons-material';
 import { Box, Paper, Typography, LinearProgress, Chip, CircularProgress } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import React, { useMemo } from 'react';
@@ -28,7 +28,7 @@ const SystemHealthWidget: React.FC<Props> = ({ health, loading }) => {
       case 'healthy':
         return <CheckCircle color="success" sx={{ fontSize: 40 }} />;
       case 'degraded':
-        return <AlertTriangle color="warning" sx={{ fontSize: 40 }} />;
+        return <Warning color="warning" sx={{ fontSize: 40 }} />;
       case 'down':
         return <Error color="error" sx={{ fontSize: 40 }} />;
       default:

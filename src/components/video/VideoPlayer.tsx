@@ -21,7 +21,7 @@ import {
   VolumeOff,
   Fullscreen,
   Settings,
-  AlertTriangle,
+  Warning,
   RemoveRedEye
 } from '@mui/icons-material';
 import {
@@ -420,7 +420,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             />
             {detectionStats.alerts > 0 && (
               <Chip
-                icon={<AlertTriangle />}
+                icon={<Warning />}
                 label={`${detectionStats.alerts} Alerts`}
                 size="small"
                 color="error"
