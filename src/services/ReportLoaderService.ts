@@ -1,8 +1,9 @@
 /**
-import logger from '@/utils/logger';
  * Report Loader Service
  * Loads and manages report definitions from the reporting library
  */
+
+import logger from '@/utils/logger';
 
 export interface ReportFilter {
   name: string;
