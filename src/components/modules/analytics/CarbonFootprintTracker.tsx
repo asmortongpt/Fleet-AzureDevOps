@@ -10,12 +10,7 @@
  * - Cost savings analysis
  */
 
-import {
-  ArrowTrendingDownIcon,
-  DocumentArrowDownIcon,
-  SparklesIcon
-} from '@heroicons/react/24/outline';
-import { Cloud, CloudIcon } from 'lucide-react';
+import { Cloud, CloudIcon, TrendingDown as ArrowTrendingDownIcon, Download as DocumentArrowDownIcon, Sparkles as SparklesIcon } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import React, { useState, useEffect } from 'react';
 
