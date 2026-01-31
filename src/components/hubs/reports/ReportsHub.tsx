@@ -11,7 +11,7 @@
 
 import {
   FileText,
-  ChartBar,
+  BarChart,
   Calendar,
   Clock,
   Download,
@@ -398,7 +398,7 @@ export function ReportsHub() {
           <div className="flex items-center justify-between mb-2">
             <TabsList>
               <TabsTrigger value="templates">
-                <ChartBar className="w-4 h-4 mr-2" />
+                <BarChart className="w-4 h-4 mr-2" />
                 Templates
               </TabsTrigger>
               <TabsTrigger value="generated">

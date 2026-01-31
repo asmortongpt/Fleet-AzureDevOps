@@ -16,7 +16,7 @@
 
 import { memo, useMemo, Suspense, lazy, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Settings as AdminIcon, Users, LineChart, Shield, AlertTriangle, CheckCircle, Database, UploadCloud, Lock, Clipboard, BadgeCheck, SearSix, UserCircle2, Activity as Activity, Clock, XCircle, Key, Sliders } from 'lucide-react'
+import { Settings as AdminIcon, Users, LineChart, Shield, AlertTriangle, CheckCircle, Database, UploadCloud, Lock, Clipboard, BadgeCheck, Search, UserCircle2, Activity as Activity, Clock, XCircle, Key, Sliders } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveAdminData } from '@/hooks/use-reactive-admin-data'
 import type {

@@ -3,7 +3,7 @@
  * Supports OSHA-required training, expiration alerts, and completion tracking
  */
 
-import { GraduationCap, Certificate, Calendar, CheckCircle, AlertTriangle, Clock, TrendingUp, Download } from 'lucide-react'
+import { GraduationCap, Award, Calendar, CheckCircle, AlertTriangle, Clock, TrendingUp, Download } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'

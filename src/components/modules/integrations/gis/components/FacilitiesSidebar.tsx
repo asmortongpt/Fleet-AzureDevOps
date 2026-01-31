@@ -2,7 +2,7 @@
  * Facilities Sidebar - Displays list of facilities in the region
  */
 
-import { Building2, CarProfile, Wrench, Fuel } from "lucide-react"
+import { Building2, User, Wrench, Fuel } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"

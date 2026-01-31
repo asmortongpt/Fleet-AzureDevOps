@@ -19,7 +19,7 @@
 
 import { motion } from 'framer-motion'
 import { Suspense, memo, useCallback, useMemo } from 'react'
-import { Shield as ComplianceIcon, CheckCircle, AlertTriangle, Clipboard, Certificate, CalendarX, TrendingUp, FileText, ListChecks, XCircle } from 'lucide-react'
+import { Shield as ComplianceIcon, CheckCircle, AlertTriangle, Clipboard, Award, CalendarX, TrendingUp, FileText, ListChecks, XCircle } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveComplianceData } from '@/hooks/use-reactive-compliance-data'
 import type { ComplianceRecord, Inspection } from '@/hooks/use-reactive-compliance-data'

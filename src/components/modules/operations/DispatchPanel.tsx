@@ -1,9 +1,9 @@
 import {
-    Microphone,
+    Mic,
     Radio,
     AlertTriangle,
-    SpeakerHigh,
-    SpeakerSlash
+    Volume2,
+    VolumeX
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 
@@ -125,7 +125,7 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                             )}
 
                             <div className="relative z-10 flex flex-col items-center">
-                                <Microphone className={`w-4 h-4 mb-1 ${(ptt.isTransmitting || isPressing) ? "animate-pulse" : ""}`} />
+                                <Mic className={`w-4 h-4 mb-1 ${(ptt.isTransmitting || isPressing) ? "animate-pulse" : ""}`} />
                                 <span className="font-bold tracking-wider font-mono">
                                     {(ptt.isTransmitting || isPressing) ? "TRANSMITTING" : "PUSH TO TALK"}
                                 </span>
@@ -138,7 +138,7 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                             onClick={() => setIsMuted(!isMuted)}
                             className={isMuted ? 'text-red-500' : 'text-muted-foreground'}
                         >
-                            {isMuted ? <SpeakerSlash className="w-4 h-4 mr-2" /> : <SpeakerHigh className="w-4 h-4 mr-2" />}
+                            {isMuted ? <VolumeX className="w-4 h-4 mr-2" /> : <Volume2 className="w-4 h-4 mr-2" />}
                             {isMuted ? 'Audio Muted' : 'Audio Active'}
                         </Button>
                     </div>
