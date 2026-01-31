@@ -38,8 +38,9 @@ import ErrorBoundary from '@/components/common/ErrorBoundary'
 // CONFIGURATION
 // ============================================================================
 
-const ANIMATION_STAGGER_DELAY = 0.1
+const ANIMATION_STAGGER_DELAY = 0.05  // Reduced for faster rendering
 const MAX_ANIMATION_ITEMS = 10
+const ENABLE_ANIMATIONS = false  // Disable animations for performance
 
 // ============================================================================
 // LOADING SKELETON COMPONENTS (Memoized)
@@ -105,12 +106,17 @@ interface ExpiringItemCardProps {
 const ExpiringItemCard = memo(function ExpiringItemCard({ item, index }: ExpiringItemCardProps) {
   const daysUntilExpiry = calculateDaysUntilExpiry(item.expiryDate)
 
+  const Wrapper = ENABLE_ANIMATIONS ? motion.div : 'div'
+  const animationProps = ENABLE_ANIMATIONS ? {
+    initial: { opacity: 0, x: -20 },
+    animate: { opacity: 1, x: 0 },
+    transition: { delay: index * ANIMATION_STAGGER_DELAY }
+  } : {}
+
   return (
-    <motion.div
+    <Wrapper
       key={item.id}
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * ANIMATION_STAGGER_DELAY }}
+      {...animationProps}
       className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50 focus-within:ring-2 focus-within:ring-ring"
       role="article"
       aria-label={`${item.type.toUpperCase()} compliance item expiring in ${daysUntilExpiry} days`}
@@ -124,7 +130,7 @@ const ExpiringItemCard = memo(function ExpiringItemCard({ item, index }: Expirin
       <Badge variant="warning" aria-label={`${daysUntilExpiry} days remaining`}>
         {daysUntilExpiry} days
       </Badge>
-    </motion.div>
+    </Wrapper>
   )
 })
 

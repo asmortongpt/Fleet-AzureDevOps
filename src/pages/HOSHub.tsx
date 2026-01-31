@@ -416,7 +416,7 @@ function HOSHubContent() {
     })
 
     return last7Days.map(date => ({
-      date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      name: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       violations: violations.filter(v => v.violation_datetime.startsWith(date)).length,
     }))
   }, [violations])
@@ -436,30 +436,30 @@ function HOSHubContent() {
               <StatCard
                 title="Driving Hours (7d)"
                 value={metrics.totalDrivingHours}
-                icon={<Timer />}
-                trend={{ value: 0, label: 'vs last week' }}
-                variant="info"
+                icon={Timer}
+                trend="neutral"
+                description="vs last week"
               />
               <StatCard
                 title="Active Violations"
                 value={metrics.activeViolations}
-                icon={<AlertTriangle />}
-                trend={{ value: 0, label: 'critical' }}
-                variant={metrics.activeViolations > 0 ? 'danger' : 'success'}
+                icon={AlertTriangle}
+                trend="neutral"
+                description="critical"
               />
               <StatCard
                 title="Compliance Rate"
                 value={`${metrics.complianceRate}%`}
-                icon={<CheckCircle />}
-                trend={{ value: 0, label: 'vs last week' }}
-                variant="success"
+                icon={CheckCircle}
+                trend="neutral"
+                description="vs last week"
               />
               <StatCard
                 title="DVIR Reports"
                 value={metrics.totalDVIR}
-                icon={<FileText />}
-                trend={{ value: metrics.unsafeVehicles, label: 'unsafe vehicles' }}
-                variant={metrics.unsafeVehicles > 0 ? 'warning' : 'info'}
+                icon={FileText}
+                trend="neutral"
+                description={`${metrics.unsafeVehicles} unsafe vehicles`}
               />
             </div>
           )}
@@ -491,9 +491,10 @@ function HOSHubContent() {
                 <Suspense fallback={<Skeleton className="h-64 w-full" />}>
                   <ResponsiveLineChart
                     data={violationTrendData}
-                    xKey="date"
-                    lines={[{ dataKey: 'violations', name: 'Violations', color: '#ef4444' }]}
                     title="Violations"
+                    description="Daily violation count (last 7 days)"
+                    dataKeys={['violations']}
+                    xAxisKey="name"
                     height={250}
                   />
                 </Suspense>

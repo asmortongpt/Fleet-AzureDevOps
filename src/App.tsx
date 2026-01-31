@@ -93,6 +93,10 @@ const DocumentQA = lazy(() => import("@/components/modules/compliance/DocumentQA
 // CHARGING MODULES
 const EVChargingManagement = lazy(() => import("@/components/modules/charging/EVChargingManagement").then(m => ({ default: m.EVChargingManagement })))
 
+// CHARGING & EV HUB PAGES
+const ChargingHub = lazy(() => import("@/pages/ChargingHub"))
+const EVHub = lazy(() => import("@/pages/EVHub"))
+
 // PERSONAL USE MODULES
 const PersonalUseDashboard = lazy(() => import("@/components/modules/personal-use/PersonalUseDashboard").then(m => ({ default: m.PersonalUseDashboard })))
 const PersonalUsePolicyConfig = lazy(() => import("@/components/modules/personal-use/PersonalUsePolicyConfig").then(m => ({ default: m.PersonalUsePolicyConfig })))
@@ -357,6 +361,12 @@ function App() {
         return <VideoTelematics />
       case "ev-charging":
         return <EVChargingManagement />
+      case "charging-hub":
+      case "charging":
+        return <ChargingHub />
+      case "ev-hub":
+      case "ev":
+        return <EVHub />
       case "vehicle-telemetry":
         return <VehicleTelemetry />
       case "map-layers":
