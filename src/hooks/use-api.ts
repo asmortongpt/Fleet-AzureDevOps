@@ -431,9 +431,9 @@ export function useVehicleMutations() {
       return res.json();
     },
     onMutate: async (updatedVehicle) => {
-      await queryClient.cancelQueries({ queryKey: queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }) });
-      const previousVehicles = queryClient.getQueryData<Vehicle[]>(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }));
-      queryClient.setQueryData<Vehicle[]>(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }), (old) =>
+      await queryClient.cancelQueries({ queryKey: queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenantId || '' }) });
+      const previousVehicles = queryClient.getQueryData<Vehicle[]>(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenantId || '' }));
+      queryClient.setQueryData<Vehicle[]>(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenantId || '' }), (old) =>
         old?.map((vehicle) => (vehicle.id === updatedVehicle.id ? updatedVehicle : vehicle))
       );
       return { previousVehicles };
