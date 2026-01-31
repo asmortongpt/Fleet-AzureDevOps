@@ -21,7 +21,7 @@
  */
 
 import { useState, useMemo } from 'react'
-import { format, subMonths } from 'date-fns'
+import { format, subMonths, differenceInDays } from 'date-fns'
 import {
   FileText,
   Download,
@@ -86,6 +86,40 @@ interface ReportConfig {
   icon: React.ReactNode
 }
 
+interface HOSSummaryData {
+  totalLogs: number
+  byStatus: Record<string, number>
+  byDriver: Record<string, { driver_id: string; logs: HOSLog[] }>
+  logs: HOSLog[]
+}
+
+interface DVIRSummaryData {
+  totalReports: number
+  totalDefects: number
+  criticalDefects: number
+  unsafeVehicles: number
+  byInspectionType: Record<string, number>
+  reports: DVIRReport[]
+}
+
+interface ViolationSummaryData {
+  totalViolations: number
+  bySeverity: Record<string, number>
+  byStatus: Record<string, number>
+  byType: Record<string, number>
+  violations: HOSViolation[]
+}
+
+interface DriverPerformanceData {
+  totalHours: number
+  totalViolations: number
+  complianceRate: number
+  avgDailyHours: number
+  violations: HOSViolation[]
+}
+
+type ReportData = HOSSummaryData | DVIRSummaryData | ViolationSummaryData | DriverPerformanceData | null
+
 // ============================================================================
 // REPORT CONFIGURATIONS
 // ============================================================================
@@ -131,7 +165,7 @@ export function DOTReportsDialog({ open, onOpenChange, tenantId }: DOTReportsDia
     label: 'Last 30 Days'
   })
   const [isGenerating, setIsGenerating] = useState(false)
-  const [reportData, setReportData] = useState<any | null>(null)
+  const [reportData, setReportData] = useState<ReportData>(null)
 
   // Data hooks
   const { data: drivers = [] } = useDrivers(tenantId)
@@ -163,7 +197,7 @@ export function DOTReportsDialog({ open, onOpenChange, tenantId }: DOTReportsDia
     setIsGenerating(true)
 
     try {
-      let data: any
+      let data: ReportData
 
       switch (reportType) {
         case 'hos_summary':
@@ -193,7 +227,7 @@ export function DOTReportsDialog({ open, onOpenChange, tenantId }: DOTReportsDia
   }
 
   // Export report
-  const handleExport = async (format: 'pdf' | 'csv' | 'xlsx') => {
+  const handleExport = async (exportFormat: 'pdf' | 'csv' | 'xlsx') => {
     if (!reportData) {
       toast.error('Please generate a report first')
       return
@@ -201,19 +235,19 @@ export function DOTReportsDialog({ open, onOpenChange, tenantId }: DOTReportsDia
 
     try {
       // In production, this would call backend API to generate file
-      logger.info(`[DOT Reports] Exporting as ${format}`, {
+      logger.info(`[DOT Reports] Exporting as ${exportFormat}`, {
         reportType,
         dateRange,
         driverId: selectedDriver
       })
 
       // For now, create a simple CSV export
-      if (format === 'csv') {
+      if (exportFormat === 'csv') {
         const csv = convertToCSV(reportData)
         downloadFile(csv, `dot-report-${reportType}-${Date.now()}.csv`, 'text/csv')
         toast.success('Report exported successfully')
       } else {
-        toast.info(`${format.toUpperCase()} export coming soon`)
+        toast.info(`${exportFormat.toUpperCase()} export coming soon`)
       }
     } catch (error) {
       logger.error('[DOT Reports] Export error:', error)
@@ -374,7 +408,7 @@ export function DOTReportsDialog({ open, onOpenChange, tenantId }: DOTReportsDia
 // REPORT GENERATORS
 // ============================================================================
 
-function generateHOSSummary(logs: HOSLog[], dateRange: DateRange) {
+function generateHOSSummary(logs: HOSLog[], dateRange: DateRange): HOSSummaryData {
   return {
     totalLogs: logs.length,
     byStatus: {
@@ -395,7 +429,7 @@ function generateHOSSummary(logs: HOSLog[], dateRange: DateRange) {
   }
 }
 
-function generateDVIRSummary(reports: DVIRReport[], dateRange: DateRange) {
+function generateDVIRSummary(reports: DVIRReport[], dateRange: DateRange): DVIRSummaryData {
   const totalDefects = reports.reduce((sum, r) => sum + (r.defects?.length || 0), 0)
   const criticalDefects = reports.reduce(
     (sum, r) => sum + (r.defects?.filter((d) => d.severity === 'critical').length || 0),
@@ -416,7 +450,7 @@ function generateDVIRSummary(reports: DVIRReport[], dateRange: DateRange) {
   }
 }
 
-function generateViolationSummary(violations: HOSViolation[], dateRange: DateRange) {
+function generateViolationSummary(violations: HOSViolation[], dateRange: DateRange): ViolationSummaryData {
   return {
     totalViolations: violations.length,
     bySeverity: {
@@ -437,7 +471,7 @@ function generateViolationSummary(violations: HOSViolation[], dateRange: DateRan
   }
 }
 
-function generateDriverPerformance(logs: HOSLog[], violations: HOSViolation[], dateRange: DateRange) {
+function generateDriverPerformance(logs: HOSLog[], violations: HOSViolation[], dateRange: DateRange): DriverPerformanceData {
   const drivingHours = logs
     .filter((l) => l.duty_status === 'driving')
     .reduce((sum, l) => {
@@ -460,7 +494,7 @@ function generateDriverPerformance(logs: HOSLog[], violations: HOSViolation[], d
 // REPORT COMPONENTS
 // ============================================================================
 
-function HOSSummaryReport({ data }: { data: any }) {
+function HOSSummaryReport({ data }: { data: HOSSummaryData }): React.ReactElement {
   return (
     <div className="space-y-4">
       {/* Summary Stats */}
@@ -506,7 +540,7 @@ function HOSSummaryReport({ data }: { data: any }) {
   )
 }
 
-function DVIRSummaryReport({ data }: { data: any }) {
+function DVIRSummaryReport({ data }: { data: DVIRSummaryData }): React.ReactElement {
   return (
     <div className="space-y-4">
       {/* Summary Stats */}
@@ -556,7 +590,7 @@ function DVIRSummaryReport({ data }: { data: any }) {
   )
 }
 
-function ViolationSummaryReport({ data }: { data: any }) {
+function ViolationSummaryReport({ data }: { data: ViolationSummaryData }): React.ReactElement {
   return (
     <div className="space-y-4">
       {/* Summary Stats */}
@@ -614,7 +648,7 @@ function ViolationSummaryReport({ data }: { data: any }) {
   )
 }
 
-function DriverPerformanceReport({ data }: { data: any }) {
+function DriverPerformanceReport({ data }: { data: DriverPerformanceData }): React.ReactElement {
   return (
     <div className="space-y-4">
       {/* Summary Stats */}
@@ -640,8 +674,8 @@ function StatCard({
   label: string
   value: string | number
   variant?: 'default' | 'success' | 'warning' | 'danger'
-}) {
-  const colorClasses = {
+}): React.ReactElement {
+  const colorClasses: Record<'default' | 'success' | 'warning' | 'danger', string> = {
     default: 'bg-gray-50 border-gray-200',
     success: 'bg-green-50 border-green-200',
     warning: 'bg-yellow-50 border-yellow-200',
@@ -660,14 +694,16 @@ function StatCard({
 // UTILITY FUNCTIONS
 // ============================================================================
 
-function convertToCSV(data: any): string {
+function convertToCSV(data: HOSSummaryData | DVIRSummaryData | ViolationSummaryData | DriverPerformanceData): string {
   // Simple CSV conversion - in production, use a proper CSV library
   const headers = Object.keys(data).join(',')
-  const values = Object.values(data).join(',')
+  const values = Object.values(data).map(v =>
+    typeof v === 'object' ? JSON.stringify(v) : String(v)
+  ).join(',')
   return `${headers}\n${values}`
 }
 
-function downloadFile(content: string, filename: string, mimeType: string) {
+function downloadFile(content: string, filename: string, mimeType: string): void {
   const blob = new Blob([content], { type: mimeType })
   const url = window.URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -677,8 +713,4 @@ function downloadFile(content: string, filename: string, mimeType: string) {
   a.click()
   document.body.removeChild(a)
   window.URL.revokeObjectURL(url)
-}
-
-function differenceInDays(end: Date, start: Date): number {
-  return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
 }
