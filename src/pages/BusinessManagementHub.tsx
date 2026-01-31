@@ -100,7 +100,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
           value="$125,000"
           icon={Wallet}
           change={8}
-  trend="up"
+          trend="up"
           description="Current month"
         />
         <StatCard
@@ -108,7 +108,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
           value="$98,500"
           icon={DollarSign}
           change={12}
-  trend="down"
+          trend="down"
           description="79% of budget"
         />
         <StatCard
@@ -116,7 +116,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
           value="$0.42"
           icon={TrendingDown}
           change={5}
-  trend="up"
+          trend="up"
           description="Fleet average"
         />
         <StatCard
@@ -124,7 +124,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
           value="$47,200"
           icon={Target}
           change={15}
-  trend="up"
+          trend="up"
           description="vs last year"
         />
       </motion.div>
@@ -233,7 +233,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
           value={24}
           icon={Building}
           change={3}
-  trend="up"
+          trend="up"
           description="Approved suppliers"
         />
         <StatCard
@@ -241,14 +241,15 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
           value={18}
           icon={ShoppingCart}
           change={5}
-  trend="down"
+          trend="down"
           description="Pending delivery"
         />
         <StatCard
           title="Avg Vendor Rating"
           value="4.6/5"
           icon={Award}
-          trend={{ value: 0.2, isPositive: true }}
+          change={0.2}
+          trend="up"
           description="Supplier quality"
         />
         <StatCard
@@ -256,7 +257,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
           value="$12,450"
           icon={Percent}
           change={18}
-  trend="up"
+          trend="up"
           description="Through negotiation"
         />
       </motion.div>
@@ -361,7 +362,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
           value="87%"
           icon={BarChart}
           change={5}
-  trend="up"
+          trend="up"
           description="Vehicle usage"
         />
         <StatCard
@@ -369,14 +370,15 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
           value="142%"
           icon={TrendingUp}
           change={8}
-  trend="up"
+          trend="up"
           description="Return on investment"
         />
         <StatCard
           title="Efficiency Score"
           value="8.4/10"
           icon={Target}
-          trend={{ value: 0.3, isPositive: true }}
+          change={0.3}
+          trend="up"
           description="Overall performance"
         />
         <StatCard
@@ -384,7 +386,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
           value="18%"
           icon={TrendingDown}
           change={4}
-  trend="up"
+          trend="up"
           description="vs last year"
         />
       </motion.div>
@@ -525,7 +527,7 @@ const ReportsTabContent = memo(function ReportsTabContent() {
           value={142}
           icon={Download}
           change={12}
-  trend="up"
+          trend="up"
           description="Report instances"
         />
         <StatCard
