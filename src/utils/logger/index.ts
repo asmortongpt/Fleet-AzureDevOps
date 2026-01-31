@@ -1,14 +1,56 @@
-import logger from '@/utils/logger';
-export const logger = {
-  info: (...args: unknown[]) => logger.info(...args),
-  warn: (...args: unknown[]) => logger.warn(...args),
-  error: (...args: unknown[]) => logger.error(...args),
-  debug: (...args: unknown[]) => logger.debug(...args),
-  logError: (...args: unknown[]) => logger.error(...args),
-  logAudit: (...args: unknown[]) => logger.info('[AUDIT]', ...args),
-  logWarning: (...args: unknown[]) => logger.warn(...args),
-  logInfo: (...args: unknown[]) => logger.info(...args),
-  logDebug: (...args: unknown[]) => logger.debug(...args),
+// Simple console-based logger implementation
+// Provides consistent logging interface across the application
+
+export interface LogContext {
+  [key: string]: unknown;
 }
 
-export default logger
+const isDev = import.meta.env.DEV;
+
+export const logger = {
+  info: (message: string, ...args: unknown[]): void => {
+    if (isDev) {
+      console.log(`[INFO] ${message}`, ...args);
+    }
+  },
+
+  warn: (message: string, ...args: unknown[]): void => {
+    console.warn(`[WARN] ${message}`, ...args);
+  },
+
+  error: (message: string, ...args: unknown[]): void => {
+    console.error(`[ERROR] ${message}`, ...args);
+  },
+
+  debug: (message: string, ...args: unknown[]): void => {
+    if (isDev) {
+      console.debug(`[DEBUG] ${message}`, ...args);
+    }
+  },
+
+  logError: (message: string, ...args: unknown[]): void => {
+    console.error(`[ERROR] ${message}`, ...args);
+  },
+
+  logAudit: (message: string, ...args: unknown[]): void => {
+    console.log(`[AUDIT] ${message}`, ...args);
+  },
+
+  logWarning: (message: string, ...args: unknown[]): void => {
+    console.warn(`[WARN] ${message}`, ...args);
+  },
+
+  logInfo: (message: string, ...args: unknown[]): void => {
+    if (isDev) {
+      console.log(`[INFO] ${message}`, ...args);
+    }
+  },
+
+  logDebug: (message: string, ...args: unknown[]): void => {
+    if (isDev) {
+      console.debug(`[DEBUG] ${message}`, ...args);
+    }
+  },
+};
+
+export default logger;

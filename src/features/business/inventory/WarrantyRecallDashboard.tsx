@@ -19,7 +19,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Grid,
   Tabs,
   Tab,
   Table,
@@ -52,6 +51,7 @@ import {
   ListItemIcon,
   Divider
 } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import React, { useState, useEffect } from 'react';
 
