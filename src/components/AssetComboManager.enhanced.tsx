@@ -12,7 +12,7 @@
 
 import { Link, Unlink, Clock, Plus, AlertTriangle, CheckCircle, Calendar } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
-import { toast } from 'sonner'
+import toast from 'sonner'
 
 import {
   AlertDialog,

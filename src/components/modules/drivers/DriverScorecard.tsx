@@ -11,7 +11,7 @@ import {
   Target
 } from "lucide-react"
 import { useState, useEffect } from "react"
-import { toast } from "sonner"
+import toast from "sonner"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

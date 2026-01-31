@@ -5,7 +5,7 @@
 
 import { Building, Palette, FileText, Image as ImageIcon, Type, Save, Eye, RotateCcw, Upload } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { toast } from 'sonner'
+import toast from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'

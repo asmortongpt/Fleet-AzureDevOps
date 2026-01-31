@@ -1,7 +1,7 @@
 import { Car, AlertTriangle, CheckCircle, Clock, XCircle, Calendar, Download, RefreshCw, Plus } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient, MutationFunction } from '@tanstack/react-query'
 import React, { useState } from 'react'
-import { toast } from 'sonner'
+import toast from 'sonner'
 
 import { TripUsageDialog } from '@/components/dialogs/TripUsageDialog'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'

@@ -5,7 +5,7 @@
  * every critical operation based on Standard Operating Procedures (SOPs)
  */
 
-import { toast } from 'sonner';
+import toast from 'sonner';
 
 import { checkPolicyCompliance, PolicyEvaluationContext } from './engine';
 import { Policy, PolicyType } from './types';

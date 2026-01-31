@@ -53,7 +53,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useAuth } from '@/contexts/AuthContext'
-import { toast } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import logger from '@/utils/logger';
 import {
   StatCard,

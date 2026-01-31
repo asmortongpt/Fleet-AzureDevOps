@@ -2,7 +2,7 @@ import { Car, DollarSign, Receipt, Calendar, AlertTriangle, TrendingUp, Check, C
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { useState, useEffect } from 'react'
-import { toast } from 'sonner'
+import toast from 'sonner'
 
 import { TripMarker } from '@/components/PersonalUse/TripMarker'
 import { Alert, AlertDescription } from '@/components/ui/alert'

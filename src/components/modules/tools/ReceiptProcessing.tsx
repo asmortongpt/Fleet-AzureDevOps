@@ -1,6 +1,6 @@
 import { Receipt, Upload, Scan, CheckCircle, X, Image, FileText } from "lucide-react"
 import { useState, useRef } from "react"
-import { toast } from "sonner"
+import toast from "sonner"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
