@@ -21,7 +21,7 @@ import {
   Info,
 } from 'lucide-react'
 import { useState } from 'react'
-import { toast } from 'sonner'
+import toast from 'sonner'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Badge } from '@/components/ui/badge'

@@ -292,7 +292,7 @@ const CarbonFootprintTracker: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <CloudIcon className="w-16 h-16 mx-auto text-green-500 animate-pulse" />
+          <Cloud className="w-16 h-16 mx-auto text-green-500 animate-pulse" />
           <p className="mt-2 text-sm text-slate-700">Loading carbon data...</p>
         </div>
       </div>
@@ -335,7 +335,7 @@ const CarbonFootprintTracker: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">CO₂ Emissions</CardTitle>
-            <CloudIcon className="w-3 h-3 text-gray-500" />
+            <Cloud className="w-3 h-3 text-gray-500" />
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold">

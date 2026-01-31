@@ -8,7 +8,7 @@ import {
   CheckCircle
 } from "lucide-react"
 import { useState, Dispatch, SetStateAction } from "react"
-import { toast } from "sonner"
+import toast from "sonner"
 
 // import { AnalyticsTab } from "./DataWorkbench.bak/AnalyticsTab"
 // import { DataWorkbenchDialogs } from "./DataWorkbench.bak/DataWorkbenchDialogs"

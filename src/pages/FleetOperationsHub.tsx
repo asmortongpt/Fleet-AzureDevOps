@@ -75,7 +75,7 @@ import { useDrilldown } from '@/contexts/DrilldownContext'
 import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
 import { useReactiveDriversData } from '@/hooks/use-reactive-drivers-data'
 import { useReactiveOperationsData } from '@/hooks/use-reactive-operations-data'
-import { toast } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import logger from '@/utils/logger';
 import {
   StatCard,

@@ -42,7 +42,7 @@ import {
   type Incident,
   type CreateInvestigationInput,
 } from '@/hooks/use-reactive-incident-data'
-import { toast } from 'sonner'
+import toast from 'sonner'
 
 // ============================================================================
 // TYPES

@@ -3,7 +3,7 @@ import type { LatLngExpression } from 'leaflet';
 import React, { useEffect, useState, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, Polygon } from 'react-leaflet';
 import { io, Socket } from 'socket.io-client';
-import { toast } from 'sonner';
+import toast from 'sonner';
 
 import 'leaflet/dist/leaflet.css';
 import { Asset, Geofence } from '@/types';

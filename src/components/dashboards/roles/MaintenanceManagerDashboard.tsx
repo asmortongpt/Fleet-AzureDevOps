@@ -12,7 +12,7 @@
 import React, { useState, useEffect } from 'react';
 import { Wrench, Calendar, Package, AlertTriangle, CheckCircle, Clock, Users, TrendingUp, Gauge, ListChecks, Car, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { toast } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';

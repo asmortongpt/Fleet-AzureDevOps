@@ -39,7 +39,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useVehicleScheduleWithUtils } from '@/hooks/useVehicleSchedule'
-import { toast } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import logger from '@/utils/logger';
 
 interface VehicleReservationProps {

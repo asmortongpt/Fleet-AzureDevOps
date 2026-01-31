@@ -2,7 +2,7 @@ import { Receipt, Check, X, Eye, Download, Filter, CheckCircle, XCircle, Clock, 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { useState, useEffect } from 'react'
-import { toast } from 'sonner'
+import toast from 'sonner'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'

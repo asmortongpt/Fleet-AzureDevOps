@@ -22,7 +22,7 @@ import {
     SMAA,
     N8AO // High-quality ambient occlusion
 } from '@react-three/postprocessing'
-import { BlendFunction, ToneMappingMode, KernelSize } from 'postprocessing'
+// import { BlendFunction, ToneMappingMode, KernelSize } from 'postprocessing'
 import { useRef, useMemo } from 'react'
 import * as THREE from 'three'
 
