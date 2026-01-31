@@ -605,7 +605,7 @@ function generateDocumentBody(document: PolicyDocument | SOPDocument, colors: an
   // Compliance
   if (document.compliance && document.compliance.length > 0) {
     html += '<div class="compliance-box"><h3>Compliance Requirements</h3><ul>'
-    document.compliance.forEach(req => {
+    document.compliance.forEach((req: string) => {
       html += `<li>${req}</li>`
     })
     html += '</ul></div>'
