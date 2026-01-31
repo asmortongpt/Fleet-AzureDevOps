@@ -4,7 +4,7 @@ import {
   Build as MaintenanceIcon,
   AttachMoney as MoneyIcon,
   Speed as SpeedIcon,
-  TrendUp as TrendUpIcon,
+  TrendingUp as TrendUpIcon,
   CheckCircle as ActiveIcon,
   Timeline as UtilizationIcon
 } from '@mui/icons-material';
