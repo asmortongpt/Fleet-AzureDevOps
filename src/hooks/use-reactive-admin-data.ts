@@ -262,7 +262,7 @@ export function useReactiveAdminData() {
         )
       } catch (error) {
         // Graceful fallback to mock data if API fails
-        logger.warn('Users API unavailable, using mock data:', error)
+        logger.warn('Users API unavailable, using mock data:', { error })
         return [] // Return empty array, let components handle empty state
       }
     },
@@ -315,7 +315,7 @@ export function useReactiveAdminData() {
           signal
         )
       } catch (error) {
-        logger.warn('Audit logs API unavailable, returning empty array:', error)
+        logger.warn('Audit logs API unavailable, returning empty array:', { error })
         return []
       }
     },
@@ -343,7 +343,7 @@ export function useReactiveAdminData() {
           signal
         )
       } catch (error) {
-        logger.warn('Sessions API unavailable, returning empty array:', error)
+        logger.warn('Sessions API unavailable, returning empty array:', { error })
         return []
       }
     },

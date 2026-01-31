@@ -7,7 +7,7 @@ class ObservabilityService {
     if (typeof window !== 'undefined' && (window as any).fleetMetrics) {
       (window as any).fleetMetrics.track(name, value);
     }
-    logger.info(`[Metric] ${name}:`, value);
+    logger.info(`[Metric] ${name}:`, { value });
   }
 
   trackEvent(name: string, properties?: any) {

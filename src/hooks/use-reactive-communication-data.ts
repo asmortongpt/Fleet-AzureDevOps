@@ -63,7 +63,7 @@ export function useReactiveCommunicationData() {
         }
         return response.json()
       } catch (error) {
-        logger.warn('Failed to fetch messages:', error)
+        logger.warn('Failed to fetch messages:', { error })
         return []
       }
     },
@@ -83,7 +83,7 @@ export function useReactiveCommunicationData() {
         }
         return response.json()
       } catch (error) {
-        logger.warn('Failed to fetch notifications:', error)
+        logger.warn('Failed to fetch notifications:', { error })
         return []
       }
     },
@@ -103,7 +103,7 @@ export function useReactiveCommunicationData() {
         }
         return response.json()
       } catch (error) {
-        logger.warn('Failed to fetch announcements:', error)
+        logger.warn('Failed to fetch announcements:', { error })
         return []
       }
     },

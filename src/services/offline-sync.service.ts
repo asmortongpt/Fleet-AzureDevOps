@@ -205,7 +205,7 @@ export class OfflineSyncService {
 
       logger.info('[OfflineSyncService] Database initialized successfully');
     } catch (error) {
-      logger.error('[OfflineSyncService] Failed to initialize database:', error);
+      logger.error('[OfflineSyncService] Failed to initialize database:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -262,7 +262,7 @@ export class OfflineSyncService {
 
       this.notifySyncStatus({ status: 'synced', message: 'All data synchronized' });
     } catch (error) {
-      logger.error('[OfflineSyncService] Sync failed:', error);
+      logger.error('[OfflineSyncService] Sync failed:', error instanceof Error ? error : new Error(String(error)));
       this.notifySyncStatus({ status: 'error', message: 'Sync failed', error });
     } finally {
       this.syncInProgress = false;
@@ -558,7 +558,7 @@ export class OfflineSyncService {
       try {
         callback(status);
       } catch (error) {
-        logger.error('[OfflineSyncService] Callback error:', error);
+        logger.error('[OfflineSyncService] Callback error:', error instanceof Error ? error : new Error(String(error)));
       }
     });
   }

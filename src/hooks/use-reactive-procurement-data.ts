@@ -295,7 +295,7 @@ export function useReactiveProcurementData() {
           signal
         )
       } catch (error) {
-        logger.warn('Vendors API unavailable, returning empty array:', error)
+        logger.warn('Vendors API unavailable, returning empty array:', { error })
         return []
       }
     },
@@ -325,7 +325,7 @@ export function useReactiveProcurementData() {
           signal
         )
       } catch (error) {
-        logger.warn('Purchase Orders API unavailable, returning empty array:', error)
+        logger.warn('Purchase Orders API unavailable, returning empty array:', { error })
         return []
       }
     },
@@ -355,7 +355,7 @@ export function useReactiveProcurementData() {
           signal
         )
       } catch (error) {
-        logger.warn('Contracts API unavailable, returning empty array:', error)
+        logger.warn('Contracts API unavailable, returning empty array:', { error })
         return []
       }
     },

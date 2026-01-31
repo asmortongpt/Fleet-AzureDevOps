@@ -187,7 +187,7 @@ export function useRealtimeOperations(options: UseRealtimeOperationsOptions = {}
           logger.debug('Unknown message type:', message.type);
       }
     } catch (error) {
-      logger.error('Error parsing WebSocket message:', error);
+      logger.error('Error parsing WebSocket message:', error instanceof Error ? error : new Error(String(error)));
     }
   }, [throttledUpdate, queryClient]);
 
@@ -215,7 +215,7 @@ export function useRealtimeOperations(options: UseRealtimeOperationsOptions = {}
       wsRef.current.onmessage = handleMessage;
 
       wsRef.current.onerror = (error) => {
-        logger.error('WebSocket error:', error);
+        logger.error('WebSocket error:', error instanceof Error ? error : new Error(String(error)));
       };
 
       wsRef.current.onclose = () => {
@@ -229,7 +229,7 @@ export function useRealtimeOperations(options: UseRealtimeOperationsOptions = {}
         }, reconnectInterval);
       };
     } catch (error) {
-      logger.error('Failed to create WebSocket connection:', error);
+      logger.error('Failed to create WebSocket connection:', error instanceof Error ? error : new Error(String(error)));
     }
   }, [handleMessage, reconnectInterval]);
 
