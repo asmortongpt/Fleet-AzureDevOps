@@ -467,7 +467,7 @@ export function VirtualizedTable<TData>({
             className="relative"
           >
             {enableVirtualization && !enablePagination ? (
-              virtualRows.map((virtualRow) => {
+              virtualRows.map((virtualRow: { index: number; size: number; start: number }) => {
                 const row = rows[virtualRow.index]
                 return (
                   <tr

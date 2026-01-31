@@ -130,7 +130,7 @@ const FleetCalendar: React.FC = () => {
 
       const outlookEvents = await outlookCalendarService.getEvents(startDate, endDate);
 
-      const formattedEvents: FleetEvent[] = outlookEvents.map(event => ({
+      const formattedEvents: FleetEvent[] = outlookEvents.map((event: any) => ({
         id: event.id,
         title: event.subject,
         start: new Date(event.start.dateTime),

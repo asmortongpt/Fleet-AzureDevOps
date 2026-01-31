@@ -159,7 +159,7 @@ function OverviewContent() {
           value={formatFileSize(metrics?.totalStorage || 0)}
           icon={Database}
           trend="up"
-          change="+2.3 GB"
+          change={2.3}
           description="Total storage"
           loading={isLoading}
         />

@@ -335,7 +335,7 @@ const ComplianceOverview = memo(function ComplianceOverview() {
           value={`${metrics?.complianceRate || 0}%`}
           icon={CheckCircle}
           trend="up"
-          change="+2%"
+          change={2}
           description="Overall compliance"
           loading={isLoading}
         />
@@ -501,7 +501,7 @@ const InspectionsContent = memo(function InspectionsContent() {
           value={`${passRate}%`}
           icon={TrendingUp}
           trend="up"
-          change="+3%"
+          change={3}
           description="Success rate"
           loading={isLoading}
         />
@@ -586,7 +586,7 @@ const ReportsContent = memo(function ReportsContent() {
           value={`${avgComplianceRate}%`}
           icon={TrendingUp}
           trend="up"
-          change="+1.5%"
+          change={1.5}
           description="Across all categories"
           loading={isLoading}
         />

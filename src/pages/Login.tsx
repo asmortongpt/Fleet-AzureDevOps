@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { CTAHeader } from '@/components/branding/CTAHeader'
 import { useAuth } from '@/hooks/useAuth'
 import { setAuthToken } from '@/lib/microsoft-auth'
 import logger from '@/utils/logger'
@@ -133,89 +134,19 @@ export function Login() {
       </div>
 
       <div className="w-full max-w-md relative z-10">
-        {/* Premium Header - Official CTA ArchonY Branding */}
-        <div className="mb-5 text-center">
-          {/* ArchonY Logo with Swoosh */}
-          <div className="mx-auto mb-4 relative h-24 flex flex-col items-center justify-center">
-            {/* Curved Swoosh Element - CTA Official Gradient */}
-            <svg
-              width="80"
-              height="80"
-              viewBox="0 0 80 80"
-              className="absolute top-0 left-1/2 -translate-x-1/2"
-              style={{ filter: 'drop-shadow(0 4px 8px rgba(253, 184, 19, 0.5))' }}
-            >
-              <defs>
-                <linearGradient id="ctaGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" style={{ stopColor: '#FDB813' }} />
-                  <stop offset="100%" style={{ stopColor: '#FF5722' }} />
-                </linearGradient>
-              </defs>
-              <path
-                d="M 10 50 Q 25 20, 40 40 T 70 30"
-                stroke="url(#ctaGradient)"
-                strokeWidth="6"
-                strokeLinecap="round"
-                fill="none"
-                style={{
-                  strokeDasharray: '1000',
-                  strokeDashoffset: '0',
-                  animation: 'dashAnimation 2s ease-in-out infinite'
-                }}
-              />
-            </svg>
+        {/* Official CTA ArchonY Branding */}
+        <CTAHeader size="md" showTagline={true} className="mb-5" />
 
-            {/* ArchonY Typography */}
-            <div className="relative z-10 mt-12">
-              <div
-                className="text-4xl font-bold tracking-wider mb-1"
-                style={{
-                  fontFamily: '"Inter", -apple-system, sans-serif',
-                  fontWeight: 700,
-                  letterSpacing: '0.15em',
-                  color: '#ffffff',
-                  textShadow: '0 2px 8px rgba(0, 212, 255, 0.6), 0 4px 12px rgba(253, 184, 19, 0.4)',
-                  background: 'linear-gradient(90deg, #ffffff 0%, #00D4FF 50%, #ffffff 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text'
-                }}
-              >
-                ARCHON·Y
-              </div>
-              <div
-                className="text-[10px] font-semibold uppercase tracking-[0.2em]"
-                style={{
-                  color: '#00D4FF',
-                  textShadow: '0 0 10px rgba(0, 212, 255, 0.8)',
-                  fontWeight: 600
-                }}
-              >
-                INTELLIGENT PERFORMANCE
-              </div>
-            </div>
-          </div>
-
-          {/* Capital Tech Alliance - Company Name */}
-          <h1
-            className="mb-2 text-2xl font-semibold tracking-tight"
-            style={{
-              color: '#e8eaed',
-              textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)'
-            }}
-          >
-            Capital Tech Alliance
-          </h1>
-
-          {/* Official CTA Gradient Bar */}
-          <div
-            className="mx-auto w-24 h-1 rounded-full mb-3"
-            style={{
-              background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)',
-              boxShadow: '0 2px 8px rgba(253, 184, 19, 0.6)'
-            }}
-          />
-        </div>
+        {/* Capital Tech Alliance - Company Name */}
+        <h1
+          className="mb-5 text-center text-2xl font-semibold tracking-tight"
+          style={{
+            color: '#e8eaed',
+            textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)'
+          }}
+        >
+          Capital Tech Alliance
+        </h1>
 
         {/* Premium Login Card */}
         <Card className="border-white/10 bg-white/95 shadow-2xl shadow-black/20 backdrop-blur-xl">

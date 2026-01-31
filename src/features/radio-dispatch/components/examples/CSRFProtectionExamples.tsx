@@ -41,16 +41,16 @@ export function CreateIncidentExample() {
   const [priority, setPriority] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
 
   const createIncident = useMutation<Incident, CreateIncidentInput>(
-    (data) => api.post('/api/incidents', data),
+    (data: CreateIncidentInput) => api.post('/api/incidents', data),
     {
-      onSuccess: (incident) => {
+      onSuccess: (incident: Incident) => {
         logger.info('Incident created successfully:', incident.id);
         // Clear form
         setTitle('');
         setDescription('');
         setPriority('medium');
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         logger.error('Failed to create incident:', error.message);
       },
     }
@@ -207,12 +207,12 @@ export function UpdateIncidentExample({ incidentId }: { incidentId: string }) {
 
 export function DeleteIncidentExample({ incidentId }: { incidentId: string }) {
   const deleteIncident = useMutation<void, string>(
-    (id) => api.delete(`/api/incidents/${id}`),
+    (id: string) => api.delete(`/api/incidents/${id}`),
     {
       onSuccess: () => {
         logger.info('Incident deleted successfully');
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         logger.error('Failed to delete incident:', error.message);
       },
     }

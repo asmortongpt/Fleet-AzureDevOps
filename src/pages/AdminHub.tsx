@@ -364,7 +364,7 @@ const AdminOverview = memo(() => {
             value={`${metrics?.systemHealth || 0}%`}
             icon={Shield}
             trend="up"
-            change="+1%"
+            change={1}
             description="Overall system status"
             loading={isLoading}
           />
@@ -373,7 +373,7 @@ const AdminOverview = memo(() => {
             value={systemMetrics ? `${(systemMetrics.apiCalls / 1000).toFixed(1)}K` : '0'}
             icon={CloudUpload}
             trend="up"
-            change="+12%"
+            change={12}
             description="API requests"
             loading={isLoading}
           />

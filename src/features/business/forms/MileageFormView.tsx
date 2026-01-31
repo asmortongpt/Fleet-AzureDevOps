@@ -121,7 +121,7 @@ const MileageFormView: React.FC<MileageFormViewProps> = ({ currentTheme, setActi
             className="rounded-t-none border-t-0"
             employeeId="FL123456"
             vehicleId={formData.vehicleId}
-            onCalculationComplete={(result) => {
+            onCalculationComplete={(result: any) => {
               // logger.info('FDOT Calculation Complete:', result);
             }}
           />

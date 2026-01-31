@@ -280,7 +280,7 @@ export function HOSLogEntryDialog({
     }
 
     if (values.odometer_reading) {
-      logData.odometer_reading = parseInt(values.odometer_reading, 10)
+      logData.start_odometer = parseInt(values.odometer_reading, 10)
     }
 
     if (values.notes) {

@@ -372,7 +372,7 @@ class RUMService {
 
     // Log in dev
     if (import.meta.env.DEV) {
-      logger.info('[RUM]', type, data);
+      logger.info('[RUM]', { type, ...data });
     }
   }
 

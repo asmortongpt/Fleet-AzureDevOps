@@ -74,6 +74,7 @@ export interface DVIRReport {
   vehicle_id: string;
   inspection_type: InspectionType;
   defects_found: boolean;
+  defects?: DVIRDefect[];
   vehicle_safe_to_operate: boolean;
   location: HOSLocation;
   inspection_datetime: string;

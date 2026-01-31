@@ -230,7 +230,7 @@ const BroadcastPanel = ({ zones }: { zones: BroadcastZone[] }) => {
   const [broadcastMessage, setBroadcastMessage] = useState("")
 
   const handleBroadcast = () => {
-    logger.info("Broadcasting to zone:", selectedZone, "Message:", broadcastMessage)
+    logger.info("Broadcasting to zone:", { selectedZone, message: broadcastMessage })
     setBroadcastMessage("")
   }
 

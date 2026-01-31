@@ -130,7 +130,9 @@ const oktaConfig = {
 
   // DCF-specific SAML attributes mapping
   transformAuthState: async (oktaAuth: OktaAuth, authState: AuthState): Promise<AuthState> => {
+    // @ts-expect-error - Okta SDK types - idToken.claims may not be defined in stub implementation
     if (authState.isAuthenticated && authState.idToken?.claims) {
+      // @ts-expect-error - Okta SDK types - idToken.claims may not be defined in stub implementation
       const claims = authState.idToken.claims;
 
       // Map SAML attributes to DCF user profile
@@ -443,7 +445,7 @@ export const OktaSAMLProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   return (
     <AuthContext.Provider value={contextValue}>
-      <Security oktaAuth={oktaAuth} restoreOriginalUri={async (oktaAuth, originalUri) => {
+      <Security oktaAuth={oktaAuth} restoreOriginalUri={async (oktaAuth: any, originalUri?: string) => {
         if (typeof window !== "undefined") {
           window.location.replace(originalUri || '/');
         }
