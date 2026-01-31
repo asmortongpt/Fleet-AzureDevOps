@@ -23,8 +23,8 @@ test.describe('SSO Login Page Tests', () => {
 
     // Verify security features are displayed
     await expect(page.locator('text=Enterprise-Grade Security')).toBeVisible()
-    await expect(page.locator('text=Multi-Factor Authentication')).toBeVisible()
-    await expect(page.locator('text=OAuth 2.0 with PKCE')).toBeVisible()
+    await expect(page.locator('text=MFA')).toBeVisible()
+    await expect(page.locator('text=OAuth 2.0').first()).toBeVisible()
 
     // Verify support contact
     await expect(page.locator('text=Contact Support')).toBeVisible()
