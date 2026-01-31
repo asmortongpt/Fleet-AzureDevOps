@@ -168,7 +168,7 @@ function OverviewContent() {
           value={metrics?.recentUploads?.toString() || '0'}
           icon={Upload}
           trend="up"
-          change="+15"
+          change={+15}
           description="Last 7 days"
           loading={isLoading}
         />

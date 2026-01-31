@@ -484,7 +484,7 @@ function ExpensesContent() {
           value={metrics?.pendingApprovals?.toString() || '0'}
           icon={Clock}
           trend="down"
-          change="-3"
+          change={-3}
           description="Awaiting approval"
           loading={isLoading}
         />
@@ -629,7 +629,7 @@ function ReportsContent() {
           value={metrics?.totalInvoices?.toString() || '0'}
           icon={Invoice}
           trend="up"
-          change="+12"
+          change={+12}
           description="This month"
           loading={isLoading}
         />

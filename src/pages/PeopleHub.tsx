@@ -96,7 +96,7 @@ function PeopleOverview() {
           value={metrics?.activeEmployees?.toString() || '0'}
           icon={User}
           trend="up"
-          change="+5"
+          change={+5}
           description="Currently working"
           loading={isLoading}
         />
@@ -414,7 +414,7 @@ function TeamsContent() {
           value={metrics?.totalTeams?.toString() || '0'}
           icon={Users}
           trend="up"
-          change="+2"
+          change={+2}
           description="Active teams"
           loading={isLoading}
         />
