@@ -245,7 +245,7 @@ const DriversOverview = memo(function DriversOverview() {
           value={metrics.activeDrivers.toString()}
           icon={DriversIcon}
           trend="up"
-          change="+3"
+          change={+3}
           description="Currently working"
           loading={isLoading}
         />
@@ -455,7 +455,7 @@ const PerformanceContent = memo(function PerformanceContent() {
           value={metrics.totalViolations.toString()}
           icon={AlertTriangle}
           trend="down"
-          change="-3"
+          change={-3}
           description="This month"
           loading={isLoading}
         />

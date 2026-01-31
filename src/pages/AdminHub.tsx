@@ -347,7 +347,7 @@ const AdminOverview = memo(() => {
             value={metrics?.totalUsers?.toString() || '0'}
             icon={Users}
             trend="up"
-            change="+5"
+            change={+5}
             description="Registered users"
             loading={isLoading}
           />
@@ -482,7 +482,7 @@ const UsersContent = memo(() => {
             value={metrics?.totalUsers?.toString() || '0'}
             icon={Users}
             trend="up"
-            change="+5"
+            change={+5}
             description="All users"
             loading={isLoading}
           />
@@ -785,7 +785,7 @@ const AuditContent = memo(() => {
             value="156"
             icon={Activity}
             trend="up"
-            change="+12"
+            change={+12}
             description="Actions today"
             loading={isLoading}
           />
@@ -794,7 +794,7 @@ const AuditContent = memo(() => {
             value={metrics?.failedActions?.toString() || '0'}
             icon={XCircle}
             trend="down"
-            change="-3"
+            change={-3}
             description="Unsuccessful actions"
             loading={isLoading}
           />

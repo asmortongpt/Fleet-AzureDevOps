@@ -266,7 +266,7 @@ const DispatchOverview = memo(() => {
             value={metrics?.activeJobs?.toString() || '0'}
             icon={Package}
             trend="up"
-            change="+4"
+            change={+4}
             description="Currently dispatched"
             loading={isLoading}
             aria-label="Active Jobs"
@@ -295,7 +295,7 @@ const DispatchOverview = memo(() => {
             value={metrics?.delayed?.toString() || '0'}
             icon={AlertTriangle}
             trend="down"
-            change="-2"
+            change={-2}
             description="Behind schedule"
             loading={isLoading}
             aria-label="Delayed Jobs"

@@ -92,7 +92,7 @@ function PolicyOverview() {
           value={metrics?.activePolicies?.toString() || '0'}
           icon={CheckCircle}
           trend="up"
-          change="+5"
+          change={+5}
           description="Currently enforced"
           loading={isLoading}
         />
@@ -110,7 +110,7 @@ function PolicyOverview() {
           value={metrics?.totalViolations?.toString() || '0'}
           icon={AlertTriangle}
           trend="down"
-          change="-2"
+          change={-2}
           description="Policy violations"
           loading={isLoading}
         />
@@ -431,7 +431,7 @@ function ComplianceContent() {
           value={metrics?.totalViolations?.toString() || '0'}
           icon={AlertTriangle}
           trend="down"
-          change="-5"
+          change={-5}
           description="Policy violations"
           loading={isLoading}
         />

@@ -75,7 +75,7 @@ function CommunicationOverview() {
           value={metrics?.totalMessages?.toString() || '0'}
           icon={Mail}
           trend="up"
-          change="+12"
+          change={+12}
           description="All channels"
           loading={isLoading}
         />
@@ -84,7 +84,7 @@ function CommunicationOverview() {
           value={metrics?.sentToday?.toString() || '0'}
           icon={Send}
           trend="up"
-          change="+8"
+          change={+8}
           description="Messages sent"
           loading={isLoading}
         />
@@ -93,7 +93,7 @@ function CommunicationOverview() {
           value={metrics?.unreadNotifications?.toString() || '0'}
           icon={Bell}
           trend="down"
-          change="-3"
+          change={-3}
           description="Require attention"
           loading={isLoading}
         />
@@ -271,7 +271,7 @@ function MessagesContent() {
           value={metrics?.messagesFailed?.toString() || '0'}
           icon={AlertTriangle}
           trend="down"
-          change="-2"
+          change={-2}
           description="Requires retry"
           loading={isLoading}
         />
@@ -424,7 +424,7 @@ function NotificationsContent() {
           value={unreadNotifications.length.toString()}
           icon={AlertTriangle}
           trend="down"
-          change="-5"
+          change={-5}
           description="Require attention"
           loading={isLoading}
         />
@@ -575,7 +575,7 @@ function AnnouncementsContent() {
           value={totalViews.toString()}
           icon={Eye}
           trend="up"
-          change="+28"
+          change={+28}
           description="All announcements"
           loading={isLoading}
         />

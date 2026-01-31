@@ -1,14 +1,21 @@
 /**
  * Ultra-Premium Enterprise SSO Login Page
- * Executive-grade Azure AD authentication with luxury corporate design
+ * Executive-grade Azure AD authentication with CTA official branding
  *
  * Features:
- * - Executive-level UI with animated sophistication
+ * - Official CTA Brand Colors (DAYTIME, BLUE SKIES, MIDNIGHT, NOON, GOLDEN HOUR)
  * - Azure AD SSO with OAuth 2.0 + PKCE
  * - Premium animations and visual effects
- * - Luxury security indicators with icons
+ * - ArchonY branding - "Intelligent Performance"
  * - Responsive design (fits on single page)
  * - WCAG 2.1 AA compliant
+ *
+ * CTA Brand Palette:
+ * - DAYTIME: #2B3A67 (Navy)
+ * - BLUE SKIES: #00D4FF (Cyan)
+ * - MIDNIGHT: #1A0B2E (Purple)
+ * - NOON: #FF5722 (Orange)
+ * - GOLDEN HOUR: #FDB813 (Yellow)
  */
 
 import { useState, useEffect } from 'react'
@@ -73,24 +80,24 @@ export function SSOLogin() {
     <div
       className="premium-sso-page relative flex min-h-screen items-center justify-center overflow-hidden"
       style={{
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%)',
+        background: 'linear-gradient(135deg, #1A0B2E 0%, #2B3A67 50%, #1A0B2E 100%)',
         minHeight: '100vh'
       }}
     >
-      {/* Premium animated background */}
+      {/* Premium animated background with CTA brand colors */}
       <div className="absolute inset-0" style={{ pointerEvents: 'none' }}>
-        {/* Animated gradient orbs */}
+        {/* Animated gradient orbs - BLUE SKIES and NOON */}
         <div
           className="absolute top-1/4 left-1/4 h-96 w-96 animate-pulse rounded-full"
           style={{
-            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(0, 212, 255, 0.25) 0%, transparent 70%)',
             filter: 'blur(60px)'
           }}
         />
         <div
           className="absolute bottom-1/4 right-1/4 h-96 w-96 animate-pulse rounded-full"
           style={{
-            background: 'radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(255, 87, 34, 0.2) 0%, transparent 70%)',
             filter: 'blur(60px)',
             animationDelay: '2s'
           }}
@@ -106,13 +113,13 @@ export function SSOLogin() {
       </div>
 
       <div className="relative z-10 w-full max-w-[460px] px-4">
-        {/* Premium Header - Company Branding */}
+        {/* Premium Header - CTA Branding */}
         <div className="mb-5 text-center">
           <div
             className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl"
             style={{
-              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #4f46e5 100%)',
-              boxShadow: '0 20px 40px rgba(59, 130, 246, 0.6), 0 0 0 2px rgba(255, 255, 255, 0.2)'
+              background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)',
+              boxShadow: '0 20px 40px rgba(253, 184, 19, 0.6), 0 0 0 2px rgba(255, 255, 255, 0.2)'
             }}
           >
             <Shield className="h-8 w-8 text-white drop-shadow-lg" strokeWidth={2.5} />
