@@ -70,12 +70,31 @@ export function SSOLogin() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900">
+    <div
+      className="premium-sso-page relative flex min-h-screen items-center justify-center overflow-hidden"
+      style={{
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%)',
+        minHeight: '100vh'
+      }}
+    >
       {/* Premium animated background */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0" style={{ pointerEvents: 'none' }}>
         {/* Animated gradient orbs */}
-        <div className="absolute top-1/4 left-1/4 h-96 w-96 animate-pulse rounded-full bg-blue-500/20 blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 h-96 w-96 animate-pulse rounded-full bg-indigo-500/20 blur-3xl animation-delay-2000" />
+        <div
+          className="absolute top-1/4 left-1/4 h-96 w-96 animate-pulse rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%)',
+            filter: 'blur(60px)'
+          }}
+        />
+        <div
+          className="absolute bottom-1/4 right-1/4 h-96 w-96 animate-pulse rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%)',
+            filter: 'blur(60px)',
+            animationDelay: '2s'
+          }}
+        />
 
         {/* Grid overlay */}
         <div
@@ -89,15 +108,33 @@ export function SSOLogin() {
       <div className="relative z-10 w-full max-w-[460px] px-4">
         {/* Premium Header - Company Branding */}
         <div className="mb-5 text-center">
-          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 shadow-2xl shadow-blue-500/50 ring-2 ring-white/20">
+          <div
+            className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl"
+            style={{
+              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #4f46e5 100%)',
+              boxShadow: '0 20px 40px rgba(59, 130, 246, 0.6), 0 0 0 2px rgba(255, 255, 255, 0.2)'
+            }}
+          >
             <Shield className="h-8 w-8 text-white drop-shadow-lg" strokeWidth={2.5} />
           </div>
-          <h1 className="mb-1.5 bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-3xl font-bold tracking-tight text-transparent drop-shadow-sm">
+          <h1
+            className="mb-1.5 text-3xl font-bold tracking-tight"
+            style={{
+              background: 'linear-gradient(90deg, #ffffff 0%, #dbeafe 50%, #ffffff 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))'
+            }}
+          >
             Capital Tech Alliance
           </h1>
-          <div className="flex items-center justify-center gap-1.5 text-xs text-blue-100/80">
+          <div
+            className="flex items-center justify-center gap-1.5 text-xs font-medium"
+            style={{ color: '#dbeafe' }}
+          >
             <Building2 className="h-3.5 w-3.5" />
-            <span className="font-medium">Enterprise Fleet Management System</span>
+            <span>Enterprise Fleet Management System</span>
           </div>
         </div>
 
