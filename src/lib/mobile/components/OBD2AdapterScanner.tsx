@@ -95,7 +95,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
               setDtcs(diagnosticCodes)
               onDTCsDetected?.(diagnosticCodes)
             } catch (error) {
-              logger.warn('Could not read DTCs on reconnect:', error)
+              logger.warn('Could not read DTCs on reconnect:', { error })
             }
           }
 
@@ -109,7 +109,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
         }
       }
     } catch (error) {
-      logger.error('Error loading saved adapter:', error)
+      logger.error('Error loading saved adapter:', error instanceof Error ? error : new Error(String(error)))
       setConnectionStatus('Disconnected')
     }
   }
@@ -119,7 +119,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       localStorage.setItem('savedOBD2Adapter', JSON.stringify(adapter))
       logger.debug('Saved paired adapter:', adapter.name)
     } catch (error) {
-      logger.error('Error saving adapter:', error)
+      logger.error('Error saving adapter:', error instanceof Error ? error : new Error(String(error)))
     }
   }
 
@@ -128,7 +128,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       localStorage.removeItem('savedOBD2Adapter')
       logger.debug('Cleared saved adapter')
     } catch (error) {
-      logger.error('Error clearing saved adapter:', error)
+      logger.error('Error clearing saved adapter:', error instanceof Error ? error : new Error(String(error)))
     }
   }
 
@@ -150,12 +150,12 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
           try {
             await navigator.permissions.query({ name: perm as PermissionName })
           } catch (error) {
-            logger.error(`Permission query error for ${perm}:`, error)
+            logger.error(`Permission query error for ${perm}:`, error instanceof Error ? error : new Error(String(error)))
           }
         }
       }
     } catch (error) {
-      logger.error('Permission request error:', error)
+      logger.error('Permission request error:', error instanceof Error ? error : new Error(String(error)))
     }
   }
 
@@ -179,7 +179,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
     } catch (error: unknown) {
       setConnectionStatus('Scan failed')
       onError?.(error as Error)
-      logger.error('Scan error:', error)
+      logger.error('Scan error:', error instanceof Error ? error : new Error(String(error)))
     } finally {
       setIsScanning(false)
     }
@@ -214,7 +214,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
         setVin(vehicleVIN)
         onAdapterConnected?.(adapter, vehicleVIN)
       } catch (error) {
-        logger.warn('Could not read VIN:', error)
+        logger.warn('Could not read VIN:', { error })
         onAdapterConnected?.(adapter)
       }
 
@@ -230,7 +230,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
             logger.info(`Found ${diagnosticCodes.length} diagnostic trouble code(s)`)
           }
         } catch (error) {
-          logger.warn('Could not read DTCs:', error)
+          logger.warn('Could not read DTCs:', { error })
         }
       }
 
@@ -246,7 +246,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       setConnectionStatus('Connection failed')
       setConnectedAdapter(null)
       onError?.(error as Error)
-      logger.error('Connection error:', error)
+      logger.error('Connection error:', error instanceof Error ? error : new Error(String(error)))
     } finally {
       setIsConnecting(false)
     }
@@ -272,7 +272,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       logger.info('Disconnected from OBD2 adapter')
     } catch (error: unknown) {
       onError?.(error as Error)
-      logger.error('Disconnect error:', error)
+      logger.error('Disconnect error:', error instanceof Error ? error : new Error(String(error)))
     }
   }
 
@@ -300,7 +300,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       }
     } catch (error: unknown) {
       onError?.(error as Error)
-      logger.error('Error reading DTCs:', error)
+      logger.error('Error reading DTCs:', error instanceof Error ? error : new Error(String(error)))
     }
   }
 
@@ -325,7 +325,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
     } catch (error: unknown) {
       setConnectionStatus('Connected')
       onError?.(error as Error)
-      logger.error('Error clearing codes:', error)
+      logger.error('Error clearing codes:', error instanceof Error ? error : new Error(String(error)))
     }
   }
 

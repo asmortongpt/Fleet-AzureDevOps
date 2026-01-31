@@ -95,7 +95,7 @@ class RUMService {
         logger.info('[RUM] Session ID:', this.sessionId);
       }
     } catch (error) {
-      logger.error('[RUM] Failed to initialize:', error);
+      logger.error('[RUM] Failed to initialize:', error instanceof Error ? error : new Error(String(error)));
     }
   }
 
@@ -123,7 +123,7 @@ class RUMService {
     try {
       sessionStorage.setItem('rum_session', JSON.stringify(this.session));
     } catch (error) {
-      logger.warn('[RUM] Failed to store session:', error);
+      logger.warn('[RUM] Failed to store session:', { error });
     }
   }
 

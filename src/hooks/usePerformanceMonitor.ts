@@ -229,7 +229,7 @@ export function usePerformanceMonitor(
       detector = new MemoryLeakDetector(callback);
       detector.start();
     } catch (error) {
-      logger.warn('[usePerformanceMonitor] Failed to initialize memory leak detector:', error);
+      logger.warn('[usePerformanceMonitor] Failed to initialize memory leak detector:', { error });
     }
 
     return () => {

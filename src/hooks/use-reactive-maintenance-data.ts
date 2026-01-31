@@ -367,7 +367,7 @@ export function useReactiveMaintenanceData() {
           signal
         )
       } catch (error) {
-        logger.warn('Work orders API unavailable, returning empty array:', error)
+        logger.warn('Work orders API unavailable, returning empty array:', { error })
         return []
       }
     },
@@ -399,7 +399,7 @@ export function useReactiveMaintenanceData() {
           signal
         )
       } catch (error) {
-        logger.warn('Maintenance requests API unavailable, returning empty array:', error)
+        logger.warn('Maintenance requests API unavailable, returning empty array:', { error })
         return []
       }
     },
@@ -430,7 +430,7 @@ export function useReactiveMaintenanceData() {
           signal
         )
       } catch (error) {
-        logger.warn('Predictions API unavailable, returning empty array:', error)
+        logger.warn('Predictions API unavailable, returning empty array:', { error })
         return []
       }
     },

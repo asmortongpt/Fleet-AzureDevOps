@@ -274,7 +274,7 @@ export function useReactiveReportsData() {
           signal
         )
       } catch (error) {
-        logger.warn('Templates API unavailable:', error)
+        logger.warn('Templates API unavailable:', { error })
         return []
       }
     },
@@ -302,7 +302,7 @@ export function useReactiveReportsData() {
           signal
         )
       } catch (error) {
-        logger.warn('Scheduled reports API unavailable:', error)
+        logger.warn('Scheduled reports API unavailable:', { error })
         return []
       }
     },
@@ -330,7 +330,7 @@ export function useReactiveReportsData() {
           signal
         )
       } catch (error) {
-        logger.warn('Report history API unavailable:', error)
+        logger.warn('Report history API unavailable:', { error })
         return []
       }
     },
