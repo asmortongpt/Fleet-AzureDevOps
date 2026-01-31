@@ -398,14 +398,12 @@ function App() {
         return <DocumentQA />
       case "fuel-purchasing":
         return <FuelPurchasing />
-      case "fuel":
       case "fuel-management":
         return <FuelHubPage />
       case "hos":
       case "hours-of-service":
         return <HOSHubPage />
       case "incidents":
-      case "incident-management":
         return <IncidentHubPage />
       case "endpoint-monitor":
         return <EndpointMonitor />
