@@ -99,10 +99,11 @@ export function Login() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden"
+      className="h-screen flex items-center justify-center p-3 relative overflow-hidden"
       style={{
         background: 'linear-gradient(135deg, #1A0B2E 0%, #2B3A67 50%, #1A0B2E 100%)',
-        minHeight: '100vh'
+        height: '100vh',
+        maxHeight: '100vh'
       }}
     >
       {/* Premium animated background with CTA brand colors */}
@@ -133,13 +134,13 @@ export function Login() {
         />
       </div>
 
-      <div className="w-full max-w-md relative z-10">
+      <div className="w-full max-w-md relative z-10 max-h-[calc(100vh-1.5rem)] overflow-y-auto">
         {/* Official CTA ArchonY Branding */}
-        <CTAHeader size="md" showTagline={true} className="mb-5" />
+        <CTAHeader size="sm" showTagline={false} className="mb-2" />
 
         {/* Capital Tech Alliance - Company Name */}
         <h1
-          className="mb-5 text-center text-2xl font-semibold tracking-tight"
+          className="mb-2 text-center text-xl font-semibold tracking-tight"
           style={{
             color: '#e8eaed',
             textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)'

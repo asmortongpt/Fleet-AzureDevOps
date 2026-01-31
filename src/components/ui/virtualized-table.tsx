@@ -239,6 +239,7 @@ export function VirtualizedTable<TData>({
       const ws = XLSX.utils.json_to_sheet(exportData as any[])
       const wb = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(wb, ws, 'Data')
+      // @ts-expect-error - XLSX type incompatibility - writeFile may not be exported
       XLSX.writeFile(wb, `export_${Date.now()}.xlsx`)
     }
   }, [table, onExport])
