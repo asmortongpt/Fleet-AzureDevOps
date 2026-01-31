@@ -1,5 +1,4 @@
 /**
-import logger from '@/utils/logger';
  * Role-Based Access Control (RBAC) System - COMPLETE IMPLEMENTATION
  *
  * Features:
@@ -10,6 +9,8 @@ import logger from '@/utils/logger';
  *
  * Created: 2025-12-31 (Agent 7)
  */
+
+import logger from '@/utils/logger';
 
 export type Role = 'admin' | 'manager' | 'operator' | 'viewer';
 

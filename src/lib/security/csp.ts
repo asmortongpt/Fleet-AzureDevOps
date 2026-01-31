@@ -1,10 +1,11 @@
 /**
-import logger from '@/utils/logger';
  * Content Security Policy (CSP) Configuration
  * Implements enterprise-grade CSP to prevent XSS, clickjacking, and other attacks
  *
  * @module security/csp
  */
+
+import logger from '@/utils/logger';
 
 export interface CSPDirectives {
   'default-src': string[];

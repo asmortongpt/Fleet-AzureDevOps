@@ -1,5 +1,4 @@
 /**
-import logger from '@/utils/logger';
  * Role-Based Navigation Configuration
  *
  * Maps RBAC roles to navigation items based on workflow requirements
@@ -13,6 +12,8 @@ import logger from '@/utils/logger';
  * - DRIVER (driver): Vehicle operations & trips
  * - VIEWER (viewer): Read-only access
  */
+
+import logger from '@/utils/logger';
 
 export type RBACRole =
   | 'super_admin'

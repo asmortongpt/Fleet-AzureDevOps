@@ -1,8 +1,9 @@
 /**
-import logger from '@/utils/logger';
  * Role-Based Access Control (RBAC) and Attribute-Based Access Control (ABAC)
  * FedRAMP-compliant authorization framework
  */
+
+import logger from '@/utils/logger';
 
 export type Permission = 
   // Vehicle permissions

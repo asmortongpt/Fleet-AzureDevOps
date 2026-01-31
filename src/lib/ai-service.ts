@@ -1,5 +1,4 @@
 /**
-import logger from '@/utils/logger';
  * Production AI Service - Real LLM Integration
  *
  * Supports multiple providers:
@@ -15,6 +14,8 @@ import logger from '@/utils/logger';
  * - Rate limiting
  * - Token counting
  */
+
+import logger from '@/utils/logger';
 
 
 export interface Message {
