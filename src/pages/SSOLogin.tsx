@@ -79,7 +79,7 @@ export function SSOLogin() {
 
       <div className="relative z-10 w-full max-w-md">
         {/* Company Branding */}
-        <div className="mb-8 text-center">
+        <div className="mb-6 text-center">
           <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg">
             <Shield className="h-8 w-8 text-white" />
           </div>
@@ -174,7 +174,7 @@ export function SSOLogin() {
         </Card>
 
         {/* Footer */}
-        <div className="mt-8 space-y-2 text-center">
+        <div className="mt-6 space-y-2 text-center">
           <p className="text-xs text-slate-500">
             Fleet Management System v2.0
           </p>
