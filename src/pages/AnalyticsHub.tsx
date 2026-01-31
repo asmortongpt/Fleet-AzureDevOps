@@ -180,7 +180,7 @@ const AnalyticsOverview = memo(() => {
             value={metrics?.activeReports?.toString() || '0'}
             icon={BarChart}
             trend="up"
-            change="+3"
+            change={3}
             description="Currently active"
             loading={isLoading}
             aria-label="Active Reports"
@@ -190,7 +190,7 @@ const AnalyticsOverview = memo(() => {
             value={metrics?.reportsThisWeek?.toString() || '0'}
             icon={Calendar}
             trend="up"
-            change="+12"
+            change={12}
             description="Reports generated"
             loading={isLoading}
             aria-label="Reports Generated This Week"
@@ -229,7 +229,7 @@ const AnalyticsOverview = memo(() => {
           <InteractiveLineChart
             title="Performance Metrics Trend"
             description="Fleet utilization, efficiency, and availability over time"
-            data={performanceMetricsTrend}
+            data={performanceMetricsTrend as any}
             height={300}
             showArea
             loading={isLoading}
@@ -461,7 +461,7 @@ const ReportsContent = memo(() => {
             value={metrics?.customReports?.toString() || '0'}
             icon={BarChart}
             trend="up"
-            change="+2"
+            change={2}
             description="User created"
             loading={isLoading}
           />
@@ -470,7 +470,7 @@ const ReportsContent = memo(() => {
             value={metrics?.reportsThisWeek?.toString() || '0'}
             icon={TrendingUp}
             trend="up"
-            change="+12"
+            change={12}
             description="Generated"
             loading={isLoading}
           />
@@ -637,7 +637,7 @@ const DashboardsContent = memo(() => {
             value={dashboardStats.totalViews.toString()}
             icon={Eye}
             trend="up"
-            change="+45"
+            change={45}
             description="This month"
             loading={isLoading}
           />
@@ -741,13 +741,13 @@ const TrendsContent = memo(() => {
     useReactiveAnalyticsData()
 
   // Calculate trend metrics with safe fallbacks
-  const currentMonthCost = costTrends[costTrends.length - 1]?.total || 0
-  const previousMonthCost = costTrends[costTrends.length - 2]?.total || 0
+  const currentMonthCost = Number(costTrends[costTrends.length - 1]?.total) || 0
+  const previousMonthCost = Number(costTrends[costTrends.length - 2]?.total) || 0
   const costChange = currentMonthCost - previousMonthCost
 
-  const currentQRevenue = revenueVsCost[revenueVsCost.length - 1]?.revenue || 0
-  const currentQCosts = revenueVsCost[revenueVsCost.length - 1]?.costs || 0
-  const currentMargin = revenueVsCost[revenueVsCost.length - 1]?.margin || 0
+  const currentQRevenue = Number(revenueVsCost[revenueVsCost.length - 1]?.revenue) || 0
+  const currentQCosts = Number(revenueVsCost[revenueVsCost.length - 1]?.costs) || 0
+  const currentMargin = Number(revenueVsCost[revenueVsCost.length - 1]?.margin) || 0
 
   const lastUpdateString = useMemo(() => formatDate(lastUpdate, { timeStyle: 'medium' }), [lastUpdate])
 
@@ -815,7 +815,7 @@ const TrendsContent = memo(() => {
             value={`$${formatNumber(currentMonthCost / 1000, { maximumFractionDigits: 0 })}K`}
             icon={DollarSign}
             trend={costChange < 0 ? 'down' : costChange > 0 ? 'up' : 'neutral'}
-            change={`${costChange > 0 ? '+' : ''}$${formatNumber(Math.abs(costChange / 1000), { maximumFractionDigits: 1 })}K`}
+            change={costChange > 0 ? costChange : -Math.abs(costChange)}
             description="This month"
             loading={isLoading}
           />
@@ -840,7 +840,7 @@ const TrendsContent = memo(() => {
             value={`${formatNumber(currentMargin, { maximumFractionDigits: 1 })}%`}
             icon={AnalyticsIcon}
             trend="up"
-            change="+2.1%"
+            change={2.1}
             description="Current quarter"
             loading={isLoading}
           />
@@ -851,7 +851,7 @@ const TrendsContent = memo(() => {
       <InteractiveLineChart
         title="Cost Trends Analysis"
         description="Monthly breakdown of fuel, maintenance, and operations costs with forecasting"
-        data={costTrends}
+        data={costTrends as any}
         dataKeys={['fuel', 'maintenance', 'operations', 'total']}
         height={400}
         showArea
@@ -1192,7 +1192,7 @@ const CostAnalyticsContent = memo(() => {
             value="$425.2K"
             icon={DollarSign}
             trend="down"
-            change="-2.3%"
+            change={-2.3}
             description="This month"
             loading={isLoading}
           />
@@ -1201,7 +1201,7 @@ const CostAnalyticsContent = memo(() => {
             value="$1.24"
             icon={Gauge}
             trend="down"
-            change="-0.08"
+            change={-0.08}
             description="Average cost"
             loading={isLoading}
           />
@@ -1210,7 +1210,7 @@ const CostAnalyticsContent = memo(() => {
             value="$185.4K"
             icon={DollarSign}
             trend="up"
-            change="+1.2%"
+            change={1.2}
             description="This month"
             loading={isLoading}
           />
@@ -1219,7 +1219,7 @@ const CostAnalyticsContent = memo(() => {
             value="$89.6K"
             icon={Gauge}
             trend="down"
-            change="-4.5%"
+            change={-4.5}
             description="This month"
             loading={isLoading}
           />
