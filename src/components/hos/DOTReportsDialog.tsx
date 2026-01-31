@@ -62,7 +62,7 @@ import {
 } from '@/hooks/use-hos-data'
 import { useDrivers } from '@/hooks/use-api'
 import logger from '@/utils/logger'
-import { toast } from 'sonner'
+import toast from 'sonner'
 
 // ============================================================================
 // TYPES

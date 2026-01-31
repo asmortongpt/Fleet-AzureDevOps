@@ -1,6 +1,6 @@
 import { useQuery, useMutation, UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
-import { toast } from 'react-toastify';
+import toast from 'react-toastify';
 
 import { logger } from '../utils/logger';
 import { validateInput } from '../utils/validation';

@@ -1,7 +1,7 @@
 import { Shield, Info, Save, RefreshCw, Eye, AlertTriangle } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import React, { useState } from 'react'
-import { toast } from 'sonner'
+import toast from 'sonner'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'

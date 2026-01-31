@@ -10,7 +10,7 @@ import {
   DollarSign
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
-import { toast } from "sonner"
+import toast from "sonner"
 
 import { ProfessionalFleetMap, GISFacility } from "@/components/Maps/ProfessionalFleetMap"
 import { Badge } from "@/components/ui/badge"

@@ -1,6 +1,6 @@
 import { Car, Briefcase, Coffee, SplitHorizontal, DollarSign, Check, X, Info } from 'lucide-react'
 import { useState } from 'react'
-import { toast } from 'sonner'
+import toast from 'sonner'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'

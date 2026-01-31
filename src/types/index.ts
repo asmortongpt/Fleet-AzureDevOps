@@ -102,7 +102,14 @@ export interface Driver {
   status?: "active" | "inactive" | "on-leave";
   id: string
   name: string
+  firstName?: string
+  lastName?: string
+  email?: string
+  phone?: string
   licenseNumber: string
+  avatar_url?: string
+  assignedVehicle?: string
+  tenantId?: string
 }
 
 export interface WorkOrder {

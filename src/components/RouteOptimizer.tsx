@@ -25,7 +25,7 @@ import {
   Navigation
 } from 'lucide-react'
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { toast } from 'sonner'
+import toast from 'sonner'
 
 import { Alert, AlertDescription } from './ui/alert'
 import { Button } from './ui/button'

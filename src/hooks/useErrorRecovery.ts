@@ -20,7 +20,7 @@ import {
   CategorizedError,
   RetryConfig,
 } from '@/utils/retry'
-import { toast } from '@/utils/toast'
+import toast from '@/utils/toast'
 
 // ============================================================================
 // Types & Interfaces

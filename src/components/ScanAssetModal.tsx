@@ -2,7 +2,7 @@ import { BrowserMultiFormatReader, Result } from '@zxing/library';
 import axios from 'axios';
 import React, { useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
-import { toast } from 'react-toastify';
+import toast from 'react-toastify';
 import Webcam from 'react-webcam';
 
 // Legacy context import - commented out (file doesn't exist)

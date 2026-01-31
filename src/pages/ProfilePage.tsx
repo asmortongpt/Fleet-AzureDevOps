@@ -8,7 +8,7 @@ import { User, Check, X, Upload, Linkedin, Github, Twitter } from 'lucide-react'
 import { useAtom } from 'jotai'
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { toast } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import { z } from 'zod'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'

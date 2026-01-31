@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { toast } from 'sonner';
+import toast from 'sonner';
 
 import { Policy, PolicyType } from '@/lib/policy-engine/types';
 import logger from '@/utils/logger';

@@ -28,7 +28,7 @@
  */
 
 import { useState } from 'react'
-import { toast } from 'sonner'
+import toast from 'sonner'
 import { FileText, Camera, CheckCircle, AlertTriangle, XCircle } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
