@@ -1,12 +1,12 @@
 
 import baseLogger from '@/utils/logger';
 
-// Create telemetry-prefixed logger
+// Create telemetry-prefixed logger with proper type signatures matching ProductionLogger
 const logger = {
-  error: (...args: unknown[]) => baseLogger.error('[Telemetry]', ...args),
-  warn: (...args: unknown[]) => baseLogger.warn('[Telemetry]', ...args),
-  info: (...args: unknown[]) => baseLogger.info('[Telemetry]', ...args),
-  debug: (...args: unknown[]) => baseLogger.debug('[Telemetry]', ...args),
+  error: (message: string, context?: unknown) => baseLogger.error(`[Telemetry] ${message}`, context as Parameters<typeof baseLogger.error>[1]),
+  warn: (message: string, context?: unknown) => baseLogger.warn(`[Telemetry] ${message}`, context as Parameters<typeof baseLogger.warn>[1]),
+  info: (message: string, context?: unknown) => baseLogger.info(`[Telemetry] ${message}`, context as Parameters<typeof baseLogger.info>[1]),
+  debug: (message: string, context?: unknown) => baseLogger.debug(`[Telemetry] ${message}`, context as Parameters<typeof baseLogger.debug>[1]),
 };
 
 
@@ -105,7 +105,7 @@ export interface IEventTelemetry {
 // =============================================================================
 
 export function initializeAppInsights(_config?: Partial<TelemetryConfig>): null {
-  logger.info('[Telemetry] DISABLED - ApplicationInsights incompatible with React 19');
+  logger.info('DISABLED - ApplicationInsights incompatible with React 19');
   return null;
 }
 
@@ -123,13 +123,13 @@ export function clearAuthenticatedUser(): void {
 
 export function trackPageView(_pageView?: IPageViewTelemetry): void {
   if (!_telemetryInitialized) {
-    logger.debug('[Telemetry] Skipping pageView - not initialized');
+    logger.debug('Skipping pageView - not initialized');
     return;
   }
   try {
     // No-op stub
   } catch (error) {
-    logger.warn('[Telemetry] Failed to track pageView:', error);
+    logger.warn('Failed to track pageView:', error);
   }
 }
 
