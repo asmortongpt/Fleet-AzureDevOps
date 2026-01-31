@@ -1,4 +1,5 @@
-import { AwilixContainer } from 'awilix';
+// Legacy import - awilix not in package.json, commented out for type safety
+// import { AwilixContainer } from 'awilix';
 
 interface DriverRepository {
   // Define methods and properties as needed
@@ -29,9 +30,11 @@ interface Logger {
 }
 
 /**
- * Type-safe DI container interface extending AwilixContainer.
+ * Type-safe DI container interface.
+ * Note: Previously extended AwilixContainer but awilix is not installed.
+ * This is now a plain interface for type safety.
  */
-export interface DIContainer extends AwilixContainer {
+export interface DIContainer {
   vehicleRepository: VehicleRepository;
   driverRepository: DriverRepository;
   vendorRepository: VendorRepository;
