@@ -24,20 +24,23 @@ export function PasswordReset() {
     setIsLoading(true)
 
     try {
-      // TODO: Implement actual password reset API call
-      // For now, simulate the request
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // Call password reset API
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+        credentials: 'include'
+      })
 
-      // In production, this would call:
-      // await fetch('/api/auth/reset-password', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email })
-      // })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to send reset email')
+      }
 
       setIsSubmitted(true)
     } catch (err) {
-      setError('Failed to send reset email. Please try again.')
+      setError(err instanceof Error ? err.message : 'Failed to send reset email. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -173,9 +176,21 @@ export function PasswordReset() {
                 <Shield className="h-5 w-5" style={{ color: '#00D4FF' }} />
                 <span>Reset Password</span>
               </h2>
-              <p className="text-xs text-slate-600">
+              <p className="text-xs text-slate-600 mb-2">
                 Enter your email address and we'll send you a link to reset your password
               </p>
+              <div className="text-[10px] text-slate-500 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md p-2">
+                <strong>Note:</strong> If you sign in with Microsoft, please use{' '}
+                <a
+                  href="https://aka.ms/sspr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold hover:underline"
+                  style={{ color: '#00D4FF' }}
+                >
+                  Microsoft Self-Service Password Reset
+                </a> instead.
+              </div>
             </div>
             {!isSubmitted ? (
               <>

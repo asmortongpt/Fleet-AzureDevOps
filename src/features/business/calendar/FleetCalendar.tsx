@@ -22,7 +22,7 @@ import {
 
 import { outlookCalendarService, CalendarEvent } from '../../services/outlookCalendarService';
 
-import { format, addMinutes, parse, startOfWeek, getDay } from 'date-fns';
+import { format, addMinutes, parse, startOfWeek, getDay, startOfMonth, endOfMonth, subWeeks, addWeeks } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 
 import EventCreateModal from './EventCreateModal';
@@ -125,8 +125,8 @@ const FleetCalendar: React.FC = () => {
 
     setLoading(true);
     try {
-      const startDate = moment(selectedDate).startOf('month').subtract(1, 'week').toDate();
-      const endDate = moment(selectedDate).endOf('month').add(1, 'week').toDate();
+      const startDate = subWeeks(startOfMonth(selectedDate), 1);
+      const endDate = addWeeks(endOfMonth(selectedDate), 1);
 
       const outlookEvents = await outlookCalendarService.getEvents(startDate, endDate);
 
