@@ -404,7 +404,7 @@ const DriversTabContent = memo(function DriversTabContent() {
                     </div>
                     <div>
                       <p className="font-semibold">{driver.name}</p>
-                      <p className="text-sm text-muted-foreground">{driver.license_number}</p>
+                      <p className="text-sm text-muted-foreground">{driver.licenseNumber}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -412,7 +412,7 @@ const DriversTabContent = memo(function DriversTabContent() {
                       {driver.status}
                     </Badge>
                     <div className="text-right">
-                      <p className="font-semibold">{driver.safety_score || 0}/100</p>
+                      <p className="font-semibold">{driver.safetyScore || 0}/100</p>
                       <p className="text-sm text-muted-foreground">Safety Score</p>
                     </div>
                   </div>
