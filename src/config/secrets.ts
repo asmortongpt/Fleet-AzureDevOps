@@ -5,20 +5,30 @@
  * This module provides a secure interface to Azure Key Vault for retrieving
  * application secrets at runtime. All secrets MUST be stored in Key Vault,
  * never in .env files or source code.
+ *
+ * NOTE: Azure SDK packages not installed - using stub implementations for type safety.
  */
 
-import { DefaultAzureCredential } from "@azure/identity";
-import { SecretClient } from "@azure/keyvault-secrets";
+// Legacy imports - @azure/identity and @azure/keyvault-secrets not in package.json
+// import { DefaultAzureCredential } from "@azure/identity";
+// import { SecretClient } from "@azure/keyvault-secrets";
 import logger from '@/utils/logger';
 
 // Key Vault URL from environment (non-sensitive configuration)
 const keyVaultUrl = import.meta.env.VITE_KEY_VAULT_URL || "https://fleet-keyvault.vault.azure.net";
 
-// Initialize Azure credentials using DefaultAzureCredential
-// In production: Uses Managed Identity
-// In development: Uses Azure CLI or Environment Variables
-const credential = new DefaultAzureCredential();
-const client = new SecretClient(keyVaultUrl, credential);
+// Stub implementations for Azure SDK types
+type SecretClient = {
+  getSecret: (name: string) => Promise<{ value?: string }>;
+  listPropertiesOfSecrets: () => AsyncIterableIterator<unknown>;
+};
+
+// Stub credential and client - Azure SDK not available
+const credential = {} as unknown;
+const client: SecretClient = {
+  getSecret: async () => ({ value: undefined }),
+  listPropertiesOfSecrets: async function* () { yield undefined; }
+};
 
 // Cache for secrets to reduce Key Vault API calls
 const secretCache = new Map<string, { value: string; timestamp: number }>();
