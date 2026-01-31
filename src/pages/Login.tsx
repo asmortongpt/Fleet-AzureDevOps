@@ -311,7 +311,8 @@ export function Login() {
                   </Label>
                   <Link
                     to="/reset-password"
-                    className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium hover:underline"
+                    className="text-xs font-medium hover:underline"
+                    style={{ color: '#00D4FF' }}
                   >
                     Forgot password?
                   </Link>

@@ -128,21 +128,21 @@ export function HubPage({
             )}
             data-testid="hub-page"
         >
-            {/* Hub Header - CTA Brand Enhanced */}
+            {/* Hub Header - Official CTA Brand Colors */}
             <motion.header
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
                 className={cn(
                     "flex items-center justify-between px-3 py-2 border-b",
-                    "bg-gradient-to-r from-[#003D5B]/90 via-[#0066CC]/80 to-[#003D5B]/90",
-                    "backdrop-blur-lg border-[#0066CC]/30",
-                    "shadow-lg shadow-[#0066CC]/20"
+                    "bg-gradient-to-r from-[#2B3A67]/90 via-[#00D4FF]/80 to-[#2B3A67]/90",
+                    "backdrop-blur-lg border-[#00D4FF]/30",
+                    "shadow-lg shadow-[#00D4FF]/20"
                 )}
                 data-testid="hub-header"
                 style={{
-                    borderBottom: '1px solid rgba(0, 102, 204, 0.3)',
-                    boxShadow: '0 4px 20px rgba(0, 102, 204, 0.15), 0 1px 3px rgba(0, 61, 91, 0.2)'
+                    borderBottom: '1px solid rgba(0, 212, 255, 0.3)',
+                    boxShadow: '0 4px 20px rgba(0, 212, 255, 0.15), 0 1px 3px rgba(43, 58, 103, 0.2)'
                 }}
             >
                 <div className="flex items-center gap-3 sm:gap-2 min-w-0">
@@ -153,8 +153,8 @@ export function HubPage({
                             transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
                             className={cn(
                                 "flex items-center justify-center w-10 h-8 rounded-lg",
-                                "bg-[#0066CC]/25 backdrop-blur-sm border border-[#00B4D8]/40",
-                                "text-[#00B4D8] shadow-md shadow-[#0066CC]/20"
+                                "bg-[#00D4FF]/25 backdrop-blur-sm border border-[#FDB813]/40",
+                                "text-[#FDB813] shadow-md shadow-[#00D4FF]/20"
                             )}
                         >
                             {React.isValidElement(icon) ? icon : React.createElement(icon as React.ComponentType, { className: 'h-5 w-5' })}
@@ -202,9 +202,9 @@ export function HubPage({
                         <TabsList
                             className={cn(
                                 "w-full justify-start rounded-none border-b px-3 h-9",
-                                "bg-gradient-to-b from-[#003D5B]/70 to-[#0A0E1A]/60",
-                                "backdrop-blur-sm border-[#0066CC]/30",
-                                "shadow-md shadow-[#0066CC]/10"
+                                "bg-gradient-to-b from-[#2B3A67]/70 to-[#1A0B2E]/60",
+                                "backdrop-blur-sm border-[#00D4FF]/30",
+                                "shadow-md shadow-[#00D4FF]/10"
                             )}
                             data-testid="hub-tabs"
                         >
@@ -221,9 +221,9 @@ export function HubPage({
                                         aria-label={tab.ariaLabel || tab.label}
                                         className={cn(
                                             "gap-2 rounded-none px-2",
-                                            "data-[state=active]:bg-gradient-to-b data-[state=active]:from-[#0066CC]/15 data-[state=active]:to-transparent",
-                                            "data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#00B4D8]",
-                                            "hover:bg-[#0066CC]/10 hover:text-[#00B4D8]",
+                                            "data-[state=active]:bg-gradient-to-b data-[state=active]:from-[#00D4FF]/15 data-[state=active]:to-transparent",
+                                            "data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#FDB813]",
+                                            "hover:bg-[#00D4FF]/10 hover:text-[#FDB813]",
                                             "transition-all duration-200"
                                         )}
                                         data-testid={`hub-tab-${tab.id}`}
