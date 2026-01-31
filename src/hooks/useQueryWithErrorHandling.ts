@@ -21,7 +21,7 @@ import {
 import { AxiosError } from 'axios';
 
 import logger from '@/utils/logger';
-import toast from '@/utils/toast';
+import { toast } from '@/utils/toast';
 
 interface ErrorResponse {
   message?: string;

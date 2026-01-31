@@ -15,7 +15,7 @@ import {
   GitBranch
 } from "lucide-react"
 import { useState } from "react"
-import toast from "sonner"
+import { toast } from "sonner"
 
 import { DataFlowDiagram } from "@/components/diagrams/DataFlowDiagram"
 import { DatabaseRelationshipDiagram } from "@/components/diagrams/DatabaseRelationshipDiagram"

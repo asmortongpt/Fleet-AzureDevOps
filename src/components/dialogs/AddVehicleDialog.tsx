@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react"
 import { useState, useEffect } from "react"
-import toast from "sonner"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"

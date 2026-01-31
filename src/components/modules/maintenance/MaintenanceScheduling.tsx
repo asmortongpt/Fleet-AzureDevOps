@@ -2,7 +2,7 @@ import { Calendar, Wrench, Clock, CheckCircle, AlertTriangle } from "lucide-reac
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { useState, useMemo } from "react"
-import toast from "sonner"
+import { toast } from "sonner"
 
 import { DataGrid } from "@/components/common/DataGrid"
 import { Badge } from "@/components/ui/badge"

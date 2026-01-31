@@ -28,7 +28,7 @@ import {
 } from "lucide-react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import React, { useState, useCallback, useMemo, useRef, useEffect } from "react"
-import toast from "sonner"
+import { toast } from "sonner"
 
 import { UniversalMap } from "@/components/UniversalMap"
 import { Badge } from "@/components/ui/badge"

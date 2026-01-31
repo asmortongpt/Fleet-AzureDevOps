@@ -7,7 +7,7 @@ import {
   CheckCircle
 } from "lucide-react"
 import { useState, useMemo } from "react"
-import toast from "sonner"
+import { toast } from "sonner"
 
 import { MetricCard } from "@/components/MetricCard"
 import { UniversalMap } from "@/components/UniversalMap"

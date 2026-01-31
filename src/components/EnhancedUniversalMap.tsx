@@ -21,7 +21,7 @@ import { Card, CardContent } from './ui/card'
 import { useErrorRecovery, ErrorRecoveryConfig } from '@/hooks/useErrorRecovery'
 import logger from '@/utils/logger';
 import { useMapHealthCheck, HealthStatus } from '@/utils/mapHealthCheck'
-import toast from '@/utils/toast'
+import { toast } from '@/utils/toast'
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
