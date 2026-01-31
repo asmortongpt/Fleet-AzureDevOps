@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient, QueryKey } from '@tanstack/react
 
 import type { Policy } from '@/lib/policy-engine/types';
 import type { FuelTransaction } from '@/lib/types';
+import type { Driver, Vehicle } from '@/types';
 import logger from '@/utils/logger';
 
 /**
@@ -184,18 +185,6 @@ interface MaintenanceScheduleFilters {
 interface RouteFilters {
   tenant_id: string;
   [key: string]: string | number | undefined;
-}
-
-interface Vehicle {
-  id: string;
-  tenant_id: string;
-  // other vehicle properties
-}
-
-interface Driver {
-  id: string;
-  tenant_id: string;
-  // other driver properties
 }
 
 interface Maintenance {
