@@ -1,9 +1,14 @@
-import { DrilldownConfig, DrilldownLevel, DrilldownState } from '../types/drilldown';
+import {
+  HierarchicalDrilldownConfig,
+  HierarchicalDrilldownLevel,
+  HierarchicalDrilldownState,
+  DrilldownBreadcrumbItem
+} from '../types/drilldown';
 
 export function createDrilldownState(
-  config: DrilldownConfig,
+  config: HierarchicalDrilldownConfig,
   initialLevel?: string
-): DrilldownState {
+): HierarchicalDrilldownState {
   const firstLevel = initialLevel || config.levels[0]?.field;
   
   if (!firstLevel) {
@@ -18,13 +23,13 @@ export function createDrilldownState(
 }
 
 export function navigateToDrilldown(
-  state: DrilldownState,
-  config: DrilldownConfig,
+  state: HierarchicalDrilldownState,
+  config: HierarchicalDrilldownConfig,
   level: string,
   value: string | number,
   label?: string
-): DrilldownState {
-  const levelIndex = config.levels.findIndex(l => l.field === level);
+): HierarchicalDrilldownState {
+  const levelIndex = config.levels.findIndex((l: HierarchicalDrilldownLevel) => l.field === level);
   
   if (levelIndex === -1) {
     throw new Error(`Level "${level}" not found in drilldown configuration`);
@@ -41,11 +46,11 @@ export function navigateToDrilldown(
   const newBreadcrumbs = [...state.breadcrumbs];
 
   // Remove filters and breadcrumbs for levels deeper than the current one
-  config.levels.slice(nextLevelIndex).forEach(l => {
+  config.levels.slice(nextLevelIndex).forEach((l: HierarchicalDrilldownLevel) => {
     delete newFilters[l.field];
   });
-  
-  const breadcrumbIndex = newBreadcrumbs.findIndex(b => b.level === level);
+
+  const breadcrumbIndex = newBreadcrumbs.findIndex((b: DrilldownBreadcrumbItem) => b.level === level);
   if (breadcrumbIndex !== -1) {
     newBreadcrumbs.splice(breadcrumbIndex + 1);
   }
@@ -66,10 +71,10 @@ export function navigateToDrilldown(
 }
 
 export function navigateUp(
-  state: DrilldownState,
-  config: DrilldownConfig,
+  state: HierarchicalDrilldownState,
+  config: HierarchicalDrilldownConfig,
   targetLevel?: string
-): DrilldownState {
+): HierarchicalDrilldownState {
   if (!targetLevel && state.breadcrumbs.length === 0) {
     return state; // Already at the top level
   }
@@ -78,7 +83,7 @@ export function navigateUp(
   let newFilters = { ...state.filters };
 
   if (targetLevel) {
-    const targetIndex = newBreadcrumbs.findIndex(b => b.level === targetLevel);
+    const targetIndex = newBreadcrumbs.findIndex((b: DrilldownBreadcrumbItem) => b.level === targetLevel);
     if (targetIndex === -1) {
       return state; // Target level not in breadcrumbs
     }
@@ -96,13 +101,13 @@ export function navigateUp(
     newCurrentLevel = config.levels[0].field;
   } else {
     const lastBreadcrumb = newBreadcrumbs[newBreadcrumbs.length - 1];
-    const lastLevelIndex = config.levels.findIndex(l => l.field === lastBreadcrumb.level);
+    const lastLevelIndex = config.levels.findIndex((l: HierarchicalDrilldownLevel) => l.field === lastBreadcrumb.level);
     newCurrentLevel = config.levels[lastLevelIndex + 1]?.field || lastBreadcrumb.level;
   }
 
   // Remove filters for levels we've navigated away from
-  const currentLevelIndex = config.levels.findIndex(l => l.field === newCurrentLevel);
-  config.levels.slice(currentLevelIndex).forEach(l => {
+  const currentLevelIndex = config.levels.findIndex((l: HierarchicalDrilldownLevel) => l.field === newCurrentLevel);
+  config.levels.slice(currentLevelIndex).forEach((l: HierarchicalDrilldownLevel) => {
     delete newFilters[l.field];
   });
 
@@ -114,49 +119,49 @@ export function navigateUp(
 }
 
 export function getCurrentLevelConfig(
-  state: DrilldownState,
-  config: DrilldownConfig
-): DrilldownLevel | undefined {
-  return config.levels.find(level => level.field === state.currentLevel);
+  state: HierarchicalDrilldownState,
+  config: HierarchicalDrilldownConfig
+): HierarchicalDrilldownLevel | undefined {
+  return config.levels.find((level: HierarchicalDrilldownLevel) => level.field === state.currentLevel);
 }
 
 export function getAvailableLevels(
-  state: DrilldownState,
-  config: DrilldownConfig
-): DrilldownLevel[] {
-  const currentIndex = config.levels.findIndex(l => l.field === state.currentLevel);
+  state: HierarchicalDrilldownState,
+  config: HierarchicalDrilldownConfig
+): HierarchicalDrilldownLevel[] {
+  const currentIndex = config.levels.findIndex((l: HierarchicalDrilldownLevel) => l.field === state.currentLevel);
   return config.levels.slice(0, currentIndex + 1);
 }
 
 export function canDrillDown(
-  state: DrilldownState,
-  config: DrilldownConfig
+  state: HierarchicalDrilldownState,
+  config: HierarchicalDrilldownConfig
 ): boolean {
-  const currentIndex = config.levels.findIndex(l => l.field === state.currentLevel);
+  const currentIndex = config.levels.findIndex((l: HierarchicalDrilldownLevel) => l.field === state.currentLevel);
   return currentIndex < config.levels.length - 1;
 }
 
-export function canDrillUp(state: DrilldownState): boolean {
+export function canDrillUp(state: HierarchicalDrilldownState): boolean {
   return state.breadcrumbs.length > 0;
 }
 
-export function getDrilldownPath(state: DrilldownState): string {
+export function getDrilldownPath(state: HierarchicalDrilldownState): string {
   return state.breadcrumbs
-    .map(b => b.label)
+    .map((b: DrilldownBreadcrumbItem) => b.label)
     .join(' > ');
 }
 
 export function buildDrilldownQuery(
-  state: DrilldownState,
-  baseQuery?: Record<string, any>
-): Record<string, any> {
+  state: HierarchicalDrilldownState,
+  baseQuery?: Record<string, unknown>
+): Record<string, unknown> {
   return {
     ...baseQuery,
     ...state.filters
   };
 }
 
-export function validateDrilldownConfig(config: DrilldownConfig): string[] {
+export function validateDrilldownConfig(config: HierarchicalDrilldownConfig): string[] {
   const errors: string[] = [];
 
   if (!config.levels || config.levels.length === 0) {
@@ -164,11 +169,11 @@ export function validateDrilldownConfig(config: DrilldownConfig): string[] {
   }
 
   const fieldNames = new Set<string>();
-  config.levels.forEach((level, index) => {
+  config.levels.forEach((level: HierarchicalDrilldownLevel, index: number) => {
     if (!level.field) {
       errors.push(`Level at index ${index} must have a field`);
     }
-    
+
     if (!level.label) {
       errors.push(`Level at index ${index} must have a label`);
     }
@@ -176,13 +181,13 @@ export function validateDrilldownConfig(config: DrilldownConfig): string[] {
     if (fieldNames.has(level.field)) {
       errors.push(`Duplicate field name "${level.field}" in drilldown configuration`);
     }
-    
+
     fieldNames.add(level.field);
   });
 
   return errors;
 }
 
-export function resetDrilldownState(config: DrilldownConfig): DrilldownState {
+export function resetDrilldownState(config: HierarchicalDrilldownConfig): HierarchicalDrilldownState {
   return createDrilldownState(config);
 }
