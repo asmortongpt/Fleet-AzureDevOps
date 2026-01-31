@@ -122,7 +122,7 @@ const staggerContainerVariant = {
  * Fleet Tab - Vehicle tracking and telemetry
  */
 const FleetTabContent = memo(function FleetTabContent() {
-  const { vehicles, stats, loading, error, refetch } = useReactiveFleetData()
+  const { vehicles, metrics: stats, isLoading: loading, error, refetch } = useReactiveFleetData()
   const { user } = useAuth()
 
   // Default stats if undefined
@@ -289,7 +289,7 @@ const FleetTabContent = memo(function FleetTabContent() {
  * Drivers Tab - Driver management and performance
  */
 const DriversTabContent = memo(function DriversTabContent() {
-  const { drivers, stats, loading, error, refetch } = useReactiveDriversData()
+  const { drivers, metrics: stats, isLoading: loading, error, refresh: refetch } = useReactiveDriversData()
 
   // Default stats if undefined
   const safeStats = stats || {
@@ -430,7 +430,7 @@ const DriversTabContent = memo(function DriversTabContent() {
  * Operations Tab - Dispatch, routing, fuel management
  */
 const OperationsTabContent = memo(function OperationsTabContent() {
-  const { routes, tasks, fuelTransactions, stats, loading, error, refetch } = useReactiveOperationsData()
+  const { routes, tasks, fuelTransactions, metrics: stats, isLoading: loading, error, refresh: refetch } = useReactiveOperationsData()
 
   // Default stats if undefined
   const safeStats = stats || {
