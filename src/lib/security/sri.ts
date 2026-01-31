@@ -1,10 +1,11 @@
 /**
-import logger from '@/utils/logger';
  * Subresource Integrity (SRI) Implementation
  * Ensures external resources haven't been tampered with
  *
  * @module security/sri
  */
+
+import logger from '@/utils/logger';
 
 export interface SRIHash {
   algorithm: 'sha256' | 'sha384' | 'sha512';

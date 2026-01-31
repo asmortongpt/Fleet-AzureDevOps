@@ -1,8 +1,9 @@
 /**
-import logger from '@/utils/logger';
  * Sentry Error Tracking Configuration for Frontend
  * Production-ready error tracking
  */
+
+import logger from '@/utils/logger';
 
 export const initSentry = () => {
   logger.info('Sentry monitoring initialized')

@@ -1,8 +1,9 @@
 /**
-import logger from '@/utils/logger';
  * Production-Ready Data Fetcher
  * Unified fetcher with retry logic, error handling, and proper typing
  */
+
+import logger from '@/utils/logger';
 
 export class FetchError extends Error {
   constructor(

@@ -1,5 +1,4 @@
 /**
-import logger from '@/utils/logger';
  * AI Service - Real API Integration
  *
  * Provides integration with Claude (Anthropic), OpenAI, and Gemini APIs
@@ -13,6 +12,8 @@ import logger from '@/utils/logger';
  *
  * Created: 2025-01-03
  */
+
+import logger from '@/utils/logger';
 
 export interface Message {
   id: string;

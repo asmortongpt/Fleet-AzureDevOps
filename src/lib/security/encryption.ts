@@ -1,5 +1,4 @@
 /**
-import logger from '@/utils/logger';
  * AES-256-GCM Encryption Service
  *
  * Production-grade encryption for sensitive data at rest:
@@ -12,6 +11,8 @@ import logger from '@/utils/logger';
  * FedRAMP Compliance: SC-8, SC-12, SC-13, SC-17, SC-28
  * SOC 2: CC6.1, CC6.7
  */
+
+import logger from '@/utils/logger';
 
 /**
  * Encryption Algorithm Configuration
