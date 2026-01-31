@@ -6,7 +6,7 @@
  * - Official CTA Brand Colors (DAYTIME, BLUE SKIES, MIDNIGHT, NOON, GOLDEN HOUR)
  * - Azure AD SSO with OAuth 2.0 + PKCE
  * - Premium animations and visual effects
- * - ArchonY branding - "Intelligent Performance"
+ * - ArchonY branding - "INTELLIGENT PERFORMANCE"
  * - Responsive design (fits on single page)
  * - WCAG 2.1 AA compliant
  *
@@ -137,11 +137,11 @@ export function SSOLogin() {
             Capital Tech Alliance
           </h1>
           <div
-            className="flex items-center justify-center gap-1.5 text-xs font-medium"
-            style={{ color: '#dbeafe' }}
+            className="flex items-center justify-center gap-1.5 text-xs font-medium uppercase tracking-wider"
+            style={{ color: '#00D4FF' }}
           >
             <Building2 className="h-3.5 w-3.5" />
-            <span>Enterprise Fleet Management System</span>
+            <span>ArchonY • INTELLIGENT PERFORMANCE</span>
           </div>
         </div>
 
@@ -151,7 +151,7 @@ export function SSOLogin() {
             {/* Welcome Section */}
             <div className="mb-3.5 text-center">
               <h2 className="mb-1 flex items-center justify-center gap-2 text-xl font-semibold text-slate-900">
-                <Sparkles className="h-5 w-5 text-blue-600" />
+                <Sparkles className="h-5 w-5" style={{ color: '#00D4FF' }} />
                 <span>Welcome Back</span>
               </h2>
               <p className="text-xs text-slate-600">
@@ -172,9 +172,16 @@ export function SSOLogin() {
               onClick={handleSignIn}
               disabled={isSigningIn}
               size="lg"
-              className="group relative mb-3.5 h-11 w-full overflow-hidden bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 font-semibold text-white shadow-lg shadow-blue-600/40 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/50 active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+              style={{
+                background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)',
+                boxShadow: '0 10px 20px rgba(253, 184, 19, 0.4)'
+              }}
+              className="group relative mb-3.5 h-11 w-full overflow-hidden font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              <div
+                className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                style={{ background: 'linear-gradient(90deg, #FF5722 0%, #FDB813 100%)' }}
+              />
               <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-20">
                 <div className="h-full w-full bg-gradient-to-r from-transparent via-white to-transparent animate-shimmer" />
               </div>
@@ -200,21 +207,21 @@ export function SSOLogin() {
 
             {/* Premium Security Features Grid */}
             <div className="mb-3 grid grid-cols-3 gap-2">
-              <div className="group flex flex-col items-center gap-1 rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 py-2 px-2 text-center transition-all duration-300 hover:scale-105 hover:border-blue-300 hover:shadow-md">
+              <div className="group flex flex-col items-center gap-1 rounded-xl border py-2 px-2 text-center transition-all duration-300 hover:scale-105 hover:shadow-md" style={{ borderColor: '#00D4FF20', background: 'linear-gradient(to bottom right, #00D4FF10, #FDB81310)' }}>
                 <div className="rounded-lg bg-white p-1.5 shadow-sm group-hover:shadow-md transition-shadow">
-                  <Lock className="h-4 w-4 text-blue-600" strokeWidth={2.5} />
+                  <Lock className="h-4 w-4" style={{ color: '#00D4FF' }} strokeWidth={2.5} />
                 </div>
                 <span className="text-[10px] font-semibold text-slate-700">MFA Protected</span>
               </div>
-              <div className="group flex flex-col items-center gap-1 rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 py-2 px-2 text-center transition-all duration-300 hover:scale-105 hover:border-blue-300 hover:shadow-md">
+              <div className="group flex flex-col items-center gap-1 rounded-xl border py-2 px-2 text-center transition-all duration-300 hover:scale-105 hover:shadow-md" style={{ borderColor: '#00D4FF20', background: 'linear-gradient(to bottom right, #00D4FF10, #FDB81310)' }}>
                 <div className="rounded-lg bg-white p-1.5 shadow-sm group-hover:shadow-md transition-shadow">
-                  <Shield className="h-4 w-4 text-blue-600" strokeWidth={2.5} />
+                  <Shield className="h-4 w-4" style={{ color: '#00D4FF' }} strokeWidth={2.5} />
                 </div>
                 <span className="text-[10px] font-semibold text-slate-700">OAuth 2.0</span>
               </div>
-              <div className="group flex flex-col items-center gap-1 rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 py-2 px-2 text-center transition-all duration-300 hover:scale-105 hover:border-blue-300 hover:shadow-md">
+              <div className="group flex flex-col items-center gap-1 rounded-xl border py-2 px-2 text-center transition-all duration-300 hover:scale-105 hover:shadow-md" style={{ borderColor: '#00D4FF20', background: 'linear-gradient(to bottom right, #00D4FF10, #FDB81310)' }}>
                 <div className="rounded-lg bg-white p-1.5 shadow-sm group-hover:shadow-md transition-shadow">
-                  <CheckCircle2 className="h-4 w-4 text-blue-600" strokeWidth={2.5} />
+                  <CheckCircle2 className="h-4 w-4" style={{ color: '#00D4FF' }} strokeWidth={2.5} />
                 </div>
                 <span className="text-[10px] font-semibold text-slate-700">Encrypted</span>
               </div>
@@ -234,16 +241,16 @@ export function SSOLogin() {
             </div>
 
             {/* Premium Security Notice */}
-            <div className="mb-2.5 rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50/50 p-2.5 shadow-sm">
+            <div className="mb-2.5 rounded-xl border p-2.5 shadow-sm" style={{ borderColor: '#00D4FF30', background: 'linear-gradient(to bottom right, #00D4FF15, #FDB81315)' }}>
               <div className="flex items-start gap-2">
-                <div className="rounded-lg bg-blue-600 p-1.5 shadow-md">
+                <div className="rounded-lg p-1.5 shadow-md" style={{ background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)' }}>
                   <Shield className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
                 </div>
                 <div>
-                  <p className="mb-0.5 text-xs font-bold text-blue-900">
+                  <p className="mb-0.5 text-xs font-bold" style={{ color: '#2B3A67' }}>
                     Enterprise-Grade Security
                   </p>
-                  <p className="text-[10px] leading-relaxed text-blue-800/90">
+                  <p className="text-[10px] leading-relaxed text-slate-700">
                     Protected with multi-factor authentication, OAuth 2.0 with PKCE authorization,
                     and AES-256 encrypted session management.
                   </p>
@@ -256,7 +263,8 @@ export function SSOLogin() {
               Need assistance?{' '}
               <a
                 href="mailto:support@capitaltechalliance.com"
-                className="font-semibold text-blue-600 transition-colors hover:text-blue-700 hover:underline"
+                className="font-semibold transition-colors hover:underline"
+                style={{ color: '#00D4FF' }}
               >
                 Contact Support
               </a>
