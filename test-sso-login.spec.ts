@@ -12,9 +12,9 @@ test.describe('SSO Login Page Tests', () => {
     await page.screenshot({ path: 'sso-login-desktop.png', fullPage: true })
 
     // Verify page title and branding
-    await expect(page.locator('text=Capital Tech Alliance')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Capital Tech Alliance' })).toBeVisible()
     await expect(page.locator('text=Enterprise Fleet Management System')).toBeVisible()
-    await expect(page.locator('text=Welcome Back')).toBeVisible()
+    await expect(page.locator('text=Welcome Back').first()).toBeVisible()
 
     // Verify sign in button exists
     const signInButton = page.locator('button', { hasText: 'Sign in with Microsoft' })
@@ -42,7 +42,7 @@ test.describe('SSO Login Page Tests', () => {
     await page.screenshot({ path: 'sso-login-mobile.png', fullPage: true })
 
     // Verify key elements are visible on mobile
-    await expect(page.locator('text=Capital Tech Alliance')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Capital Tech Alliance' })).toBeVisible()
     await expect(page.locator('button', { hasText: 'Sign in with Microsoft' })).toBeVisible()
 
     console.log('✅ SSO login page is responsive on mobile')
@@ -57,7 +57,7 @@ test.describe('SSO Login Page Tests', () => {
     // Take tablet screenshot
     await page.screenshot({ path: 'sso-login-tablet.png', fullPage: true })
 
-    await expect(page.locator('text=Capital Tech Alliance')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Capital Tech Alliance' })).toBeVisible()
     await expect(page.locator('button', { hasText: 'Sign in with Microsoft' })).toBeVisible()
 
     console.log('✅ SSO login page is responsive on tablet')
