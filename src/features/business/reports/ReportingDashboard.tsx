@@ -46,6 +46,7 @@ interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
   value: number;
+  [key: string]: any;
 }
 
 function TabPanel(props: TabPanelProps) {
@@ -60,7 +61,7 @@ function TabPanel(props: TabPanelProps) {
     >
       {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
-  )
+  );
 }
 
 export default function ReportingDashboard() {
@@ -106,7 +107,7 @@ export default function ReportingDashboard() {
       const data = await response.json();
       setReports(data);
     } catch (error) {
-      logger.error('Failed to fetch reports:', error)
+      logger.error('Failed to fetch reports:', error instanceof Error ? error.message : String(error));
     }
   };
 
@@ -116,7 +117,7 @@ export default function ReportingDashboard() {
       const data = await response.json();
       setScheduledReports(data);
     } catch (error) {
-      logger.error('Failed to fetch scheduled reports:', error)
+      logger.error('Failed to fetch scheduled reports:', error instanceof Error ? error.message : String(error));
     }
   };
 
@@ -155,7 +156,7 @@ export default function ReportingDashboard() {
         setError('Failed to generate report');
       }
     } catch (error) {
-      setError('Failed to generate report: ' + error)
+      setError('Failed to generate report: ' + (error instanceof Error ? error.message : String(error)));
     } finally {
       setLoading(false);
     }
@@ -283,7 +284,7 @@ export default function ReportingDashboard() {
                 Scheduled Reports Active
               </Typography>
               <Typography variant="h4">
-                {scheduledReports.filter((r) => r.isActive).length}
+                {Array.isArray(scheduledReports) ? scheduledReports.filter((r: any) => r.isActive).length : 0}
               </Typography>
             </CardContent>
           </Card>
@@ -295,7 +296,7 @@ export default function ReportingDashboard() {
                 Storage Used
               </Typography>
               <Typography variant="h4">
-                {(reports.reduce((sum, r) => sum + (r.fileSize || 0), 0) / 1024).toFixed(2)} KB
+                {Array.isArray(reports) ? (reports.reduce((sum: number, r: any) => sum + (r.fileSize || 0), 0) / 1024).toFixed(2) : '0.00'} KB
               </Typography>
             </CardContent>
           </Card>
@@ -303,7 +304,7 @@ export default function ReportingDashboard() {
       </Grid>
 
       <Paper sx={{ width: '100%' }}>
-        <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)}>
+        <Tabs value={tabValue} onChange={(e: React.SyntheticEvent, v: number) => setTabValue(v)}>
           <Tab icon={<Assessment />} label="Build Report" />
           <Tab icon={<Schedule />} label="Scheduled Reports" />
           <Tab icon={<History />} label="Report History" />
@@ -426,12 +427,13 @@ export default function ReportingDashboard() {
                     <TableCell>
                       <Chip label={report.frequency} size="small" />
                     </TableCell>
-                    <TableCell>{report.format.toUpperCase()}</TableCell>
+                    <TableCell>{String(report.format).toUpperCase()}</TableCell>
                     <TableCell>
                       <Chip
                         label={report.isActive ? 'Active' : 'Inactive'}
                         color={report.isActive ? 'success' : 'default'}
                         size="small"
+                        variant="filled"
                       />
                     </TableCell>
                     <TableCell>
@@ -505,7 +507,7 @@ export default function ReportingDashboard() {
                     <TableCell>
                       {new Date(report.generatedAt).toLocaleString()}
                     </TableCell>
-                    <TableCell>{report.format.toUpperCase()}</TableCell>
+                    <TableCell>{String(report.format).toUpperCase()}</TableCell>
                     <TableCell>
                       {report.fileSize ? `${(report.fileSize / 1024).toFixed(2)} KB` : 'N/A'}
                     </TableCell>
@@ -514,6 +516,7 @@ export default function ReportingDashboard() {
                         label={report.status}
                         color={report.status === 'completed' ? 'success' : 'warning'}
                         size="small"
+                        variant="filled"
                       />
                     </TableCell>
                     <TableCell>
