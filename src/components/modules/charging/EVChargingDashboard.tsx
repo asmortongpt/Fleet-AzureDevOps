@@ -1,13 +1,6 @@
-import {
-  BoltIcon as Bolt,
-  ChartBarIcon,
-  CheckCircleIcon as CheckCircle,
-  XCircleIcon as XCircle,
-  ExclamationTriangleIcon as ExclamationTriangle
-} from '@heroicons/react/24/outline';
-import { Zap, Battery, AlertTriangle } from 'lucide-react';
+import { Zap, Battery, AlertTriangle, Zap as Bolt, BarChart3 as ChartBarIcon, CheckCircle, XCircle, AlertTriangle as ExclamationTriangle } from 'lucide-react';
 
-// Heroicons don't have Battery0Icon, use lucide-react Battery
+// Lucide Battery for Battery0Icon
 const Battery0Icon = Battery;
 // Alias for consistency
 const CheckCircleIcon = CheckCircle;
