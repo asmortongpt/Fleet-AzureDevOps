@@ -128,7 +128,7 @@ export class FleetWebSocketService extends EventEmitter {
   }
 
   private resubscribe(): void {
-    logger.info('[WebSocket] Resubscribing to', this.subscriptions.size, 'entities');
+    logger.info('[WebSocket] Resubscribing to entities', { count: this.subscriptions.size });
     for (const [entity, ids] of this.subscriptions) {
       for (const id of ids) {
         this.send({
@@ -159,7 +159,7 @@ export class FleetWebSocketService extends EventEmitter {
   }
 
   private flushMessageQueue(): void {
-    logger.info('[WebSocket] Flushing', this.messageQueue.length, 'queued messages');
+    logger.info('[WebSocket] Flushing queued messages', { count: this.messageQueue.length });
     while (this.messageQueue.length > 0) {
       const queued = this.messageQueue.shift();
       if (queued) {
@@ -192,7 +192,7 @@ export class FleetWebSocketService extends EventEmitter {
   private scheduleReconnect(): void {
     if (this.reconnectTimer) return;
 
-    logger.info('[WebSocket] Reconnecting in', this.config.reconnectDelay, 'ms');
+    logger.info('[WebSocket] Reconnecting', { delayMs: this.config.reconnectDelay });
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
       this.connect();

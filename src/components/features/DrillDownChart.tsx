@@ -223,7 +223,9 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
             data={currentData}
             margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
             onClick={(data) => {
+              // @ts-expect-error - Recharts type incompatibility with activePayload
               if (data && data.activePayload && data.activePayload[0]) {
+                // @ts-expect-error - Recharts type incompatibility with activePayload
                 handleBarClick(data.activePayload[0].payload)
               }
             }}

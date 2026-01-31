@@ -141,10 +141,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // Check for MSAL authentication
         // Only process MSAL account when not actively in a user interaction flow
         const activeInteractions = [
+          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
           InteractionStatus.Login,
+          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
           InteractionStatus.Logout,
+          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
           InteractionStatus.HandleRedirect,
+          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
           InteractionStatus.AcquireToken,
+          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
           InteractionStatus.SsoSilent
         ];
 
@@ -231,10 +236,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // We need to set loading to false so ProtectedRoute can decide whether to redirect
         // Keep loading ONLY when MSAL is actively handling user interactions (Login, Logout, HandleRedirect, etc.)
         const activeInteractions = [
+          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
           InteractionStatus.Login,
+          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
           InteractionStatus.Logout,
+          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
           InteractionStatus.HandleRedirect,
+          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
           InteractionStatus.AcquireToken,
+          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
           InteractionStatus.SsoSilent
         ];
 

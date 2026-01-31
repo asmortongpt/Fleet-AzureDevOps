@@ -41,7 +41,7 @@ const SimpleVehicleShowroom: React.FC<SimpleVehicleShowroomProps> = ({
       const teamPeople = await realDataService.getPeople();
 
       // Transform to showroom format with accurate team data
-      const showroomVehicles = teamVehicles.map((v) => ({
+      const showroomVehicles = teamVehicles.map((v: any) => ({
         ...v,
         name: `${v.make} ${v.model} ${v.year}`,
         type: 'Vehicle',
@@ -50,9 +50,9 @@ const SimpleVehicleShowroom: React.FC<SimpleVehicleShowroomProps> = ({
         health: Math.floor(Math.random() * 20) + 80, // Simulate health
         driver: {
           name: v.assigned_driver_id
-            ? teamPeople.find((p) => p.id === v.assigned_driver_id)?.first_name +
+            ? teamPeople.find((p: any) => p.id === v.assigned_driver_id)?.first_name +
               ' ' +
-              teamPeople.find((p) => p.id === v.assigned_driver_id)?.last_name || 'Unassigned'
+              teamPeople.find((p: any) => p.id === v.assigned_driver_id)?.last_name || 'Unassigned'
             : 'Unassigned',
           id: v.assigned_driver_id || 'unassigned'
         }

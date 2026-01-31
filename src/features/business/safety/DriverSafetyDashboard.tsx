@@ -7,20 +7,113 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Shield, Eye, Brain, Zap, TrendingUp, Clock, Phone, Car, Activity, Target, BookOpen, Award, Bell, Gauge, Coffee, AlertCircle, CheckCircle, Timer, Users, BarChart3, LineChart } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
 
-import type {
-  AIDriverBehaviorAnalysis,
-  DriverFatigueAnalysis,
-  DistractionAnalysis,
-  AccidentPrediction,
-  SafetyIntervention,
-  SafetyDashboardMetrics,
-  Driver,
-  Vehicle
-} from '../../types';
-import { Badge } from '../ui/Badge';
-import { Button } from '../ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
-import { Progress } from '../ui/Progress';
+// Legacy types - file does not exist
+// import type {
+//   AIDriverBehaviorAnalysis,
+//   DriverFatigueAnalysis,
+//   DistractionAnalysis,
+//   AccidentPrediction,
+//   SafetyIntervention,
+//   SafetyDashboardMetrics,
+//   Driver,
+//   Vehicle
+// } from '../../types';
+
+// Temporary type stubs until proper types are created
+type AIDriverBehaviorAnalysis = {
+  driverId: string;
+  vehicleId: string;
+  timestamp: Date;
+  safetyScore: number;
+  attentionScore: number;
+  aggressionScore: number;
+  efficiencyScore: number;
+  risk: {
+    overall: number;
+    prediction?: {
+      timeToIntervention?: number;
+      accidentRisk: number;
+    };
+  };
+  events: {
+    harshBraking: any[];
+    harshAcceleration: any[];
+    speedingViolations: any[];
+    distractedDriving: any[];
+  };
+  coaching: {
+    improvements: string[];
+    goalProgress: any[];
+    trainingRecommendations: string[];
+  };
+};
+
+type DriverFatigueAnalysis = {
+  driverId: string;
+  timestamp: Date;
+  fatigueLevel: number;
+};
+
+type DistractionAnalysis = {
+  driverId: string;
+  timestamp: Date;
+  riskLevel: number;
+};
+
+type AccidentPrediction = {
+  driverId: string;
+  timestamp: Date;
+  risk: {
+    overall: number;
+  };
+};
+
+type SafetyIntervention = {
+  type: string;
+  severity: string;
+  trigger: string;
+};
+
+type SafetyDashboardMetrics = {
+  realTime: {
+    activeDrivers: number;
+    criticalAlerts: number;
+    activeSafetyInterventions: number;
+    averageFleetSafetyScore: number;
+    fatigueAlerts: number;
+    distractionAlerts: number;
+  };
+  coaching: {
+    driversInProgram: number;
+    averageImprovement: number;
+    completionRate: number;
+  };
+  predictions: {
+    accidentRisks: AccidentPrediction[];
+  };
+};
+
+type Driver = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  department: string;
+  role?: string;
+  employeeId?: string;
+  fullName?: string;
+  jobTitle?: string;
+};
+
+type Vehicle = {
+  id: string;
+  make: string;
+  model: string;
+};
+
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Progress } from '@/components/ui/Progress';
 
 interface DriverSafetyDashboardProps {
   drivers: Driver[];
@@ -421,7 +514,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                   AI Coaching Recommendations
                 </h4>
                 <div className="space-y-1">
-                  {analysis.coaching.improvements.slice(0, 2).map((improvement, index) => (
+                  {analysis.coaching.improvements.slice(0, 2).map((improvement: string, index: number) => (
                     <div key={index} className="text-xs text-gray-700 bg-green-50 p-2 rounded">
                       • {improvement}
                     </div>
@@ -628,7 +721,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  {analysis.coaching.goalProgress.map((goal) => (
+                  {analysis.coaching.goalProgress.map((goal: any) => (
                     <div key={goal.goal} className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="font-medium">{goal.title}</span>
@@ -646,7 +739,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                   <div className="pt-2 border-t">
                     <h4 className="font-medium text-sm mb-2">Recommended Training</h4>
                     <div className="space-y-1">
-                      {analysis.coaching.trainingRecommendations.map((training, index) => (
+                      {analysis.coaching.trainingRecommendations.map((training: string, index: number) => (
                         <div
                           key={index}
                           className="flex items-center justify-between p-2 bg-white rounded"
@@ -749,7 +842,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {dashboardMetrics.predictions.accidentRisks.slice(0, 3).map((prediction) => (
+                      {dashboardMetrics.predictions.accidentRisks.slice(0, 3).map((prediction: any) => (
                         <div
                           key={prediction.driverId}
                           className="flex items-center justify-between p-2 bg-gray-50 rounded"

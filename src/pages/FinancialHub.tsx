@@ -87,7 +87,7 @@ function FinancialOverview() {
           value={`$${(metrics?.totalSpent / 1000000 || 0).toFixed(2)}M`}
           icon={Receipt}
           trend="up"
-          change="+5.2%"
+          change={5.2}
           description="Year to date"
           loading={isLoading}
         />
@@ -268,7 +268,7 @@ function BudgetContent() {
           value={`$${(metrics?.totalSpent / 1000000 || 0).toFixed(2)}M`}
           icon={Receipt}
           trend="up"
-          change="+5.2%"
+          change={5.2}
           description="Year to date"
           loading={isLoading}
         />
@@ -467,7 +467,7 @@ function ExpensesContent() {
           value={`$${(metrics?.monthlyExpenses / 1000 || 0).toFixed(1)}K`}
           icon={Receipt}
           trend="up"
-          change="+8.3%"
+          change={8.3}
           description="Current month"
           loading={isLoading}
         />
@@ -646,7 +646,7 @@ function ReportsContent() {
           value={`$${(metrics?.outstandingAmount / 1000 || 0).toFixed(1)}K`}
           icon={CreditCard}
           trend="down"
-          change="-$5.2K"
+          change={-5.2}
           description="Unpaid invoices"
           loading={isLoading}
         />

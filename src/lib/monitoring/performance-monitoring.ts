@@ -144,11 +144,7 @@ class PerformanceMonitorService {
 
     // Log to console in dev
     if (import.meta.env.DEV) {
-      logger.info(
-        `[Performance] ${metric.name}:`,
-        metric.value.toFixed(2),
-        rating
-      );
+      logger.info(`[Performance] ${metric.name}:`, { value: metric.value.toFixed(2), rating });
     }
   }
 
@@ -270,7 +266,7 @@ class PerformanceMonitorService {
 
             // Log slow resource
             if (import.meta.env.DEV) {
-              logger.warn('[Performance] Slow resource:', resource.name, resource.duration);
+              logger.warn('[Performance] Slow resource:', { name: resource.name, duration: resource.duration });
             }
           }
         });
@@ -310,7 +306,7 @@ class PerformanceMonitorService {
 
           // Log long task
           if (import.meta.env.DEV) {
-            logger.warn('[Performance] Long task detected:', entry.duration, 'ms');
+            logger.warn('[Performance] Long task detected:', { durationMs: entry.duration });
           }
 
           // Report to Sentry
@@ -355,7 +351,7 @@ class PerformanceMonitorService {
           metrics.record(entry.name, entry.startTime);
 
           if (import.meta.env.DEV) {
-            logger.info(`[Performance] ${entry.name}:`, entry.startTime, 'ms');
+            logger.info(`[Performance] ${entry.name}:`, { startTimeMs: entry.startTime });
           }
         }
       });
@@ -415,7 +411,7 @@ class PerformanceMonitorService {
     metrics.record('time-to-interactive', tti);
 
     if (import.meta.env.DEV) {
-      logger.info('[Performance] Time to Interactive:', tti, 'ms');
+      logger.info('[Performance] Time to Interactive:', { ttiMs: tti });
     }
   }
 

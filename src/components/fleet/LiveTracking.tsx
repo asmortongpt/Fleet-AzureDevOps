@@ -9,7 +9,7 @@ export default function LiveTracking() {
   const { data, isLoading } = useVehicles()
 
   // Transform API data to match GoogleMapView expected format
-  const vehicles = (data?.data || []).map((v: any) => ({
+  const vehicles = (data || []).map((v: any) => ({
     id: v.id,
     name: v.name || `${v.make} ${v.model}`,
     number: v.license_plate,

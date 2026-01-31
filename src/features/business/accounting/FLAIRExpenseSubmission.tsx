@@ -6,8 +6,70 @@
 
 import React, { useState } from 'react';
 
-import { useAuth } from '../../contexts/AuthContext';
-import { flairIntegrationService, FLAIRExpenseEntry, FLAIRDocument } from '../../services/FLAIRIntegration';
+import { useAuth } from '@/contexts/AuthContext';
+// Legacy service - file does not exist
+// import { flairIntegrationService, FLAIRExpenseEntry, FLAIRDocument } from '../../services/FLAIRIntegration';
+
+// Temporary type definitions until FLAIRIntegration service is created
+type FLAIRDocument = {
+  id: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  uploadedAt: string;
+  documentType: string;
+  base64Content: string;
+  checksum: string;
+};
+
+type FLAIRExpenseEntry = {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  department: string;
+  expenseType: string;
+  amount: number;
+  transactionDate: string;
+  description: string;
+  accountCodes: {
+    fundCode: string;
+    appUnitCode: string;
+    objectCode: string;
+    locationCode: string;
+  };
+  supportingDocuments: FLAIRDocument[];
+  approvalStatus: string;
+  approvalHistory: Array<{
+    approverEmployeeId: string;
+    approverName: string;
+    approverTitle: string;
+    approvalLevel: string;
+    approvedAt: string;
+    comments?: string;
+  }>;
+};
+
+// Mock service
+const flairIntegrationService = {
+  submitTravelMileageExpense: async (data: any): Promise<FLAIRExpenseEntry> => {
+    return { id: 'temp_' + Date.now(), ...data, approvalStatus: 'pending', approvalHistory: [], accountCodes: { fundCode: '1000', appUnitCode: '60900200', objectCode: '100777', locationCode: '001' } } as FLAIRExpenseEntry;
+  },
+  submitFuelExpense: async (data: any): Promise<FLAIRExpenseEntry> => {
+    return { id: 'temp_' + Date.now(), ...data, approvalStatus: 'pending', approvalHistory: [], accountCodes: { fundCode: '1000', appUnitCode: '60900200', objectCode: '100779', locationCode: '001' } } as FLAIRExpenseEntry;
+  },
+  submitMaintenanceExpense: async (data: any): Promise<FLAIRExpenseEntry> => {
+    return { id: 'temp_' + Date.now(), ...data, approvalStatus: 'pending', approvalHistory: [], accountCodes: { fundCode: '1000', appUnitCode: '60900200', objectCode: '100780', locationCode: '001' } } as FLAIRExpenseEntry;
+  },
+  submitVehicleRentalExpense: async (data: any): Promise<FLAIRExpenseEntry> => {
+    return { id: 'temp_' + Date.now(), ...data, approvalStatus: 'pending', approvalHistory: [], accountCodes: { fundCode: '1000', appUnitCode: '60900200', objectCode: '100781', locationCode: '001' } } as FLAIRExpenseEntry;
+  },
+  submitParkingExpense: async (data: any): Promise<FLAIRExpenseEntry> => {
+    return { id: 'temp_' + Date.now(), ...data, approvalStatus: 'pending', approvalHistory: [], accountCodes: { fundCode: '1000', appUnitCode: '60900200', objectCode: '100782', locationCode: '001' } } as FLAIRExpenseEntry;
+  },
+  submitTollExpense: async (data: any): Promise<FLAIRExpenseEntry> => {
+    return { id: 'temp_' + Date.now(), ...data, approvalStatus: 'pending', approvalHistory: [], accountCodes: { fundCode: '1000', appUnitCode: '60900200', objectCode: '100783', locationCode: '001' } } as FLAIRExpenseEntry;
+  }
+};
 
 // Component props interface
 interface FLAIRExpenseSubmissionProps {

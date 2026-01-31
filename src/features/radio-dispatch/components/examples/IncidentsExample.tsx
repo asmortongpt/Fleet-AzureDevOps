@@ -36,10 +36,10 @@ export function IncidentsExample() {
       // Refetch when filter changes
       dependencies: [filter],
       // Optional: callbacks for success/error
-      onSuccess: (data) => {
+      onSuccess: (data: any) => {
         logger.info(`Loaded ${data.length} incidents`);
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         logger.error('Failed to load incidents:', error);
       },
     }
