@@ -9,7 +9,7 @@
  * Note: AlertDetailPanel is provided by AlertDrilldowns.tsx
  */
 
-import { Package, NavigationArrow, CheckCircle, Clock, AlertTriangle, MapPin, User, Truck, XCircle, TrendingUp, ListChecks } from 'lucide-react'
+import { Package, Navigation, CheckCircle, Clock, AlertTriangle, MapPin, User, Truck, XCircle, TrendingUp, ListChecks } from 'lucide-react'
 import { useMemo } from 'react'
 import useSWR from 'swr'
 
@@ -546,7 +546,7 @@ export function RouteListView({ filter }: { filter?: string }) {
       <div className="grid grid-cols-3 gap-3">
         <Card className="bg-blue-900/30 border-blue-700/50">
           <CardContent className="p-2 text-center">
-            <NavigationArrow className="w-4 h-4 text-blue-400 mx-auto mb-1" />
+            <Navigation className="w-4 h-4 text-blue-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-blue-400">
               {filteredRoutes.filter(r => r.status === 'active').length}
             </div>
@@ -577,7 +577,7 @@ export function RouteListView({ filter }: { filter?: string }) {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <NavigationArrow className="w-3 h-3 text-blue-400" />
+            <Navigation className="w-3 h-3 text-blue-400" />
             Routes ({filteredRoutes.length})
           </CardTitle>
         </CardHeader>
