@@ -188,7 +188,6 @@ const FleetTabContent = memo(function FleetTabContent() {
           change={2}
           trend="down"
           description="Needs attention"
-          variant="warning"
         />
         <StatCard
           title="Fuel Efficiency"
@@ -494,7 +493,6 @@ const OperationsTabContent = memo(function OperationsTabContent() {
           change={12}
           trend="down"
           description="Daily fuel spend"
-          variant="warning"
         />
         <StatCard
           title="Efficiency"
