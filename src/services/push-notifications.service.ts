@@ -1,5 +1,4 @@
 /**
-import logger from '@/utils/logger';
  * Push Notifications Service
  *
  * Comprehensive push notification system for Fleet Management mobile app
@@ -15,6 +14,8 @@ import logger from '@/utils/logger';
  *
  * Security: VAPID authentication, secure subscription storage
  */
+
+import logger from '@/utils/logger';
 
 export interface NotificationPayload {
   title: string;
@@ -209,11 +210,18 @@ export class PushNotificationService {
           data: payload.data,
         });
       } else {
-        await this.registration.showNotification(payload.title, {
+        // Build notification options with proper typing
+        // Note: Some properties like 'actions', 'image', 'vibrate', and 'timestamp' are not in the base NotificationOptions type
+        // but are supported by browsers when used with Service Worker notifications
+        const notificationOptions: NotificationOptions & {
+          actions?: NotificationAction[];
+          image?: string;
+          vibrate?: number[];
+          timestamp?: number;
+        } = {
           body: payload.body,
           icon: payload.icon || '/fleet-icon-192.png',
           badge: payload.badge || '/fleet-badge-72.png',
-          image: payload.image,
           tag: payload.tag || `notification-${Date.now()}`,
           data: payload.data,
           actions: payload.actions || this.getDefaultActions(payload.category),
@@ -221,7 +229,14 @@ export class PushNotificationService {
           silent: payload.silent || false,
           vibrate: this.settings.vibrationEnabled ? (payload.vibrate || [200, 100, 200]) : [],
           timestamp: payload.timestamp || Date.now(),
-        });
+        };
+
+        // Add image if provided (some browsers support it)
+        if (payload.image) {
+          notificationOptions.image = payload.image;
+        }
+
+        await this.registration.showNotification(payload.title, notificationOptions);
       }
 
       // Track notification
