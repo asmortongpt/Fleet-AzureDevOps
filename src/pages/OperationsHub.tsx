@@ -19,7 +19,7 @@ import { motion } from 'framer-motion'
 import { Suspense, memo, useCallback, useMemo } from 'react'
 import { Radio as OperationsIcon, Map, Circle, CheckSquare, Calendar, Truck, Package, AlertTriangle, Plus, Clock, Zap, Route as RouteIcon, MapPin, Fuel, CheckCircle, X, ArrowUp, ArrowDown, ArrowRight } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveOperationsData, type Route as RouteType, type FuelTransaction, type Task } from '@/hooks/use-reactive-operations-data'
+import { useReactiveOperationsData, type Route as OperationsRoute, type FuelTransaction, type Task } from '@/hooks/use-reactive-operations-data'
 import {
   StatCard,
   ResponsiveBarChart,
@@ -105,7 +105,7 @@ EmptyState.displayName = 'EmptyState'
  * Memoized Route Item Component
  */
 const RouteItem = memo<{
-  route: RouteType
+  route: OperationsRoute
   index: number
   onView: (id: string) => void
   onUpdate: (id: string) => void
