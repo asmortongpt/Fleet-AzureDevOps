@@ -1,8 +1,9 @@
 /**
-import logger from '@/utils/logger';
  * Document Branding Configuration System
  * Allows organizations to customize policy/SOP document branding
  */
+
+import logger from '@/utils/logger';
 
 export interface BrandingConfig {
   organization: {

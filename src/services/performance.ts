@@ -1,7 +1,8 @@
 /**
-import logger from '@/utils/logger';
  * Performance Monitoring Service
  */
+
+import logger from '@/utils/logger';
 
 export interface PerformanceMetric {
   name: string;

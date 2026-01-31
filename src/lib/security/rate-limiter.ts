@@ -1,10 +1,11 @@
 /**
-import logger from '@/utils/logger';
  * Advanced Rate Limiting System
  * Implements sophisticated rate limiting with blocking, sliding windows, and distributed support
  *
  * @module security/rate-limiter
  */
+
+import logger from '@/utils/logger';
 
 export interface RateLimitConfig {
   windowMs: number; // Time window in milliseconds

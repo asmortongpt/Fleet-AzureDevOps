@@ -1,10 +1,11 @@
 /**
-import logger from '@/utils/logger';
  * Security Headers Configuration
  * Implements comprehensive security headers for defense-in-depth
  *
  * @module security/headers
  */
+
+import logger from '@/utils/logger';
 
 export interface SecurityHeadersConfig {
   enableHSTS?: boolean;
