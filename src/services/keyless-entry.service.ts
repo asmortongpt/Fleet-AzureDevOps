@@ -1,5 +1,4 @@
 /**
-import logger from '@/utils/logger';
  * Keyless Entry Service
  *
  * Bluetooth and NFC integration for vehicle access
@@ -22,11 +21,111 @@ import logger from '@/utils/logger';
  * - Web NFC API for NFC reading
  */
 
+import logger from '@/utils/logger';
+
 // Bluetooth Service UUIDs (example - replace with actual vehicle system UUIDs)
 const VEHICLE_SERVICE_UUID = '0000180a-0000-1000-8000-00805f9b34fb';
 const UNLOCK_CHARACTERISTIC_UUID = '00002a29-0000-1000-8000-00805f9b34fb';
 const LOCK_CHARACTERISTIC_UUID = '00002a2a-0000-1000-8000-00805f9b34fb';
 const STATUS_CHARACTERISTIC_UUID = '00002a2b-0000-1000-8000-00805f9b34fb';
+
+// Type declarations for Web Bluetooth API
+declare global {
+  interface Navigator {
+    bluetooth: Bluetooth;
+  }
+
+  interface Bluetooth {
+    requestDevice(options: RequestDeviceOptions): Promise<BluetoothDevice>;
+  }
+
+  interface RequestDeviceOptions {
+    filters?: BluetoothLEScanFilter[];
+    optionalServices?: string[];
+  }
+
+  interface BluetoothLEScanFilter {
+    services?: string[];
+    namePrefix?: string;
+  }
+
+  interface BluetoothDevice extends EventTarget {
+    id: string;
+    name?: string;
+    gatt?: BluetoothRemoteGATTServer;
+    addEventListener(
+      type: string,
+      listener: EventListenerOrEventListenerObject,
+      options?: boolean | AddEventListenerOptions
+    ): void;
+  }
+
+  interface BluetoothRemoteGATTServer {
+    device: BluetoothDevice;
+    connected: boolean;
+    connect(): Promise<BluetoothRemoteGATTServer>;
+    disconnect(): void;
+    getPrimaryService(service: string): Promise<BluetoothRemoteGATTService>;
+  }
+
+  interface BluetoothRemoteGATTService {
+    device: BluetoothDevice;
+    uuid: string;
+    getCharacteristic(characteristic: string): Promise<BluetoothRemoteGATTCharacteristic>;
+  }
+
+  interface BluetoothRemoteGATTCharacteristic extends EventTarget {
+    service: BluetoothRemoteGATTService;
+    uuid: string;
+    properties: BluetoothCharacteristicProperties;
+    value?: DataView;
+    readValue(): Promise<DataView>;
+    writeValue(value: ArrayBufferLike): Promise<void>;
+    addEventListener(
+      type: string,
+      listener: EventListenerOrEventListenerObject,
+      options?: boolean | AddEventListenerOptions
+    ): void;
+  }
+
+  interface BluetoothCharacteristicProperties {
+    broadcast: boolean;
+    read: boolean;
+    writeWithoutResponse: boolean;
+    write: boolean;
+    notify: boolean;
+    indicate: boolean;
+    authenticatedSignedWrites: boolean;
+    reliableWrite: boolean;
+    writableAuxiliaries: boolean;
+  }
+
+  interface NDEFReader {
+    scan(): Promise<void>;
+    write(message: { records: NDEFRecord[] }): Promise<void>;
+    addEventListener(
+      type: string,
+      listener: (event: any) => void
+    ): void;
+    removeEventListener(
+      type: string,
+      listener: (event: any) => void
+    ): void;
+  }
+
+  interface NDEFRecord {
+    recordType: string;
+    mediaType?: string;
+    id?: string;
+    data?: Uint8Array;
+  }
+
+  interface Window {
+    NDEFReader?: {
+      new (): NDEFReader;
+    };
+  }
+}
 
 export interface VehicleDevice {
   id: string;
@@ -52,6 +151,22 @@ export interface NFCVehicleTag {
   vehicleId: string;
   vehicleNumber: string;
   serialNumber: string;
+  permissions: string[];
+}
+
+export interface VehicleStatus {
+  locked: boolean;
+  battery: number;
+  signalStrength: number;
+}
+
+export interface TokenResponse {
+  token: string;
+}
+
+export interface ParsedNDEFData {
+  vehicleId: string;
+  vehicleNumber: string;
   permissions: string[];
 }
 
@@ -194,7 +309,7 @@ export class KeylessEntryService {
       }
 
       const command = this.buildCommand('UNLOCK', authToken);
-      await unlockChar.writeValue(command);
+      await unlockChar.writeValue(command.buffer);
 
       // Log access
       await this.logAccess({
@@ -246,7 +361,7 @@ export class KeylessEntryService {
       }
 
       const command = this.buildCommand('LOCK', authToken);
-      await lockChar.writeValue(command);
+      await lockChar.writeValue(command.buffer);
 
       // Log access
       await this.logAccess({
@@ -282,7 +397,7 @@ export class KeylessEntryService {
   /**
    * Get vehicle status via Bluetooth
    */
-  public async getVehicleStatus(): Promise<any> {
+  public async getVehicleStatus(): Promise<VehicleStatus> {
     if (!this.connectedDevice) {
       throw new Error('No vehicle connected');
     }
@@ -392,7 +507,7 @@ export class KeylessEntryService {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const data: TokenResponse = await response.json();
       return data.token;
     } catch (error) {
       logger.error('[KeylessEntry] Failed to get access token:', error);
@@ -418,7 +533,7 @@ export class KeylessEntryService {
     return view;
   }
 
-  private parseStatusValue(value: DataView): any {
+  private parseStatusValue(value: DataView): VehicleStatus {
     // Parse status bytes
     // Example format: [LOCK_STATE][BATTERY][SIGNAL_STRENGTH]
     return {
@@ -428,17 +543,19 @@ export class KeylessEntryService {
     };
   }
 
-  private parseNDEFMessage(message: any): any {
+  private parseNDEFMessage(message: { records: NDEFRecord[] }): ParsedNDEFData {
     // Parse NDEF message records
     const records = message.records;
-    const data: any = {};
+    const data: Record<string, string> = {};
 
     for (const record of records) {
-      if (record.recordType === 'text') {
+      if (record.recordType === 'text' && record.data) {
         const decoder = new TextDecoder();
         const text = decoder.decode(record.data);
         const [key, value] = text.split(':');
-        data[key] = value;
+        if (key && value) {
+          data[key] = value;
+        }
       }
     }
 
