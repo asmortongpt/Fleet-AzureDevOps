@@ -1,5 +1,4 @@
 /**
-import logger from '@/utils/logger';
  * Production-Grade Logger with PII Redaction
  *
  * Features:
@@ -70,34 +69,34 @@ class ProductionLogger {
   debug(message: string, context?: LogContext) {
     if (!this.shouldLog('debug')) return
     const redacted = this.redactSensitiveData(context)
-    if (this.isDevelopment) logger.debug('[DEBUG]', message, redacted)
+    if (this.isDevelopment) console.debug('[DEBUG]', message, redacted)
     this.sendToService('debug', message, redacted)
   }
 
   info(message: string, context?: LogContext) {
     if (!this.shouldLog('info')) return
     const redacted = this.redactSensitiveData(context)
-    if (this.isDevelopment) logger.info('[INFO]', message, redacted)
+    if (this.isDevelopment) console.info('[INFO]', message, redacted)
     this.sendToService('info', message, redacted)
   }
 
   warn(message: string, context?: LogContext) {
     if (!this.shouldLog('warn')) return
     const redacted = this.redactSensitiveData(context)
-    if (this.isDevelopment) logger.warn('[WARN]', message, redacted)
+    if (this.isDevelopment) console.warn('[WARN]', message, redacted)
     this.sendToService('warn', message, redacted)
   }
 
   error(message: string, error?: Error | unknown, context?: LogContext) {
     if (!this.shouldLog('error')) return
     const redacted = this.redactSensitiveData(context)
-    if (this.isDevelopment) logger.error('[ERROR]', message, error, redacted)
+    if (this.isDevelopment) console.error('[ERROR]', message, error, redacted)
     this.sendToService('error', message, redacted, error)
   }
 
   fatal(message: string, error?: Error | unknown, context?: LogContext) {
     const redacted = this.redactSensitiveData(context)
-    logger.error('[FATAL]', message, error, redacted)
+    console.error('[FATAL]', message, error, redacted)
     this.sendToService('fatal', message, redacted, error)
   }
 

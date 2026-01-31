@@ -1,5 +1,4 @@
 /**
-import logger from '@/utils/logger';
  * Push Notifications System
  *
  * Features:
@@ -9,6 +8,7 @@ import logger from '@/utils/logger';
  * - Permission handling
  * - Notification customization
  */
+import logger from '@/utils/logger';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -23,17 +23,16 @@ export interface PushSubscriptionData {
   expirationTime?: number | null;
 }
 
-export interface NotificationOptions {
+export interface CustomNotificationOptions {
   title: string;
   body: string;
   icon?: string;
   badge?: string;
-  image?: string;
-  vibrate?: number[];
+  vibrate?: number[] | number;
   tag?: string;
   requireInteraction?: boolean;
   silent?: boolean;
-  data?: any;
+  data?: Record<string, unknown>;
   actions?: Array<{
     action: string;
     title: string;
@@ -136,7 +135,7 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
  * Show a local notification (doesn't require push subscription)
  */
 export async function showLocalNotification(
-  options: NotificationOptions
+  options: CustomNotificationOptions
 ): Promise<Notification | null> {
   if (!('Notification' in window)) {
     logger.warn('[Push] Notifications not supported');
@@ -157,17 +156,20 @@ export async function showLocalNotification(
   }
 
   try {
-    const notification = new Notification(options.title, {
+    // Cast to any to allow extended notification options (vibrate, etc.)
+    // These are valid in most browsers but not in TypeScript's strict types
+    const notificationOptions: NotificationOptions & Record<string, unknown> = {
       body: options.body,
       icon: options.icon || '/icons/icon-192.png',
       badge: options.badge || '/icons/badge-72.png',
-      image: options.image,
       vibrate: options.vibrate || [200, 100, 200],
       tag: options.tag || `notification-${Date.now()}`,
       requireInteraction: options.requireInteraction || false,
       silent: options.silent || false,
       data: options.data,
-    });
+    };
+
+    const notification = new Notification(options.title, notificationOptions as NotificationOptions);
 
     logger.info('[Push] Local notification shown');
     return notification;

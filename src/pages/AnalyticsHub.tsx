@@ -45,10 +45,8 @@ import { exportToCSV, exportToExcel, exportToPDF } from '@/lib/export-utils'
 import { Download as DownloadIcon, Share } from 'lucide-react'
 import logger from '@/utils/logger';
 
-// Lazy load consolidated components from deprecated folder
-const InsightsHubContent = lazy(() => import('./deprecated/InsightsHub').then(m => ({ default: m.default })))
-const AnalyticsWorkbenchContent = lazy(() => import('./deprecated/AnalyticsWorkbenchPage').then(m => ({ default: m.default })))
-const CostAnalyticsContent = lazy(() => import('./deprecated/CostAnalyticsPage').then(m => ({ default: m.default })))
+// Note: Previously imported deprecated components removed
+// All analytics functionality is now integrated into this unified AnalyticsHub component
 
 // Constants for animation configuration
 const ANIMATION_CONFIG = {
