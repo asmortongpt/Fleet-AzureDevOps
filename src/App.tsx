@@ -167,6 +167,8 @@ const DocumentsHubPage = lazy(() => import("@/pages/DocumentsHub"))
 const PeopleHubPage = lazy(() => import("@/pages/PeopleHub"))
 const WorkHubPage = lazy(() => import("@/pages/WorkHub"))
 const HOSHubPage = lazy(() => import("@/pages/HOSHub"))
+const FuelHubPage = lazy(() => import("@/pages/FuelHub"))
+const IncidentHubPage = lazy(() => import("@/pages/IncidentHub"))
 
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
@@ -396,9 +398,15 @@ function App() {
         return <DocumentQA />
       case "fuel-purchasing":
         return <FuelPurchasing />
+      case "fuel":
+      case "fuel-management":
+        return <FuelHubPage />
       case "hos":
       case "hours-of-service":
         return <HOSHubPage />
+      case "incidents":
+      case "incident-management":
+        return <IncidentHubPage />
       case "endpoint-monitor":
         return <EndpointMonitor />
       case "driver-mgmt":

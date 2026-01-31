@@ -75,3 +75,28 @@ export interface DrilldownTransition {
   direction: 'forward' | 'backward'
   timestamp: number
 }
+
+// Hierarchical drilldown types (for drilldown-helpers.ts)
+export interface HierarchicalDrilldownLevel {
+  field: string
+  label: string
+  aggregation?: 'sum' | 'avg' | 'count' | 'min' | 'max'
+  valueField?: string
+}
+
+export interface HierarchicalDrilldownConfig {
+  levels: HierarchicalDrilldownLevel[]
+  maxDepth?: number
+}
+
+export interface DrilldownBreadcrumbItem {
+  level: string
+  value: string | number
+  label: string
+}
+
+export interface HierarchicalDrilldownState {
+  currentLevel: string
+  filters: Record<string, string | number>
+  breadcrumbs: DrilldownBreadcrumbItem[]
+}
