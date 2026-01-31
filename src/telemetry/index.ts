@@ -1,10 +1,12 @@
 
-import logger from '@/utils/logger';
+import baseLogger from '@/utils/logger';
+
+// Create telemetry-prefixed logger
 const logger = {
-  error: (...args: any[]) => logger.error('[Telemetry]', ...args),
-  warn: (...args: any[]) => logger.warn('[Telemetry]', ...args),
-  info: (...args: any[]) => logger.info('[Telemetry]', ...args),
-  debug: (...args: any[]) => logger.debug('[Telemetry]', ...args),
+  error: (...args: unknown[]) => baseLogger.error('[Telemetry]', ...args),
+  warn: (...args: unknown[]) => baseLogger.warn('[Telemetry]', ...args),
+  info: (...args: unknown[]) => baseLogger.info('[Telemetry]', ...args),
+  debug: (...args: unknown[]) => baseLogger.debug('[Telemetry]', ...args),
 };
 
 
