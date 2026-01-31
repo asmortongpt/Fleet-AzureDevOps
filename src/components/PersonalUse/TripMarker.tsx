@@ -1,4 +1,4 @@
-import { Car, Briefcase, Coffee, SplitHorizontal, DollarSign, Check, X, Info } from 'lucide-react'
+import { Car, Briefcase, Coffee, Split as SplitHorizontal, DollarSign, Check, X, Info } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 

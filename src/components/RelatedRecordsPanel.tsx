@@ -13,7 +13,7 @@
  * Created: 2025-11-23
  */
 
-import { Car, User, Wrench, Fuel, Package, FileText, ArrowRight, ChevronRight, Link as LinkIcon, Stack, AlertTriangle, Clock, DollarSign, MapPin, Truck } from 'lucide-react'
+import { Car, User, Wrench, Fuel, Package, FileText, ArrowRight, ChevronRight, Link as LinkIcon, Layers as Stack, AlertTriangle, Clock, DollarSign, MapPin, Truck } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import React, { useMemo } from 'react'
 
