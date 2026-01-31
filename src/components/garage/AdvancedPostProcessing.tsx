@@ -233,11 +233,8 @@ export function AdvancedPostProcessing({
     if (!config.enabled) return null
 
     // Get tone mapping mode
-    // @ts-expect-error - ToneMappingMode type from postprocessing library may not be available
     const toneMappingMode =
-        // @ts-expect-error - ToneMappingMode type from postprocessing library may not be available
         config.toneMapping === 'aces' ? ToneMappingMode.ACES_FILMIC :
-            // @ts-expect-error - ToneMappingMode type from postprocessing library may not be available
             config.toneMapping === 'reinhard' ? ToneMappingMode.REINHARD :
                 ToneMappingMode.LINEAR
 

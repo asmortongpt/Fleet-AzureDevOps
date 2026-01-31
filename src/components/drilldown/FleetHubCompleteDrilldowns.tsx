@@ -398,7 +398,7 @@ export function VehicleDetailsDrilldown() {
                   <div>
                     <p className="text-sm text-slate-400">Certifications</p>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {vehicle.assignedDriver.certifications.map((cert, idx) => (
+                      {vehicle.assignedDriver.certifications.map((cert: string, idx: number) => (
                         <Badge key={idx} variant="outline" className="text-xs">{cert}</Badge>
                       ))}
                     </div>
