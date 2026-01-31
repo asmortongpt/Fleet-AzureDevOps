@@ -1,10 +1,11 @@
 /**
-import logger from '@/utils/logger';
  * Reports Service - Client-side API calls for Reports Hub
  *
  * This service provides typed methods for interacting with the backend Reports API.
  * All methods include error handling and return properly typed responses.
  */
+
+import logger from '@/utils/logger';
 
 export interface ReportListItem {
   id: string;

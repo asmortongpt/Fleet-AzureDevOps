@@ -1,5 +1,4 @@
 /**
-import logger from '@/utils/logger';
  * Encryption Service (AES-256-GCM)
  *
  * Military-grade encryption for sensitive data
@@ -8,6 +7,8 @@ import logger from '@/utils/logger';
  * - Automatic key rotation support
  * - FIPS 140-2 compliant (when using Node crypto in FIPS mode)
  */
+
+import logger from '@/utils/logger';
 
 export class EncryptionService {
   private algorithm = 'AES-GCM' as const
