@@ -178,7 +178,7 @@ export function useReactiveAnalyticsData() {
         )
         return data
       } catch (error) {
-        logger.error('Failed to fetch reports:', error)
+        logger.error('Failed to fetch reports:', error instanceof Error ? error : new Error(String(error)))
         // Return empty array on error rather than throwing
         return []
       }
@@ -202,7 +202,7 @@ export function useReactiveAnalyticsData() {
         const data = await secureFetch('/dashboards', z.array(DashboardWidgetSchema), signal)
         return data
       } catch (error) {
-        logger.warn('Dashboards API unavailable, returning empty array:', error)
+        logger.warn('Dashboards API unavailable, returning empty array:', { error })
         return []
       }
     },

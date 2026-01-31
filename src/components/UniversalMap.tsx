@@ -227,7 +227,7 @@ function safeGetLocalStorage(key: string, defaultValue: string | null = null): s
     }
     return localStorage.getItem(key) ?? defaultValue
   } catch (error) {
-    logger.warn("Failed to access localStorage:", error)
+    logger.warn("Failed to access localStorage:", { error })
     return defaultValue
   }
 }
@@ -246,7 +246,7 @@ function safeSetLocalStorage(key: string, value: string): boolean {
     localStorage.setItem(key, value)
     return true
   } catch (error) {
-    logger.warn("Failed to set localStorage:", error)
+    logger.warn("Failed to set localStorage:", { error })
     return false
   }
 }
@@ -260,7 +260,7 @@ function hasGoogleMapsApiKey(): boolean {
     const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
     return typeof key === "string" && key.length > 0
   } catch (error) {
-    logger.warn("Failed to check Google Maps API key:", error)
+    logger.warn("Failed to check Google Maps API key:", { error })
     return false
   }
 }

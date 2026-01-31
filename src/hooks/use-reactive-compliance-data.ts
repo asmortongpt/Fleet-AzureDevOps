@@ -228,7 +228,7 @@ function calculateInspectionTrend(inspections: Inspection[]): InspectionTrendDat
 
       monthMap.set(monthKey, entry)
     } catch (error) {
-      logger.warn('Invalid inspection date:', inspection.inspectionDate, error)
+      logger.warn('Invalid inspection date:', inspection.inspectionDate, { error })
     }
   }
 
@@ -327,7 +327,7 @@ export function useReactiveComplianceData() {
           signal
         )
       } catch (error) {
-        logger.warn('Compliance records API unavailable, using empty dataset:', error)
+        logger.warn('Compliance records API unavailable, using empty dataset:', { error })
         // Return empty array for graceful degradation
         return []
       }
@@ -356,7 +356,7 @@ export function useReactiveComplianceData() {
           signal
         )
       } catch (error) {
-        logger.warn('Inspections API unavailable, using empty dataset:', error)
+        logger.warn('Inspections API unavailable, using empty dataset:', { error })
         return []
       }
     },

@@ -100,7 +100,7 @@ class PerformanceMonitorService {
         logger.info('[Performance Monitor] Initialized successfully');
       }
     } catch (error) {
-      logger.error('[Performance Monitor] Failed to initialize:', error);
+      logger.error('[Performance Monitor] Failed to initialize:', error instanceof Error ? error : new Error(String(error)));
     }
   }
 
@@ -224,7 +224,7 @@ class PerformanceMonitorService {
       observer.observe({ entryTypes: ['navigation'] });
       this.observers.push(observer);
     } catch (error) {
-      logger.warn('[Performance Monitor] Failed to observe navigation timing:', error);
+      logger.warn('[Performance Monitor] Failed to observe navigation timing:', { error });
     }
   }
 
@@ -286,7 +286,7 @@ class PerformanceMonitorService {
       observer.observe({ entryTypes: ['resource'] });
       this.observers.push(observer);
     } catch (error) {
-      logger.warn('[Performance Monitor] Failed to observe resource timing:', error);
+      logger.warn('[Performance Monitor] Failed to observe resource timing:', { error });
     }
   }
 
@@ -330,7 +330,7 @@ class PerformanceMonitorService {
       observer.observe({ entryTypes: ['longtask'] });
       this.observers.push(observer);
     } catch (error) {
-      logger.warn('[Performance Monitor] Failed to observe long tasks:', error);
+      logger.warn('[Performance Monitor] Failed to observe long tasks:', { error });
     }
   }
 
@@ -363,7 +363,7 @@ class PerformanceMonitorService {
       observer.observe({ entryTypes: ['paint'] });
       this.observers.push(observer);
     } catch (error) {
-      logger.warn('[Performance Monitor] Failed to observe paint timing:', error);
+      logger.warn('[Performance Monitor] Failed to observe paint timing:', { error });
     }
   }
 
@@ -458,7 +458,7 @@ class PerformanceMonitorService {
       observer.observe({ entryTypes: ['resource'] });
       this.observers.push(observer);
     } catch (error) {
-      logger.warn('[Performance Monitor] Failed to track API response times:', error);
+      logger.warn('[Performance Monitor] Failed to track API response times:', { error });
     }
   }
 
@@ -491,7 +491,7 @@ class PerformanceMonitorService {
       observer.observe({ entryTypes: ['measure'] });
       this.observers.push(observer);
     } catch (error) {
-      logger.warn('[Performance Monitor] Failed to track component renders:', error);
+      logger.warn('[Performance Monitor] Failed to track component renders:', { error });
     }
   }
 
@@ -637,7 +637,7 @@ export function measure(
     try {
       return performance.measure(name, startMark, endMark);
     } catch (error) {
-      logger.warn('[Performance] Failed to measure:', error);
+      logger.warn('[Performance] Failed to measure:', { error });
       return null;
     }
   }

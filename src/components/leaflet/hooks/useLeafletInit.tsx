@@ -30,7 +30,7 @@ async function ensureLeafletLoaded(): Promise<typeof import("leaflet")> {
         await import("leaflet/dist/leaflet.css")
         leafletCssLoaded = true
       } catch (cssError) {
-        logger.warn("⚠️  Leaflet CSS could not be loaded:", cssError)
+        logger.warn("⚠️  Leaflet CSS could not be loaded:", { error: cssError })
       }
     }
 
@@ -46,7 +46,7 @@ async function ensureLeafletLoaded(): Promise<typeof import("leaflet")> {
         shadowUrl: shadowUrl.default,
       })
     } catch (iconError) {
-      logger.warn("⚠️  Leaflet icons could not be loaded:", iconError)
+      logger.warn("⚠️  Leaflet icons could not be loaded:", { error: iconError })
     }
 
     logger.debug("✅ Leaflet loaded successfully")
@@ -211,7 +211,7 @@ export function useLeafletInit({ center, zoom, mapStyle, onReady, onError }: Use
       newTileLayer.addTo(mapInstanceRef.current)
       tileLayerRef.current = newTileLayer
     } catch (err) {
-      logger.error("❌ Error updating tile layer:", err)
+      logger.error("❌ Error updating tile layer:", err instanceof Error ? err : new Error(String(err)))
     }
   }, [mapStyle, isReady])
 

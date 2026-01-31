@@ -187,7 +187,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
 
         return typeof result === 'number' ? result : 0;
       } catch (error) {
-        logger.warn(`Failed to evaluate expression: ${measure.expression}`, error);
+        logger.warn(`Failed to evaluate expression: ${measure.expression}`, { error });
         return 0;
       }
     }

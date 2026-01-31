@@ -21,7 +21,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMsal } from '@azure/msal-react'
-import { Shield, Lock, CheckCircle2, Loader2, AlertCircle, Building2, Sparkles, Award } from 'lucide-react'
+import { Lock, CheckCircle2, Loader2, AlertCircle, Sparkles, Award, Shield } from 'lucide-react'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -113,36 +113,88 @@ export function SSOLogin() {
       </div>
 
       <div className="relative z-10 w-full max-w-[460px] px-4">
-        {/* Premium Header - CTA Branding */}
+        {/* Premium Header - Official CTA ArchonY Branding */}
         <div className="mb-5 text-center">
-          <div
-            className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl"
-            style={{
-              background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)',
-              boxShadow: '0 20px 40px rgba(253, 184, 19, 0.6), 0 0 0 2px rgba(255, 255, 255, 0.2)'
-            }}
-          >
-            <Shield className="h-8 w-8 text-white drop-shadow-lg" strokeWidth={2.5} />
+          {/* ArchonY Logo with Swoosh */}
+          <div className="mx-auto mb-4 relative h-24 flex flex-col items-center justify-center">
+            {/* Curved Swoosh Element - CTA Official Gradient */}
+            <svg
+              width="80"
+              height="80"
+              viewBox="0 0 80 80"
+              className="absolute top-0 left-1/2 -translate-x-1/2"
+              style={{ filter: 'drop-shadow(0 4px 8px rgba(253, 184, 19, 0.5))' }}
+            >
+              <defs>
+                <linearGradient id="ctaGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style={{ stopColor: '#FDB813' }} />
+                  <stop offset="100%" style={{ stopColor: '#FF5722' }} />
+                </linearGradient>
+              </defs>
+              <path
+                d="M 10 50 Q 25 20, 40 40 T 70 30"
+                stroke="url(#ctaGradient)"
+                strokeWidth="6"
+                strokeLinecap="round"
+                fill="none"
+                style={{
+                  strokeDasharray: '1000',
+                  strokeDashoffset: '0',
+                  animation: 'dashAnimation 2s ease-in-out infinite'
+                }}
+              />
+            </svg>
+
+            {/* ArchonY Typography */}
+            <div className="relative z-10 mt-12">
+              <div
+                className="text-4xl font-bold tracking-wider mb-1"
+                style={{
+                  fontFamily: '"Inter", -apple-system, sans-serif',
+                  fontWeight: 700,
+                  letterSpacing: '0.15em',
+                  color: '#ffffff',
+                  textShadow: '0 2px 8px rgba(0, 212, 255, 0.6), 0 4px 12px rgba(253, 184, 19, 0.4)',
+                  background: 'linear-gradient(90deg, #ffffff 0%, #00D4FF 50%, #ffffff 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text'
+                }}
+              >
+                ARCHON·Y
+              </div>
+              <div
+                className="text-[10px] font-semibold uppercase tracking-[0.2em]"
+                style={{
+                  color: '#00D4FF',
+                  textShadow: '0 0 10px rgba(0, 212, 255, 0.8)',
+                  fontWeight: 600
+                }}
+              >
+                INTELLIGENT PERFORMANCE
+              </div>
+            </div>
           </div>
+
+          {/* Capital Tech Alliance - Company Name */}
           <h1
-            className="mb-1.5 text-3xl font-bold tracking-tight"
+            className="mb-2 text-2xl font-semibold tracking-tight"
             style={{
-              background: 'linear-gradient(90deg, #ffffff 0%, #dbeafe 50%, #ffffff 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))'
+              color: '#e8eaed',
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)'
             }}
           >
             Capital Tech Alliance
           </h1>
+
+          {/* Official CTA Gradient Bar */}
           <div
-            className="flex items-center justify-center gap-1.5 text-xs font-medium uppercase tracking-wider"
-            style={{ color: '#00D4FF' }}
-          >
-            <Building2 className="h-3.5 w-3.5" />
-            <span>ArchonY • INTELLIGENT PERFORMANCE</span>
-          </div>
+            className="mx-auto w-24 h-1 rounded-full mb-3"
+            style={{
+              background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)',
+              boxShadow: '0 2px 8px rgba(253, 184, 19, 0.6)'
+            }}
+          />
         </div>
 
         {/* Premium Login Card */}
@@ -297,6 +349,16 @@ export function SSOLogin() {
         }
         .animation-delay-2000 {
           animation-delay: 2s;
+        }
+        @keyframes dashAnimation {
+          0%, 100% {
+            stroke-dashoffset: 0;
+            opacity: 1;
+          }
+          50% {
+            stroke-dashoffset: 50;
+            opacity: 0.8;
+          }
         }
       `}</style>
     </div>

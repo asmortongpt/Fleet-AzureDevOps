@@ -407,7 +407,7 @@ export async function getSyncQueueByPriority(
 export async function removeFromSyncQueue(id: number): Promise<void> {
   const db = await getDB();
   await db.delete('sync-queue', id);
-  logger.info('[DB] Removed from sync queue:', id);
+  logger.info('[DB] Removed from sync queue:', { id });
 }
 
 /**
@@ -422,7 +422,7 @@ export async function incrementSyncRetry(id: number): Promise<void> {
 
     if (item.retryCount >= item.maxRetries) {
       await db.delete('sync-queue', id);
-      logger.info('[DB] Max retries reached, removing:', id);
+      logger.info('[DB] Max retries reached, removing:', { id });
     } else {
       await db.put('sync-queue', item);
       logger.info(`[DB] Retry count incremented: ${item.retryCount}/${item.maxRetries}`);
