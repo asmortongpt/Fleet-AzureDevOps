@@ -117,7 +117,8 @@ function VehicleModel({
   exteriorColor = '#ffffff',
   showDamage = false,
   damageMarkers = [],
-  quality = 'medium'
+  quality = 'medium',
+  vehicleType = 'sedan'
 }: {
   url: string;
   exteriorColor?: string;
@@ -129,6 +130,7 @@ function VehicleModel({
     description?: string;
   }>;
   quality?: 'low' | 'medium' | 'high';
+  vehicleType?: 'truck' | 'suv' | 'van' | 'sedan';
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const [modelLoaded, setModelLoaded] = useState(false);
