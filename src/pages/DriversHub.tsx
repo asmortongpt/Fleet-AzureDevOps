@@ -15,6 +15,8 @@ import { memo, useMemo, type ReactNode } from 'react'
 import { User as DriversIcon, Users, Shield, LineChart, AlertTriangle, Trophy, Car, BadgeCheck, Clock, Plus, Award, CalendarX } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveDriversData, type Driver } from '@/hooks/use-reactive-drivers-data'
+import { useHOSViolations } from '@/hooks/use-hos-data'
+import { useTenant } from '@/contexts/TenantContext'
 import {
   StatCard,
   ResponsiveBarChart,
@@ -564,11 +566,23 @@ const ComplianceContent = memo(function ComplianceContent() {
     refresh,
   } = useReactiveDriversData()
 
+  const { tenant } = useTenant()
+  const { data: hosViolations = [], isLoading: hosLoading } = useHOSViolations({
+    tenant_id: tenant?.id || 'demo-tenant',
+    status: 'open',
+  })
+
   // Calculate compliance percentages
   const licenseValidityPercent = useMemo(() => {
     if (metrics.totalDrivers === 0) return 0
     return Math.round(((metrics.totalDrivers - expiringLicenses.length) / metrics.totalDrivers) * 100)
   }, [metrics.totalDrivers, expiringLicenses.length])
+
+  const hosCompliantPercent = useMemo(() => {
+    if (metrics.totalDrivers === 0) return 100
+    const violationDrivers = new Set(hosViolations.map(v => v.driver_id)).size
+    return Math.round(((metrics.totalDrivers - violationDrivers) / metrics.totalDrivers) * 100)
+  }, [metrics.totalDrivers, hosViolations])
 
   if (isError) {
     return <ErrorState error={error} onRetry={refresh} />
@@ -807,6 +821,7 @@ export default function DriversHub() {
         id: 'overview',
         label: 'Overview',
         icon: <Users className="h-4 w-4" />,
+        ariaLabel: 'Driver Overview Tab',
         content: (
           <ErrorBoundary>
             <DriversOverview />
@@ -817,6 +832,7 @@ export default function DriversHub() {
         id: 'performance',
         label: 'Performance',
         icon: <LineChart className="h-4 w-4" />,
+        ariaLabel: 'Driver Performance Tab',
         content: (
           <ErrorBoundary>
             <PerformanceContent />
@@ -827,6 +843,7 @@ export default function DriversHub() {
         id: 'compliance',
         label: 'Compliance',
         icon: <Shield className="h-4 w-4" />,
+        ariaLabel: 'Driver Compliance Tab',
         content: (
           <ErrorBoundary>
             <ComplianceContent />
@@ -837,6 +854,7 @@ export default function DriversHub() {
         id: 'assignments',
         label: 'Assignments',
         icon: <Car className="h-4 w-4" />,
+        ariaLabel: 'Driver Assignments Tab',
         content: (
           <ErrorBoundary>
             <AssignmentsContent />

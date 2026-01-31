@@ -50,23 +50,43 @@ const STALE_TIMES = {
 /**
  * Vehicle Schema - Validates all vehicle data from API
  * Prevents XSS by validating string lengths and types
+ * NOTE: API uses camelCase field names and string UUIDs for IDs
  */
 const VehicleSchema = z.object({
-  id: z.number().int().positive(),
-  license_plate: z.string().min(1).max(20).trim(),
+  id: z.string().uuid().or(z.number().int().positive().transform(String)), // API uses UUID strings
+  licensePlate: z.string().min(1).max(20).trim(),
   vin: z.string().min(17).max(17).trim(),
   make: z.string().min(1).max(50).trim(),
   model: z.string().min(1).max(50).trim(),
   year: z.number().int().min(1900).max(2100),
   status: z.enum(['active', 'maintenance', 'inactive', 'retired']),
-  mileage: z.number().nonnegative(),
-  fuel_type: z.string().min(1).max(50).trim(),
-  fuel_level: z.number().min(0).max(100).optional(),
-  current_latitude: z.number().min(-90).max(90).optional(),
-  current_longitude: z.number().min(-180).max(180).optional(),
+  odometer: z.number().nonnegative().or(z.string().transform(Number)).optional(), // mileage in API
+  fuelType: z.string().min(1).max(50).trim(),
+  fuelLevel: z.string().transform(Number).or(z.number()).optional(), // API returns string "100.00"
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
   driver: z.string().max(255).trim().optional(),
   location: z.string().max(500).trim().optional(),
-})
+  tenantId: z.string().uuid().optional(),
+  createdAt: z.string().datetime().optional(),
+  updatedAt: z.string().datetime().optional(),
+}).transform((data) => ({
+  // Transform to snake_case for internal consistency
+  id: typeof data.id === 'number' ? data.id : parseInt(data.id.split('-').pop() || '0', 16),
+  license_plate: data.licensePlate,
+  vin: data.vin,
+  make: data.make,
+  model: data.model,
+  year: data.year,
+  status: data.status,
+  mileage: data.odometer || 0,
+  fuel_type: data.fuelType,
+  fuel_level: typeof data.fuelLevel === 'string' ? parseFloat(data.fuelLevel) : data.fuelLevel,
+  current_latitude: data.latitude,
+  current_longitude: data.longitude,
+  driver: data.driver,
+  location: data.location,
+}))
 
 /**
  * Fleet Metrics Schema - Validates aggregated fleet data
@@ -317,13 +337,17 @@ export function useReactiveFleetData(): UseReactiveFleetDataReturn {
       }
 
       try {
-        const data = await secureFetch(
+        // API returns {data: [...], total: number}, extract the data array
+        const response = await secureFetch(
           `${API_BASE}/vehicles`,
-          z.array(VehicleSchema)
+          z.object({
+            data: z.array(VehicleSchema),
+            total: z.number().optional(),
+          })
         )
         vehiclesCircuitBreaker.recordSuccess()
         lastUpdateRef.current = new Date()
-        return data
+        return response.data
       } catch (error) {
         vehiclesCircuitBreaker.recordFailure()
         throw error

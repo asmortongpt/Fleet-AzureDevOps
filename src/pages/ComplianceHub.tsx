@@ -123,7 +123,7 @@ const ExpiringItemCard = memo(function ExpiringItemCard({ item, index }: Expirin
     >
       <div className="flex-1">
         <p className="font-medium">{item.type.toUpperCase()} Compliance</p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-foreground/80">
           Expires: <time dateTime={item.expiryDate}>{new Date(item.expiryDate).toLocaleDateString()}</time>
         </p>
       </div>
@@ -147,24 +147,29 @@ const NonCompliantItemCard = memo(function NonCompliantItemCard({ item, index }:
   const statusLabel = item.status === 'expired' ? 'Expired' : 'Non-Compliant'
   const violationCount = item.violations || 0
 
+  const Wrapper = ENABLE_ANIMATIONS ? motion.div : 'div'
+  const animationProps = ENABLE_ANIMATIONS ? {
+    initial: { opacity: 0, x: -20 },
+    animate: { opacity: 1, x: 0 },
+    transition: { delay: index * ANIMATION_STAGGER_DELAY }
+  } : {}
+
   return (
-    <motion.div
+    <Wrapper
       key={item.id}
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * ANIMATION_STAGGER_DELAY }}
+      {...animationProps}
       className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50 focus-within:ring-2 focus-within:ring-ring"
       role="article"
       aria-label={`${item.type.toUpperCase()} ${statusLabel} with ${violationCount} violations`}
     >
       <div className="flex-1">
         <p className="font-medium">{item.type.toUpperCase()} Compliance</p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-foreground/80">
           Violations: <span aria-label={`${violationCount} violations`}>{violationCount}</span>
         </p>
       </div>
       <Badge variant="destructive">{statusLabel}</Badge>
-    </motion.div>
+    </Wrapper>
   )
 })
 
@@ -178,27 +183,32 @@ interface FailedInspectionCardProps {
 }
 
 const FailedInspectionCard = memo(function FailedInspectionCard({ inspection, index }: FailedInspectionCardProps) {
+  const Wrapper = ENABLE_ANIMATIONS ? motion.div : 'div'
+  const animationProps = ENABLE_ANIMATIONS ? {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { delay: index * ANIMATION_STAGGER_DELAY }
+  } : {}
+
   return (
-    <motion.div
+    <Wrapper
       key={inspection.id}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * ANIMATION_STAGGER_DELAY }}
+      {...animationProps}
       className="flex items-center justify-between rounded-lg border p-4 focus-within:ring-2 focus-within:ring-ring"
       role="article"
       aria-label={`Failed ${inspection.inspectionType} inspection for vehicle ${inspection.vehicleId}`}
     >
       <div className="flex-1">
         <p className="font-medium">{inspection.inspectionType.toUpperCase()} Inspection</p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-foreground/80">
           Vehicle ID: {inspection.vehicleId} • <span aria-label={`${inspection.defects} defects`}>{inspection.defects} defects</span>
         </p>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-xs text-foreground/80 mt-1">
           <time dateTime={inspection.inspectionDate}>{new Date(inspection.inspectionDate).toLocaleDateString()}</time>
         </p>
       </div>
       <Badge variant="destructive">Failed</Badge>
-    </motion.div>
+    </Wrapper>
   )
 })
 
@@ -229,19 +239,24 @@ const CategoryProgressBar = memo(function CategoryProgressBar({ category, index 
     return 'warning' as const
   }, [])
 
+  const Wrapper = ENABLE_ANIMATIONS ? motion.div : 'div'
+  const animationProps = ENABLE_ANIMATIONS ? {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { delay: index * 0.05 }
+  } : {}
+
   return (
-    <motion.div
+    <Wrapper
       key={category.name}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
+      {...animationProps}
       role="region"
       aria-label={`${category.name} compliance: ${category.rate}% (${category.compliant} of ${category.total})`}
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="font-medium">{category.name}</span>
-          <span className="text-sm text-muted-foreground" aria-label={`${category.compliant} compliant out of ${category.total} total`}>
+          <span className="text-sm text-foreground/80" aria-label={`${category.compliant} compliant out of ${category.total} total`}>
             {category.compliant}/{category.total}
           </span>
         </div>
@@ -262,7 +277,7 @@ const CategoryProgressBar = memo(function CategoryProgressBar({ category, index 
           style={{ width: `${category.rate}%` }}
         />
       </div>
-    </motion.div>
+    </Wrapper>
   )
 })
 
@@ -317,7 +332,7 @@ const ComplianceOverview = memo(function ComplianceOverview() {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Compliance Overview</h2>
-          <p className="text-muted-foreground">
+          <p className="text-foreground/80">
             Monitor fleet compliance status and upcoming requirements
           </p>
         </div>
@@ -466,7 +481,7 @@ const InspectionsContent = memo(function InspectionsContent() {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Inspections</h2>
-          <p className="text-muted-foreground">
+          <p className="text-foreground/80">
             Track inspection history and maintain compliance standards
           </p>
         </div>
@@ -577,7 +592,7 @@ const ReportsContent = memo(function ReportsContent() {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Compliance Reports</h2>
-          <p className="text-muted-foreground">
+          <p className="text-foreground/80">
             Detailed compliance analytics and performance by category
           </p>
         </div>
@@ -671,7 +686,7 @@ const ViolationsContent = memo(function ViolationsContent() {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Violations</h2>
-          <p className="text-muted-foreground">
+          <p className="text-foreground/80">
             Track and manage compliance violations
           </p>
         </div>
@@ -728,49 +743,56 @@ const ViolationsContent = memo(function ViolationsContent() {
             </div>
           ) : hasViolations ? (
             <div className="space-y-3" role="list" aria-label="Active violations">
-              {nonCompliantItems.map((item, idx) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * ANIMATION_STAGGER_DELAY }}
-                  className="rounded-lg border p-4 hover:bg-accent/50 focus-within:ring-2 focus-within:ring-ring"
-                  role="article"
-                  aria-label={`${item.type.toUpperCase()} violation with ${item.violations || 0} counts`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <p className="font-medium">{item.type.toUpperCase()} Violation</p>
-                        {(item.violations || 0) > 3 && (
-                          <Badge variant="destructive" className="text-xs">
-                            Critical
-                          </Badge>
+              {nonCompliantItems.map((item, idx) => {
+                const ItemWrapper = ENABLE_ANIMATIONS ? motion.div : 'div'
+                const itemAnimationProps = ENABLE_ANIMATIONS ? {
+                  initial: { opacity: 0, x: -20 },
+                  animate: { opacity: 1, x: 0 },
+                  transition: { delay: idx * ANIMATION_STAGGER_DELAY }
+                } : {}
+
+                return (
+                  <ItemWrapper
+                    key={item.id}
+                    {...itemAnimationProps}
+                    className="rounded-lg border p-4 hover:bg-accent/50 focus-within:ring-2 focus-within:ring-ring"
+                    role="article"
+                    aria-label={`${item.type.toUpperCase()} violation with ${item.violations || 0} counts`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <p className="font-medium">{item.type.toUpperCase()} Violation</p>
+                          {(item.violations || 0) > 3 && (
+                            <Badge variant="destructive" className="text-xs">
+                              Critical
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-foreground/80">
+                          Vehicle ID: {item.vehicleId || 'N/A'} • Driver ID: {item.driverId || 'N/A'}
+                        </p>
+                        <p className="text-sm text-foreground/80 mt-1">
+                          Violation Count: <span aria-label={`${item.violations || 0} violations`}>{item.violations || 0}</span>
+                        </p>
+                        {item.lastInspection && (
+                          <p className="text-xs text-foreground/80 mt-1">
+                            Last Inspection: <time dateTime={item.lastInspection}>{new Date(item.lastInspection).toLocaleDateString()}</time>
+                          </p>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        Vehicle ID: {item.vehicleId || 'N/A'} • Driver ID: {item.driverId || 'N/A'}
-                      </p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Violation Count: <span aria-label={`${item.violations || 0} violations`}>{item.violations || 0}</span>
-                      </p>
-                      {item.lastInspection && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Last Inspection: <time dateTime={item.lastInspection}>{new Date(item.lastInspection).toLocaleDateString()}</time>
-                        </p>
-                      )}
+                      <Badge
+                        variant={item.status === 'expired' ? 'destructive' : 'warning'}
+                      >
+                        {item.status === 'expired' ? 'Expired' : 'Non-Compliant'}
+                      </Badge>
                     </div>
-                    <Badge
-                      variant={item.status === 'expired' ? 'destructive' : 'warning'}
-                    >
-                      {item.status === 'expired' ? 'Expired' : 'Non-Compliant'}
-                    </Badge>
-                  </div>
-                </motion.div>
-              ))}
+                  </ItemWrapper>
+                )
+              })}
             </div>
           ) : (
-            <div className="text-center py-8 text-muted-foreground" role="status">
+            <div className="text-center py-8 text-foreground/80" role="status">
               <CheckCircle className="h-12 w-12 mx-auto mb-2 text-green-500" aria-hidden="true" />
               <p>No active violations</p>
             </div>
