@@ -11,7 +11,7 @@
  * Created: 2025-11-24
  */
 
-import { AlertTriangle, Eye, EyeOff, PushPin, Plus, ChevronUp, ChevronDown } from 'lucide-react'
+import { AlertTriangle, Eye, EyeOff, Pin, Plus, ChevronUp, ChevronDown } from 'lucide-react'
 import React, { useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'

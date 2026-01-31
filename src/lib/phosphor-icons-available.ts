@@ -400,7 +400,7 @@ export const phosphorIcons = [
   'Transfer',
   'ArrowsClockwise',
   'ArrowsCounterClockwise',
-  'ArrowsLeftRight',
+  'ArrowLeftRight',
   'ArrowsUpDown',
   'ArrowsOutCardinal',
   'ArrowsInCardinal',

@@ -25,9 +25,9 @@ import {
   TrendingDown,
   AlertTriangle,
   Barcode,
-  DownloadSimple,
+  Download,
   MoreVertical,
-  PencilSimple,
+  Pencil,
   Trash2,
   ShoppingCart,
   RefreshCw,
@@ -424,7 +424,7 @@ export function InventoryManagement() {
             Scan Barcode
           </Button>
           <Button variant="outline" onClick={handleExport}>
-            <DownloadSimple className="w-4 h-4 mr-2" />
+            <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -830,7 +830,7 @@ export function InventoryManagement() {
                                   setIsEditDialogOpen(true)
                                 }}
                               >
-                                <PencilSimple className="w-4 h-4 mr-2" />
+                                <Pencil className="w-4 h-4 mr-2" />
                                 Edit
                               </DropdownMenuItem>
                               <DropdownMenuItem

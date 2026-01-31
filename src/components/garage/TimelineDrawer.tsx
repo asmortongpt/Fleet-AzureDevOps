@@ -11,7 +11,7 @@
  * Created: 2025-11-24
  */
 
-import { Clock, Wrench, AlertTriangle, CheckCircle, Camera, ChevronRight, ChevronDown, Car, Fuel, ShieldCheck, X, CaretDoubleRight } from 'lucide-react'
+import { Clock, Wrench, AlertTriangle, CheckCircle, Camera, ChevronRight, ChevronDown, Car, Fuel, ShieldCheck, X, ChevronsRight } from 'lucide-react'
 import { format, formatDistanceToNow } from 'date-fns'
 import React, { useState } from 'react'
 

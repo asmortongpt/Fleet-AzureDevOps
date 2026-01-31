@@ -2,7 +2,7 @@ import {
     Fuel,
     TrendingUp,
     DollarSign,
-    Drop,
+    Droplet,
     MapPin
 } from "lucide-react";
 import React from "react";
@@ -76,7 +76,7 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
 
                         <div className="bg-card p-2 rounded-md border shadow-sm">
                             <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium uppercase tracking-wider mb-2">
-                                <Drop className="w-4 h-4" /> Volume (Gal)
+                                <Droplet className="w-4 h-4" /> Volume (Gal)
                             </div>
                             <div className="text-sm font-bold font-mono">
                                 {Math.round(totalVolume).toLocaleString()}

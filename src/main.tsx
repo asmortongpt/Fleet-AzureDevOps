@@ -56,6 +56,7 @@ import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
 import { TenantProvider } from "./contexts/TenantContext"
 import { initSentry } from "./lib/sentry"
 import { Login } from "./pages/Login"
+import { SSOLogin } from "./pages/SSOLogin"
 import { PasswordReset } from "./pages/PasswordReset"
 import { AuthCallback } from "./pages/AuthCallback"
 import { PublicClientApplication } from "@azure/msal-browser"
@@ -292,6 +293,7 @@ validateStartupConfiguration().then(() => {
                             <SentryRoutes>
                               {/* Public Login Route */}
                               <Route path="/login" element={<Login />} />
+                              <Route path="/sso-login" element={<SSOLogin />} />
 
                               {/* Password Reset Route - Public (no auth required) */}
                               <Route path="/reset-password" element={<PasswordReset />} />
