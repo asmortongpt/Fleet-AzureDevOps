@@ -1,0 +1,111 @@
+name: Azure AD Preview URL Registration
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - main
+  pull_request_target:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  register-preview-url:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    name: Register Preview URL in Azure AD
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: |
+            {
+              "clientId": "${{ secrets.AZURE_CLIENT_ID }}",
+              "clientSecret": "${{ secrets.AZURE_CLIENT_SECRET }}",
+              "subscriptionId": "${{ secrets.AZURE_SUBSCRIPTION_ID }}",
+              "tenantId": "${{ secrets.AZURE_TENANT_ID }}"
+            }
+
+      - name: Get current redirect URIs
+        id: get-uris
+        run: |
+          CURRENT_URIS=$(az ad app show --id baae0851-0c24-4214-8587-e3fabc46bd4a --query "spa.redirectUris" -o json)
+          echo "current_uris=$CURRENT_URIS" >> $GITHUB_OUTPUT
+
+      - name: Add preview URL to Azure AD
+        env:
+          PREVIEW_URL: "https://gray-flower-03a2a730f-preview.eastus2.3.azurestaticapps.net"
+        run: |
+          # Get current URIs and add preview URLs
+          CURRENT_URIS='${{ steps.get-uris.outputs.current_uris }}'
+
+          # Create new URIs array with preview URLs
+          NEW_URIS=$(echo $CURRENT_URIS | jq --arg url1 "$PREVIEW_URL" --arg url2 "$PREVIEW_URL/auth/callback" \
+            '. + [$url1, $url2] | unique')
+
+          echo "Adding preview URLs to Azure AD:"
+          echo "  - $PREVIEW_URL"
+          echo "  - $PREVIEW_URL/auth/callback"
+
+          # Update Azure AD app registration
+          az rest --method PATCH \
+            --url "https://graph.microsoft.com/v1.0/applications(appId='baae0851-0c24-4214-8587-e3fabc46bd4a')" \
+            --headers "Content-Type=application/json" \
+            --body "{\"spa\": {\"redirectUris\": $NEW_URIS}}"
+
+          echo "✅ Preview URLs registered in Azure AD"
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        env:
+          PREVIEW_URL: "https://pr-${{ github.event.pull_request.number }}-gray-flower-03a2a730f.3.azurestaticapps.net"
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🔐 **Azure AD Authentication Configured**\n\nPreview URL registered for SSO:\n- ${process.env.PREVIEW_URL}\n- ${process.env.PREVIEW_URL}/auth/callback\n\nYou can now test authentication in the preview environment.`
+            })
+
+  cleanup-preview-url:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Remove Preview URL from Azure AD
+    steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: |
+            {
+              "clientId": "${{ secrets.AZURE_CLIENT_ID }}",
+              "clientSecret": "${{ secrets.AZURE_CLIENT_SECRET }}",
+              "subscriptionId": "${{ secrets.AZURE_SUBSCRIPTION_ID }}",
+              "tenantId": "${{ secrets.AZURE_TENANT_ID }}"
+            }
+
+      - name: Remove preview URL from Azure AD
+        env:
+          PREVIEW_URL: "https://gray-flower-03a2a730f-preview.eastus2.3.azurestaticapps.net"
+        run: |
+          # Get current URIs
+          CURRENT_URIS=$(az ad app show --id baae0851-0c24-4214-8587-e3fabc46bd4a --query "spa.redirectUris" -o json)
+
+          # Remove preview URLs
+          NEW_URIS=$(echo $CURRENT_URIS | jq --arg url1 "$PREVIEW_URL" --arg url2 "$PREVIEW_URL/auth/callback" \
+            'map(select(. != $url1 and . != $url2))')
+
+          echo "Removing preview URLs from Azure AD:"
+          echo "  - $PREVIEW_URL"
+          echo "  - $PREVIEW_URL/auth/callback"
+
+          # Update Azure AD app registration
+          az rest --method PATCH \
+            --url "https://graph.microsoft.com/v1.0/applications(appId='baae0851-0c24-4214-8587-e3fabc46bd4a')" \
+            --headers "Content-Type=application/json" \
+            --body "{\"spa\": {\"redirectUris\": $NEW_URIS}}"
+
+          echo "✅ Preview URLs removed from Azure AD"
