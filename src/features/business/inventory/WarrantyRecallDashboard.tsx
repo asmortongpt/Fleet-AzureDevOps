@@ -114,7 +114,7 @@ const WarrantyRecallDashboard: React.FC = () => {
       ]);
 
       const [warrantyData, recallData, warrantyStats, recallStats] = await Promise.all([
-        WarrantyRecallService.getWarrantyAnalytics().then(() => Array.from((WarrantyRecallService as any).warranties.values())),
+        WarrantyRecallService.getAllWarranties(),
         WarrantyRecallService.getActiveRecalls(),
         WarrantyRecallService.getWarrantyAnalytics(),
         WarrantyRecallService.getRecallAnalytics()
@@ -140,7 +140,7 @@ const WarrantyRecallDashboard: React.FC = () => {
     setTabValue(newValue);
   };
 
-  const getWarrantyStatusColor = (warranty: WarrantyInfo) => {
+  const getWarrantyStatusColor = (warranty: WarrantyInfo): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
     const endDate = parseISO(warranty.warrantyEndDate);
     const daysRemaining = differenceInDays(endDate, new Date());
 
@@ -150,7 +150,7 @@ const WarrantyRecallDashboard: React.FC = () => {
     return 'success';
   };
 
-  const getRecallSeverityColor = (severity: string) => {
+  const getRecallSeverityColor = (severity: string): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
     switch (severity) {
       case 'SAFETY': return 'error';
       case 'PERFORMANCE': return 'warning';
@@ -160,7 +160,7 @@ const WarrantyRecallDashboard: React.FC = () => {
     }
   };
 
-  const getUrgencyColor = (urgency: string) => {
+  const getUrgencyColor = (urgency: string): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
     switch (urgency) {
       case 'IMMEDIATE': return 'error';
       case 'URGENT': return 'warning';
@@ -258,7 +258,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                   <Typography variant="h6">Active Warranties</Typography>
                 </Box>
                 <Typography variant="h4">{warrantyAnalytics.activeWarranties}</Typography>
-                <Typography variant="body2" color="text: secondary">
+                <Typography variant="body2" color="text.secondary">
                   {warrantyAnalytics.expiringWithin30Days} expiring soon
                 </Typography>
               </CardContent>
@@ -272,7 +272,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                   <Typography variant="h6">Active Recalls</Typography>
                 </Box>
                 <Typography variant="h4">{recallAnalytics.activeRecalls}</Typography>
-                <Typography variant="body2" color="text: secondary">
+                <Typography variant="body2" color="text.secondary">
                   {recallAnalytics.affectedItemsCount} items affected
                 </Typography>
               </CardContent>
@@ -286,7 +286,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                   <Typography variant="h6">Compliance Rate</Typography>
                 </Box>
                 <Typography variant="h4">{recallAnalytics.complianceRate.toFixed(1)}%</Typography>
-                <Typography variant="body2" color="text: secondary">
+                <Typography variant="body2" color="text.secondary">
                   {recallAnalytics.overdueActions} overdue actions
                 </Typography>
               </CardContent>
@@ -300,7 +300,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                   <Typography variant="h6">Claim Success Rate</Typography>
                 </Box>
                 <Typography variant="h4">{warrantyAnalytics.claimSuccessRate.toFixed(1)}%</Typography>
-                <Typography variant="body2" color="text: secondary">
+                <Typography variant="body2" color="text.secondary">
                   {warrantyAnalytics.totalClaims} total claims
                 </Typography>
               </CardContent>
@@ -355,7 +355,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                           <Typography variant="body2" fontWeight="bold">
                             {warranty.partName}
                           </Typography>
-                          <Typography variant="caption" color="text: secondary">
+                          <Typography variant="caption" color="text.secondary">
                             {warranty.partNumber}
                           </Typography>
                         </Box>
@@ -389,7 +389,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                               />
                               <Typography
                                 variant="body2"
-                                color={daysRemaining <= 30 ? 'error' : 'text: primary'}
+                                color={daysRemaining <= 30 ? 'error' : 'text.primary'}
                               >
                                 {daysRemaining} days
                               </Typography>
@@ -449,7 +449,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                       />
                     </Box>
                   </Box>
-                  <Typography variant="body2" color="text: secondary">
+                  <Typography variant="body2" color="text.secondary">
                     {recall.recallNumber}
                   </Typography>
                 </Box>
@@ -550,10 +550,10 @@ const WarrantyRecallDashboard: React.FC = () => {
 
                         <Divider sx={{ my: 2 }} />
 
-                        <Typography variant="body2" color="text: secondary">
+                        <Typography variant="body2" color="text.secondary">
                           <strong>Issued:</strong> {format(parseISO(recall.dateIssued), 'MMM dd, yyyy')}
                         </Typography>
-                        <Typography variant="body2" color="text: secondary">
+                        <Typography variant="body2" color="text.secondary">
                           <strong>Effective:</strong> {format(parseISO(recall.effectiveDate), 'MMM dd, yyyy')}
                         </Typography>
                         {recall.complianceDeadline && (
@@ -639,7 +639,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Warranty Performance</Typography>
                     <Box sx={{ mb: 2 }}>
-                      <Typography variant="body2" color="text: secondary">
+                      <Typography variant="body2" color="text.secondary">
                         Claim Success Rate
                       </Typography>
                       <LinearProgress
@@ -675,7 +675,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Recall Compliance</Typography>
                     <Box sx={{ mb: 2 }}>
-                      <Typography variant="body2" color="text: secondary">
+                      <Typography variant="body2" color="text.secondary">
                         Overall Compliance Rate
                       </Typography>
                       <LinearProgress
@@ -700,7 +700,10 @@ const WarrantyRecallDashboard: React.FC = () => {
                           variant="determinate"
                           value={(count / recallAnalytics.totalRecalls) * 100}
                           sx={{ height: 4 }}
-                          color={getRecallSeverityColor(severity) as any}
+                          color={(() => {
+                            const color = getRecallSeverityColor(severity);
+                            return color === 'default' || color === 'secondary' ? 'primary' : color;
+                          })()}
                         />
                       </Box>
                     ))}

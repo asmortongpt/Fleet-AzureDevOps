@@ -7,9 +7,9 @@ import {
   Assessment as AssessmentIcon,
   AttachMoney as AttachMoneyIcon,
   Comment as CommentIcon,
-  Delegate as DelegateIcon,
+  SupervisorAccount as DelegateIcon,
   AccessTime as AccessTimeIcon,
-  TrendUp as TrendUpIcon
+  TrendingUp as TrendUpIcon
 } from '@mui/icons-material';
 import {
   Box,
@@ -60,7 +60,7 @@ import PurchaseOrderWorkflowService, {
   POStatus,
   ApprovalStep,
   WorkflowAnalytics
-} from '../../services/procurement/PurchaseOrderWorkflowService';
+} from '@/features/services/procurement/PurchaseOrderWorkflowService';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -317,7 +317,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                   <Typography variant="h6">Total POs</Typography>
                 </Box>
                 <Typography variant="h4">{analytics.totalPOs}</Typography>
-                <Typography variant="body2" color="text: secondary">
+                <Typography variant="body2" color="text.secondary">
                   {pendingApprovals.length} pending approval
                 </Typography>
               </CardContent>
@@ -331,7 +331,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                   <Typography variant="h6">Avg Approval Time</Typography>
                 </Box>
                 <Typography variant="h4">{analytics.averageApprovalTime.toFixed(1)} days</Typography>
-                <Typography variant="body2" color="text: secondary">
+                <Typography variant="body2" color="text.secondary">
                   {analytics.complianceMetrics.slaCompliance.toFixed(1)}% SLA compliance
                 </Typography>
               </CardContent>
@@ -345,7 +345,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                   <Typography variant="h6">Budget Compliance</Typography>
                 </Box>
                 <Typography variant="h4">{analytics.complianceMetrics.budgetCompliance.toFixed(1)}%</Typography>
-                <Typography variant="body2" color="text: secondary">
+                <Typography variant="body2" color="text.secondary">
                   Procurement compliance: {analytics.complianceMetrics.procurementCompliance.toFixed(1)}%
                 </Typography>
               </CardContent>
@@ -359,7 +359,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                   <Typography variant="h6">Bottlenecks</Typography>
                 </Box>
                 <Typography variant="h4">{analytics.bottlenecks.length}</Typography>
-                <Typography variant="body2" color="text: secondary">
+                <Typography variant="body2" color="text.secondary">
                   {analytics.bottlenecks.reduce((sum, b) => sum + b.backlogCount, 0)} items in backlog
                 </Typography>
               </CardContent>
@@ -379,7 +379,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
         <TabPanel value={tabValue} index={0}>
           <Box sx={{ mb: 2 }}>
             <Typography variant="h6">Pending Approvals</Typography>
-            <Typography variant="body2" color="text: secondary">
+            <Typography variant="body2" color="text.secondary">
               Purchase orders awaiting your approval
             </Typography>
           </Box>
@@ -399,7 +399,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                           <Box>
                             <Typography variant="h6">{po.title}</Typography>
-                            <Typography variant="body2" color="text: secondary">
+                            <Typography variant="body2" color="text.secondary">
                               {po.poNumber} • Requested by {po.requesterName}
                             </Typography>
                             <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
@@ -424,14 +424,14 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                             <Typography variant="h6" color="primary">
                               ${po.totalAmount.toLocaleString()}
                             </Typography>
-                            <Typography variant="caption" color="text: secondary">
+                            <Typography variant="caption" color="text.secondary">
                               Due: {format(parseISO(po.requestedDeliveryDate), 'MMM dd, yyyy')}
                             </Typography>
                           </Box>
                         </Box>
 
                         <Box sx={{ mb: 2 }}>
-                          <Typography variant="body2" color="text: secondary" gutterBottom>
+                          <Typography variant="body2" color="text.secondary" gutterBottom>
                             SLA Progress
                           </Typography>
                           <LinearProgress
@@ -440,7 +440,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                             color={slaProgress > 80 ? 'error' : slaProgress > 60 ? 'warning' : 'primary'}
                             sx={{ height: 8, borderRadius: 4 }}
                           />
-                          <Typography variant="caption" color="text: secondary">
+                          <Typography variant="caption" color="text.secondary">
                             {slaProgress.toFixed(1)}% of SLA time elapsed
                           </Typography>
                         </Box>
@@ -522,14 +522,14 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                       <Typography variant="body2" fontWeight="medium">
                         {po.title}
                       </Typography>
-                      <Typography variant="caption" color="text: secondary">
+                      <Typography variant="caption" color="text.secondary">
                         {po.description}
                       </Typography>
                     </TableCell>
                     <TableCell>
                       <Box>
                         <Typography variant="body2">{po.requesterName}</Typography>
-                        <Typography variant="caption" color="text: secondary">
+                        <Typography variant="caption" color="text.secondary">
                           {po.department}
                         </Typography>
                       </Box>
@@ -612,7 +612,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                           sx={{ height: 6, borderRadius: 3 }}
                           color={step.rate >= 90 ? 'success' : step.rate >= 80 ? 'warning' : 'error'}
                         />
-                        <Typography variant="caption" color="text: secondary">
+                        <Typography variant="caption" color="text.secondary">
                           {step.approved} approved, {step.rejected} rejected
                         </Typography>
                       </Box>
@@ -635,7 +635,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                             color="warning"
                           />
                         </Box>
-                        <Typography variant="caption" color="text: secondary">
+                        <Typography variant="caption" color="text.secondary">
                           Average wait time: {bottleneck.averageWaitTime.toFixed(1)} days
                         </Typography>
                       </Box>
@@ -764,23 +764,23 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                   <Typography variant="h6" gutterBottom>Purchase Order Details</Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={6}>
-                      <Typography variant="body2" color="text: secondary">PO Number</Typography>
+                      <Typography variant="body2" color="text.secondary">PO Number</Typography>
                       <Typography variant="body1">{selectedPO.poNumber}</Typography>
                     </Grid>
                     <Grid item xs={6}>
-                      <Typography variant="body2" color="text: secondary">Total Amount</Typography>
+                      <Typography variant="body2" color="text.secondary">Total Amount</Typography>
                       <Typography variant="h6" color="primary">
                         ${selectedPO.totalAmount.toLocaleString()}
                       </Typography>
                     </Grid>
                     <Grid item xs={6}>
-                      <Typography variant="body2" color="text: secondary">Requester</Typography>
+                      <Typography variant="body2" color="text.secondary">Requester</Typography>
                       <Typography variant="body1">
                         {selectedPO.requesterName} ({selectedPO.department})
                       </Typography>
                     </Grid>
                     <Grid item xs={6}>
-                      <Typography variant="body2" color="text: secondary">Delivery Date</Typography>
+                      <Typography variant="body2" color="text.secondary">Delivery Date</Typography>
                       <Typography variant="body1">
                         {format(parseISO(selectedPO.requestedDeliveryDate), 'MMM dd, yyyy')}
                       </Typography>
@@ -815,7 +815,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
 
                   <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>Comments</Typography>
                   {selectedPO.comments.length === 0 ? (
-                    <Typography variant="body2" color="text: secondary">No comments yet</Typography>
+                    <Typography variant="body2" color="text.secondary">No comments yet</Typography>
                   ) : (
                     <List>
                       {selectedPO.comments.map((comment) => (
@@ -830,7 +830,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                             secondary={
                               <>
                                 <Typography variant="body2">{comment.comment}</Typography>
-                                <Typography variant="caption" color="text: secondary">
+                                <Typography variant="caption" color="text.secondary">
                                   {format(parseISO(comment.timestamp), 'MMM dd, yyyy HH:mm')}
                                 </Typography>
                               </>
@@ -872,12 +872,12 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                           )}
                         >
                           <Typography variant="body2">{step.approverRole}</Typography>
-                          <Typography variant="caption" color="text: secondary">
+                          <Typography variant="caption" color="text.secondary">
                             {step.approverName}
                           </Typography>
                         </StepLabel>
                         <StepContent>
-                          <Typography variant="body2" color="text: secondary">
+                          <Typography variant="body2" color="text.secondary">
                             Status: {step.status}
                           </Typography>
                           {step.approvalDate && (

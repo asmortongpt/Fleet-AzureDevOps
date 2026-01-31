@@ -1,13 +1,28 @@
 import { injectable } from "inversify";
 
 import { pool } from "../../../db";
-import { BaseRepository } from "../../../repositories/base/BaseRepository";
 import type { Incident } from "../../../types/incident";
 
 @injectable()
-export class IncidentRepository extends BaseRepository<Incident> {
-  constructor() {
-    super("incidents");
+export class IncidentRepository {
+  private readonly tableName = "incidents";
+
+  // Find all incidents for a tenant
+  async findAll(tenantId: number): Promise<Incident[]> {
+    const result = await pool.query(
+      `SELECT * FROM ${this.tableName} WHERE tenant_id = $1 ORDER BY incident_date DESC`,
+      [tenantId]
+    );
+    return result.rows;
+  }
+
+  // Find incident by ID
+  async findById(id: number, tenantId: number): Promise<Incident | null> {
+    const result = await pool.query(
+      `SELECT * FROM ${this.tableName} WHERE id = $1 AND tenant_id = $2`,
+      [id, tenantId]
+    );
+    return result.rows[0] || null;
   }
 
   // Custom query: Find incidents by type
