@@ -10,9 +10,12 @@
  */
 
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
+<<<<<<< HEAD
 import logger from '@/utils/logger';
+=======
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+>>>>>>> fix/pipeline-eslint-build
 
 export interface ModelLoadOptions {
   url: string;

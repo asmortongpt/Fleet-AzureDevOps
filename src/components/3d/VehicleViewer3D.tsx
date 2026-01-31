@@ -20,15 +20,14 @@ import {
   Sky,
   Grid,
   Stats,
-  PerspectiveCamera,
-  useGLTF,
 } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Loader2, Camera, Maximize2, Minimize2, RotateCw, Eye, EyeOff } from 'lucide-react';
 import { Suspense, useRef, useState, useEffect, useMemo } from 'react';
 import * as THREE from 'three';
-import { Button } from '@/components/ui/button';
+
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Camera, Maximize2, Minimize2, RotateCw, Palette, Eye, EyeOff } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   loadVehicleModel,
   createPlaceholderModel,
@@ -38,8 +37,6 @@ import {
 import logger from '@/utils/logger';
 import {
   applyVehicleMaterials,
-  createCarPaintMaterial,
-  VEHICLE_COLORS,
   type MaterialQuality,
   type PaintType,
 } from '@/lib/3d/pbr-materials';

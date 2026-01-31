@@ -1,9 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { MapPin, AlertCircle } from 'lucide-react';
+<<<<<<< HEAD
 import logger from '@/utils/logger';
+=======
+import { useEffect, useRef, useState } from 'react';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+>>>>>>> fix/pipeline-eslint-build
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 

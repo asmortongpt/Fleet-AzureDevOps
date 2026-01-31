@@ -1,6 +1,6 @@
 declare module 'react-leaflet' {
-  import { ComponentType, ReactNode } from 'react';
   import * as L from 'leaflet';
+  import { ComponentType, ReactNode } from 'react';
 
   export interface MapContainerProps {
     center: L.LatLngExpression;

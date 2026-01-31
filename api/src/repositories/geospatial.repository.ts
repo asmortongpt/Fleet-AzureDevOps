@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+
 import { connectionManager } from '../config/database';
 import {
   NearestVehicle,

@@ -3,8 +3,8 @@
  * Displays vehicle locations on a map with live updates
  */
 
-import React from 'react';
 import { MapPin, Navigation, Clock, Signal } from 'lucide-react';
+import React from 'react';
 
 interface Vehicle {
   id: string;

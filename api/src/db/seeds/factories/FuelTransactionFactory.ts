@@ -1,8 +1,9 @@
 /**
  * FuelTransactionFactory - Generates fuel purchase records
  */
-import { BaseFactory } from './BaseFactory';
 import type { FuelTransaction, FuelType, FactoryOptions } from '../types';
+
+import { BaseFactory } from './BaseFactory';
 
 interface FuelVendor {
   name: string;

@@ -12,6 +12,13 @@ if (import.meta.env.DEV) {
 import './i18n/config'
 
 // Initialize axe-core accessibility testing in development
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { registerSW } from 'virtual:pwa-register'
+
+import App from "./App"
+import ProtectedRoute from "./components/ProtectedRoute"
+import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
+import { ThemeProvider } from "./components/providers/ThemeProvider"
 import { initializeAxe } from './lib/accessibility/axe-init'
 if (import.meta.env.DEV) {
   initializeAxe()
@@ -40,14 +47,8 @@ if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
 }
 
 // Initialize Sentry before all other imports for proper error tracking
-import { BrowserRouter, Routes, Route } from "react-router-dom"
 // @ts-ignore - virtual module provided by vite-plugin-pwa
-import { registerSW } from 'virtual:pwa-register'
 
-import App from "./App"
-import ProtectedRoute from "./components/ProtectedRoute"
-import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
-import { ThemeProvider } from "./components/providers/ThemeProvider"
 // TEMP DISABLED: Azure Key Vault should be backend-only, not frontend
 // import { validateSecrets, getSecret, checkKeyVaultHealth } from "./config/secrets"
 import { AuthProvider } from "./contexts/AuthContext"

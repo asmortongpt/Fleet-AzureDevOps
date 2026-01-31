@@ -1,6 +1,6 @@
-import { makePlan } from "./planner";
-import { executeStep } from "./executor";
 import { needsApproval } from "./approvals";
+import { executeStep } from "./executor";
+import { makePlan } from "./planner";
 
 export async function runAgent(params: { goal: string; userCtx: any }) {
   const plan = await makePlan(params.goal);

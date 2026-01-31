@@ -1,4 +1,5 @@
 import { asFunction, asClass, createContainer } from 'awilix';
+
 import { TelematicsIngestionService } from '../application/telematics/services/TelematicsIngestionService';
 import { SamsaraTelematicsAdapter } from '../infrastructure/telematics/adapters/SamsaraTelematicsAdapter';
 import { TelematicsIngestionWorker } from '../infrastructure/telematics/jobs/TelematicsIngestionWorker';

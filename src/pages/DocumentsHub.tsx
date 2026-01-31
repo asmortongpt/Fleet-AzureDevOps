@@ -4,7 +4,6 @@
  */
 
 import { motion } from 'framer-motion'
-import { Suspense, useState } from 'react'
 import {
   FileText as DocumentsIcon,
   FolderOpen,
@@ -26,19 +25,15 @@ import {
   Archive,
   Tag,
 } from 'lucide-react'
-import HubPage from '@/components/ui/hub-page'
-import { useReactiveDocumentsData } from '@/hooks/use-reactive-documents-data'
-import {
-  StatCard,
-  ResponsiveBarChart,
-  ResponsiveLineChart,
-  ResponsivePieChart,
-} from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Suspense, useState } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import HubPage from '@/components/ui/hub-page'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -46,16 +41,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+  StatCard,
+  ResponsiveBarChart,
+  ResponsiveLineChart,
+  ResponsivePieChart,
+} from '@/components/visualizations'
+import { useReactiveDocumentsData } from '@/hooks/use-reactive-documents-data'
 import { useToast } from '@/hooks/useToast'
 
 const CATEGORIES = [

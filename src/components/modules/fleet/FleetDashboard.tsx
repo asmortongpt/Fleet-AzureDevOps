@@ -3,8 +3,8 @@
  * Provides real-time fleet status and metrics
  */
 
-import React from 'react';
 import { Car, Activity, AlertTriangle, CheckCircle } from 'lucide-react';
+import React from 'react';
 
 export const FleetDashboard: React.FC = () => {
   return (

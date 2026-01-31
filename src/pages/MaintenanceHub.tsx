@@ -14,17 +14,41 @@
  * @security Data sanitization in hook layer
  */
 
+<<<<<<< HEAD
 import { motion } from 'framer-motion'
 import { Suspense, memo, useCallback, useMemo, useState, type FC, type ReactNode } from 'react'
 import { Wrench, Warehouse, LineChart, Calendar, Clipboard, Zap, DollarSign, Plus, TrendingUp, Clock, CheckCircle } from 'lucide-react'
+=======
+import {
+  Wrench,
+  Warehouse,
+  ChartLine,
+  CalendarDots,
+  ClipboardText,
+  Lightning,
+  CurrencyDollar,
+  Plus,
+  TrendUp,
+  Clock,
+  CheckCircle,
+} from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { Suspense, memo, useCallback, useMemo, type FC, type ReactNode } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+>>>>>>> fix/pipeline-eslint-build
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveMaintenanceData, type WorkOrder, type PredictiveMaintenance } from '@/hooks/use-reactive-maintenance-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
+<<<<<<< HEAD
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -36,6 +60,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import logger from '@/utils/logger';
+=======
+import { useReactiveMaintenanceData, type WorkOrder, type PredictiveMaintenance } from '@/hooks/use-reactive-maintenance-data'
+>>>>>>> fix/pipeline-eslint-build
 
 // ============================================================================
 // TYPES AND INTERFACES

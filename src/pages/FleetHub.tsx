@@ -16,27 +16,52 @@
  * @security XSS prevention via Zod, CSRF protection, input sanitization
  */
 
+<<<<<<< HEAD
 import { motion, AnimatePresence } from 'framer-motion'
 import { Suspense, lazy, memo, useMemo, useCallback } from 'react'
 import { Car, MapPin, Gauge, Video, Plug, Box, BarChart, AlertTriangle, TrendingUp, Fuel, Wrench, ArrowUp, ArrowDown, XCircle } from 'lucide-react'
+=======
+import {
+  Car,
+  MapPin,
+  Gauge,
+  VideoCamera,
+  ChargingStation,
+  Cube,
+  ChartBar,
+  Warning,
+  TrendUp,
+  GasPump,
+  Wrench,
+  ArrowUp,
+  ArrowDown,
+  XCircle,
+} from '@phosphor-icons/react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Suspense, lazy, memo, useMemo, useCallback } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+>>>>>>> fix/pipeline-eslint-build
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
-import type { AlertVehicle } from '@/hooks/use-reactive-fleet-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useAuth } from '@/contexts/AuthContext'
+<<<<<<< HEAD
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import logger from '@/utils/logger';
+=======
+import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
+import type { AlertVehicle } from '@/hooks/use-reactive-fleet-data'
+>>>>>>> fix/pipeline-eslint-build
 
 // ============================================================================
 // LAZY-LOADED COMPONENTS
