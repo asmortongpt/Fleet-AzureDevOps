@@ -1,6 +1,7 @@
-import moment from 'moment';
+// Legacy import - moment not in package.json, using date-fns instead
+// import moment from 'moment';
 import React, { useState, useEffect } from 'react';
-import { Calendar, momentLocalizer, View, Event } from 'react-big-calendar';
+import { Calendar, dateFnsLocalizer, View, Event } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import {
   CalendarDays,
@@ -21,12 +22,21 @@ import {
 
 import { outlookCalendarService, CalendarEvent } from '../../services/outlookCalendarService';
 
-import { format, addMinutes } from 'date-fns';
+import { format, addMinutes, parse, startOfWeek, getDay } from 'date-fns';
+import { enUS } from 'date-fns/locale';
 
 import EventCreateModal from './EventCreateModal';
 import logger from '@/utils/logger';
 
-const localizer = momentLocalizer(moment);
+// Using date-fns localizer instead of moment
+const locales = { 'en-US': enUS };
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales
+});
 
 interface FleetEvent extends Event {
   id?: string;
