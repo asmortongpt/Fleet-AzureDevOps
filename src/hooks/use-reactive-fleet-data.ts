@@ -19,7 +19,7 @@
  */
 
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useMemo, useCallback, useRef, useEffect } from 'react'
+import { useMemo, useCallback, useRef } from 'react'
 import { z } from 'zod'
 
 // ============================================================================

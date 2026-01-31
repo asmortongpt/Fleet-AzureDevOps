@@ -1,6 +1,6 @@
 declare module 'react-leaflet-cluster' {
-  import { ReactElement, ComponentType } from 'react';
   import { MarkerClusterGroupOptions } from 'leaflet';
+  import { ReactElement, ComponentType } from 'react';
   import { PathProps } from 'react-leaflet';
 
   export interface MarkerClusterGroupProps extends MarkerClusterGroupOptions, PathProps {

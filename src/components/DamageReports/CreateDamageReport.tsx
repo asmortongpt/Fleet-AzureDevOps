@@ -130,8 +130,8 @@ export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportP
       setSubmitting(true)
 
       // Step 1: Upload media files if any
-      let photoUrls: string[] = []
-      let videoUrls: string[] = []
+      const photoUrls: string[] = []
+      const videoUrls: string[] = []
 
       if (selectedFiles.length > 0) {
         setUploading(true)

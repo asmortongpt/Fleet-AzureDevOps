@@ -4,9 +4,15 @@
  */
 
 import { motion } from 'framer-motion'
+<<<<<<< HEAD
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell, LabelList } from 'recharts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+=======
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+
+>>>>>>> fix/pipeline-eslint-build
 import { useThemeContext } from '@/components/providers/ThemeProvider'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface DataPoint {
   name: string

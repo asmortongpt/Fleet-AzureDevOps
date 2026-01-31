@@ -16,8 +16,8 @@
  */
 
 import express, { Response } from 'express';
-import { body, param, validationResult } from 'express-validator';
 import rateLimit from 'express-rate-limit';
+import { body, param, validationResult } from 'express-validator';
 
 import logger from '../config/logger';
 import { pool } from '../db';

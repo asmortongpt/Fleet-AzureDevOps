@@ -4,7 +4,6 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { ValidationError } from 'express-validator';
 
 import { sentryService, Sentry } from '../monitoring/sentry';
 

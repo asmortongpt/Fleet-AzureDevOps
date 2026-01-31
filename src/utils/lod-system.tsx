@@ -10,10 +10,13 @@
  * Created: 2026-01-08
  */
 
-import * as THREE from 'three';
-import { useRef, useMemo, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
+<<<<<<< HEAD
 import logger from '@/utils/logger';
+=======
+import { useRef, useMemo, useEffect } from 'react';
+import * as THREE from 'three';
+>>>>>>> fix/pipeline-eslint-build
 
 // ============================================================================
 // TYPES

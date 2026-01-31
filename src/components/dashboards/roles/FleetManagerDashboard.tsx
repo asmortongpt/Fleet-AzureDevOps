@@ -11,14 +11,30 @@
  * Design Philosophy: Clean, minimal, focused
  */
 
+<<<<<<< HEAD
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Wrench, Users, FileText, Calendar, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+=======
+import {
+  Warning,
+  Wrench,
+  Users,
+  FileText,
+  Calendar,
+  WarningCircle
+} from '@phosphor-icons/react';
+import { useQuery } from '@tanstack/react-query';
+import React from 'react';
+import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+>>>>>>> fix/pipeline-eslint-build
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import { dashboardApi, dashboardQueryKeys } from '@/services/dashboardApi';
 import type { FleetStats, CostSummary } from '@/services/dashboardApi';

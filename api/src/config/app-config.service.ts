@@ -10,8 +10,10 @@
  */
 
 import { z } from 'zod';
-import { getKeyVaultService } from './key-vault.service';
+
 import logger from '../utils/logger';
+
+import { getKeyVaultService } from './key-vault.service';
 
 // Configuration schema with validation
 const ConfigSchema = z.object({

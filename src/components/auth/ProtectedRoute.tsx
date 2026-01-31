@@ -34,7 +34,8 @@ export const ProtectedRoute = ({
   requiredPermission
 }: ProtectedRouteProps) => {
   const location = useLocation()
-  const { user, hasRole, hasPermission, canAccess } = useAuth()
+  const auth = useAuth()
+  const { user, hasRole, hasPermission, canAccess } = auth
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [isAuthorized, setIsAuthorized] = useState(false)
 

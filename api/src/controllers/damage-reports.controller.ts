@@ -7,12 +7,12 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
+
 import { damageReportRepository } from '../repositories/damage-report.repository';
 import { triposrService } from '../services/triposr.service';
 import {
   CreateDamageReportDto,
   UpdateDamageReportDto,
-  Generate3DModelDto,
 } from '../types/damage-report';
 
 export class DamageReportsController {

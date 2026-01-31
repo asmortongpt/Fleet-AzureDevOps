@@ -1,6 +1,7 @@
 import { pool } from "../../db"; // adjust import
-import { chunkText } from "./chunking";
 import { embedText } from "../rag/embeddings";
+
+import { chunkText } from "./chunking";
 
 /**
  * Minimal ingestion that inserts into ai_documents + ai_document_chunks.

@@ -15,10 +15,11 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Pool } from 'pg';
 import multer from 'multer';
-import { createAiDamageDetectionService } from '../services/ai-damage-detection.service';
+import { Pool } from 'pg';
+
 import logger from '../config/logger';
+import { createAiDamageDetectionService } from '../services/ai-damage-detection.service';
 
 // ============================================================================
 // SETUP

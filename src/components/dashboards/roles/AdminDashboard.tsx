@@ -9,10 +9,33 @@
  * - Audit logs & reporting
  */
 
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import { Shield, Users, LineChart, FileText, AlertTriangle, CheckCircle, Lock, Database, Cpu, Clock, TrendingUp, UserPlus, Download, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+=======
+import {
+  Shield,
+  Users,
+  ChartLine,
+  FileText,
+  Warning,
+  CheckCircle,
+  Lock,
+  Database,
+  Cpu,
+  Clock,
+  TrendUp,
+  UserPlus,
+  Download,
+  Eye
+} from '@phosphor-icons/react';
+import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
+
+>>>>>>> fix/pipeline-eslint-build
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';

@@ -3,21 +3,41 @@
  * Real-time employee tracking, team management, and performance monitoring with responsive visualizations
  */
 
+<<<<<<< HEAD
 import { motion } from 'framer-motion'
 import { Suspense } from 'react'
 import { Users as PeopleIcon, User, Users, LineChart, Trophy, AlertTriangle, Clock, Plus, Briefcase, UserCircle2, CalendarCheck, Building2 } from 'lucide-react'
+=======
+import {
+  Users as PeopleIcon,
+  User,
+  UsersThree,
+  ChartLine,
+  Trophy,
+  Warning,
+  Clock,
+  Plus,
+  Briefcase,
+  UserCircle,
+  CalendarCheck,
+  Buildings,
+} from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { Suspense } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+>>>>>>> fix/pipeline-eslint-build
 import HubPage from '@/components/ui/hub-page'
-import { useReactivePeopleData } from '@/hooks/use-reactive-people-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useReactivePeopleData } from '@/hooks/use-reactive-people-data'
 
 /**
  * Overview Tab - Personnel metrics and status overview

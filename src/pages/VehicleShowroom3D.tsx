@@ -13,18 +13,6 @@
  * - Comparison mode
  */
 
-import { useState, useCallback, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import VehicleViewer3D from '@/components/3d/VehicleViewer3D';
-import ARModeExport, { QuickARButton } from '@/components/3d/ARModeExport';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import {
   Car,
   Palette,
@@ -32,7 +20,6 @@ import {
   Camera,
   Share2,
   Download,
-  Maximize2,
   Sun,
   Moon,
   Zap,
@@ -40,9 +27,25 @@ import {
   Eye,
   ArrowLeft
 } from 'lucide-react';
+import { useState, useCallback, useEffect } from 'react';
+import { useSearchParams , useNavigate } from 'react-router-dom';
+
+import ARModeExport from '@/components/3d/ARModeExport';
+import VehicleViewer3D from '@/components/3d/VehicleViewer3D';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VEHICLE_COLORS, type MaterialQuality, type PaintType } from '@/lib/3d/pbr-materials';
+<<<<<<< HEAD
 import { useNavigate } from 'react-router-dom';
 import logger from '@/utils/logger';
+=======
+
+>>>>>>> fix/pipeline-eslint-build
 
 interface Vehicle {
   id: number;

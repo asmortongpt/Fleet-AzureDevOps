@@ -14,11 +14,39 @@
  * @security XSS protection, data sanitization
  */
 
+<<<<<<< HEAD
 import { motion } from 'framer-motion'
 import { Suspense, memo, useCallback, useMemo, lazy } from 'react'
 import { LineChart as AnalyticsIcon, FileText, BarChart, TrendingUp, Presentation, Database, DollarSign, Gauge, Calendar, Plus, Download, Eye, ArrowUp, ArrowDown, ArrowRight, Brain, Lightbulb, Target, Sliders } from 'lucide-react'
+=======
+import {
+  ChartLine as AnalyticsIcon,
+  FileText,
+  ChartBar,
+  TrendUp,
+  PresentationChart,
+  Database,
+  CurrencyDollar,
+  Gauge,
+  Calendar,
+  Plus,
+  Download,
+  Eye,
+  ArrowUp,
+  ArrowDown,
+  ArrowRight,
+} from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { Suspense, memo, useCallback, useMemo } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+>>>>>>> fix/pipeline-eslint-build
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveAnalyticsData } from '@/hooks/use-reactive-analytics-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
@@ -34,12 +62,7 @@ import {
   AnimatedCounter,
   AnimatedPercentage,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useReactiveAnalyticsData } from '@/hooks/use-reactive-analytics-data'
 import type { AnalyticsReport } from '@/hooks/use-reactive-analytics-data'
 import { exportToCSV, exportToExcel, exportToPDF } from '@/lib/export-utils'
 import { Download as DownloadIcon, Share } from 'lucide-react'

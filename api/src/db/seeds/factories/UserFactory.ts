@@ -2,8 +2,10 @@
  * UserFactory - Generates user accounts with RBAC
  */
 import { hashSync } from 'bcrypt';
-import { BaseFactory } from './BaseFactory';
+
 import type { User, UserRole, FactoryOptions } from '../types';
+
+import { BaseFactory } from './BaseFactory';
 
 export class UserFactory extends BaseFactory {
   // Default password for all test users (hashed with bcrypt cost 12)
