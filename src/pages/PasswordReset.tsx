@@ -1,10 +1,10 @@
-import { Car } from 'lucide-react'
+import { Sparkles, AlertCircle, Shield, CheckCircle2, Lock } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
@@ -44,40 +44,139 @@ export function PasswordReset() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400/10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-400/10 rounded-full blur-3xl"></div>
+    <div
+      className="relative flex min-h-screen items-center justify-center overflow-hidden"
+      style={{
+        background: 'linear-gradient(135deg, #1A0B2E 0%, #2B3A67 50%, #1A0B2E 100%)',
+        minHeight: '100vh'
+      }}
+    >
+      {/* Premium animated background with CTA brand colors */}
+      <div className="absolute inset-0" style={{ pointerEvents: 'none' }}>
+        {/* Animated gradient orbs - BLUE SKIES and NOON */}
+        <div
+          className="absolute top-1/4 left-1/4 h-96 w-96 animate-pulse rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(0, 212, 255, 0.25) 0%, transparent 70%)',
+            filter: 'blur(60px)'
+          }}
+        />
+        <div
+          className="absolute bottom-1/4 right-1/4 h-96 w-96 animate-pulse rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(255, 87, 34, 0.2) 0%, transparent 70%)',
+            filter: 'blur(60px)',
+            animationDelay: '2s'
+          }}
+        />
+
+        {/* Grid overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}
+        />
       </div>
 
-      <div className="w-full max-w-md relative z-10">
-        {/* Company Branding */}
-        <div className="text-center mb-8 animate-in fade-in slide-in-from-top-4 duration-700">
-          <div className="inline-flex items-center justify-center p-3 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-lg mb-4">
-            <Car className="w-12 h-12 text-white" />
+      <div className="relative z-10 w-full max-w-[460px] px-4">
+        {/* Premium Header - Official CTA ArchonY Branding */}
+        <div className="mb-5 text-center">
+          {/* ArchonY Logo with Swoosh */}
+          <div className="mx-auto mb-4 relative h-24 flex flex-col items-center justify-center">
+            {/* Curved Swoosh Element - CTA Official Gradient */}
+            <svg
+              width="80"
+              height="80"
+              viewBox="0 0 80 80"
+              className="absolute top-0 left-1/2 -translate-x-1/2"
+              style={{ filter: 'drop-shadow(0 4px 8px rgba(253, 184, 19, 0.5))' }}
+            >
+              <defs>
+                <linearGradient id="ctaGradientPasswordReset" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style={{ stopColor: '#FDB813' }} />
+                  <stop offset="100%" style={{ stopColor: '#FF5722' }} />
+                </linearGradient>
+              </defs>
+              <path
+                d="M 10 50 Q 25 20, 40 40 T 70 30"
+                stroke="url(#ctaGradientPasswordReset)"
+                strokeWidth="6"
+                strokeLinecap="round"
+                fill="none"
+                style={{
+                  strokeDasharray: '1000',
+                  strokeDashoffset: '0',
+                  animation: 'dashAnimation 2s ease-in-out infinite'
+                }}
+              />
+            </svg>
+
+            {/* ArchonY Typography */}
+            <div className="relative z-10 mt-12">
+              <div
+                className="text-4xl font-bold tracking-wider mb-1"
+                style={{
+                  fontFamily: '"Inter", -apple-system, sans-serif',
+                  fontWeight: 700,
+                  letterSpacing: '0.15em',
+                  color: '#ffffff',
+                  textShadow: '0 2px 8px rgba(0, 212, 255, 0.6), 0 4px 12px rgba(253, 184, 19, 0.4)',
+                  background: 'linear-gradient(90deg, #ffffff 0%, #00D4FF 50%, #ffffff 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text'
+                }}
+              >
+                ARCHON·Y
+              </div>
+              <div
+                className="text-[10px] font-semibold uppercase tracking-[0.2em]"
+                style={{
+                  color: '#00D4FF',
+                  textShadow: '0 0 10px rgba(0, 212, 255, 0.8)',
+                  fontWeight: 600
+                }}
+              >
+                INTELLIGENT PERFORMANCE
+              </div>
+            </div>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
+
+          {/* Capital Tech Alliance - Company Name */}
+          <h1
+            className="mb-2 text-2xl font-semibold tracking-tight"
+            style={{
+              color: '#e8eaed',
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)'
+            }}
+          >
             Capital Tech Alliance
           </h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">
-            Enterprise Fleet Management System
-          </p>
+
+          {/* Official CTA Gradient Bar */}
+          <div
+            className="mx-auto w-24 h-1 rounded-full mb-3"
+            style={{
+              background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)',
+              boxShadow: '0 2px 8px rgba(253, 184, 19, 0.6)'
+            }}
+          />
         </div>
 
-        <Card className="shadow-2xl border-slate-200/50 dark:border-slate-700/50 backdrop-blur-sm bg-white/80 dark:bg-slate-900/80 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <CardHeader className="space-y-3 pb-6">
-            <div className="space-y-2 text-center">
-              <CardTitle className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                Reset Password
-              </CardTitle>
-              <CardDescription className="text-base text-slate-600 dark:text-slate-400">
+        {/* Premium Password Reset Card */}
+        <Card className="border-white/10 bg-white/95 shadow-2xl shadow-black/20 backdrop-blur-xl">
+          <div className="p-5">
+            {/* Card Title Section */}
+            <div className="mb-3.5 text-center">
+              <h2 className="mb-1 flex items-center justify-center gap-2 text-xl font-semibold text-slate-900">
+                <Shield className="h-5 w-5" style={{ color: '#00D4FF' }} />
+                <span>Reset Password</span>
+              </h2>
+              <p className="text-xs text-slate-600">
                 Enter your email address and we'll send you a link to reset your password
-              </CardDescription>
+              </p>
             </div>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
             {!isSubmitted ? (
               <>
                 {error && (
@@ -106,24 +205,38 @@ export function PasswordReset() {
                   <Button
                     type="submit"
                     size="lg"
-                    className="w-full font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                    style={{
+                      background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)',
+                      boxShadow: '0 10px 20px rgba(253, 184, 19, 0.4)'
+                    }}
+                    className="group relative mb-3.5 h-11 w-full overflow-hidden font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
                     disabled={isLoading}
                   >
-                    {isLoading ? (
-                      <span className="flex items-center gap-2">
-                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        Sending...
-                      </span>
-                    ) : (
-                      'Send Reset Link'
-                    )}
+                    <div
+                      className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                      style={{ background: 'linear-gradient(90deg, #FF5722 0%, #FDB813 100%)' }}
+                    />
+                    <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-20">
+                      <div className="h-full w-full bg-gradient-to-r from-transparent via-white to-transparent animate-shimmer" />
+                    </div>
+                    <span className="relative flex items-center justify-center gap-2.5">
+                      {isLoading ? (
+                        <>
+                          <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        'Send Reset Link'
+                      )}
+                    </span>
                   </Button>
                 </form>
 
                 <div className="text-center pt-4">
                   <Link
                     to="/login"
-                    className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium hover:underline"
+                    className="text-sm font-medium hover:underline"
+                    style={{ color: '#00D4FF' }}
                   >
                     ← Back to Login
                   </Link>
@@ -140,21 +253,23 @@ export function PasswordReset() {
                 </Alert>
 
                 <div className="text-center space-y-3">
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                  <p className="text-sm text-slate-600">
                     Didn't receive the email? Check your spam folder or{' '}
                     <button
                       onClick={() => {
                         setIsSubmitted(false)
                         setEmail('')
                       }}
-                      className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium hover:underline"
+                      className="font-medium hover:underline"
+                      style={{ color: '#00D4FF' }}
                     >
                       try again
                     </button>
                   </p>
                   <Link
                     to="/login"
-                    className="block text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium hover:underline"
+                    className="block text-sm font-medium hover:underline"
+                    style={{ color: '#00D4FF' }}
                   >
                     ← Back to Login
                   </Link>
@@ -162,27 +277,54 @@ export function PasswordReset() {
               </div>
             )}
 
-            <p className="text-center text-sm text-slate-500 dark:text-slate-400 pt-4 border-t border-slate-200 dark:border-slate-700">
-              Need help?{' '}
+            {/* Support Link */}
+            <p className="text-center text-[10px] text-slate-500">
+              Need assistance?{' '}
               <a
-                href="mailto:fleet-support@capitaltechalliance.com?subject=Password%20Reset%20Assistance"
-                className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline"
+                href="mailto:support@capitaltechalliance.com"
+                className="font-semibold transition-colors hover:underline"
+                style={{ color: '#00D4FF' }}
               >
-                Contact support
+                Contact Support
               </a>
             </p>
-          </CardContent>
+          </div>
         </Card>
 
-        <div className="mt-8 text-center space-y-2 animate-in fade-in slide-in-from-bottom duration-1000">
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+        {/* Premium Footer */}
+        <div className="mt-4 space-y-1 text-center">
+          <p className="text-[10px] font-semibold text-white/70">
             Fleet Management System v2.0
           </p>
-          <p className="text-xs text-slate-400 dark:text-slate-500">
-            © 2026 Capital Tech Alliance. All rights reserved.
+          <p className="text-[10px] text-white/50">
+            © {new Date().getFullYear()} Capital Tech Alliance. All rights reserved.
           </p>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
+        }
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
+        }
+        @keyframes dashAnimation {
+          0%, 100% {
+            stroke-dashoffset: 0;
+            opacity: 1;
+          }
+          50% {
+            stroke-dashoffset: 50;
+            opacity: 0.8;
+          }
+        }
+      `}</style>
     </div>
   )
 }
