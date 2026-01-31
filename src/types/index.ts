@@ -110,6 +110,10 @@ export interface Driver {
   avatar_url?: string
   assignedVehicle?: string
   tenantId?: string
+  // Backwards compatibility: snake_case properties
+  first_name?: string
+  last_name?: string
+  license_number?: string
 }
 
 export interface WorkOrder {
