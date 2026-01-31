@@ -12,6 +12,9 @@
  */
 
 import { AlertTriangle, Eye, EyeOff, Pin, Plus, ChevronUp, ChevronDown } from 'lucide-react'
+
+// Icon alias for Phosphor naming
+const PushPin = Pin
 import React, { useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'

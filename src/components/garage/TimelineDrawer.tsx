@@ -12,6 +12,9 @@
  */
 
 import { Clock, Wrench, AlertTriangle, CheckCircle, Camera, ChevronRight, ChevronDown, Car, Fuel, ShieldCheck, X, ChevronsRight } from 'lucide-react'
+
+// Icon alias for Phosphor naming
+const CaretDoubleRight = ChevronsRight
 import { format, formatDistanceToNow } from 'date-fns'
 import React, { useState } from 'react'
 

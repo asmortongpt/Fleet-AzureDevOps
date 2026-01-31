@@ -12,7 +12,13 @@
  * Created: 2025-11-24
  */
 
-import { Gauge, Wrench, Car, Zap, AlertTriangle, Fuel, Thermometer, Settings, Droplet, CircleDot } from 'lucide-react'
+import { Gauge, Wrench, Car, Zap, AlertTriangle, Fuel, Thermometer, Settings, Droplet, CircleDot, Cog, Disc } from 'lucide-react'
+
+// Icon aliases for consistency with Phosphor naming
+const Engine = Cog
+const GearSix = Settings
+const Drop = Droplet
+const Tire = Disc
 import React from 'react'
 
 import { Badge } from '@/components/ui/badge'
