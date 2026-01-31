@@ -988,6 +988,280 @@ const TrendsContent = memo(() => {
 TrendsContent.displayName = 'TrendsContent'
 
 /**
+ * Insights Hub Tab - AI-powered insights and recommendations
+ */
+const InsightsHubContent = memo(() => {
+  const { isLoading, error, lastUpdate } = useReactiveAnalyticsData()
+
+  const lastUpdateString = useMemo(() => formatDate(lastUpdate, { timeStyle: 'medium' }), [lastUpdate])
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <Alert variant="destructive" role="alert">
+          <AlertDescription>Failed to load insights data. Please try again later.</AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6 p-6">
+      <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight" id="insights-heading">
+            Insights
+          </h2>
+          <p className="text-muted-foreground">AI-powered analytics insights and recommendations</p>
+        </div>
+        <Badge variant="outline" aria-live="polite">
+          Last updated: {lastUpdateString}
+        </Badge>
+      </header>
+
+      <section aria-labelledby="insights-content">
+        <h3 id="insights-content" className="sr-only">
+          Insights Content
+        </h3>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lightbulb className="h-5 w-5 text-amber-500" aria-hidden="true" />
+              Key Insights
+            </CardTitle>
+            <CardDescription>Machine learning driven recommendations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <SkeletonGrid count={3} className="h-20" />
+            ) : (
+              <div className="space-y-4" role="list">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0 }}
+                  className="flex items-start gap-4 p-4 rounded-lg border hover:bg-accent/50 transition-colors"
+                  role="listitem"
+                >
+                  <Target className="h-5 w-5 text-primary flex-shrink-0 mt-1" aria-hidden="true" />
+                  <div className="flex-1">
+                    <h4 className="font-medium mb-1">Optimization Opportunity</h4>
+                    <p className="text-sm text-muted-foreground">Your fleet utilization can be improved by 8-12% through better route planning</p>
+                  </div>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="flex items-start gap-4 p-4 rounded-lg border hover:bg-accent/50 transition-colors"
+                  role="listitem"
+                >
+                  <TrendingUp className="h-5 w-5 text-green-500 flex-shrink-0 mt-1" aria-hidden="true" />
+                  <div className="flex-1">
+                    <h4 className="font-medium mb-1">Cost Reduction</h4>
+                    <p className="text-sm text-muted-foreground">Fuel efficiency has improved 5% this month compared to last month</p>
+                  </div>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="flex items-start gap-4 p-4 rounded-lg border hover:bg-accent/50 transition-colors"
+                  role="listitem"
+                >
+                  <AlertDescription className="text-sm text-amber-600" role="status">
+                    <Brain className="h-5 w-5 text-amber-500 inline mr-2" aria-hidden="true" />
+                    Driver Safety Alert: One driver shows increased harsh braking patterns
+                  </AlertDescription>
+                </motion.div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </section>
+    </div>
+  )
+})
+InsightsHubContent.displayName = 'InsightsHubContent'
+
+/**
+ * Analytics Workbench Tab - Advanced analytics configuration
+ */
+const AnalyticsWorkbenchContent = memo(() => {
+  const { isLoading, error, lastUpdate } = useReactiveAnalyticsData()
+
+  const lastUpdateString = useMemo(() => formatDate(lastUpdate, { timeStyle: 'medium' }), [lastUpdate])
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <Alert variant="destructive" role="alert">
+          <AlertDescription>Failed to load workbench data. Please try again later.</AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6 p-6">
+      <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight" id="workbench-heading">
+            Analytics Workbench
+          </h2>
+          <p className="text-muted-foreground">Configure and test custom analytics queries</p>
+        </div>
+        <Badge variant="outline" aria-live="polite">
+          Last updated: {lastUpdateString}
+        </Badge>
+      </header>
+
+      <section aria-labelledby="workbench-tools">
+        <h3 id="workbench-tools" className="sr-only">
+          Workbench Tools
+        </h3>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sliders className="h-5 w-5 text-primary" aria-hidden="true" />
+              Query Builder
+            </CardTitle>
+            <CardDescription>Build and test custom analytics queries</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <SkeletonGrid count={2} className="h-24" />
+            ) : (
+              <div className="space-y-4">
+                <div className="p-4 rounded-lg bg-muted/50 border border-dashed">
+                  <p className="text-sm text-muted-foreground">Query builder interface - define your custom metrics and dimensions</p>
+                </div>
+                <Button variant="outline" className="w-full">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create New Query
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </section>
+    </div>
+  )
+})
+AnalyticsWorkbenchContent.displayName = 'AnalyticsWorkbenchContent'
+
+/**
+ * Cost Analytics Tab - Detailed cost analysis
+ */
+const CostAnalyticsContent = memo(() => {
+  const { isLoading, error, lastUpdate } = useReactiveAnalyticsData()
+
+  const lastUpdateString = useMemo(() => formatDate(lastUpdate, { timeStyle: 'medium' }), [lastUpdate])
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <Alert variant="destructive" role="alert">
+          <AlertDescription>Failed to load cost analytics data. Please try again later.</AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6 p-6">
+      <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight" id="costs-heading">
+            Cost Analytics
+          </h2>
+          <p className="text-muted-foreground">Detailed breakdown and analysis of operational costs</p>
+        </div>
+        <Badge variant="outline" aria-live="polite">
+          Last updated: {lastUpdateString}
+        </Badge>
+      </header>
+
+      <section aria-labelledby="cost-metrics-heading">
+        <h3 id="cost-metrics-heading" className="sr-only">
+          Cost Metrics
+        </h3>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            title="Total Costs"
+            value="$425.2K"
+            icon={DollarSign}
+            trend="down"
+            change="-2.3%"
+            description="This month"
+            loading={isLoading}
+          />
+          <StatCard
+            title="Cost per Mile"
+            value="$1.24"
+            icon={Gauge}
+            trend="down"
+            change="-0.08"
+            description="Average cost"
+            loading={isLoading}
+          />
+          <StatCard
+            title="Fuel Costs"
+            value="$185.4K"
+            icon={DollarSign}
+            trend="up"
+            change="+1.2%"
+            description="This month"
+            loading={isLoading}
+          />
+          <StatCard
+            title="Maintenance"
+            value="$89.6K"
+            icon={Gauge}
+            trend="down"
+            change="-4.5%"
+            description="This month"
+            loading={isLoading}
+          />
+        </div>
+      </section>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Cost Breakdown</CardTitle>
+          <CardDescription>Detailed cost allocation across fleet operations</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <SkeletonGrid count={2} className="h-32" />
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                <span className="text-sm font-medium">Fuel & Energy</span>
+                <span className="font-bold">$185.4K (43.6%)</span>
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                <span className="text-sm font-medium">Maintenance & Repairs</span>
+                <span className="font-bold">$89.6K (21.1%)</span>
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                <span className="text-sm font-medium">Insurance</span>
+                <span className="font-bold">$72.4K (17.0%)</span>
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                <span className="text-sm font-medium">Other Operational</span>
+                <span className="font-bold">$77.8K (18.3%)</span>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+})
+CostAnalyticsContent.displayName = 'CostAnalyticsContent'
+
+/**
  * Main AnalyticsHub Component
  */
 export default function AnalyticsHub() {
