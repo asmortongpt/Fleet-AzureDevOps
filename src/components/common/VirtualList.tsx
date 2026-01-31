@@ -246,7 +246,7 @@ function VirtualListInner<T>(
           position: 'relative',
         }}
       >
-        {virtualItems.map((virtualItem) => {
+        {virtualItems.map((virtualItem: any) => {
           const item = items[virtualItem.index];
 
           return (
