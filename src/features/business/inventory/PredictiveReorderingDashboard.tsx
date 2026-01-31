@@ -7,7 +7,7 @@ import {
   Psychology,
   TrendingUp,
   TrendingDown,
-  AlertTriangle,
+  WarningAmber,
   CheckCircle,
   Schedule,
   Analytics,
@@ -240,7 +240,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
 
   const getActionIcon = (action: string) => {
     switch (action) {
-      case 'reorder_now': return <AlertTriangle color="error" />;
+      case 'reorder_now': return <WarningAmber color="error" />;
       case 'reorder_soon': return <Schedule color="warning" />;
       case 'monitor': return <CheckCircle color="success" />;
       case 'reduce_stock': return <TrendingDown color="info" />;
@@ -328,7 +328,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
                     <Typography color="textSecondary" gutterBottom>Critical Items</Typography>
                     <Typography variant="h4" color="error">{metrics.criticalItems}</Typography>
                   </Box>
-                  <AlertTriangle color="error" sx={{ fontSize: 40 }} />
+                  <WarningAmber color="error" sx={{ fontSize: 40 }} />
                 </Box>
               </CardContent>
             </Card>
@@ -623,7 +623,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={(entry) => entry.category}
+                      label={(entry: { category: string }) => entry.category}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
@@ -632,7 +632,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <ChartTooltip formatter={(value: any) => `$${value.toLocaleString()}`} />
+                    <ChartTooltip formatter={(value: number) => `$${value.toLocaleString()}`} />
                   </PieChart>
                 </ResponsiveContainer>
               </CardContent>
