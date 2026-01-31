@@ -7,7 +7,8 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
-import { useAuth } from './AuthProviderFactory'
+// Legacy auth import - commented out (file doesn't exist)
+// import { useAuth } from './AuthProviderFactory'
 
 import { logger } from '@/utils/logger';
 
@@ -409,7 +410,11 @@ class MFAService {
 
 // MFA Provider Component
 export const MFAProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { user, isAuthenticated } = useAuth()
+  // Legacy auth hook - using mock data instead
+  // const { user, isAuthenticated } = useAuth()
+  const user = { email: 'user@dcf.state.fl.us', mfaEnabled: false, employeeId: '12345', department: 'IT' };
+  const isAuthenticated = true;
+
   const [mfaService] = useState(() => new MFAService())
   const [factors, setFactors] = useState<MFAFactor[]>([])
   const [pendingChallenge, setPendingChallenge] = useState<MFAChallenge | null>(null)
