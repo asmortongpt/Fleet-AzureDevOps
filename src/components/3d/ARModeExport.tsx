@@ -9,12 +9,15 @@
  * - AR placement preview
  */
 
+<<<<<<< HEAD
 import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import logger from '@/utils/logger';
+=======
+>>>>>>> fix/pipeline-eslint-build
 import {
   Camera,
   Smartphone,
@@ -25,6 +28,12 @@ import {
   AlertCircle,
   Loader2
 } from 'lucide-react';
+import { useState, useCallback } from 'react';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export interface ARModeExportProps {
   vehicleId?: number;

@@ -25,7 +25,11 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: TypeScript Type Checking (Frontend)
+<<<<<<< HEAD
         run: npm run typecheck || echo "TypeScript errors found - continuing build"
+=======
+        run: npm run typecheck || echo "TypeScript errors found - build will verify compilation"
+>>>>>>> fix/pipeline-eslint-build
         continue-on-error: true
 
       - name: TypeScript Type Checking (API)
@@ -36,7 +40,11 @@ jobs:
         continue-on-error: true
 
       - name: ESLint Code Quality
+<<<<<<< HEAD
         run: npm run lint || echo "Lint warnings found - continuing build"
+=======
+        run: npm run lint || echo "ESLint warnings found"
+>>>>>>> fix/pipeline-eslint-build
         continue-on-error: true
 
       - name: Run Unit Tests

@@ -52,8 +52,8 @@ declare module '@mui/material/styles' {
 }
 
 declare module 'react-apexcharts' {
-  import { Component } from 'react';
   import { ApexOptions } from 'apexcharts';
+  import { Component } from 'react';
 
   export interface Props {
     type?: 'line' | 'area' | 'bar' | 'histogram' | 'pie' | 'donut' | 'radialBar' | 'scatter' | 'bubble' | 'heatmap' | 'treemap' | 'boxPlot' | 'candlestick' | 'radar' | 'polarArea' | 'rangeBar';

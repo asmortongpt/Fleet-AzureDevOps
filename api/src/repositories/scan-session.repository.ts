@@ -1,6 +1,7 @@
 
-import { connectionManager } from '../config/database';
 import { randomUUID } from 'crypto';
+
+import { connectionManager } from '../config/database';
 import { ScanSession, CaptureType, ScanStatus, ScanAsset, QualityMetrics, EvidenceManifest } from '../types/scan-session';
 
 export interface CreateScanSessionInput {

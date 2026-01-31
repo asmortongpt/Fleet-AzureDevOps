@@ -11,11 +11,12 @@
 
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
+
+import logger from '../config/logger';
 import { pool } from '../db/connection';
+import { asyncHandler } from '../middleware/async-handler';
 import { authenticateJWT } from '../middleware/auth.middleware';
 import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
-import { asyncHandler } from '../middleware/async-handler';
-import logger from '../config/logger';
 import { cache } from '../utils/cache';
 
 const router = Router();

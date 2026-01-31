@@ -14,27 +14,48 @@
  * @performance Optimized with memoization, code splitting
  */
 
+<<<<<<< HEAD
 import { motion } from 'framer-motion'
 import { Suspense, memo, useCallback, useMemo } from 'react'
 import { BarChart, FileText, Clock, FolderOpen, Zap, Download, Calendar, TrendingUp, Users, PlayCircle, Plus, AlertTriangle } from 'lucide-react'
+=======
+import {
+  ChartBar,
+  FileText,
+  Clock,
+  FolderOpen,
+  Lightning,
+  Download,
+  Calendar,
+  TrendUp,
+  Users,
+  PlayCircle,
+  Plus,
+  Warning,
+} from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { Suspense, memo, useCallback, useMemo } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+>>>>>>> fix/pipeline-eslint-build
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveReportsData } from '@/hooks/use-reactive-reports-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Button } from '@/components/ui/button'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useReactiveReportsData } from '@/hooks/use-reactive-reports-data'
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
+<<<<<<< HEAD
 import logger from '@/utils/logger';
 
 import type {
@@ -42,6 +63,10 @@ import type {
   GeneratedReport,
   ScheduledReport,
 } from '@/hooks/use-reactive-reports-data'
+=======
+
+
+>>>>>>> fix/pipeline-eslint-build
 
 interface AnimatedListItemProps {
   index: number

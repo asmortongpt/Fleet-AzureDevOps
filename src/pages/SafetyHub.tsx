@@ -3,24 +3,42 @@
  * Real-time safety monitoring with comprehensive analytics
  */
 
+<<<<<<< HEAD
 import { motion } from 'framer-motion'
 import { Suspense } from 'react'
 import { ShieldCheck, AlertTriangle, BarChart, Users, Car, GraduationCap, Bell, TrendingUp, TrendingDown, Clipboard, Award, AlertCircle, Cross, FileText, CheckCircle } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveSafetyData } from '@/hooks/use-reactive-safety-data'
 import { useReactiveSafetyComplianceData } from '@/hooks/use-reactive-safety-compliance-data'
+=======
+import {
+  ShieldCheck,
+  Warning,
+  ChartBar,
+  Users,
+  Car,
+  GraduationCap,
+  Bell,
+  TrendUp,
+  TrendDown,
+  ClipboardText,
+} from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import HubPage from '@/components/ui/hub-page'
+import { Skeleton } from '@/components/ui/skeleton'
+>>>>>>> fix/pipeline-eslint-build
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { Progress } from '@/components/ui/progress'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { useReactiveSafetyData } from '@/hooks/use-reactive-safety-data'
 
 /**
  * Overview Tab - Main safety dashboard with real-time metrics

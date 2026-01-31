@@ -17,10 +17,11 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { Pool } from 'pg';
 import { body, param, query, validationResult } from 'express-validator';
-import { asyncHandler } from '../middleware/errorHandler';
+import { Pool } from 'pg';
+
 import { csrfProtection } from '../middleware/csrf';
+import { asyncHandler } from '../middleware/errorHandler';
 
 const router = Router();
 

@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-
 import { cn } from '@/lib/utils';
 import logger from '@/utils/logger';
 

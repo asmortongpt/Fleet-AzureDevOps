@@ -1,5 +1,5 @@
-import { UsefulLifeRepository } from "../../repositories/useful-life.repository";
 import { PoliciesRepository } from "../../repositories/policies.repository";
+import { UsefulLifeRepository } from "../../repositories/useful-life.repository";
 
 export type ValidationSeverity = "ERROR" | "WARNING";
 

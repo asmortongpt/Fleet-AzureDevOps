@@ -1,6 +1,6 @@
-import { buildUpdateClause, validateColumnNames } from '../utils/sql-safety'
 import { connectionManager } from '../config/connection-manager'
 import { BaseRepository } from '../services/dal/BaseRepository'
+import { buildUpdateClause, validateColumnNames } from '../utils/sql-safety'
 
 export interface TripUsageClassification {
   id: string

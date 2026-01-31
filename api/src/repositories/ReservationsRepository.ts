@@ -9,10 +9,10 @@
 
 import { Pool } from 'pg';
 
+import pool from '../config/database';
 import { NotFoundError, DatabaseError } from '../middleware/errorHandler';
 
 import { BaseRepository, QueryContext, PaginatedResult, PaginationOptions } from './base/BaseRepository';
-import pool from '../config/database';
 
 export interface Reservation {
   id: string;

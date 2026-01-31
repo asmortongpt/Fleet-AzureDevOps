@@ -15,17 +15,50 @@
  * @security XSS protection, data sanitization, input validation
  */
 
+<<<<<<< HEAD
 import { motion } from 'framer-motion'
 import { Suspense, memo, useCallback, useMemo } from 'react'
 import { Radio as OperationsIcon, Map, Circle, CheckSquare, Calendar, Truck, Package, AlertTriangle, Plus, Clock, Zap, Route as RouteIcon, MapPin, Fuel, CheckCircle, X, ArrowUp, ArrowDown, ArrowRight } from 'lucide-react'
 import HubPage from '@/components/ui/hub-page'
 import { useReactiveOperationsData, type Route as OperationsRoute, type FuelTransaction, type Task } from '@/hooks/use-reactive-operations-data'
+=======
+import {
+  Broadcast as OperationsIcon,
+  MapTrifold,
+  RadioButton,
+  CheckSquare,
+  Truck,
+  Package,
+  Warning,
+  Plus,
+  Clock,
+  Lightning,
+  Path,
+  MapPin,
+  GasPump,
+  CheckCircle,
+  ArrowUp,
+  ArrowDown,
+  ArrowRight,
+} from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { Suspense, memo, useCallback, useMemo } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import HubPage from '@/components/ui/hub-page'
+import { Skeleton } from '@/components/ui/skeleton'
+>>>>>>> fix/pipeline-eslint-build
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
+<<<<<<< HEAD
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -34,6 +67,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { sanitizeHTML } from '@/lib/security/xss-prevention'
 import logger from '@/utils/logger';
+=======
+import { useReactiveOperationsData, type Route } from '@/hooks/use-reactive-operations-data'
+>>>>>>> fix/pipeline-eslint-build
 
 // Constants for animation configuration
 const ANIMATION_CONFIG = {

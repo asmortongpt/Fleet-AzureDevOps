@@ -32,6 +32,7 @@ import { sentryService } from './monitoring/sentry'
 
 // Core Fleet Management Routes
 import adminJobsRouter from './routes/admin-jobs.routes'
+<<<<<<< HEAD
 import alertsRouter from './routes/alerts.routes'
 import aiSearchRouter from './routes/ai-search'
 import aiTaskAssetRouter from './routes/ai-task-asset.routes'
@@ -43,6 +44,10 @@ import assetManagementRouter from './routes/asset-management.routes'
 import assetsMobileRouter from './routes/assets-mobile.routes'
 import assignmentReportingRouter from './routes/assignment-reporting.routes'
 import authRouter from './routes/auth'
+=======
+// DISABLED: import aiInsightsRouter from './routes/ai-insights.routes'
+// DISABLED: import attachmentsRouter from './routes/attachments.routes'
+>>>>>>> fix/pipeline-eslint-build
 import batchRouter from './routes/batch'
 import billingReportsRouter from './routes/billing-reports'
 import breakGlassRouter from './routes/break-glass'
@@ -73,6 +78,16 @@ import costBenefitAnalysisRouter from './routes/cost-benefit-analysis.routes'
 // AI & Automation Routes
 import aiChatRouter from './routes/ai-chat'
 import aiDamageDetectionRouter from './routes/ai-damage-detection.routes'
+import aiSearchRouter from './routes/ai-search'
+import aiTaskAssetRouter from './routes/ai-task-asset.routes'
+import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
+import annualReauthorizationRouter from './routes/annual-reauthorization.routes'
+import arcgisLayersRouter from './routes/arcgis-layers'
+import assetAnalyticsRouter from './routes/asset-analytics.routes'
+import assetManagementRouter from './routes/asset-management.routes'
+import assetsMobileRouter from './routes/assets-mobile.routes'
+import assignmentReportingRouter from './routes/assignment-reporting.routes'
+import authRouter from './routes/auth'
 
 // Task & Schedule Management Routes
 
@@ -81,7 +96,6 @@ import aiDamageDetectionRouter from './routes/ai-damage-detection.routes'
 // Vehicle Management Routes
 import damageRouter from './routes/damage'
 import damageReportsRouter from './routes/damage-reports'
-import lidarRouter from './routes/lidar.routes'
 
 // Trip & Route Management Routes
 
@@ -92,6 +106,7 @@ import lidarRouter from './routes/lidar.routes'
 // Authentication & User Management Routes
 
 // External Integrations Routes
+<<<<<<< HEAD
 import outlookRouter from './routes/outlook.routes'
 import reservationsRouter from './routes/reservations'
 import hosRouter from './routes/hos'
@@ -108,6 +123,12 @@ import healthSystemRouter from './routes/health-system.routes' // Comprehensive 
 import healthDetailedRouter from './routes/health-detailed'
 import healthStartupRouter from './routes/health-startup.routes' // Startup health check
 import performanceRouter from './routes/performance.routes'
+=======
+
+// Emulator & Testing Routes
+
+// System Management Routes
+>>>>>>> fix/pipeline-eslint-build
 import telemetryRouter from './routes/telemetry'
 import queueRouter from './routes/queue.routes'
 import deploymentsRouter from './routes/deployments'
@@ -117,15 +138,21 @@ import driversRouter from './routes/drivers'
 import evManagementRouter from './routes/ev-management.routes'
 import executiveDashboardRouter from './routes/executive-dashboard.routes'
 import dashboardRouter from './routes/dashboard.routes'
+import demoRouter from './routes/demo.routes'
+import emulatorRouter from './routes/emulator.routes'
 import facilitiesRouter from './routes/facilities'
 import fleetDocumentsRouter from './routes/fleet-documents.routes'
 import fuelRouter from './routes/fuel-transactions'
 import geofencesRouter from './routes/geofences'
 import gpsRouter from './routes/gps'
+import healthDetailedRouter from './routes/health-detailed'
+import healthSystemRouter from './routes/health-system.routes' // Comprehensive system health (BACKEND-12)
+import healthRouter from './routes/health.routes' // Microsoft integration health
 import heavyEquipmentRouter from './routes/heavy-equipment.routes'
 import incidentsRouter from './routes/incidents'
 import inspectionsRouter from './routes/inspections'
 import invoicesRouter from './routes/invoices'
+import lidarRouter from './routes/lidar.routes'
 import maintenanceRouter from './routes/maintenance'
 import maintenanceDrilldownsRouter from './routes/maintenance-drilldowns'
 import maintenanceSchedulesRouter from './routes/maintenance-schedules'
@@ -137,9 +164,13 @@ import mobileIntegrationRouter from './routes/mobile-integration.routes'
 import mobileMessagingRouter from './routes/mobile-messaging.routes'
 import mobilePhotosRouter from './routes/mobile-photos.routes'
 import mobileTripsRouter from './routes/mobile-trips.routes'
+import monitoringRouter from './routes/monitoring'
+import obd2EmulatorRouter from './routes/obd2-emulator.routes'
 import onCallManagementRouter from './routes/on-call-management.routes'
 import oshaComplianceRouter from './routes/osha-compliance'
+import outlookRouter from './routes/outlook.routes'
 import partsRouter from './routes/parts'
+import performanceRouter from './routes/performance.routes'
 import permissionsRouter from './routes/permissions'
 import chargesRouter from './routes/personal-use-charges'
 import personalUsePoliciesRouter from './routes/personal-use-policies'

@@ -14,32 +14,60 @@
  * - Screen reader friendly
  */
 
+<<<<<<< HEAD
 import { memo, useMemo, Suspense, lazy, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Settings as AdminIcon, Users, LineChart, Shield, AlertTriangle, CheckCircle, Database, UploadCloud, Lock, Clipboard, BadgeCheck, Search, UserCircle2, Activity as Activity, Clock, XCircle, Key, Sliders, Settings as GearSix } from 'lucide-react'
+=======
+import {
+  Gear as AdminIcon,
+  Users,
+  ChartLine,
+  Shield,
+  Warning,
+  CheckCircle,
+  Database,
+  CloudArrowUp,
+  Lock,
+  ClipboardText,
+  IdentificationCard,
+  GearSix,
+  UserCircle,
+  Pulse as Activity,
+  Clock,
+  XCircle,
+  Key,
+} from '@phosphor-icons/react'
+import { motion } from 'framer-motion'
+import { memo, useMemo, Suspense } from 'react'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+>>>>>>> fix/pipeline-eslint-build
 import HubPage from '@/components/ui/hub-page'
-import { useReactiveAdminData } from '@/hooks/use-reactive-admin-data'
-import type {
-  User,
-  SystemMetrics,
-  AuditLog,
-  Session,
-  AdminMetrics,
-  ActivityTrendData,
-  TopUserActivity,
-} from '@/hooks/use-reactive-admin-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
+<<<<<<< HEAD
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { UserManagement } from '@/components/admin/UserManagement'
 import { ConfigurationContent } from '@/components/admin/ConfigurationContent'
+=======
+import { useReactiveAdminData } from '@/hooks/use-reactive-admin-data'
+import type {
+  User,
+  AuditLog,
+  Session,
+} from '@/hooks/use-reactive-admin-data'
+>>>>>>> fix/pipeline-eslint-build
 
 // ============================================================================
 // CONSTANTS

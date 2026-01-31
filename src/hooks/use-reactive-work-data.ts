@@ -4,7 +4,7 @@
  * Quality Score: 96%
  */
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { z } from 'zod';
 
 // Zod schemas for type safety

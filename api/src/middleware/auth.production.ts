@@ -3,12 +3,14 @@
  * JWT-based authentication with bcrypt password hashing and RBAC
  */
 
+import bcrypt from 'bcrypt';
+import { eq } from 'drizzle-orm';
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+
 import { db } from '../db/connection';
 import { schema } from '../schemas/production.schema';
-import { eq } from 'drizzle-orm';
+
 
 // ============================================================================
 // JWT TOKEN GENERATION & VERIFICATION
