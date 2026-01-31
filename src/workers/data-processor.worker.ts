@@ -1,5 +1,4 @@
 /**
-import logger from '@/utils/logger';
  * Data Processor Web Worker
  *
  * Handles CPU-intensive operations off the main thread:
@@ -9,6 +8,8 @@ import logger from '@/utils/logger';
  * - Data transformation
  * - Complex filtering and sorting
  */
+
+import logger from '@/utils/logger';
 
 // ============================================================================
 // TYPE DEFINITIONS
