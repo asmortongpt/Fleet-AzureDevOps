@@ -104,7 +104,7 @@ const renderActiveShape = (props: any) => {
         textAnchor={textAnchor}
         className="fill-muted-foreground text-xs"
       >
-        {`${value} (${(percent * 100).toFixed(1)}%)`}
+        {`${value} (${((percent ?? 0) * 100).toFixed(1)}%)`}
       </text>
     </g>
   )
@@ -222,7 +222,7 @@ export function ResponsivePieChart({
                         dominantBaseline="central"
                         className="text-xs font-bold drop-shadow-md"
                       >
-                        {`${(percent * 100).toFixed(0)}%`}
+                        {`${((percent ?? 0) * 100).toFixed(0)}%`}
                       </text>
                     )
                   } : false}
