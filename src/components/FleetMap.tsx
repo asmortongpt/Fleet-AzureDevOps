@@ -44,8 +44,11 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
 
     const initMap = async () => {
       try {
+        // @ts-expect-error - Google Maps Loader API - importLibrary type signature may vary
         await loader.importLibrary('maps');
+        // @ts-expect-error - Google Maps Loader API - importLibrary type signature may vary
         await loader.importLibrary('places');
+        // @ts-expect-error - Google Maps Loader API - importLibrary type signature may vary
         await loader.importLibrary('geometry');
 
         if (mapRef.current) {

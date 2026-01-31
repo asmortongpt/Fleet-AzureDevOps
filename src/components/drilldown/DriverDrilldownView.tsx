@@ -23,6 +23,7 @@ export interface Driver {
   total_miles_driven?: number;
   last_training_date?: string;
   performance_score?: number;
+  avatar_url?: string;
 }
 
 interface DriverDrilldownViewProps {
@@ -63,7 +64,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       ),
     },
     {
-      accessor: row => `${row.first_name} ${row.last_name}`,
+      accessorFn: (row: Driver) => `${row.first_name} ${row.last_name}`,
       id: 'full_name',
       header: 'Name',
       cell: ({ row }) => (

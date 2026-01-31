@@ -280,7 +280,7 @@ function MessagesContent() {
           value={metrics?.avgResponseTime || 'N/A'}
           icon={Clock}
           trend="down"
-          change="-15min"
+          change={-15}
           description="Faster than last week"
           loading={isLoading}
         />
@@ -433,7 +433,7 @@ function NotificationsContent() {
           value={`${readRate}%`}
           icon={TrendingUp}
           trend="up"
-          change="+3%"
+          change={3}
           description="User engagement"
           loading={isLoading}
         />
@@ -592,7 +592,7 @@ function AnnouncementsContent() {
           value={`${avgEngagement}%`}
           icon={TrendingUp}
           trend="up"
-          change="+5%"
+          change={5}
           description="Acknowledgment rate"
           loading={isLoading}
         />

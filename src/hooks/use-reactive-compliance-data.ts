@@ -228,7 +228,7 @@ function calculateInspectionTrend(inspections: Inspection[]): InspectionTrendDat
 
       monthMap.set(monthKey, entry)
     } catch (error) {
-      logger.warn('Invalid inspection date:', inspection.inspectionDate, { error })
+      logger.warn('Invalid inspection date:', { inspectionDate: inspection.inspectionDate, error })
     }
   }
 

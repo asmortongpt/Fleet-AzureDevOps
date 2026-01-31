@@ -138,7 +138,7 @@ export const QueryErrorBoundary: React.FC<QueryErrorBoundaryProps> = ({
           onError={(error, errorInfo) => {
             logger.error('Query Error Boundary caught:', error, errorInfo);
           }}
-          fallbackRender={({ error: actualError, resetErrorBoundary }) => 
+          fallbackRender={({ error: actualError, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) =>
             fallback ? (
               <>{fallback}</>
             ) : (

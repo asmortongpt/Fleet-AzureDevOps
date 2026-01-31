@@ -254,7 +254,7 @@ const DriversOverview = memo(function DriversOverview() {
           value={`${metrics.avgSafetyScore}%`}
           icon={Shield}
           trend="up"
-          change="+2%"
+          change={2}
           description="Fleet average"
           loading={isLoading}
         />
@@ -438,7 +438,7 @@ const PerformanceContent = memo(function PerformanceContent() {
           value={`${metrics.avgPerformance}%`}
           icon={LineChart}
           trend="up"
-          change="+5%"
+          change={5}
           description="Fleet average"
           loading={isLoading}
         />

@@ -169,6 +169,9 @@ class ReportLoaderService {
       }
 
       this.registry = await response.json();
+      if (!this.registry) {
+        throw new Error('Registry not loaded');
+      }
       logger.info(`✓ Loaded report registry: ${this.registry.totalReports} reports`);
       return this.registry;
     } catch (error) {

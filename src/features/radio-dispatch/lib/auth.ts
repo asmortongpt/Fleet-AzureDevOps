@@ -16,7 +16,7 @@ export const authOptions: NextAuthOptions = {
   ],
 
   callbacks: {
-    async jwt({ token, account, profile }) {
+    async jwt({ token, account, profile }: { token: any; account: any; profile: any }) {
       // Persist the OAuth access_token to the token right after signin
       if (account) {
         token.accessToken = account?.access_token;
@@ -29,7 +29,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
 
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: any }) {
       // Send properties to the client
       session.accessToken = token?.accessToken as string;
       session.user.role = token?.role as string;
@@ -37,7 +37,7 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
 
-    async redirect({ url, baseUrl }) {
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
       // Redirect to dashboard after sign in
       if (url.startsWith(baseUrl)) return url;
       if (url.startsWith('/')) return `${baseUrl}${url}`;

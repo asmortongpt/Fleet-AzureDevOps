@@ -521,7 +521,7 @@ export const OktaAuthProvider: React.FC<OktaAuthProviderProps> = ({
       <Security
         oktaAuth={oktaAuth}
         onAuthRequired={onAuthRequired}
-        restoreOriginalUri={async (oktaAuth, originalUri) => {
+        restoreOriginalUri={async (oktaAuth: any, originalUri?: string) => {
           // Handle post-login redirect
           window.location.replace(
             toRelativeUrl(originalUri || '/', window.location.origin)
@@ -621,7 +621,7 @@ export const LoginCallbackComponent: React.FC = () => {
   useEffect(() => {
     oktaAuth.handleLoginRedirect().then(() => {
       navigate('/', { replace: true });
-    }).catch(error => {
+    }).catch((error: Error) => {
       logger.error('Login callback error:', error);
     });
   }, [navigate]);

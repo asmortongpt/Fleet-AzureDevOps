@@ -219,7 +219,7 @@ export function DOTReportsDialog({ open, onOpenChange, tenantId }: DOTReportsDia
       setReportData(data)
       toast.success('Report generated successfully')
     } catch (error) {
-      logger.error('[DOT Reports] Generation error:', error)
+      logger.error('[DOT Reports] Generation error:', { error })
       toast.error('Failed to generate report')
     } finally {
       setIsGenerating(false)
@@ -250,7 +250,7 @@ export function DOTReportsDialog({ open, onOpenChange, tenantId }: DOTReportsDia
         toast.info(`${exportFormat.toUpperCase()} export coming soon`)
       }
     } catch (error) {
-      logger.error('[DOT Reports] Export error:', error)
+      logger.error('[DOT Reports] Export error:', { error })
       toast.error('Failed to export report')
     }
   }

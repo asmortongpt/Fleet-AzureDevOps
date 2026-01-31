@@ -165,11 +165,13 @@ const ChartTooltip = Tooltip
 
 function ChartTooltipContent({
   active,
+  // @ts-expect-error - Recharts type incompatibility with payload
   payload,
   className,
   indicator = "dot",
   hideLabel = false,
   hideIndicator = false,
+  // @ts-expect-error - Recharts type incompatibility with label
   label,
   labelFormatter,
   labelClassName,
@@ -312,6 +314,7 @@ const ChartLegend = Legend
 function ChartLegendContent({
   className,
   hideIcon = false,
+  // @ts-expect-error - Recharts type incompatibility with payload
   payload,
   verticalAlign = "bottom",
   nameKey,
@@ -322,6 +325,7 @@ function ChartLegendContent({
   }) {
   const { config } = useChart()
 
+  // @ts-expect-error - Recharts type incompatibility - payload may not have length property
   if (!payload?.length) {
     return null
   }
@@ -334,6 +338,7 @@ function ChartLegendContent({
         className
       )}
     >
+      {/* @ts-expect-error - Recharts type incompatibility - payload may not have map method */}
       {payload.map((item: any) => {
         const key = `${nameKey || item.dataKey || "value"}`
         const itemConfig = getPayloadConfigFromPayload(config, item, key)

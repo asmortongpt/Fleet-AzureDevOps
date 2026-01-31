@@ -361,7 +361,7 @@ const FleetOverview = memo(() => {
           value={metrics?.activeVehicles?.toString() || '0'}
           icon={TrendingUp}
           trend="up"
-          change="+12%"
+          change={12}
           description="Currently in use"
           loading={isLoading}
           aria-label="Active vehicles"
