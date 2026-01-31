@@ -2,11 +2,14 @@
  * Facilities Sidebar - Displays list of facilities in the region
  */
 
-import { Building2, User, Wrench, Fuel } from "lucide-react"
+import { Building2, User, Wrench, Fuel, Car } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { GISFacility } from "@/lib/types"
+
+// Icon alias for Phosphor naming
+const CarProfile = Car
 
 interface FacilitiesSidebarProps {
   facilities: GISFacility[]

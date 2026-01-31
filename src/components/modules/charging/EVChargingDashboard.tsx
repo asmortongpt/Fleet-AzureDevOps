@@ -1,11 +1,14 @@
 import {
-  BoltIcon,
-  Battery0Icon,
+  BoltIcon as Bolt,
   ChartBarIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  ExclamationTriangleIcon
+  CheckCircleIcon as CheckCircle,
+  XCircleIcon as XCircle,
+  ExclamationTriangleIcon as ExclamationTriangle
 } from '@heroicons/react/24/outline';
+import { Zap, Battery, AlertTriangle } from 'lucide-react';
+
+// Heroicons don't have Battery0Icon, use lucide-react Battery
+const Battery0Icon = Battery;
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 

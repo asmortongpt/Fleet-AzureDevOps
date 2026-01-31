@@ -7,6 +7,9 @@ import { Globe } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
 
+// Icon alias for Phosphor naming
+const GlobeHemisphereWest = Globe
+
 /**
  * Display empty state when no layers exist
  */
