@@ -440,12 +440,12 @@ export function useVehicleMutations() {
     },
     onError: (_err, updatedVehicle, context) => {
       if (context?.previousVehicles) {
-        queryClient.setQueryData(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }), context.previousVehicles);
+        queryClient.setQueryData(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenantId }), context.previousVehicles);
       }
     },
     onSettled: (updatedVehicle) => {
       if (updatedVehicle) {
-        queryClient.invalidateQueries({ queryKey: queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }) });
+        queryClient.invalidateQueries({ queryKey: queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenantId }) });
       }
     },
   });
@@ -458,7 +458,7 @@ export function useVehicleMutations() {
       if (!res.ok) throw new Error('Network response was not ok');
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeyFactory.vehicles({ tenant_id: variables.tenant_id }) });
+      queryClient.invalidateQueries({ queryKey: queryKeyFactory.vehicles({ tenant_id: variables.tenantId }) });
     },
   });
 
@@ -492,21 +492,21 @@ export function useDriverMutations() {
       return res.json();
     },
     onMutate: async (updatedDriver) => {
-      await queryClient.cancelQueries({ queryKey: queryKeyFactory.drivers({ tenant_id: updatedDriver.tenant_id }) });
-      const previousDrivers = queryClient.getQueryData<Driver[]>(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenant_id }));
-      queryClient.setQueryData<Driver[]>(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenant_id }), (old) =>
+      await queryClient.cancelQueries({ queryKey: queryKeyFactory.drivers({ tenant_id: updatedDriver.tenantId }) });
+      const previousDrivers = queryClient.getQueryData<Driver[]>(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenantId }));
+      queryClient.setQueryData<Driver[]>(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenantId }), (old) =>
         old?.map((driver) => (driver.id === updatedDriver.id ? updatedDriver : driver))
       );
       return { previousDrivers };
     },
     onError: (_err, updatedDriver, context) => {
       if (context?.previousDrivers) {
-        queryClient.setQueryData(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenant_id }), context.previousDrivers);
+        queryClient.setQueryData(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenantId }), context.previousDrivers);
       }
     },
     onSettled: (updatedDriver) => {
       if (updatedDriver) {
-        queryClient.invalidateQueries({ queryKey: queryKeyFactory.drivers({ tenant_id: updatedDriver.tenant_id }) });
+        queryClient.invalidateQueries({ queryKey: queryKeyFactory.drivers({ tenant_id: updatedDriver.tenantId }) });
       }
     },
   });
@@ -519,7 +519,7 @@ export function useDriverMutations() {
       if (!res.ok) throw new Error('Network response was not ok');
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeyFactory.drivers({ tenant_id: variables.tenant_id }) });
+      queryClient.invalidateQueries({ queryKey: queryKeyFactory.drivers({ tenant_id: variables.tenantId }) });
     },
   });
 

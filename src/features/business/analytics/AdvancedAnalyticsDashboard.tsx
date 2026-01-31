@@ -819,7 +819,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                         {executiveReport.summary.keyAchievements.map((achievement: string, index: number) => (
                           <ListItem key={index}>
                             <ListItemIcon>
-                              <CheckCircle color="success" />
+                              <CheckCircleIcon color="success" />
                             </ListItemIcon>
                             <ListItemText primary={achievement} />
                           </ListItem>

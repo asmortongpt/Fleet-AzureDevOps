@@ -464,7 +464,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                             color="success"
                             onClick={() => openApprovalDialog(po, 'approve')}
                             size="small"
-                            startIcon={<CheckCircle />}
+                            startIcon={<CheckCircleIcon />}
                           >
                             Approve
                           </Button>
@@ -864,7 +864,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                                 color: 'white'
                               }}
                             >
-                              {step.status === 'APPROVED' && <CheckCircle fontSize="small" />}
+                              {step.status === 'APPROVED' && <CheckCircleIcon fontSize="small" />}
                               {step.status === 'REJECTED' && <CancelIcon fontSize="small" />}
                               {step.status === 'PENDING' && <PendingIcon fontSize="small" />}
                               {step.status === 'DELEGATED' && <DelegateIcon fontSize="small" />}

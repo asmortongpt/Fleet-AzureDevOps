@@ -214,7 +214,7 @@ const EVChargingDashboard: React.FC = () => {
   const getStatusIcon = (status: string): JSX.Element => {
     switch (status) {
       case 'Available':
-        return <CheckCircle className="w-3 h-3 text-green-500" />;
+        return <CheckCircleIcon className="w-3 h-3 text-green-500" />;
       case 'Charging':
         return <Zap className="w-3 h-3 text-blue-800 animate-pulse" />;
       case 'Faulted':
@@ -326,7 +326,7 @@ const EVChargingDashboard: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">Online Stations</CardTitle>
-            <CheckCircle className="w-3 h-3 text-green-500" />
+            <CheckCircleIcon className="w-3 h-3 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold">{onlineStations}/{stations.length}</div>
