@@ -292,11 +292,11 @@ export function trackReactErrorBoundary(
   _componentName?: string
 ): void {
   if (!_telemetryInitialized) {
-    logger.error('[Telemetry Stub] React Error Boundary caught (not initialized):', error, errorInfo);
+    logger.error('[Telemetry Stub] React Error Boundary caught (not initialized):', { error, errorInfo });
     return;
   }
   try {
-    logger.error('[Telemetry Stub] React Error Boundary caught:', error, errorInfo);
+    logger.error('[Telemetry Stub] React Error Boundary caught:', { error, errorInfo });
   } catch (trackError) {
     logger.warn('[Telemetry] Failed to track React error boundary:', trackError);
   }
