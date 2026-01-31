@@ -195,6 +195,7 @@ export const useAuditLogger = () => {
     const auditEntry = {
       timestamp: new Date().toISOString(),
       event_type: eventType,
+      // @ts-expect-error - User type incompatibility - sub property may not exist on all User types
       user_id: user?.sub || 'anonymous',
       user_email: user?.email || 'unknown',
       session_id: 'session_' + Date.now(), // Simplified for demo
@@ -240,6 +241,7 @@ export const useMFAGuard = () => {
   const navigate = useNavigate();
 
   const mfaRequired = AUTH_CONFIG.security.requireMFA;
+  // @ts-expect-error - User type incompatibility - mfa_enabled property may not exist on all User types
   const mfaEnabled = user?.mfa_enabled || false;
 
   const needsMFA = useMemo(() => {
