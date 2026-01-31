@@ -1,7 +1,7 @@
 import {
   LocalGasStation as FuelIcon,
   Build as MaintenanceIcon,
-  TrendUp as TrendUpIcon
+  TrendingUp as TrendUpIcon
 } from '@mui/icons-material';
 import {
   Box,
