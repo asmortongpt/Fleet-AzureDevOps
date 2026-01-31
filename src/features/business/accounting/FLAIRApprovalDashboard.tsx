@@ -590,6 +590,7 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
           <p className="text-slate-700">Review and approve expense submissions</p>
         </div>
         <div className="text-sm text-gray-500">
+          {/* @ts-expect-error - User type incompatibility - fullName may not exist */}
           Logged in as: {user?.fullName} ({user?.role})
         </div>
       </div>

@@ -206,7 +206,7 @@ function FuelHubContent() {
   const costTrendData = useMemo(() => {
     if (!analytics?.spend_trend) return []
     return analytics.spend_trend.map(point => ({
-      date: format(new Date(point.date), 'MMM d'),
+      name: format(new Date(point.date), 'MMM d'),
       cost: point.cost
     }))
   }, [analytics])
@@ -214,7 +214,7 @@ function FuelHubContent() {
   const mpgTrendData = useMemo(() => {
     if (!analytics?.mpg_trend) return []
     return analytics.mpg_trend.map(point => ({
-      date: format(new Date(point.date), 'MMM d'),
+      name: format(new Date(point.date), 'MMM d'),
       mpg: point.mpg
     }))
   }, [analytics])
@@ -291,9 +291,10 @@ function FuelHubContent() {
                 <Suspense fallback={<Skeleton className="h-64 w-full" />}>
                   <ResponsiveLineChart
                     data={costTrendData}
-                    xKey="date"
-                    lines={[{ dataKey: 'cost', name: 'Cost', color: '#3b82f6' }]}
                     title="Fuel Cost"
+                    description="Daily fuel costs over the last 30 days"
+                    dataKeys={['cost']}
+                    xAxisKey="name"
                     height={250}
                   />
                 </Suspense>
@@ -309,9 +310,10 @@ function FuelHubContent() {
                 <Suspense fallback={<Skeleton className="h-64 w-full" />}>
                   <ResponsiveLineChart
                     data={mpgTrendData}
-                    xKey="date"
-                    lines={[{ dataKey: 'mpg', name: 'MPG', color: '#10b981' }]}
                     title="MPG"
+                    description="Fleet fuel efficiency over time"
+                    dataKeys={['mpg']}
+                    xAxisKey="name"
                     height={250}
                   />
                 </Suspense>
