@@ -5,7 +5,8 @@ import { Helmet } from 'react-helmet';
 import { toast } from 'react-toastify';
 import Webcam from 'react-webcam';
 
-import { useFleetLocalContext } from '../../context/FleetLocalContext';
+// Legacy context import - commented out (file doesn't exist)
+// import { useFleetLocalContext } from '../../context/FleetLocalContext';
 
 import logger from '@/utils/logger';
 
@@ -18,7 +19,8 @@ const ScanAssetModal: React.FC<ScanAssetModalProps> = ({ tenantId, onClose }) =>
   const [_scannedCode, setScannedCode] = useState<string | null>(null);
   const [assetDetails, setAssetDetails] = useState<any>(null);
   const [_location, setLocation] = useState<GeolocationPosition | null>(null);
-  const { addToOfflineQueue } = useFleetLocalContext();
+  // Legacy context - commented out
+  // const { addToOfflineQueue } = useFleetLocalContext();
 
   const handleScan = useCallback(async (code: string) => {
     try {
@@ -32,12 +34,12 @@ const ScanAssetModal: React.FC<ScanAssetModalProps> = ({ tenantId, onClose }) =>
     } catch (error) {
       logger.error('Error fetching asset details:', error);
       toast.error('Failed to fetch asset details.');
-      // Add to offline queue
-      if (typeof addToOfflineQueue === 'function') {
-        addToOfflineQueue({ type: 'SCAN', code, tenantId });
-      }
+      // Add to offline queue - legacy functionality commented out
+      // if (typeof addToOfflineQueue === 'function') {
+      //   addToOfflineQueue({ type: 'SCAN', code, tenantId });
+      // }
     }
-  }, [tenantId, addToOfflineQueue]);
+  }, [tenantId]); // Removed addToOfflineQueue from dependencies (legacy)
 
   const handleLocationCapture = useCallback(() => {
     if (navigator.geolocation) {
