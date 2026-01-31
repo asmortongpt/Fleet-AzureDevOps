@@ -151,22 +151,22 @@ export function Login() {
 
         {/* Premium Login Card */}
         <Card className="border-white/10 bg-white/95 shadow-2xl shadow-black/20 backdrop-blur-xl">
-          <div className="p-5">
+          <div className="p-3">
             {/* Welcome Section */}
-            <div className="mb-3.5 text-center">
-              <h2 className="mb-1 flex items-center justify-center gap-2 text-xl font-semibold text-slate-900">
-                <svg className="h-5 w-5" style={{ color: '#00D4FF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="mb-2 text-center">
+              <h2 className="mb-0.5 flex items-center justify-center gap-1.5 text-lg font-semibold text-slate-900">
+                <svg className="h-4 w-4" style={{ color: '#00D4FF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                 </svg>
                 <span>Welcome Back</span>
               </h2>
-              <p className="text-xs text-slate-600">
+              <p className="text-[10px]" style={{ color: '#334155' }}>
                 Sign in to access your fleet management dashboard
               </p>
             </div>
             {/* Error Alert */}
             {(urlError || emailLoginMutation.isError) && (
-              <Alert variant="destructive" className="mb-3.5">
+              <Alert variant="destructive" className="mb-2">
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
@@ -187,7 +187,7 @@ export function Login() {
                 background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)',
                 boxShadow: '0 10px 20px rgba(253, 184, 19, 0.4)'
               }}
-              className="group relative mb-3.5 h-11 w-full overflow-hidden font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
+              className="group relative mb-2 h-10 w-full overflow-hidden font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
             >
               <div
                 className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -207,21 +207,21 @@ export function Login() {
               </span>
             </Button>
 
-            <div className="relative py-4">
+            <div className="relative py-2">
               <div className="absolute inset-0 flex items-center">
                 <Separator className="w-full bg-slate-200 dark:bg-slate-700" />
               </div>
               <div className="relative flex justify-center text-xs z-10">
-                <span className="bg-white/90 dark:bg-slate-900/90 px-4 text-slate-500 dark:text-slate-400 font-medium backdrop-blur-sm" data-testid="login-separator-text">
+                <span className="bg-white/90 dark:bg-slate-900/90 px-3 font-semibold backdrop-blur-sm" style={{ color: '#1e293b' }} data-testid="login-separator-text">
                   or continue with email
                 </span>
               </div>
             </div>
 
             {/* Email/Password Form */}
-            <form onSubmit={handleEmailLogin} className="space-y-2">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            <form onSubmit={handleEmailLogin} className="space-y-1.5">
+              <div className="space-y-1">
+                <Label htmlFor="email" className="text-sm font-semibold" style={{ color: '#0f172a' }}>
                   Email
                 </Label>
                 <Input
@@ -232,19 +232,19 @@ export function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={emailLoginMutation.isPending}
-                  className="h-11 border-slate-300 dark:border-slate-600 focus:border-blue-600 dark:focus:border-blue-500"
+                  className="h-9 border-slate-300 dark:border-slate-600 focus:border-blue-600 dark:focus:border-blue-500"
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  <Label htmlFor="password" className="text-sm font-semibold" style={{ color: '#0f172a' }}>
                     Password
                   </Label>
                   <Link
                     to="/reset-password"
-                    className="text-xs font-medium hover:underline"
-                    style={{ color: '#00D4FF' }}
+                    className="text-xs font-semibold hover:underline"
+                    style={{ color: '#0369a1' }}
                   >
                     Forgot password?
                   </Link>
@@ -258,18 +258,19 @@ export function Login() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={emailLoginMutation.isPending}
-                    className="h-11 pr-10 border-slate-300 dark:border-slate-600 focus:border-blue-600 dark:focus:border-blue-500"
+                    className="h-9 pr-10 border-slate-300 dark:border-slate-600 focus:border-blue-600 dark:focus:border-blue-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                    style={{ color: '#475569' }}
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? (
-                      <EyeOff className="w-5 h-5" />
+                      <EyeOff className="w-4 h-4" />
                     ) : (
-                      <Eye className="w-5 h-5" />
+                      <Eye className="w-4 h-4" />
                     )}
                   </button>
                 </div>
@@ -278,7 +279,7 @@ export function Login() {
               <Button
                 type="submit"
                 size="lg"
-                className="w-full font-semibold bg-slate-800 hover:bg-slate-900 text-white border-2 border-slate-800 hover:border-slate-900 transition-all"
+                className="w-full h-9 font-semibold bg-slate-800 hover:bg-slate-900 text-white border-2 border-slate-800 hover:border-slate-900 transition-all"
                 disabled={emailLoginMutation.isPending}
               >
                 {emailLoginMutation.isPending ? (
@@ -293,30 +294,30 @@ export function Login() {
             </form>
 
             {/* Premium Security Features Grid */}
-            <div className="mb-3 grid grid-cols-3 gap-2">
-              <div className="group flex flex-col items-center gap-1 rounded-xl border py-2 px-2 text-center transition-all duration-300 hover:scale-105 hover:shadow-md" style={{ borderColor: '#00D4FF20', background: 'linear-gradient(to bottom right, #00D4FF10, #FDB81310)' }}>
-                <div className="rounded-lg bg-white p-1.5 shadow-sm group-hover:shadow-md transition-shadow">
-                  <svg className="h-4 w-4" style={{ color: '#00D4FF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="mb-2 mt-2 grid grid-cols-3 gap-1.5">
+              <div className="group flex flex-col items-center gap-0.5 rounded-xl border py-1.5 px-1.5 text-center transition-all duration-300 hover:scale-105 hover:shadow-md" style={{ borderColor: '#00D4FF20', background: 'linear-gradient(to bottom right, #00D4FF10, #FDB81310)' }}>
+                <div className="rounded-lg bg-white p-1 shadow-sm group-hover:shadow-md transition-shadow">
+                  <svg className="h-3.5 w-3.5" style={{ color: '#00D4FF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
-                <span className="text-[10px] font-semibold text-slate-700">MFA Protected</span>
+                <span className="text-[9px] font-bold" style={{ color: '#1e293b' }}>MFA Protected</span>
               </div>
-              <div className="group flex flex-col items-center gap-1 rounded-xl border py-2 px-2 text-center transition-all duration-300 hover:scale-105 hover:shadow-md" style={{ borderColor: '#00D4FF20', background: 'linear-gradient(to bottom right, #00D4FF10, #FDB81310)' }}>
-                <div className="rounded-lg bg-white p-1.5 shadow-sm group-hover:shadow-md transition-shadow">
-                  <svg className="h-4 w-4" style={{ color: '#00D4FF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="group flex flex-col items-center gap-0.5 rounded-xl border py-1.5 px-1.5 text-center transition-all duration-300 hover:scale-105 hover:shadow-md" style={{ borderColor: '#00D4FF20', background: 'linear-gradient(to bottom right, #00D4FF10, #FDB81310)' }}>
+                <div className="rounded-lg bg-white p-1 shadow-sm group-hover:shadow-md transition-shadow">
+                  <svg className="h-3.5 w-3.5" style={{ color: '#00D4FF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
                 </div>
-                <span className="text-[10px] font-semibold text-slate-700">OAuth 2.0</span>
+                <span className="text-[9px] font-bold" style={{ color: '#1e293b' }}>OAuth 2.0</span>
               </div>
-              <div className="group flex flex-col items-center gap-1 rounded-xl border py-2 px-2 text-center transition-all duration-300 hover:scale-105 hover:shadow-md" style={{ borderColor: '#00D4FF20', background: 'linear-gradient(to bottom right, #00D4FF10, #FDB81310)' }}>
-                <div className="rounded-lg bg-white p-1.5 shadow-sm group-hover:shadow-md transition-shadow">
-                  <svg className="h-4 w-4" style={{ color: '#00D4FF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="group flex flex-col items-center gap-0.5 rounded-xl border py-1.5 px-1.5 text-center transition-all duration-300 hover:scale-105 hover:shadow-md" style={{ borderColor: '#00D4FF20', background: 'linear-gradient(to bottom right, #00D4FF10, #FDB81310)' }}>
+                <div className="rounded-lg bg-white p-1 shadow-sm group-hover:shadow-md transition-shadow">
+                  <svg className="h-3.5 w-3.5" style={{ color: '#00D4FF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <span className="text-[10px] font-semibold text-slate-700">Encrypted</span>
+                <span className="text-[9px] font-bold" style={{ color: '#1e293b' }}>Encrypted</span>
               </div>
             </div>
 
