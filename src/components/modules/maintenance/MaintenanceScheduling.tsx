@@ -1,4 +1,4 @@
-import { Calendar, Wrench, Clock, CheckCircle, AlertTriangle } from "lucide-react"
+import { Calendar as CalendarIcon, Wrench, Clock, CheckCircle, AlertTriangle } from "lucide-react"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { useState, useMemo } from "react"
