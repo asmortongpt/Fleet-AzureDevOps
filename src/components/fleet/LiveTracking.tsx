@@ -9,18 +9,19 @@ export default function LiveTracking() {
   const { data, isLoading } = useVehicles()
 
   // Transform API data to match GoogleMapView expected format
+  // API uses camelCase (licensePlate, fuelLevel) so we map accordingly
   const vehicles = (data || []).map((v: any) => ({
     id: v.id,
     name: v.name || `${v.make} ${v.model}`,
-    number: v.license_plate,
+    number: v.licensePlate || v.license_plate, // Support both formats
     make: v.make,
     model: v.model,
     type: 'truck' as const,
     status: v.status === 'active' ? 'active' : v.status === 'maintenance' ? 'service' : 'idle',
-    fuelLevel: parseFloat(v.fuel_level) || 0,
+    fuelLevel: typeof v.fuelLevel === 'string' ? parseFloat(v.fuelLevel) : (v.fuelLevel || v.fuel_level || 0),
     location: {
-      lat: parseFloat(v.latitude) || 40.7128,
-      lng: parseFloat(v.longitude) || -74.0060,
+      lat: parseFloat(v.latitude || v.current_latitude) || 40.7128,
+      lng: parseFloat(v.longitude || v.current_longitude) || -74.0060,
       address: v.location || 'Unknown'
     },
     driver: null

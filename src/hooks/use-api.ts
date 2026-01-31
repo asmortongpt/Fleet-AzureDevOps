@@ -291,7 +291,9 @@ export function useVehicles(filters: VehicleFilters = { tenant_id: '' }) {
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/vehicles?${params}`, { method: 'GET' });
       if (!res.ok) throw new Error('Network response was not ok');
-      return res.json();
+      const json = await res.json();
+      // API returns {data: [...], total: number}, extract the data array
+      return json.data || json;
     },
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
