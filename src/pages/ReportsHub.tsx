@@ -217,7 +217,7 @@ const OverviewTab = memo(() => {
             value={metrics?.activeSchedules?.toString() || '0'}
             icon={Clock}
             trend="up"
-            change="+3"
+            change={+3}
             description="Active schedules"
             loading={isLoading}
             aria-label={`Scheduled reports: ${metrics?.activeSchedules || 0}`}
@@ -463,7 +463,7 @@ const TemplatesTab = memo(() => {
             value={metrics?.customTemplates?.toString() || '0'}
             icon={FolderOpen}
             trend="up"
-            change="+5"
+            change={+5}
             description="Organization-specific"
             loading={isLoading}
           />
