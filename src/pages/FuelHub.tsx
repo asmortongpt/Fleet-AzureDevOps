@@ -252,30 +252,30 @@ function FuelHubContent() {
               <StatCard
                 title="Total Spend"
                 value={`$${metrics.total_spend.toLocaleString()}`}
-                icon={<DollarSign />}
-                trend={{ value: 0, label: 'Last 30 days' }}
-                variant="info"
+                icon={DollarSign}
+                trend="neutral"
+                description="Last 30 days"
               />
               <StatCard
                 title="Average MPG"
                 value={metrics.average_mpg.toFixed(1)}
-                icon={<Fuel />}
-                trend={{ value: 0, label: 'Fleet average' }}
-                variant="success"
+                icon={Fuel}
+                trend="neutral"
+                description="Fleet average"
               />
               <StatCard
                 title="Avg Cost/Gallon"
                 value={`$${metrics.average_cost_per_gallon.toFixed(2)}`}
-                icon={<TrendingUp />}
-                trend={{ value: 0, label: 'Current rate' }}
-                variant="warning"
+                icon={TrendingUp}
+                trend="neutral"
+                description="Current rate"
               />
               <StatCard
                 title="Exceptions"
                 value={metrics.exceptions_count.toString()}
-                icon={<AlertTriangle />}
-                trend={{ value: 0, label: 'Requires review' }}
-                variant={metrics.exceptions_count > 0 ? 'destructive' : 'success'}
+                icon={AlertTriangle}
+                trend="neutral"
+                description="Requires review"
               />
             </div>
           ) : null}

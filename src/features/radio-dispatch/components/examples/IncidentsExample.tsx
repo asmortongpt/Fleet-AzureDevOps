@@ -133,7 +133,7 @@ export function IncidentsExample() {
 
       {/* Incidents list */}
       <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
-        {data.map((incident) => (
+        {data.map((incident: any) => (
           <IncidentCard key={incident.id} incident={incident} />
         ))}
       </div>
@@ -254,7 +254,7 @@ export function IncidentsInlineExample() {
       {/* Data display */}
       {!loading && !error && data && data.length > 0 && (
         <div className="space-y-3">
-          {data.slice(0, 5).map((incident) => (
+          {data.slice(0, 5).map((incident: any) => (
             <div
               key={incident.id}
               className="flex items-center justify-between border-b border-border pb-3 last:border-b-0 last:pb-0"
@@ -318,7 +318,7 @@ export function IncidentsSearchExample() {
         )
       ) : (
         <div className="space-y-3">
-          {data.map((incident) => (
+          {data.map((incident: any) => (
             <IncidentCard key={incident.id} incident={incident} />
           ))}
         </div>
