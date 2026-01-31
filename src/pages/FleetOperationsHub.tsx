@@ -170,7 +170,7 @@ const FleetTabContent = memo(function FleetTabContent() {
           value={safeStats.totalVehicles}
           icon={Car}
           change={12}
-  trend="up"
+          trend="up"
           description="Active fleet count"
         />
         <StatCard
@@ -178,7 +178,7 @@ const FleetTabContent = memo(function FleetTabContent() {
           value={safeStats.activeVehicles}
           icon={Gauge}
           change={8}
-  trend="up"
+          trend="up"
           description="Currently in use"
         />
         <StatCard
@@ -186,7 +186,7 @@ const FleetTabContent = memo(function FleetTabContent() {
           value={safeStats.maintenanceDue}
           icon={Wrench}
           change={2}
-  trend="down"
+          trend="down"
           description="Needs attention"
           variant="warning"
         />
@@ -195,7 +195,7 @@ const FleetTabContent = memo(function FleetTabContent() {
           value={`${(safeStats.avgFuelEfficiency || 0).toFixed(1)} MPG`}
           icon={Fuel}
           change={5}
-  trend="up"
+          trend="up"
           description="Fleet average"
         />
       </motion.div>
@@ -334,7 +334,7 @@ const DriversTabContent = memo(function DriversTabContent() {
           value={safeStats.totalDrivers}
           icon={Users}
           change={5}
-  trend="up"
+          trend="up"
           description="Active driver pool"
         />
         <StatCard
@@ -342,7 +342,7 @@ const DriversTabContent = memo(function DriversTabContent() {
           value={safeStats.activeDrivers}
           icon={User}
           change={3}
-  trend="up"
+          trend="up"
           description="Currently working"
         />
         <StatCard
@@ -350,7 +350,7 @@ const DriversTabContent = memo(function DriversTabContent() {
           value={`${safeStats.complianceRate}%`}
           icon={Shield}
           change={2}
-  trend="up"
+          trend="up"
           description="License & training"
         />
         <StatCard
@@ -358,7 +358,7 @@ const DriversTabContent = memo(function DriversTabContent() {
           value={safeStats.avgSafetyScore}
           icon={Trophy}
           change={8}
-  trend="up"
+          trend="up"
           description="Driver performance"
         />
       </motion.div>
@@ -476,7 +476,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
           value={safeStats.activeRoutes}
           icon={RouteIcon}
           change={4}
-  trend="up"
+          trend="up"
           description="In progress"
         />
         <StatCard
@@ -484,7 +484,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
           value={safeStats.pendingTasks}
           icon={CheckSquare}
           change={3}
-  trend="down"
+          trend="down"
           description="Need assignment"
         />
         <StatCard
@@ -492,7 +492,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
           value={`$${(safeStats.fuelCostToday || 0).toFixed(2)}`}
           icon={Fuel}
           change={12}
-  trend="down"
+          trend="down"
           description="Daily fuel spend"
           variant="warning"
         />
@@ -501,7 +501,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
           value={`${safeStats.routeEfficiency || 0}%`}
           icon={TrendingUp}
           change={7}
-  trend="up"
+          trend="up"
           description="Route optimization"
         />
       </motion.div>
