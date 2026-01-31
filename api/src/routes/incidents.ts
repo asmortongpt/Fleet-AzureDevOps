@@ -95,6 +95,19 @@ router.put("/:id",
   asyncHandler((req, res, next) => incidentController.update(req, res, next))
 );
 
+// PATCH update incident (alias for PUT to support frontend PATCH requests)
+router.patch("/:id",
+ csrfProtection, requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER],
+    permissions: [PERMISSIONS.INCIDENT_UPDATE],
+    enforceTenantIsolation: true,
+    resourceType: 'incident'
+  }),
+  validateParams(idSchema),
+  validateBody(updateIncidentSchema),
+  asyncHandler((req, res, next) => incidentController.update(req, res, next))
+);
+
 // DELETE incident
 router.delete("/:id",
  csrfProtection, requireRBAC({
@@ -105,6 +118,52 @@ router.delete("/:id",
   }),
   validateParams(idSchema),
   asyncHandler((req, res, next) => incidentController.delete(req, res, next))
+);
+
+// GET investigations for an incident
+router.get("/:id/investigations",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER],
+    permissions: [PERMISSIONS.INCIDENT_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'incident'
+  }),
+  validateParams(idSchema),
+  asyncHandler((req, res, next) => incidentController.getInvestigations(req, res, next))
+);
+
+// POST create investigation
+router.post("/:id/investigations",
+ csrfProtection, requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER],
+    permissions: [PERMISSIONS.INCIDENT_UPDATE],
+    enforceTenantIsolation: true,
+    resourceType: 'incident'
+  }),
+  validateParams(idSchema),
+  asyncHandler((req, res, next) => incidentController.createInvestigation(req, res, next))
+);
+
+// GET safety metrics (must be before /:id to avoid route conflict)
+router.get("/metrics",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER],
+    permissions: [PERMISSIONS.INCIDENT_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'incident'
+  }),
+  asyncHandler((req, res, next) => incidentController.getSafetyMetrics(req, res, next))
+);
+
+// PATCH update investigation
+router.patch("/investigations/:investigationId",
+ csrfProtection, requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER],
+    permissions: [PERMISSIONS.INCIDENT_UPDATE],
+    enforceTenantIsolation: true,
+    resourceType: 'incident'
+  }),
+  asyncHandler((req, res, next) => incidentController.updateInvestigation(req, res, next))
 );
 
 export default router;
