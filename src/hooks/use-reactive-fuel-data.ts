@@ -22,7 +22,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query'
-import toast from 'sonner'
+import { toast } from 'sonner'
 import logger from '@/utils/logger'
 
 // ============================================================================

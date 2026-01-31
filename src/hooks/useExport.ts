@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import toast from 'sonner';
+import { toast } from 'sonner';
 
 export function useExport() {
   const exportToJSON = useCallback(<T,>(data: T[], filename: string) => {

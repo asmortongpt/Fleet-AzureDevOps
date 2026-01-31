@@ -3,7 +3,7 @@
  */
 
 import { useMutation } from '@tanstack/react-query'
-import toast from 'sonner'
+import { toast } from 'sonner'
 
 import { apiClient } from '@/lib/api-client'
 

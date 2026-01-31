@@ -9,7 +9,7 @@ import {
 } from "lucide-react"
 import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode"
 import { useState, useEffect, useRef, useCallback } from "react"
-import toast from "sonner"
+import { toast } from "sonner"
 
 import { ScannerModal } from "./ScannerModal"
 

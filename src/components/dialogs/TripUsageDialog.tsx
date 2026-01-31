@@ -1,6 +1,6 @@
 import { Car, Plus, Info } from "lucide-react"
 import { useState } from "react"
-import toast from "sonner"
+import { toast } from "sonner"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
