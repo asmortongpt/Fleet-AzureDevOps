@@ -38,7 +38,7 @@
  * ```
  */
 
-import { ChevronUp, ChevronDown, CaretUpDown, Search, DownloadSimple, Columns, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronUp, ChevronDown, ChevronsUpDown, Search, Download, Columns, ChevronLeft, ChevronRight } from 'lucide-react'
 import {
   ColumnDef,
   flexRender,

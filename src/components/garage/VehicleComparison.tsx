@@ -3,7 +3,7 @@
  * Side-by-side comparison of two vehicles in the 3D Garage
  */
 
-import { Car, ArrowsLeftRight, X, Check, Gauge } from 'lucide-react'
+import { Car, ArrowLeftRight, X, Check, Gauge } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -113,7 +113,7 @@ export function VehicleComparison({ vehicles, onClose }: VehicleComparisonProps)
             <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <ArrowsLeftRight className="w-3 h-3 text-blue-400" />
+                        <ArrowLeftRight className="w-3 h-3 text-blue-400" />
                         <CardTitle className="text-sm">Vehicle Comparison</CardTitle>
                     </div>
                     {onClose && (

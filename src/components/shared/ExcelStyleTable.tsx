@@ -29,7 +29,7 @@
  * ```
  */
 
-import { ChevronUp, ChevronDown, CaretUpDown, Search, Columns, X } from 'lucide-react'
+import { ChevronUp, ChevronDown, ChevronsUpDown, Search, Columns, X } from 'lucide-react'
 import { Download } from 'lucide-react'
 import { useState, useMemo, useCallback, ReactNode } from 'react'
 

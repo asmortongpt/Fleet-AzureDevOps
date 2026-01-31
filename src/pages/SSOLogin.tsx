@@ -1,38 +1,40 @@
 /**
  * SSO Login Page
- * Modern, production-ready Azure AD authentication
+ * Modern, production-ready Azure AD authentication using existing MSAL instance
  *
  * Features:
  * - Clean, professional UI with CTA branding
  * - Azure AD SSO with redirect flow
  * - Loading states and error handling
- * - Responsive design
+ * - Responsive design (fits on single page without scrolling)
  * - Accessibility compliant
  */
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useMsal } from '@azure/msal-react'
 import { Shield, Loader2, AlertCircle } from 'lucide-react'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useSSOAuth } from '@/contexts/SSOAuthContext'
 import logger from '@/utils/logger'
 
 export function SSOLogin() {
   const navigate = useNavigate()
-  const { isAuthenticated, isLoading: authLoading, signIn } = useSSOAuth()
+  const { instance, accounts } = useMsal()
   const [isSigningIn, setIsSigningIn] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const isAuthenticated = accounts.length > 0
+
   // Redirect to dashboard if already authenticated
   useEffect(() => {
-    if (isAuthenticated && !authLoading) {
+    if (isAuthenticated) {
       logger.info('[SSO Login] User already authenticated, redirecting')
       navigate('/dashboard', { replace: true })
     }
-  }, [isAuthenticated, authLoading, navigate])
+  }, [isAuthenticated, navigate])
 
   // Check for error in URL (from redirect failure)
   useEffect(() => {
@@ -51,9 +53,11 @@ export function SSOLogin() {
     setError(null)
 
     try {
-      logger.info('[SSO Login] Initiating Azure AD sign-in')
-      await signIn()
-      // User will be redirected, no need to do anything else
+      logger.info('[SSO Login] Initiating Azure AD sign-in with redirect')
+      await instance.loginRedirect({
+        scopes: ['openid', 'profile', 'email', 'User.Read'],
+      })
+      // User will be redirected to Azure AD, no need to do anything else
     } catch (err) {
       logger.error('[SSO Login] Sign-in failed:', err)
       setError(
@@ -63,18 +67,6 @@ export function SSOLogin() {
       )
       setIsSigningIn(false)
     }
-  }
-
-  // Show loading spinner while checking auth status
-  if (authLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          <p className="text-sm text-slate-600">Checking authentication status...</p>
-        </div>
-      </div>
-    )
   }
 
   return (
