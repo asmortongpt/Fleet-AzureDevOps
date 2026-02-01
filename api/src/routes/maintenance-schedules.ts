@@ -341,7 +341,8 @@ router.delete(
 // POST /maintenance-schedules/recurring - Create recurring schedule
 router.post(
   '/recurring',
- csrfProtection, requirePermission('maintenance_schedule:create:fleet'),
+  csrfProtection,
+  requirePermission('maintenance_schedule:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'maintenance_schedules_recurring' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -414,7 +415,8 @@ router.post(
 // PUT /maintenance-schedules/:id/recurrence - Update recurrence pattern
 router.put(
   '/:id/recurrence',
- csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
+  csrfProtection,
+  requirePermission('maintenance_schedule:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'maintenance_schedules_recurrence' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -556,7 +558,8 @@ router.get(
 // POST /maintenance-schedules/:id/generate-work-order - Manual work order creation
 router.post(
   '/:id/generate-work-order',
- csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
+  csrfProtection,
+  requirePermission('maintenance_schedule:update:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'work_orders_from_schedule' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -723,7 +726,8 @@ router.get(
 // PATCH /maintenance-schedules/:id/pause - Pause auto work order generation
 router.patch(
   '/:id/pause',
- csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
+  csrfProtection,
+  requirePermission('maintenance_schedule:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'maintenance_schedules_pause' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -763,7 +767,8 @@ router.patch(
 // PATCH /maintenance-schedules/:id/resume - Resume auto work order generation
 router.patch(
   '/:id/resume',
- csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
+  csrfProtection,
+  requirePermission('maintenance_schedule:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'maintenance_schedules_resume' }),
   async (req: AuthRequest, res: Response) => {
     try {

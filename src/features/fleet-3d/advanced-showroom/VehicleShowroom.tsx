@@ -116,7 +116,7 @@ const VehicleShowroom: React.FC = () => {
   const [imageIndex, setImageIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [arMode, setArMode] = useState(false);
-  const rotationInterval = useRef<NodeJS.Timeout>();
+  const rotationInterval = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
     loadVehicleDatabase();

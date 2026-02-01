@@ -18,6 +18,7 @@ import { Router, Request, Response } from 'express';
 import { body, param, validationResult } from 'express-validator';
 import { Pool } from 'pg';
 
+import { authenticateJWT } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
 import { asyncHandler } from '../middleware/errorHandler';
 
