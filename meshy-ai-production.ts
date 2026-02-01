@@ -8,7 +8,14 @@ import path from 'path';
 
 import axios from 'axios';
 
-const MESHY_API_KEY = process.env.MESHY_API_KEY || 'msy_aL4JDGCHF76THUL7Ko2WmLMSOG0VfXnLRlw3';
+const MESHY_API_KEY = process.env.MESHY_API_KEY;
+if (!MESHY_API_KEY) {
+  throw new Error(
+    'MESHY_API_KEY environment variable is required. ' +
+    'Please set it in your .env file. ' +
+    'Get your API key from: https://meshy.ai/dashboard/api-keys'
+  );
+}
 const MESHY_BASE_URL = 'https://api.meshy.ai';
 
 interface MeshyTaskStatus {
