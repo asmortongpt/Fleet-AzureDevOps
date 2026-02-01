@@ -1122,7 +1122,7 @@ const ProcurementHub = memo(() => {
       {
         id: 'overview',
         label: 'Overview',
-        icon: <BarChart className="h-4 w-4" />,
+        icon: <ChartBar className="h-4 w-4" />,
         content: (
           <ErrorBoundary>
             <ProcurementOverview />

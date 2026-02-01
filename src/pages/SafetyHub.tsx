@@ -32,7 +32,7 @@ import {
 } from '@/components/visualizations'
 import { useReactiveSafetyData } from '@/hooks/use-reactive-safety-data'
 
-import { AlertCircle, AlertTriangle, CheckCircle, TrendingDown, TrendingUp, Clipboard } from 'lucide-react';
+import { AlertCircle, AlertTriangle, CheckCircle, TrendingDown, TrendingUp, Clipboard, X } from 'lucide-react';
 import { BarChart } from 'recharts';
 /**
  * Overview Tab - Main safety dashboard with real-time metrics
@@ -983,7 +983,7 @@ function IncidentsTab() {
     criticalIncidents,
     metrics,
     isLoading,
-  } = useReactiveSafetyComplianceData()
+  } = useReactiveSafetyData()
 
   const investigatingCount = incidents.filter((i: any) => i.status === 'investigating').length
   const resolvedCount = incidents.filter((i: any) => i.status === 'resolved').length
@@ -1164,7 +1164,7 @@ function InspectionsTab() {
     inspections,
     metrics,
     isLoading,
-  } = useReactiveSafetyComplianceData()
+  } = useReactiveSafetyData()
 
   // Inspection status distribution
   const statusData = inspections.reduce((acc: Record<string, number>, inspection: any) => {
@@ -1234,7 +1234,7 @@ function InspectionsTab() {
         <StatCard
           title="OSHA Inspections"
           value={oshaInspections.toString()}
-          icon={Cross}
+          icon={X}
           trend="up"
           description="Workplace safety"
           loading={isLoading}
@@ -1310,7 +1310,7 @@ function CertificationsTab() {
     expiringCertifications,
     expiredCertifications,
     isLoading,
-  } = useReactiveSafetyComplianceData()
+  } = useReactiveSafetyData()
 
   // Certification status distribution
   const statusData = certifications.reduce((acc: Record<string, number>, cert: any) => {
@@ -1357,7 +1357,7 @@ function CertificationsTab() {
         <StatCard
           title="Medical Cards"
           value={medicalCards.toString()}
-          icon={Cross}
+          icon={X}
           trend="neutral"
           description="Medical certifications"
           loading={isLoading}

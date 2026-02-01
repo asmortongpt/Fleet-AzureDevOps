@@ -9,7 +9,7 @@ import ReservationsHub from '@/components/hubs/reservations/ReservationsHub';
 import ConfigurationHub from '@/pages/ConfigurationHub';
 import DocumentsHub from '@/pages/DocumentsHub';
 import FleetHub from '@/pages/FleetHub';
-import MapDiagnostics from '@/pages/MapDiagnostics';
+// import MapDiagnostics from '@/pages/MapDiagnostics'; // TODO: Module not found - needs to be created
 import PolicyHub from '@/pages/PolicyHub';
 
 export const AppRoutes: React.FC = () => {
@@ -24,7 +24,7 @@ export const AppRoutes: React.FC = () => {
       <Route path="/documents-hub" element={<DocumentsHub />} />
       <Route path="/configuration" element={<ConfigurationHub />} />
       <Route path="/cta-configuration-hub" element={<ConfigurationHub />} />
-      <Route path="/map-diagnostics" element={<MapDiagnostics />} />
+      {/* <Route path="/map-diagnostics" element={<MapDiagnostics />} /> */}
     </Routes>
   );
 };
