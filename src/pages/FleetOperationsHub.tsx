@@ -184,15 +184,15 @@ const FleetTabContent = memo(function FleetTabContent() {
         />
         <StatCard
           title="Maintenance Due"
-          value={safeStats.maintenanceDue}
+          value={safeStats.maintenanceVehicles}
           icon={Wrench}
           change={2}
           trend="down"
           description="Needs attention"
         />
         <StatCard
-          title="Fuel Efficiency"
-          value={`${(safeStats.avgFuelEfficiency || 0).toFixed(1)} MPG`}
+          title="Avg Fuel Level"
+          value={`${(safeStats.averageFuelLevel || 0).toFixed(1)}%`}
           icon={Fuel}
           change={5}
           trend="up"
@@ -291,12 +291,16 @@ const FleetTabContent = memo(function FleetTabContent() {
 const DriversTabContent = memo(function DriversTabContent() {
   const { drivers, metrics: stats, isLoading: loading, error, refresh: refetch } = useReactiveDriversData()
 
-  // Default stats if undefined
+  // Default stats if undefined - use metrics structure from hook
   const safeStats = stats || {
     totalDrivers: 0,
     activeDrivers: 0,
-    complianceRate: 0,
-    avgSafetyScore: 0
+    onLeave: 0,
+    suspended: 0,
+    avgSafetyScore: 0,
+    avgPerformance: 0,
+    activeAssignments: 0,
+    totalViolations: 0
   }
 
   if (loading) {
@@ -346,12 +350,12 @@ const DriversTabContent = memo(function DriversTabContent() {
           description="Currently working"
         />
         <StatCard
-          title="Compliance Rate"
-          value={`${safeStats.complianceRate}%`}
+          title="Avg Performance"
+          value={`${safeStats.avgPerformance}%`}
           icon={Shield}
           change={2}
           trend="up"
-          description="License & training"
+          description="Performance rating"
         />
         <StatCard
           title="Avg Safety Score"
@@ -376,8 +380,8 @@ const DriversTabContent = memo(function DriversTabContent() {
           <CardContent>
             <ResponsiveLineChart
               title="Driver Performance Trends"
-              data={safeStats.performanceTrend || []}
-              dataKeys={['safety_score', 'compliance_rate']}
+              data={[]}
+              dataKeys={['safety_score', 'performance_rating']}
               colors={['#10b981', '#3b82f6']}
               height={300}
             />
@@ -433,13 +437,25 @@ const DriversTabContent = memo(function DriversTabContent() {
 const OperationsTabContent = memo(function OperationsTabContent() {
   const { routes, tasks, fuelTransactions, metrics: stats, isLoading: loading, error, refresh: refetch } = useReactiveOperationsData()
 
-  // Default stats if undefined
+  // Default stats if undefined - use metrics structure from hook
   const safeStats = stats || {
-    activeRoutes: 0,
-    pendingTasks: 0,
-    fuelCostToday: 0,
-    avgDeliveryTime: 0,
-    routeEfficiency: 0
+    activeJobs: 0,
+    scheduled: 0,
+    completed: 0,
+    delayed: 0,
+    cancelled: 0,
+    totalRoutes: 0,
+    completionRate: 0,
+    avgRouteDistance: 0,
+    totalDistance: 0,
+    totalFuelCost: 0,
+    avgFuelCostPerMile: 0,
+    avgFuelCostPerRoute: 0,
+    openTasks: 0,
+    inProgressTasks: 0,
+    completedTasks: 0,
+    overdueTasks: 0,
+    totalTasks: 0
   }
 
   if (loading) {
