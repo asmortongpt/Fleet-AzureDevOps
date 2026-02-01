@@ -34,11 +34,9 @@ export const msalConfig: Configuration = {
     authority: `https://login.microsoftonline.com/${AZURE_AD_TENANT_ID}`,
     redirectUri: AZURE_AD_REDIRECT_URI,
     postLogoutRedirectUri: window.location.origin,
-    navigateToLoginRequestUrl: true,
   },
   cache: {
     cacheLocation: 'localStorage', // Use localStorage for persistence across tabs
-    storeAuthStateInCookie: false, // Not needed for modern browsers
   },
   system: {
     loggerOptions: {
@@ -63,7 +61,6 @@ export const msalConfig: Configuration = {
       },
       piiLoggingEnabled: false,
     },
-    allowNativeBroker: false, // Disable WAM for web apps
   },
 }
 

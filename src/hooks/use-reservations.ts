@@ -195,7 +195,7 @@ export function useApproveReservation() {
       const response = await apiClient.post<{
         success: boolean
         reservation: Reservation
-      }>(`/api/reservations/${reservationId}/approve`)
+      }>(`/api/reservations/${reservationId}/approve`, {})
 
       return response.reservation
     },
@@ -237,7 +237,7 @@ export function useRejectReservation() {
       const response = await apiClient.post<{
         success: boolean
         reservation: Reservation
-      }>(`/api/reservations/${reservationId}/reject`)
+      }>(`/api/reservations/${reservationId}/reject`, {})
 
       return response.reservation
     },
@@ -262,7 +262,7 @@ export function useCancelReservation() {
       const response = await apiClient.post<{
         success: boolean
         reservation: Reservation
-      }>(`/api/reservations/${reservationId}/cancel`)
+      }>(`/api/reservations/${reservationId}/cancel`, {})
 
       return response.reservation
     },

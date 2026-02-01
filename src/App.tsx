@@ -10,7 +10,7 @@ import { EnhancedErrorBoundary } from "@/components/errors/EnhancedErrorBoundary
 import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
 import { CommandCenterLayout } from "@/components/layout/CommandCenterLayout"
 import { Button } from "@/components/ui/button"
-import { useAuth } from "@/contexts/AuthContext"
+import { useAuth } from "@/contexts"
 import { useNavigation } from "@/contexts/NavigationContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { navigationItems } from "@/lib/navigation"
