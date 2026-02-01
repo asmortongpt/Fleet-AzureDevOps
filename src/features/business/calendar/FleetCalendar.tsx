@@ -450,7 +450,7 @@ const FleetCalendar: React.FC = () => {
 
       {/* Calendar */}
       <div className="bg-white rounded-lg shadow-sm p-2" style={{ height: 'calc(100vh - 280px)' }}>
-        <Calendar
+        <Calendar<FleetEvent>
           localizer={localizer}
           events={filteredEvents}
           startAccessor="start"

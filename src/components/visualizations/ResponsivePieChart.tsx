@@ -196,8 +196,9 @@ export function ResponsivePieChart({
                     </linearGradient>
                   ))}
                 </defs>
+                {/* @ts-expect-error - Recharts Pie types are incomplete for activeIndex/activeShape */}
                 <Pie
-                  data={data as unknown as Record<string, unknown>[]}
+                  data={data as any}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -208,7 +209,7 @@ export function ResponsivePieChart({
                     innerRadius,
                     outerRadius,
                     percent = 0,
-                  }) => {
+                  }: any) => {
                     if (percent < 0.05) return null // Don't show label for small slices
                     const RADIAN = Math.PI / 180
                     const radius = innerRadius + (outerRadius - innerRadius) * 0.5
@@ -227,7 +228,7 @@ export function ResponsivePieChart({
                         {`${((percent ?? 0) * 100).toFixed(0)}%`}
                       </text>
                     )
-                  } : false}
+                  } : undefined}
                   outerRadius={innerRadius ? 100 : 110}
                   innerRadius={innerRadius}
                   fill="#8884d8"

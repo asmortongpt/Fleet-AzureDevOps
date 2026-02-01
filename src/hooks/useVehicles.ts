@@ -25,7 +25,7 @@ export function useVehicles(params?: {
   return useQuery({
     queryKey: ['vehicles', params],
     queryFn: async () => {
-      const response = await api.get<Vehicle[]>('/vehicles', { params })
+      const response = await api.get('/vehicles', params) as Vehicle[]
       return response ?? []
     },
   })
@@ -35,7 +35,7 @@ export function useVehicle(id: number) {
   return useQuery({
     queryKey: ['vehicle', id],
     queryFn: async () => {
-      const response = await api.get<Vehicle>(`/vehicles/${id}`)
+      const response = await (api.get as <T>(endpoint: string) => Promise<T>)<Vehicle>(`/vehicles/${id}`)
       return response
     },
     enabled: !!id,
@@ -47,7 +47,7 @@ export function useCreateVehicle() {
 
   return useMutation({
     mutationFn: async (data: Partial<Vehicle>) => {
-      const response = await api.post<Vehicle>('/vehicles', data)
+      const response = await (api.post as <T>(endpoint: string, data: unknown) => Promise<T>)<Vehicle>('/vehicles', data)
       return response
     },
     onSuccess: () => {
@@ -61,7 +61,7 @@ export function useUpdateVehicle() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<Vehicle> }) => {
-      const response = await api.put<Vehicle>(`/vehicles/${id}`, data)
+      const response = await (api.put as <T>(endpoint: string, data: unknown) => Promise<T>)<Vehicle>(`/vehicles/${id}`, data)
       return response
     },
     onSuccess: () => {

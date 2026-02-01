@@ -135,12 +135,7 @@ declare module '@/contexts/AuthContext' {
 }
 
 // Hooks
-declare module '@/hooks/useAuth' {
-    export function useAuth(): {
-        tenantId?: string;
-        user?: any;
-    };
-}
+// Note: useAuth is defined in @/hooks/useAuth.ts - do not override here
 
 declare module '@/hooks/useDatabase' {
     export function useDatabase(): any;
@@ -161,17 +156,7 @@ declare module '@/utils/security' {
 }
 
 // Types
-declare module '@/types' {
-    export interface Driver {
-        id: string;
-        name: string;
-    }
-    export interface Vehicle {
-        id: string;
-        make: string;
-        model: string;
-    }
-}
+// Note: Driver and Vehicle are defined in @/types/index.ts - do not override here
 
 // Components
 declare module '@/components/ui/Badge' {

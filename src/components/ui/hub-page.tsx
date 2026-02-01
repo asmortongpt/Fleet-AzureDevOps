@@ -50,8 +50,8 @@ export function HubTabItem({ children }: HubTabItemProps) {
 export interface HubPageProps {
     /** Hub title displayed in header */
     title: string
-    /** Hub icon displayed next to title */
-    icon?: ReactNode
+    /** Hub icon displayed next to title (ReactNode or component type) */
+    icon?: ReactNode | React.ComponentType<{ className?: string }>
     /** Hub description/subtitle */
     description?: string
     /** Array of tab configurations */
@@ -157,7 +157,7 @@ export function HubPage({
                                 "text-[#FDB813] shadow-md shadow-[#00D4FF]/20"
                             )}
                         >
-                            {React.isValidElement(icon) ? icon : React.createElement(icon as React.ComponentType, { className: 'h-5 w-5' })}
+                            {React.isValidElement(icon) ? icon : React.createElement(icon as React.ComponentType<{ className: string }>, { className: 'h-5 w-5' })}
                         </motion.div>
                     )}
                     <motion.div
@@ -228,7 +228,7 @@ export function HubPage({
                                         )}
                                         data-testid={`hub-tab-${tab.id}`}
                                     >
-                                        {tab.icon && (React.isValidElement(tab.icon) ? tab.icon : React.createElement(tab.icon as React.ComponentType, { className: 'h-4 w-4' }))}
+                                        {tab.icon && (React.isValidElement(tab.icon) ? tab.icon : React.createElement(tab.icon as React.ComponentType<{ className: string }>, { className: 'h-4 w-4' }))}
                                         {tab.label}
                                     </TabsTrigger>
                                 </motion.div>

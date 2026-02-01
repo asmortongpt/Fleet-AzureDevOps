@@ -30,6 +30,7 @@ export interface Vehicle {
   nextService: string
   alerts: string[]
   customFields?: Record<string, any>
+  metadata?: Record<string, any>
   tags?: string[]
 
   // Asset Classification

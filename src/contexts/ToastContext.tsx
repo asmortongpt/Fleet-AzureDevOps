@@ -38,7 +38,15 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 
 import { ToastContainer } from '../components/Toast';
-import { useToast } from '../hooks/useToast';
+import { useToast as useToastHook } from '../hooks/useToast';
+
+export interface ToastContextType {
+  showSuccess: (message: string, duration?: number) => void;
+  showError: (message: string, duration?: number) => void;
+  showInfo: (message: string, duration?: number) => void;
+  showWarning: (message: string, duration?: number) => void;
+  clearAll: () => void;
+}
 
 interface ToastContextValue {
   showSuccess: (message: string, duration?: number) => void;
@@ -59,7 +67,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
   children,
   maxToasts = 5
 }) => {
-  const { toasts, addToast, removeToast, clearAllToasts } = useToast();
+  const { toasts, addToast, removeToast, clearAllToasts } = useToastHook();
 
   const showSuccess = (message: string, duration?: number) => {
     if (toasts.length >= maxToasts) {
@@ -116,3 +124,6 @@ export const useToastContext = (): ToastContextValue => {
   }
   return context;
 };
+
+// Alias for barrel export compatibility
+export { useToastContext as useToast };

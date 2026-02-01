@@ -10,6 +10,12 @@ import { EnhancedErrorBoundary } from "@/components/errors/EnhancedErrorBoundary
 import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
 import { CommandCenterLayout } from "@/components/layout/CommandCenterLayout"
 import { Button } from "@/components/ui/button"
+import { useAuth } from "@/contexts/AuthContext"
+import { useNavigation } from "@/contexts/NavigationContext"
+import { useFleetData } from "@/hooks/use-fleet-data"
+import { navigationItems } from "@/lib/navigation"
+import telemetryService from '@/lib/telemetry'
+import logger from '@/utils/logger'
 
 // Lazy load all modules for code splitting - reduces initial bundle by 80%+
 // Modules now organized in feature-based folders for better maintainability
@@ -191,16 +197,7 @@ const LoadingSpinner = () => (
   </div>
 )
 
-import { useAuth } from "@/contexts/AuthContext"
-import { useNavigation } from "@/contexts/NavigationContext"
-import { useFleetData } from "@/hooks/use-fleet-data"
-import { navigationItems } from "@/lib/navigation"
-// import { initializePolicyEngine } from '@/lib/policy-engine/global-policy-integration' // DISABLED - missing dependencies
-import telemetryService from '@/lib/telemetry'
-import logger from '@/utils/logger';
-
-// ... existing imports
-
+// Main App Component
 function App() {
   const { canAccess } = useAuth()
   const { activeModule, setActiveModule } = useNavigation()

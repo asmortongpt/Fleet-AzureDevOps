@@ -593,11 +593,9 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
   const renderBarcodeScanner = () => (
     <div className="relative">
       <Scanner
-        onDecode={handleBarcodeScan}
+        onScan={handleBarcodeScan}
         onError={handleError}
         scanDelay={300}
-        containerStyle={{ width: '100%', aspectRatio: '4/3' }}
-        videoStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
         constraints={{ facingMode }}
       />
 
