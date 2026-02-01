@@ -329,10 +329,11 @@ function IncidentHubContent() {
                 <Suspense fallback={<Skeleton className="h-64 w-full" />}>
                   <ResponsiveLineChart
                     data={incidentTrendData}
-                    xKey="name"
-                    lines={[{ dataKey: 'count', name: 'Incidents', color: '#ef4444' }]}
+                    xAxisKey="name"
+                    dataKeys={['count']}
                     title="Incident Count"
                     height={250}
+                    colors={['#ef4444']}
                   />
                 </Suspense>
               </CardContent>
