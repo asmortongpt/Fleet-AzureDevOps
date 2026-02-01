@@ -388,16 +388,20 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
 
   const isDevelopment = process.env.NODE_ENV === 'development';
 
+  // Check if error has a statusCode property (AppError, HTTP errors, etc.)
+  const statusCode = (err as any).statusCode || (err as any).status || 500;
+  const isOperational = (err as any).isOperational !== false; // Default to true if not specified
+
   const errorResponse = {
-    error: 'Internal server error',
-    message: isDevelopment ? err.message : 'An unexpected error occurred',
+    error: statusCode === 404 ? 'Not Found' : 'Internal server error',
+    message: isDevelopment || isOperational ? err.message : 'An unexpected error occurred',
     ...(isDevelopment && { stack: err.stack }),
     timestamp: new Date().toISOString(),
     path: req.path,
     method: req.method,
   };
 
-  res.status(500).json(errorResponse);
+  res.status(statusCode).json(errorResponse);
 };
 
 // ============================================================================

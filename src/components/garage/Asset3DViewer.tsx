@@ -243,7 +243,7 @@ function DamageMarker({ point, isSelected, onClick }: DamageMarkerProps) {
   return (
     <group position={position}>
       {/* Outer ring animation */}
-      <mesh onClick={(e) => { e.stopPropagation(); onClick(); }}>
+      <mesh onClick={(e: React.MouseEvent) => { e.stopPropagation(); onClick(); }}>
         <sphereGeometry args={[isSelected ? 0.15 : 0.1, 16, 16]} />
         <meshStandardMaterial
           color={color}

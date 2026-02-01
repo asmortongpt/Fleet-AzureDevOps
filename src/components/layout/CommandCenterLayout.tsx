@@ -163,6 +163,14 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): Rea
                         {children}
                     </div>
                 </div>
+
+                {/* Footer for accessibility */}
+                <footer className="shrink-0 px-4 py-2 text-xs text-muted-foreground border-t border-border/50 bg-background/50">
+                    <div className="flex items-center justify-between">
+                        <span>&copy; {new Date().getFullYear()} CTAFleet. All rights reserved.</span>
+                        <span>v1.0.0</span>
+                    </div>
+                </footer>
             </main>
         </div>
     );

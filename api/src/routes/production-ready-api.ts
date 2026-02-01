@@ -8,6 +8,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 
 import { db } from '../db/connection';
+import { authenticateJWT } from '../middleware/auth';
 import { schema } from '../schemas/production.schema';
 
 
@@ -157,7 +158,7 @@ const handleError = (res: Response, error: unknown, defaultMessage: string = 'In
 // ============================================================================
 
 // Create driver
-router.post('/drivers', async (req: Request, res: Response) => {
+router.post('/drivers', authenticateJWT, async (req: Request, res: Response) => {
   try {
     const validatedData = validateRequest(createDriverSchema, req.body);
     const tenantId = await getTenantId(validatedData.tenantId);
@@ -176,7 +177,7 @@ router.post('/drivers', async (req: Request, res: Response) => {
 });
 
 // Update driver
-router.put('/drivers/:id', async (req: Request, res: Response) => {
+router.put('/drivers/:id', authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const validatedData = validateRequest(updateDriverSchema, req.body);
@@ -211,7 +212,7 @@ router.put('/drivers/:id', async (req: Request, res: Response) => {
 });
 
 // Delete driver
-router.delete('/drivers/:id', async (req: Request, res: Response) => {
+router.delete('/drivers/:id', authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -297,7 +298,7 @@ router.get('/drivers/:id/history', async (req: Request, res: Response) => {
 });
 
 // Assign driver to vehicle
-router.post('/vehicles/:id/assign-driver', async (req: Request, res: Response) => {
+router.post('/vehicles/:id/assign-driver', authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { driverId } = req.body;
@@ -343,7 +344,7 @@ router.post('/vehicles/:id/assign-driver', async (req: Request, res: Response) =
 // ============================================================================
 
 // Create work order
-router.post('/work-orders', async (req: Request, res: Response) => {
+router.post('/work-orders', authenticateJWT, async (req: Request, res: Response) => {
   try {
     const validatedData = validateRequest(createWorkOrderSchema, req.body);
     const tenantId = await getTenantId(validatedData.tenantId);
@@ -369,7 +370,7 @@ router.post('/work-orders', async (req: Request, res: Response) => {
 });
 
 // Update work order
-router.put('/work-orders/:id', async (req: Request, res: Response) => {
+router.put('/work-orders/:id', authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const validatedData = validateRequest(updateWorkOrderSchema, req.body);
@@ -427,7 +428,7 @@ router.get('/work-orders/:id', async (req: Request, res: Response) => {
 // ============================================================================
 
 // Create maintenance record
-router.post('/maintenance-records', async (req: Request, res: Response) => {
+router.post('/maintenance-records', authenticateJWT, async (req: Request, res: Response) => {
   try {
     const validatedData = validateRequest(createMaintenanceRecordSchema, req.body);
     const tenantId = await getTenantId(validatedData.tenantId);
@@ -459,7 +460,7 @@ router.post('/maintenance-records', async (req: Request, res: Response) => {
 // ============================================================================
 
 // Create fuel transaction
-router.post('/fuel-transactions', async (req: Request, res: Response) => {
+router.post('/fuel-transactions', authenticateJWT, async (req: Request, res: Response) => {
   try {
     const validatedData = validateRequest(createFuelTransactionSchema, req.body);
     const tenantId = await getTenantId(validatedData.tenantId);
@@ -546,7 +547,7 @@ router.get('/fuel-analytics', async (req: Request, res: Response) => {
 // ============================================================================
 
 // Submit GPS position
-router.post('/gps-position', async (req: Request, res: Response) => {
+router.post('/gps-position', authenticateJWT, async (req: Request, res: Response) => {
   try {
     const validatedData = validateRequest(createGpsPositionSchema, req.body);
     const tenantId = await getTenantId(validatedData.tenantId);

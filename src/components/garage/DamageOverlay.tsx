@@ -101,7 +101,7 @@ function DamageMarker({ point, isSelected, onSelect, onRemove, isEditMode }: Dam
                 ref={markerRef}
                 args={[0.08, 16, 16]}
                 scale={scale}
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent) => {
                     e.stopPropagation()
                     onSelect()
                 }}

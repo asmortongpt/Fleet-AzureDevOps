@@ -159,7 +159,7 @@ export function useValidation(
 ) {
   const [state, setState] = React.useState<ValidationState>('idle')
   const [message, setMessage] = React.useState<string | undefined>()
-  const timeoutRef = React.useRef<NodeJS.Timeout>()
+  const timeoutRef = React.useRef<NodeJS.Timeout | undefined>(undefined)
 
   const validate = React.useCallback(
     (value: string) => {
