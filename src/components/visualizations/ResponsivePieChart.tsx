@@ -235,6 +235,7 @@ export function ResponsivePieChart({
                   dataKey="value"
                   animationDuration={1200}
                   animationBegin={0}
+                  // @ts-ignore - activeIndex/activeShape are valid Recharts Pie props but missing from types
                   activeIndex={activeIndex}
                   activeShape={enableHover ? renderActiveShape : undefined}
                   onMouseEnter={onPieEnter}
