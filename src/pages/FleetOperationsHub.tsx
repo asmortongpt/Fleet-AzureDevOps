@@ -147,10 +147,8 @@ const FleetTabContent = memo(function FleetTabContent() {
 
   if (error) {
     return (
-      <Alert variant="destructive">
         <AlertTriangle className="h-4 w-4" />
         <AlertDescription>
-          Failed to load fleet data. <Button variant="link" onClick={refetch}>Retry</Button>
         </AlertDescription>
       </Alert>
     )
@@ -310,10 +308,8 @@ const DriversTabContent = memo(function DriversTabContent() {
 
   if (error) {
     return (
-      <Alert variant="destructive">
         <AlertTriangle className="h-4 w-4" />
         <AlertDescription>
-          Failed to load driver data. <Button variant="link" onClick={refetch}>Retry</Button>
         </AlertDescription>
       </Alert>
     )
@@ -408,7 +404,6 @@ const DriversTabContent = memo(function DriversTabContent() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Badge variant={driver.status === 'active' ? 'default' : 'secondary'}>
                       {driver.status}
                     </Badge>
                     <div className="text-right">
@@ -453,10 +448,8 @@ const OperationsTabContent = memo(function OperationsTabContent() {
 
   if (error) {
     return (
-      <Alert variant="destructive">
         <AlertTriangle className="h-4 w-4" />
         <AlertDescription>
-          Failed to load operations data. <Button variant="link" onClick={refetch}>Retry</Button>
         </AlertDescription>
       </Alert>
     )
@@ -529,7 +522,6 @@ const OperationsTabContent = memo(function OperationsTabContent() {
                         </p>
                       </div>
                     </div>
-                    <Badge variant={route.status === 'active' ? 'default' : 'secondary'}>
                       {route.status}
                     </Badge>
                   </div>
@@ -641,7 +633,6 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
           change={2}
           trend="down"
           description="Needs immediate attention"
-          variant="warning"
         />
         <StatCard
           title="Parts Inventory"
@@ -690,13 +681,11 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant={
                       order.status === 'In Progress' ? 'default' :
                       order.status === 'Pending' ? 'secondary' : 'outline'
                     }>
                       {order.status}
                     </Badge>
-                    <Button variant="outline" size="sm" onClick={() => handleViewWorkOrder(order.id)}>
                       View
                     </Button>
                   </div>
@@ -733,7 +722,6 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                     </p>
                     <p className="text-xs text-muted-foreground">Current: {maintenance.mileage} mi</p>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => handleScheduleMaintenance(maintenance.vehicle)}>
                     Edit
                   </Button>
                 </div>
@@ -757,7 +745,6 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                 { vehicle: 'Vehicle 3333', service: 'Brake Inspection', overdue: '14 days', priority: 'high' },
                 { vehicle: 'Vehicle 4444', service: 'Tire Replacement', overdue: '3 days', priority: 'medium' },
               ].map((overdue, index) => (
-                <Alert key={index} variant="destructive">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
                     <div className="flex items-center justify-between">
@@ -767,7 +754,6 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                           {overdue.service} · Overdue by {overdue.overdue}
                         </p>
                       </div>
-                      <Button variant="outline" size="sm" onClick={() => handleScheduleMaintenance(overdue.vehicle)}>
                         Schedule Now
                       </Button>
                     </div>
@@ -802,7 +788,6 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                 <div key={item.part} className="p-3 border rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <p className="font-semibold text-sm">{item.part}</p>
-                    <Badge variant={item.status === 'in-stock' ? 'default' : 'secondary'}>
                       {item.status === 'in-stock' ? 'In Stock' : 'Low Stock'}
                     </Badge>
                   </div>
@@ -876,7 +861,6 @@ const AssetsTabContent = memo(function AssetsTabContent() {
           change={2}
           trend="down"
           description="Needs servicing"
-          variant="warning"
         />
         <StatCard
           title="Asset Value"
@@ -923,16 +907,13 @@ const AssetsTabContent = memo(function AssetsTabContent() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant={asset.status === 'In Use' ? 'default' : 'secondary'}>
                       {asset.status}
                     </Badge>
-                    <Badge variant={
                       asset.condition === 'Excellent' ? 'default' :
                       asset.condition === 'Good' ? 'secondary' : 'outline'
                     }>
                       {asset.condition}
                     </Badge>
-                    <Button variant="outline" size="sm" onClick={() => handleViewAsset(asset.id)}>
                       View
                     </Button>
                   </div>
@@ -990,13 +971,11 @@ const AssetsTabContent = memo(function AssetsTabContent() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant={
                       maintenance.priority === 'high' ? 'destructive' :
                       maintenance.priority === 'medium' ? 'secondary' : 'outline'
                     }>
                       {maintenance.priority}
                     </Badge>
-                    <Button variant="outline" size="sm" onClick={() => handleScheduleAssetMaintenance(maintenance.asset)}>
                       Schedule
                     </Button>
                   </div>

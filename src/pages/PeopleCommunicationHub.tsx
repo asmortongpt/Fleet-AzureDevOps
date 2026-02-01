@@ -122,7 +122,7 @@ const PeopleTabContent = memo(function PeopleTabContent() {
           title="Avg Tenure"
           value="3.2 yrs"
           icon={Award}
-          trend={{ value: 0.4, isPositive: true }}
+          trend="up"
           description="Employee retention"
         />
       </motion.div>

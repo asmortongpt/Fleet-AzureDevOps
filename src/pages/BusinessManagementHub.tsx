@@ -638,7 +638,7 @@ export default function BusinessManagementHub() {
     <HubPage
       title="Business Management"
       description="Financial oversight, procurement, analytics, and comprehensive reporting"
-      icon={BarChart}
+      icon={<BarChart className="h-5 w-5" />}
     >
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

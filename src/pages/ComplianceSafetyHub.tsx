@@ -122,7 +122,6 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
           change={3}
   trend="down"
           description="Within 30 days"
-          variant="warning"
         />
         <StatCard
           title="Non-Compliant"
@@ -131,7 +130,6 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
           change={1}
   trend="down"
           description="Needs attention"
-          variant="destructive"
         />
       </motion.div>
 
@@ -164,7 +162,6 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
                       <p className="text-sm text-muted-foreground">{item.rate}% compliant</p>
                     </div>
                   </div>
-                  <Badge variant={item.status === 'compliant' ? 'default' : 'secondary'}>
                     {item.status === 'compliant' ? 'Compliant' : 'Review Needed'}
                   </Badge>
                 </div>
@@ -200,7 +197,6 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
                       <p className="text-sm text-muted-foreground">Expires in {renewal.daysLeft} days</p>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => handleScheduleRenewal(renewal.item)}>
                     Schedule
                   </Button>
                 </div>
@@ -249,7 +245,6 @@ const SafetyTabContent = memo(function SafetyTabContent() {
           change={2}
   trend="down"
           description="Under investigation"
-          variant="warning"
         />
         <StatCard
           title="Training Completion"
@@ -318,7 +313,6 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                       <p className="text-sm text-muted-foreground">{incident.vehicle}</p>
                     </div>
                   </div>
-                  <Badge variant={incident.status === 'Resolved' ? 'default' : 'secondary'}>
                     {incident.status}
                   </Badge>
                 </div>
@@ -420,7 +414,6 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
           change={3}
   trend="down"
           description="This month"
-          variant="warning"
         />
       </motion.div>
 
@@ -453,7 +446,6 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
                       </p>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => handleViewPolicy(item.category)}>
                     View
                   </Button>
                 </div>
@@ -488,7 +480,6 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
                       <p className="text-sm text-muted-foreground">{violation.driver}</p>
                     </div>
                   </div>
-                  <Badge variant="destructive">{violation.action}</Badge>
                 </div>
               ))}
             </div>
@@ -551,10 +542,8 @@ const ReportingTabContent = memo(function ReportingTabContent() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => handleViewReport(report.name)}>
                     View
                   </Button>
-                  <Button variant="default" size="sm" onClick={() => handleGenerateReport(report.name)}>
                     Generate
                   </Button>
                 </div>
