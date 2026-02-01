@@ -27,7 +27,6 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import logger from '@/utils/logger';
 
-import logger from '@/utils/logger';
 export interface ARModeExportProps {
   vehicleId?: number;
   vehicleData?: {

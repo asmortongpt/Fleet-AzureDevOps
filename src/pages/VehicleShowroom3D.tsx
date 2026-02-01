@@ -43,7 +43,6 @@ import { VEHICLE_COLORS, type MaterialQuality, type PaintType } from '@/lib/3d/p
 
 
 import logger from '@/utils/logger';
-import logger from '@/utils/logger';
 interface Vehicle {
   id: number;
   make: string;
@@ -351,13 +350,13 @@ export default function VehicleShowroom3D() {
                       {Object.entries(VEHICLE_COLORS).slice(0, 15).map(([name, color]) => (
                         <button
                           key={name}
-                          onClick={() => setExteriorColor(color)}
+                          onClick={() => setExteriorColor(color as string)}
                           className={`w-10 h-8 rounded-lg border-2 transition-all ${
                             exteriorColor === color
                               ? 'border-primary ring-2 ring-primary ring-offset-2'
                               : 'border-border hover:border-primary/50'
                           }`}
-                          style={{ backgroundColor: color }}
+                          style={{ backgroundColor: color as string }}
                           title={name.replace(/_/g, ' ')}
                         />
                       ))}

@@ -15,7 +15,6 @@ import { useRef, useMemo, useEffect } from 'react';
 import * as THREE from 'three';
 
 import logger from '@/utils/logger';
-import logger from '@/utils/logger';
 // ============================================================================
 // TYPES
 // ============================================================================

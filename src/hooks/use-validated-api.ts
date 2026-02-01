@@ -13,9 +13,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import { z } from 'zod'
 
 import { useValidatedQuery, useValidatedMutation, invalidateQueries } from './use-validated-query'
+import logger from '@/utils/logger'
 
 import {
-import logger from '@/utils/logger';
   vehicleSchema,
   vehiclesArraySchema,
   createVehicleSchema,

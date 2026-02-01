@@ -14,7 +14,6 @@ import type { DamageSeverity } from '@/components/garage/DamageOverlay';
 import type { CapturedPhoto } from '@/components/garage/MobileCameraCapture';
 
 import logger from '@/utils/logger';
-import logger from '@/utils/logger';
 // ============================================================================
 // TYPES
 // ============================================================================

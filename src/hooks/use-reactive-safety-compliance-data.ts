@@ -9,7 +9,6 @@ import { useState, useCallback, useMemo, useEffect } from 'react'
 import { z } from 'zod'
 
 import logger from '@/utils/logger';
-import logger from '@/utils/logger';
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 
 // Enhanced Zod schemas with comprehensive validation
