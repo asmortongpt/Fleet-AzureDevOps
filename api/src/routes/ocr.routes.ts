@@ -16,9 +16,13 @@ import { csrfProtection } from '../middleware/csrf'
 import ocrQueueService from '../services/OcrQueueService'
 import ocrService, { OcrOptions, OcrProvider } from '../services/OcrService'
 import { getErrorMessage } from '../utils/error-handler'
+import { authenticateJWT } from '../middleware/auth'
 
 
 const router = express.Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 // Configure multer for file uploads
 const upload = multer({

@@ -15,6 +15,7 @@ import { authenticateJWT } from '../../middleware/auth';
 import { requireRBAC, Role, PERMISSIONS } from '../../middleware/rbac';
 import { asyncHandler } from '../../middleware/errorHandler';
 import logger from '../../config/logger';
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router();
 

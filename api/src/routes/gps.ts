@@ -8,8 +8,12 @@ import { Router, Request, Response } from 'express'
 
 import logger from '../config/logger'; // Wave 17: Add Winston logger
 import { csrfProtection } from '../middleware/csrf'
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 // TODO: GPS Emulator service needs to be implemented
 // Placeholder implementation until gps-emulator service is created

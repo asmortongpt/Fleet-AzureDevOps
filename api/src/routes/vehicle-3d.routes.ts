@@ -20,6 +20,9 @@ import { getErrorMessage } from '../utils/error-handler'
 
 
 const router = express.Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 const vehicleModelsService = new VehicleModelsService(pool)
 
 // Optional authentication - allow public access for some endpoints

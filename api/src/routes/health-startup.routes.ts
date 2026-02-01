@@ -8,8 +8,12 @@ import express, { Request, Response } from 'express'
 import { pool } from '../config/database'
 import { runStartupHealthCheck } from '../services/health/startup-health-check.service'
 import logger from '../utils/logger'
+import { authenticateJWT } from '../middleware/auth'
 
 const router = express.Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 // Store the latest health check report in memory
 let latestHealthReport: any = null

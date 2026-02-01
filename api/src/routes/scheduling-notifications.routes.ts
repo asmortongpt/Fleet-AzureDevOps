@@ -9,8 +9,12 @@ import { pool } from '../config/database';
 import logger from '../config/logger'
 import { csrfProtection } from '../middleware/csrf'
 import schedulingNotificationService from '../services/scheduling-notification.service'
+import { authenticateJWT } from '../middleware/auth'
 
 const router = express.Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 /**
  * GET /api/scheduling-notifications/preferences

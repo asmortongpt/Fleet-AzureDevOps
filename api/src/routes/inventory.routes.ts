@@ -26,6 +26,9 @@ import { asyncHandler } from '../middleware/errorHandler';
 
 const router = Router();
 
+// Apply authentication to all routes
+router.use(authenticateJWT)
+
 // Database pool (will be injected via dependency injection)
 let pool: Pool;
 

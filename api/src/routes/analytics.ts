@@ -7,8 +7,12 @@ import { Router, type Request, type Response } from 'express'
 import { createClient } from 'redis'
 
 import { db } from '../db'
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 // Redis client setup
 const redisClient = createClient({

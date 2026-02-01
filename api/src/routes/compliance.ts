@@ -47,6 +47,9 @@ function getComplianceSummary(): any {
 
 const router = express.Router()
 
+// Apply authentication to all routes
+router.use(authenticateJWT)
+
 /**
  * Generate FedRAMP compliance report
  * POST /api/compliance/fedramp/report
