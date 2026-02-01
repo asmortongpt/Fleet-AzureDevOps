@@ -37,6 +37,7 @@ export interface Vehicle {
   alerts: string[]
   customFields?: Record<string, any>
   tags?: string[]
+  tenant_id?: string // snake_case variant for API compatibility
 
   // Asset Classification
   asset_category?: 'PASSENGER_VEHICLE' | 'LIGHT_COMMERCIAL' | 'HEAVY_TRUCK' | 'TRACTOR' | 'TRAILER' | 'HEAVY_EQUIPMENT' | 'UTILITY_VEHICLE' | 'SPECIALTY_EQUIPMENT' | 'NON_POWERED'
@@ -96,159 +97,6 @@ export interface Vehicle {
   // Timestamps
   createdAt?: string
   updatedAt?: string
-
-  // Additional Properties from Database Schema (snake_case compatibility)
-  assigned_driver?: string
-  assigned_driver_id?: string | number
-  driver_id?: number
-  driver_name?: string
-  driverId?: string
-
-  // Battery & Electric Vehicle Properties
-  batteryLevel?: number
-  battery_level?: number
-  current_soc?: number
-  charging_status?: string
-  range_miles?: number
-  carbon_saved_kg?: number
-
-  // Maintenance Properties
-  lastMaintenance?: string | Date
-  nextMaintenanceDate?: string | Date
-  lastServiceDate?: string | Date
-  lastInspectionDate?: string | Date
-  nextInspectionDate?: string | Date
-  next_service_date?: string | Date
-  nextServiceMiles?: number
-  nextMaintenanceMiles?: number
-  lastUpdated?: string | Date
-  last_updated?: string | Date
-  lastSeen?: string | Date
-  pmStatus?: string
-  pmOverdue?: boolean
-  maintenanceHistory?: any[]
-  maintenanceAlerts?: any[]
-  serviceSchedule?: any
-  safetyEquipmentStatus?: string
-  safetyInspectionExpired?: boolean
-  annualInspection?: any
-  defectReports?: any[]
-
-  // Cost & Financial Tracking
-  cost?: string | number
-  price?: number | string
-  last12MonthsMaintenanceCost?: number
-  estimatedCost?: number
-
-  // Additional Database Fields
-  tenant_id?: number
-  license_plate?: string
-  fuel_level?: number
-  created_at?: Date | string
-  updated_at?: Date | string
-
-  // Vehicle Identification & Display
-  vehicle_id?: string | number
-  vehicle_name?: string
-  vehicle_number?: string
-  vehicle_status?: string
-  vehicleId?: string
-  vehicleName?: string
-  vehicleNumber?: string
-  plate?: string
-  plate_number?: string
-  plateNumber?: string
-  manufacturer?: string
-  trim?: string
-  color?: string
-  exteriorColor?: string
-  interiorColor?: string
-
-  // Location & Tracking
-  latitude?: number
-  longitude?: number
-  coordinates?: { lat: number; lng: number }
-  current_location?: string
-  lastKnownLocation?: string
-  parkingLocation?: string
-  position?: any
-  speed?: number
-  isMoving?: boolean
-
-  // Metrics & Performance
-  odometer_reading?: number
-  odometerMiles?: number
-  currentMileage?: number
-  annualMiles?: number
-  milesSincePM?: number
-  mileageSinceLastPM?: number
-  daysSincePM?: number
-  daysOverdue?: number
-  daysUntilFailure?: number
-  daysUnused?: number
-  uptime?: number
-  health_score?: number
-  health?: string | number
-  efficiency_kwh_per_mile?: number
-  fuel_efficiency?: number
-
-  // Fuel & Capacity
-  fuel?: number
-  fuel_capacity?: number
-  tankCapacity?: number
-  capacity?: number
-  gvwr?: number
-  seatingCapacity?: number
-
-  // Assignment & Personnel
-  assigned_to?: string
-  assignedDate?: string | Date
-  assignedDepartment?: string
-  assignmentType?: string
-  fleetManager?: string
-  maintenanceSupervisor?: string
-  requiresCDL?: boolean
-
-  // Safety & Compliance
-  activeRecalls?: any[]
-  breakdownsLast12Months?: number
-  predictedIssue?: string
-  severity?: string
-  rating?: number
-
-  // Image & Media
-  image?: string
-  imageUrl?: string
-  primaryImage?: string
-  realImage?: string
-  imageSource?: string
-  imageConfidence?: number
-  isLoadingImages?: boolean
-
-  // Scheduling & Availability
-  availability?: string
-  schedule?: any
-  entry_count?: number
-  last_entry?: string | Date
-  total_time_in_zone?: number
-
-  // Features & Specifications
-  features?: string[]
-  specifications?: Record<string, any>
-  documents?: any[]
-
-  // UI/Display Properties
-  isFavorite?: boolean
-  views?: number
-  alertType?: string
-  confidence?: number
-  source?: string
-  rotation?: number
-
-  // Lifecycle
-  expectedLifeMiles?: number
-  expectedLifeYears?: number
-  evaluation?: any
 }
 
 export interface Driver {
@@ -339,4 +187,78 @@ export interface DataPoint {
   unit?: string
   category?: string
   metadata?: Record<string, any>
+}
+
+// Vehicle metrics from analytics
+export interface VehicleMetrics {
+  totalVehicles: number
+  activeVehicles: number
+  maintenanceVehicles?: number
+  idleVehicles?: number
+  averageFuelLevel?: number
+  totalMileage?: number
+  maintenanceDue?: number
+  utilizationRate?: number
+  avgFuelEfficiency?: number
+  performanceTrend?: any[]
+}
+
+// Driver metrics
+export interface DriverMetrics {
+  totalDrivers?: number
+  activeDrivers?: number
+  onLeave?: number
+  complianceRate?: number
+  safetyScore?: number
+  hoursWorked?: number
+  performanceTrend?: any[]
+}
+
+// Operations metrics
+export interface OperationsMetrics {
+  totalRoutes?: number
+  activeRoutes?: number
+  completedRoutes?: number
+  pendingTasks?: number
+  completedTasks?: number
+  fuelCostToday?: number
+  routeEfficiency?: number
+  averageDeliveryTime?: number
+}
+
+// Route details
+export interface Route {
+  id: string
+  status: 'delayed' | 'scheduled' | 'completed' | 'cancelled' | 'in_transit'
+  driverId: string
+  vehicleId: string
+  distance: number
+  startTime: string
+  origin?: string
+  destination?: string
+  name?: string
+  startLocation?: string
+  endLocation?: string
+  estimatedArrival?: string
+  actualArrival?: string
+  stops?: number
+  createdAt?: string
+  updatedAt?: string
+}
+
+// Fuel transaction details
+export interface FuelTransactionDetail {
+  id: string
+  createdAt: string
+  cost: number
+  vehicleId: string
+  amount: number
+  fuelType?: 'gasoline' | 'diesel' | 'electric' | 'hybrid' | 'cng' | 'lpg'
+  odometer?: number
+  gallons?: number
+  pricePerGallon?: number
+  totalCost?: number
+  location?: string
+  receiptNumber?: string
+  driverId?: string
 }

@@ -374,6 +374,7 @@ const DriversTabContent = memo(function DriversTabContent() {
           </CardHeader>
           <CardContent>
             <ResponsiveLineChart
+              title="Driver Performance Trends"
               data={safeStats.performanceTrend || []}
               dataKeys={['safety_score', 'compliance_rate']}
               colors={['#10b981', '#3b82f6']}
@@ -954,6 +955,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
           </CardHeader>
           <CardContent>
             <ResponsivePieChart
+              title="Asset Utilization"
               data={[
                 { name: 'In Use', value: 118, fill: '#10b981' },
                 { name: 'Available', value: 18, fill: '#3b82f6' },

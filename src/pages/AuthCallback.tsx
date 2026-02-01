@@ -172,18 +172,20 @@ export function AuthCallback() {
         />
       </div>
 
-      <style jsx>{`
-        @keyframes dashAnimation {
-          0%, 100% {
-            stroke-dashoffset: 0;
-            opacity: 1;
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @keyframes dashAnimation {
+            0%, 100% {
+              stroke-dashoffset: 0;
+              opacity: 1;
+            }
+            50% {
+              stroke-dashoffset: 50;
+              opacity: 0.8;
+            }
           }
-          50% {
-            stroke-dashoffset: 50;
-            opacity: 0.8;
-          }
-        }
-      `}</style>
+        `
+      }} />
     </div>
   )
 }

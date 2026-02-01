@@ -273,13 +273,14 @@ const SafetyTabContent = memo(function SafetyTabContent() {
           </CardHeader>
           <CardContent>
             <ResponsiveLineChart
+              title="Incident Trends"
               data={[
-                { month: 'Jan', incidents: 8 },
-                { month: 'Feb', incidents: 6 },
-                { month: 'Mar', incidents: 5 },
-                { month: 'Apr', incidents: 4 },
-                { month: 'May', incidents: 3 },
-                { month: 'Jun', incidents: 2 },
+                { name: 'Jan', month: 'Jan', incidents: 8 },
+                { name: 'Feb', month: 'Feb', incidents: 6 },
+                { name: 'Mar', month: 'Mar', incidents: 5 },
+                { name: 'Apr', month: 'Apr', incidents: 4 },
+                { name: 'May', month: 'May', incidents: 3 },
+                { name: 'Jun', month: 'Jun', incidents: 2 },
               ]}
               dataKeys={['incidents']}
               colors={['#ef4444']}

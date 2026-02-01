@@ -16,13 +16,15 @@ interface DataPoint {
   [key: string]: any
 }
 
-interface ResponsiveBarChartProps {
-  title: string
+export interface ResponsiveBarChartProps {
+  title?: string  // Made optional
   description?: string
   data: DataPoint[]
   dataKey?: string
   dataKeys?: string[]
   xAxisKey?: string
+  xKey?: string  // Alias for xAxisKey
+  bars?: Array<{dataKey: string; name: string; color: string}>  // Alternative way to specify multiple bars
   height?: number
   loading?: boolean
   colors?: string[]

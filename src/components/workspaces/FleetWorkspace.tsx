@@ -29,7 +29,7 @@ import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useVehicles, useFacilities, useDrivers, useVehicleMutations } from "@/hooks/use-api"
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
 import { cn } from "@/lib/utils"
-import { Vehicle } from "@/types"
+import type { Vehicle } from "@/lib/types"
 
 interface FleetVehicle {
   id: string;
@@ -359,7 +359,7 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
     isConnected: isRealtimeConnected,
   } = useVehicleTelemetry({
     enabled: true,
-    initialVehicles: vehicles as unknown as Vehicle[],
+    initialVehicles: vehicles as Vehicle[],
   })
 
   // Use real-time vehicles if available, otherwise use static data

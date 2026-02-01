@@ -88,7 +88,7 @@ LoadingSkeleton.displayName = 'LoadingSkeleton'
  * Urgent Work Order Item - memoized for performance
  */
 const UrgentOrderItem: FC<UrgentOrderProps> = memo(({ order }) => {
-  const orderNumber = order.id.slice(0, 8)
+  const orderNumber = String(order.id).slice(0, 8)
   const vehicleName = order.vehicleName || `Vehicle ${order.vehicleId.slice(0, 8)}`
 
   return (

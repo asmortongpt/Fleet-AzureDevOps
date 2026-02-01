@@ -242,7 +242,7 @@ function SafetyOverview() {
                   className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50"
                 >
                   <div>
-                    <p className="font-medium">Incident #{incident.id.slice(0, 8)}</p>
+                    <p className="font-medium">Incident #{String(incident.id).slice(0, 8)}</p>
                     <p className="text-sm text-muted-foreground">
                       Type: {incident.type.replace('_', ' ')} • Vehicle: {incident.vehicleId}
                     </p>
@@ -391,7 +391,7 @@ function IncidentsContent() {
                         }`}
                       />
                       <div>
-                        <p className="font-semibold">Incident #{incident.id.slice(0, 8)}</p>
+                        <p className="font-semibold">Incident #{String(incident.id).slice(0, 8)}</p>
                         <p className="text-sm text-muted-foreground">
                           {incident.type.replace('_', ' ')}
                         </p>

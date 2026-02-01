@@ -391,10 +391,10 @@ export function DOTReportsDialog({ open, onOpenChange, tenantId }: DOTReportsDia
 
               {/* Report Content */}
               <div className="p-4">
-                {reportType === 'hos_summary' && <HOSSummaryReport data={reportData as HOSSummaryData} />}
-                {reportType === 'dvir_summary' && <DVIRSummaryReport data={reportData as DVIRSummaryData} />}
-                {reportType === 'violations' && <ViolationSummaryReport data={reportData as ViolationSummaryData} />}
-                {reportType === 'driver_performance' && (
+                {reportType === 'hos_summary' && reportData && 'logs' in reportData && <HOSSummaryReport data={reportData as HOSSummaryData} />}
+                {reportType === 'dvir_summary' && reportData && 'reports' in reportData && <DVIRSummaryReport data={reportData as DVIRSummaryData} />}
+                {reportType === 'violations' && reportData && 'violations' in reportData && reportData.violations && 'bySeverity' in reportData && <ViolationSummaryReport data={reportData as ViolationSummaryData} />}
+                {reportType === 'driver_performance' && reportData && 'totalHours' in reportData && (
                   <DriverPerformanceReport data={reportData as DriverPerformanceData} />
                 )}
               </div>

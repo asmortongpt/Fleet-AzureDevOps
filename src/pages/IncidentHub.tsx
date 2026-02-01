@@ -186,7 +186,7 @@ const InvestigationCard = memo(function InvestigationCard({ investigation }: { i
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <FileText className="h-4 w-4 text-blue-600" />
-          <p className="font-medium text-sm">Investigation #{investigation.id.slice(0, 8)}</p>
+          <p className="font-medium text-sm">Investigation #{String(investigation.id).slice(0, 8)}</p>
         </div>
         <Badge variant={investigation.status === 'completed' ? 'default' : 'secondary'}>
           {investigation.status.replace('_', ' ')}

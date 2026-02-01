@@ -21,36 +21,51 @@ import { DrilldownContent } from '@/components/DrilldownPanel'
 // Type Definitions
 // ============================================
 interface ActivityLogEntry {
+  id: string
   action: string
   user: string
   timestamp: string
+  comments?: string
 }
 
 interface MaintenanceRequest {
-  id: string | number
+  id: string
   title: string
   request_number: string
   status: string
   priority: string
-  requester_name: string
-  requester_department: string
-  submitted_date: string
+  requester_name?: string
+  requester_department?: string
+  submitted_date?: string
   description?: string
   request_type?: string
   category?: string
   estimated_cost?: number
   requested_completion_date?: string
+  vehicle_id?: string
+  asset_id?: string
   asset_name?: string
   asset_number?: string
-  asset_location?: string
   asset_status?: string
-  asset_id?: string | number
+  asset_location?: string
   reviewer_name?: string
+  approval_date?: string
+  approval_notes?: string
+  review_comments?: string
   review_date?: string
   review_notes?: string
-  approval_notes?: string
+  work_order_id?: string
+  rejection_reason?: string
   activity_log?: ActivityLogEntry[]
+  history?: Array<{
+    id: string
+    action: string
+    timestamp: string
+    user: string
+    comments?: string
+  }>
 }
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -59,53 +74,6 @@ import { useDrilldown } from '@/contexts/DrilldownContext'
 import { swrFetcher } from '@/lib/fetcher'
 
 const fetcher = swrFetcher
-
-// ============================================
-// Type Definitions
-// ============================================
-interface MaintenanceRequest {
-  id: string;
-  title: string;
-  request_number: string;
-  status: string;
-  priority: string;
-  requester_name?: string;
-  requester_department?: string;
-  submitted_date?: string;
-  description?: string;
-  request_type?: string;
-  category?: string;
-  estimated_cost?: number;
-  requested_completion_date?: string;
-  vehicle_id?: string;
-  asset_id?: string;
-  asset_name?: string;
-  asset_number?: string;
-  asset_status?: string;
-  asset_location?: string;
-  reviewer_name?: string;
-  approval_date?: string;
-  approval_notes?: string;
-  review_comments?: string;
-  review_date?: string;
-  review_notes?: string;
-  work_order_id?: string;
-  rejection_reason?: string;
-  activity_log?: Array<{
-    id: string;
-    action: string;
-    timestamp: string;
-    user: string;
-    comments?: string;
-  }>;
-  history?: Array<{
-    id: string;
-    action: string;
-    timestamp: string;
-    user: string;
-    comments?: string;
-  }>;
-}
 
 // ============================================
 // Maintenance Request Detail Panel

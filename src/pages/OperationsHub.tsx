@@ -147,10 +147,10 @@ const RouteItem = memo<{
       transition={{ delay: index * 0.1 }}
       className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50 transition-colors"
       role="article"
-      aria-label={`Route ${route.id.slice(0, 8)}`}
+      aria-label={`Route ${String(route.id).slice(0, 8)}`}
     >
       <div className="flex-1">
-        <p className="font-medium">Route #{route.id.slice(0, 8)}</p>
+        <p className="font-medium">Route #{String(route.id).slice(0, 8)}</p>
         <p className="text-sm text-muted-foreground">
           Driver: {route.driverId.slice(0, 8)} • Distance: {formatNumber(route.distance, { maximumFractionDigits: 1 })} mi
         </p>
@@ -168,7 +168,7 @@ const RouteItem = memo<{
           variant="ghost"
           size="sm"
           onClick={handleView}
-          aria-label={`View route ${route.id.slice(0, 8)}`}
+          aria-label={`View route ${String(route.id).slice(0, 8)}`}
           className="p-2"
         >
           View
@@ -766,7 +766,7 @@ const FuelContent = memo(() => {
                       transition={{ delay: idx * 0.05 }}
                       className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50 transition-colors"
                       role="listitem"
-                      aria-label={`Fuel transaction ${transaction.id.slice(0, 8)}`}
+                      aria-label={`Fuel transaction ${String(transaction.id).slice(0, 8)}`}
                     >
                       <div>
                         <p className="font-medium">
