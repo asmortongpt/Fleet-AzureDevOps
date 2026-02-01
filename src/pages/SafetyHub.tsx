@@ -14,7 +14,7 @@ import {
   TrendUp,
   TrendDown,
   ClipboardText,
-  Award,
+  Trophy,
 } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 
@@ -1349,7 +1349,7 @@ function CertificationsTab() {
         <StatCard
           title="CDL Licenses"
           value={cdlCount.toString()}
-          icon={Award}
+          icon={Trophy}
           trend="neutral"
           description="Commercial drivers"
           loading={isLoading}
