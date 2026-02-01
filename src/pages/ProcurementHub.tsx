@@ -46,8 +46,7 @@ import {
 import { useReactiveProcurementData } from '@/hooks/use-reactive-procurement-data'
 import type { PurchaseOrder, Vendor, Contract } from '@/types/procurement'
 
-import { AlertTriangle, Calendar, DollarSign, Store, TrendingUp } from 'lucide-react';
-import { BarChart } from 'recharts';
+import { AlertTriangle, BarChart3, Calendar, DollarSign, Store, TrendingUp } from 'lucide-react';
 // ============================================================================
 // ANIMATION VARIANTS (Reusable)
 // ============================================================================
@@ -1028,7 +1027,7 @@ const AnalyticsContent = memo(() => {
           <StatCard
             title="Budget Usage"
             value={`${budgetPercentage}%`}
-            icon={ChartBar}
+            icon={BarChart3}
             trend={Number(budgetPercentage) > 75 ? 'down' : 'up'}
             description="Of monthly budget"
             loading={isLoading}
