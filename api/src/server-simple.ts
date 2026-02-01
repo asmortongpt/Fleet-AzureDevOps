@@ -1975,6 +1975,30 @@ app.get('/api/traffic-cameras/sources', async (req, res) => {
   }
 });
 
+// ============================================================================
+// 404 HANDLER - Must be after all routes
+// ============================================================================
+app.use((req, res) => {
+  res.status(404).json({
+    error: 'Not Found',
+    message: `Cannot ${req.method} ${req.path}`,
+    path: req.path,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// ============================================================================
+// ERROR HANDLER - Must be last
+// ============================================================================
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({
+    error: 'Internal Server Error',
+    message: process.env.NODE_ENV === 'production' ? 'An unexpected error occurred' : err.message,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Handle graceful shutdown
 process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully...');
