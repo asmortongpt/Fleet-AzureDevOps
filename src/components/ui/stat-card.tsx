@@ -19,8 +19,10 @@ interface StatCardProps {
     title: string
     value: string | number
     subtitle?: string
+    description?: string  // Alias for subtitle
     trend?: 'up' | 'down' | 'neutral'
     trendValue?: string
+    change?: number  // Alias for trendValue (numeric)
     icon?: React.ReactNode
     variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info'
     size?: 'sm' | 'default' | 'lg'
@@ -117,8 +119,10 @@ export function StatCard({
     title,
     value,
     subtitle,
+    description,
     trend,
     trendValue,
+    change,
     icon,
     variant = 'default',
     size = 'default',
@@ -129,6 +133,8 @@ export function StatCard({
     const isClickable = !!onClick
     const styles = variantStyles[variant]
     const sizes = sizeStyles[size]
+    const displaySubtitle = description || subtitle  // Use description if provided, fallback to subtitle
+    const displayTrendValue = trendValue || (change !== undefined ? `${change > 0 ? '+' : ''}${change}%` : undefined)  // Convert change to string
 
     const TrendIcon = trend === 'up' ? ArrowUp : trend === 'down' ? ArrowDown : Minus
     const trendColor = trend === 'up' ? 'text-success' : trend === 'down' ? 'text-destructive' : 'text-muted-foreground'
@@ -195,15 +201,15 @@ export function StatCard({
                     )}>
                         {value}
                     </p>
-                    {(subtitle || trend) && (
+                    {(displaySubtitle || trend) && (
                         <div className="flex items-center gap-2 flex-wrap">
-                            {subtitle && (
-                                <p className={cn('text-muted-foreground truncate', sizes.subtitle)}>{subtitle}</p>
+                            {displaySubtitle && (
+                                <p className={cn('text-muted-foreground truncate', sizes.subtitle)}>{displaySubtitle}</p>
                             )}
-                            {trend && trendValue && (
+                            {trend && displayTrendValue && (
                                 <div className={cn('flex items-center gap-0.5 font-medium', trendColor, sizes.subtitle)}>
                                     <TrendIcon className="w-3 h-3" />
-                                    <span>{trendValue}</span>
+                                    <span>{displayTrendValue}</span>
                                 </div>
                             )}
                         </div>

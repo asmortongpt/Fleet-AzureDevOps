@@ -189,7 +189,7 @@ export function DispatcherDashboard() {
             className="bg-blue-950/30 rounded-md p-2 border border-blue-500/30 hover:border-blue-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <Map className="w-4 h-4 text-blue-400" />
+              <MapTrifold className="w-4 h-4 text-blue-400" />
               <span className="text-sm font-black text-white">{operationStats.en_route}</span>
             </div>
             <p className="text-blue-300 font-semibold">En Route</p>
@@ -251,7 +251,7 @@ export function DispatcherDashboard() {
         <Card className="lg:col-span-2 bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Map className="w-4 h-4 text-cyan-400" />
+              <MapTrifold className="w-4 h-4 text-cyan-400" />
               <h2 className="text-sm font-bold text-white">Live Fleet Map</h2>
             </div>
             <div className="flex gap-2">
@@ -282,7 +282,7 @@ export function DispatcherDashboard() {
           {/* Map Placeholder */}
           <div className="bg-slate-900/50 rounded-md border border-slate-700 aspect-video flex items-center justify-center mb-3">
             <div className="text-center">
-              <Map className="w-16 h-16 text-slate-600 mx-auto mb-3" />
+              <MapTrifold className="w-16 h-16 text-slate-600 mx-auto mb-3" />
               <p className="text-slate-400 mb-2">Interactive Fleet Map</p>
               <p className="text-sm text-slate-500">Google Maps with vehicle markers & routes</p>
             </div>

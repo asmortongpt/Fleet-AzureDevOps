@@ -14,7 +14,7 @@ import {
   Loader2,
   Zap
 } from "lucide-react"
-import { QrScanner } from '@yudiel/react-qr-scanner'
+import { Scanner } from '@yudiel/react-qr-scanner'
 import { useState, useRef, useEffect, useCallback } from "react"
 import { createWorker, Worker, OEM, PSM } from 'tesseract.js'
 
@@ -592,7 +592,7 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
   // Render barcode scanner (QR/VIN)
   const renderBarcodeScanner = () => (
     <div className="relative">
-      <QrScanner
+      <Scanner
         onDecode={handleBarcodeScan}
         onError={handleError}
         scanDelay={300}

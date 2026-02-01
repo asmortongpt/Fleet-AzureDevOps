@@ -677,7 +677,7 @@ const ScheduledTab = memo(() => {
                 >
                   <div className="flex items-center justify-between rounded-lg border p-4">
                     <div className="flex-1">
-                      <p className="font-medium">Schedule #{schedule.id.slice(0, 8)}</p>
+                      <p className="font-medium">Schedule #{String(schedule.id).slice(0, 8)}</p>
                       <p className="text-sm text-muted-foreground">
                         {schedule.schedule} • {schedule.format.toUpperCase()}
                       </p>
@@ -733,7 +733,7 @@ const ScheduledTab = memo(() => {
                 >
                   <div className="flex items-center justify-between rounded-lg border p-4 hover:bg-accent/50">
                     <div className="flex-1">
-                      <p className="font-medium">Schedule #{schedule.id.slice(0, 8)}</p>
+                      <p className="font-medium">Schedule #{String(schedule.id).slice(0, 8)}</p>
                       <p className="text-sm text-muted-foreground">
                         {schedule.schedule} • {schedule.format.toUpperCase()} •{' '}
                         {schedule.recipients.length} recipient(s)

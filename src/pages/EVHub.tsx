@@ -1,4 +1,4 @@
-import { Battery, Leaf, TrendingUp, Zap, Car, ChargingStation, BarChart3, AlertCircle } from 'lucide-react';
+import { Battery, Leaf, TrendingUp, Zap, Car, Plug2, BarChart3, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -429,7 +429,7 @@ const EVHub = () => {
             <Card data-testid="charging-infrastructure-card">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium flex items-center gap-2 text-gray-700">
-                  <ChargingStation className="w-4 h-4" />
+                  <Plug2 className="w-4 h-4" />
                   Charging Infrastructure
                 </CardTitle>
               </CardHeader>

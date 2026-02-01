@@ -141,6 +141,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
           </CardHeader>
           <CardContent>
             <ResponsiveBarChart
+              title="Budget vs Actual Costs"
               data={[
                 { name: 'Jan', month: 'Jan', budget: 125000, actual: 118000 },
                 { name: 'Feb', month: 'Feb', budget: 125000, actual: 122000 },

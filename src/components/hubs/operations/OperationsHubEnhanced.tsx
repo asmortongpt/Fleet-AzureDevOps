@@ -48,20 +48,14 @@ import { useRealtimeOperations } from '@/hooks/use-realtime-operations';
  * - Real-time WebSocket updates
  */
 
-interface Vehicle {
-  id: string;
-  make: string;
-  model: string;
-  vehicleNumber: string;
+// Extend canonical Vehicle type with additional properties needed for operations
+type Vehicle = CanonicalVehicle & {
+  vehicleNumber?: string;
   latitude?: number;
   longitude?: number;
-  status: 'active' | 'idle' | 'charging' | 'service' | 'emergency' | 'offline';
-  fuelLevel?: number;
   batteryLevel?: number;
-  odometer?: number;
   nextMaintenanceMiles?: number;
 }
-
 interface WorkOrder {
   id: string;
   status: string;
@@ -87,6 +81,29 @@ interface Route {
   assigned_vehicle_id?: string;
   assigned_driver_id?: string;
   schedule?: string;
+}
+
+interface Task {
+  id: string;
+  taskNumber: string;
+  description: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: 'pending' | 'assigned' | 'in-progress' | 'completed';
+  assignedVehicleId?: string;
+  assignedDriverId?: string;
+  estimatedDuration?: number;
+  dueTime?: string;
+}
+
+interface TimelineRoute {
+  id: string;
+  routeNumber: string;
+  name: string;
+  assignedVehicleId?: string;
+  assignedDriverId?: string;
+  scheduledStart: string;
+  scheduledEnd: string;
+  status: 'pending' | 'delayed' | 'active' | 'completed';
 }
 
 export function OperationsHubEnhanced() {
@@ -181,15 +198,15 @@ export function OperationsHubEnhanced() {
   }, [workOrders, alerts, getCriticalAlerts]);
 
   // Convert work orders to tasks for Kanban
-  const tasks = useMemo(() => {
+  const tasks = useMemo((): Task[] => {
     return (workOrders as unknown as WorkOrder[]).map(wo => ({
       id: wo.id,
       taskNumber: wo.work_order_number,
       description: wo.description || 'No description',
       priority: (wo.priority || 'medium') as 'low' | 'medium' | 'high' | 'urgent',
-      status: wo.status === 'open' ? 'pending' :
+      status: (wo.status === 'open' ? 'pending' :
               wo.status === 'in_progress' ? 'in-progress' :
-              wo.status === 'completed' ? 'completed' : 'assigned',
+              wo.status === 'completed' ? 'completed' : 'assigned') as 'pending' | 'assigned' | 'in-progress' | 'completed',
       assignedVehicleId: wo.vehicle_id,
       assignedDriverId: wo.assigned_technician_id,
       estimatedDuration: 60
@@ -197,7 +214,7 @@ export function OperationsHubEnhanced() {
   }, [workOrders]);
 
   // Convert routes for timeline
-  const timelineRoutes = useMemo(() => {
+  const timelineRoutes = useMemo((): TimelineRoute[] => {
     const now = new Date();
     return (routes as unknown as Route[]).map((route, i) => {
       const scheduledStart = new Date(now);
@@ -213,7 +230,7 @@ export function OperationsHubEnhanced() {
         assignedDriverId: route.assigned_driver_id,
         scheduledStart: scheduledStart.toISOString(),
         scheduledEnd: scheduledEnd.toISOString(),
-        status: i % 4 === 0 ? 'completed' : i % 4 === 1 ? 'active' : i % 4 === 2 ? 'delayed' : 'pending'
+        status: (i % 4 === 0 ? 'completed' : i % 4 === 1 ? 'active' : i % 4 === 2 ? 'delayed' : 'pending') as 'pending' | 'delayed' | 'active' | 'completed'
       };
     });
   }, [routes]);

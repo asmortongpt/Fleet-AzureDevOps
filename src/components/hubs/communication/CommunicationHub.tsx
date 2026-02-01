@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
-import type { Vehicle } from "@/types"
+import type { Vehicle } from "@/lib/types"
 import logger from '@/utils/logger';
 
 // Mock communication data
@@ -524,7 +524,7 @@ export function CommunicationHub() {
       </div>
       <div className="w-1/3 border-l">
         <ProfessionalFleetMap
-          vehicles={messageMarkers as unknown as Vehicle[]}
+          vehicles={messageMarkers as Vehicle[]}
           facilities={zoneMarkers}
         />
       </div>

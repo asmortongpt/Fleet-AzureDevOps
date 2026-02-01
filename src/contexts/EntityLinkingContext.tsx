@@ -493,7 +493,7 @@ export function EntityLinkingProvider({
       workOrder: {
         type: 'work-order',
         id: workOrder.id,
-        label: `WO-${workOrder.id.slice(-6)} - ${workOrder.serviceType}`,
+        label: `WO-${String(workOrder.id).slice(-6)} - ${workOrder.serviceType}`,
         data: workOrder
       },
       vehicle: linked.vehicles.length > 0 ? linked.vehicles[0] : null,

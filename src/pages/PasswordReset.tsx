@@ -317,7 +317,7 @@ export function PasswordReset() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes shimmer {
           0% {
             transform: translateX(-100%);
@@ -339,7 +339,7 @@ export function PasswordReset() {
             opacity: 0.8;
           }
         }
-      `}</style>
+      `}} />
     </div>
   )
 }

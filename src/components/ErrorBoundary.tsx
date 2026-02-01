@@ -7,13 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { telemetryService } from '@/lib/telemetry'
 import logger from '@/utils/logger'
 
-interface Props {
+export interface ErrorBoundaryProps {
   children: ReactNode
   fallback?: ReactNode
   onError?: (error: Error, errorInfo: ErrorInfo) => void
   showDetails?: boolean
   resetKeys?: any[]
   onReset?: () => void
+  componentName?: string  // Optional component name for better error reporting
 }
 
 interface State {
@@ -38,10 +39,10 @@ if (typeof window !== 'undefined') {
   (window as any).__FLEET_ERROR_LOG__ = errorLog
 }
 
-export class ErrorBoundary extends Component<Props, State> {
+export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
   private retryTimeoutId?: number
 
-  constructor(props: Props) {
+  constructor(props: ErrorBoundaryProps) {
     super(props)
     this.state = {
       hasError: false,

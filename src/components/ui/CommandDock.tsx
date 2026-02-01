@@ -71,7 +71,6 @@ export const CommandDock: React.FC<CommandDockProps> = ({ activePanel, onPanelSe
                                         isHovered ? "w-4 h-4 text-white" : "w-4 h-4 text-slate-400",
                                         isActive && "text-emerald-400"
                                     )}
-                                    weight={isActive ? "fill" : "regular"}
                                 />
 
                                 {/* Reflection/Glass Effect */}
