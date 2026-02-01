@@ -40,4 +40,21 @@ export { APIError } from './api-client'
 // Named export for compatibility
 export const api = apiClient
 
-export default apiClient
+// Export HTTP methods for axios-like interface
+export const get = apiClient.get.bind(apiClient)
+export const post = apiClient.post.bind(apiClient)
+export const put = apiClient.put.bind(apiClient)
+export const patch = apiClient.patch.bind(apiClient)
+export const delete_ = apiClient.delete.bind(apiClient)
+
+// Create axios-like wrapper object for compatibility
+const axiosCompat = {
+  get: apiClient.get.bind(apiClient),
+  post: apiClient.post.bind(apiClient),
+  put: apiClient.put.bind(apiClient),
+  patch: apiClient.patch.bind(apiClient),
+  delete: apiClient.delete.bind(apiClient),
+  request: apiRequest,
+}
+
+export default axiosCompat
