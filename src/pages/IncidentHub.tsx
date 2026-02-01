@@ -61,7 +61,7 @@ import { format } from 'date-fns'
 import { toast } from 'sonner'
 import { IncidentReportDialog } from '@/components/incident/IncidentReportDialog'
 import { InvestigationDialog } from '@/components/incident/InvestigationDialog'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/contexts'
 
 // ============================================================================
 // CONFIGURATION
@@ -141,6 +141,7 @@ const IncidentCard = memo(function IncidentCard({
           <AlertTriangle className={`h-4 w-4 ${isCritical ? 'text-red-600' : 'text-orange-600'}`} />
           <p className="font-medium text-sm">{incident.incident_number}</p>
           <SeverityBadge severity={incident.severity} />
+          <Badge variant="outline">
             {incident.type.replace('_', ' ')}
           </Badge>
         </div>
@@ -157,6 +158,7 @@ const IncidentCard = memo(function IncidentCard({
             {incident.location_city}, {incident.location_state}
           </span>
           {incident.injuries_reported && (
+            <Badge variant="destructive" className="text-xs">
               Injuries Reported
             </Badge>
           )}
@@ -186,6 +188,7 @@ const InvestigationCard = memo(function InvestigationCard({ investigation }: { i
           <FileText className="h-4 w-4 text-blue-600" />
           <p className="font-medium text-sm">Investigation #{String(investigation.id).slice(0, 8)}</p>
         </div>
+        <Badge variant="outline">
           {investigation.status.replace('_', ' ')}
         </Badge>
       </div>
@@ -242,7 +245,7 @@ function IncidentHubContent() {
   const incidentTrendData = useMemo(() => {
     if (!metrics?.incidents_trend) return []
     return metrics.incidents_trend.map(point => ({
-      date: format(new Date(point.date), 'MMM d'),
+      name: format(new Date(point.date), 'MMM d'),
       count: point.count
     }))
   }, [metrics])
@@ -291,25 +294,25 @@ function IncidentHubContent() {
               <StatCard
                 title="Total Incidents"
                 value={metrics.total_incidents.toString()}
-                icon={<AlertTriangle />}
+                icon={AlertTriangle}
                 trend={metrics.month_over_month_change > 0 ? 'up' : metrics.month_over_month_change < 0 ? 'down' : 'neutral'}
               />
               <StatCard
                 title="Days Since Last"
                 value={metrics.days_since_last_incident.toString()}
-                icon={<Calendar />}
+                icon={Calendar}
                 trend="neutral"
               />
               <StatCard
                 title="Total Cost"
                 value={`$${(metrics.total_incident_cost / 1000).toFixed(0)}K`}
-                icon={<DollarSign />}
+                icon={DollarSign}
                 trend="neutral"
               />
               <StatCard
                 title="Incident Rate"
                 value={metrics.incidents_per_million_miles.toFixed(2)}
-                icon={<TrendingDown />}
+                icon={TrendingDown}
                 trend="neutral"
               />
             </div>
@@ -326,7 +329,7 @@ function IncidentHubContent() {
                 <Suspense fallback={<Skeleton className="h-64 w-full" />}>
                   <ResponsiveLineChart
                     data={incidentTrendData}
-                    xKey="date"
+                    xKey="name"
                     lines={[{ dataKey: 'count', name: 'Incidents', color: '#ef4444' }]}
                     title="Incident Count"
                     height={250}
@@ -387,6 +390,7 @@ function IncidentHubContent() {
               </p>
             </div>
             <div className="flex gap-2">
+              <Button variant="outline">
                 <Filter className="h-4 w-4 mr-2" />
                 Filter
               </Button>
@@ -580,7 +584,7 @@ function IncidentHubContent() {
 
 export default function IncidentHub() {
   return (
-    <ErrorBoundary componentName="IncidentHub">
+    <ErrorBoundary>
       <Suspense fallback={<MetricsSkeleton />}>
         <IncidentHubContent />
       </Suspense>

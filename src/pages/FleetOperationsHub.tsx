@@ -71,6 +71,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useAuth } from '@/contexts/AuthContext'
+import type { User } from '@/contexts/AuthContext'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
 import { useReactiveDriversData } from '@/hooks/use-reactive-drivers-data'
@@ -125,14 +126,14 @@ const FleetTabContent = memo(function FleetTabContent() {
   const { vehicles, metrics: stats, isLoading: loading, error, refetch } = useReactiveFleetData()
   const { user } = useAuth()
 
-  // Default stats if undefined
+  // Default stats if undefined - use metrics structure from hook
   const safeStats = stats || {
     totalVehicles: 0,
     activeVehicles: 0,
-    maintenanceDue: 0,
-    utilizationRate: 0,
-    avgFuelEfficiency: 0,
-    performanceTrend: []
+    maintenanceVehicles: 0,
+    idleVehicles: 0,
+    averageFuelLevel: 0,
+    totalMileage: 0
   }
 
   if (loading) {
@@ -147,8 +148,10 @@ const FleetTabContent = memo(function FleetTabContent() {
 
   if (error) {
     return (
+      <Alert variant="destructive">
         <AlertTriangle className="h-4 w-4" />
         <AlertDescription>
+          {error.message || 'Failed to load data. Please try again.'}
         </AlertDescription>
       </Alert>
     )
@@ -308,8 +311,10 @@ const DriversTabContent = memo(function DriversTabContent() {
 
   if (error) {
     return (
+      <Alert variant="destructive">
         <AlertTriangle className="h-4 w-4" />
         <AlertDescription>
+          {error.message || 'Failed to load data. Please try again.'}
         </AlertDescription>
       </Alert>
     )
@@ -404,6 +409,7 @@ const DriversTabContent = memo(function DriversTabContent() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
+                    <Badge variant={driver.status === 'active' ? 'default' : 'secondary'}>
                       {driver.status}
                     </Badge>
                     <div className="text-right">
@@ -448,8 +454,10 @@ const OperationsTabContent = memo(function OperationsTabContent() {
 
   if (error) {
     return (
+      <Alert variant="destructive">
         <AlertTriangle className="h-4 w-4" />
         <AlertDescription>
+          {error.message || 'Failed to load data. Please try again.'}
         </AlertDescription>
       </Alert>
     )
@@ -522,6 +530,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
                         </p>
                       </div>
                     </div>
+                    <Badge variant={route.status === 'active' ? 'default' : 'secondary'}>
                       {route.status}
                     </Badge>
                   </div>
@@ -681,11 +690,13 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    <Badge variant={
                       order.status === 'In Progress' ? 'default' :
                       order.status === 'Pending' ? 'secondary' : 'outline'
                     }>
                       {order.status}
                     </Badge>
+                    <Button size="sm" variant="outline" onClick={() => handleViewWorkOrder(order.id)}>
                       View
                     </Button>
                   </div>
@@ -722,6 +733,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                     </p>
                     <p className="text-xs text-muted-foreground">Current: {maintenance.mileage} mi</p>
                   </div>
+                  <Button size="sm" variant="outline">
                     Edit
                   </Button>
                 </div>
@@ -745,6 +757,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                 { vehicle: 'Vehicle 3333', service: 'Brake Inspection', overdue: '14 days', priority: 'high' },
                 { vehicle: 'Vehicle 4444', service: 'Tire Replacement', overdue: '3 days', priority: 'medium' },
               ].map((overdue, index) => (
+                <Alert key={index} variant="destructive">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
                     <div className="flex items-center justify-between">
@@ -754,6 +767,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                           {overdue.service} · Overdue by {overdue.overdue}
                         </p>
                       </div>
+                      <Button size="sm" onClick={() => handleScheduleMaintenance(overdue.vehicle)}>
                         Schedule Now
                       </Button>
                     </div>
@@ -788,6 +802,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                 <div key={item.part} className="p-3 border rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <p className="font-semibold text-sm">{item.part}</p>
+                    <Badge variant={item.status === 'in-stock' ? 'default' : 'destructive'}>
                       {item.status === 'in-stock' ? 'In Stock' : 'Low Stock'}
                     </Badge>
                   </div>
@@ -907,13 +922,16 @@ const AssetsTabContent = memo(function AssetsTabContent() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    <Badge variant={asset.status === 'In Use' ? 'default' : 'secondary'}>
                       {asset.status}
                     </Badge>
+                    <Badge variant={
                       asset.condition === 'Excellent' ? 'default' :
                       asset.condition === 'Good' ? 'secondary' : 'outline'
                     }>
                       {asset.condition}
                     </Badge>
+                    <Button size="sm" variant="outline" onClick={() => handleViewAsset(asset.id)}>
                       View
                     </Button>
                   </div>
@@ -971,11 +989,13 @@ const AssetsTabContent = memo(function AssetsTabContent() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
+                    <Badge variant={
                       maintenance.priority === 'high' ? 'destructive' :
                       maintenance.priority === 'medium' ? 'secondary' : 'outline'
                     }>
                       {maintenance.priority}
                     </Badge>
+                    <Button size="sm" onClick={() => handleScheduleAssetMaintenance(maintenance.asset)}>
                       Schedule
                     </Button>
                   </div>

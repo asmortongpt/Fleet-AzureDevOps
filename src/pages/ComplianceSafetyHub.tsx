@@ -48,7 +48,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { useAuth } from '@/contexts/AuthContext'
 import toast from 'react-hot-toast'
 import logger from '@/utils/logger';
 import {
@@ -104,7 +103,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
           value="98.5%"
           icon={CheckCircle}
           change={2}
-  trend="up"
+          trend="up"
           description="Overall compliance"
         />
         <StatCard
@@ -112,7 +111,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
           value={47}
           icon={Award}
           change={5}
-  trend="up"
+          trend="up"
           description="Valid certificates"
         />
         <StatCard
@@ -120,7 +119,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
           value={8}
           icon={Clock}
           change={3}
-  trend="down"
+          trend="down"
           description="Within 30 days"
         />
         <StatCard
@@ -128,7 +127,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
           value={3}
           icon={XCircle}
           change={1}
-  trend="down"
+          trend="down"
           description="Needs attention"
         />
       </motion.div>
@@ -162,6 +161,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
                       <p className="text-sm text-muted-foreground">{item.rate}% compliant</p>
                     </div>
                   </div>
+                  <Badge variant={item.status === 'compliant' ? 'default' : 'secondary'}>
                     {item.status === 'compliant' ? 'Compliant' : 'Review Needed'}
                   </Badge>
                 </div>
@@ -197,6 +197,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
                       <p className="text-sm text-muted-foreground">Expires in {renewal.daysLeft} days</p>
                     </div>
                   </div>
+                  <Button size="sm" variant="outline" onClick={() => handleScheduleRenewal(renewal.item)}>
                     Schedule
                   </Button>
                 </div>
@@ -227,7 +228,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
           value="95.2"
           icon={Shield}
           change={3}
-  trend="up"
+          trend="up"
           description="Fleet average"
         />
         <StatCard
@@ -235,7 +236,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
           value={127}
           icon={Award}
           change={127}
-  trend="up"
+          trend="up"
           description="Accident-free streak"
         />
         <StatCard
@@ -243,7 +244,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
           value={5}
           icon={AlertTriangle}
           change={2}
-  trend="down"
+          trend="down"
           description="Under investigation"
         />
         <StatCard
@@ -251,7 +252,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
           value="92%"
           icon={BookOpen}
           change={8}
-  trend="up"
+          trend="up"
           description="Safety training"
         />
       </motion.div>
@@ -313,6 +314,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                       <p className="text-sm text-muted-foreground">{incident.vehicle}</p>
                     </div>
                   </div>
+                  <Badge variant={incident.status === 'Resolved' ? 'default' : 'secondary'}>
                     {incident.status}
                   </Badge>
                 </div>
@@ -388,7 +390,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
           value={32}
           icon={FileText}
           change={4}
-  trend="up"
+          trend="up"
           description="Currently enforced"
         />
         <StatCard
@@ -396,7 +398,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
           value="96%"
           icon={CheckCircle}
           change={2}
-  trend="up"
+          trend="up"
           description="Compliance rate"
         />
         <StatCard
@@ -404,7 +406,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
           value={5}
           icon={ScrollText}
           change={1}
-  trend="down"
+          trend="down"
           description="Pending approval"
         />
         <StatCard
@@ -412,7 +414,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
           value={12}
           icon={Gavel}
           change={3}
-  trend="down"
+          trend="down"
           description="This month"
         />
       </motion.div>
@@ -446,6 +448,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
                       </p>
                     </div>
                   </div>
+                  <Button size="sm" variant="outline" onClick={() => handleViewPolicy(item.category)}>
                     View
                   </Button>
                 </div>
@@ -480,6 +483,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
                       <p className="text-sm text-muted-foreground">{violation.driver}</p>
                     </div>
                   </div>
+                  <Badge variant="destructive">{violation.action}</Badge>
                 </div>
               ))}
             </div>
@@ -542,8 +546,10 @@ const ReportingTabContent = memo(function ReportingTabContent() {
                   </div>
                 </div>
                 <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => handleViewReport(report.name)}>
                     View
                   </Button>
+                  <Button size="sm" onClick={() => handleGenerateReport(report.name)}>
                     Generate
                   </Button>
                 </div>
@@ -562,13 +568,12 @@ const ReportingTabContent = memo(function ReportingTabContent() {
 
 export default function ComplianceSafetyHub() {
   const [activeTab, setActiveTab] = useState('compliance')
-  const { user } = useAuth()
 
   return (
     <HubPage
       title="Compliance & Safety"
       description="Comprehensive compliance monitoring, safety management, and policy enforcement"
-      icon={Shield}
+      icon={<Shield className="h-6 w-6" />}
     >
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
