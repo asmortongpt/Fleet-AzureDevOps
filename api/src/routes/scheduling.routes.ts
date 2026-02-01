@@ -17,6 +17,9 @@ import schedulingService from '../services/scheduling.service'
 
 const router = express.Router()
 
+// Apply authentication to all routes
+router.use(authenticateJWT)
+
 // ============================================
 // Vehicle Reservations
 // ============================================
