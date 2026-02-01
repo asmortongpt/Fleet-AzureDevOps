@@ -7,8 +7,12 @@ import { Router, Request, Response } from 'express'
 import { pool } from '../db/connection'
 import { z } from 'zod'
 import { logger } from '../utils/logger'
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 // ============================================================================
 // VALIDATION SCHEMAS

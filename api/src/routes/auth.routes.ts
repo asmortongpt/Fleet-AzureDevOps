@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { ApiError } from '../middleware/error.middleware';
 import { AuditService, AuditCategory, AuditSeverity } from '../services/audit/AuditService';
 import { AuthenticationService } from '../services/auth/AuthenticationService';
+import { authenticateJWT } from '../middleware/auth'
 
 
 // Validation schemas
@@ -37,6 +38,9 @@ const mfaVerifySchema = z.object({
 
 export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditService): Router {
   const router = Router();
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
   const authService = new AuthenticationService(pool, redis);
 
   /**

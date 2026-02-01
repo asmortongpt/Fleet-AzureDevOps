@@ -9,8 +9,12 @@ import { Router } from 'express'
 
 import { aiService } from '../../services/api-bus'
 import type { AICompletionRequest } from '../../services/api-bus'
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 /**
  * POST /api/ai/chat

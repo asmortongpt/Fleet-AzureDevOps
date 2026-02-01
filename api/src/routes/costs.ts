@@ -11,9 +11,13 @@ import { costEmulator } from '../emulators/cost/CostEmulator'
 import type { BudgetTracking } from '../emulators/cost/CostEmulator'
 import { csrfProtection } from '../middleware/csrf'
 import { asyncHandler } from '../middleware/errorHandler'
+import { authenticateJWT } from '../middleware/auth'
 
 
 const router = Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 // GET all cost entries with filtering and pagination
 router.get('/', asyncHandler(async (req, res) => {

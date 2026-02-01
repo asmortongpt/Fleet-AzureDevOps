@@ -19,6 +19,9 @@ import { getErrorMessage } from '../utils/error-handler'
 
 const router = Router()
 
+// Apply authentication to all routes
+router.use(authenticateJWT)
+
 /**
  * POST /api/documents/search
  *
@@ -258,6 +261,7 @@ export default router
  *
  * import documentSearchRouter from './routes/document-search.example'
 import { csrfProtection } from '../middleware/csrf'
+import { authenticateJWT } from '../middleware/auth'
 
  *
  * // With authentication middleware

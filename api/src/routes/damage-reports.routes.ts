@@ -9,8 +9,12 @@
 import { Router } from 'express';
 
 import { damageReportsController } from '../controllers/damage-reports.controller';
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router();
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 /**
  * @route   GET /api/damage-reports

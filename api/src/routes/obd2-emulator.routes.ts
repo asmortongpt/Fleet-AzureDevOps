@@ -14,9 +14,13 @@ import logger from '../config/logger'; // Wave 29: Add Winston logger
 import { NotFoundError } from '../errors/app-error'
 import { csrfProtection } from '../middleware/csrf'
 import obd2Emulator, { VehicleProfile } from '../services/obd2-emulator.service'
+import { authenticateJWT } from '../middleware/auth'
 
 
 const router = express.Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 // Store for demo sessions (no auth required for emulator)
 const demoSessions: Map<string, { vehicleId: number; adapterId: number; profile: VehicleProfile }> = new Map()
