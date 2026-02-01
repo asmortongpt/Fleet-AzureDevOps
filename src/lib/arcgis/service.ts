@@ -312,7 +312,7 @@ export class ArcGISService {
   /**
    * Convert ArcGIS geometry to GeoJSON geometry
    */
-  private geometryToGeoJSON(geometry: any): GeoJSON.Geometry {
+  private geometryToGeoJSON(geometry: any): GeoJSONGeometry {
     if (!geometry) {
       return { type: 'Point', coordinates: [0, 0] }
     }

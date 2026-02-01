@@ -75,7 +75,7 @@ const Enhanced3DVehicleShowroom: React.FC<Enhanced3DVehicleShowroomProps> = ({
     'explore'
   );
   const [compareVehicles, setCompareVehicles] = useState<VehicleData[]>([]);
-  const animationFrameRef = useRef<number>();
+  const animationFrameRef = useRef<number | undefined>(undefined);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | WebGLRenderingContext | null>(null);
 

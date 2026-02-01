@@ -259,6 +259,7 @@ router.get(
 // POST /routes/optimize - Optimize route planning (MUST be before /:id)
 router.post(
   '/optimize',
+  authenticateJWT,
   csrfProtection,
   requirePermission('route:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'routes' }),
@@ -474,6 +475,7 @@ router.get(
 // POST /routes
 router.post(
   '/',
+  authenticateJWT,
   csrfProtection,
   requirePermission('route:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'routes' }),
@@ -564,6 +566,7 @@ const ALLOWED_UPDATE_FIELDS = [
 
 router.put(
   '/:id',
+  authenticateJWT,
   csrfProtection,
   requirePermission('route:update:fleet', {
     customCheck: async (req: AuthRequest) => {
@@ -642,6 +645,7 @@ router.put(
 // PUT /routes/:id/stops - Add stops to route
 router.put(
   '/:id/stops',
+  authenticateJWT,
   csrfProtection,
   requirePermission('route:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'routes' }),
@@ -689,6 +693,7 @@ router.put(
 // PUT /routes/:id/optimize - Reoptimize route
 router.put(
   '/:id/optimize',
+  authenticateJWT,
   csrfProtection,
   requirePermission('route:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'routes' }),
@@ -725,6 +730,7 @@ router.put(
 // PUT /routes/:id/stops/:stopNumber - Update stop status
 router.put(
   '/:id/stops/:stopNumber',
+  authenticateJWT,
   csrfProtection,
   requirePermission('route:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'routes' }),
@@ -779,6 +785,7 @@ router.put(
 // DELETE /routes/:id
 router.delete(
   '/:id',
+  authenticateJWT,
   csrfProtection,
   requirePermission('route:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'routes' }),

@@ -17,6 +17,7 @@ router.get('/health', async (req: Request, res: Response) => {
     },
   }
 
+  // Database check (critical - must pass for healthy status)
   try {
     await pool.query('SELECT 1')
     health.checks.database = 'healthy'
@@ -25,16 +26,22 @@ router.get('/health', async (req: Request, res: Response) => {
     health.status = 'degraded'
   }
 
+  // Cache check (non-critical - failure doesn't affect status)
   try {
-    await cacheService.get('health-check')
-    health.checks.cache = 'healthy'
+    // Test cache by setting and getting a value
+    await cacheService.set('health-check-test', 'ok', 10)
+    const result = await cacheService.get('health-check-test')
+    health.checks.cache = result ? 'healthy' : 'warning'
   } catch (err) {
-    health.checks.cache = 'unhealthy'
+    // Cache failure is non-critical - system can operate without it
+    health.checks.cache = 'warning'
   }
 
+  // Memory check
   const used = process.memoryUsage()
   health.checks.memory = used.heapUsed < 500 * 1024 * 1024 ? 'healthy' : 'warning'
 
+  // Return 200 if database is healthy (cache/memory warnings don't degrade status)
   res.status(health.status === 'healthy' ? 200 : 503).json(health)
 })
 

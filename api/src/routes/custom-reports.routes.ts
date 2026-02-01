@@ -50,7 +50,9 @@ router.get(
 // POST /api/custom-reports/from-template/:templateId - Create report from template
 router.post(
   '/from-template/:templateId',
- csrfProtection, requirePermission('report:generate:global'),
+  authenticateJWT,
+  csrfProtection,
+  requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'custom_report' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -122,7 +124,9 @@ router.get(
 // POST /api/custom-reports - Create new report
 router.post(
   '/',
- csrfProtection, requirePermission('report:generate:global'),
+  authenticateJWT,
+  csrfProtection,
+  requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'custom_report' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -151,7 +155,9 @@ router.post(
 // PUT /api/custom-reports/:id - Update report
 router.put(
   '/:id',
- csrfProtection, requirePermission('report:generate:global'),
+  authenticateJWT,
+  csrfProtection,
+  requirePermission('report:generate:global'),
   auditLog({ action: 'UPDATE', resourceType: 'custom_report' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -176,7 +182,9 @@ router.put(
 // DELETE /api/custom-reports/:id - Delete report
 router.delete(
   '/:id',
- csrfProtection, requirePermission('report:delete:global'),
+  authenticateJWT,
+  csrfProtection,
+  requirePermission('report:delete:global'),
   auditLog({ action: 'DELETE', resourceType: 'custom_report' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -196,7 +204,9 @@ router.delete(
 // POST /api/custom-reports/:id/execute - Execute report
 router.post(
   '/:id/execute',
- csrfProtection, requirePermission('report:generate:global'),
+  authenticateJWT,
+  csrfProtection,
+  requirePermission('report:generate:global'),
   auditLog({ action: 'EXECUTE', resourceType: 'custom_report' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -307,7 +317,9 @@ router.get(
 // POST /api/custom-reports/:id/schedule - Schedule report
 router.post(
   '/:id/schedule',
- csrfProtection, requirePermission('report:generate:global'),
+  authenticateJWT,
+  csrfProtection,
+  requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'report_schedule' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -372,7 +384,9 @@ router.get(
 // PUT /api/custom-reports/:id/schedules/:scheduleId - Update schedule
 router.put(
   '/:id/schedules/:scheduleId',
- csrfProtection, requirePermission('report:generate:global'),
+  authenticateJWT,
+  csrfProtection,
+  requirePermission('report:generate:global'),
   auditLog({ action: 'UPDATE', resourceType: 'report_schedule' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -392,7 +406,9 @@ router.put(
 // DELETE /api/custom-reports/:id/schedules/:scheduleId - Delete schedule
 router.delete(
   '/:id/schedules/:scheduleId',
- csrfProtection, requirePermission('report:delete:global'),
+  authenticateJWT,
+  csrfProtection,
+  requirePermission('report:delete:global'),
   auditLog({ action: 'DELETE', resourceType: 'report_schedule' }),
   async (req: AuthRequest, res: Response) => {
     try {
