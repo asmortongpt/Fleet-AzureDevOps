@@ -106,6 +106,7 @@ export async function sendMessageToClaude(
       let fullResponse = '';
 
       try {
+        // eslint-disable-next-line no-constant-condition
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -125,7 +126,7 @@ export async function sendMessageToClaude(
                   fullResponse += text;
                   streamCallback.onChunk(text);
                 }
-              } catch (e) {
+              } catch {
                 // Skip invalid JSON
               }
             }
@@ -214,6 +215,7 @@ export async function sendMessageToOpenAI(
       let fullResponse = '';
 
       try {
+        // eslint-disable-next-line no-constant-condition
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -233,7 +235,7 @@ export async function sendMessageToOpenAI(
                   fullResponse += text;
                   streamCallback.onChunk(text);
                 }
-              } catch (e) {
+              } catch {
                 // Skip invalid JSON
               }
             }
@@ -327,6 +329,7 @@ export async function sendMessageToGemini(
       let fullResponse = '';
 
       try {
+        // eslint-disable-next-line no-constant-condition
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -340,7 +343,7 @@ export async function sendMessageToGemini(
               fullResponse += text;
               streamCallback.onChunk(text);
             }
-          } catch (e) {
+          } catch {
             // Skip invalid JSON
           }
         }

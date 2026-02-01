@@ -97,6 +97,7 @@ export function sanitizeInput(input: string, maxLength: number = 1000): string {
       // Remove event handlers
       .replace(/on\w+\s*=/gi, '')
       // Remove control characters
+      // eslint-disable-next-line no-control-regex
       .replace(/[\x00-\x1F\x7F-\x9F]/g, '')
       // Limit length
       .substring(0, maxLength)
@@ -211,6 +212,7 @@ export function sanitizeFilename(filename: string): string {
       // Remove directory separators
       .replace(/[/\\]/g, '')
       // Remove dangerous characters
+      // eslint-disable-next-line no-control-regex
       .replace(/[<>:"|?*\x00-\x1F]/g, '')
       // Remove leading/trailing dots and spaces
       .replace(/^[.\s]+|[.\s]+$/g, '')

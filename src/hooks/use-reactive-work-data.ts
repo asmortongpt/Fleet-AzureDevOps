@@ -208,9 +208,10 @@ export function useReactiveWorkData() {
     // Apply sorting
     filtered.sort((a, b) => {
       switch (sortBy) {
-        case 'priority':
+        case 'priority': {
           const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
           return priorityOrder[a.priority] - priorityOrder[b.priority];
+        }
         case 'dueDate':
           if (!a.dueDate) return 1;
           if (!b.dueDate) return -1;
