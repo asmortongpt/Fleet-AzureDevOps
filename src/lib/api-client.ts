@@ -1,7 +1,4 @@
-import { createLogger } from '@/utils/logger'
 import logger from '@/utils/logger';
-
-const logger = createLogger();
 
 /**
  * Fleet Management API Client
@@ -263,6 +260,23 @@ class APIClient {
 
     return this.request<T>(endpoint, {
       method: 'PUT',
+      body: JSON.stringify(sanitized)
+    })
+  }
+
+  // PATCH request with validation
+  async patch<T>(endpoint: string, data: unknown): Promise<T> {
+    // Sanitize data before sending
+    const sanitized = typeof data === 'object' && data !== null ?
+      Object.fromEntries(
+        Object.entries(data).map(([key, value]) => [
+          key,
+          typeof value === 'string' ? value.trim() : value
+        ])
+      ) : data
+
+    return this.request<T>(endpoint, {
+      method: 'PATCH',
       body: JSON.stringify(sanitized)
     })
   }

@@ -8,7 +8,6 @@ import { createLogger, format, transports } from 'winston';
 
 import { sanitizeForLogging } from './logSanitizer';
 
-import logger from '@/utils/logger';
 // Define LogData type for logging
 export interface LogData {
   email?: string;
@@ -16,7 +15,7 @@ export interface LogData {
   [key: string]: any;
 }
 
-const logger = createLogger({
+const loggerInstance = createLogger({
   level: 'info',
   format: format.combine(
     format.timestamp(),
@@ -32,4 +31,4 @@ const logger = createLogger({
   ],
 });
 
-export default logger;
+export default loggerInstance;

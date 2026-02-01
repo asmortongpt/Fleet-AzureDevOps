@@ -285,7 +285,11 @@ export function useHOSLogs(filters: HOSLogFilters) {
   return useQuery<HOSLog[], Error>({
     queryKey: hosQueryKeys.logs(filters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
+      const params = new URLSearchParams(
+        Object.entries(filters)
+          .filter(([_, value]) => value !== undefined && value !== null)
+          .map(([key, value]) => [key, String(value)])
+      );
       const res = await secureFetch(`/api/hos/logs?${params}`);
       if (!res.ok) {
         const error = await res.text();
@@ -331,7 +335,11 @@ export function useDVIRReports(filters: DVIRFilters) {
   return useQuery<DVIRReport[], Error>({
     queryKey: hosQueryKeys.dvir(filters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
+      const params = new URLSearchParams(
+        Object.entries(filters)
+          .filter(([_, value]) => value !== undefined && value !== null)
+          .map(([key, value]) => [key, String(value)])
+      );
       const res = await secureFetch(`/api/hos/dvir?${params}`);
       if (!res.ok) {
         const error = await res.text();
@@ -354,7 +362,11 @@ export function useHOSViolations(filters: HOSViolationFilters) {
   return useQuery<HOSViolation[], Error>({
     queryKey: hosQueryKeys.violations(filters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
+      const params = new URLSearchParams(
+        Object.entries(filters)
+          .filter(([_, value]) => value !== undefined && value !== null)
+          .map(([key, value]) => [key, String(value)])
+      );
       const res = await secureFetch(`/api/hos/violations?${params}`);
       if (!res.ok) {
         const error = await res.text();

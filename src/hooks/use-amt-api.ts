@@ -1,6 +1,6 @@
 import { useQuery, useMutation, UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
-import toast from 'react-toastify';
+import { toast } from 'react-hot-toast';
 
 import { logger } from '../utils/logger';
 import { validateInput } from '../utils/validation';
@@ -29,7 +29,7 @@ apiClient.interceptors.response.use(
   response => response,
   (error: AxiosError) => {
     logger.error('API Error', error);
-    (toast as { error: (msg: string) => void }).error('An error occurred while processing your request.');
+    toast.error('An error occurred while processing your request.');
     return Promise.reject(error);
   }
 );
