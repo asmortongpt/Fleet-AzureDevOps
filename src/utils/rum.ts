@@ -504,7 +504,7 @@ export class RUMTracker {
    * Gets browser version
    */
   private getBrowserVersion(ua: string): string {
-    const match = ua.match(/(Firefox|Chrome|Safari|Edge|Opera)[\/\s](\d+)/);
+    const match = ua.match(/(Firefox|Chrome|Safari|Edge|Opera)[/\s](\d+)/);
     return match ? match[2] : 'Unknown';
   }
 
@@ -524,7 +524,7 @@ export class RUMTracker {
    * Gets OS version
    */
   private getOSVersion(ua: string): string {
-    const match = ua.match(/(Windows NT|Mac OS X|Android|iOS)[\s\/](\d+[\._\d]*)/);
+    const match = ua.match(/(Windows NT|Mac OS X|Android|iOS)[\s/](\d+[._\d]*)/);
     return match ? match[2].replace(/_/g, '.') : 'Unknown';
   }
 

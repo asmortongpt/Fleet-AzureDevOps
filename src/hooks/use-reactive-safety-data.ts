@@ -675,18 +675,21 @@ function calculateFMCSAScore(drivers: DriverSafety[], metric: 'speeding' | 'hos'
   if (drivers.length === 0) return 100
 
   switch (metric) {
-    case 'speeding':
+    case 'speeding': {
       const speedingScore = drivers.reduce((sum, d) => sum + d.safetyScore.speeding, 0) / drivers.length
       return Math.round(speedingScore)
+    }
 
-    case 'hos':
+    case 'hos': {
       const hosViolations = drivers.reduce((sum, d) => sum + d.hosViolations, 0)
       const maxViolations = drivers.length * 5 // Threshold for worst score
       return Math.round(Math.max(0, 100 - (hosViolations / maxViolations) * 100))
+    }
 
-    case 'training':
+    case 'training': {
       const compliantDrivers = drivers.filter(d => d.trainingCompliance >= 90).length
       return Math.round((compliantDrivers / drivers.length) * 100)
+    }
 
     default:
       return 100

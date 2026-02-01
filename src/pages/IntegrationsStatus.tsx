@@ -96,9 +96,10 @@ export default function IntegrationsStatus() {
   const fetchIntegrationHealth = async () => {
     try {
       setRefreshing(true);
+      const token = localStorage.getItem('token');
       const response = await axios.get('/api/integrations/health', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}` || ''
+          'Authorization': token ? `Bearer ${token}` : ''
         }
       });
 
@@ -115,11 +116,12 @@ export default function IntegrationsStatus() {
 
   const refreshSingleIntegration = async (integrationName: string) => {
     try {
+      const token = localStorage.getItem('token');
       const response = await axios.get(
         `/api/integrations/health/${integrationName}`,
         {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}` || ''
+            'Authorization': token ? `Bearer ${token}` : ''
           }
         }
       );

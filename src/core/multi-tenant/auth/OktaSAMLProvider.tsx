@@ -374,14 +374,10 @@ export const OktaSAMLProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   // Session management
   const extendSession = async (): Promise<void> => {
-    try {
-      await (oktaAuth as any).session?.refresh?.();
-      handleSecurityEvent('session_extended', {
-        employeeId: user?.employeeId
-      });
-    } catch (err) {
-      throw err;
-    }
+    await (oktaAuth as any).session?.refresh?.();
+    handleSecurityEvent('session_extended', {
+      employeeId: user?.employeeId
+    });
   };
 
   const checkSessionStatus = async (): Promise<boolean> => {
@@ -395,13 +391,9 @@ export const OktaSAMLProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   // MFA methods
   const enableMFA = async (): Promise<void> => {
-    try {
-      // Redirect to Okta MFA enrollment
-      if (typeof window !== "undefined") {
-        window.location.href = `${oktaConfig.issuer}/enduser/settings`;
-      }
-    } catch (err) {
-      throw err;
+    // Redirect to Okta MFA enrollment
+    if (typeof window !== "undefined") {
+      window.location.href = `${oktaConfig.issuer}/enduser/settings`;
     }
   };
 

@@ -115,6 +115,7 @@ describe('sanitizeInput', () => {
     const dirty = 'Text\x00with\x1Fcontrol\x7Fchars';
     const clean = sanitizeInput(dirty);
 
+    // eslint-disable-next-line no-control-regex
     expect(clean).not.toMatch(/[\x00-\x1F\x7F-\x9F]/);
   });
 
