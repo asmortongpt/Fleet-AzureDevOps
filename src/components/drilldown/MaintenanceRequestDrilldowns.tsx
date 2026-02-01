@@ -458,7 +458,9 @@ export function MaintenanceRequestListView({
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Requested by {request.requester_name} on{' '}
-                      {new Date(request.submitted_date).toLocaleDateString()}
+                      {request.submitted_date
+                        ? new Date(request.submitted_date).toLocaleDateString()
+                        : 'N/A'}
                     </p>
                   </div>
                   <div className="text-right space-y-1">
