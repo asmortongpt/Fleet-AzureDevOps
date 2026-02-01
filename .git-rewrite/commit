@@ -1,0 +1,6 @@
+tree b4966416a615946a7b94be511c33fe29ab695dfe
+parent 520098b6a7536c9675a2defa524f40aa624eb2fb
+author Fleet Agent <agent@fleet.capitaltechalliance.com> 1763991330 -0500
+committer Fleet Agent <agent@fleet.capitaltechalliance.com> 1763991330 -0500
+
+fix: Add Device Management link to More tab for OBD2 Emulator access

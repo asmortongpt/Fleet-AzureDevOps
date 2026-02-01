@@ -4,7 +4,7 @@
  */
 
 // Auth Context - complete exports
-export { AuthProvider, useAuth } from './AuthContext';
+export { AuthProvider, useAuth, AuthContext } from './AuthContext';
 export type { User, UserRole, AuthContextType } from './AuthContext';
 
 // Other Context Providers

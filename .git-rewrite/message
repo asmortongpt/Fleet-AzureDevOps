@@ -1,0 +1,11 @@
+docs: add quick start guide for production deployment
+
+- Add QUICK_START_PRODUCTION.md with 3-step deployment guide
+- Include existing infrastructure overview
+- Add monitoring and troubleshooting commands
+- Include common operational commands
+- Reference detailed setup guide
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
