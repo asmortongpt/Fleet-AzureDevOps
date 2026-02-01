@@ -14,11 +14,8 @@
  * @security XSS protection, data sanitization
  */
 
-<<<<<<< HEAD
 import { motion } from 'framer-motion'
-import { Suspense, memo, useCallback, useMemo, lazy } from 'react'
-import { LineChart as AnalyticsIcon, FileText, BarChart, TrendingUp, Presentation, Database, DollarSign, Gauge, Calendar, Plus, Download, Eye, ArrowUp, ArrowDown, ArrowRight, Brain, Lightbulb, Target, Sliders } from 'lucide-react'
-=======
+import { Suspense, memo, useCallback, useMemo } from 'react'
 import {
   ChartLine as AnalyticsIcon,
   FileText,
@@ -36,40 +33,28 @@ import {
   ArrowDown,
   ArrowRight,
 } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
-import { Suspense, memo, useCallback, useMemo } from 'react'
-
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
->>>>>>> fix/pipeline-eslint-build
 import HubPage from '@/components/ui/hub-page'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useReactiveAnalyticsData } from '@/hooks/use-reactive-analytics-data'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
-  WaterfallChart,
-  TreemapChart,
-  RadarChart,
-  HeatmapChart,
-  ScatterChart,
-  GaugeChart,
-  InteractiveLineChart,
-  AnimatedCounter,
-  AnimatedPercentage,
 } from '@/components/visualizations'
-import { useReactiveAnalyticsData } from '@/hooks/use-reactive-analytics-data'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import type { AnalyticsReport } from '@/hooks/use-reactive-analytics-data'
-import { exportToCSV, exportToExcel, exportToPDF } from '@/lib/export-utils'
-import { Download as DownloadIcon, Share } from 'lucide-react'
-import logger from '@/utils/logger';
 
-// Note: Previously imported deprecated components removed
-// All analytics functionality is now integrated into this unified AnalyticsHub component
+// Type for chart data points (matches visualization component expectations)
+interface DataPoint {
+  name: string
+  value: number
+  [key: string]: unknown
+}
 
 // Constants for animation configuration
 const ANIMATION_CONFIG = {
@@ -162,25 +147,14 @@ const AnalyticsOverview = memo(() => {
       {/* Header with Last Update */}
       <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-pink-500" id="overview-heading">
+          <h2 className="text-3xl font-bold tracking-tight" id="overview-heading">
             Analytics Overview
           </h2>
-          <p className="text-muted-foreground">Real-time insights and performance metrics</p>
+          <p className="text-muted-foreground">Key performance indicators and fleet analytics</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="w-fit backdrop-blur-sm bg-background/50" aria-live="polite" aria-atomic="true">
-            Last updated: {lastUpdateString}
-          </Badge>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => exportToCSV(kpis, 'analytics-overview')}
-            className="gap-2"
-          >
-            <DownloadIcon className="h-4 w-4" />
-            Export
-          </Button>
-        </div>
+        <Badge variant="outline" className="w-fit" aria-live="polite" aria-atomic="true">
+          Last updated: {lastUpdateString}
+        </Badge>
       </header>
 
       {/* Key Metrics Grid */}
@@ -201,7 +175,7 @@ const AnalyticsOverview = memo(() => {
           <StatCard
             title="Active Reports"
             value={metrics?.activeReports?.toString() || '0'}
-            icon={BarChart}
+            icon={ChartBar}
             trend="up"
             change={3}
             description="Currently active"
@@ -231,80 +205,30 @@ const AnalyticsOverview = memo(() => {
       </section>
 
       {/* Charts Grid */}
-      <section aria-labelledby="charts-heading" className="space-y-6">
+      <section aria-labelledby="charts-heading" className="grid gap-6 lg:grid-cols-2">
         <h3 id="charts-heading" className="sr-only">
           Analytics Charts
         </h3>
+        {/* Reports by Category */}
+        <ResponsivePieChart
+          title="Reports by Category"
+          description="Distribution of reports across categories"
+          data={categoryChartData}
+          innerRadius={60}
+          loading={isLoading}
+          aria-label="Reports by Category Chart"
+        />
 
-        {/* Top Row - Main Charts */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Reports by Category */}
-          <ResponsivePieChart
-            title="Reports by Category"
-            description="Distribution of reports across categories"
-            data={categoryChartData}
-            innerRadius={60}
-            loading={isLoading}
-            aria-label="Reports by Category Chart"
-          />
-
-          {/* Performance Metrics Trend with Interactivity */}
-          <InteractiveLineChart
-            title="Performance Metrics Trend"
-            description="Fleet utilization, efficiency, and availability over time"
-            data={performanceMetricsTrend as any}
-            height={300}
-            showArea
-            loading={isLoading}
-            enableBrush
-            enableZoom
-            dataKeys={['utilization', 'efficiency', 'availability']}
-            colors={['hsl(210, 100%, 56%)', 'hsl(142, 76%, 36%)', 'hsl(291, 64%, 42%)']}
-            aria-label="Performance Metrics Trend Chart"
-          />
-        </div>
-
-        {/* Bottom Row - Advanced Visualizations */}
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Fleet Health Gauge */}
-          <GaugeChart
-            title="Fleet Health Score"
-            description="Overall fleet performance index"
-            value={89.5}
-            min={0}
-            max={100}
-            unit="%"
-            thresholds={{ low: 60, medium: 80, high: 90 }}
-            loading={isLoading}
-            size={180}
-          />
-
-          {/* Cost Efficiency Gauge */}
-          <GaugeChart
-            title="Cost Efficiency"
-            description="Cost per mile optimization"
-            value={76.2}
-            min={0}
-            max={100}
-            unit="%"
-            thresholds={{ low: 50, medium: 70, high: 85 }}
-            loading={isLoading}
-            size={180}
-          />
-
-          {/* Driver Performance Gauge */}
-          <GaugeChart
-            title="Driver Performance"
-            description="Average driver safety score"
-            value={92.8}
-            min={0}
-            max={100}
-            unit="%"
-            thresholds={{ low: 70, medium: 85, high: 90 }}
-            loading={isLoading}
-            size={180}
-          />
-        </div>
+        {/* Performance Metrics Trend */}
+        <ResponsiveLineChart
+          title="Performance Metrics Trend"
+          description="Fleet utilization, efficiency, and availability over time"
+          data={performanceMetricsTrend as DataPoint[]}
+          height={300}
+          showArea
+          loading={isLoading}
+          aria-label="Performance Metrics Trend Chart"
+        />
       </section>
 
       {/* KPI Cards Grid */}
@@ -412,17 +336,17 @@ const ReportsContent = memo(() => {
 
   // Memoized handlers
   const handleDownload = useCallback((id: string) => {
-    logger.info('Download report:', id)
+    console.log('Download report:', id)
     // TODO: Implement download functionality
   }, [])
 
   const handleView = useCallback((id: string) => {
-    logger.info('View report:', id)
+    console.log('View report:', id)
     // TODO: Implement view functionality
   }, [])
 
   const handleNewReport = useCallback(() => {
-    logger.info('Create new report')
+    console.log('Create new report')
     // TODO: Implement new report functionality
   }, [])
 
@@ -482,7 +406,7 @@ const ReportsContent = memo(() => {
           <StatCard
             title="Custom Reports"
             value={metrics?.customReports?.toString() || '0'}
-            icon={BarChart}
+            icon={ChartBar}
             trend="up"
             change={2}
             description="User created"
@@ -491,7 +415,7 @@ const ReportsContent = memo(() => {
           <StatCard
             title="This Week"
             value={metrics?.reportsThisWeek?.toString() || '0'}
-            icon={TrendingUp}
+            icon={TrendUp}
             trend="up"
             change={12}
             description="Generated"
@@ -504,7 +428,7 @@ const ReportsContent = memo(() => {
       <ResponsiveBarChart
         title="Report Generation Trend"
         description="Weekly report generation statistics"
-        data={reportGenerationTrend}
+        data={reportGenerationTrend as DataPoint[]}
         height={300}
         loading={isLoading}
         aria-label="Report Generation Trend Chart"
@@ -602,7 +526,7 @@ const DashboardsContent = memo(() => {
   const { dashboards, dashboardStats, typeChartData, isLoading, error, lastUpdate } = useReactiveAnalyticsData()
 
   const handleNewDashboard = useCallback(() => {
-    logger.info('Create new dashboard')
+    console.log('Create new dashboard')
     // TODO: Implement new dashboard functionality
   }, [])
 
@@ -650,7 +574,7 @@ const DashboardsContent = memo(() => {
           <StatCard
             title="Active Dashboards"
             value={dashboards.length.toString()}
-            icon={Presentation}
+            icon={PresentationChart}
             trend="neutral"
             description="Custom views"
             loading={isLoading}
@@ -675,7 +599,7 @@ const DashboardsContent = memo(() => {
           <StatCard
             title="Avg Session"
             value={`${dashboardStats.avgSessionDuration}m`}
-            icon={TrendingUp}
+            icon={TrendUp}
             trend="up"
             description="Duration"
             loading={isLoading}
@@ -697,7 +621,7 @@ const DashboardsContent = memo(() => {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Presentation className="h-5 w-5 text-primary" aria-hidden="true" />
+            <PresentationChart className="h-5 w-5 text-primary" aria-hidden="true" />
             <CardTitle id="your-dashboards-heading">Your Dashboards</CardTitle>
           </div>
           <CardDescription>Manage and view custom dashboards</CardDescription>
@@ -725,7 +649,7 @@ const DashboardsContent = memo(() => {
                     tabIndex={0}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
-                        logger.info('View dashboard:', dashboard.id)
+                        console.log('View dashboard:', dashboard.id)
                       }
                     }}
                   >
@@ -746,7 +670,7 @@ const DashboardsContent = memo(() => {
                 ))}
               </div>
             ) : (
-              <EmptyState icon={Presentation} message="No dashboards created yet" />
+              <EmptyState icon={PresentationChart} message="No dashboards created yet" />
             )}
           </div>
         </CardContent>
@@ -777,7 +701,7 @@ const TrendsContent = memo(() => {
   const insights = useMemo(
     () => [
       {
-        icon: TrendingUp,
+        icon: TrendUp,
         title: 'Cost Reduction Trend',
         description: 'Operating costs have decreased by 12% over the last 3 months',
         variant: 'default' as const,
@@ -789,13 +713,13 @@ const TrendsContent = memo(() => {
         variant: 'default' as const,
       },
       {
-        icon: DollarSign,
+        icon: CurrencyDollar,
         title: 'Fuel Efficiency Gains',
         description: 'Fuel costs per mile reduced by 7¢ through route optimization',
         variant: 'default' as const,
       },
       {
-        icon: BarChart,
+        icon: ChartBar,
         title: 'Margin Growth',
         description: 'Profit margins increased by 6 percentage points quarter-over-quarter',
         variant: 'default' as const,
@@ -836,16 +760,16 @@ const TrendsContent = memo(() => {
           <StatCard
             title="Monthly Cost"
             value={`$${formatNumber(currentMonthCost / 1000, { maximumFractionDigits: 0 })}K`}
-            icon={DollarSign}
+            icon={CurrencyDollar}
             trend={costChange < 0 ? 'down' : costChange > 0 ? 'up' : 'neutral'}
-            change={costChange > 0 ? costChange : -Math.abs(costChange)}
+            change={Math.round(costChange / 1000)}
             description="This month"
             loading={isLoading}
           />
           <StatCard
             title="Revenue"
             value={`$${formatNumber(currentQRevenue / 1000, { maximumFractionDigits: 0 })}K`}
-            icon={TrendingUp}
+            icon={TrendUp}
             trend="up"
             description="Current quarter"
             loading={isLoading}
@@ -870,109 +794,38 @@ const TrendsContent = memo(() => {
         </div>
       </section>
 
-      {/* Cost Trends with Interactive Features */}
-      <InteractiveLineChart
-        title="Cost Trends Analysis"
-        description="Monthly breakdown of fuel, maintenance, and operations costs with forecasting"
-        data={costTrends as any}
-        dataKeys={['fuel', 'maintenance', 'operations', 'total']}
-        height={400}
+      {/* Cost Trends */}
+      <ResponsiveLineChart
+        title="Cost Trends"
+        description="Monthly breakdown of fuel, maintenance, and operations costs"
+        data={costTrends as DataPoint[]}
+        height={350}
         showArea
-        enableBrush
-        enableZoom
         loading={isLoading}
-        colors={['hsl(45, 93%, 47%)', 'hsl(0, 84%, 60%)', 'hsl(210, 100%, 56%)', 'hsl(142, 76%, 36%)']}
         aria-label="Cost Trends Chart"
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Revenue vs Cost Waterfall */}
-        <WaterfallChart
-          title="Revenue Waterfall Analysis"
-          description="Sequential breakdown of revenue to profit"
-          data={[
-            { name: 'Revenue', value: 500000, isTotal: true },
-            { name: 'Fuel Costs', value: -120000 },
-            { name: 'Maintenance', value: -45000 },
-            { name: 'Labor', value: -180000 },
-            { name: 'Operations', value: -65000 },
-            { name: 'Net Profit', value: 90000, isTotal: true },
-          ]}
-          height={350}
+        {/* Revenue vs Cost Analysis */}
+        <ResponsiveBarChart
+          title="Revenue vs Cost Analysis"
+          description="Quarterly revenue and cost comparison with profit margins"
+          data={revenueVsCost as DataPoint[]}
+          height={300}
           loading={isLoading}
-          aria-label="Revenue Waterfall Chart"
+          aria-label="Revenue vs Cost Analysis Chart"
         />
 
-        {/* Performance Radar Chart */}
-        <RadarChart
-          title="Fleet Performance Matrix"
-          description="Multi-dimensional performance comparison"
-          data={[
-            { subject: 'Utilization', value: 89, fullMark: 100 },
-            { subject: 'Efficiency', value: 85, fullMark: 100 },
-            { subject: 'Safety', value: 92, fullMark: 100 },
-            { subject: 'Reliability', value: 88, fullMark: 100 },
-            { subject: 'Cost Control', value: 76, fullMark: 100 },
-            { subject: 'Customer Sat', value: 94, fullMark: 100 },
-          ]}
-          dataKeys={['value']}
-          height={350}
+        {/* Performance Metrics Trend */}
+        <ResponsiveLineChart
+          title="Performance Metrics"
+          description="Fleet utilization, efficiency, and availability trends"
+          data={performanceMetricsTrend as DataPoint[]}
+          height={300}
           loading={isLoading}
-          aria-label="Performance Radar Chart"
+          aria-label="Performance Metrics Chart"
         />
       </div>
-
-      {/* Cost Breakdown Treemap */}
-      <TreemapChart
-        title="Operating Cost Breakdown"
-        description="Hierarchical view of cost allocation"
-        data={[
-          {
-            name: 'Fleet Operations',
-            size: 350000,
-            children: [
-              { name: 'Fuel', size: 120000 },
-              { name: 'Maintenance', size: 45000 },
-              { name: 'Insurance', size: 35000 },
-              { name: 'Tolls & Fees', size: 15000 },
-              { name: 'Tires', size: 25000 },
-              { name: 'Parts', size: 40000 },
-              { name: 'Other', size: 70000 },
-            ],
-          },
-        ]}
-        height={350}
-        loading={isLoading}
-        aria-label="Cost Breakdown Treemap"
-      />
-
-      {/* Correlation Heatmap */}
-      <HeatmapChart
-        title="Performance Correlation Matrix"
-        description="Relationships between key performance indicators"
-        data={[
-          { x: 'Utilization', y: 'Utilization', value: 1.0 },
-          { x: 'Utilization', y: 'Revenue', value: 0.85 },
-          { x: 'Utilization', y: 'Costs', value: 0.62 },
-          { x: 'Utilization', y: 'Maintenance', value: 0.45 },
-          { x: 'Revenue', y: 'Utilization', value: 0.85 },
-          { x: 'Revenue', y: 'Revenue', value: 1.0 },
-          { x: 'Revenue', y: 'Costs', value: 0.73 },
-          { x: 'Revenue', y: 'Maintenance', value: 0.38 },
-          { x: 'Costs', y: 'Utilization', value: 0.62 },
-          { x: 'Costs', y: 'Revenue', value: 0.73 },
-          { x: 'Costs', y: 'Costs', value: 1.0 },
-          { x: 'Costs', y: 'Maintenance', value: 0.91 },
-          { x: 'Maintenance', y: 'Utilization', value: 0.45 },
-          { x: 'Maintenance', y: 'Revenue', value: 0.38 },
-          { x: 'Maintenance', y: 'Costs', value: 0.91 },
-          { x: 'Maintenance', y: 'Maintenance', value: 1.0 },
-        ]}
-        height={350}
-        loading={isLoading}
-        showValues
-        aria-label="Correlation Heatmap"
-      />
 
       {/* Trend Insights */}
       <Card>
@@ -1009,280 +862,6 @@ const TrendsContent = memo(() => {
   )
 })
 TrendsContent.displayName = 'TrendsContent'
-
-/**
- * Insights Hub Tab - AI-powered insights and recommendations
- */
-const InsightsHubContent = memo(() => {
-  const { isLoading, error, lastUpdate } = useReactiveAnalyticsData()
-
-  const lastUpdateString = useMemo(() => formatDate(lastUpdate, { timeStyle: 'medium' }), [lastUpdate])
-
-  if (error) {
-    return (
-      <div className="p-6">
-        <Alert variant="destructive" role="alert">
-          <AlertDescription>Failed to load insights data. Please try again later.</AlertDescription>
-        </Alert>
-      </div>
-    )
-  }
-
-  return (
-    <div className="space-y-6 p-6">
-      <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight" id="insights-heading">
-            Insights
-          </h2>
-          <p className="text-muted-foreground">AI-powered analytics insights and recommendations</p>
-        </div>
-        <Badge variant="outline" aria-live="polite">
-          Last updated: {lastUpdateString}
-        </Badge>
-      </header>
-
-      <section aria-labelledby="insights-content">
-        <h3 id="insights-content" className="sr-only">
-          Insights Content
-        </h3>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="h-5 w-5 text-amber-500" aria-hidden="true" />
-              Key Insights
-            </CardTitle>
-            <CardDescription>Machine learning driven recommendations</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <SkeletonGrid count={3} className="h-20" />
-            ) : (
-              <div className="space-y-4" role="list">
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0 }}
-                  className="flex items-start gap-4 p-4 rounded-lg border hover:bg-accent/50 transition-colors"
-                  role="listitem"
-                >
-                  <Target className="h-5 w-5 text-primary flex-shrink-0 mt-1" aria-hidden="true" />
-                  <div className="flex-1">
-                    <h4 className="font-medium mb-1">Optimization Opportunity</h4>
-                    <p className="text-sm text-muted-foreground">Your fleet utilization can be improved by 8-12% through better route planning</p>
-                  </div>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="flex items-start gap-4 p-4 rounded-lg border hover:bg-accent/50 transition-colors"
-                  role="listitem"
-                >
-                  <TrendingUp className="h-5 w-5 text-green-500 flex-shrink-0 mt-1" aria-hidden="true" />
-                  <div className="flex-1">
-                    <h4 className="font-medium mb-1">Cost Reduction</h4>
-                    <p className="text-sm text-muted-foreground">Fuel efficiency has improved 5% this month compared to last month</p>
-                  </div>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex items-start gap-4 p-4 rounded-lg border hover:bg-accent/50 transition-colors"
-                  role="listitem"
-                >
-                  <AlertDescription className="text-sm text-amber-600" role="status">
-                    <Brain className="h-5 w-5 text-amber-500 inline mr-2" aria-hidden="true" />
-                    Driver Safety Alert: One driver shows increased harsh braking patterns
-                  </AlertDescription>
-                </motion.div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </section>
-    </div>
-  )
-})
-InsightsHubContent.displayName = 'InsightsHubContent'
-
-/**
- * Analytics Workbench Tab - Advanced analytics configuration
- */
-const AnalyticsWorkbenchContent = memo(() => {
-  const { isLoading, error, lastUpdate } = useReactiveAnalyticsData()
-
-  const lastUpdateString = useMemo(() => formatDate(lastUpdate, { timeStyle: 'medium' }), [lastUpdate])
-
-  if (error) {
-    return (
-      <div className="p-6">
-        <Alert variant="destructive" role="alert">
-          <AlertDescription>Failed to load workbench data. Please try again later.</AlertDescription>
-        </Alert>
-      </div>
-    )
-  }
-
-  return (
-    <div className="space-y-6 p-6">
-      <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight" id="workbench-heading">
-            Analytics Workbench
-          </h2>
-          <p className="text-muted-foreground">Configure and test custom analytics queries</p>
-        </div>
-        <Badge variant="outline" aria-live="polite">
-          Last updated: {lastUpdateString}
-        </Badge>
-      </header>
-
-      <section aria-labelledby="workbench-tools">
-        <h3 id="workbench-tools" className="sr-only">
-          Workbench Tools
-        </h3>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sliders className="h-5 w-5 text-primary" aria-hidden="true" />
-              Query Builder
-            </CardTitle>
-            <CardDescription>Build and test custom analytics queries</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <SkeletonGrid count={2} className="h-24" />
-            ) : (
-              <div className="space-y-4">
-                <div className="p-4 rounded-lg bg-muted/50 border border-dashed">
-                  <p className="text-sm text-muted-foreground">Query builder interface - define your custom metrics and dimensions</p>
-                </div>
-                <Button variant="outline" className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create New Query
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </section>
-    </div>
-  )
-})
-AnalyticsWorkbenchContent.displayName = 'AnalyticsWorkbenchContent'
-
-/**
- * Cost Analytics Tab - Detailed cost analysis
- */
-const CostAnalyticsContent = memo(() => {
-  const { isLoading, error, lastUpdate } = useReactiveAnalyticsData()
-
-  const lastUpdateString = useMemo(() => formatDate(lastUpdate, { timeStyle: 'medium' }), [lastUpdate])
-
-  if (error) {
-    return (
-      <div className="p-6">
-        <Alert variant="destructive" role="alert">
-          <AlertDescription>Failed to load cost analytics data. Please try again later.</AlertDescription>
-        </Alert>
-      </div>
-    )
-  }
-
-  return (
-    <div className="space-y-6 p-6">
-      <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight" id="costs-heading">
-            Cost Analytics
-          </h2>
-          <p className="text-muted-foreground">Detailed breakdown and analysis of operational costs</p>
-        </div>
-        <Badge variant="outline" aria-live="polite">
-          Last updated: {lastUpdateString}
-        </Badge>
-      </header>
-
-      <section aria-labelledby="cost-metrics-heading">
-        <h3 id="cost-metrics-heading" className="sr-only">
-          Cost Metrics
-        </h3>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="Total Costs"
-            value="$425.2K"
-            icon={DollarSign}
-            trend="down"
-            change={-2.3}
-            description="This month"
-            loading={isLoading}
-          />
-          <StatCard
-            title="Cost per Mile"
-            value="$1.24"
-            icon={Gauge}
-            trend="down"
-            change={-0.08}
-            description="Average cost"
-            loading={isLoading}
-          />
-          <StatCard
-            title="Fuel Costs"
-            value="$185.4K"
-            icon={DollarSign}
-            trend="up"
-            change={1.2}
-            description="This month"
-            loading={isLoading}
-          />
-          <StatCard
-            title="Maintenance"
-            value="$89.6K"
-            icon={Gauge}
-            trend="down"
-            change={-4.5}
-            description="This month"
-            loading={isLoading}
-          />
-        </div>
-      </section>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Cost Breakdown</CardTitle>
-          <CardDescription>Detailed cost allocation across fleet operations</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <SkeletonGrid count={2} className="h-32" />
-          ) : (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                <span className="text-sm font-medium">Fuel & Energy</span>
-                <span className="font-bold">$185.4K (43.6%)</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                <span className="text-sm font-medium">Maintenance & Repairs</span>
-                <span className="font-bold">$89.6K (21.1%)</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                <span className="text-sm font-medium">Insurance</span>
-                <span className="font-bold">$72.4K (17.0%)</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                <span className="text-sm font-medium">Other Operational</span>
-                <span className="font-bold">$77.8K (18.3%)</span>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  )
-})
-CostAnalyticsContent.displayName = 'CostAnalyticsContent'
 
 /**
  * Main AnalyticsHub Component
@@ -1329,7 +908,7 @@ export default function AnalyticsHub() {
       {
         id: 'dashboards',
         label: 'Dashboards',
-        icon: <Presentation className="h-4 w-4" aria-hidden="true" />,
+        icon: <PresentationChart className="h-4 w-4" aria-hidden="true" />,
         content: (
           <ErrorBoundary>
             <Suspense
@@ -1347,7 +926,7 @@ export default function AnalyticsHub() {
       {
         id: 'trends',
         label: 'Trends',
-        icon: <TrendingUp className="h-4 w-4" aria-hidden="true" />,
+        icon: <TrendUp className="h-4 w-4" aria-hidden="true" />,
         content: (
           <ErrorBoundary>
             <Suspense
@@ -1362,60 +941,6 @@ export default function AnalyticsHub() {
           </ErrorBoundary>
         ),
       },
-      {
-        id: 'insights',
-        label: 'Insights',
-        icon: <Brain className="h-4 w-4" aria-hidden="true" />,
-        content: (
-          <ErrorBoundary>
-            <Suspense
-              fallback={
-                <div className="p-6" role="status" aria-label="Loading insights">
-                  <SkeletonGrid count={4} />
-                </div>
-              }
-            >
-              <InsightsHubContent />
-            </Suspense>
-          </ErrorBoundary>
-        ),
-      },
-      {
-        id: 'workbench',
-        label: 'Workbench',
-        icon: <Sliders className="h-4 w-4" aria-hidden="true" />,
-        content: (
-          <ErrorBoundary>
-            <Suspense
-              fallback={
-                <div className="p-6" role="status" aria-label="Loading workbench">
-                  <SkeletonGrid count={4} />
-                </div>
-              }
-            >
-              <AnalyticsWorkbenchContent />
-            </Suspense>
-          </ErrorBoundary>
-        ),
-      },
-      {
-        id: 'costs',
-        label: 'Costs',
-        icon: <DollarSign className="h-4 w-4" aria-hidden="true" />,
-        content: (
-          <ErrorBoundary>
-            <Suspense
-              fallback={
-                <div className="p-6" role="status" aria-label="Loading cost analytics">
-                  <SkeletonGrid count={4} />
-                </div>
-              }
-            >
-              <CostAnalyticsContent />
-            </Suspense>
-          </ErrorBoundary>
-        ),
-      },
     ],
     []
   )
@@ -1423,7 +948,7 @@ export default function AnalyticsHub() {
   return (
     <HubPage
       title="Analytics Hub"
-      description="Advanced analytics, reporting, insights, and cost analysis"
+      description="Advanced analytics, reporting, and trend analysis"
       icon={<AnalyticsIcon className="h-8 w-8" aria-hidden="true" />}
       tabs={tabs}
       defaultTab="overview"

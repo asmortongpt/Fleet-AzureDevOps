@@ -5,7 +5,7 @@
  * SECURITY (CRIT-F-003): Implements RBAC with role hierarchy and permissions
  */
 
-import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 
 import { useMsal } from '@azure/msal-react';
 import { InteractionStatus } from '@azure/msal-browser';
@@ -67,123 +67,36 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUserState] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Track if auth initialization is in progress to prevent concurrent calls
-  const isInitializingRef = useRef(false);
-
   // MSAL hooks for Azure AD authentication
   const { instance, accounts, inProgress } = useMsal();
-
-  // FIX: Memoize MSAL values to prevent infinite render loop
-  // MSAL hooks can return new array references on every render, causing useCallback deps to change
-  // Use accounts.length (primitive) instead of accounts array to avoid reference changes
-  const accountCount = accounts.length;
-  const hasAccounts = accountCount > 0;
-  const firstAccount = useMemo(() => accounts[0], [accountCount]);
 
   // SECURITY (CRIT-F-001): Initialize auth state from MSAL or httpOnly cookies
   useEffect(() => {
     const initAuth = async () => {
-      // Prevent concurrent executions using ref (not state) to avoid blocking re-runs
-      if (isInitializingRef.current) {
-        logger.debug('[Auth] Init already in progress, skipping concurrent call');
-        return;
-      }
-
-      // CRITICAL FIX: Prevent unnecessary re-initialization if user is already set
-      // This prevents infinite loops when inProgress changes from 'startup' -> 'none'
-      if (user && !hasAccounts) {
-        logger.debug('[Auth] User already authenticated, skipping re-initialization', {
-          userId: user.id,
-          inProgress
-        });
-        return;
-      }
-
-      isInitializingRef.current = true;
-      logger.info('[Auth] Initializing authentication', {
-        hasAccounts,
-        accountCount,
-        inProgress,
-        userAlreadySet: !!user
-      });
-
       try {
-        // Only enabled when (NODE_ENV='test' OR MODE='development') AND VITE_SKIP_AUTH='true'
-        const SKIP_AUTH = (process.env.NODE_ENV === 'test' || import.meta.env.MODE === 'development') && import.meta.env.VITE_SKIP_AUTH === 'true';
-
-        // Log security warning if bypass is enabled in non-test environment
-        // Only warn in production - this is expected in development mode
-        if (SKIP_AUTH && process.env.NODE_ENV !== 'test' && import.meta.env.PROD) {
-          logger.warn('[Security] CRITICAL: Authentication bypass is enabled in non-test environment!', {
-            nodeEnv: process.env.NODE_ENV,
-            skipAuth: SKIP_AUTH
-          });
-        }
-
-        if (SKIP_AUTH) {
-          const demoUser: User = {
-            id: '34c5e071-2d8c-44d0-8f1f-90b58672dceb', // Real Seeded User ID
-            email: 'toby.deckow@capitaltechalliance.com', // Real Seeded Email
-            firstName: 'Toby',
-            lastName: 'Deckow',
-            role: 'SuperAdmin', // Promoted to SuperAdmin for full access
-            permissions: ['*'], // Full permissions
-            tenantId: 'ee1e7320-b232-402e-b4f8-288998b5bff7', // Real Seeded Tenant ID
-            tenantName: 'Capital Tech Alliance'
-          };
-          setUserState(demoUser);
-          setIsLoading(false);
-          logger.info('[Auth] Development auth bypass enabled - using demo user');
-          isInitializingRef.current = false;
-          return;
-        }
-
         // Check for MSAL authentication
-        // Only process MSAL account when not actively in a user interaction flow
-        const activeInteractions = [
-          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
-          InteractionStatus.Login,
-          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
-          InteractionStatus.Logout,
-          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
-          InteractionStatus.HandleRedirect,
-          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
-          InteractionStatus.AcquireToken,
-          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
-          InteractionStatus.SsoSilent
-        ];
-
-        if (hasAccounts && firstAccount && !activeInteractions.includes(inProgress as any)) {
-          logger.info('[Auth] MSAL account found - creating user object', {
-            email: firstAccount.username,
-            accountId: firstAccount.localAccountId,
-            tenantId: firstAccount.tenantId,
-            inProgress
-          });
+        if (accounts.length > 0 && inProgress === InteractionStatus.None) {
+          const account = accounts[0];
+          logger.info('[Auth] MSAL account found', { email: account.username });
 
           // Create user from MSAL account
           const msalUser: User = {
-            id: firstAccount.localAccountId,
-            email: firstAccount.username,
-            firstName: firstAccount.name?.split(' ')[0] || '',
-            lastName: firstAccount.name?.split(' ').slice(1).join(' ') || '',
+            id: account.localAccountId,
+            email: account.username,
+            firstName: account.name?.split(' ')[0] || '',
+            lastName: account.name?.split(' ').slice(1).join(' ') || '',
             role: 'User', // Default role, should be fetched from backend
             permissions: [],
-            tenantId: firstAccount.tenantId,
-            tenantName: firstAccount.tenantId
+            tenantId: account.tenantId,
+            tenantName: account.tenantId
           };
           setUserState(msalUser);
           setIsLoading(false);
-          logger.info('[Auth] MSAL authentication successful - user object set', {
-            userId: msalUser.id,
-            email: msalUser.email
-          });
-          isInitializingRef.current = false;
+          logger.info('[Auth] MSAL authentication successful');
           return;
         }
 
         // Check if we have a valid session via httpOnly cookie
-        // Note: This request will return 401 if not authenticated, which is expected behavior
         const response = await fetch('/api/auth/me', {
           method: 'GET',
           credentials: 'include', // Send httpOnly cookie
@@ -217,54 +130,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               logout();
             }
           });
-        } else if (response.status === 401) {
-          // 401 Unauthorized is expected when no valid session exists
-          // No need to log this as an error - it's normal behavior for unauthenticated users
-          logger.debug('[Auth] No active session found (401) - user needs to log in');
-        } else {
-          // Other non-200 responses are actual errors
-          logger.error('[Auth] Unexpected response from /api/auth/me:', {
-            status: response.status,
-            statusText: response.statusText
-          });
         }
       } catch (error) {
-        // Network errors or fetch failures
         logger.error('Failed to initialize auth:', { error });
       } finally {
-        // CRITICAL FIX: Complete loading after auth check UNLESS MSAL is actively processing user interaction
-        // We need to set loading to false so ProtectedRoute can decide whether to redirect
-        // Keep loading ONLY when MSAL is actively handling user interactions (Login, Logout, HandleRedirect, etc.)
-        const activeInteractions = [
-          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
-          InteractionStatus.Login,
-          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
-          InteractionStatus.Logout,
-          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
-          InteractionStatus.HandleRedirect,
-          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
-          InteractionStatus.AcquireToken,
-          // @ts-expect-error - MSAL API changes - InteractionStatus enum values may have changed
-          InteractionStatus.SsoSilent
-        ];
-
-        const isActivelyProcessing = activeInteractions.includes(inProgress as any);
-
-        if (!isActivelyProcessing) {
-          // Safe to complete loading for: None, Startup, or any future idle states
-          setIsLoading(false);
-          logger.info('[Auth] Auth initialization complete, loading set to false', { inProgress });
-        } else {
-          // Keep loading while MSAL actively processes user interaction
-          logger.debug('[Auth] MSAL actively processing user interaction, keeping loading state', { inProgress });
-        }
-        // Reset initialization flag to allow future re-runs
-        isInitializingRef.current = false;
+        setIsLoading(false);
       }
     };
 
     initAuth();
-  }, [firstAccount?.localAccountId, inProgress]); // FIX: Only depend on account ID and interaction status
+  }, [accounts, inProgress]);
 
   // SECURITY (CRIT-F-001): Login function using httpOnly cookies only
   const login = useCallback(async (email: string, password: string) => {
@@ -351,10 +226,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       stopTokenRefresh();
 
       // If MSAL account exists, logout from MSAL
-      if (hasAccounts && firstAccount) {
+      if (accounts.length > 0) {
         logger.info('[Auth] Logging out from MSAL');
         await instance.logoutRedirect({
-          account: firstAccount
+          account: accounts[0]
         });
         return; // MSAL will handle the redirect
       }
@@ -374,9 +249,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
 
     setUserState(null);
-  }, [instance, hasAccounts, firstAccount]);
+    localStorage.removeItem('demo_mode');
+    localStorage.removeItem('demo_role');
+  }, [instance, accounts]);
 
-  // Set user
+  // Set user (for demo mode)
   const setUser = useCallback((newUser: User | null) => {
     setUserState(newUser);
   }, []);

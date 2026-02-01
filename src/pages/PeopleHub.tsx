@@ -3,11 +3,8 @@
  * Real-time employee tracking, team management, and performance monitoring with responsive visualizations
  */
 
-<<<<<<< HEAD
 import { motion } from 'framer-motion'
 import { Suspense } from 'react'
-import { Users as PeopleIcon, User, Users, LineChart, Trophy, AlertTriangle, Clock, Plus, Briefcase, UserCircle2, CalendarCheck, Building2 } from 'lucide-react'
-=======
 import {
   Users as PeopleIcon,
   User,
@@ -22,22 +19,18 @@ import {
   CalendarCheck,
   Buildings,
 } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
-import { Suspense } from 'react'
-
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
->>>>>>> fix/pipeline-eslint-build
 import HubPage from '@/components/ui/hub-page'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useReactivePeopleData } from '@/hooks/use-reactive-people-data'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { useReactivePeopleData } from '@/hooks/use-reactive-people-data'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 
 /**
  * Overview Tab - Personnel metrics and status overview
@@ -116,23 +109,23 @@ function PeopleOverview() {
           value={metrics?.activeEmployees?.toString() || '0'}
           icon={User}
           trend="up"
-          change={+5}
+          change={5}
           description="Currently working"
           loading={isLoading}
         />
         <StatCard
           title="Avg Performance"
           value={`${metrics?.avgPerformanceRating || 0}%`}
-          icon={LineChart}
+          icon={ChartLine}
           trend="up"
-          change="+3%"
+          change={3}
           description="Organization average"
           loading={isLoading}
         />
         <StatCard
           title="Active Teams"
           value={metrics?.totalTeams?.toString() || '0'}
-          icon={Users}
+          icon={UsersThree}
           trend="neutral"
           description="Organizational units"
           loading={isLoading}
@@ -167,7 +160,7 @@ function PeopleOverview() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <UserCircle2 className="h-5 w-5 text-blue-500" />
+                <UserCircle className="h-5 w-5 text-blue-500" />
                 <CardTitle>Recent New Hires</CardTitle>
               </div>
               <CardDescription>Employees who joined in the last 90 days</CardDescription>
@@ -311,7 +304,7 @@ function DirectoryContent() {
         <StatCard
           title="Contractors"
           value={metrics?.contractors?.toString() || '0'}
-          icon={UserCircle2}
+          icon={UserCircle}
           trend="neutral"
           description="Contract workers"
           loading={isLoading}
@@ -432,9 +425,9 @@ function TeamsContent() {
         <StatCard
           title="Total Teams"
           value={metrics?.totalTeams?.toString() || '0'}
-          icon={Users}
+          icon={UsersThree}
           trend="up"
-          change={+2}
+          change={2}
           description="Active teams"
           loading={isLoading}
         />
@@ -454,7 +447,7 @@ function TeamsContent() {
               return acc
             }, {} as Record<string, boolean>)
           ).length.toString()}
-          icon={Building2}
+          icon={Buildings}
           trend="neutral"
           description="Unique departments"
           loading={isLoading}
@@ -465,7 +458,7 @@ function TeamsContent() {
       <ResponsiveBarChart
         title="Team Size Distribution"
         description="Number of members in each team"
-        data={teamSizeData}
+        data={teamSizeData.map(item => ({ ...item, value: item.members }))}
         height={350}
         loading={isLoading}
       />
@@ -474,7 +467,7 @@ function TeamsContent() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-primary" />
+            <UsersThree className="h-5 w-5 text-primary" />
             <CardTitle>All Teams</CardTitle>
           </div>
           <CardDescription>Overview of all organizational teams</CardDescription>
@@ -566,9 +559,9 @@ function PerformanceContent() {
         <StatCard
           title="Avg Performance"
           value={`${metrics?.avgPerformanceRating || 0}%`}
-          icon={LineChart}
+          icon={ChartLine}
           trend="up"
-          change="+3%"
+          change={3}
           description="Organization average"
           loading={isLoading}
         />
@@ -591,7 +584,7 @@ function PerformanceContent() {
         <StatCard
           title="Needs Attention"
           value={needsAttention.length.toString()}
-          icon={AlertTriangle}
+          icon={Warning}
           trend="down"
           description="Require support"
           loading={isLoading}
@@ -604,7 +597,7 @@ function PerformanceContent() {
         <ResponsiveLineChart
           title="Monthly Performance Trend"
           description="Average performance rating and completed reviews"
-          data={performanceTrendData}
+          data={performanceTrendData.map(item => ({ ...item, value: item.avgRating }))}
           height={300}
           showArea
           loading={isLoading}
@@ -624,7 +617,7 @@ function PerformanceContent() {
       <ResponsiveBarChart
         title="Department Performance"
         description="Average performance rating by department"
-        data={departmentPerformanceData}
+        data={departmentPerformanceData.map(item => ({ ...item, value: item.avgRating }))}
         height={350}
         loading={isLoading}
       />
@@ -677,7 +670,7 @@ function PerformanceContent() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              <Warning className="h-5 w-5 text-amber-500" />
               <CardTitle>Needs Attention</CardTitle>
             </div>
             <CardDescription>Employees requiring support or performance improvement</CardDescription>
@@ -754,7 +747,7 @@ export default function PeopleHub() {
     {
       id: 'teams',
       label: 'Teams',
-      icon: <Users className="h-4 w-4" />,
+      icon: <UsersThree className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <Suspense fallback={<div className="p-6">Loading teams...</div>}>
@@ -766,7 +759,7 @@ export default function PeopleHub() {
     {
       id: 'performance',
       label: 'Performance',
-      icon: <LineChart className="h-4 w-4" />,
+      icon: <ChartLine className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <Suspense fallback={<div className="p-6">Loading performance data...</div>}>

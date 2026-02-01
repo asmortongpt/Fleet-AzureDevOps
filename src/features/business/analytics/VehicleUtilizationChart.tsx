@@ -120,7 +120,7 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
   return (
     <Grid container spacing={3}>
       {/* Vehicle Status Distribution - Pie Chart */}
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <Card>
           <CardContent>
             <Stack spacing={2}>
@@ -135,7 +135,7 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={(entry) => `${entry.status}: ${entry.count}`}
+                    label={({ status, count }: any) => `${status}: ${count}`}
                     outerRadius={90}
                     fill="#8884d8"
                     dataKey="count"
@@ -189,7 +189,7 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
       </Grid>
 
       {/* Fleet Utilization Overview */}
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <Card>
           <CardContent>
             <Stack spacing={2}>
@@ -241,7 +241,7 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
               {/* Utilization Metrics */}
               <Box>
                 <Grid container spacing={2}>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'success.light', borderRadius: 2 }}>
                       <Typography variant="h4" fontWeight={600} color="success.dark">
                         {activeVehicles}
@@ -251,7 +251,7 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
                       </Typography>
                     </Box>
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'grey.200', borderRadius: 2 }}>
                       <Typography variant="h4" fontWeight={600}>
                         {totalVehicles - activeVehicles}
@@ -287,7 +287,7 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
 
       {/* Department-wise Vehicle Distribution */}
       {departmentData.length > 0 && (
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card>
             <CardContent>
               <Stack spacing={2}>
@@ -320,7 +320,7 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
                   </Typography>
                   <Grid container spacing={1}>
                     {departmentData.slice(0, 4).map((dept, index) => (
-                      <Grid item xs={12} sm={6} md={3} key={index}>
+                      <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
                         <Box sx={{ p: 1.5, bgcolor: 'grey.100', borderRadius: 1 }}>
                           <Typography variant="caption" color="text.secondary" noWrap>
                             {dept.department}

@@ -3,8 +3,6 @@
  * Loads and manages report definitions from the reporting library
  */
 
-import logger from '@/utils/logger';
-
 export interface ReportFilter {
   name: string;
   type: 'dateRange' | 'select' | 'multiSelect';
@@ -168,14 +166,12 @@ class ReportLoaderService {
         throw new Error(`Failed to load report registry: ${response.statusText}`);
       }
 
-      this.registry = await response.json();
-      if (!this.registry) {
-        throw new Error('Registry not loaded');
-      }
-      logger.info(`✓ Loaded report registry: ${this.registry.totalReports} reports`);
-      return this.registry;
+      const registry: ReportRegistry = await response.json();
+      this.registry = registry;
+      console.log(`✓ Loaded report registry: ${registry.totalReports} reports`);
+      return registry;
     } catch (error) {
-      logger.error('Error loading report registry:', error);
+      console.error('Error loading report registry:', error);
       throw error;
     }
   }
@@ -236,11 +232,11 @@ class ReportLoaderService {
 
       // Cache the report
       this.cachedReports.set(reportId, reportDef);
-      logger.info(`✓ Loaded report: ${reportDef.title} (${reportDef.id})`);
+      console.log(`✓ Loaded report: ${reportDef.title} (${reportDef.id})`);
 
       return reportDef;
     } catch (error) {
-      logger.error(`Error loading report ${reportId}:`, error);
+      console.error(`Error loading report ${reportId}:`, error);
       throw error;
     }
   }
@@ -284,7 +280,7 @@ class ReportLoaderService {
   public clearCache(): void {
     this.cachedReports.clear();
     this.registry = null;
-    logger.info('✓ Report cache cleared');
+    console.log('✓ Report cache cleared');
   }
 
   /**
@@ -292,11 +288,11 @@ class ReportLoaderService {
    */
   public async preloadReports(reportIds: string[]): Promise<void> {
     const promises = reportIds.map(id => this.loadReport(id).catch(err => {
-      logger.warn(`Failed to preload report ${id}:`, err);
+      console.warn(`Failed to preload report ${id}:`, err);
     }));
 
     await Promise.all(promises);
-    logger.info(`✓ Preloaded ${reportIds.length} reports`);
+    console.log(`✓ Preloaded ${reportIds.length} reports`);
   }
 
   /**

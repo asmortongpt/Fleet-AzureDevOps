@@ -5,7 +5,7 @@
  * @module monitoring/performance-monitoring
  */
 
-import { onCLS, onLCP, onFCP, onTTFB, onINP, type MetricType } from 'web-vitals';
+import { onCLS, onLCP, onFCP, onTTFB, onINP, type Metric } from 'web-vitals';
 
 import { captureMessage, setContext } from './sentry';
 import { metrics, telemetry } from './telemetry';
@@ -127,7 +127,7 @@ class PerformanceMonitorService {
   /**
    * Handle Web Vital metric
    */
-  private handleWebVital(metric: MetricType): void {
+  private handleWebVital(metric: Metric): void {
     const rating = this.getRating(metric.name, metric.value);
 
     const performanceMetric: PerformanceMetric = {

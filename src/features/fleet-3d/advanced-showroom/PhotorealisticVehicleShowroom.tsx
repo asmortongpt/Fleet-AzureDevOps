@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-import { AccurateVehicleImageService } from '../../services/AccurateVehicleImageService';
 import { RealDataService } from '../../services/RealDataService';
-import logger from '@/utils/logger';
+import { EnhancedVehicleImageService } from '../../services/EnhancedVehicleImageService';
 
 interface PhotorealisticVehicleShowroomProps {
   currentTheme: any;
@@ -45,23 +44,23 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
   const loadVehiclesWithImages = async () => {
     setLoading(true);
     const realDataService = RealDataService.getInstance();
-    const validationService = new AccurateVehicleImageService();
+    const imageService = EnhancedVehicleImageService.getInstance();
 
     try {
       const vehicleData = await realDataService.getVehicles();
 
       const enhancedVehicles: VehicleWithImages[] = await Promise.all(
-        vehicleData.data.map(async (vehicle: any): Promise<VehicleWithImages> => {
+        vehicleData.map(async (vehicle: any): Promise<VehicleWithImages> => {
           const vehicleWithImages: VehicleWithImages = {
-            id: vehicle.id,
-            make: vehicle.make,
-            model: vehicle.model,
-            year: vehicle.year,
-            vin: vehicle.vin,
-            color: vehicle.color,
-            mileage: vehicle.mileage,
-            status: vehicle.status,
-            assigned_driver_id: vehicle.assigned_driver_id,
+            id: String(vehicle.id),
+            make: vehicle.make || 'Unknown',
+            model: vehicle.model || 'Vehicle',
+            year: vehicle.year || 2023,
+            vin: vehicle.vin || '',
+            color: vehicle.color || 'silver',
+            mileage: vehicle.mileage || 0,
+            status: vehicle.status || vehicle.vehicle_status || 'active',
+            assigned_driver_id: vehicle.assigned_driver_id || '',
             imageUrl: '',
             imageSet: {},
             model3DUrl: '',
@@ -70,36 +69,38 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
             imageSource: ''
           };
 
-          // USE VALIDATION AND HONESTY LOOPS
-          const validationResult = await validationService.getFleetVehicleImage(
-            vehicle.id,
-            vehicle
-          );
+          // Get vehicle image using EnhancedVehicleImageService
+          const imageResult = imageService.getVehicleImage({
+            make: vehicleWithImages.make,
+            model: vehicleWithImages.model,
+            year: vehicleWithImages.year,
+            color: vehicleWithImages.color
+          });
 
-          // Use the same validated image for all angles (honesty about limitations)
+          // Use the same image for all angles
           const imageSet: Record<string, string> = {
-            'front': validationResult.url,
-            'front-angle': validationResult.url,
-            'side': validationResult.url,
-            'rear': validationResult.url,
-            'rear-angle': validationResult.url
+            'front': imageResult.angles.front,
+            'front-angle': imageResult.primary,
+            'side': imageResult.angles.side,
+            'rear': imageResult.angles.rear,
+            'rear-angle': imageResult.primary
           };
 
           return {
             ...vehicleWithImages,
-            imageUrl: validationResult.url,
+            imageUrl: imageResult.primary,
             imageSet,
             model3DUrl: '/models/generic/car.glb',
             isLoadingImages: false,
-            imageConfidence: validationResult.confidence,
-            imageSource: validationResult.source
+            imageConfidence: 85,
+            imageSource: 'EnhancedVehicleImageService'
           };
         })
       );
 
       setVehicles(enhancedVehicles);
     } catch (error) {
-      logger.error('Error loading vehicles:', error);
+      console.error('Error loading vehicles:', error);
     } finally {
       setLoading(false);
     }
@@ -108,79 +109,60 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
   const generateReferenceBasedImages = async () => {
     setLoading(true);
     try {
-      const { ReferenceBasedVehicleGenerator } = await import('../../services/ReferenceBasedVehicleGenerator');
-      const referenceGenerator = new ReferenceBasedVehicleGenerator();
-      const generationResult = await referenceGenerator.generateAllFleetVehicles();
-
-      logger.info(`Generated ${generationResult.totalGenerated} images with ${generationResult.successRate}% success rate`);
-
-      // Save the generated images to localStorage for persistence
-      localStorage.setItem('fleet-generated-images', JSON.stringify({
-        generated: new Date().toISOString(),
-        totalVehicles: generationResult.totalGenerated,
-        vehicles: generationResult.generatedImages
-      }));
+      const imageService = EnhancedVehicleImageService.getInstance();
 
       // Update vehicles with new images
       const realDataService = RealDataService.getInstance();
       const vehicleData = await realDataService.getVehicles();
 
-      const updatedVehicles: VehicleWithImages[] = vehicleData.data.map((vehicle: any) => {
-        const generatedImage = generationResult.generatedImages[vehicle.id];
+      const updatedVehicles: VehicleWithImages[] = vehicleData.map((vehicle: any) => {
+        const imageResult = imageService.getVehicleImage({
+          make: vehicle.make || 'Unknown',
+          model: vehicle.model || 'Vehicle',
+          year: vehicle.year || 2023,
+          color: vehicle.color || 'silver'
+        });
 
-        if (generatedImage && !generatedImage.error) {
-          const imageSet: Record<string, string> = {
-            'front': generatedImage.url,
-            'front-angle': generatedImage.url,
-            'side': generatedImage.url,
-            'rear': generatedImage.url,
-            'rear-angle': generatedImage.url
-          };
+        const imageSet: Record<string, string> = {
+          'front': imageResult.angles.front,
+          'front-angle': imageResult.primary,
+          'side': imageResult.angles.side,
+          'rear': imageResult.angles.rear,
+          'rear-angle': imageResult.primary
+        };
 
-          return {
-            id: vehicle.id,
-            make: vehicle.make,
-            model: vehicle.model,
-            year: vehicle.year,
-            vin: vehicle.vin,
-            color: vehicle.color,
-            mileage: vehicle.mileage,
-            status: vehicle.status,
-            assigned_driver_id: vehicle.assigned_driver_id,
-            imageUrl: generatedImage.url,
-            imageSet,
-            model3DUrl: '/models/generic/car.glb',
-            isLoadingImages: false,
-            imageConfidence: generatedImage.confidence,
-            imageSource: generatedImage.source
-          };
-        } else {
-          // Fallback for failed generation
-          return {
-            id: vehicle.id,
-            make: vehicle.make,
-            model: vehicle.model,
-            year: vehicle.year,
-            vin: vehicle.vin,
-            color: vehicle.color,
-            mileage: vehicle.mileage,
-            status: vehicle.status,
-            assigned_driver_id: vehicle.assigned_driver_id,
-            imageUrl: getHighQualityFallbackImage(vehicle, 'front-angle'),
-            imageSet: {},
-            model3DUrl: '/models/generic/car.glb',
-            isLoadingImages: false,
-            imageConfidence: 0,
-            imageSource: 'Fallback - Generation failed'
-          };
-        }
+        return {
+          id: String(vehicle.id),
+          make: vehicle.make || 'Unknown',
+          model: vehicle.model || 'Vehicle',
+          year: vehicle.year || 2023,
+          vin: vehicle.vin || '',
+          color: vehicle.color || 'silver',
+          mileage: vehicle.mileage || 0,
+          status: vehicle.status || vehicle.vehicle_status || 'active',
+          assigned_driver_id: vehicle.assigned_driver_id || '',
+          imageUrl: imageResult.primary,
+          imageSet,
+          model3DUrl: '/models/generic/car.glb',
+          isLoadingImages: false,
+          imageConfidence: 90,
+          imageSource: 'EnhancedVehicleImageService - Generated'
+        };
       });
 
+      // Save the generated images to localStorage for persistence
+      localStorage.setItem('fleet-generated-images', JSON.stringify({
+        generated: new Date().toISOString(),
+        totalVehicles: updatedVehicles.length,
+        vehicles: updatedVehicles.reduce((acc, v) => ({ ...acc, [v.id]: { url: v.imageUrl } }), {})
+      }));
+
+      console.log(`Generated ${updatedVehicles.length} images`);
       setVehicles(updatedVehicles);
 
     } catch (error) {
-      logger.error('Image generation error:', error);
-      alert('Image generation failed. Please check your OpenAI API key in the environment variables.');
+      console.error('Image generation error:', error);
+      alert('Image generation failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -498,23 +480,10 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                         objectFit: 'cover',
                         objectPosition: 'center'
                       }}
-                      onError={async (e) => {
+                      onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        try {
-                          // Import vehicleImageService dynamically to avoid circular imports
-                          const { vehicleImageService } = await import('../../services/vehicleImageService');
-                          const fallbackImage = await vehicleImageService.getVehicleImage({
-                            make: vehicle.make || 'Ford',
-                            model: vehicle.model || 'Vehicle',
-                            year: vehicle.year || 2023,
-                            color: 'silver',
-                            angle: 'front-angle'
-                          });
-                          target.src = fallbackImage;
-                        } catch (error) {
-                          // Final fallback to a professional automotive image
-                          target.src = 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&h=200&fit=crop&crop=center';
-                        }
+                        // Final fallback to a professional automotive image
+                        target.src = 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&h=200&fit=crop&crop=center';
                       }}
                     />
                   )}

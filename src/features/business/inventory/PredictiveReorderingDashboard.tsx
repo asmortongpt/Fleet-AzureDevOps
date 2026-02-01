@@ -7,7 +7,7 @@ import {
   Psychology,
   TrendingUp,
   TrendingDown,
-  WarningAmber,
+  Warning,
   CheckCircle,
   Schedule,
   Analytics,
@@ -71,13 +71,13 @@ import {
   AreaChart
 } from 'recharts';
 
-import logger from '@/utils/logger';
 import {
   predictiveReorderingService,
   ReorderRecommendation,
   PartUsagePattern,
-  MaintenanceScheduleInput
-} from '../../services/inventory/PredictiveReorderingService';
+  MaintenanceScheduleInput,
+  SupplierRecommendation
+} from '../../../services/inventory/PredictiveReorderingService';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -211,7 +211,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
       setRecommendations(recs);
       setLastUpdated(new Date());
     } catch (error) {
-      logger.error('Error loading recommendations:', error);
+      console.error('Error loading recommendations:', error);
     } finally {
       setLoading(false);
     }
@@ -224,7 +224,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
 
   const handleApproveOrder = async (recommendation: ReorderRecommendation) => {
     // Integrate with purchase order system
-    // logger.info('Approving order for:', recommendation.partNumber);
+    // console.log('Approving order for:', recommendation.partNumber);
     // Remove from recommendations after approval
     setRecommendations(prev => prev.filter(r => r.partId !== recommendation.partId));
   };
@@ -240,7 +240,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
 
   const getActionIcon = (action: string) => {
     switch (action) {
-      case 'reorder_now': return <WarningAmber color="error" />;
+      case 'reorder_now': return <Warning color="error" />;
       case 'reorder_soon': return <Schedule color="warning" />;
       case 'monitor': return <CheckCircle color="success" />;
       case 'reduce_stock': return <TrendingDown color="info" />;
@@ -306,7 +306,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
         {/* AI Recommendations Dashboard */}
         <Grid container spacing={3}>
           {/* Metrics Cards */}
-          <Grid item xs={12} md={2.4}>
+          <Grid size={{ xs: 12, md: 2.4 }}>
             <Card>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -320,7 +320,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={2.4}>
+          <Grid size={{ xs: 12, md: 2.4 }}>
             <Card>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -328,13 +328,13 @@ const PredictiveReorderingDashboard: React.FC = () => {
                     <Typography color="textSecondary" gutterBottom>Critical Items</Typography>
                     <Typography variant="h4" color="error">{metrics.criticalItems}</Typography>
                   </Box>
-                  <WarningAmber color="error" sx={{ fontSize: 40 }} />
+                  <Warning color="error" sx={{ fontSize: 40 }} />
                 </Box>
               </CardContent>
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={2.4}>
+          <Grid size={{ xs: 12, md: 2.4 }}>
             <Card>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -348,7 +348,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={2.4}>
+          <Grid size={{ xs: 12, md: 2.4 }}>
             <Card>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -362,7 +362,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={2.4}>
+          <Grid size={{ xs: 12, md: 2.4 }}>
             <Card>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -377,7 +377,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
           </Grid>
 
           {/* Auto-Reorder Toggle */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardContent>
                 <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -410,7 +410,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
           </Grid>
 
           {/* Recommendations Table */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -522,7 +522,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
       <TabPanel value={tabValue} index={1}>
         {/* Demand Forecast */}
         <Grid container spacing={3}>
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -563,7 +563,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Forecast Accuracy</Typography>
@@ -591,7 +591,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
       <TabPanel value={tabValue} index={2}>
         {/* Inventory Analytics */}
         <Grid container spacing={3}>
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -612,7 +612,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Inventory Value Distribution</Typography>
@@ -623,7 +623,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={(entry: { category: string }) => entry.category}
+                      label={({ payload }) => payload?.category}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
@@ -632,7 +632,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <ChartTooltip formatter={(value: number) => `$${value.toLocaleString()}`} />
+                    <ChartTooltip formatter={(value: any) => `$${value.toLocaleString()}`} />
                   </PieChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -644,7 +644,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
       <TabPanel value={tabValue} index={3}>
         {/* AI Configuration */}
         <Grid container spacing={3}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>AI Model Configuration</Typography>
@@ -673,7 +673,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
         <DialogContent>
           {selectedRecommendation && (
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant="h6" gutterBottom>Prediction Analysis</Typography>
                 <List>
                   <ListItem>
@@ -707,10 +707,10 @@ const PredictiveReorderingDashboard: React.FC = () => {
                 </List>
               </Grid>
 
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant="h6" gutterBottom>Recommended Suppliers</Typography>
                 <List>
-                  {selectedRecommendation.recommendedSuppliers.map((supplier, index) => (
+                  {selectedRecommendation.recommendedSuppliers.map((supplier: SupplierRecommendation, index: number) => (
                     <ListItem key={index}>
                       <ListItemText
                         primary={supplier.name}

@@ -9,6 +9,8 @@
  * - Complete CRUD operations
  */
 
+import React, { useState, useCallback, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import {
   Car,
   Plus,
@@ -19,25 +21,24 @@ import {
   CheckCircle,
   Trash,
   PencilSimple,
-  FuelPump,
+  X,
+  GasPump,
   Wrench,
   Clock
 } from '@phosphor-icons/react';
-import { motion } from 'framer-motion';
-import React, { useState, useCallback, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 
+import { SplitView } from '@/components/operations/SplitView';
 import {
   ActionButton,
   InlineEditPanel,
   ConfirmDialog,
   StatusBadge
 } from '@/components/operations/InlineActions';
-import { SplitView } from '@/components/operations/SplitView';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useVehicles, useVehicleMutations } from '@/hooks/use-api';
 import { cn } from '@/lib/utils';
+import { useVehicles, useVehicleMutations } from '@/hooks/use-api';
 
 interface Vehicle {
   id: string;
@@ -503,7 +504,7 @@ export function VehiclesOperations() {
                 </div>
                 <div>
                   <span className="text-slate-400 text-xs flex items-center gap-1">
-                    <FuelPump className="w-3 h-3" weight="bold" />
+                    <GasPump className="w-3 h-3" weight="bold" />
                     Fuel Type
                   </span>
                   <p className="text-white font-semibold mt-1">{selectedVehicle.fuelType || 'N/A'}</p>
@@ -544,7 +545,7 @@ export function VehiclesOperations() {
               <p className="text-white font-semibold text-sm mt-1">30 days ago</p>
             </div>
             <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/20 p-3 text-center">
-              <FuelPump className="w-4 h-4 text-cyan-400 mx-auto mb-1" weight="bold" />
+              <GasPump className="w-4 h-4 text-cyan-400 mx-auto mb-1" weight="bold" />
               <p className="text-xs text-slate-400">Efficiency</p>
               <p className="text-white font-semibold text-sm mt-1">18 MPG</p>
             </div>

@@ -11,11 +11,7 @@
 
 import * as THREE from 'three';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
-<<<<<<< HEAD
-import logger from '@/utils/logger';
-=======
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
->>>>>>> fix/pipeline-eslint-build
 
 export interface ModelLoadOptions {
   url: string;
@@ -122,8 +118,9 @@ export async function loadVehicleModel(
           onProgress(progress);
         }
       },
-      (error) => {
-        const err = new Error(`Failed to load model from ${url}: ${error.message || error}`);
+      (error: unknown) => {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const err = new Error(`Failed to load model from ${url}: ${errorMessage}`);
         if (onError) {
           onError(err);
         }

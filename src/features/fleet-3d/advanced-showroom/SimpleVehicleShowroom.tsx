@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 
 import { EnhancedVehicleImageService } from '../../services/EnhancedVehicleImageService';
 import { RealDataService } from '../../services/RealDataService';
-import OBD2RealTimeConnection from '../vehicle/OBD2RealTimeConnection';
-import VehicleDetailView from '../vehicle/VehicleDetailView';
 
 interface SimpleVehicleShowroomProps {
   vehicles: any[];
@@ -26,8 +24,6 @@ const SimpleVehicleShowroom: React.FC<SimpleVehicleShowroomProps> = ({
 }) => {
   const [realVehicles, setRealVehicles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showDetailView, setShowDetailView] = useState<string | null>(null);
-  const [showOBD2Connection, setShowOBD2Connection] = useState<string | null>(null);
 
   useEffect(() => {
     loadRealVehicleData();
@@ -215,32 +211,6 @@ const SimpleVehicleShowroom: React.FC<SimpleVehicleShowroomProps> = ({
                     {selectedVehicle.licensePlate}
                   </div>
                 </div>
-
-                {/* Add OBD2 Connect button for 4Runner */}
-                {selectedVehicle.id === 'FL-001' && (
-                  <div style={{ gridColumn: '1 / -1', marginTop: '12px' }}>
-                    <button
-                      onClick={() => setShowOBD2Connection(selectedVehicle.id)}
-                      style={{
-                        background: currentTheme.primary,
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '8px',
-                        padding: '10px 20px',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px'
-                      }}
-                    >
-                      📡 Connect to Real OBD2 Device
-                    </button>
-                  </div>
-                )}
 
                 <div>
                   <div
@@ -472,7 +442,7 @@ const SimpleVehicleShowroom: React.FC<SimpleVehicleShowroomProps> = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setShowDetailView(vehicle.id);
+                    onVehicleSelect(vehicle);
                   }}
                   style={{
                     background: currentTheme.primary,
@@ -499,24 +469,6 @@ const SimpleVehicleShowroom: React.FC<SimpleVehicleShowroomProps> = ({
           ))
         )}
       </div>
-
-      {/* Vehicle Detail View Modal */}
-      {showDetailView && (
-        <VehicleDetailView
-          vehicleId={showDetailView}
-          onClose={() => setShowDetailView(null)}
-          currentTheme={currentTheme}
-        />
-      )}
-
-      {/* OBD2 Connection Modal */}
-      {showOBD2Connection && (
-        <OBD2RealTimeConnection
-          vehicleId={showOBD2Connection}
-          currentTheme={currentTheme}
-          onClose={() => setShowOBD2Connection(null)}
-        />
-      )}
     </div>
   );
 };

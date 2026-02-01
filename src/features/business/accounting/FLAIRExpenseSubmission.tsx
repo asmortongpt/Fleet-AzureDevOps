@@ -7,22 +7,9 @@
 import React, { useState } from 'react';
 
 import { useAuth } from '@/contexts/AuthContext';
-// Legacy service - file does not exist
-// import { flairIntegrationService, FLAIRExpenseEntry, FLAIRDocument } from '../../services/FLAIRIntegration';
 
-// Temporary type definitions until FLAIRIntegration service is created
-type FLAIRDocument = {
-  id: string;
-  fileName: string;
-  fileType: string;
-  fileSize: number;
-  uploadedAt: string;
-  documentType: string;
-  base64Content: string;
-  checksum: string;
-};
-
-type FLAIRExpenseEntry = {
+// FLAIR expense entry type - defined locally since FLAIRIntegration service is not yet implemented
+export interface FLAIRExpenseEntry {
   id: string;
   employeeId: string;
   employeeName: string;
@@ -38,7 +25,14 @@ type FLAIRExpenseEntry = {
     locationCode: string;
   };
   supportingDocuments: FLAIRDocument[];
-  approvalStatus: string;
+  travelDetails?: {
+    originAddress: string;
+    destinationAddress: string;
+    mileage: number;
+    mileageRate: number;
+    purposeCode: string;
+  };
+  approvalStatus: 'pending' | 'supervisor_approved' | 'finance_approved' | 'submitted_to_flair' | 'processed' | 'rejected';
   approvalHistory: Array<{
     approverEmployeeId: string;
     approverName: string;
@@ -47,27 +41,191 @@ type FLAIRExpenseEntry = {
     approvedAt: string;
     comments?: string;
   }>;
-};
+}
 
-// Mock service
+export interface FLAIRDocument {
+  id: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  uploadedAt: string;
+  documentType: string;
+  base64Content: string;
+  checksum: string;
+}
+
+// Mock FLAIR integration service until the actual service is implemented
 const flairIntegrationService = {
-  submitTravelMileageExpense: async (data: any): Promise<FLAIRExpenseEntry> => {
-    return { id: 'temp_' + Date.now(), ...data, approvalStatus: 'pending', approvalHistory: [], accountCodes: { fundCode: '1000', appUnitCode: '60900200', objectCode: '100777', locationCode: '001' } } as FLAIRExpenseEntry;
+  submitTravelMileageExpense: async (data: {
+    employeeId: string;
+    employeeName: string;
+    department: string;
+    originAddress: string;
+    destinationAddress: string;
+    mileage: number;
+    mileageRate: number;
+    travelDate: string;
+    purposeCode: string;
+    supportingDocuments: FLAIRDocument[];
+  }): Promise<FLAIRExpenseEntry> => {
+    return {
+      id: `FLAIR-${Date.now()}`,
+      employeeId: data.employeeId,
+      employeeName: data.employeeName,
+      department: data.department,
+      expenseType: 'travel_mileage',
+      amount: data.mileage * data.mileageRate,
+      transactionDate: data.travelDate,
+      description: `Travel from ${data.originAddress} to ${data.destinationAddress}`,
+      accountCodes: { fundCode: '1000', appUnitCode: '50', objectCode: '400', locationCode: '01' },
+      supportingDocuments: data.supportingDocuments,
+      travelDetails: {
+        originAddress: data.originAddress,
+        destinationAddress: data.destinationAddress,
+        mileage: data.mileage,
+        mileageRate: data.mileageRate,
+        purposeCode: data.purposeCode
+      },
+      approvalStatus: 'pending',
+      approvalHistory: []
+    };
   },
-  submitFuelExpense: async (data: any): Promise<FLAIRExpenseEntry> => {
-    return { id: 'temp_' + Date.now(), ...data, approvalStatus: 'pending', approvalHistory: [], accountCodes: { fundCode: '1000', appUnitCode: '60900200', objectCode: '100779', locationCode: '001' } } as FLAIRExpenseEntry;
+  submitFuelExpense: async (data: {
+    employeeId: string;
+    employeeName: string;
+    department: string;
+    vehicleId: string;
+    fuelAmount: number;
+    fuelCost: number;
+    transactionDate: string;
+    vendorName: string;
+    supportingDocuments: FLAIRDocument[];
+  }): Promise<FLAIRExpenseEntry> => {
+    return {
+      id: `FLAIR-${Date.now()}`,
+      employeeId: data.employeeId,
+      employeeName: data.employeeName,
+      department: data.department,
+      expenseType: 'fuel',
+      amount: data.fuelCost,
+      transactionDate: data.transactionDate,
+      description: `Fuel purchase: ${data.fuelAmount} gallons at ${data.vendorName}`,
+      accountCodes: { fundCode: '1000', appUnitCode: '50', objectCode: '401', locationCode: '01' },
+      supportingDocuments: data.supportingDocuments,
+      approvalStatus: 'pending',
+      approvalHistory: []
+    };
   },
-  submitMaintenanceExpense: async (data: any): Promise<FLAIRExpenseEntry> => {
-    return { id: 'temp_' + Date.now(), ...data, approvalStatus: 'pending', approvalHistory: [], accountCodes: { fundCode: '1000', appUnitCode: '60900200', objectCode: '100780', locationCode: '001' } } as FLAIRExpenseEntry;
+  submitMaintenanceExpense: async (data: {
+    employeeId: string;
+    employeeName: string;
+    department: string;
+    vehicleId: string;
+    maintenanceType: string;
+    amount: number;
+    transactionDate: string;
+    vendorName: string;
+    workOrderNumber?: string;
+    supportingDocuments: FLAIRDocument[];
+  }): Promise<FLAIRExpenseEntry> => {
+    return {
+      id: `FLAIR-${Date.now()}`,
+      employeeId: data.employeeId,
+      employeeName: data.employeeName,
+      department: data.department,
+      expenseType: 'maintenance',
+      amount: data.amount,
+      transactionDate: data.transactionDate,
+      description: `${data.maintenanceType} - ${data.vendorName}`,
+      accountCodes: { fundCode: '1000', appUnitCode: '50', objectCode: '402', locationCode: '01' },
+      supportingDocuments: data.supportingDocuments,
+      approvalStatus: 'pending',
+      approvalHistory: []
+    };
   },
-  submitVehicleRentalExpense: async (data: any): Promise<FLAIRExpenseEntry> => {
-    return { id: 'temp_' + Date.now(), ...data, approvalStatus: 'pending', approvalHistory: [], accountCodes: { fundCode: '1000', appUnitCode: '60900200', objectCode: '100781', locationCode: '001' } } as FLAIRExpenseEntry;
+  submitVehicleRentalExpense: async (data: {
+    employeeId: string;
+    employeeName: string;
+    department: string;
+    rentalCompany: string;
+    vehicleType: string;
+    rentalPeriodStart: string;
+    rentalPeriodEnd: string;
+    dailyRate: number;
+    totalCost: number;
+    pickupLocation: string;
+    dropoffLocation: string;
+    purposeCode: string;
+    supportingDocuments: FLAIRDocument[];
+  }): Promise<FLAIRExpenseEntry> => {
+    return {
+      id: `FLAIR-${Date.now()}`,
+      employeeId: data.employeeId,
+      employeeName: data.employeeName,
+      department: data.department,
+      expenseType: 'vehicle_rental',
+      amount: data.totalCost,
+      transactionDate: data.rentalPeriodStart,
+      description: `Vehicle rental from ${data.rentalCompany}`,
+      accountCodes: { fundCode: '1000', appUnitCode: '50', objectCode: '403', locationCode: '01' },
+      supportingDocuments: data.supportingDocuments,
+      approvalStatus: 'pending',
+      approvalHistory: []
+    };
   },
-  submitParkingExpense: async (data: any): Promise<FLAIRExpenseEntry> => {
-    return { id: 'temp_' + Date.now(), ...data, approvalStatus: 'pending', approvalHistory: [], accountCodes: { fundCode: '1000', appUnitCode: '60900200', objectCode: '100782', locationCode: '001' } } as FLAIRExpenseEntry;
+  submitParkingExpense: async (data: {
+    employeeId: string;
+    employeeName: string;
+    department: string;
+    location: string;
+    amount: number;
+    transactionDate: string;
+    duration: string;
+    purposeCode: string;
+    supportingDocuments: FLAIRDocument[];
+  }): Promise<FLAIRExpenseEntry> => {
+    return {
+      id: `FLAIR-${Date.now()}`,
+      employeeId: data.employeeId,
+      employeeName: data.employeeName,
+      department: data.department,
+      expenseType: 'parking',
+      amount: data.amount,
+      transactionDate: data.transactionDate,
+      description: `Parking at ${data.location} for ${data.duration}`,
+      accountCodes: { fundCode: '1000', appUnitCode: '50', objectCode: '404', locationCode: '01' },
+      supportingDocuments: data.supportingDocuments,
+      approvalStatus: 'pending',
+      approvalHistory: []
+    };
   },
-  submitTollExpense: async (data: any): Promise<FLAIRExpenseEntry> => {
-    return { id: 'temp_' + Date.now(), ...data, approvalStatus: 'pending', approvalHistory: [], accountCodes: { fundCode: '1000', appUnitCode: '60900200', objectCode: '100783', locationCode: '001' } } as FLAIRExpenseEntry;
+  submitTollExpense: async (data: {
+    employeeId: string;
+    employeeName: string;
+    department: string;
+    tollRoad: string;
+    amount: number;
+    transactionDate: string;
+    transponderNumber?: string;
+    originLocation: string;
+    destinationLocation: string;
+    purposeCode: string;
+    supportingDocuments: FLAIRDocument[];
+  }): Promise<FLAIRExpenseEntry> => {
+    return {
+      id: `FLAIR-${Date.now()}`,
+      employeeId: data.employeeId,
+      employeeName: data.employeeName,
+      department: data.department,
+      expenseType: 'tolls',
+      amount: data.amount,
+      transactionDate: data.transactionDate,
+      description: `Toll on ${data.tollRoad} from ${data.originLocation} to ${data.destinationLocation}`,
+      accountCodes: { fundCode: '1000', appUnitCode: '50', objectCode: '405', locationCode: '01' },
+      supportingDocuments: data.supportingDocuments,
+      approvalStatus: 'pending',
+      approvalHistory: []
+    };
   }
 };
 
@@ -1260,12 +1418,9 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
 
       if (selectedType === 'travel_mileage') {
         expenseEntry = await flairIntegrationService.submitTravelMileageExpense({
-          // @ts-expect-error - User type incompatibility - employeeId, fullName, department may not exist
-          employeeId: user.employeeId,
-          // @ts-expect-error - User type incompatibility
-          employeeName: user.fullName,
-          // @ts-expect-error - User type incompatibility
-          department: user.department,
+          employeeId: user.id,
+          employeeName: `${user.firstName} ${user.lastName}`,
+          department: user.tenantName || 'Fleet Management',
           originAddress: formData.originAddress,
           destinationAddress: formData.destinationAddress,
           mileage: formData.mileage,
@@ -1276,12 +1431,9 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
         });
       } else if (selectedType === 'fuel') {
         expenseEntry = await flairIntegrationService.submitFuelExpense({
-          // @ts-expect-error - User type incompatibility
-          employeeId: user.employeeId,
-          // @ts-expect-error - User type incompatibility
-          employeeName: user.fullName,
-          // @ts-expect-error - User type incompatibility
-          department: user.department,
+          employeeId: user.id,
+          employeeName: `${user.firstName} ${user.lastName}`,
+          department: user.tenantName || 'Fleet Management',
           vehicleId: formData.vehicleId,
           fuelAmount: formData.fuelAmount,
           fuelCost: formData.fuelCost,
@@ -1291,12 +1443,9 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
         });
       } else if (selectedType === 'maintenance') {
         expenseEntry = await flairIntegrationService.submitMaintenanceExpense({
-          // @ts-expect-error - User type incompatibility
-          employeeId: user.employeeId,
-          // @ts-expect-error - User type incompatibility
-          employeeName: user.fullName,
-          // @ts-expect-error - User type incompatibility
-          department: user.department,
+          employeeId: user.id,
+          employeeName: `${user.firstName} ${user.lastName}`,
+          department: user.tenantName || 'Fleet Management',
           vehicleId: formData.vehicleId,
           maintenanceType: formData.maintenanceType,
           amount: formData.amount,
@@ -1307,12 +1456,9 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
         });
       } else if (selectedType === 'vehicle_rental') {
         expenseEntry = await flairIntegrationService.submitVehicleRentalExpense({
-          // @ts-expect-error - User type incompatibility
-          employeeId: user.employeeId,
-          // @ts-expect-error - User type incompatibility
-          employeeName: user.fullName,
-          // @ts-expect-error - User type incompatibility
-          department: user.department,
+          employeeId: user.id,
+          employeeName: `${user.firstName} ${user.lastName}`,
+          department: user.tenantName || 'Fleet Management',
           rentalCompany: formData.rentalCompany,
           vehicleType: formData.vehicleType,
           rentalPeriodStart: formData.rentalPeriodStart,
@@ -1326,12 +1472,9 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
         });
       } else if (selectedType === 'parking') {
         expenseEntry = await flairIntegrationService.submitParkingExpense({
-          // @ts-expect-error - User type incompatibility
-          employeeId: user.employeeId,
-          // @ts-expect-error - User type incompatibility
-          employeeName: user.fullName,
-          // @ts-expect-error - User type incompatibility
-          department: user.department,
+          employeeId: user.id,
+          employeeName: `${user.firstName} ${user.lastName}`,
+          department: user.tenantName || 'Fleet Management',
           location: formData.location,
           amount: formData.amount,
           transactionDate: formData.transactionDate,
@@ -1341,12 +1484,9 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
         });
       } else if (selectedType === 'tolls') {
         expenseEntry = await flairIntegrationService.submitTollExpense({
-          // @ts-expect-error - User type incompatibility
-          employeeId: user.employeeId,
-          // @ts-expect-error - User type incompatibility
-          employeeName: user.fullName,
-          // @ts-expect-error - User type incompatibility
-          department: user.department,
+          employeeId: user.id,
+          employeeName: `${user.firstName} ${user.lastName}`,
+          department: user.tenantName || 'Fleet Management',
           tollRoad: formData.tollRoad,
           amount: formData.amount,
           transactionDate: formData.transactionDate,
@@ -1493,11 +1633,11 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <span className="font-medium text-gray-700">Employee:</span>
-                  <div>{user?.fullName}</div>
+                  <div>{user ? `${user.firstName} ${user.lastName}` : ''}</div>
                 </div>
                 <div>
                   <span className="font-medium text-gray-700">Department:</span>
-                  <div>{user?.department}</div>
+                  <div>{user?.tenantName || 'Fleet Management'}</div>
                 </div>
                 <div>
                   <span className="font-medium text-gray-700">Amount:</span>

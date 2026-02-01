@@ -15,8 +15,6 @@
  * Security: VAPID authentication, secure subscription storage
  */
 
-import logger from '@/utils/logger';
-
 export interface NotificationPayload {
   title: string;
   body: string;
@@ -76,26 +74,26 @@ export class PushNotificationService {
    */
   private async initializeServiceWorker(): Promise<void> {
     if (!('serviceWorker' in navigator)) {
-      logger.warn('[PushNotificationService] Service Worker not supported');
+      console.warn('[PushNotificationService] Service Worker not supported');
       return;
     }
 
     try {
       this.registration = await navigator.serviceWorker.ready;
-      logger.info('[PushNotificationService] Service Worker ready');
+      console.log('[PushNotificationService] Service Worker ready');
 
       // Check for existing subscription
       this.subscription = await this.registration.pushManager.getSubscription();
 
       if (this.subscription) {
-        logger.info('[PushNotificationService] Existing subscription found');
+        console.log('[PushNotificationService] Existing subscription found');
         await this.sendSubscriptionToServer(this.subscription);
       }
 
       // Setup message listener for notifications from service worker
       navigator.serviceWorker.addEventListener('message', this.handleServiceWorkerMessage.bind(this));
     } catch (error) {
-      logger.error('[PushNotificationService] Failed to initialize:', error);
+      console.error('[PushNotificationService] Failed to initialize:', error);
     }
   }
 
@@ -104,7 +102,7 @@ export class PushNotificationService {
    */
   public async requestPermission(): Promise<boolean> {
     if (!('Notification' in window)) {
-      logger.warn('[PushNotificationService] Notifications not supported');
+      console.warn('[PushNotificationService] Notifications not supported');
       return false;
     }
 
@@ -112,18 +110,18 @@ export class PushNotificationService {
       const permission = await Notification.requestPermission();
 
       if (permission === 'granted') {
-        logger.info('[PushNotificationService] Permission granted');
+        console.log('[PushNotificationService] Permission granted');
         await this.subscribe();
         return true;
       } else if (permission === 'denied') {
-        logger.warn('[PushNotificationService] Permission denied');
+        console.warn('[PushNotificationService] Permission denied');
         return false;
       } else {
-        logger.info('[PushNotificationService] Permission dismissed');
+        console.log('[PushNotificationService] Permission dismissed');
         return false;
       }
     } catch (error) {
-      logger.error('[PushNotificationService] Permission request failed:', error);
+      console.error('[PushNotificationService] Permission request failed:', error);
       return false;
     }
   }
@@ -133,7 +131,7 @@ export class PushNotificationService {
    */
   public async subscribe(): Promise<PushSubscription | null> {
     if (!this.registration) {
-      logger.error('[PushNotificationService] Service Worker not ready');
+      console.error('[PushNotificationService] Service Worker not ready');
       return null;
     }
 
@@ -144,14 +142,14 @@ export class PushNotificationService {
       };
 
       this.subscription = await this.registration.pushManager.subscribe(subscribeOptions);
-      logger.info('[PushNotificationService] Subscribed successfully');
+      console.log('[PushNotificationService] Subscribed successfully');
 
       // Send subscription to server
       await this.sendSubscriptionToServer(this.subscription);
 
       return this.subscription;
     } catch (error) {
-      logger.error('[PushNotificationService] Subscription failed:', error);
+      console.error('[PushNotificationService] Subscription failed:', error);
       return null;
     }
   }
@@ -161,7 +159,7 @@ export class PushNotificationService {
    */
   public async unsubscribe(): Promise<boolean> {
     if (!this.subscription) {
-      logger.info('[PushNotificationService] No active subscription');
+      console.log('[PushNotificationService] No active subscription');
       return false;
     }
 
@@ -169,10 +167,10 @@ export class PushNotificationService {
       await this.subscription.unsubscribe();
       await this.deleteSubscriptionFromServer(this.subscription);
       this.subscription = null;
-      logger.info('[PushNotificationService] Unsubscribed successfully');
+      console.log('[PushNotificationService] Unsubscribed successfully');
       return true;
     } catch (error) {
-      logger.error('[PushNotificationService] Unsubscribe failed:', error);
+      console.error('[PushNotificationService] Unsubscribe failed:', error);
       return false;
     }
   }
@@ -182,19 +180,19 @@ export class PushNotificationService {
    */
   public async showNotification(payload: NotificationPayload): Promise<void> {
     if (!this.settings.enabled) {
-      logger.info('[PushNotificationService] Notifications disabled');
+      console.log('[PushNotificationService] Notifications disabled');
       return;
     }
 
     // Check category permissions
     if (payload.category && !this.settings.categories[payload.category]) {
-      logger.info(`[PushNotificationService] Category ${payload.category} disabled`);
+      console.log(`[PushNotificationService] Category ${payload.category} disabled`);
       return;
     }
 
     // Check Do Not Disturb
     if (this.isDoNotDisturbActive()) {
-      logger.info('[PushNotificationService] Do Not Disturb active');
+      console.log('[PushNotificationService] Do Not Disturb active');
       this.queueNotification(payload);
       return;
     }
@@ -210,39 +208,24 @@ export class PushNotificationService {
           data: payload.data,
         });
       } else {
-        // Build notification options with proper typing
-        // Note: Some properties like 'actions', 'image', 'vibrate', and 'timestamp' are not in the base NotificationOptions type
-        // but are supported by browsers when used with Service Worker notifications
-        const notificationOptions: NotificationOptions & {
-          actions?: NotificationAction[];
-          image?: string;
-          vibrate?: number[];
-          timestamp?: number;
-        } = {
+        await this.registration.showNotification(payload.title, {
           body: payload.body,
           icon: payload.icon || '/fleet-icon-192.png',
           badge: payload.badge || '/fleet-badge-72.png',
           tag: payload.tag || `notification-${Date.now()}`,
-          data: payload.data,
+          data: { ...payload.data, image: payload.image },
           actions: payload.actions || this.getDefaultActions(payload.category),
           requireInteraction: payload.requireInteraction || payload.priority === 'critical',
           silent: payload.silent || false,
           vibrate: this.settings.vibrationEnabled ? (payload.vibrate || [200, 100, 200]) : [],
           timestamp: payload.timestamp || Date.now(),
-        };
-
-        // Add image if provided (some browsers support it)
-        if (payload.image) {
-          notificationOptions.image = payload.image;
-        }
-
-        await this.registration.showNotification(payload.title, notificationOptions);
+        } as NotificationOptions);
       }
 
       // Track notification
       this.trackNotification(payload);
     } catch (error) {
-      logger.error('[PushNotificationService] Failed to show notification:', error);
+      console.error('[PushNotificationService] Failed to show notification:', error);
     }
   }
 
@@ -272,7 +255,7 @@ export class PushNotificationService {
 
       return true;
     } catch (error) {
-      logger.error('[PushNotificationService] Failed to send push notification:', error);
+      console.error('[PushNotificationService] Failed to send push notification:', error);
       return false;
     }
   }
@@ -351,9 +334,9 @@ export class PushNotificationService {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      logger.info('[PushNotificationService] Subscription sent to server');
+      console.log('[PushNotificationService] Subscription sent to server');
     } catch (error) {
-      logger.error('[PushNotificationService] Failed to send subscription:', error);
+      console.error('[PushNotificationService] Failed to send subscription:', error);
     }
   }
 
@@ -374,15 +357,15 @@ export class PushNotificationService {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      logger.info('[PushNotificationService] Subscription deleted from server');
+      console.log('[PushNotificationService] Subscription deleted from server');
     } catch (error) {
-      logger.error('[PushNotificationService] Failed to delete subscription:', error);
+      console.error('[PushNotificationService] Failed to delete subscription:', error);
     }
   }
 
   private handleServiceWorkerMessage(event: MessageEvent): void {
     if (event.data.type === 'NOTIFICATION_CLICK') {
-      logger.info('[PushNotificationService] Notification clicked:', event.data);
+      console.log('[PushNotificationService] Notification clicked:', event.data);
       // Handle notification click
       window.focus();
       if (event.data.url) {

@@ -4,12 +4,8 @@
  */
 
 import { motion } from 'framer-motion'
-<<<<<<< HEAD
-import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react'
-=======
 import { LucideIcon } from 'lucide-react'
 
->>>>>>> fix/pipeline-eslint-build
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { LineChart, Line, ResponsiveContainer } from 'recharts'

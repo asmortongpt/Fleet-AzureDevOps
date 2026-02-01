@@ -7,8 +7,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
-// Legacy auth import - commented out (file doesn't exist)
-// import { useAuth } from './AuthProviderFactory'
+import { useAuth } from '@/contexts/AuthContext'
 
 import { logger } from '@/utils/logger';
 
@@ -410,11 +409,7 @@ class MFAService {
 
 // MFA Provider Component
 export const MFAProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Legacy auth hook - using mock data instead
-  // const { user, isAuthenticated } = useAuth()
-  const user = { email: 'user@dcf.state.fl.us', mfaEnabled: false, employeeId: '12345', department: 'IT' };
-  const isAuthenticated = true;
-
+  const { user, isAuthenticated } = useAuth()
   const [mfaService] = useState(() => new MFAService())
   const [factors, setFactors] = useState<MFAFactor[]>([])
   const [pendingChallenge, setPendingChallenge] = useState<MFAChallenge | null>(null)
@@ -422,8 +417,9 @@ export const MFAProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // MFA Requirements based on DCF policy
   const isMFARequired = import.meta.env.VITE_REACT_APP_MFA_REQUIRED !== 'false' && import.meta.env.VITE_NODE_ENV === 'production'
-  const isMFAEnabled = user?.mfaEnabled || false
   const isEnrolled = factors.some(f => f.status === 'active')
+  // MFA is considered enabled if the user has at least one active factor enrolled
+  const isMFAEnabled = isEnrolled
 
   // Load factors when user authenticates
   useEffect(() => {
@@ -596,9 +592,9 @@ export const MFAProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const history = await getMFAHistory()
       const report = {
         user: {
-          employeeId: user?.employeeId,
+          id: user?.id,
           email: user?.email,
-          department: user?.department
+          role: user?.role
         },
         mfaStatus: {
           required: isMFARequired,

@@ -3,11 +3,8 @@
  * Real-time messaging, notifications, and announcements with responsive visualizations
  */
 
-<<<<<<< HEAD
 import { motion } from 'framer-motion'
 import { Suspense } from 'react'
-import { MessageCircle as CommunicationIcon, Mail, Bell, Megaphone, Send, CheckCircle, AlertTriangle, Clock, Eye, TrendingUp, LineChart, Users, Plus } from 'lucide-react'
-=======
 import {
   ChatsCircle as CommunicationIcon,
   Envelope,
@@ -19,25 +16,22 @@ import {
   Clock,
   Eye,
   TrendUp,
+  ChartLine,
   Users,
   Plus,
 } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
-import { Suspense } from 'react'
-
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
->>>>>>> fix/pipeline-eslint-build
 import HubPage from '@/components/ui/hub-page'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useReactiveCommunicationData } from '@/hooks/use-reactive-communication-data'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { useReactiveCommunicationData } from '@/hooks/use-reactive-communication-data'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 
 /**
  * Overview Tab - Communication metrics and status
@@ -93,18 +87,18 @@ function CommunicationOverview() {
         <StatCard
           title="Total Messages"
           value={metrics?.totalMessages?.toString() || '0'}
-          icon={Mail}
+          icon={Envelope}
           trend="up"
-          change={+12}
+          change={12}
           description="All channels"
           loading={isLoading}
         />
         <StatCard
           title="Sent Today"
           value={metrics?.sentToday?.toString() || '0'}
-          icon={Send}
+          icon={PaperPlaneTilt}
           trend="up"
-          change={+8}
+          change={8}
           description="Messages sent"
           loading={isLoading}
         />
@@ -142,7 +136,8 @@ function CommunicationOverview() {
         <ResponsiveLineChart
           title="Message Activity (Last 7 Days)"
           description="Daily message volume across all channels"
-          data={messagesOverTimeData}
+          data={messagesOverTimeData.map((d) => ({ ...d, value: d.messages }))}
+          dataKeys={['messages']}
           height={300}
           showArea
           loading={isLoading}
@@ -156,7 +151,7 @@ function CommunicationOverview() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-amber-500" />
+                <Warning className="h-5 w-5 text-amber-500" />
                 <CardTitle>High Priority Messages</CardTitle>
               </div>
               <CardDescription>Messages requiring immediate attention</CardDescription>
@@ -273,7 +268,7 @@ function MessagesContent() {
         <StatCard
           title="Total Messages"
           value={metrics?.totalMessages?.toString() || '0'}
-          icon={Mail}
+          icon={Envelope}
           trend="up"
           description="All time"
           loading={isLoading}
@@ -289,7 +284,7 @@ function MessagesContent() {
         <StatCard
           title="Failed"
           value={metrics?.messagesFailed?.toString() || '0'}
-          icon={AlertTriangle}
+          icon={Warning}
           trend="down"
           change={-2}
           description="Requires retry"
@@ -310,7 +305,7 @@ function MessagesContent() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Mail className="h-5 w-5 text-blue-500" />
+            <Envelope className="h-5 w-5 text-blue-500" />
             <CardTitle>Recent Messages</CardTitle>
           </div>
           <CardDescription>Latest communications across all channels</CardDescription>
@@ -375,7 +370,7 @@ function MessagesContent() {
             </div>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
-              <Mail className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <Envelope className="h-12 w-12 mx-auto mb-2 opacity-50" />
               <p>No messages found</p>
             </div>
           )}
@@ -442,7 +437,7 @@ function NotificationsContent() {
         <StatCard
           title="Unread"
           value={unreadNotifications.length.toString()}
-          icon={AlertTriangle}
+          icon={Warning}
           trend="down"
           change={-5}
           description="Require attention"
@@ -451,7 +446,7 @@ function NotificationsContent() {
         <StatCard
           title="Read Rate"
           value={`${readRate}%`}
-          icon={TrendingUp}
+          icon={TrendUp}
           trend="up"
           change={3}
           description="User engagement"
@@ -595,7 +590,7 @@ function AnnouncementsContent() {
           value={totalViews.toString()}
           icon={Eye}
           trend="up"
-          change={+28}
+          change={28}
           description="All announcements"
           loading={isLoading}
         />
@@ -610,7 +605,7 @@ function AnnouncementsContent() {
         <StatCard
           title="Avg Engagement"
           value={`${avgEngagement}%`}
-          icon={TrendingUp}
+          icon={TrendUp}
           trend="up"
           change={5}
           description="Acknowledgment rate"
@@ -622,7 +617,8 @@ function AnnouncementsContent() {
       <ResponsiveBarChart
         title="Announcement Engagement"
         description="Views and acknowledgments for recent announcements"
-        data={announcementEngagementData}
+        data={announcementEngagementData.map((d) => ({ ...d, value: d.views }))}
+        dataKey="views"
         height={300}
         loading={isLoading}
       />
@@ -741,7 +737,7 @@ export default function CommunicationHub() {
     {
       id: 'messages',
       label: 'Messages',
-      icon: <Mail className="h-4 w-4" />,
+      icon: <Envelope className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <Suspense fallback={<div className="p-6">Loading messages...</div>}>

@@ -3,22 +3,10 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
 
-// Initialize MSW API mocking in development mode (non-blocking)
-if (import.meta.env.DEV) {
-  // import('./mocks/browser').catch(console.error)  // Don't block app startup
-}
-
 // Initialize i18n BEFORE React renders - this is critical for SSR and proper language detection
 import './i18n/config'
 
 // Initialize axe-core accessibility testing in development
-import { BrowserRouter, Routes, Route } from "react-router-dom"
-import { registerSW } from 'virtual:pwa-register'
-
-import App from "./App"
-import ProtectedRoute from "./components/ProtectedRoute"
-import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
-import { ThemeProvider } from "./components/providers/ThemeProvider"
 import { initializeAxe } from './lib/accessibility/axe-init'
 if (import.meta.env.DEV) {
   initializeAxe()
@@ -33,7 +21,7 @@ if (import.meta.env.DEV) {
  */
 if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
   // P0-2: Clear any demo mode artifacts from localStorage in production
-  // Demo mode removed - using real SSO only
+  localStorage.removeItem('demo_mode');
   localStorage.removeItem('mock_auth');
   localStorage.removeItem('bypass_sso');
   localStorage.removeItem('demo_user');
@@ -43,12 +31,18 @@ if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
   // If needed, use sessionStorage or cookies for non-sensitive data
   // Object.freeze(localStorage); // Uncomment if strict security is required
 
-  logger.info('[Fleet] Production mode: All authentication bypass mechanisms removed');
+  console.log('[Fleet] Production mode: All authentication bypass mechanisms removed');
 }
 
 // Initialize Sentry before all other imports for proper error tracking
+import { BrowserRouter, Routes, Route } from "react-router-dom"
 // @ts-ignore - virtual module provided by vite-plugin-pwa
+import { registerSW } from 'virtual:pwa-register'
 
+import App from "./App"
+import ProtectedRoute from "./components/ProtectedRoute"
+import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
+import { ThemeProvider } from "./components/providers/ThemeProvider"
 // TEMP DISABLED: Azure Key Vault should be backend-only, not frontend
 // import { validateSecrets, getSecret, checkKeyVaultHealth } from "./config/secrets"
 import { AuthProvider } from "./contexts/AuthContext"
@@ -57,8 +51,6 @@ import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
 import { TenantProvider } from "./contexts/TenantContext"
 import { initSentry } from "./lib/sentry"
 import { Login } from "./pages/Login"
-import { SSOLogin } from "./pages/SSOLogin"
-import { PasswordReset } from "./pages/PasswordReset"
 import { AuthCallback } from "./pages/AuthCallback"
 import { PublicClientApplication } from "@azure/msal-browser"
 import { MsalProvider } from "@azure/msal-react"
@@ -101,7 +93,6 @@ import "./styles/dark-mode-enhancements.css"
 
 // WCAG 2.1 AA Accessibility Styles
 import "./styles/accessibility.css"
-import logger from '@/utils/logger';
 
 // Legacy fleet theme - DISABLED to prevent conflicts
 // import "./styles/fleet-theme.css"
@@ -136,34 +127,34 @@ const SentryRoutes = Routes
  * TODO: Call backend /api/health or /api/config endpoint from frontend
  */
 async function validateStartupConfiguration(): Promise<void> {
-  logger.info('[Fleet] Starting application configuration validation...');
-  logger.info('[Fleet] ⚠️  NOTICE: Azure Key Vault validation disabled (frontend)');
-  logger.info('[Fleet] ⚠️  Secret validation must be implemented in backend API');
+  console.log('[Fleet] Starting application configuration validation...');
+  console.log('[Fleet] ⚠️  NOTICE: Azure Key Vault validation disabled (frontend)');
+  console.log('[Fleet] ⚠️  Secret validation must be implemented in backend API');
 
   // TEMP: Skip all Key Vault validation in frontend
   // This allows the app to start in development mode
-  logger.info('[Fleet] ✅ Frontend startup validation: PASSED (Key Vault disabled)');
+  console.log('[Fleet] ✅ Frontend startup validation: PASSED (Key Vault disabled)');
 
   /* COMMENTED OUT - CAUSES BROWSER CRASH
   try {
     // Only validate secrets in production mode
     if (import.meta.env.MODE === 'production') {
-      logger.info('[Fleet] Production mode detected - validating Key Vault connectivity...');
+      console.log('[Fleet] Production mode detected - validating Key Vault connectivity...');
 
       // Step 1: Check Key Vault connectivity
       const healthCheck = await checkKeyVaultHealth();
       if (!healthCheck.healthy) {
         throw new Error(`Key Vault health check failed: ${healthCheck.error}`);
       }
-      logger.info('[Fleet] ✓ Key Vault connectivity verified');
+      console.log('[Fleet] ✓ Key Vault connectivity verified');
 
       // Step 2: Validate all required secrets
-      logger.info('[Fleet] Validating required secrets...');
+      console.log('[Fleet] Validating required secrets...');
       await validateSecrets();
-      logger.info('[Fleet] ✓ All required secrets validated');
+      console.log('[Fleet] ✓ All required secrets validated');
 
       // Step 3: Validate JWT configuration
-      logger.info('[Fleet] Validating JWT configuration...');
+      console.log('[Fleet] Validating JWT configuration...');
       const jwtSecret = await getSecret("JWT-SECRET");
 
       if (jwtSecret.length < 32) {
@@ -171,15 +162,15 @@ async function validateStartupConfiguration(): Promise<void> {
           `JWT-SECRET must be at least 32 characters for security (current: ${jwtSecret.length} chars)`
         );
       }
-      logger.info('[Fleet] ✓ JWT configuration valid');
+      console.log('[Fleet] ✓ JWT configuration valid');
 
-      logger.info('[Fleet] ✅ Startup validation: PASSED');
+      console.log('[Fleet] ✅ Startup validation: PASSED');
     } else {
-      logger.info('[Fleet] Development mode - skipping Key Vault validation');
-      logger.info('[Fleet] ⚠️  WARNING: Using local environment variables');
+      console.log('[Fleet] Development mode - skipping Key Vault validation');
+      console.log('[Fleet] ⚠️  WARNING: Using local environment variables');
     }
   } catch (error) {
-    logger.error('[Fleet] ❌ FATAL: Startup validation failed:', error);
+    console.error('[Fleet] ❌ FATAL: Startup validation failed:', error);
 
     // Show user-friendly error page instead of blank screen
     const rootElement = document.getElementById("root");
@@ -237,48 +228,11 @@ async function validateStartupConfiguration(): Promise<void> {
 
 // P0-3: Run validation BEFORE rendering app
 // This ensures app only starts if all security requirements are met
-// CRITICAL FIX: Initialize MSAL following Microsoft's official pattern BEFORE rendering
 validateStartupConfiguration().then(() => {
-  return msalInstance.initialize();
-}).then(() => {
-  // CRITICAL: Set up MSAL event callbacks after initialization
-  // Set the first account as active if accounts exist but none is active
-  const allAccounts = msalInstance.getAllAccounts();
-  const activeAccount = msalInstance.getActiveAccount();
-
-  logger.info('[MSAL] Initialization complete:', {
-    totalAccounts: allAccounts.length,
-    hasActiveAccount: !!activeAccount,
-    activeAccountEmail: activeAccount?.username,
-    allAccountEmails: allAccounts.map(a => a.username)
-  });
-
-  if (!activeAccount && allAccounts.length > 0) {
-    msalInstance.setActiveAccount(allAccounts[0]);
-    logger.info('[MSAL] Restored active account on startup:', allAccounts[0].username);
-  }
-
-  // CRITICAL: Listen for LOGIN_SUCCESS and set the active account
-  msalInstance.addEventCallback((event) => {
-    logger.info('[MSAL] Event received:', event.eventType);
-
-    if (event.eventType === 'msal:loginSuccess' && event.payload?.account) {
-      const account = event.payload.account;
-      msalInstance.setActiveAccount(account);
-      logger.info('[MSAL] Active account set after login:', account.username);
-    }
-
-    if (event.eventType === 'msal:handleRedirectEnd') {
-      logger.info('[MSAL] Redirect handling complete');
-    }
-  });
-
-  logger.info('[Fleet] MSAL initialized, starting application...');
+  console.log('[Fleet] Starting application...');
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
-    // TEMP DISABLED: React.StrictMode to debug infinite loop
-    // <React.StrictMode>
-    <React.Fragment>
+    <React.StrictMode>
       <QueryClientProvider client={queryClient}>
         <MsalProvider instance={msalInstance}>
           <ThemeProvider defaultTheme="system" storageKey="ctafleet-theme">
@@ -294,11 +248,6 @@ validateStartupConfiguration().then(() => {
                             <SentryRoutes>
                               {/* Public Login Route */}
                               <Route path="/login" element={<Login />} />
-                              <Route path="/sso-login" element={<SSOLogin />} />
-
-                              {/* Password Reset Route - Public (no auth required) */}
-                              <Route path="/reset-password" element={<PasswordReset />} />
-                              <Route path="/forgot-password" element={<PasswordReset />} />
 
                               {/* OAuth Callback Route - Public (no auth required) */}
                               <Route path="/auth/callback" element={<AuthCallback />} />
@@ -328,7 +277,7 @@ validateStartupConfiguration().then(() => {
           </ThemeProvider>
         </MsalProvider>
       </QueryClientProvider>
-    </React.Fragment>
+    </React.StrictMode>
   )
 
   // Register service worker for PWA functionality
@@ -339,10 +288,10 @@ validateStartupConfiguration().then(() => {
       }
     },
     onOfflineReady() {
-      logger.info('App ready to work offline')
+      console.log('App ready to work offline')
     },
   })
 }).catch((error) => {
   // P0-3: Validation failed - app will not start
-  logger.error('[Fleet] Application startup aborted due to validation failure:', error);
+  console.error('[Fleet] Application startup aborted due to validation failure:', error);
 });

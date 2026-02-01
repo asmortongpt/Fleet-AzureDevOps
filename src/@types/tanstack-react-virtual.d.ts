@@ -29,6 +29,7 @@ export interface VirtualItem {
     isScrollingResetDelay?: number;
     enabled?: boolean;
     isRtl?: boolean;
+    gap?: number;
   }
 
   export interface Range {

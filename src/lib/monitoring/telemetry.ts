@@ -5,8 +5,43 @@
  * @module monitoring/telemetry
  */
 
-import { trace, context, SpanStatusCode, SpanKind } from '@opentelemetry/api';
-import logger from '@/utils/logger';
+import React from 'react';
+
+// Define OpenTelemetry-compatible types locally to avoid dependency on @opentelemetry/api
+export enum SpanStatusCode {
+  UNSET = 0,
+  OK = 1,
+  ERROR = 2,
+}
+
+export enum SpanKind {
+  INTERNAL = 0,
+  SERVER = 1,
+  CLIENT = 2,
+  PRODUCER = 3,
+  CONSUMER = 4,
+}
+
+// Span interface for type safety
+interface Span {
+  setAttributes(attributes: Record<string, unknown>): void;
+  setAttribute(key: string, value: unknown): void;
+  setStatus(status: { code: SpanStatusCode; message?: string }): void;
+  addEvent(name: string, attributes?: Record<string, unknown>): void;
+  recordException(error: Error): void;
+  end(): void;
+}
+
+// Stub implementations for when @opentelemetry/api is not available
+const trace = {
+  getTracer: (_name: string, _version?: string) => ({
+    startSpan: () => null,
+    startActiveSpan: <T>(_name: string, _options: unknown, fn: (span: unknown) => T) => fn(null),
+  }),
+  getActiveSpan: (): Span | null => null,
+};
+
+const context = {};
 
 /**
  * Telemetry Configuration
@@ -52,7 +87,7 @@ class TelemetryService {
   init(): void {
     if (!this.config.enabled) {
       if (import.meta.env.DEV) {
-        logger.info('[Telemetry] Not initialized - disabled or missing endpoint');
+        console.log('[Telemetry] Not initialized - disabled or missing endpoint');
       }
       return;
     }
@@ -67,13 +102,13 @@ class TelemetryService {
       this.initialized = true;
 
       if (import.meta.env.DEV) {
-        logger.info('[Telemetry] Initialized successfully');
-        logger.info('[Telemetry] Service:', this.config.serviceName);
-        logger.info('[Telemetry] Version:', this.config.serviceVersion);
-        logger.info('[Telemetry] Environment:', this.config.environment);
+        console.log('[Telemetry] Initialized successfully');
+        console.log('[Telemetry] Service:', this.config.serviceName);
+        console.log('[Telemetry] Version:', this.config.serviceVersion);
+        console.log('[Telemetry] Environment:', this.config.environment);
       }
     } catch (error) {
-      logger.error('[Telemetry] Failed to initialize:', error);
+      console.error('[Telemetry] Failed to initialize:', error);
     }
   }
 
@@ -97,7 +132,7 @@ class TelemetryService {
         attributes: options?.attributes,
       });
     } catch (error) {
-      logger.error('[Telemetry] Failed to start span:', error);
+      console.error('[Telemetry] Failed to start span:', error);
       return null;
     }
   }
@@ -127,7 +162,7 @@ class TelemetryService {
         fn
       );
     } catch (error) {
-      logger.error('[Telemetry] Failed to start active span:', error);
+      console.error('[Telemetry] Failed to start active span:', error);
       return fn(null);
     }
   }
@@ -442,7 +477,7 @@ export function startPerformanceObserver(): void {
               'timing.tcp': navEntry.connectEnd - navEntry.connectStart,
               'timing.request': navEntry.responseStart - navEntry.requestStart,
               'timing.response': navEntry.responseEnd - navEntry.responseStart,
-              'timing.dom': navEntry.domComplete - navEntry.domLoading,
+              'timing.dom': navEntry.domComplete - navEntry.domInteractive,
             });
           },
           {
@@ -493,8 +528,6 @@ export function useTraceRender(componentName: string, props?: any): void {
 export {
   trace,
   context,
-  SpanStatusCode,
-  SpanKind,
 };
 
 /**

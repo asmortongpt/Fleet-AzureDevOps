@@ -11,12 +11,8 @@
  */
 
 import { useFrame, useThree } from '@react-three/fiber';
-<<<<<<< HEAD
-import logger from '@/utils/logger';
-=======
 import { useRef, useMemo, useEffect } from 'react';
 import * as THREE from 'three';
->>>>>>> fix/pipeline-eslint-build
 
 // ============================================================================
 // TYPES

@@ -2,13 +2,11 @@ import { BrowserMultiFormatReader, Result } from '@zxing/library';
 import axios from 'axios';
 import React, { useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
-import { toast } from 'sonner';
 import Webcam from 'react-webcam';
 
-// Legacy context import - commented out (file doesn't exist)
-// import { useFleetLocalContext } from '../../context/FleetLocalContext';
-
+import { useFleetLocalContext } from '@/context/FleetLocalContext';
 import logger from '@/utils/logger';
+import { toast } from '@/utils/toast';
 
 interface ScanAssetModalProps {
   tenantId: string;
@@ -19,8 +17,7 @@ const ScanAssetModal: React.FC<ScanAssetModalProps> = ({ tenantId, onClose }) =>
   const [_scannedCode, setScannedCode] = useState<string | null>(null);
   const [assetDetails, setAssetDetails] = useState<any>(null);
   const [_location, setLocation] = useState<GeolocationPosition | null>(null);
-  // Legacy context - commented out
-  // const { addToOfflineQueue } = useFleetLocalContext();
+  const { addToOfflineQueue } = useFleetLocalContext();
 
   const handleScan = useCallback(async (code: string) => {
     try {
@@ -34,12 +31,12 @@ const ScanAssetModal: React.FC<ScanAssetModalProps> = ({ tenantId, onClose }) =>
     } catch (error) {
       logger.error('Error fetching asset details:', error);
       toast.error('Failed to fetch asset details.');
-      // Add to offline queue - legacy functionality commented out
-      // if (typeof addToOfflineQueue === 'function') {
-      //   addToOfflineQueue({ type: 'SCAN', code, tenantId });
-      // }
+      // Add to offline queue
+      if (typeof addToOfflineQueue === 'function') {
+        addToOfflineQueue({ type: 'SCAN', code, tenantId });
+      }
     }
-  }, [tenantId]); // Removed addToOfflineQueue from dependencies (legacy)
+  }, [tenantId, addToOfflineQueue]);
 
   const handleLocationCapture = useCallback(() => {
     if (navigator.geolocation) {
@@ -53,7 +50,7 @@ const ScanAssetModal: React.FC<ScanAssetModalProps> = ({ tenantId, onClose }) =>
     }
   }, []);
 
-  const handleError = (error: Error) => {
+  const handleError = (error: string | DOMException) => {
     logger.error('Camera error:', error);
     toast.error('Camera error occurred.');
   };

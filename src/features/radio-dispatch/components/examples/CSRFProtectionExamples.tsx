@@ -2,10 +2,9 @@
 
 import { useState } from 'react';
 
-import { CSRFInput, useCSRFToken } from '@/components/CSRFInput';
+import { CSRFInput, useCSRFToken } from '../CSRFInput';
 import { api } from '@/lib/api';
-import { useMutation } from '@/lib/hooks/useMutation';
-import logger from '@/utils/logger';
+import { useMutation } from '../../lib/hooks/useMutation';
 
 /**
  * CSRF Protection Examples
@@ -44,14 +43,14 @@ export function CreateIncidentExample() {
     (data: CreateIncidentInput) => api.post('/api/incidents', data),
     {
       onSuccess: (incident: Incident) => {
-        logger.info('Incident created successfully:', incident.id);
+        console.log('Incident created successfully:', incident.id);
         // Clear form
         setTitle('');
         setDescription('');
         setPriority('medium');
       },
       onError: (error: Error) => {
-        logger.error('Failed to create incident:', error.message);
+        console.error('Failed to create incident:', error.message);
       },
     }
   );
@@ -210,10 +209,10 @@ export function DeleteIncidentExample({ incidentId }: { incidentId: string }) {
     (id: string) => api.delete(`/api/incidents/${id}`),
     {
       onSuccess: () => {
-        logger.info('Incident deleted successfully');
+        console.log('Incident deleted successfully');
       },
       onError: (error: Error) => {
-        logger.error('Failed to delete incident:', error.message);
+        console.error('Failed to delete incident:', error.message);
       },
     }
   );
@@ -346,7 +345,7 @@ export function BatchOperationsExample() {
     try {
       // All requests automatically include CSRF tokens
       const promises = selectedIds.map((id) =>
-        api.patch(`/api/incidents/${id}`, { status: 'closed' })
+        api.put(`/api/incidents/${id}`, { status: 'closed' })
       );
 
       await Promise.all(promises);

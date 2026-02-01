@@ -149,7 +149,7 @@ export function ExcelDataTable<T>({
                     placeholder={`Filter ${column.id}...`}
                     className="w-full px-3 py-2 bg-slate-900/80 border border-slate-600/50 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                   />
-                  {column.getFilterValue() && (
+                  {column.getFilterValue() !== undefined && column.getFilterValue() !== '' && (
                     <button
                       onClick={() => column.setFilterValue('')}
                       className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-700/50 rounded"

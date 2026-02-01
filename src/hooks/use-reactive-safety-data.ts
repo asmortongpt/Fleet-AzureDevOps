@@ -20,11 +20,6 @@ import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import DOMPurify from 'dompurify'
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { z } from 'zod'
-<<<<<<< HEAD
-import DOMPurify from 'dompurify'
-import logger from '@/utils/logger';
-=======
->>>>>>> fix/pipeline-eslint-build
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 const WS_BASE = import.meta.env.VITE_WS_URL || 'ws://localhost:3000'
@@ -494,10 +489,10 @@ export function useReactiveSafetyData(options?: {
 
   // Driver safety score ranges
   const driverSafetyRanges = {
-    excellent: driverSafety.filter((d) => d.safetyScore >= 90).length,
-    good: driverSafety.filter((d) => d.safetyScore >= 75 && d.safetyScore < 90).length,
-    fair: driverSafety.filter((d) => d.safetyScore >= 60 && d.safetyScore < 75).length,
-    poor: driverSafety.filter((d) => d.safetyScore < 60).length,
+    excellent: driverSafety.filter((d) => d.safetyScore.overall >= 90).length,
+    good: driverSafety.filter((d) => d.safetyScore.overall >= 75 && d.safetyScore.overall < 90).length,
+    fair: driverSafety.filter((d) => d.safetyScore.overall >= 60 && d.safetyScore.overall < 75).length,
+    poor: driverSafety.filter((d) => d.safetyScore.overall < 60).length,
   }
 
   // Incident trend data (last 7 days)

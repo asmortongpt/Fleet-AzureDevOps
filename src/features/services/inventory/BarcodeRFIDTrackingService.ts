@@ -1,9 +1,9 @@
 /**
  * Barcode/RFID Tracking Service
- * Handles all barcode scanning, RFID tracking, and inventory operations
+ * Service for managing physical inventory tracking with barcode and RFID technology
  */
 
-export interface InventoryLocation {
+export interface ItemLocation {
   facility: string;
   building: string;
   room: string;
@@ -20,12 +20,10 @@ export interface CheckoutRecord {
   checkedInDate?: Date;
   purpose: string;
   workOrderNumber?: string;
-  expectedReturnDate?: Date;
   condition: {
     checkoutCondition: string;
     checkinCondition?: string;
   };
-  notes?: string;
 }
 
 export interface MaintenanceRecord {
@@ -36,22 +34,19 @@ export interface MaintenanceRecord {
   description: string;
   performedBy: string;
   notes?: string;
-  cost?: number;
 }
 
 export interface InventoryItem {
   id: string;
   partNumber: string;
   name: string;
-  description?: string;
   category: string;
-  barcode?: string;
-  qrCode?: string;
+  barcode: string;
+  qrCode: string;
   rfidTag?: string;
-  location: InventoryLocation;
-  status: 'in_stock' | 'checked_out' | 'maintenance' | 'reserved' | 'retired';
+  location: ItemLocation;
+  status: 'in_stock' | 'checked_out' | 'maintenance' | 'reserved' | 'disposed';
   condition: 'new' | 'good' | 'fair' | 'poor' | 'defective';
-  quantity?: number;
   unitCost: number;
   currentValue: number;
   lastScanned: Date;
@@ -59,137 +54,93 @@ export interface InventoryItem {
   scannedBy: string;
   checkoutHistory: CheckoutRecord[];
   maintenanceHistory: MaintenanceRecord[];
-  serialNumber?: string;
-  manufacturer?: string;
-  model?: string;
-  warrantyExpiration?: Date;
 }
 
 export interface ScanEvent {
   id: string;
   timestamp: Date;
-  scanType: 'barcode' | 'qr' | 'rfid';
+  scanType: 'barcode' | 'qrcode' | 'rfid';
   scannerId: string;
   scannerLocation: string;
   itemId: string;
   scannedBy: string;
-  action: 'inventory' | 'checkout' | 'checkin' | 'move' | 'audit';
-  location?: InventoryLocation;
+  action: 'inventory' | 'checkout' | 'checkin' | 'transfer' | 'audit';
   notes?: string;
 }
 
 export interface InventoryAudit {
   id: string;
+  type: 'full' | 'cycle' | 'spot';
   startDate: Date;
   endDate?: Date;
-  auditType: 'full' | 'cycle' | 'spot';
   location: string;
-  auditedBy: string[];
-  supervisedBy?: string;
-  status: 'in_progress' | 'completed' | 'cancelled';
-  itemsScanned: string[];
-  discrepancies: Array<{
-    itemId: string;
-    expectedLocation: InventoryLocation;
-    actualLocation?: InventoryLocation;
-    expectedCondition: string;
-    actualCondition?: string;
-    notes: string;
-  }>;
+  assignedTeam: string[];
+  supervisor: string;
+  status: 'planned' | 'in_progress' | 'completed' | 'cancelled';
+  expectedCount: number;
+  actualCount: number;
+  discrepancies: AuditDiscrepancy[];
+}
+
+export interface AuditDiscrepancy {
+  itemId: string;
+  expectedLocation: ItemLocation;
+  actualLocation?: ItemLocation;
+  expectedCondition: string;
+  actualCondition?: string;
+  issue: 'missing' | 'misplaced' | 'damaged' | 'extra';
   notes?: string;
 }
 
-export interface BarcodeGenerationOptions {
-  itemId: string;
-  partNumber: string;
-  format: 'CODE128' | 'CODE39' | 'QR' | 'DATAMATRIX';
-  size: 'small' | 'medium' | 'large';
-  includeText: boolean;
+export interface BarcodeGenerationResult {
+  code: string;
+  format: string;
+  imageData?: string;
+}
+
+export interface ScanResult {
+  success: boolean;
+  message: string;
+  item?: InventoryItem;
 }
 
 export interface RFIDSweepResult {
-  sweepId: string;
-  timestamp: Date;
-  location: string;
-  readerId: string;
-  foundItems: Array<{
-    itemId: string;
-    rfidTag: string;
-    signalStrength: number;
-  }>;
-  missingItems: Array<{
-    itemId: string;
-    expectedRFID: string;
-    lastSeen: Date;
-  }>;
+  foundItems: InventoryItem[];
+  missingItems: InventoryItem[];
   sweepDuration: number;
 }
 
 class BarcodeRFIDTrackingService {
-  private baseUrl = '/api/inventory';
-
-  /**
-   * Generate a barcode or QR code for an item
-   */
-  async generateBarcode(options: BarcodeGenerationOptions): Promise<{
-    success: boolean;
-    code: string;
-    imageUrl: string;
-  }> {
-    try {
-      // In production, this would call a backend API
-      // For now, return mock data
-      const code = `${options.format}-${options.partNumber}`;
-      return {
-        success: true,
-        code,
-        imageUrl: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==`
-      };
-    } catch (error) {
-      throw new Error(`Failed to generate barcode: ${error}`);
-    }
+  async generateBarcode(options: {
+    itemId: string;
+    partNumber: string;
+    format: 'QR' | 'CODE128' | 'CODE39' | 'EAN13';
+    size: 'small' | 'medium' | 'large';
+    includeText: boolean;
+  }): Promise<BarcodeGenerationResult> {
+    // Mock implementation
+    return {
+      code: `CTAFLEET-${options.partNumber}-${Date.now()}`,
+      format: options.format,
+      imageData: 'base64encodedimage'
+    };
   }
 
-  /**
-   * Scan a barcode/QR code
-   */
   async scanBarcode(
     code: string,
     scannerId: string,
     location: string,
-    action: ScanEvent['action'],
-    scannedBy: string
-  ): Promise<{
-    success: boolean;
-    message: string;
-    item?: InventoryItem;
-    scanEvent?: ScanEvent;
-  }> {
-    try {
-      // In production, this would validate and process the scan
-      return {
-        success: true,
-        message: 'Item scanned successfully',
-        item: undefined, // Would return actual item from backend
-        scanEvent: {
-          id: `SCAN-${Date.now()}`,
-          timestamp: new Date(),
-          scanType: code.includes('RFID') ? 'rfid' : code.includes('QR') ? 'qr' : 'barcode',
-          scannerId,
-          scannerLocation: location,
-          itemId: 'ITEM-001',
-          scannedBy,
-          action
-        }
-      };
-    } catch (error) {
-      throw new Error(`Failed to scan barcode: ${error}`);
-    }
+    action: 'inventory' | 'checkout' | 'checkin' | 'transfer' | 'audit',
+    userId: string
+  ): Promise<ScanResult> {
+    // Mock implementation
+    return {
+      success: true,
+      message: 'Item scanned successfully',
+      item: undefined
+    };
   }
 
-  /**
-   * Check out an item
-   */
   async checkOutItem(
     itemId: string,
     checkedOutTo: string,
@@ -198,144 +149,75 @@ class BarcodeRFIDTrackingService {
     workOrderNumber?: string,
     notes?: string
   ): Promise<CheckoutRecord> {
-    try {
-      const record: CheckoutRecord = {
-        id: `CHK-${Date.now()}`,
-        itemId,
-        checkedOutBy: 'current_user', // Would get from auth context
-        checkedOutTo,
-        checkedOutDate: new Date(),
-        expectedReturnDate,
-        purpose,
-        workOrderNumber,
-        condition: {
-          checkoutCondition: 'good'
-        },
-        notes
-      };
-      return record;
-    } catch (error) {
-      throw new Error(`Failed to check out item: ${error}`);
-    }
+    // Mock implementation
+    return {
+      id: `CHK-${Date.now()}`,
+      itemId,
+      checkedOutBy: 'current_user',
+      checkedOutTo,
+      checkedOutDate: new Date(),
+      purpose,
+      workOrderNumber,
+      condition: {
+        checkoutCondition: 'good'
+      }
+    };
   }
 
-  /**
-   * Check in an item
-   */
   async checkInItem(
     itemId: string,
     condition: string,
     notes?: string
-  ): Promise<{
-    success: boolean;
-    message: string;
-  }> {
-    try {
-      return {
-        success: true,
-        message: 'Item checked in successfully'
-      };
-    } catch (error) {
-      throw new Error(`Failed to check in item: ${error}`);
-    }
+  ): Promise<CheckoutRecord> {
+    // Mock implementation
+    return {
+      id: `CHK-${Date.now()}`,
+      itemId,
+      checkedOutBy: 'previous_user',
+      checkedOutTo: 'returned',
+      checkedOutDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
+      checkedInDate: new Date(),
+      purpose: 'completed',
+      condition: {
+        checkoutCondition: 'good',
+        checkinCondition: condition
+      }
+    };
   }
 
-  /**
-   * Start an inventory audit
-   */
   async startInventoryAudit(
-    auditType: InventoryAudit['auditType'],
+    type: 'full' | 'cycle' | 'spot',
     location: string,
-    auditedBy: string[],
-    supervisedBy?: string
+    assignedTeam: string[],
+    supervisor: string
   ): Promise<InventoryAudit> {
-    try {
-      const audit: InventoryAudit = {
-        id: `AUDIT-${Date.now()}`,
-        startDate: new Date(),
-        auditType,
-        location,
-        auditedBy,
-        supervisedBy,
-        status: 'in_progress',
-        itemsScanned: [],
-        discrepancies: []
-      };
-      return audit;
-    } catch (error) {
-      throw new Error(`Failed to start audit: ${error}`);
-    }
+    // Mock implementation
+    return {
+      id: `AUDIT-${Date.now()}`,
+      type,
+      startDate: new Date(),
+      location,
+      assignedTeam,
+      supervisor,
+      status: 'in_progress',
+      expectedCount: 100,
+      actualCount: 0,
+      discrepancies: []
+    };
   }
 
-  /**
-   * Perform RFID sweep of a location
-   */
   async performRFIDSweep(
     readerId: string,
     location: string,
-    performedBy: string
+    userId: string
   ): Promise<RFIDSweepResult> {
-    try {
-      const result: RFIDSweepResult = {
-        sweepId: `SWEEP-${Date.now()}`,
-        timestamp: new Date(),
-        location,
-        readerId,
-        foundItems: [
-          {
-            itemId: 'ITEM-001',
-            rfidTag: 'RFID-001',
-            signalStrength: 95
-          },
-          {
-            itemId: 'ITEM-002',
-            rfidTag: 'RFID-002',
-            signalStrength: 87
-          }
-        ],
-        missingItems: [],
-        sweepDuration: 1500
-      };
-      return result;
-    } catch (error) {
-      throw new Error(`Failed to perform RFID sweep: ${error}`);
-    }
-  }
-
-  /**
-   * Get scan history for an item
-   */
-  async getScanHistory(itemId: string): Promise<ScanEvent[]> {
-    try {
-      // In production, fetch from backend
-      return [];
-    } catch (error) {
-      throw new Error(`Failed to get scan history: ${error}`);
-    }
-  }
-
-  /**
-   * Move an item to a new location
-   */
-  async moveItem(
-    itemId: string,
-    newLocation: InventoryLocation,
-    movedBy: string,
-    notes?: string
-  ): Promise<{
-    success: boolean;
-    message: string;
-  }> {
-    try {
-      return {
-        success: true,
-        message: 'Item moved successfully'
-      };
-    } catch (error) {
-      throw new Error(`Failed to move item: ${error}`);
-    }
+    // Mock implementation
+    return {
+      foundItems: [],
+      missingItems: [],
+      sweepDuration: 1500
+    };
   }
 }
 
 export const barcodeRFIDTrackingService = new BarcodeRFIDTrackingService();
-export default barcodeRFIDTrackingService;

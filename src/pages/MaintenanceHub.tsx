@@ -14,11 +14,8 @@
  * @security Data sanitization in hook layer
  */
 
-<<<<<<< HEAD
 import { motion } from 'framer-motion'
-import { Suspense, memo, useCallback, useMemo, useState, type FC, type ReactNode } from 'react'
-import { Wrench, Warehouse, LineChart, Calendar, Clipboard, Zap, DollarSign, Plus, TrendingUp, Clock, CheckCircle } from 'lucide-react'
-=======
+import { Suspense, memo, useCallback, useMemo, type FC, type ReactNode } from 'react'
 import {
   Wrench,
   Warehouse,
@@ -32,37 +29,19 @@ import {
   Clock,
   CheckCircle,
 } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
-import { Suspense, memo, useCallback, useMemo, type FC, type ReactNode } from 'react'
-
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
->>>>>>> fix/pipeline-eslint-build
 import HubPage from '@/components/ui/hub-page'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useReactiveMaintenanceData, type WorkOrder, type PredictiveMaintenance } from '@/hooks/use-reactive-maintenance-data'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-<<<<<<< HEAD
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
-import logger from '@/utils/logger';
-=======
-import { useReactiveMaintenanceData, type WorkOrder, type PredictiveMaintenance } from '@/hooks/use-reactive-maintenance-data'
->>>>>>> fix/pipeline-eslint-build
 
 // ============================================================================
 // TYPES AND INTERFACES
@@ -250,7 +229,7 @@ const GarageOverview: FC = memo(() => {
         <StatCard
           title="Total Work Orders"
           value={metrics?.totalWorkOrders?.toString() || '0'}
-          icon={Clipboard}
+          icon={ClipboardText}
           trend="neutral"
           description="All orders"
           loading={isLoading}
@@ -259,7 +238,7 @@ const GarageOverview: FC = memo(() => {
         <StatCard
           title="Urgent Orders"
           value={metrics?.urgentOrders?.toString() || '0'}
-          icon={Zap}
+          icon={Lightning}
           trend="down"
           change={-2}
           description="High priority"
@@ -311,7 +290,7 @@ const GarageOverview: FC = memo(() => {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-amber-500" aria-hidden="true" />
+            <Lightning className="h-5 w-5 text-amber-500" aria-hidden="true" />
             <CardTitle id="urgent-orders-heading">Urgent Work Orders</CardTitle>
           </div>
           <CardDescription>High-priority orders requiring immediate attention</CardDescription>
@@ -379,9 +358,9 @@ const PredictiveContent: FC = memo(() => {
         <StatCard
           title="Active Predictions"
           value={predictiveMetrics.activePredictions.toString()}
-          icon={LineChart}
+          icon={ChartLine}
           trend="up"
-          change={+12}
+          change={12}
           description="Vehicles monitored"
           loading={isLoading}
           aria-label="Active predictions"
@@ -389,7 +368,7 @@ const PredictiveContent: FC = memo(() => {
         <StatCard
           title="Critical Alerts"
           value={predictiveMetrics.criticalAlerts.toString()}
-          icon={Zap}
+          icon={Lightning}
           trend="down"
           change={-3}
           description="Requiring attention"
@@ -399,7 +378,7 @@ const PredictiveContent: FC = memo(() => {
         <StatCard
           title="Prevented Failures"
           value={predictiveMetrics.preventedFailures.toString()}
-          icon={TrendingUp}
+          icon={TrendUp}
           trend="up"
           description="This month"
           loading={isLoading}
@@ -408,7 +387,7 @@ const PredictiveContent: FC = memo(() => {
         <StatCard
           title="Cost Savings"
           value={`$${(predictiveMetrics.costSavings / 1000).toFixed(0)}K`}
-          icon={DollarSign}
+          icon={CurrencyDollar}
           trend="up"
           description="YTD savings"
           loading={isLoading}
@@ -420,7 +399,7 @@ const PredictiveContent: FC = memo(() => {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-amber-500" aria-hidden="true" />
+            <Lightning className="h-5 w-5 text-amber-500" aria-hidden="true" />
             <CardTitle id="ai-insights-heading">AI-Powered Insights</CardTitle>
           </div>
           <CardDescription>ML Model v2.4 • 94% Accuracy</CardDescription>
@@ -457,62 +436,14 @@ PredictiveContent.displayName = 'PredictiveContent'
 
 const CalendarContent: FC = memo(() => {
   const { loadingStates, lastUpdate } = useReactiveMaintenanceData()
-  const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false)
-  const [scheduleForm, setScheduleForm] = useState({
-    vehicleId: '',
-    serviceType: 'preventive',
-    description: '',
-    scheduledDate: '',
-    estimatedCost: '',
-    notes: ''
-  })
 
   const isLoading = loadingStates.workOrders
   const formattedTime = useMemo(() => lastUpdate.toLocaleTimeString(), [lastUpdate])
 
   const handleSchedule = useCallback(() => {
-    setIsScheduleDialogOpen(true)
+    // TODO: Implement schedule modal
+    console.log('Schedule maintenance')
   }, [])
-
-  const handleScheduleSubmit = useCallback(async () => {
-    try {
-      // Call backend API to create maintenance schedule
-      const response = await fetch('/api/maintenance-schedules', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          vehicle_id: scheduleForm.vehicleId,
-          service_type: scheduleForm.serviceType,
-          notes: scheduleForm.description,
-          scheduled_date: scheduleForm.scheduledDate,
-          estimated_cost: parseFloat(scheduleForm.estimatedCost) || 0,
-          metadata: { notes: scheduleForm.notes }
-        })
-      })
-
-      if (response.ok) {
-        // Success - close dialog and reset form
-        setIsScheduleDialogOpen(false)
-        setScheduleForm({
-          vehicleId: '',
-          serviceType: 'preventive',
-          description: '',
-          scheduledDate: '',
-          estimatedCost: '',
-          notes: ''
-        })
-        // TODO: Show success toast
-        logger.info('Maintenance scheduled successfully')
-      } else {
-        // TODO: Show error toast
-        logger.error('Failed to schedule maintenance')
-      }
-    } catch (error) {
-      logger.error('Error scheduling maintenance:', error)
-      // TODO: Show error toast
-    }
-  }, [scheduleForm])
 
   return (
     <div className="space-y-6 p-6">
@@ -545,7 +476,7 @@ const CalendarContent: FC = memo(() => {
         <StatCard
           title="Today"
           value="4"
-          icon={Calendar}
+          icon={CalendarDots}
           description="Scheduled today"
           loading={isLoading}
           aria-label="Maintenance scheduled today"
@@ -553,7 +484,7 @@ const CalendarContent: FC = memo(() => {
         <StatCard
           title="This Week"
           value="18"
-          icon={Calendar}
+          icon={CalendarDots}
           trend="up"
           description="7-day schedule"
           loading={isLoading}
@@ -562,7 +493,7 @@ const CalendarContent: FC = memo(() => {
         <StatCard
           title="Overdue"
           value="2"
-          icon={Zap}
+          icon={Lightning}
           trend="down"
           description="Needs attention"
           loading={isLoading}
@@ -586,95 +517,6 @@ const CalendarContent: FC = memo(() => {
           </div>
         </CardContent>
       </Card>
-
-      {/* Schedule Maintenance Dialog */}
-      <Dialog open={isScheduleDialogOpen} onOpenChange={setIsScheduleDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Schedule Maintenance</DialogTitle>
-            <DialogDescription>
-              Create a new maintenance schedule for a vehicle. All fields are required.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="vehicleId">Vehicle ID</Label>
-              <Input
-                id="vehicleId"
-                placeholder="Enter vehicle ID"
-                value={scheduleForm.vehicleId}
-                onChange={(e) => setScheduleForm({ ...scheduleForm, vehicleId: e.target.value })}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="serviceType">Service Type</Label>
-              <Select
-                value={scheduleForm.serviceType}
-                onValueChange={(value) => setScheduleForm({ ...scheduleForm, serviceType: value })}
-              >
-                <SelectTrigger id="serviceType">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="preventive">Preventive Maintenance</SelectItem>
-                  <SelectItem value="corrective">Corrective Maintenance</SelectItem>
-                  <SelectItem value="inspection">Inspection</SelectItem>
-                  <SelectItem value="repair">Repair</SelectItem>
-                  <SelectItem value="diagnostic">Diagnostic</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="scheduledDate">Scheduled Date</Label>
-              <Input
-                id="scheduledDate"
-                type="datetime-local"
-                value={scheduleForm.scheduledDate}
-                onChange={(e) => setScheduleForm({ ...scheduleForm, scheduledDate: e.target.value })}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                placeholder="Describe the maintenance work..."
-                value={scheduleForm.description}
-                onChange={(e) => setScheduleForm({ ...scheduleForm, description: e.target.value })}
-                rows={3}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="estimatedCost">Estimated Cost ($)</Label>
-              <Input
-                id="estimatedCost"
-                type="number"
-                placeholder="0.00"
-                step="0.01"
-                value={scheduleForm.estimatedCost}
-                onChange={(e) => setScheduleForm({ ...scheduleForm, estimatedCost: e.target.value })}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="notes">Additional Notes (Optional)</Label>
-              <Textarea
-                id="notes"
-                placeholder="Any additional information..."
-                value={scheduleForm.notes}
-                onChange={(e) => setScheduleForm({ ...scheduleForm, notes: e.target.value })}
-                rows={2}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsScheduleDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleScheduleSubmit}>
-              Schedule Maintenance
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 })
@@ -717,7 +559,7 @@ const RequestsContent: FC = memo(() => {
         <StatCard
           title="New Requests"
           value={requestMetrics?.newRequests?.toString() || '0'}
-          icon={Clipboard}
+          icon={ClipboardText}
           trend="neutral"
           description="Awaiting review"
           loading={isLoading}
@@ -726,7 +568,7 @@ const RequestsContent: FC = memo(() => {
         <StatCard
           title="In Review"
           value={requestMetrics?.inReview?.toString() || '0'}
-          icon={LineChart}
+          icon={ChartLine}
           trend="neutral"
           description="Being evaluated"
           loading={isLoading}
@@ -735,7 +577,7 @@ const RequestsContent: FC = memo(() => {
         <StatCard
           title="Approved"
           value={requestMetrics?.approved?.toString() || '0'}
-          icon={TrendingUp}
+          icon={TrendUp}
           trend="up"
           description="Ready to schedule"
           loading={isLoading}
@@ -746,7 +588,7 @@ const RequestsContent: FC = memo(() => {
           value={requestMetrics?.completed?.toString() || '0'}
           icon={Wrench}
           trend="up"
-          change={+12}
+          change={12}
           description="This week"
           loading={isLoading}
           aria-label="Completed requests"
@@ -757,7 +599,7 @@ const RequestsContent: FC = memo(() => {
       <ResponsiveLineChart
         title="Request Volume Trend"
         description="Daily maintenance request submissions over the past week"
-        data={requestTrendData}
+        data={requestTrendData.map(d => ({ name: d.name, value: (d.count as number) || 0 }))}
         height={300}
         showArea
         loading={isLoading}
@@ -788,7 +630,7 @@ const MaintenanceHub: FC = () => {
     {
       id: 'predictive',
       label: 'Predictive',
-      icon: <LineChart className="h-4 w-4" aria-hidden="true" />,
+      icon: <ChartLine className="h-4 w-4" aria-hidden="true" />,
       content: (
         <ErrorBoundary>
           <Suspense fallback={
@@ -804,7 +646,7 @@ const MaintenanceHub: FC = () => {
     {
       id: 'calendar',
       label: 'Calendar',
-      icon: <Calendar className="h-4 w-4" aria-hidden="true" />,
+      icon: <CalendarDots className="h-4 w-4" aria-hidden="true" />,
       content: (
         <ErrorBoundary>
           <Suspense fallback={
@@ -820,7 +662,7 @@ const MaintenanceHub: FC = () => {
     {
       id: 'requests',
       label: 'Requests',
-      icon: <Clipboard className="h-4 w-4" aria-hidden="true" />,
+      icon: <ClipboardText className="h-4 w-4" aria-hidden="true" />,
       content: (
         <ErrorBoundary>
           <Suspense fallback={

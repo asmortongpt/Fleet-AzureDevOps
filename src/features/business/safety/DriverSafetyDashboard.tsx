@@ -7,74 +7,92 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Shield, Eye, Brain, Zap, TrendingUp, Clock, Phone, Car, Activity, Target, BookOpen, Award, Bell, Gauge, Coffee, AlertCircle, CheckCircle, Timer, Users, BarChart3, LineChart } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
 
-// Legacy types - file does not exist
-// import type {
-//   AIDriverBehaviorAnalysis,
-//   DriverFatigueAnalysis,
-//   DistractionAnalysis,
-//   AccidentPrediction,
-//   SafetyIntervention,
-//   SafetyDashboardMetrics,
-//   Driver,
-//   Vehicle
-// } from '../../types';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 
-// Temporary type stubs until proper types are created
-type AIDriverBehaviorAnalysis = {
+// Local type definitions for safety dashboard
+interface Driver {
+  id: string;
+  firstName: string;
+  lastName: string;
+  department: string;
+}
+
+interface Vehicle {
+  id: string;
+  make: string;
+  model: string;
+}
+
+interface DrivingEvent {
+  timestamp: Date;
+  severity: number;
+  location?: { lat: number; lng: number };
+}
+
+interface GoalProgress {
+  goal: string;
+  title: string;
+  progress: number;
+  currentValue: number;
+  targetValue: number;
+}
+
+interface AIDriverBehaviorAnalysis {
   driverId: string;
   vehicleId: string;
-  timestamp: Date;
   safetyScore: number;
   attentionScore: number;
   aggressionScore: number;
   efficiencyScore: number;
   risk: {
-    overall: number;
     prediction?: {
       timeToIntervention?: number;
       accidentRisk: number;
     };
   };
   events: {
-    harshBraking: any[];
-    harshAcceleration: any[];
-    speedingViolations: any[];
-    distractedDriving: any[];
+    harshBraking: DrivingEvent[];
+    harshAcceleration: DrivingEvent[];
+    speedingViolations: DrivingEvent[];
+    distractedDriving: DrivingEvent[];
   };
   coaching: {
     improvements: string[];
-    goalProgress: any[];
+    goalProgress: GoalProgress[];
     trainingRecommendations: string[];
   };
-};
+}
 
-type DriverFatigueAnalysis = {
+interface DriverFatigueAnalysis {
   driverId: string;
-  timestamp: Date;
   fatigueLevel: number;
-};
-
-type DistractionAnalysis = {
-  driverId: string;
   timestamp: Date;
+}
+
+interface DistractionAnalysis {
+  driverId: string;
   riskLevel: number;
-};
-
-type AccidentPrediction = {
-  driverId: string;
   timestamp: Date;
+}
+
+interface AccidentPrediction {
+  driverId: string;
   risk: {
     overall: number;
   };
-};
+  timestamp: Date;
+}
 
-type SafetyIntervention = {
+interface SafetyIntervention {
   type: string;
   severity: string;
   trigger: string;
-};
+}
 
-type SafetyDashboardMetrics = {
+interface SafetyDashboardMetrics {
   realTime: {
     activeDrivers: number;
     criticalAlerts: number;
@@ -91,29 +109,7 @@ type SafetyDashboardMetrics = {
   predictions: {
     accidentRisks: AccidentPrediction[];
   };
-};
-
-type Driver = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  department: string;
-  role?: string;
-  employeeId?: string;
-  fullName?: string;
-  jobTitle?: string;
-};
-
-type Vehicle = {
-  id: string;
-  make: string;
-  model: string;
-};
-
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Progress } from '@/components/ui/Progress';
+}
 
 interface DriverSafetyDashboardProps {
   drivers: Driver[];
@@ -176,7 +172,14 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
 
   // Calculate critical alerts
   const criticalAlerts = useMemo(() => {
-    const alerts: any[] = [];
+    const alerts: Array<{
+      id: string;
+      type: string;
+      driverId: string;
+      severity: 'critical' | 'high' | 'medium';
+      message: string;
+      timestamp: Date;
+    }> = [];
 
     // High-risk accident predictions
     accidentPredictions.forEach((prediction) => {
@@ -440,14 +443,14 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
               )}
 
               {/* Accident risk */}
-              {analysis.risk.prediction?.accidentRisk > 0.7 && (
+              {(analysis.risk.prediction?.accidentRisk ?? 0) > 0.7 && (
                 <div className="flex items-center justify-between p-2 bg-red-50 rounded border border-red-200">
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-red-600" />
                     <span className="text-sm font-medium">High Accident Risk</span>
                   </div>
                   <div className="text-sm">
-                    {Math.round(analysis.risk.prediction.accidentRisk * 100)}%
+                    {Math.round((analysis.risk.prediction?.accidentRisk ?? 0) * 100)}%
                   </div>
                 </div>
               )}
@@ -514,7 +517,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                   AI Coaching Recommendations
                 </h4>
                 <div className="space-y-1">
-                  {analysis.coaching.improvements.slice(0, 2).map((improvement: string, index: number) => (
+                  {analysis.coaching.improvements.slice(0, 2).map((improvement, index) => (
                     <div key={index} className="text-xs text-gray-700 bg-green-50 p-2 rounded">
                       • {improvement}
                     </div>
@@ -721,7 +724,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  {analysis.coaching.goalProgress.map((goal: any) => (
+                  {analysis.coaching.goalProgress.map((goal) => (
                     <div key={goal.goal} className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="font-medium">{goal.title}</span>
@@ -739,7 +742,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                   <div className="pt-2 border-t">
                     <h4 className="font-medium text-sm mb-2">Recommended Training</h4>
                     <div className="space-y-1">
-                      {analysis.coaching.trainingRecommendations.map((training: string, index: number) => (
+                      {analysis.coaching.trainingRecommendations.map((training, index) => (
                         <div
                           key={index}
                           className="flex items-center justify-between p-2 bg-white rounded"
@@ -842,7 +845,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {dashboardMetrics.predictions.accidentRisks.slice(0, 3).map((prediction: any) => (
+                      {dashboardMetrics.predictions.accidentRisks.slice(0, 3).map((prediction) => (
                         <div
                           key={prediction.driverId}
                           className="flex items-center justify-between p-2 bg-gray-50 rounded"

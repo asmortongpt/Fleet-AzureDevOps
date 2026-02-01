@@ -1,9 +1,9 @@
-import { ComponentProps, ReactNode } from "react"
+import { ReactNode } from "react"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
-interface MobileCardProps extends ComponentProps<"div"> {
+interface MobileCardProps {
   title: string
   subtitle?: string
   badge?: ReactNode
@@ -14,6 +14,7 @@ interface MobileCardProps extends ComponentProps<"div"> {
   }>
   actions?: ReactNode
   onClick?: () => void
+  className?: string
 }
 
 export function MobileCard({
@@ -24,7 +25,6 @@ export function MobileCard({
   actions,
   onClick,
   className,
-  ...props
 }: MobileCardProps) {
   return (
     <Card
@@ -34,7 +34,6 @@ export function MobileCard({
         className
       )}
       onClick={onClick}
-      {...props}
     >
       <CardContent className="p-2 space-y-2">
         {/* Header */}

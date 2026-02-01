@@ -15,18 +15,14 @@
  * @security XSS protection, data sanitization, input validation
  */
 
-<<<<<<< HEAD
 import { motion } from 'framer-motion'
 import { Suspense, memo, useCallback, useMemo } from 'react'
-import { Radio as OperationsIcon, Map, Circle, CheckSquare, Calendar, Truck, Package, AlertTriangle, Plus, Clock, Zap, Route as RouteIcon, MapPin, Fuel, CheckCircle, X, ArrowUp, ArrowDown, ArrowRight } from 'lucide-react'
-import HubPage from '@/components/ui/hub-page'
-import { useReactiveOperationsData, type Route as OperationsRoute, type FuelTransaction, type Task } from '@/hooks/use-reactive-operations-data'
-=======
 import {
   Broadcast as OperationsIcon,
   MapTrifold,
   RadioButton,
   CheckSquare,
+  CalendarDots,
   Truck,
   Package,
   Warning,
@@ -37,28 +33,19 @@ import {
   MapPin,
   GasPump,
   CheckCircle,
+  X,
   ArrowUp,
   ArrowDown,
   ArrowRight,
 } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
-import { Suspense, memo, useCallback, useMemo } from 'react'
-
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
-import { Skeleton } from '@/components/ui/skeleton'
->>>>>>> fix/pipeline-eslint-build
+import { useReactiveOperationsData, type Route, type FuelTransaction, type Task } from '@/hooks/use-reactive-operations-data'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-<<<<<<< HEAD
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -66,10 +53,6 @@ import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { sanitizeHTML } from '@/lib/security/xss-prevention'
-import logger from '@/utils/logger';
-=======
-import { useReactiveOperationsData, type Route } from '@/hooks/use-reactive-operations-data'
->>>>>>> fix/pipeline-eslint-build
 
 // Constants for animation configuration
 const ANIMATION_CONFIG = {
@@ -141,7 +124,7 @@ EmptyState.displayName = 'EmptyState'
  * Memoized Route Item Component
  */
 const RouteItem = memo<{
-  route: OperationsRoute
+  route: Route
   index: number
   onView: (id: string) => void
   onUpdate: (id: string) => void
@@ -218,27 +201,27 @@ const DispatchOverview = memo(() => {
 
   // Memoized handlers
   const handleNewJob = useCallback(() => {
-    logger.info('[Operations] Create new job')
+    console.log('[Operations] Create new job')
     // TODO: Implement new job functionality
   }, [])
 
   const handleViewRoute = useCallback((id: string) => {
-    logger.info('[Operations] View route:', id)
+    console.log('[Operations] View route:', id)
     // TODO: Implement view route functionality
   }, [])
 
   const handleUpdateRoute = useCallback((id: string) => {
-    logger.info('[Operations] Update route:', id)
+    console.log('[Operations] Update route:', id)
     // TODO: Implement update route functionality
   }, [])
 
   const handleOptimizeRoutes = useCallback(() => {
-    logger.info('[Operations] Optimize routes')
+    console.log('[Operations] Optimize routes')
     // TODO: Implement route optimization
   }, [])
 
   const handleViewMap = useCallback(() => {
-    logger.info('[Operations] View map')
+    console.log('[Operations] View map')
     // TODO: Implement map view
   }, [])
 
@@ -302,7 +285,7 @@ const DispatchOverview = memo(() => {
             value={metrics?.activeJobs?.toString() || '0'}
             icon={Package}
             trend="up"
-            change={+4}
+            change={4}
             description="Currently dispatched"
             loading={isLoading}
             aria-label="Active Jobs"
@@ -321,7 +304,7 @@ const DispatchOverview = memo(() => {
             value={metrics?.completed?.toString() || '0'}
             icon={CheckSquare}
             trend="up"
-            change="+12%"
+            change={12}
             description="Jobs finished"
             loading={isLoading}
             aria-label="Completed Jobs Today"
@@ -329,7 +312,7 @@ const DispatchOverview = memo(() => {
           <StatCard
             title="Delayed"
             value={metrics?.delayed?.toString() || '0'}
-            icon={AlertTriangle}
+            icon={Warning}
             trend="down"
             change={-2}
             description="Behind schedule"
@@ -358,7 +341,8 @@ const DispatchOverview = memo(() => {
         <ResponsiveLineChart
           title="Daily Completion Trend"
           description="Jobs completed vs target over the past week"
-          data={completionTrendData}
+          data={completionTrendData as Array<{name: string; value: number; [key: string]: unknown}>}
+          dataKeys={['completed', 'target']}
           height={300}
           showArea
           loading={isLoading}
@@ -371,7 +355,7 @@ const DispatchOverview = memo(() => {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" aria-hidden="true" />
+              <Warning className="h-5 w-5 text-amber-500" aria-hidden="true" />
               <CardTitle id="delayed-routes-heading">Delayed Routes</CardTitle>
             </div>
             <CardDescription>Routes behind schedule requiring attention</CardDescription>
@@ -408,7 +392,7 @@ const DispatchOverview = memo(() => {
           className="inline-flex items-center gap-2"
           aria-label="Optimize Routes"
         >
-          <Zap className="h-4 w-4" aria-hidden="true" />
+          <Lightning className="h-4 w-4" aria-hidden="true" />
           Optimize Routes
         </Button>
         <Button
@@ -417,11 +401,11 @@ const DispatchOverview = memo(() => {
           className="inline-flex items-center gap-2"
           aria-label="View Map"
         >
-          <Map className="h-4 w-4" aria-hidden="true" />
+          <MapTrifold className="h-4 w-4" aria-hidden="true" />
           View Map
         </Button>
         <Button variant="outline" onClick={refresh} className="inline-flex items-center gap-2" aria-label="Refresh Data">
-          <Circle className="h-4 w-4" aria-hidden="true" />
+          <RadioButton className="h-4 w-4" aria-hidden="true" />
           Refresh
         </Button>
       </footer>
@@ -440,7 +424,7 @@ const RoutesContent = memo(() => {
   const lastUpdateString = useMemo(() => formatDate(lastUpdate, { timeStyle: 'medium' }), [lastUpdate])
 
   const handleNewRoute = useCallback(() => {
-    logger.info('[Operations] Create new route')
+    console.log('[Operations] Create new route')
     // TODO: Implement new route functionality
   }, [])
 
@@ -482,7 +466,7 @@ const RoutesContent = memo(() => {
           <StatCard
             title="Active Routes"
             value={routes?.length?.toString() || '0'}
-            icon={Map}
+            icon={MapTrifold}
             description="Currently active"
             loading={isLoading}
             aria-label="Active Routes"
@@ -490,7 +474,7 @@ const RoutesContent = memo(() => {
           <StatCard
             title="Total Distance"
             value={`${formatNumber(totalDistance, { maximumFractionDigits: 0 })} mi`}
-            icon={RouteIcon}
+            icon={Path}
             trend="up"
             description="Distance covered"
             loading={isLoading}
@@ -511,7 +495,7 @@ const RoutesContent = memo(() => {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-amber-500" aria-hidden="true" />
+            <Lightning className="h-5 w-5 text-amber-500" aria-hidden="true" />
             <CardTitle id="optimization-insights-heading">Optimization Insights</CardTitle>
           </div>
           <CardDescription>AI-powered route optimization suggestions</CardDescription>
@@ -530,7 +514,7 @@ const RoutesContent = memo(() => {
                   className="flex items-start gap-3 p-3 rounded-lg border"
                   role="listitem"
                 >
-                  <RouteIcon className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" aria-hidden="true" />
+                  <Path className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" aria-hidden="true" />
                   <div>
                     <p className="font-medium">Route clustering saved 156 miles today</p>
                     <p className="text-sm text-muted-foreground">3.2 hours of drive time reduced</p>
@@ -581,7 +565,7 @@ const TasksContent = memo(() => {
   const lastUpdateString = useMemo(() => formatDate(lastUpdate, { timeStyle: 'medium' }), [lastUpdate])
 
   const handleNewTask = useCallback(() => {
-    logger.info('[Operations] Create new task')
+    console.log('[Operations] Create new task')
     // TODO: Implement new task functionality
   }, [])
 
@@ -648,7 +632,7 @@ const TasksContent = memo(() => {
           <StatCard
             title="Overdue"
             value={metrics?.overdueTasks?.toString() || '0'}
-            icon={AlertTriangle}
+            icon={Warning}
             trend="down"
             description="Needs attention"
             loading={isLoading}
@@ -719,7 +703,7 @@ const FuelContent = memo(() => {
           <StatCard
             title="Total Fuel Cost"
             value={`$${formatNumber(totalFuelCost, { maximumFractionDigits: 0 })}`}
-            icon={Fuel}
+            icon={GasPump}
             trend="up"
             description="This week"
             loading={isLoading}
@@ -736,7 +720,7 @@ const FuelContent = memo(() => {
           <StatCard
             title="Avg Cost/Gallon"
             value={`$${formatNumber(avgCostPerGallon, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-            icon={Fuel}
+            icon={GasPump}
             trend="down"
             description="Current average"
             loading={isLoading}
@@ -749,7 +733,8 @@ const FuelContent = memo(() => {
       <ResponsiveBarChart
         title="Weekly Fuel Consumption"
         description="Gallons and costs by day of the week"
-        data={fuelConsumptionData}
+        data={fuelConsumptionData as Array<{name: string; value: number; [key: string]: unknown}>}
+        dataKey="gallons"
         height={300}
         loading={isLoading}
         aria-label="Weekly Fuel Consumption Chart"
@@ -760,7 +745,7 @@ const FuelContent = memo(() => {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Fuel className="h-5 w-5 text-primary" aria-hidden="true" />
+              <GasPump className="h-5 w-5 text-primary" aria-hidden="true" />
               <CardTitle id="recent-transactions-heading">Recent Fuel Transactions</CardTitle>
             </div>
             <CardDescription>Latest fuel purchases across the fleet</CardDescription>
@@ -819,7 +804,7 @@ export default function OperationsHub() {
       {
         id: 'dispatch',
         label: 'Dispatch',
-        icon: <Circle className="h-4 w-4" aria-hidden="true" />,
+        icon: <RadioButton className="h-4 w-4" aria-hidden="true" />,
         content: (
           <ErrorBoundary>
             <Suspense
@@ -837,7 +822,7 @@ export default function OperationsHub() {
       {
         id: 'routes',
         label: 'Routes',
-        icon: <Map className="h-4 w-4" aria-hidden="true" />,
+        icon: <MapTrifold className="h-4 w-4" aria-hidden="true" />,
         content: (
           <ErrorBoundary>
             <Suspense
@@ -873,7 +858,7 @@ export default function OperationsHub() {
       {
         id: 'fuel',
         label: 'Fuel',
-        icon: <Fuel className="h-4 w-4" aria-hidden="true" />,
+        icon: <GasPump className="h-4 w-4" aria-hidden="true" />,
         content: (
           <ErrorBoundary>
             <Suspense

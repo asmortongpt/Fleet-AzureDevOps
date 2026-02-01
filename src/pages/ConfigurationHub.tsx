@@ -3,40 +3,40 @@
  * Real-time system settings, integrations, and security monitoring with responsive visualizations
  */
 
+import { motion } from 'framer-motion'
+import { Suspense } from 'react'
 import {
-  Settings as ConfigIcon,
+  Gear as ConfigIcon,
   Database,
   Cpu,
-  HardDrive,
-  Activity,
-  Plug,
+  HardDrives as HardDrive,
+  Pulse as Activity,
+  Plugs as Plug,
   CheckCircle,
   XCircle,
-  AlertTriangle,
+  Warning as AlertTriangle,
   Shield,
   Lock,
   Key,
   Eye,
-  Server,
-  TrendingUp,
-  RefreshCw,
+  Desktop as Server,
+  ChartBar as BarChart3,
+  TrendUp as TrendingUp,
+  ArrowClockwise as RefreshCw,
   Clock,
 } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
-import { Suspense } from 'react'
-
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useReactiveConfigurationData } from '@/hooks/use-reactive-configuration-data'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { useReactiveConfigurationData } from '@/hooks/use-reactive-configuration-data'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 
 /**
  * Overview Tab - Configuration metrics and system status
@@ -61,6 +61,7 @@ function ConfigurationOverview() {
   // Prepare system performance chart data
   const performanceChartData = systemPerformanceTrend.map((point) => ({
     name: point.name,
+    value: point.cpu,
     cpu: point.cpu,
     memory: point.memory,
   }))
@@ -103,7 +104,7 @@ function ConfigurationOverview() {
           value={metrics?.pendingChanges?.toString() || '0'}
           icon={Clock}
           trend="down"
-          change="-2"
+          change={-2}
           description="Awaiting approval"
           loading={isLoading}
         />
@@ -133,6 +134,7 @@ function ConfigurationOverview() {
           title="System Performance (24h)"
           description="CPU and memory usage over time"
           data={performanceChartData}
+          dataKeys={['cpu', 'memory']}
           height={300}
           showArea
           loading={isLoading}
@@ -279,9 +281,11 @@ function SystemContent() {
           description="CPU and memory over the last 24 hours"
           data={systemPerformanceTrend.map((p) => ({
             name: p.name,
+            value: p.cpu,
             cpu: p.cpu,
             memory: p.memory,
           }))}
+          dataKeys={['cpu', 'memory']}
           height={300}
           showArea
           loading={isLoading}
@@ -683,7 +687,7 @@ function SecurityContent() {
           value="98.5%"
           icon={Key}
           trend="up"
-          change="+0.5%"
+          change={0.5}
           description="Login success"
           loading={isLoading}
         />

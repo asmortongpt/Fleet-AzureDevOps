@@ -10,15 +10,8 @@
  * - Type-safe throughout
  */
 
-<<<<<<< HEAD
 import { motion } from 'framer-motion'
 import { memo, useMemo, type ReactNode } from 'react'
-import { User as DriversIcon, Users, Shield, LineChart, AlertTriangle, Trophy, Car, BadgeCheck, Clock, Plus, Award, CalendarX } from 'lucide-react'
-import HubPage from '@/components/ui/hub-page'
-import { useReactiveDriversData, type Driver } from '@/hooks/use-reactive-drivers-data'
-import { useHOSViolations } from '@/hooks/use-hos-data'
-import { useTenant } from '@/contexts/TenantContext'
-=======
 import {
   User as DriversIcon,
   Users,
@@ -33,34 +26,20 @@ import {
   Certificate,
   CalendarX,
 } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
-import { memo, useMemo, type ReactNode } from 'react'
-
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
-import { Skeleton } from '@/components/ui/skeleton'
->>>>>>> fix/pipeline-eslint-build
+import { useReactiveDriversData, type Driver } from '@/hooks/use-reactive-drivers-data'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-<<<<<<< HEAD
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
-import logger from '@/utils/logger';
-=======
-import { useReactiveDriversData, type Driver } from '@/hooks/use-reactive-drivers-data'
->>>>>>> fix/pipeline-eslint-build
 
 // Animation variants for stagger children
 const containerVariants = {
@@ -80,7 +59,7 @@ const itemVariants = {
     y: 0,
     transition: { type: 'spring', stiffness: 300, damping: 24 },
   },
-}
+} as const
 
 // Status badge color mapping with accessibility-safe colors
 function getStatusVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' {
@@ -137,7 +116,7 @@ const ErrorState = memo(function ErrorState({
 }) {
   return (
     <Alert variant="destructive" className="my-6">
-      <AlertTriangle className="h-4 w-4" />
+      <Warning className="h-4 w-4" />
       <AlertTitle>Error Loading Data</AlertTitle>
       <AlertDescription className="mt-2">
         {error?.message || 'An unexpected error occurred while fetching driver data.'}
@@ -248,7 +227,7 @@ const DriversOverview = memo(function DriversOverview() {
           <Button
             className="gap-2"
             aria-label="Add new driver to roster"
-            onClick={() => logger.info('Add driver modal')}
+            onClick={() => console.log('Add driver modal')}
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
             Add Driver
@@ -278,7 +257,7 @@ const DriversOverview = memo(function DriversOverview() {
           value={metrics.activeDrivers.toString()}
           icon={DriversIcon}
           trend="up"
-          change={+3}
+          change={3}
           description="Currently working"
           loading={isLoading}
         />
@@ -294,7 +273,7 @@ const DriversOverview = memo(function DriversOverview() {
         <StatCard
           title="Active Assignments"
           value={metrics.activeAssignments.toString()}
-          icon={Car}
+          icon={CarProfile}
           trend="neutral"
           description="Vehicle assignments"
           loading={isLoading}
@@ -328,7 +307,7 @@ const DriversOverview = memo(function DriversOverview() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" aria-hidden="true" />
+              <Warning className="h-5 w-5 text-amber-500" aria-hidden="true" />
               <CardTitle>Low Safety Scores</CardTitle>
             </div>
             <CardDescription>Drivers requiring safety training</CardDescription>
@@ -385,7 +364,7 @@ const DriversOverview = memo(function DriversOverview() {
               </div>
             ) : expiringLicenses.length === 0 ? (
               <EmptyState
-                icon={BadgeCheck}
+                icon={IdentificationCard}
                 title="All Licenses Current"
                 description="No licenses are expiring in the next 30 days."
               />
@@ -437,10 +416,20 @@ const PerformanceContent = memo(function PerformanceContent() {
   const performanceTrendData = useMemo(() => {
     return performanceTrend.map(item => ({
       name: new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' }),
+      value: item.avgScore,
       avgScore: item.avgScore,
       violations: item.violations,
     }))
   }, [performanceTrend])
+
+  // Transform hours worked data for bar chart
+  const hoursChartData = useMemo(() => {
+    return hoursWorkedData.map(item => ({
+      name: item.name,
+      value: item.hours,
+      hours: item.hours,
+    }))
+  }, [hoursWorkedData])
 
   if (isError) {
     return <ErrorState error={error} onRetry={refresh} />
@@ -469,7 +458,7 @@ const PerformanceContent = memo(function PerformanceContent() {
         <StatCard
           title="Avg Performance"
           value={`${metrics.avgPerformance}%`}
-          icon={LineChart}
+          icon={ChartLine}
           trend="up"
           change={5}
           description="Fleet average"
@@ -486,7 +475,7 @@ const PerformanceContent = memo(function PerformanceContent() {
         <StatCard
           title="Total Violations"
           value={metrics.totalViolations.toString()}
-          icon={AlertTriangle}
+          icon={Warning}
           trend="down"
           change={-3}
           description="This month"
@@ -495,7 +484,7 @@ const PerformanceContent = memo(function PerformanceContent() {
         <StatCard
           title="Training Needed"
           value={topPerformers.filter(d => d.performanceRating < 75).length.toString()}
-          icon={Award}
+          icon={Certificate}
           trend="down"
           description="Require refresher"
           loading={isLoading}
@@ -509,6 +498,7 @@ const PerformanceContent = memo(function PerformanceContent() {
           title="Weekly Performance Trend"
           description="Average performance score and violations over time"
           data={performanceTrendData}
+          dataKeys={['avgScore', 'violations']}
           height={300}
           showArea
           loading={isLoading}
@@ -518,7 +508,8 @@ const PerformanceContent = memo(function PerformanceContent() {
         <ResponsiveBarChart
           title="Hours Worked (Top 10 Drivers)"
           description="Total hours logged this week"
-          data={hoursWorkedData}
+          data={hoursChartData}
+          dataKey="hours"
           height={300}
           loading={isLoading}
         />
@@ -597,23 +588,11 @@ const ComplianceContent = memo(function ComplianceContent() {
     refresh,
   } = useReactiveDriversData()
 
-  const { tenant } = useTenant()
-  const { data: hosViolations = [], isLoading: hosLoading } = useHOSViolations({
-    tenant_id: tenant?.id || 'demo-tenant',
-    status: 'open',
-  })
-
   // Calculate compliance percentages
   const licenseValidityPercent = useMemo(() => {
     if (metrics.totalDrivers === 0) return 0
     return Math.round(((metrics.totalDrivers - expiringLicenses.length) / metrics.totalDrivers) * 100)
   }, [metrics.totalDrivers, expiringLicenses.length])
-
-  const hosCompliantPercent = useMemo(() => {
-    if (metrics.totalDrivers === 0) return 100
-    const violationDrivers = new Set(hosViolations.map(v => v.driver_id)).size
-    return Math.round(((metrics.totalDrivers - violationDrivers) / metrics.totalDrivers) * 100)
-  }, [metrics.totalDrivers, hosViolations])
 
   if (isError) {
     return <ErrorState error={error} onRetry={refresh} />
@@ -642,7 +621,7 @@ const ComplianceContent = memo(function ComplianceContent() {
         <StatCard
           title="Valid Licenses"
           value={(metrics.totalDrivers - expiringLicenses.length).toString()}
-          icon={BadgeCheck}
+          icon={IdentificationCard}
           trend="up"
           description="Current and valid"
           loading={isLoading}
@@ -658,7 +637,7 @@ const ComplianceContent = memo(function ComplianceContent() {
         <StatCard
           title="Certified Drivers"
           value={metrics.totalDrivers.toString()}
-          icon={Award}
+          icon={Certificate}
           trend="neutral"
           description="All certifications current"
           loading={isLoading}
@@ -800,7 +779,7 @@ const AssignmentsContent = memo(function AssignmentsContent() {
           <Button
             className="gap-2"
             aria-label="Create new driver assignment"
-            onClick={() => logger.info('New assignment modal')}
+            onClick={() => console.log('New assignment modal')}
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
             New Assignment
@@ -819,7 +798,7 @@ const AssignmentsContent = memo(function AssignmentsContent() {
         <StatCard
           title="Active Assignments"
           value={metrics.activeAssignments.toString()}
-          icon={Car}
+          icon={CarProfile}
           description="Currently assigned"
           loading={isLoading}
         />
@@ -852,7 +831,6 @@ export default function DriversHub() {
         id: 'overview',
         label: 'Overview',
         icon: <Users className="h-4 w-4" />,
-        ariaLabel: 'Driver Overview Tab',
         content: (
           <ErrorBoundary>
             <DriversOverview />
@@ -862,8 +840,7 @@ export default function DriversHub() {
       {
         id: 'performance',
         label: 'Performance',
-        icon: <LineChart className="h-4 w-4" />,
-        ariaLabel: 'Driver Performance Tab',
+        icon: <ChartLine className="h-4 w-4" />,
         content: (
           <ErrorBoundary>
             <PerformanceContent />
@@ -874,7 +851,6 @@ export default function DriversHub() {
         id: 'compliance',
         label: 'Compliance',
         icon: <Shield className="h-4 w-4" />,
-        ariaLabel: 'Driver Compliance Tab',
         content: (
           <ErrorBoundary>
             <ComplianceContent />
@@ -884,8 +860,7 @@ export default function DriversHub() {
       {
         id: 'assignments',
         label: 'Assignments',
-        icon: <Car className="h-4 w-4" />,
-        ariaLabel: 'Driver Assignments Tab',
+        icon: <CarProfile className="h-4 w-4" />,
         content: (
           <ErrorBoundary>
             <AssignmentsContent />

@@ -3,36 +3,32 @@
  * Real-time safety incident tracking and compliance monitoring
  */
 
-<<<<<<< HEAD
+import { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Shield, AlertTriangle, CheckCircle, Cross, FileText, TrendingUp, AlertCircle, Clipboard, Award, BarChart } from 'lucide-react'
-=======
 import {
   Shield,
   Warning,
   CheckCircle,
   FirstAid,
   FileText,
+  TrendUp,
   WarningCircle,
   ClipboardText,
   Certificate,
   ChartBar,
 } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
-
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
->>>>>>> fix/pipeline-eslint-build
 import HubPage from '@/components/ui/hub-page'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useReactiveSafetyComplianceData } from '@/hooks/use-reactive-safety-compliance-data'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { useReactiveSafetyComplianceData } from '@/hooks/use-reactive-safety-compliance-data'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 
 /**
  * Overview Tab - Safety stats, incident trends, compliance score, alerts
@@ -40,18 +36,53 @@ import { useReactiveSafetyComplianceData } from '@/hooks/use-reactive-safety-com
 function SafetyOverview() {
   const {
     metrics,
+    incidents,
+    violations,
     criticalIncidents,
-    incidentTrendData,
-    incidentSeverityDistribution,
-    violationTypeDistribution,
     isLoading,
     lastUpdate,
   } = useReactiveSafetyComplianceData()
 
+  // Compute incident severity distribution
+  const incidentSeverityDistribution = useMemo(() => {
+    const distribution: Record<string, number> = { low: 0, medium: 0, high: 0, critical: 0 }
+    incidents.forEach((i) => {
+      distribution[i.severity] = (distribution[i.severity] || 0) + 1
+    })
+    return distribution
+  }, [incidents])
+
+  // Compute violation type distribution
+  const violationTypeDistribution = useMemo(() => {
+    const distribution: Record<string, number> = {}
+    violations.forEach((v) => {
+      distribution[v.type] = (distribution[v.type] || 0) + 1
+    })
+    return distribution
+  }, [violations])
+
+  // Compute incident trend data (last 7 days)
+  const incidentTrendData = useMemo(() => {
+    const trend: { name: string; value: number }[] = []
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date()
+      date.setDate(date.getDate() - i)
+      const dateStr = date.toLocaleDateString('en-US', { weekday: 'short' })
+      const dayStart = new Date(date.setHours(0, 0, 0, 0)).getTime()
+      const dayEnd = new Date(date.setHours(23, 59, 59, 999)).getTime()
+      const count = incidents.filter((inc) => {
+        const incDate = new Date(inc.reportedDate).getTime()
+        return incDate >= dayStart && incDate <= dayEnd
+      }).length
+      trend.push({ name: dateStr, value: count })
+    }
+    return trend
+  }, [incidents])
+
   // Prepare severity chart data
   const severityChartData = Object.entries(incidentSeverityDistribution).map(([name, value]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1),
-    value,
+    value: value as number,
     fill:
       name === 'critical'
         ? 'hsl(var(--destructive))'
@@ -65,7 +96,7 @@ function SafetyOverview() {
   // Prepare violations chart data
   const violationsChartData = Object.entries(violationTypeDistribution).map(([name, value]) => ({
     name,
-    value,
+    value: value as number,
   }))
 
   return (
@@ -88,7 +119,7 @@ function SafetyOverview() {
         <StatCard
           title="Total Incidents"
           value={metrics?.totalIncidents?.toString() || '0'}
-          icon={AlertCircle}
+          icon={WarningCircle}
           trend="neutral"
           description="All incidents"
           loading={isLoading}
@@ -96,23 +127,23 @@ function SafetyOverview() {
         <StatCard
           title="Open Cases"
           value={metrics?.openCases?.toString() || '0'}
-          icon={Clipboard}
+          icon={ClipboardText}
           trend={metrics && metrics.openCases > 5 ? 'down' : 'up'}
           description="Active investigations"
           loading={isLoading}
         />
         <StatCard
           title="Compliance Rate"
-          value={`${metrics?.complianceRate || 0}%`}
+          value={`${metrics?.complianceScore || 0}%`}
           icon={CheckCircle}
-          trend={metrics && metrics.complianceRate >= 95 ? 'up' : 'down'}
+          trend={metrics && metrics.complianceScore >= 95 ? 'up' : 'down'}
           description="Overall compliance"
           loading={isLoading}
         />
         <StatCard
           title="Training Completion"
           value={`${metrics?.trainingCompletion || 0}%`}
-          icon={Award}
+          icon={Certificate}
           trend={metrics && metrics.trainingCompletion >= 90 ? 'up' : 'down'}
           description="Safety training"
           loading={isLoading}
@@ -132,7 +163,7 @@ function SafetyOverview() {
         <StatCard
           title="OSHA Compliance"
           value={`${metrics?.oshaCompliance || 100}%`}
-          icon={Cross}
+          icon={FirstAid}
           trend="up"
           description="Workplace safety"
           loading={isLoading}
@@ -140,7 +171,7 @@ function SafetyOverview() {
         <StatCard
           title="Active Violations"
           value={metrics?.activeViolations?.toString() || '0'}
-          icon={AlertTriangle}
+          icon={Warning}
           trend={metrics && metrics.activeViolations > 0 ? 'down' : 'neutral'}
           description="Pending violations"
           loading={isLoading}
@@ -190,7 +221,7 @@ function SafetyOverview() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-red-500" />
+            <Warning className="h-5 w-5 text-red-500" />
             <CardTitle>Critical Incidents</CardTitle>
           </div>
           <CardDescription>High-severity incidents requiring immediate attention</CardDescription>
@@ -240,15 +271,23 @@ function IncidentsContent() {
   const {
     incidents,
     openIncidents,
-    incidentTypeDistribution,
     isLoading,
     lastUpdate,
   } = useReactiveSafetyComplianceData()
 
+  // Compute incident type distribution
+  const incidentTypeDistribution = useMemo(() => {
+    const distribution: Record<string, number> = {}
+    incidents.forEach((i) => {
+      distribution[i.type] = (distribution[i.type] || 0) + 1
+    })
+    return distribution
+  }, [incidents])
+
   // Prepare incident type chart data
   const typeChartData = Object.entries(incidentTypeDistribution).map(([name, value]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1),
-    value,
+    value: value as number,
   }))
 
   // Calculate status metrics
@@ -276,7 +315,7 @@ function IncidentsContent() {
         <StatCard
           title="Open Incidents"
           value={openIncidents.length.toString()}
-          icon={AlertCircle}
+          icon={WarningCircle}
           trend="neutral"
           description="Requires action"
           loading={isLoading}
@@ -284,7 +323,7 @@ function IncidentsContent() {
         <StatCard
           title="Under Investigation"
           value={investigatingCount.toString()}
-          icon={Clipboard}
+          icon={ClipboardText}
           trend="neutral"
           description="Active investigations"
           loading={isLoading}
@@ -395,15 +434,23 @@ function InspectionsContent() {
   const {
     inspections,
     metrics,
-    inspectionStatusDistribution,
     isLoading,
     lastUpdate,
   } = useReactiveSafetyComplianceData()
 
+  // Compute inspection status distribution
+  const inspectionStatusDistribution = useMemo(() => {
+    const distribution: Record<string, number> = { pending: 0, scheduled: 0, completed: 0, failed: 0 }
+    inspections.forEach((i) => {
+      distribution[i.status] = (distribution[i.status] || 0) + 1
+    })
+    return distribution
+  }, [inspections])
+
   // Prepare status chart data
   const statusChartData = Object.entries(inspectionStatusDistribution).map(([name, value]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1),
-    value,
+    value: value as number,
     fill:
       name === 'completed'
         ? 'hsl(var(--success))'
@@ -445,7 +492,7 @@ function InspectionsContent() {
         <StatCard
           title="Pending Inspections"
           value={metrics?.pendingInspections?.toString() || '0'}
-          icon={Clipboard}
+          icon={ClipboardText}
           trend="neutral"
           description="Scheduled/pending"
           loading={isLoading}
@@ -469,7 +516,7 @@ function InspectionsContent() {
         <StatCard
           title="OSHA Inspections"
           value={oshaInspections.toString()}
-          icon={Cross}
+          icon={FirstAid}
           trend="up"
           description="Workplace safety"
           loading={isLoading}
@@ -544,15 +591,23 @@ function CertificationsContent() {
     metrics,
     expiringCertifications,
     expiredCertifications,
-    certificationStatusDistribution,
     isLoading,
     lastUpdate,
   } = useReactiveSafetyComplianceData()
 
+  // Compute certification status distribution
+  const certificationStatusDistribution = useMemo(() => {
+    const distribution: Record<string, number> = { current: 0, expiring_soon: 0, expired: 0 }
+    certifications.forEach((c) => {
+      distribution[c.status] = (distribution[c.status] || 0) + 1
+    })
+    return distribution
+  }, [certifications])
+
   // Prepare status chart data
   const statusChartData = Object.entries(certificationStatusDistribution).map(([name, value]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1).replace('_', ' '),
-    value,
+    value: value as number,
     fill:
       name === 'current'
         ? 'hsl(var(--success))'
@@ -587,7 +642,7 @@ function CertificationsContent() {
         <StatCard
           title="CDL Licenses"
           value={cdlCount.toString()}
-          icon={Award}
+          icon={Certificate}
           trend="neutral"
           description="Commercial drivers"
           loading={isLoading}
@@ -595,7 +650,7 @@ function CertificationsContent() {
         <StatCard
           title="Medical Cards"
           value={medicalCards.toString()}
-          icon={Cross}
+          icon={FirstAid}
           trend="neutral"
           description="Medical certifications"
           loading={isLoading}
@@ -603,7 +658,7 @@ function CertificationsContent() {
         <StatCard
           title="Expiring Soon"
           value={metrics?.expiringCertifications?.toString() || '0'}
-          icon={AlertTriangle}
+          icon={Warning}
           trend={metrics && metrics.expiringCertifications > 5 ? 'down' : 'neutral'}
           description="Within 30 days"
           loading={isLoading}
@@ -611,7 +666,7 @@ function CertificationsContent() {
         <StatCard
           title="Expired"
           value={metrics?.expiredCertifications?.toString() || '0'}
-          icon={AlertCircle}
+          icon={WarningCircle}
           trend={metrics && metrics.expiredCertifications > 0 ? 'down' : 'neutral'}
           description="Needs renewal"
           loading={isLoading}
@@ -662,7 +717,7 @@ function CertificationsContent() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-amber-500" />
+            <Warning className="h-5 w-5 text-amber-500" />
             <CardTitle>Expiring Certifications</CardTitle>
           </div>
           <CardDescription>Certifications expiring within the next 30 days</CardDescription>
@@ -714,7 +769,7 @@ function CertificationsContent() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-red-500" />
+              <WarningCircle className="h-5 w-5 text-red-500" />
               <CardTitle>Expired Certifications</CardTitle>
             </div>
             <CardDescription>Certifications that require immediate renewal</CardDescription>
@@ -755,7 +810,7 @@ export default function SafetyComplianceHub() {
     {
       id: 'overview',
       label: 'Overview',
-      icon: <BarChart className="h-4 w-4" />,
+      icon: <ChartBar className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <SafetyOverview />
@@ -765,7 +820,7 @@ export default function SafetyComplianceHub() {
     {
       id: 'incidents',
       label: 'Incidents',
-      icon: <AlertTriangle className="h-4 w-4" />,
+      icon: <Warning className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <IncidentsContent />
@@ -775,7 +830,7 @@ export default function SafetyComplianceHub() {
     {
       id: 'inspections',
       label: 'Inspections',
-      icon: <Clipboard className="h-4 w-4" />,
+      icon: <ClipboardText className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <InspectionsContent />
@@ -785,7 +840,7 @@ export default function SafetyComplianceHub() {
     {
       id: 'certifications',
       label: 'Certifications',
-      icon: <Award className="h-4 w-4" />,
+      icon: <Certificate className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <CertificationsContent />

@@ -8,7 +8,6 @@
  * - Permission handling
  * - Notification customization
  */
-import logger from '@/utils/logger';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -23,16 +22,17 @@ export interface PushSubscriptionData {
   expirationTime?: number | null;
 }
 
-export interface CustomNotificationOptions {
+export interface NotificationOptions {
   title: string;
   body: string;
   icon?: string;
   badge?: string;
-  vibrate?: number[] | number;
+  image?: string;
+  vibrate?: number[];
   tag?: string;
   requireInteraction?: boolean;
   silent?: boolean;
-  data?: Record<string, unknown>;
+  data?: any;
   actions?: Array<{
     action: string;
     title: string;
@@ -105,7 +105,7 @@ export function areNotificationsEnabled(): boolean {
  */
 export async function requestNotificationPermission(): Promise<NotificationPermission> {
   if (!('Notification' in window)) {
-    logger.warn('[Push] Notifications not supported');
+    console.warn('[Push] Notifications not supported');
     return 'denied';
   }
 
@@ -116,17 +116,17 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
 
   // Permission already denied
   if (Notification.permission === 'denied') {
-    logger.warn('[Push] Notification permission denied');
+    console.warn('[Push] Notification permission denied');
     return 'denied';
   }
 
   // Request permission
   try {
     const permission = await Notification.requestPermission();
-    logger.info('[Push] Permission result:', permission);
+    console.log('[Push] Permission result:', permission);
     return permission;
   } catch (error) {
-    logger.error('[Push] Permission request failed:', error);
+    console.error('[Push] Permission request failed:', error);
     return 'denied';
   }
 }
@@ -135,10 +135,10 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
  * Show a local notification (doesn't require push subscription)
  */
 export async function showLocalNotification(
-  options: CustomNotificationOptions
+  options: NotificationOptions
 ): Promise<Notification | null> {
   if (!('Notification' in window)) {
-    logger.warn('[Push] Notifications not supported');
+    console.warn('[Push] Notifications not supported');
     return null;
   }
 
@@ -151,14 +151,12 @@ export async function showLocalNotification(
   }
 
   if (Notification.permission !== 'granted') {
-    logger.warn('[Push] Notification permission not granted');
+    console.warn('[Push] Notification permission not granted');
     return null;
   }
 
   try {
-    // Cast to any to allow extended notification options (vibrate, etc.)
-    // These are valid in most browsers but not in TypeScript's strict types
-    const notificationOptions: NotificationOptions & Record<string, unknown> = {
+    const notification = new Notification(options.title, {
       body: options.body,
       icon: options.icon || '/icons/icon-192.png',
       badge: options.badge || '/icons/badge-72.png',
@@ -167,14 +165,12 @@ export async function showLocalNotification(
       requireInteraction: options.requireInteraction || false,
       silent: options.silent || false,
       data: options.data,
-    };
+    } as globalThis.NotificationOptions);
 
-    const notification = new Notification(options.title, notificationOptions as NotificationOptions);
-
-    logger.info('[Push] Local notification shown');
+    console.log('[Push] Local notification shown');
     return notification;
   } catch (error) {
-    logger.error('[Push] Failed to show notification:', error);
+    console.error('[Push] Failed to show notification:', error);
     return null;
   }
 }
@@ -188,7 +184,7 @@ export async function showLocalNotification(
  */
 export async function subscribeToPushNotifications(): Promise<PushSubscriptionData | null> {
   if (!isPushSupported()) {
-    logger.warn('[Push] Push notifications not supported');
+    console.warn('[Push] Push notifications not supported');
     return null;
   }
 
@@ -200,20 +196,20 @@ export async function subscribeToPushNotifications(): Promise<PushSubscriptionDa
     let subscription = await registration.pushManager.getSubscription();
 
     if (subscription) {
-      logger.info('[Push] Already subscribed');
+      console.log('[Push] Already subscribed');
       return subscriptionToJSON(subscription);
     }
 
     // Request permission first
     const permission = await requestNotificationPermission();
     if (permission !== 'granted') {
-      logger.warn('[Push] Permission not granted');
+      console.warn('[Push] Permission not granted');
       return null;
     }
 
     // Create new subscription
     if (!VAPID_PUBLIC_KEY) {
-      logger.error('[Push] VAPID public key not configured');
+      console.error('[Push] VAPID public key not configured');
       return null;
     }
 
@@ -222,7 +218,7 @@ export async function subscribeToPushNotifications(): Promise<PushSubscriptionDa
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
     });
 
-    logger.info('[Push] Subscribed successfully');
+    console.log('[Push] Subscribed successfully');
 
     // Send subscription to server
     const subscriptionData = subscriptionToJSON(subscription);
@@ -230,7 +226,7 @@ export async function subscribeToPushNotifications(): Promise<PushSubscriptionDa
 
     return subscriptionData;
   } catch (error) {
-    logger.error('[Push] Subscription failed:', error);
+    console.error('[Push] Subscription failed:', error);
     return null;
   }
 }
@@ -253,7 +249,7 @@ export async function getCurrentSubscription(): Promise<PushSubscriptionData | n
 
     return subscriptionToJSON(subscription);
   } catch (error) {
-    logger.error('[Push] Failed to get subscription:', error);
+    console.error('[Push] Failed to get subscription:', error);
     return null;
   }
 }
@@ -271,7 +267,7 @@ export async function unsubscribeFromPushNotifications(): Promise<boolean> {
     const subscription = await registration.pushManager.getSubscription();
 
     if (!subscription) {
-      logger.info('[Push] No active subscription');
+      console.log('[Push] No active subscription');
       return true;
     }
 
@@ -279,7 +275,7 @@ export async function unsubscribeFromPushNotifications(): Promise<boolean> {
     const success = await subscription.unsubscribe();
 
     if (success) {
-      logger.info('[Push] Unsubscribed successfully');
+      console.log('[Push] Unsubscribed successfully');
 
       // Notify server
       await deleteSubscriptionFromServer(subscriptionToJSON(subscription));
@@ -287,7 +283,7 @@ export async function unsubscribeFromPushNotifications(): Promise<boolean> {
 
     return success;
   } catch (error) {
-    logger.error('[Push] Unsubscribe failed:', error);
+    console.error('[Push] Unsubscribe failed:', error);
     return false;
   }
 }
@@ -323,9 +319,9 @@ async function sendSubscriptionToServer(
       throw new Error(`Server responded with ${response.status}`);
     }
 
-    logger.info('[Push] Subscription sent to server');
+    console.log('[Push] Subscription sent to server');
   } catch (error) {
-    logger.error('[Push] Failed to send subscription to server:', error);
+    console.error('[Push] Failed to send subscription to server:', error);
     // Don't throw - subscription is still active locally
   }
 }
@@ -349,9 +345,9 @@ async function deleteSubscriptionFromServer(
       throw new Error(`Server responded with ${response.status}`);
     }
 
-    logger.info('[Push] Subscription deleted from server');
+    console.log('[Push] Subscription deleted from server');
   } catch (error) {
-    logger.error('[Push] Failed to delete subscription from server:', error);
+    console.error('[Push] Failed to delete subscription from server:', error);
   }
 }
 
@@ -371,10 +367,10 @@ export async function sendTestNotification(): Promise<boolean> {
       throw new Error(`Server responded with ${response.status}`);
     }
 
-    logger.info('[Push] Test notification sent');
+    console.log('[Push] Test notification sent');
     return true;
   } catch (error) {
-    logger.error('[Push] Failed to send test notification:', error);
+    console.error('[Push] Failed to send test notification:', error);
     return false;
   }
 }
@@ -422,7 +418,7 @@ export function setupNotificationHandlers(): void {
 
   navigator.serviceWorker.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'NOTIFICATION_CLICKED') {
-      logger.info('[Push] Notification clicked:', event.data);
+      console.log('[Push] Notification clicked:', event.data);
 
       // Handle notification click
       if (event.data.url) {
@@ -442,10 +438,10 @@ export async function requestPermissionWithUI(
   const permission = await requestNotificationPermission();
 
   if (permission === 'granted') {
-    logger.info('[Push] Permission granted');
+    console.log('[Push] Permission granted');
     if (onGranted) onGranted();
   } else {
-    logger.info('[Push] Permission denied or dismissed');
+    console.log('[Push] Permission denied or dismissed');
     if (onDenied) onDenied();
   }
 
@@ -457,7 +453,7 @@ export async function requestPermissionWithUI(
  */
 export async function initPushNotifications(): Promise<boolean> {
   if (!isPushSupported()) {
-    logger.warn('[Push] Push notifications not supported');
+    console.warn('[Push] Push notifications not supported');
     return false;
   }
 
@@ -469,7 +465,7 @@ export async function initPushNotifications(): Promise<boolean> {
     const currentSubscription = await getCurrentSubscription();
 
     if (currentSubscription) {
-      logger.info('[Push] Already subscribed and initialized');
+      console.log('[Push] Already subscribed and initialized');
       return true;
     }
 
@@ -479,10 +475,10 @@ export async function initPushNotifications(): Promise<boolean> {
       return true;
     }
 
-    logger.info('[Push] Initialization complete - waiting for user permission');
+    console.log('[Push] Initialization complete - waiting for user permission');
     return true;
   } catch (error) {
-    logger.error('[Push] Initialization failed:', error);
+    console.error('[Push] Initialization failed:', error);
     return false;
   }
 }

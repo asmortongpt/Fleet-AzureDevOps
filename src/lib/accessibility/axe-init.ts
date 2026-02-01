@@ -24,17 +24,9 @@ export async function initializeAxe() {
     try {
       const axe = await import('@axe-core/react');
 
-      // Configure axe-core
+      // Configure axe-core - Run rules that match WCAG 2.1 Level AA
       await axe.default(React, ReactDOM, 1000, {
-        // Run rules that match WCAG 2.1 Level AA
-        runOnly: {
-          type: 'tag',
-          values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'],
-        },
-        // Include all rules by default
-        rules: {},
-        // Report all issues, including those that need manual review
-        resultTypes: ['violations', 'incomplete'],
+        runOnly: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'],
       });
 
       axeInitialized = true;

@@ -2,13 +2,13 @@ import {
   Radio as RadioIcon,
   Mic,
   MicOff,
-  AlertTriangle,
-  Users as People,
-  Volume2 as VolumeUp,
-  VolumeX as VolumeOff,
-  Siren as Emergency,
-  Radar as Sensors
-} from 'lucide-react';
+  Warning,
+  People,
+  VolumeUp,
+  VolumeOff,
+  Emergency,
+  Sensors
+} from '@mui/icons-material';
 import {
   Box,
   Card,
@@ -89,7 +89,7 @@ export default function DispatchConsole() {
       logger.debug('PTT started:', transmissionId);
     },
     onTransmissionEnd: (audioBlob) => {
-      logger.debug('PTT ended, blob size:', { size: audioBlob.size });
+      logger.debug(`PTT ended, blob size: ${audioBlob.size}`);
       const transmissionId = ptt.currentTransmissionId;
       if (transmissionId) {
         // Convert blob to base64 and send
@@ -407,7 +407,7 @@ export default function DispatchConsole() {
           <Card elevation={3} sx={{ height: '100%' }}>
             <CardContent>
               <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} variant="fullWidth">
-                <Tab label="Alerts" icon={<AlertTriangle />} iconPosition="start" />
+                <Tab label="Alerts" icon={<Warning />} iconPosition="start" />
                 <Tab label="History" icon={<RadioIcon />} iconPosition="start" />
               </Tabs>
 

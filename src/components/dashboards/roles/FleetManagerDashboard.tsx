@@ -11,13 +11,6 @@
  * Design Philosophy: Clean, minimal, focused
  */
 
-<<<<<<< HEAD
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { AlertTriangle, Wrench, Users, FileText, Calendar, AlertCircle } from 'lucide-react';
-import toast from 'react-hot-toast';
-=======
 import {
   Warning,
   Wrench,
@@ -32,7 +25,6 @@ import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
->>>>>>> fix/pipeline-eslint-build
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';

@@ -28,7 +28,6 @@ import {
   alpha
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
-import logger from '@/utils/logger';
 
 interface VehicleEditFormProps {
   vehicle: Vehicle;
@@ -38,7 +37,7 @@ interface VehicleEditFormProps {
 
 const departmentOptions = [
   'Police Department',
-  'Flame Department',
+  'Fire Department',
   'Public Works',
   'Parks & Recreation',
   'Administration',
@@ -91,7 +90,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
     setFormData(vehicle);
   }, [vehicle]);
 
-  const handleChange = (field: string, value: unknown): void => {
+  const handleChange = (field: string, value: any) => {
     setFormData((prev: Vehicle) => ({
       ...prev,
       [field]: value
@@ -105,11 +104,11 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
     }
   };
 
-  const handleNestedChange = (parent: string, field: string, value: unknown): void => {
+  const handleNestedChange = (parent: string, field: string, value: any) => {
     setFormData((prev: Vehicle) => ({
       ...prev,
       [parent]: {
-        ...(prev[parent as keyof Vehicle] as Record<string, unknown>),
+        ...prev[parent as keyof Vehicle] as any,
         [field]: value
       }
     }));
@@ -149,13 +148,13 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
       onSave(formData);
     } catch (error) {
-      logger.error('Error saving vehicle:', error);
+      console.error('Error saving vehicle:', error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleFeatureToggle = (feature: string): void => {
+  const handleFeatureToggle = (feature: string) => {
     const currentFeatures = formData.features || [];
     const newFeatures = currentFeatures.includes(feature)
       ? currentFeatures.filter((f: string) => f !== feature)
@@ -172,7 +171,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
 
       <Grid container spacing={3}>
         {/* Basic Information */}
-        <Grid size={{ xs: 12 }}>
+        <Grid size={12}>
           <Card elevation={0} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.02) }}>
             <CardContent>
               <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
@@ -250,7 +249,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
         </Grid>
 
         {/* Status and Assignment */}
-        <Grid size={{ xs: 12 }}>
+        <Grid size={12}>
           <Card elevation={0} sx={{ bgcolor: alpha(theme.palette.secondary.main, 0.02) }}>
             <CardContent>
               <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
@@ -345,7 +344,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
         </Grid>
 
         {/* Fuel and Battery Information */}
-        <Grid size={{ xs: 12 }}>
+        <Grid size={12}>
           <Card elevation={0} sx={{ bgcolor: alpha(theme.palette.success.main, 0.02) }}>
             <CardContent>
               <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
@@ -424,7 +423,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
         </Grid>
 
         {/* Features */}
-        <Grid size={{ xs: 12 }}>
+        <Grid size={12}>
           <Card elevation={0} sx={{ bgcolor: alpha(theme.palette.warning.main, 0.02) }}>
             <CardContent>
               <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
@@ -465,7 +464,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
         </Grid>
 
         {/* Location Information */}
-        <Grid size={{ xs: 12 }}>
+        <Grid size={12}>
           <Card elevation={0} sx={{ bgcolor: alpha(theme.palette.info.main, 0.02) }}>
             <CardContent>
               <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
@@ -506,7 +505,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
 
         {/* Form Status */}
         {Object.keys(errors).length > 0 && (
-          <Grid size={{ xs: 12 }}>
+          <Grid size={12}>
             <Alert severity="error">
               Please correct the following errors:
               <ul style={{ margin: '8px 0 0 16px' }}>

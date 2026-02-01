@@ -6,10 +6,14 @@
  */
 
 import * as Sentry from '@sentry/react';
-import { BrowserTracing } from '@sentry/tracing';
+import {
+  browserTracingIntegration,
+  replayIntegration,
+  getClient,
+} from '@sentry/react';
+import type { Span } from '@sentry/core';
 
 import type { User } from '@/types';
-import logger from '@/utils/logger';
 
 /**
  * Sentry Configuration
@@ -47,7 +51,7 @@ export function initSentry(config: Partial<SentryConfig> = {}): void {
 
   if (!finalConfig.enabled || !finalConfig.dsn) {
     if (import.meta.env.DEV) {
-      logger.info('[Sentry] Not initialized - disabled or missing DSN');
+      console.log('[Sentry] Not initialized - disabled or missing DSN');
     }
     return;
   }
@@ -61,26 +65,13 @@ export function initSentry(config: Partial<SentryConfig> = {}): void {
 
       // Performance Monitoring
       integrations: [
-        new BrowserTracing({
-          // Set custom tracing origins
-          tracingOrigins: [
-            'localhost',
-            /^https:\/\/api\.fleet-management\.com/,
-            /^https:\/\/.*\.azurewebsites\.net/,
-          ],
-          // @ts-expect-error - Sentry v8 API changes - reactRouterV6Instrumentation signature changed
-          // Enable automatic route tracking
-          routingInstrumentation: Sentry.reactRouterV6Instrumentation(
-            React.useEffect,
-            // @ts-ignore - useLocation and useNavigationType will be provided by React Router
-            window.location,
-            window.history
-          ),
+        browserTracingIntegration({
+          // Enable automatic route tracking for SPA navigation
+          enableInp: true,
         }),
 
-        // @ts-expect-error - Sentry v8 API changes - Replay integration signature changed
         // Session Replay
-        new Sentry.Replay({
+        replayIntegration({
           maskAllText: true, // Mask all text for privacy
           blockAllMedia: true, // Block all media (images, videos) for privacy
           maskAllInputs: true, // Mask all input values
@@ -225,12 +216,12 @@ export function initSentry(config: Partial<SentryConfig> = {}): void {
     });
 
     if (import.meta.env.DEV) {
-      logger.info('[Sentry] Initialized successfully');
-      logger.info('[Sentry] Environment:', finalConfig.environment);
-      logger.info('[Sentry] Release:', finalConfig.release);
+      console.log('[Sentry] Initialized successfully');
+      console.log('[Sentry] Environment:', finalConfig.environment);
+      console.log('[Sentry] Release:', finalConfig.release);
     }
   } catch (error) {
-    logger.error('[Sentry] Failed to initialize:', error instanceof Error ? error : new Error(String(error)));
+    console.error('[Sentry] Failed to initialize:', error);
   }
 }
 
@@ -317,14 +308,13 @@ export function addBreadcrumb(
 }
 
 /**
- * Start a transaction for performance monitoring
+ * Start a span for performance monitoring
  */
-export function startTransaction(
+export function startSpanForOperation(
   name: string,
   op: string
-): any | undefined {
-  // @ts-expect-error - Sentry v8 API changes - startTransaction deprecated, use startSpan instead
-  return Sentry.startTransaction({
+): Span | undefined {
+  return Sentry.startInactiveSpan({
     name,
     op,
   });
@@ -337,7 +327,7 @@ export function measurePerformance<T>(
   name: string,
   fn: () => T | Promise<T>
 ): T | Promise<T> {
-  const transaction = startTransaction(name, 'function');
+  const span = startSpanForOperation(name, 'function');
 
   try {
     const result = fn();
@@ -345,15 +335,15 @@ export function measurePerformance<T>(
     // Handle async functions
     if (result instanceof Promise) {
       return result.finally(() => {
-        transaction?.finish();
+        span?.end();
       }) as T;
     }
 
-    transaction?.finish();
+    span?.end();
     return result;
   } catch (error) {
-    transaction?.setStatus('internal_error');
-    transaction?.finish();
+    span?.setStatus({ code: 2, message: 'internal_error' });
+    span?.end();
     throw error;
   }
 }
@@ -380,7 +370,7 @@ export async function flushSentry(timeout: number = 2000): Promise<boolean> {
   try {
     return await Sentry.flush(timeout);
   } catch (error) {
-    logger.error('[Sentry] Failed to flush events:', error instanceof Error ? error : new Error(String(error)));
+    console.error('[Sentry] Failed to flush events:', error);
     return false;
   }
 }
@@ -392,7 +382,7 @@ export async function closeSentry(timeout: number = 2000): Promise<boolean> {
   try {
     return await Sentry.close(timeout);
   } catch (error) {
-    logger.error('[Sentry] Failed to close:', error instanceof Error ? error : new Error(String(error)));
+    console.error('[Sentry] Failed to close:', error);
     return false;
   }
 }
@@ -401,8 +391,7 @@ export async function closeSentry(timeout: number = 2000): Promise<boolean> {
  * Check if Sentry is enabled
  */
 export function isSentryEnabled(): boolean {
-  // @ts-expect-error - Sentry v8 API changes - getCurrentHub deprecated, use getClient instead
-  const client = Sentry.getCurrentHub().getClient();
+  const client = getClient();
   return !!client;
 }
 
@@ -410,8 +399,7 @@ export function isSentryEnabled(): boolean {
  * Get Sentry DSN (for reporting to backend)
  */
 export function getSentryDSN(): string | undefined {
-  // @ts-expect-error - Sentry v8 API changes - getCurrentHub deprecated, use getClient instead
-  const client = Sentry.getCurrentHub().getClient();
+  const client = getClient();
   return client?.getDsn()?.toString();
 }
 
@@ -463,7 +451,7 @@ export class SentryPerformanceMarks {
         );
       }
     } catch (error) {
-      logger.warn('[Sentry] Failed to measure performance:', { error });
+      console.warn('[Sentry] Failed to measure performance:', error);
     }
   }
 

@@ -3,11 +3,8 @@
  * Real-time policy tracking, compliance monitoring, and procedure management with responsive visualizations
  */
 
-<<<<<<< HEAD
 import { motion } from 'framer-motion'
 import { Suspense } from 'react'
-import { BookOpen as PolicyIcon, FileText, Shield, Bell, AlertTriangle, CheckCircle, RotateCcw, Award, Plus, Users, TrendingUp, CalendarCheck } from 'lucide-react'
-=======
 import {
   BookOpen as PolicyIcon,
   FileText,
@@ -22,22 +19,18 @@ import {
   TrendUp,
   CalendarCheck,
 } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
-import { Suspense } from 'react'
-
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
->>>>>>> fix/pipeline-eslint-build
 import HubPage from '@/components/ui/hub-page'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useReactivePolicyData } from '@/hooks/use-reactive-policy-data'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { useReactivePolicyData } from '@/hooks/use-reactive-policy-data'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 
 /**
  * Overview Tab - Policy metrics and status overview
@@ -112,7 +105,7 @@ function PolicyOverview() {
           value={metrics?.activePolicies?.toString() || '0'}
           icon={CheckCircle}
           trend="up"
-          change={+5}
+          change={5}
           description="Currently enforced"
           loading={isLoading}
         />
@@ -121,14 +114,14 @@ function PolicyOverview() {
           value={`${metrics?.acknowledgementRate || 0}%`}
           icon={Users}
           trend="up"
-          change="+3%"
+          change={3}
           description="Employee adoption"
           loading={isLoading}
         />
         <StatCard
           title="Violations"
           value={metrics?.totalViolations?.toString() || '0'}
-          icon={AlertTriangle}
+          icon={Warning}
           trend="down"
           change={-2}
           description="Policy violations"
@@ -211,7 +204,7 @@ function PolicyOverview() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-red-500" />
+                <Warning className="h-5 w-5 text-red-500" />
                 <CardTitle>Policies with Violations</CardTitle>
               </div>
               <CardDescription>Policies requiring attention</CardDescription>
@@ -302,7 +295,7 @@ function PoliciesContent() {
         <StatCard
           title="Under Review"
           value={underReviewPolicies.length.toString()}
-          icon={RotateCcw}
+          icon={ClockCounterClockwise}
           trend="neutral"
           description="Pending approval"
           loading={isLoading}
@@ -422,18 +415,18 @@ function ComplianceContent() {
         <StatCard
           title="Avg Compliance Score"
           value={`${metrics?.avgComplianceScore || 0}%`}
-          icon={TrendingUp}
+          icon={TrendUp}
           trend="up"
-          change="+2%"
+          change={2}
           description="Overall compliance"
           loading={isLoading}
         />
         <StatCard
           title="Acknowledgement Rate"
           value={`${metrics?.acknowledgementRate || 0}%`}
-          icon={Award}
+          icon={Certificate}
           trend="up"
-          change="+3%"
+          change={3}
           description="Employee adoption"
           loading={isLoading}
         />
@@ -442,14 +435,14 @@ function ComplianceContent() {
           value={`${metrics?.trainingCompletionRate || 0}%`}
           icon={Users}
           trend="up"
-          change="+1%"
+          change={1}
           description="Training complete"
           loading={isLoading}
         />
         <StatCard
           title="Total Violations"
           value={metrics?.totalViolations?.toString() || '0'}
-          icon={AlertTriangle}
+          icon={Warning}
           trend="down"
           change={-5}
           description="Policy violations"
@@ -463,7 +456,8 @@ function ComplianceContent() {
         <ResponsiveLineChart
           title="Weekly Compliance Trend"
           description="Acknowledgement and training completion rates over time"
-          data={complianceTrendData}
+          data={complianceTrendData.map(d => ({ ...d, value: d.acknowledgement }))}
+          dataKeys={['acknowledgement', 'training', 'violations']}
           height={300}
           showArea
           loading={isLoading}
@@ -473,7 +467,8 @@ function ComplianceContent() {
         <ResponsiveBarChart
           title="Policy Adoption by Category"
           description="Employee adoption rates across policy categories"
-          data={adoptionByCategory}
+          data={adoptionByCategory.map(d => ({ ...d, value: d.rate }))}
+          dataKey="rate"
           height={300}
           loading={isLoading}
         />
@@ -484,7 +479,7 @@ function ComplianceContent() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              <Warning className="h-5 w-5 text-amber-500" />
               <CardTitle>Low Compliance Policies</CardTitle>
             </div>
             <CardDescription>Policies with acknowledgement rates below 80%</CardDescription>
@@ -645,7 +640,7 @@ function UpdatesContent() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <RotateCcw className="h-5 w-5 text-blue-500" />
+            <ClockCounterClockwise className="h-5 w-5 text-blue-500" />
             <CardTitle>Recent Activity</CardTitle>
           </div>
           <CardDescription>Latest policy changes and updates</CardDescription>

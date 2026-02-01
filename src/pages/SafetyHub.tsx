@@ -3,14 +3,6 @@
  * Real-time safety monitoring with comprehensive analytics
  */
 
-<<<<<<< HEAD
-import { motion } from 'framer-motion'
-import { Suspense } from 'react'
-import { ShieldCheck, AlertTriangle, BarChart, Users, Car, GraduationCap, Bell, TrendingUp, TrendingDown, Clipboard, Award, AlertCircle, Cross, FileText, CheckCircle } from 'lucide-react'
-import HubPage from '@/components/ui/hub-page'
-import { useReactiveSafetyData } from '@/hooks/use-reactive-safety-data'
-import { useReactiveSafetyComplianceData } from '@/hooks/use-reactive-safety-compliance-data'
-=======
 import {
   ShieldCheck,
   Warning,
@@ -31,7 +23,6 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
 import { Skeleton } from '@/components/ui/skeleton'
->>>>>>> fix/pipeline-eslint-build
 import {
   StatCard,
   ResponsiveBarChart,
@@ -163,7 +154,7 @@ function SafetyOverview() {
       <ResponsiveLineChart
         title="Incident Trend (Last 7 Days)"
         description="Daily incident tracking across all categories"
-        data={incidentTrendData}
+        data={incidentTrendData.map(d => ({ ...d, value: d.total }))}
         height={300}
         showArea
         loading={isLoading}
@@ -291,6 +282,7 @@ function DriverSafetyTab() {
   // Top drivers by violation count for chart
   const violationChartData = topRiskDrivers.slice(0, 10).map((driver) => ({
     name: driver.driverName.split(' ')[0],
+    value: driver.violationCount,
     violations: driver.violationCount,
     incidents: driver.incidentCount,
   }))
@@ -346,7 +338,6 @@ function DriverSafetyTab() {
         data={violationChartData}
         height={350}
         loading={isLoading}
-        dataKeys={['violations', 'incidents']}
       />
 
       {/* Risk Drivers Table */}
@@ -377,14 +368,14 @@ function DriverSafetyTab() {
                         <p className="font-semibold">{driver.driverName}</p>
                         <Badge
                           variant={
-                            driver.safetyScore >= 75
+                            driver.safetyScore.overall >= 75
                               ? 'secondary'
-                              : driver.safetyScore >= 60
+                              : driver.safetyScore.overall >= 60
                                 ? 'warning'
                                 : 'destructive'
                           }
                         >
-                          Score: {driver.safetyScore}
+                          Score: {driver.safetyScore.overall}
                         </Badge>
                       </div>
                       <div className="mt-2 grid grid-cols-3 gap-4 text-sm">
@@ -701,10 +692,9 @@ function TrainingTab() {
       <ResponsiveBarChart
         title="Training Completion by Category"
         description="Completion rates across all safety training programs"
-        data={trainingCategoryData}
+        data={trainingCategoryData.map(d => ({ ...d, value: d.completion }))}
         height={300}
         loading={isLoading}
-        dataKeys={['completion']}
       />
 
       {/* Overdue Training Alerts */}

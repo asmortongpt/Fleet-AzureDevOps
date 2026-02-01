@@ -4,14 +4,8 @@
  */
 
 import { motion } from 'framer-motion'
-<<<<<<< HEAD
-import { useState } from 'react'
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, Sector } from 'recharts'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-=======
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
 
->>>>>>> fix/pipeline-eslint-build
 import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -201,17 +195,17 @@ export function ResponsivePieChart({
                   ))}
                 </defs>
                 <Pie
-                  data={data}
+                  data={data as unknown as Record<string, unknown>[]}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
                   label={showPercentages ? ({
                     cx,
                     cy,
-                    midAngle,
+                    midAngle = 0,
                     innerRadius,
                     outerRadius,
-                    percent,
+                    percent = 0,
                   }) => {
                     if (percent < 0.05) return null // Don't show label for small slices
                     const RADIAN = Math.PI / 180

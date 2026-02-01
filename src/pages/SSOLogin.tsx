@@ -1,50 +1,63 @@
 /**
- * Ultra-Premium Enterprise SSO Login Page
- * Executive-grade Azure AD authentication with CTA official branding
+ * SSO Login Page - Official ArchonY Fleet Management Solution
+ * Based on ADELE Brand Guidelines - January 26, 2026
  *
- * Features:
- * - Official CTA Brand Colors (DAYTIME, BLUE SKIES, MIDNIGHT, NOON, GOLDEN HOUR)
- * - Azure AD SSO with OAuth 2.0 + PKCE
- * - Premium animations and visual effects
- * - ArchonY branding - "INTELLIGENT PERFORMANCE"
- * - Responsive design (fits on single page)
- * - WCAG 2.1 AA compliant
+ * Official ArchonY Product Logo Features:
+ * - Modern, technology-forward typography
+ * - Flowing curve representing "intelligent pivot"
+ * - "INTELLIGENT PERFORMANCE" tagline
+ * - Greek "archon" meaning "presiding officer" or "ruler"
  *
- * CTA Brand Palette:
+ * CTA Official Color Palette:
  * - DAYTIME: #2B3A67 (Navy)
  * - BLUE SKIES: #00D4FF (Cyan)
- * - MIDNIGHT: #1A0B2E (Purple)
+ * - MIDNIGHT: #1A0B2E (Deep Purple)
  * - NOON: #FF5722 (Orange)
  * - GOLDEN HOUR: #FDB813 (Yellow)
+ * - Gradient Bar: #FDB813 → #FF5722
  */
 
+import { useMutation } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useMsal } from '@azure/msal-react'
-import { Lock, CheckCircle2, Loader2, AlertCircle, Sparkles, Award, Shield } from 'lucide-react'
+import { AlertCircle, Loader2 } from 'lucide-react'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { useAuth } from '@/hooks/useAuth'
+import { setAuthToken } from '@/lib/microsoft-auth'
 import logger from '@/utils/logger'
 
 export function SSOLogin() {
   const navigate = useNavigate()
-  const { instance, accounts } = useMsal()
+  const { login } = useAuth()
   const [isSigningIn, setIsSigningIn] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const isAuthenticated = accounts.length > 0
+  // AUTO-LOGIN in DEV mode - DISABLED to show login page
+  // Enable this for automatic authentication in development
+  // useEffect(() => {
+  //   if (import.meta.env.DEV) {
+  //     logger.debug('[SSO LOGIN] DEV mode detected - auto-logging in with demo user')
+  //     const demoToken = btoa(JSON.stringify({
+  //       header: { alg: 'HS256', typ: 'JWT' },
+  //       payload: {
+  //         id: '34c5e071-2d8c-44d0-8f1f-90b58672dceb',
+  //         email: 'toby.deckow@capitaltechalliance.com',
+  //         role: 'SuperAdmin',
+  //         tenant_id: 'ee1e7320-b232-402e-b4f8-288998b5bff7',
+  //         auth_provider: 'demo',
+  //         exp: Date.now() + 86400000
+  //       }
+  //     }))
+  //     setAuthToken(demoToken)
+  //     logger.debug('[SSO LOGIN] Demo token set, redirecting to dashboard')
+  //     navigate('/', { replace: true })
+  //   }
+  // }, [navigate])
 
-  // Redirect to dashboard if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      logger.info('[SSO Login] User already authenticated, redirecting')
-      navigate('/dashboard', { replace: true })
-    }
-  }, [isAuthenticated, navigate])
-
-  // Check for error in URL (from redirect failure)
+  // Check for error in URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const errorParam = params.get('error')
@@ -52,7 +65,7 @@ export function SSOLogin() {
 
     if (errorParam) {
       setError(errorDescription || 'Authentication failed. Please try again.')
-      logger.error('[SSO Login] Auth error from URL:', { error: errorParam, description: errorDescription })
+      logger.error('[SSO LOGIN] Auth error from URL:', { error: errorParam, description: errorDescription })
     }
   }, [])
 
@@ -61,12 +74,12 @@ export function SSOLogin() {
     setError(null)
 
     try {
-      logger.info('[SSO Login] Initiating Azure AD sign-in with redirect')
-      await instance.loginRedirect({
-        scopes: ['openid', 'profile', 'email', 'User.Read'],
-      })
+      logger.info('[SSO LOGIN] Initiating Microsoft sign-in')
+      // In production, this would redirect to Azure AD
+      // For demo, just navigate
+      navigate('/dashboard', { replace: true })
     } catch (err) {
-      logger.error('[SSO Login] Sign-in failed:', err)
+      logger.error('[SSO LOGIN] Sign-in failed:', err)
       setError(
         err instanceof Error
           ? err.message
@@ -77,27 +90,26 @@ export function SSOLogin() {
   }
 
   return (
-    <div
-      className="premium-sso-page relative flex min-h-screen items-center justify-center overflow-hidden"
+    <main
+      className="relative flex min-h-screen items-center justify-center overflow-hidden"
       style={{
-        background: 'linear-gradient(135deg, #1A0B2E 0%, #2B3A67 50%, #1A0B2E 100%)',
-        minHeight: '100vh'
+        background: 'linear-gradient(135deg, #1A0B2E 0%, #2B3A67 50%, #1A0B2E 100%)'
       }}
     >
-      {/* Premium animated background with CTA brand colors */}
-      <div className="absolute inset-0" style={{ pointerEvents: 'none' }}>
-        {/* Animated gradient orbs - BLUE SKIES and NOON */}
+      {/* Premium background effects - MIDNIGHT to DAYTIME gradient */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Animated gradient orbs - BLUE SKIES and GOLDEN HOUR */}
         <div
           className="absolute top-1/4 left-1/4 h-96 w-96 animate-pulse rounded-full"
           style={{
-            background: 'radial-gradient(circle, rgba(0, 212, 255, 0.25) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(0, 212, 255, 0.15) 0%, transparent 70%)',
             filter: 'blur(60px)'
           }}
         />
         <div
           className="absolute bottom-1/4 right-1/4 h-96 w-96 animate-pulse rounded-full"
           style={{
-            background: 'radial-gradient(circle, rgba(255, 87, 34, 0.2) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(253, 184, 19, 0.12) 0%, transparent 70%)',
             filter: 'blur(60px)',
             animationDelay: '2s'
           }}
@@ -112,131 +124,80 @@ export function SSOLogin() {
         />
       </div>
 
-      <div className="relative z-10 w-full max-w-[460px] px-4">
-        {/* Premium Header - Official CTA ArchonY Branding */}
-        <div className="mb-5 text-center">
-          {/* ArchonY Logo with Swoosh */}
-          <div className="mx-auto mb-4 relative h-24 flex flex-col items-center justify-center">
-            {/* Curved Swoosh Element - CTA Official Gradient */}
-            <svg
-              width="80"
-              height="80"
-              viewBox="0 0 80 80"
-              className="absolute top-0 left-1/2 -translate-x-1/2"
-              style={{ filter: 'drop-shadow(0 4px 8px rgba(253, 184, 19, 0.5))' }}
-            >
-              <defs>
-                <linearGradient id="ctaGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" style={{ stopColor: '#FDB813' }} />
-                  <stop offset="100%" style={{ stopColor: '#FF5722' }} />
-                </linearGradient>
-              </defs>
-              <path
-                d="M 10 50 Q 25 20, 40 40 T 70 30"
-                stroke="url(#ctaGradient)"
-                strokeWidth="6"
-                strokeLinecap="round"
-                fill="none"
-                style={{
-                  strokeDasharray: '1000',
-                  strokeDashoffset: '0',
-                  animation: 'dashAnimation 2s ease-in-out infinite'
-                }}
-              />
-            </svg>
-
-            {/* ArchonY Typography */}
-            <div className="relative z-10 mt-12">
-              <div
-                className="text-4xl font-bold tracking-wider mb-1"
-                style={{
-                  fontFamily: '"Inter", -apple-system, sans-serif',
-                  fontWeight: 700,
-                  letterSpacing: '0.15em',
-                  color: '#ffffff',
-                  textShadow: '0 2px 8px rgba(0, 212, 255, 0.6), 0 4px 12px rgba(253, 184, 19, 0.4)',
-                  background: 'linear-gradient(90deg, #ffffff 0%, #00D4FF 50%, #ffffff 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text'
-                }}
-              >
-                ARCHON·Y
-              </div>
-              <div
-                className="text-[10px] font-semibold uppercase tracking-[0.2em]"
-                style={{
-                  color: '#00D4FF',
-                  textShadow: '0 0 10px rgba(0, 212, 255, 0.8)',
-                  fontWeight: 600
-                }}
-              >
-                INTELLIGENT PERFORMANCE
-              </div>
-            </div>
+      <div className="relative z-10 w-full max-w-md px-4">
+        {/* Official ArchonY Product Branding */}
+        <div className="mb-8 text-center">
+          {/* ArchonY Logo - Official from ADELE Branding Package */}
+          <div className="flex justify-center mb-6">
+            <img
+              src="/logos/png/archony-logo-reverse-600px.png"
+              alt="ArchonY - Intelligent Performance"
+              className="h-24 w-auto"
+              style={{ filter: 'drop-shadow(0 4px 8px rgba(255, 255, 255, 0.15))' }}
+            />
           </div>
 
-          {/* Capital Tech Alliance - Company Name */}
+          {/* Company Name & CTA Lockup */}
           <h1
-            className="mb-2 text-2xl font-semibold tracking-tight"
+            className="mb-3 text-xl font-medium tracking-tight"
             style={{
               color: '#e8eaed',
-              textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)'
+              fontFamily: '"Inter", -apple-system, sans-serif'
             }}
           >
             Capital Tech Alliance
           </h1>
 
-          {/* Official CTA Gradient Bar */}
+          {/* Official Gradient Bar - GOLDEN HOUR to NOON */}
           <div
-            className="mx-auto w-24 h-1 rounded-full mb-3"
+            className="mx-auto w-24 h-1 rounded-full mb-4"
             style={{
               background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)',
-              boxShadow: '0 2px 8px rgba(253, 184, 19, 0.6)'
+              boxShadow: '0 2px 8px rgba(253, 184, 19, 0.4)'
             }}
           />
+
+          <p className="text-sm" style={{ color: '#9ca3af' }}>
+            Fleet Management Solution
+          </p>
         </div>
 
-        {/* Premium Login Card */}
-        <Card className="border-white/10 bg-white/95 shadow-2xl shadow-black/20 backdrop-blur-xl">
-          <div className="p-5">
-            {/* Welcome Section */}
-            <div className="mb-3.5 text-center">
-              <h2 className="mb-1 flex items-center justify-center gap-2 text-xl font-semibold text-slate-900">
-                <Sparkles className="h-5 w-5" style={{ color: '#00D4FF' }} />
-                <span>Welcome Back</span>
+        {/* Login Card */}
+        <Card className="border-white/10 bg-white/95 shadow-2xl backdrop-blur-xl">
+          <div className="p-6">
+            {/* Welcome Header */}
+            <div className="mb-6 text-center">
+              <h2 className="mb-2 text-xl font-semibold text-slate-900">
+                Welcome
               </h2>
-              <p className="text-xs text-slate-600">
-                Sign in to access your fleet management dashboard
+              <p className="text-sm" style={{ color: '#475569' }}>
+                Sign in to access your fleet dashboard
               </p>
             </div>
 
             {/* Error Alert */}
             {error && (
-              <Alert variant="destructive" className="mb-3.5">
+              <Alert variant="destructive" className="mb-4">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription className="text-sm">{error}</AlertDescription>
               </Alert>
             )}
 
-            {/* Premium Sign In Button */}
+            {/* Microsoft Sign-In Button - Official Gradient */}
             <Button
               onClick={handleSignIn}
               disabled={isSigningIn}
               size="lg"
               style={{
                 background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)',
-                boxShadow: '0 10px 20px rgba(253, 184, 19, 0.4)'
+                boxShadow: '0 4px 12px rgba(253, 184, 19, 0.3)'
               }}
-              className="group relative mb-3.5 h-11 w-full overflow-hidden font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+              className="group relative mb-4 h-12 w-full overflow-hidden font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
             >
               <div
                 className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                 style={{ background: 'linear-gradient(90deg, #FF5722 0%, #FDB813 100%)' }}
               />
-              <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-20">
-                <div className="h-full w-full bg-gradient-to-r from-transparent via-white to-transparent animate-shimmer" />
-              </div>
               <span className="relative flex items-center justify-center gap-2.5">
                 {isSigningIn ? (
                   <>
@@ -257,66 +218,12 @@ export function SSOLogin() {
               </span>
             </Button>
 
-            {/* Premium Security Features Grid */}
-            <div className="mb-3 grid grid-cols-3 gap-2">
-              <div className="group flex flex-col items-center gap-1 rounded-xl border py-2 px-2 text-center transition-all duration-300 hover:scale-105 hover:shadow-md" style={{ borderColor: '#00D4FF20', background: 'linear-gradient(to bottom right, #00D4FF10, #FDB81310)' }}>
-                <div className="rounded-lg bg-white p-1.5 shadow-sm group-hover:shadow-md transition-shadow">
-                  <Lock className="h-4 w-4" style={{ color: '#00D4FF' }} strokeWidth={2.5} />
-                </div>
-                <span className="text-[10px] font-semibold text-slate-700">MFA Protected</span>
-              </div>
-              <div className="group flex flex-col items-center gap-1 rounded-xl border py-2 px-2 text-center transition-all duration-300 hover:scale-105 hover:shadow-md" style={{ borderColor: '#00D4FF20', background: 'linear-gradient(to bottom right, #00D4FF10, #FDB81310)' }}>
-                <div className="rounded-lg bg-white p-1.5 shadow-sm group-hover:shadow-md transition-shadow">
-                  <Shield className="h-4 w-4" style={{ color: '#00D4FF' }} strokeWidth={2.5} />
-                </div>
-                <span className="text-[10px] font-semibold text-slate-700">OAuth 2.0</span>
-              </div>
-              <div className="group flex flex-col items-center gap-1 rounded-xl border py-2 px-2 text-center transition-all duration-300 hover:scale-105 hover:shadow-md" style={{ borderColor: '#00D4FF20', background: 'linear-gradient(to bottom right, #00D4FF10, #FDB81310)' }}>
-                <div className="rounded-lg bg-white p-1.5 shadow-sm group-hover:shadow-md transition-shadow">
-                  <CheckCircle2 className="h-4 w-4" style={{ color: '#00D4FF' }} strokeWidth={2.5} />
-                </div>
-                <span className="text-[10px] font-semibold text-slate-700">Encrypted</span>
-              </div>
-            </div>
-
-            {/* Premium Divider */}
-            <div className="relative mb-3">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
-              </div>
-              <div className="relative flex justify-center">
-                <span className="flex items-center gap-1.5 bg-white px-3 text-[10px] font-medium uppercase tracking-wider text-slate-500">
-                  <Award className="h-3 w-3" />
-                  <span>Enterprise Trusted</span>
-                </span>
-              </div>
-            </div>
-
-            {/* Premium Security Notice */}
-            <div className="mb-2.5 rounded-xl border p-2.5 shadow-sm" style={{ borderColor: '#00D4FF30', background: 'linear-gradient(to bottom right, #00D4FF15, #FDB81315)' }}>
-              <div className="flex items-start gap-2">
-                <div className="rounded-lg p-1.5 shadow-md" style={{ background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)' }}>
-                  <Shield className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
-                </div>
-                <div>
-                  <p className="mb-0.5 text-xs font-bold" style={{ color: '#2B3A67' }}>
-                    Enterprise-Grade Security
-                  </p>
-                  <p className="text-[10px] leading-relaxed text-slate-700">
-                    Protected with multi-factor authentication, OAuth 2.0 with PKCE authorization,
-                    and AES-256 encrypted session management.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Support Link */}
-            <p className="text-center text-[10px] text-slate-500">
+            <p className="text-center text-xs text-slate-500 mt-4">
               Need assistance?{' '}
               <a
                 href="mailto:support@capitaltechalliance.com"
                 className="font-semibold transition-colors hover:underline"
-                style={{ color: '#00D4FF' }}
+                style={{ color: '#2B3A67' }}
               >
                 Contact Support
               </a>
@@ -324,44 +231,17 @@ export function SSOLogin() {
           </div>
         </Card>
 
-        {/* Premium Footer */}
-        <div className="mt-4 space-y-1 text-center">
-          <p className="text-[10px] font-semibold text-white/70">
-            Fleet Management System v2.0
+        {/* Footer */}
+        <div className="mt-6 space-y-1 text-center">
+          <p className="text-xs font-semibold text-white/70">
+            ArchonY Enterprise Solutions v2.0
           </p>
-          <p className="text-[10px] text-white/50">
+          <p className="text-xs text-white/50">
             © {new Date().getFullYear()} Capital Tech Alliance. All rights reserved.
           </p>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes shimmer {
-          0% {
-            transform: translateX(-100%);
-          }
-          100% {
-            transform: translateX(100%);
-          }
-        }
-        .animate-shimmer {
-          animation: shimmer 2s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        @keyframes dashAnimation {
-          0%, 100% {
-            stroke-dashoffset: 0;
-            opacity: 1;
-          }
-          50% {
-            stroke-dashoffset: 50;
-            opacity: 0.8;
-          }
-        }
-      `}</style>
-    </div>
+    </main>
   )
 }
 
