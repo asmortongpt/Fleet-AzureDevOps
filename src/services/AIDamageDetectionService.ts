@@ -12,11 +12,6 @@
 
 import type { DamageSeverity } from '@/components/garage/DamageOverlay';
 import type { CapturedPhoto } from '@/components/garage/MobileCameraCapture';
-<<<<<<< HEAD
-import type { DamagePoint, DamageSeverity } from '@/components/garage/DamageOverlay';
-import logger from '@/utils/logger';
-=======
->>>>>>> fix/pipeline-eslint-build
 
 // ============================================================================
 // TYPES

@@ -19,7 +19,9 @@ import {
   ViewInAr as ARIcon,
   QrCode as QrCodeIcon,
   RemoveRedEye as ViewIcon,
-  Build as MaintenanceIcon
+  Build as MaintenanceIcon,
+  CalendarToday as CalendarIcon,
+  Delete as DeleteIcon
 } from '@mui/icons-material';
 import {
   Box,
@@ -642,13 +644,13 @@ const VehicleShowroom: React.FC = () => {
         </Typography>
 
         <Grid container spacing={1} sx={{ mt: 1 }}>
-          <Grid item xs={6}>
+          <Grid size={6}>
             <Typography variant="caption" color="text: secondary">
               <SpeedIcon sx={{ fontSize: 14, mr: 0.5, verticalAlign: 'middle' }} />
               {vehicle.mileage.toLocaleString()} mi
             </Typography>
           </Grid>
-          <Grid item xs={6}>
+          <Grid size={6}>
             <Typography variant="caption" color="text: secondary">
               <GasIcon sx={{ fontSize: 14, mr: 0.5, verticalAlign: 'middle' }} />
               {vehicle.specifications.mpg} MPG
@@ -784,25 +786,25 @@ const VehicleShowroom: React.FC = () => {
 
       {/* Statistics Bar */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper sx={{ p: 2, textAlign: 'center' }}>
             <Typography variant="h4">{vehicles.length}</Typography>
             <Typography variant="body2" color="text: secondary">Total Vehicles</Typography>
           </Paper>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper sx={{ p: 2, textAlign: 'center' }}>
             <Typography variant="h4">{vehicles.filter(v => v.status === 'available').length}</Typography>
             <Typography variant="body2" color="text: secondary">Available</Typography>
           </Paper>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper sx={{ p: 2, textAlign: 'center' }}>
             <Typography variant="h4">${vehicles.reduce((sum, v) => sum + v.currentValue, 0).toLocaleString()}</Typography>
             <Typography variant="body2" color="text: secondary">Fleet Value</Typography>
           </Paper>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper sx={{ p: 2, textAlign: 'center' }}>
             <Typography variant="h4">{vehicles.filter(v => v.isFavorite).length}</Typography>
             <Typography variant="body2" color="text: secondary">Favorites</Typography>
@@ -821,7 +823,7 @@ const VehicleShowroom: React.FC = () => {
           {viewMode === 'grid' && (
             <Grid container spacing={3}>
               {filteredVehicles.map((vehicle) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={vehicle.id}>
+                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={vehicle.id}>
                   {renderVehicleCard(vehicle)}
                 </Grid>
               ))}
@@ -872,7 +874,7 @@ const VehicleShowroom: React.FC = () => {
                   {activeTab === 1 && (
                     <Grid container spacing={2}>
                       {Object.entries(selectedVehicle.specifications).map(([key, value]) => (
-                        <Grid item xs={12} sm={6} key={key}>
+                        <Grid size={{ xs: 12, sm: 6 }} key={key}>
                           <Box display="flex" justifyContent="space-between" p={1} bgcolor="grey.100" borderRadius={1}>
                             <Typography variant="body2" fontWeight="bold">
                               {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}:
@@ -911,7 +913,7 @@ const VehicleShowroom: React.FC = () => {
                   {activeTab === 4 && (
                     <Grid container spacing={2}>
                       {selectedVehicle.interiorImages.map((img, index) => (
-                        <Grid item xs={12} sm={6} md={4} key={index}>
+                        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
                           <Box
                             component="img"
                             src={img}

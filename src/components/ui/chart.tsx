@@ -1,8 +1,9 @@
-import { ComponentProps, ComponentType, createContext, CSSProperties, ReactNode, useContext, useId, useMemo } from "react"
-import { ResponsiveContainer, Tooltip, Legend, LegendProps } from "recharts"
+import { ComponentProps, ComponentType, createContext, CSSProperties, ReactNode, useContext, useId, useMemo, Key } from "react"
+import { ResponsiveContainer, Tooltip, Legend } from "recharts"
+import type { LegendPayload } from "recharts/types/component/DefaultLegendContent"
+import type { Payload as TooltipPayload, ValueType, NameType } from "recharts/types/component/DefaultTooltipContent"
 
 import { cn } from "@/lib/utils"
-import logger from '@/utils/logger';
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const
@@ -122,7 +123,7 @@ function sanitizeColor(color: string | undefined): string | null {
   }
 
   // If none of the above, reject the color
-  logger.warn(`Invalid color value rejected: ${color}`)
+  console.warn(`Invalid color value rejected: ${color}`)
   return null
 }
 
@@ -165,13 +166,11 @@ const ChartTooltip = Tooltip
 
 function ChartTooltipContent({
   active,
-  // @ts-expect-error - Recharts type incompatibility with payload
   payload,
   className,
   indicator = "dot",
   hideLabel = false,
   hideIndicator = false,
-  // @ts-expect-error - Recharts type incompatibility with label
   label,
   labelFormatter,
   labelClassName,
@@ -186,6 +185,8 @@ function ChartTooltipContent({
     indicator?: "line" | "dot" | "dashed"
     nameKey?: string
     labelKey?: string
+    payload?: TooltipPayload<ValueType, NameType>[]
+    label?: string
   }) {
   const { config } = useChart()
 
@@ -240,14 +241,14 @@ function ChartTooltipContent({
     >
       {!nestLabel ? tooltipLabel : null}
       <div className="grid gap-1.5">
-        {payload.map((item: any, index: number) => {
+        {payload.map((item: TooltipPayload<ValueType, NameType>, index: number) => {
           const key = `${nameKey || item.name || item.dataKey || "value"}`
           const itemConfig = getPayloadConfigFromPayload(config, item, key)
           const indicatorColor = color || item.payload.fill || item.color
 
           return (
             <div
-              key={item.dataKey}
+              key={String(item.dataKey ?? index)}
               className={cn(
                 "[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5",
                 indicator === "dot" && "items-center"
@@ -314,18 +315,17 @@ const ChartLegend = Legend
 function ChartLegendContent({
   className,
   hideIcon = false,
-  // @ts-expect-error - Recharts type incompatibility with payload
   payload,
   verticalAlign = "bottom",
   nameKey,
-}: ComponentProps<"div"> &
-  Pick<LegendProps, "payload" | "verticalAlign"> & {
+}: ComponentProps<"div"> & {
     hideIcon?: boolean
     nameKey?: string
+    payload?: LegendPayload[]
+    verticalAlign?: "top" | "bottom" | "middle"
   }) {
   const { config } = useChart()
 
-  // @ts-expect-error - Recharts type incompatibility - payload may not have length property
   if (!payload?.length) {
     return null
   }
@@ -338,8 +338,7 @@ function ChartLegendContent({
         className
       )}
     >
-      {/* @ts-expect-error - Recharts type incompatibility - payload may not have map method */}
-      {payload.map((item: any) => {
+      {payload.map((item: LegendPayload) => {
         const key = `${nameKey || item.dataKey || "value"}`
         const itemConfig = getPayloadConfigFromPayload(config, item, key)
 

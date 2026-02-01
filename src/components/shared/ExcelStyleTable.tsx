@@ -615,12 +615,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                   {enableRowSelection && (
                     <th className="p-2 text-left border-r border-border w-12">
                       <Checkbox
-                        checked={allSelected}
-                        ref={(input) => {
-                          if (input) {
-                            input.indeterminate = someSelected
-                          }
-                        }}
+                        checked={someSelected ? "indeterminate" : allSelected}
                         onCheckedChange={handleSelectAll}
                         aria-label="Select all"
                       />

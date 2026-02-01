@@ -100,6 +100,7 @@ export function DrilldownList<T extends DrilldownListItem>({
         [`${recordType}Id`]: recordId,
         ...additionalData,
         ...item,
+        id: recordId,
       },
     })
   }

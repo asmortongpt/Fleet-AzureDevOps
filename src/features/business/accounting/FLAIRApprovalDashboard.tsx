@@ -7,12 +7,9 @@
 import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '@/contexts/AuthContext';
-// Legacy service - file does not exist
-// import { flairIntegrationService, FLAIRExpenseEntry } from '../../services/FLAIRIntegration';
-import logger from '@/utils/logger';
 
-// Temporary type definitions until FLAIRIntegration service is created
-type FLAIRExpenseEntry = {
+// FLAIR expense entry type - defined locally since FLAIRIntegration service is not yet implemented
+export interface FLAIRExpenseEntry {
   id: string;
   employeeId: string;
   employeeName: string;
@@ -27,7 +24,7 @@ type FLAIRExpenseEntry = {
     objectCode: string;
     locationCode: string;
   };
-  supportingDocuments: any[];
+  supportingDocuments: string[];
   travelDetails?: {
     originAddress: string;
     destinationAddress: string;
@@ -35,15 +32,31 @@ type FLAIRExpenseEntry = {
     mileageRate: number;
     purposeCode: string;
   };
-  approvalStatus: string;
-  approvalHistory: Array<{
+  approvalStatus: 'pending' | 'supervisor_approved' | 'finance_approved' | 'submitted_to_flair' | 'processed' | 'rejected';
+  approvalHistory: ApprovalRecord[];
+}
+
+interface ApprovalRecord {
+  approverEmployeeId: string;
+  approverName: string;
+  approverTitle: string;
+  approvalLevel: string;
+  approvedAt: string;
+  comments?: string;
+}
+
+// Mock FLAIR integration service until the actual service is implemented
+const flairIntegrationService = {
+  approveExpense: async (_entryId: string, _approval: {
     approverEmployeeId: string;
     approverName: string;
     approverTitle: string;
     approvalLevel: string;
-    approvedAt: string;
     comments?: string;
-  }>;
+  }): Promise<boolean> => {
+    // Mock implementation
+    return Promise.resolve(true);
+  }
 };
 
 // Component props
@@ -83,7 +96,7 @@ const ExpenseEntryCard: React.FC<{
       rejected: { color: 'bg-red-100 text-red-800', text: 'Rejected' }
     };
 
-    const config = statusConfig[entry.approvalStatus];
+    const config = statusConfig[entry.approvalStatus as keyof typeof statusConfig] || statusConfig.pending;
     return <span className={`px-2 py-1 text-xs rounded-full ${config.color}`}>{config.text}</span>;
   };
 
@@ -166,7 +179,7 @@ const ExpenseEntryCard: React.FC<{
         <div className="bg-gray-50 rounded-lg p-3 mb-2">
           <h4 className="text-sm font-medium text-gray-900 mb-2">Approval History</h4>
           <div className="space-y-1">
-            {entry.approvalHistory.map((approval: any, index: number) => (
+            {entry.approvalHistory.map((approval: ApprovalRecord, index: number) => (
               <div key={index} className="text-xs text-slate-700">
                 <strong>{approval.approverName}</strong> ({approval.approvalLevel}) approved on{' '}
                 {new Date(approval.approvedAt).toLocaleString()}
@@ -404,7 +417,7 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
       const mockEntries = generateMockEntries();
       setEntries(mockEntries);
     } catch (error) {
-      logger.error('Error loading expense entries:', { error });
+      console.error('Error loading expense entries:', error);
     } finally {
       setIsLoading(false);
     }
@@ -471,43 +484,39 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
 
   const handleApproval = async (entryId: string, comments?: string) => {
     try {
-      const approvalLevel = user?.role === 'finance_manager' ? 'finance_manager' : 'supervisor';
+      const approvalLevel = user?.role === 'Admin' || user?.role === 'SuperAdmin' ? 'finance_manager' : 'supervisor';
 
-      // Legacy service - file does not exist
-      // const success = await flairIntegrationService.approveExpense(entryId, {
-      //   approverEmployeeId: user?.employeeId || '',
-      //   approverName: user?.fullName || '',
-      //   approverTitle: user?.jobTitle || '',
-      //   approvalLevel,
-      //   comments
-      // });
-
-      // Temporary: simulate success
-      const success = true;
+      const success = await flairIntegrationService.approveExpense(entryId, {
+        approverEmployeeId: user?.id || '',
+        approverName: user ? `${user.firstName} ${user.lastName}`.trim() : '',
+        approverTitle: user?.role || '',
+        approvalLevel,
+        comments
+      });
 
       if (success) {
         await loadExpenseEntries();
         onApprovalComplete?.(entryId, true);
       }
     } catch (error) {
-      logger.error('Error approving expense:', { error });
+      console.error('Error approving expense:', error);
     }
   };
 
   const handleRejection = async (entryId: string, reason: string) => {
     try {
       // In production, this would call a rejection API
-      logger.info('Rejecting expense:', { entryId, reason });
+      console.log('Rejecting expense:', entryId, reason);
       await loadExpenseEntries();
       onApprovalComplete?.(entryId, false);
     } catch (error) {
-      logger.error('Error rejecting expense:', { error });
+      console.error('Error rejecting expense:', error);
     }
   };
 
   const handleViewDetails = (entryId: string) => {
     // In production, this would open a detailed view modal
-    logger.info('Viewing details for expense:', { entryId });
+    console.log('Viewing details for expense:', entryId);
   };
 
   const generateMockEntries = (): FLAIRExpenseEntry[] => {
@@ -590,8 +599,7 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
           <p className="text-slate-700">Review and approve expense submissions</p>
         </div>
         <div className="text-sm text-gray-500">
-          {/* @ts-expect-error - User type incompatibility - fullName may not exist */}
-          Logged in as: {user?.fullName} ({user?.role})
+          Logged in as: {user ? `${user.firstName} ${user.lastName}`.trim() : ''} ({user?.role})
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import toast from 'svelte-sonner';
+import { toast } from 'sonner';
 
 export const toastHelpers = {
   info: (message: string, options?: { description?: string; duration?: number }) => {

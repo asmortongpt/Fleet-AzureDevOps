@@ -34,8 +34,8 @@ import logger from '@/utils/logger'
 const AZURE_AD_CONFIG = {
   clientId: import.meta.env.VITE_AZURE_AD_CLIENT_ID || 'baae0851-0c24-4214-8587-e3fabc46bd4a',
   authority: `https://login.microsoftonline.com/${import.meta.env.VITE_AZURE_AD_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347'}`,
-  redirectUri: import.meta.env.VITE_AZURE_AD_REDIRECT_URI || 'https://gray-flower-03a2a730f.3.azurestaticapps.net/auth/callback',
-  postLogoutRedirectUri: window.location.origin,
+  redirectUri: import.meta.env.VITE_AZURE_AD_REDIRECT_URI || (typeof window !== 'undefined' ? window.location.origin + '/auth/callback' : ''),
+  postLogoutRedirectUri: typeof window !== 'undefined' ? window.location.origin : '',
 }
 
 // MSAL Configuration with PKCE
@@ -45,12 +45,9 @@ const msalConfig: Configuration = {
     authority: AZURE_AD_CONFIG.authority,
     redirectUri: AZURE_AD_CONFIG.redirectUri,
     postLogoutRedirectUri: AZURE_AD_CONFIG.postLogoutRedirectUri,
-    navigateToLoginRequestUrl: true,
   },
   cache: {
     cacheLocation: 'sessionStorage', // Use sessionStorage for enhanced security
-    storeAuthStateInCookie: false, // Set to true for IE11 compatibility
-    secureCookies: true, // Only send cookies over HTTPS
   },
   system: {
     loggerOptions: {
@@ -75,10 +72,6 @@ const msalConfig: Configuration = {
       },
       piiLoggingEnabled: false,
     },
-    windowHashTimeout: 60000,
-    iframeHashTimeout: 6000,
-    loadFrameTimeout: 0,
-    asyncPopups: false,
   },
 }
 

@@ -154,7 +154,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
         }
 
         if (vehicleArray.length > 0) {
-      logger.info('[LiveFleetDashboard] API data loaded successfully:', { count: vehicleArray.length, type: 'vehicles' });
+          logger.info(`[LiveFleetDashboard] API data loaded successfully: ${vehicleArray.length} vehicles`);
           setVehicles(vehicleArray);
           setIsLoading(false);
         } else {
@@ -179,26 +179,26 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
       id: 'dispatch',
       label: 'Dispatch',
       icon: <Truck className="h-5 w-5" />,
-      onClick: () => logger.info('Dispatch clicked')
+      onClick: () => console.log('Dispatch clicked')
     },
     {
       id: 'maintenance',
       label: 'Maintenance',
       icon: <Wrench className="h-5 w-5" />,
-      onClick: () => logger.info('Maintenance clicked')
+      onClick: () => console.log('Maintenance clicked')
     },
     {
       id: 'alerts',
       label: 'Alerts',
       icon: <AlertCircle className="h-5 w-5" />,
-      onClick: () => logger.info('Alerts clicked'),
+      onClick: () => console.log('Alerts clicked'),
       badge: maintenanceCount
     },
     {
       id: 'fuel',
       label: 'Fuel',
       icon: <Fuel className="h-5 w-5" />,
-      onClick: () => logger.info('Fuel clicked')
+      onClick: () => console.log('Fuel clicked')
     }
   ];
 
@@ -410,10 +410,10 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   // Map controls for mobile
   const mapControls = (
     <MobileMapControls
-      onZoomIn={() => logger.info('Zoom in')}
-      onZoomOut={() => logger.info('Zoom out')}
-      onLocate={() => logger.info('Locate me')}
-      onToggleLayers={() => logger.info('Toggle layers')}
+      onZoomIn={() => console.log('Zoom in')}
+      onZoomOut={() => console.log('Zoom out')}
+      onLocate={() => console.log('Locate me')}
+      onToggleLayers={() => console.log('Toggle layers')}
     />
   );
 

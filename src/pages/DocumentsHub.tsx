@@ -4,6 +4,7 @@
  */
 
 import { motion } from 'framer-motion'
+import { Suspense, useState } from 'react'
 import {
   FileText as DocumentsIcon,
   FolderOpen,
@@ -25,15 +26,19 @@ import {
   Archive,
   Tag,
 } from 'lucide-react'
-import { Suspense, useState } from 'react'
-
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import HubPage from '@/components/ui/hub-page'
+import { useReactiveDocumentsData } from '@/hooks/use-reactive-documents-data'
+import {
+  StatCard,
+  ResponsiveBarChart,
+  ResponsiveLineChart,
+  ResponsivePieChart,
+} from '@/components/visualizations'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -41,14 +46,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
 import {
-  StatCard,
-  ResponsiveBarChart,
-  ResponsiveLineChart,
-  ResponsivePieChart,
-} from '@/components/visualizations'
-import { useReactiveDocumentsData } from '@/hooks/use-reactive-documents-data'
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useToast } from '@/hooks/useToast'
 
 const CATEGORIES = [
@@ -161,7 +168,7 @@ function OverviewContent() {
           value={metrics?.recentUploads?.toString() || '0'}
           icon={Upload}
           trend="up"
-          change={+15}
+          change={15}
           description="Last 7 days"
           loading={isLoading}
         />
@@ -200,7 +207,8 @@ function OverviewContent() {
       <ResponsiveLineChart
         title="Upload Trend"
         description="Monthly document uploads and storage growth"
-        data={uploadTrendData}
+        data={uploadTrendData.map(d => ({ ...d, value: d.uploads }))}
+        dataKeys={['uploads', 'size']}
         height={350}
         showArea
         loading={isLoading}

@@ -1,7 +1,5 @@
 import React from "react";
 
-import VehicleShowroomSelector from "./VehicleShowroomSelector";
-
 interface Vehicle {
   id: string;
   make: string;
@@ -128,13 +126,40 @@ const VehicleShowroomView: React.FC<VehicleShowroomViewProps> = ({
       </div>
 
       {/* Vehicle showroom content */}
-      <div style={{ flex: 1, overflow: 'hidden' }}>
-        <VehicleShowroomSelector
-          vehicles={availableVehicles}
-          selectedVehicle={selectedVehicle}
-          onSelectVehicle={handleVehicleSelect}
-          theme={currentTheme}
-        />
+      <div style={{ flex: 1, overflow: 'auto', padding: '16px' }}>
+        {selectedVehicle ? (
+          <div
+            style={{
+              padding: '24px',
+              background: currentTheme.surface,
+              borderRadius: '8px',
+              border: `1px solid ${currentTheme.border}`
+            }}
+          >
+            <h3 style={{ margin: '0 0 16px 0', color: currentTheme.text }}>
+              {selectedVehicle.make} {selectedVehicle.model} ({selectedVehicle.year})
+            </h3>
+            <p style={{ color: currentTheme.text, opacity: 0.7 }}>
+              Vehicle ID: {selectedVehicle.id}
+            </p>
+            <p style={{ color: currentTheme.text, opacity: 0.7 }}>
+              Status: {selectedVehicle.status}
+            </p>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              color: currentTheme.text,
+              opacity: 0.5
+            }}
+          >
+            Select a vehicle to view details
+          </div>
+        )}
       </div>
     </div>
   );

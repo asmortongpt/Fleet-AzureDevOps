@@ -22,7 +22,6 @@ import {
 } from 'recharts';
 
 import type { ReportDefinition, ReportVisual, ReportMeasure } from '../../services/ReportLoaderService';
-import logger from '@/utils/logger';
 
 interface DynamicReportRendererProps {
   report: ReportDefinition;
@@ -187,7 +186,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
 
         return typeof result === 'number' ? result : 0;
       } catch (error) {
-        logger.warn(`Failed to evaluate expression: ${measure.expression}`, { error });
+        console.warn(`Failed to evaluate expression: ${measure.expression}`, error);
         return 0;
       }
     }
@@ -375,7 +374,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
               fill="#8884d8"
               dataKey="value"
             >
-              {pieData.map((entry: any, index: number) => (
+              {pieData.map((_entry: { name: string; value: number }, index: number) => (
                 <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
               ))}
             </Pie>

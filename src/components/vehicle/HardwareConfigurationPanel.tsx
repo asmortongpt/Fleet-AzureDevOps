@@ -61,11 +61,7 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
-<<<<<<< HEAD
-import logger from '@/utils/logger';
-=======
 import { cn } from '@/lib/utils'
->>>>>>> fix/pipeline-eslint-build
 
 // ============================================================================
 // Types & Interfaces
@@ -191,7 +187,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
               )}
             </div>
           </div>
-          <StatusBadge status={provider.status === 'error' ? 'offline' : provider.status} />
+          <StatusBadge status={provider.status === 'error' ? 'offline' : provider.status === 'connected' ? 'online' : provider.status} />
         </div>
       </CardHeader>
 

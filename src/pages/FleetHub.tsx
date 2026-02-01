@@ -16,11 +16,8 @@
  * @security XSS prevention via Zod, CSRF protection, input sanitization
  */
 
-<<<<<<< HEAD
 import { motion, AnimatePresence } from 'framer-motion'
 import { Suspense, lazy, memo, useMemo, useCallback } from 'react'
-import { Car, MapPin, Gauge, Video, Plug, Box, BarChart, AlertTriangle, TrendingUp, Fuel, Wrench, ArrowUp, ArrowDown, XCircle } from 'lucide-react'
-=======
 import {
   Car,
   MapPin,
@@ -37,31 +34,21 @@ import {
   ArrowDown,
   XCircle,
 } from '@phosphor-icons/react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Suspense, lazy, memo, useMemo, useCallback } from 'react'
-
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
->>>>>>> fix/pipeline-eslint-build
 import HubPage from '@/components/ui/hub-page'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
+import type { AlertVehicle } from '@/hooks/use-reactive-fleet-data'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { useAuth } from '@/contexts/AuthContext'
-<<<<<<< HEAD
-import { useDrilldown } from '@/contexts/DrilldownContext'
-import logger from '@/utils/logger';
-=======
-import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
-import type { AlertVehicle } from '@/hooks/use-reactive-fleet-data'
->>>>>>> fix/pipeline-eslint-build
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 
 // ============================================================================
 // LAZY-LOADED COMPONENTS
@@ -73,8 +60,6 @@ const VehicleTelemetry = lazy(() => import('@/components/modules/fleet/VehicleTe
 const VirtualGarage = lazy(() => import('@/components/modules/fleet/VirtualGarage').then(m => ({ default: m.VirtualGarage })))
 const VideoTelematics = lazy(() => import('@/components/modules/compliance/VideoTelematics').then(m => ({ default: m.VideoTelematics })))
 const EVChargingManagement = lazy(() => import('@/components/modules/charging/EVChargingManagement').then(m => ({ default: m.EVChargingManagement })))
-const FleetManagerDashboard = lazy(() => import('@/components/dashboards/roles/FleetManagerDashboard').then(m => ({ default: m.FleetManagerDashboard })))
-const DriverDashboard = lazy(() => import('@/components/dashboards/roles/DriverDashboard').then(m => ({ default: m.DriverDashboard })))
 
 // ============================================================================
 // CONSTANTS
@@ -297,20 +282,11 @@ const FleetOverview = memo(() => {
   // Memoize mileage chart data
   const mileageChartData = useMemo(() => avgMileageByStatus, [avgMileageByStatus])
 
-  // Import useDrilldown at the top level of FleetOverview
-  const { push: pushDrilldown } = useDrilldown()
-
   // Alert click handlers - memoized
   const handleVehicleClick = useCallback((vehicle: AlertVehicle) => {
-    logger.info('Vehicle clicked:', vehicle)
-    // Navigate to vehicle detail panel using drilldown
-    pushDrilldown({
-      id: `vehicle-${vehicle.id}`,
-      type: 'vehicle',
-      label: `${vehicle.make} ${vehicle.model} (${vehicle.license_plate})`,
-      data: { vehicleId: vehicle.id }
-    })
-  }, [pushDrilldown])
+    console.log('Vehicle clicked:', vehicle)
+    // TODO: Navigate to vehicle detail page or open modal
+  }, [])
 
   // Retry handler
   const handleRetry = useCallback(() => {
@@ -384,7 +360,7 @@ const FleetOverview = memo(() => {
         <StatCard
           title="Active Vehicles"
           value={metrics?.activeVehicles?.toString() || '0'}
-          icon={TrendingUp}
+          icon={TrendUp}
           trend="up"
           change={12}
           description="Currently in use"
@@ -403,7 +379,7 @@ const FleetOverview = memo(() => {
         <StatCard
           title="Avg Fuel Level"
           value={`${metrics?.averageFuelLevel?.toFixed(0) || '0'}%`}
-          icon={Fuel}
+          icon={GasPump}
           trend={metrics && metrics.averageFuelLevel < 40 ? 'down' : 'up'}
           description="Fleet average"
           loading={isLoading}
@@ -448,7 +424,7 @@ const FleetOverview = memo(() => {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" aria-hidden="true" />
+              <Warning className="h-5 w-5 text-amber-500" aria-hidden="true" />
               <CardTitle id="low-fuel-heading">Low Fuel Alerts</CardTitle>
             </div>
             <CardDescription>Vehicles with fuel level below 25%</CardDescription>
@@ -470,7 +446,7 @@ const FleetOverview = memo(() => {
               </div>
             ) : (
               <EmptyState
-                icon={Fuel}
+                icon={GasPump}
                 message="All vehicles have adequate fuel levels"
                 description="No low fuel alerts at this time"
               />
@@ -525,34 +501,6 @@ FleetOverview.displayName = 'FleetOverview'
  * FleetHub - Main export with role-based routing
  */
 export default function FleetHub() {
-  const { user } = useAuth()
-
-  // ========================================
-  // Role-Based Dashboard Override
-  // ========================================
-
-  // Fleet Manager Dashboard
-  if (user?.role === 'fleet_manager' && user?.department === 'fleet') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<LoadingFallback message="Loading Fleet Manager Dashboard..." />}>
-          <FleetManagerDashboard />
-        </Suspense>
-      </ErrorBoundary>
-    )
-  }
-
-  // Driver Dashboard
-  if (user?.role === 'driver') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<LoadingFallback message="Loading Driver Dashboard..." />}>
-          <DriverDashboard />
-        </Suspense>
-      </ErrorBoundary>
-    )
-  }
-
   // ========================================
   // Admin Users - Full Tabbed Interface
   // ========================================
@@ -562,7 +510,7 @@ export default function FleetHub() {
       {
         id: 'overview',
         label: 'Overview',
-        icon: <BarChart className="h-4 w-4" />,
+        icon: <ChartBar className="h-4 w-4" />,
         content: (
           <ErrorBoundary>
             <FleetOverview />
@@ -608,7 +556,7 @@ export default function FleetHub() {
       {
         id: '3d-garage',
         label: '3D Garage',
-        icon: <Box className="h-4 w-4" />,
+        icon: <Cube className="h-4 w-4" />,
         content: (
           <ErrorBoundary>
             <Suspense fallback={<LoadingFallback message="Loading 3D garage..." />}>
@@ -620,7 +568,7 @@ export default function FleetHub() {
       {
         id: 'video',
         label: 'Video',
-        icon: <Video className="h-4 w-4" />,
+        icon: <VideoCamera className="h-4 w-4" />,
         content: (
           <ErrorBoundary>
             <Suspense fallback={<LoadingFallback message="Loading video telematics..." />}>
@@ -632,7 +580,7 @@ export default function FleetHub() {
       {
         id: 'ev-charging',
         label: 'EV Charging',
-        icon: <Plug className="h-4 w-4" />,
+        icon: <ChargingStation className="h-4 w-4" />,
         content: (
           <ErrorBoundary>
             <Suspense fallback={<LoadingFallback message="Loading EV charging management..." />}>

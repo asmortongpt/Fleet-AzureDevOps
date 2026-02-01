@@ -29,12 +29,9 @@ import {
   Info,
   Lightbulb,
   Brain,
-  Building2,
+  Building,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
-
-// Icon alias for consistency
-const Building = Building2
 
 // ============================================================================
 // Types

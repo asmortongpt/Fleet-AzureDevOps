@@ -2,7 +2,7 @@ import {
   HierarchicalDrilldownConfig,
   HierarchicalDrilldownLevel,
   HierarchicalDrilldownState,
-  DrilldownBreadcrumbItem
+  HierarchicalDrilldownBreadcrumb
 } from '../types/drilldown';
 
 export function createDrilldownState(
@@ -49,8 +49,8 @@ export function navigateToDrilldown(
   config.levels.slice(nextLevelIndex).forEach((l: HierarchicalDrilldownLevel) => {
     delete newFilters[l.field];
   });
-
-  const breadcrumbIndex = newBreadcrumbs.findIndex((b: DrilldownBreadcrumbItem) => b.level === level);
+  
+  const breadcrumbIndex = newBreadcrumbs.findIndex(b => b.level === level);
   if (breadcrumbIndex !== -1) {
     newBreadcrumbs.splice(breadcrumbIndex + 1);
   }
@@ -80,10 +80,10 @@ export function navigateUp(
   }
 
   let newBreadcrumbs = [...state.breadcrumbs];
-  const newFilters = { ...state.filters };
+  let newFilters = { ...state.filters };
 
   if (targetLevel) {
-    const targetIndex = newBreadcrumbs.findIndex((b: DrilldownBreadcrumbItem) => b.level === targetLevel);
+    const targetIndex = newBreadcrumbs.findIndex(b => b.level === targetLevel);
     if (targetIndex === -1) {
       return state; // Target level not in breadcrumbs
     }
@@ -147,7 +147,7 @@ export function canDrillUp(state: HierarchicalDrilldownState): boolean {
 
 export function getDrilldownPath(state: HierarchicalDrilldownState): string {
   return state.breadcrumbs
-    .map((b: DrilldownBreadcrumbItem) => b.label)
+    .map((b: HierarchicalDrilldownBreadcrumb) => b.label)
     .join(' > ');
 }
 

@@ -4,29 +4,31 @@
  * This file demonstrates how to integrate all components
  */
 
-import { OrbitControls, Environment, PerspectiveCamera } from '@react-three/drei';
-import { Canvas } from '@react-three/fiber';
 import React, { useState, useEffect } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Environment, PerspectiveCamera } from '@react-three/drei';
 
 // Phase 1: Photo System
-import { MobileCameraCapture } from '@/components/garage/MobileCameraCapture';
+import { MobileCameraCapture, type CapturedPhoto } from '@/components/garage/MobileCameraCapture';
 import { PhotoGallery } from '@/components/garage/PhotoGallery';
-import { VehicleConditionPanel } from '@/components/garage/VehicleConditionPanel';
-import {
-  initializeDamageDetection,
-  getDamageDetectionService,
-} from '@/services/AIDamageDetectionService';
 import { photoUploadService } from '@/services/PhotoUploadService';
 
 // Phase 2: Condition Monitoring
+import { VehicleConditionPanel } from '@/components/garage/VehicleConditionPanel';
 import type { VehicleCondition, ServiceRecord } from '@/types/vehicle-condition.types';
 
 // Phase 3: Performance
 import { LODVehicleModel } from '@/utils/lod-system';
 
 // Phase 4: Rendering
+import { VehicleMaterialFactory, QUALITY_PRESETS } from '@/utils/pbr-materials';
 
 // Phase 5: AI
+import {
+  initializeDamageDetection,
+  getDamageDetectionService,
+  type DamageReport,
+} from '@/services/AIDamageDetectionService';
 
 // ============================================================================
 // COMPLETE GARAGE SYSTEM
@@ -34,9 +36,9 @@ import { LODVehicleModel } from '@/utils/lod-system';
 
 export function CompleteGarageSystem() {
   const [activeView, setActiveView] = useState<'3d' | 'photos' | 'condition'>('3d');
-  const [photos, setPhotos] = useState([]);
+  const [photos, setPhotos] = useState<CapturedPhoto[]>([]);
   const [showCamera, setShowCamera] = useState(false);
-  const [damageReport, setDamageReport] = useState(null);
+  const [damageReport, setDamageReport] = useState<DamageReport | null>(null);
 
   // Initialize AI service
   useEffect(() => {
@@ -49,7 +51,7 @@ export function CompleteGarageSystem() {
   }, []);
 
   // Handle photo capture
-  const handlePhotosCapture = async (capturedPhotos) => {
+  const handlePhotosCapture = async (capturedPhotos: CapturedPhoto[]) => {
     try {
       // Upload photos
       await photoUploadService.uploadPhotos({

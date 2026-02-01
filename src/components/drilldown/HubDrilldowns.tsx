@@ -1,12 +1,17 @@
 /**
  * HubDrilldowns - Rich drilldown components for Drivers, Maintenance, and Analytics hubs
  */
-import { User, Star, Trophy, Clock, Shield, LineChart, Wrench, CheckCircle, AlertTriangle, ArrowRight, Calendar, DollarSign, Gauge } from 'lucide-react'
+import {
+    User, Star, Trophy, Clock, Shield, ChartLine, Wrench,
+    CheckCircle, Warning, ArrowRight, CalendarDots,
+    CurrencyDollar, Gauge
+} from '@phosphor-icons/react'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
+import { useFleetData } from '@/hooks/use-fleet-data'
 
 // Define interfaces for data structures
 interface Driver {
@@ -33,7 +38,8 @@ interface Vehicle {
 
 export function DriversRosterDrilldown() {
     const { push } = useDrilldown()
-    const drivers = [] as Driver[]
+    const { drivers: rawDrivers } = useFleetData()
+    const drivers = (rawDrivers || []) as Driver[]
 
     const onDuty = drivers.filter(d => d.status === 'active')
     const offDuty = drivers.filter(d => d.status === 'off-duty')
@@ -87,7 +93,7 @@ export function DriversRosterDrilldown() {
                                     }`}>
                                     <User className={`w-4 h-4 ${driver.status === 'active' ? 'text-emerald-400' :
                                         driver.status === 'off-duty' ? 'text-amber-400' : 'text-slate-400'
-                                        }`} />
+                                        }`} weight="fill" />
                                 </div>
                                 <div>
                                     <div className="font-medium text-white">{driver.firstName ?? 'Unknown'} {driver.lastName ?? 'Driver'}</div>
@@ -112,7 +118,8 @@ export function DriversRosterDrilldown() {
 
 export function DriverPerformanceDrilldown() {
     const { push } = useDrilldown()
-    const drivers = [] as Driver[]
+    const { drivers: rawDrivers } = useFleetData()
+    const drivers = (rawDrivers || []) as Driver[]
 
     // Calculate performance tiers
     const topPerformers = drivers.filter(d => (d.safetyScore || 0) >= 90)
@@ -126,7 +133,7 @@ export function DriverPerformanceDrilldown() {
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
-                        <LineChart className="w-3 h-3 text-blue-400" />
+                        <ChartLine className="w-3 h-3 text-blue-400" />
                         Performance Distribution
                     </CardTitle>
                 </CardHeader>
@@ -174,7 +181,7 @@ export function DriverPerformanceDrilldown() {
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
-                        <Star className="w-3 h-3 text-amber-400" />
+                        <Star className="w-3 h-3 text-amber-400" weight="fill" />
                         Top Performers
                     </CardTitle>
                 </CardHeader>
@@ -194,7 +201,7 @@ export function DriverPerformanceDrilldown() {
                                     <div className="text-xs text-slate-400">Safety Score: {driver.safetyScore ?? 0}</div>
                                 </div>
                             </div>
-                            <Trophy className="w-3 h-3 text-amber-400" />
+                            <Trophy className="w-3 h-3 text-amber-400" weight="fill" />
                         </div>
                     ))}
                 </CardContent>
@@ -204,7 +211,8 @@ export function DriverPerformanceDrilldown() {
 }
 
 export function DriverScorecardDrilldown() {
-    const drivers = [] as Driver[]
+    const { drivers: rawDrivers } = useFleetData()
+    const drivers = (rawDrivers || []) as Driver[]
     const avgScore = Math.round(drivers.reduce((sum, d) => sum + (d.safetyScore || 85), 0) / drivers.length)
     const topScore = Math.max(...drivers.map(d => d.safetyScore || 85))
 
@@ -221,7 +229,7 @@ export function DriverScorecardDrilldown() {
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <Star className="w-4 h-4 text-amber-400 mx-auto mb-2" />
+                        <Star className="w-4 h-4 text-amber-400 mx-auto mb-2" weight="fill" />
                         <div className="text-base font-bold text-white">{topScore}</div>
                         <div className="text-sm text-slate-400">Highest Score</div>
                     </CardContent>
@@ -262,7 +270,8 @@ export function DriverScorecardDrilldown() {
 
 export function GarageDrilldown() {
     const { push } = useDrilldown()
-    const workOrders = [] as WorkOrder[]
+    const { workOrders: rawWorkOrders } = useFleetData()
+    const workOrders = (rawWorkOrders || []) as WorkOrder[]
 
     const inProgress = workOrders.filter(wo => wo.status === 'in-progress')
     const pending = workOrders.filter(wo => wo.status === 'pending')
@@ -296,7 +305,7 @@ export function GarageDrilldown() {
                 </Card>
                 <Card className="bg-slate-800/50 border-slate-700">
                     <CardContent className="p-2 text-center">
-                        <AlertTriangle className="w-4 h-4 text-slate-400 mx-auto mb-2" />
+                        <Warning className="w-4 h-4 text-slate-400 mx-auto mb-2" />
                         <div className="text-base font-bold text-slate-300">{pending.length}</div>
                         <div className="text-sm text-slate-400">Pending</div>
                     </CardContent>
@@ -328,7 +337,7 @@ export function GarageDrilldown() {
                                     }`}>
                                     <Wrench className={`w-4 h-4 ${wo.status === 'in-progress' ? 'text-amber-400' :
                                         wo.status === 'pending' ? 'text-slate-400' : 'text-emerald-400'
-                                        }`} />
+                                        }`} weight="fill" />
                                 </div>
                                 <div>
                                     <div className="font-medium text-white">WO-{wo.workOrderNumber ?? 'N/A'}</div>
@@ -350,7 +359,7 @@ export function PredictiveMaintenanceDrilldown() {
         <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                    <Wrench className="w-3 h-3" /> Predictive Maintenance
+                    <Wrench className="w-3 h-3" weight="fill" /> Predictive Maintenance
                 </CardTitle>
             </CardHeader>
             <CardContent className="text-slate-400">
@@ -365,7 +374,7 @@ export function MaintenanceCalendarDrilldown() {
         <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                    <Calendar className="w-3 h-3" /> Maintenance Calendar
+                    <CalendarDots className="w-3 h-3" weight="fill" /> Maintenance Calendar
                 </CardTitle>
             </CardHeader>
             <CardContent className="text-slate-400">
@@ -380,7 +389,7 @@ export function ExecutiveDashboardDrilldown() {
         <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                    <LineChart className="w-5 w-5" /> Executive Dashboard
+                    <ChartLine className="w-5 w-5" weight="fill" /> Executive Dashboard
                 </CardTitle>
             </CardHeader>
             <CardContent className="text-slate-400">
@@ -395,7 +404,7 @@ export function CostAnalysisDrilldown() {
         <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                    <DollarSign className="w-3 h-3" /> Cost Analysis
+                    <CurrencyDollar className="w-3 h-3" weight="fill" /> Cost Analysis
                 </CardTitle>
             </CardHeader>
             <CardContent className="text-slate-400">
@@ -410,7 +419,7 @@ export function FleetOptimizerDrilldown() {
         <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                    <Gauge className="w-3 h-3" /> Fleet Optimizer
+                    <Gauge className="w-3 h-3" weight="fill" /> Fleet Optimizer
                 </CardTitle>
             </CardHeader>
             <CardContent className="text-slate-400">

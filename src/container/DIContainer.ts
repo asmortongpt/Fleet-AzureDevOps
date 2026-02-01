@@ -1,6 +1,3 @@
-// Legacy import - awilix not in package.json, commented out for type safety
-// import { AwilixContainer } from 'awilix';
-
 interface DriverRepository {
   // Define methods and properties as needed
 }
@@ -30,9 +27,21 @@ interface Logger {
 }
 
 /**
+ * Registration options for DI container services.
+ */
+export interface RegistrationOptions {
+  lifetime?: 'singleton' | 'transient' | 'scoped';
+}
+
+/**
+ * Service resolver that can be registered in the container.
+ */
+export interface Resolver<T> {
+  resolve(): T;
+}
+
+/**
  * Type-safe DI container interface.
- * Note: Previously extended AwilixContainer but awilix is not installed.
- * This is now a plain interface for type safety.
  */
 export interface DIContainer {
   vehicleRepository: VehicleRepository;
@@ -42,4 +51,6 @@ export interface DIContainer {
   maintenanceRepository: MaintenanceRepository;
   workOrderRepository: WorkOrderRepository;
   logger: Logger;
+  register(registrations: Record<string, Resolver<unknown>>): void;
+  resolve<T>(name: string): T;
 }

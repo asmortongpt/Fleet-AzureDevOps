@@ -1,6 +1,6 @@
 import {
   Security,
-  Warning as AlertTriangle,
+  Warning,
   CheckCircle,
   ReportProblem,
   Assignment,
@@ -58,40 +58,14 @@ import {
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 
-import logger from '@/utils/logger';
-
-// Type definitions
-interface Driver {
-  id: string;
-  firstName: string;
-  lastName: string;
-}
-
-interface TrainingCompletion {
-  driverId: string;
-  completedDate: string;
-  expiryDate: string;
-  score: number;
-}
-
-interface Training {
-  id: string;
-  name: string;
-  type: string;
-  duration: string;
-  provider: string;
-  validFor: string;
-  completions: TrainingCompletion[];
-}
-
-// Mock database hook since the actual hook doesn't exist
+// Mock database hook functions for demonstration
 const useDatabase = () => ({
-  getDrivers: (): Driver[] => [
-    { id: 'DRV-001', firstName: 'John', lastName: 'Martinez' },
-    { id: 'DRV-002', firstName: 'Sarah', lastName: 'Johnson' },
-    { id: 'DRV-003', firstName: 'Mike', lastName: 'Davis' },
-    { id: 'DRV-004', firstName: 'Lisa', lastName: 'Anderson' },
-    { id: 'DRV-005', firstName: 'Tom', lastName: 'Wilson' }
+  getDrivers: () => [
+    { id: 'DRV-001', firstName: 'John', lastName: 'Smith' },
+    { id: 'DRV-002', firstName: 'Jane', lastName: 'Doe' },
+    { id: 'DRV-003', firstName: 'Bob', lastName: 'Johnson' },
+    { id: 'DRV-004', firstName: 'Alice', lastName: 'Williams' },
+    { id: 'DRV-005', firstName: 'Charlie', lastName: 'Brown' },
   ],
   getVehicles: () => []
 });
@@ -113,16 +87,16 @@ const TabPanel = (props: TabPanelProps) => {
 
 const SafetyComplianceSystem: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
-  const [incidents, setIncidents] = useState<Array<Record<string, unknown>>>([]);
-  const [trainings, setTrainings] = useState<Training[]>([]);
-  const [inspections, setInspections] = useState<Array<Record<string, unknown>>>([]);
-  const [violations, setViolations] = useState<Array<Record<string, unknown>>>([]);
-  const [policies, setPolicies] = useState<Array<Record<string, unknown>>>([]);
-  const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [selectedItem, setSelectedItem] = useState<Record<string, unknown> | null>(null);
+  const [incidents, setIncidents] = useState<any[]>([]);
+  const [trainings, setTrainings] = useState<any[]>([]);
+  const [inspections, setInspections] = useState<any[]>([]);
+  const [violations, setViolations] = useState<any[]>([]);
+  const [policies, setPolicies] = useState<any[]>([]);
+  const [drivers, setDrivers] = useState<any[]>([]);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
-  const [viewingItem, setViewingItem] = useState<Record<string, unknown> | null>(null);
+  const [viewingItem, setViewingItem] = useState<any>(null);
   const [viewingType, setViewingType] = useState<string>('');
   const [dialogType, setDialogType] = useState('');
   const [loading, setLoading] = useState(false);
@@ -362,7 +336,7 @@ const SafetyComplianceSystem: React.FC = () => {
       ];
       setPolicies(policiesData);
     } catch (error) {
-      logger.error('Error loading safety data:', error);
+      console.error('Error loading safety data:', error);
     } finally {
       setLoading(false);
     }
@@ -370,19 +344,19 @@ const SafetyComplianceSystem: React.FC = () => {
 
   const calculateSafetyMetrics = () => {
     const totalIncidents = incidents.length;
-    const openIncidents = incidents.filter(i => (i as { status?: string }).status !== 'Closed').length;
-    const injuryIncidents = incidents.filter(i => (i as { injuries?: boolean }).injuries).length;
+    const openIncidents = incidents.filter(i => i.status !== 'Closed').length;
+    const injuryIncidents = incidents.filter(i => i.injuries).length;
     const daysSinceLastIncident = incidents.length > 0
-      ? Math.floor((new Date().getTime() - new Date((incidents[0] as { date?: string }).date || '').getTime()) / (1000 * 60 * 60 * 24))
+      ? Math.floor((new Date().getTime() - new Date(incidents[0].date).getTime()) / (1000 * 60 * 60 * 24))
       : 0;
 
     const totalTrainings = trainings.reduce((sum, t) => sum + t.completions.length, 0);
     const expiredTrainings = trainings.reduce((sum, t) =>
-      sum + t.completions.filter((c: TrainingCompletion) => new Date(c.expiryDate) < new Date()).length, 0
+      sum + t.completions.filter((c: { expiryDate: string }) => new Date(c.expiryDate) < new Date()).length, 0
     );
 
     const complianceRate = policies.reduce((sum, p) =>
-      sum + ((p as { acknowledgements?: number; totalRequired?: number }).acknowledgements || 0) / ((p as { acknowledgements?: number; totalRequired?: number }).totalRequired || 1), 0
+      sum + (p.acknowledgements / p.totalRequired), 0
     ) / policies.length * 100;
 
     return {
@@ -477,7 +451,7 @@ const SafetyComplianceSystem: React.FC = () => {
       <Paper sx={{ width: '100%', mb: 2 }}>
         <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)}>
           <Tab icon={<Assessment />} label="Dashboard" />
-          <Tab icon={<AlertTriangle />} label="Incidents" />
+          <Tab icon={<Warning />} label="Incidents" />
           <Tab icon={<School />} label="Training" />
           <Tab icon={<Assignment />} label="Inspections" />
           <Tab icon={<Gavel />} label="Compliance" />
@@ -492,7 +466,7 @@ const SafetyComplianceSystem: React.FC = () => {
         <Grid container spacing={3}>
           {/* Metrics Cards */}
           <Grid size={{ xs: 12, md: 3 }}>
-            <Card sx={{ bgcolor: 'success: main', color: 'white' }}>
+            <Card sx={{ bgcolor: 'success.main', color: 'white' }}>
               <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
                   <Box>
@@ -532,11 +506,11 @@ const SafetyComplianceSystem: React.FC = () => {
                   <Box>
                     <Typography color="textSecondary" gutterBottom>Open Incidents</Typography>
                     <Typography variant="h4">{metrics.openIncidents}</Typography>
-                    <Typography variant="body2" color="warning: main">
+                    <Typography variant="body2" color="warning.main">
                       {metrics.injuryIncidents} with injuries
                     </Typography>
                   </Box>
-                  <AlertTriangle color="warning" sx={{ fontSize: 40 }} />
+                  <Warning color="warning" sx={{ fontSize: 40 }} />
                 </Box>
               </CardContent>
             </Card>
@@ -623,30 +597,27 @@ const SafetyComplianceSystem: React.FC = () => {
               <CardContent>
                 <Typography variant="h6" gutterBottom>Recent Incidents</Typography>
                 <List>
-                  {incidents.slice(0, 3).map(incident => {
-                    const inc = incident as { id?: string; severity?: string; type?: string; date?: string; location?: string };
-                    return (
-                      <React.Fragment key={inc.id}>
-                        <ListItem>
-                          <ListItemIcon>
-                            <Chip
-                              size="small"
-                              label={inc.severity}
-                              color={
-                                inc.severity === 'High' ? 'error' :
-                                  inc.severity === 'Medium' ? 'warning' : 'default'
-                              }
-                            />
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={inc.type}
-                            secondary={`${inc.date} - ${inc.location}`}
+                  {incidents.slice(0, 3).map(incident => (
+                    <React.Fragment key={incident.id}>
+                      <ListItem>
+                        <ListItemIcon>
+                          <Chip
+                            size="small"
+                            label={incident.severity}
+                            color={
+                              incident.severity === 'High' ? 'error' :
+                                incident.severity === 'Medium' ? 'warning' : 'default'
+                            }
                           />
-                        </ListItem>
-                        <Divider />
-                      </React.Fragment>
-                    );
-                  })}
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={incident.type}
+                          secondary={`${incident.date} - ${incident.location}`}
+                        />
+                      </ListItem>
+                      <Divider />
+                    </React.Fragment>
+                  ))}
                 </List>
                 <Button fullWidth variant="outlined" sx={{ mt: 2 }}>
                   View All Incidents
@@ -738,70 +709,53 @@ const SafetyComplianceSystem: React.FC = () => {
                     </TableHead>
                     <TableBody>
                       {incidents
-                        .filter(i => {
-                          const status = (i as { status?: string }).status;
-                          return filterStatus === 'all' || (status && status.toLowerCase().includes(filterStatus));
-                        })
+                        .filter(i => filterStatus === 'all' || i.status.toLowerCase().includes(filterStatus))
                         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                        .map(incident => {
-                          const inc = incident as {
-                            id?: string;
-                            date?: string;
-                            time?: string;
-                            type?: string;
-                            severity?: string;
-                            vehicleId?: string;
-                            driverId?: string;
-                            location?: string;
-                            injuries?: boolean;
-                            status?: string;
-                          };
-                          return (
-                            <TableRow key={inc.id}>
-                              <TableCell>{inc.id}</TableCell>
-                              <TableCell>{`${inc.date} ${inc.time}`}</TableCell>
-                              <TableCell>{inc.type}</TableCell>
-                              <TableCell>
-                                <Chip
-                                  size="small"
-                                  label={inc.severity}
-                                  color={
-                                    inc.severity === 'High' ? 'error' :
-                                      inc.severity === 'Medium' ? 'warning' : 'default'
-                                  }
-                                />
-                              </TableCell>
-                              <TableCell>{`${inc.vehicleId} / ${inc.driverId}`}</TableCell>
-                              <TableCell>{inc.location}</TableCell>
-                              <TableCell>
-                                {inc.injuries ? (
-                                  <Chip size="small" label="Yes" color="error" />
-                                ) : (
-                                  <Chip size="small" label="No" color="success" />
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                <Chip
-                                  size="small"
-                                  label={inc.status}
-                                  color={inc.status === 'Closed' ? 'success' : 'warning'}
-                                />
-                              </TableCell>
-                              <TableCell>
-                                <IconButton
-                                  size="small"
-                                  onClick={() => handleViewItem(incident, 'incident')}
-                                  sx={{ '&:hover': { color: 'primary: main' } }}
-                                >
-                                  <Visibility />
-                                </IconButton>
-                                <IconButton size="small">
-                                  <Edit />
-                                </IconButton>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
+                        .map(incident => (
+                          <TableRow key={incident.id}>
+                            <TableCell>{incident.id}</TableCell>
+                            <TableCell>{`${incident.date} ${incident.time}`}</TableCell>
+                            <TableCell>{incident.type}</TableCell>
+                            <TableCell>
+                              <Chip
+                                size="small"
+                                label={incident.severity}
+                                color={
+                                  incident.severity === 'High' ? 'error' :
+                                    incident.severity === 'Medium' ? 'warning' : 'default'
+                                }
+                              />
+                            </TableCell>
+                            <TableCell>{`${incident.vehicleId} / ${incident.driverId}`}</TableCell>
+                            <TableCell>{incident.location}</TableCell>
+                            <TableCell>
+                              {incident.injuries ? (
+                                <Chip size="small" label="Yes" color="error" />
+                              ) : (
+                                <Chip size="small" label="No" color="success" />
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <Chip
+                                size="small"
+                                label={incident.status}
+                                color={incident.status === 'Closed' ? 'success' : 'warning'}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <IconButton
+                                size="small"
+                                onClick={() => handleViewItem(incident, 'incident')}
+                                sx={{ '&:hover': { color: 'primary.main' } }}
+                              >
+                                <Visibility />
+                              </IconButton>
+                              <IconButton size="small">
+                                <Edit />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
@@ -880,7 +834,7 @@ const SafetyComplianceSystem: React.FC = () => {
                           </Box>
 
                           <List dense>
-                            {training.completions.slice(0, 3).map((completion: TrainingCompletion) => {
+                            {training.completions.slice(0, 3).map((completion: { driverId: string; expiryDate: string }) => {
                               const driver = drivers.find(d => d.id === completion.driverId);
                               const expired = new Date(completion.expiryDate) < new Date();
                               return (
@@ -995,54 +949,41 @@ const SafetyComplianceSystem: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {inspections.map(inspection => {
-                        const insp = inspection as {
-                          id?: string;
-                          date?: string;
-                          type?: string;
-                          vehicleId?: string;
-                          inspector?: string;
-                          result?: string;
-                          violations?: unknown[];
-                          nextDue?: string;
-                          status?: string;
-                        };
-                        return (
-                          <TableRow key={insp.id}>
-                            <TableCell>{insp.id}</TableCell>
-                            <TableCell>{insp.date}</TableCell>
-                            <TableCell>{insp.type}</TableCell>
-                            <TableCell>{insp.vehicleId}</TableCell>
-                            <TableCell>{insp.inspector}</TableCell>
-                            <TableCell>
-                              <Chip
-                                size="small"
-                                label={insp.result}
-                                color={insp.result === 'Pass' ? 'success' : 'warning'}
-                              />
-                            </TableCell>
-                            <TableCell>{(insp.violations as unknown[])?.length || 'None'}</TableCell>
-                            <TableCell>{insp.nextDue || 'N/A'}</TableCell>
-                            <TableCell>
-                              <Chip
-                                size="small"
-                                label={insp.status}
-                                color={insp.status === 'Completed' ? 'success' : 'warning'}
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <IconButton
-                                size="small"
-                                onClick={() => handleViewItem(inspection, 'inspection')}
-                                sx={{ '&:hover': { color: 'primary: main' } }}
-                              >
-                                <Visibility />
-                              </IconButton>
-                              <IconButton size="small"><Download /></IconButton>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
+                      {inspections.map(inspection => (
+                        <TableRow key={inspection.id}>
+                          <TableCell>{inspection.id}</TableCell>
+                          <TableCell>{inspection.date}</TableCell>
+                          <TableCell>{inspection.type}</TableCell>
+                          <TableCell>{inspection.vehicleId}</TableCell>
+                          <TableCell>{inspection.inspector}</TableCell>
+                          <TableCell>
+                            <Chip
+                              size="small"
+                              label={inspection.result}
+                              color={inspection.result === 'Pass' ? 'success' : 'warning'}
+                            />
+                          </TableCell>
+                          <TableCell>{inspection.violations.length || 'None'}</TableCell>
+                          <TableCell>{inspection.nextDue || 'N/A'}</TableCell>
+                          <TableCell>
+                            <Chip
+                              size="small"
+                              label={inspection.status}
+                              color={inspection.status === 'Completed' ? 'success' : 'warning'}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleViewItem(inspection, 'inspection')}
+                              sx={{ '&:hover': { color: 'primary.main' } }}
+                            >
+                              <Visibility />
+                            </IconButton>
+                            <IconButton size="small"><Download /></IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
@@ -1100,65 +1041,52 @@ const SafetyComplianceSystem: React.FC = () => {
                 {/* Policy Compliance */}
                 <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>Safety Policies</Typography>
                 <Grid container spacing={2}>
-                  {policies.map(policy => {
-                    const pol = policy as {
-                      id?: string;
-                      name?: string;
-                      version?: string;
-                      effectiveDate?: string;
-                      mandatory?: boolean;
-                      description?: string;
-                      acknowledgements?: number;
-                      totalRequired?: number;
-                      nextReview?: string;
-                    };
-                    return (
-                      <Grid size={{ xs: 12, md: 6 }} key={pol.id}>
-                        <Card variant="outlined">
-                          <CardContent>
-                            <Box display="flex" justifyContent="space-between" alignItems="start">
-                              <Box>
-                                <Typography variant="h6">{pol.name}</Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                  Version {pol.version} - Effective: {pol.effectiveDate}
-                                </Typography>
-                              </Box>
-                              {pol.mandatory && (
-                                <Chip label="Mandatory" size="small" color="error" />
-                              )}
-                            </Box>
-
-                            <Typography variant="body2" sx={{ mt: 2, mb: 1 }}>
-                              {pol.description}
-                            </Typography>
-
-                            <Box display="flex" alignItems="center" gap={1} mb={1}>
+                  {policies.map(policy => (
+                    <Grid size={{ xs: 12, md: 6 }} key={policy.id}>
+                      <Card variant="outlined">
+                        <CardContent>
+                          <Box display="flex" justifyContent="space-between" alignItems="start">
+                            <Box>
+                              <Typography variant="h6">{policy.name}</Typography>
                               <Typography variant="body2" color="textSecondary">
-                                Acknowledgements:
-                              </Typography>
-                              <LinearProgress
-                                variant="determinate"
-                                value={((pol.acknowledgements || 0) / (pol.totalRequired || 1)) * 100}
-                                sx={{ flexGrow: 1, height: 6, borderRadius: 3 }}
-                              />
-                              <Typography variant="body2">
-                                {pol.acknowledgements}/{pol.totalRequired}
+                                Version {policy.version} - Effective: {policy.effectiveDate}
                               </Typography>
                             </Box>
+                            {policy.mandatory && (
+                              <Chip label="Mandatory" size="small" color="error" />
+                            )}
+                          </Box>
 
-                            <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
-                              <Typography variant="caption" color="textSecondary">
-                                Next Review: {pol.nextReview}
-                              </Typography>
-                              <Button size="small" variant="outlined">
-                                View Details
-                              </Button>
-                            </Box>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                    );
-                  })}
+                          <Typography variant="body2" sx={{ mt: 2, mb: 1 }}>
+                            {policy.description}
+                          </Typography>
+
+                          <Box display="flex" alignItems="center" gap={1} mb={1}>
+                            <Typography variant="body2" color="textSecondary">
+                              Acknowledgements:
+                            </Typography>
+                            <LinearProgress
+                              variant="determinate"
+                              value={(policy.acknowledgements / policy.totalRequired) * 100}
+                              sx={{ flexGrow: 1, height: 6, borderRadius: 3 }}
+                            />
+                            <Typography variant="body2">
+                              {policy.acknowledgements}/{policy.totalRequired}
+                            </Typography>
+                          </Box>
+
+                          <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
+                            <Typography variant="caption" color="textSecondary">
+                              Next Review: {policy.nextReview}
+                            </Typography>
+                            <Button size="small" variant="outlined">
+                              View Details
+                            </Button>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
                 </Grid>
 
                 {/* Violations */}
@@ -1178,37 +1106,24 @@ const SafetyComplianceSystem: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {violations.map(violation => {
-                        const viol = violation as {
-                          id?: string;
-                          date?: string;
-                          driverId?: string;
-                          type?: string;
-                          description?: string;
-                          location?: string;
-                          fineAmount?: number;
-                          points?: number;
-                          status?: string;
-                        };
-                        return (
-                          <TableRow key={viol.id}>
-                            <TableCell>{viol.date}</TableCell>
-                            <TableCell>{viol.driverId}</TableCell>
-                            <TableCell>{viol.type}</TableCell>
-                            <TableCell>{viol.description}</TableCell>
-                            <TableCell>{viol.location}</TableCell>
-                            <TableCell>${viol.fineAmount}</TableCell>
-                            <TableCell>{viol.points}</TableCell>
-                            <TableCell>
-                              <Chip
-                                size="small"
-                                label={viol.status}
-                                color={viol.status === 'Resolved' ? 'success' : 'warning'}
-                              />
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
+                      {violations.map(violation => (
+                        <TableRow key={violation.id}>
+                          <TableCell>{violation.date}</TableCell>
+                          <TableCell>{violation.driverId}</TableCell>
+                          <TableCell>{violation.type}</TableCell>
+                          <TableCell>{violation.description}</TableCell>
+                          <TableCell>{violation.location}</TableCell>
+                          <TableCell>${violation.fineAmount}</TableCell>
+                          <TableCell>{violation.points}</TableCell>
+                          <TableCell>
+                            <Chip
+                              size="small"
+                              label={violation.status}
+                              color={violation.status === 'Resolved' ? 'success' : 'warning'}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
@@ -1229,7 +1144,7 @@ const SafetyComplianceSystem: React.FC = () => {
                 <List>
                   <ListItem>
                     <ListItemIcon>
-                      <Avatar sx={{ bgcolor: 'primary: main' }}>
+                      <Avatar sx={{ bgcolor: 'primary.main' }}>
                         <Assignment />
                       </Avatar>
                     </ListItemIcon>
@@ -1241,7 +1156,7 @@ const SafetyComplianceSystem: React.FC = () => {
                   <Divider />
                   <ListItem>
                     <ListItemIcon>
-                      <Avatar sx={{ bgcolor: 'success: main' }}>
+                      <Avatar sx={{ bgcolor: 'success.main' }}>
                         <CheckCircle />
                       </Avatar>
                     </ListItemIcon>
@@ -1253,8 +1168,8 @@ const SafetyComplianceSystem: React.FC = () => {
                   <Divider />
                   <ListItem>
                     <ListItemIcon>
-                      <Avatar sx={{ bgcolor: 'warning: main' }}>
-                        <AlertTriangle />
+                      <Avatar sx={{ bgcolor: 'warning.main' }}>
+                        <Warning />
                       </Avatar>
                     </ListItemIcon>
                     <ListItemText
@@ -1265,7 +1180,7 @@ const SafetyComplianceSystem: React.FC = () => {
                   <Divider />
                   <ListItem>
                     <ListItemIcon>
-                      <Avatar sx={{ bgcolor: 'info: main' }}>
+                      <Avatar sx={{ bgcolor: 'info.main' }}>
                         <Security />
                       </Avatar>
                     </ListItemIcon>
@@ -1346,13 +1261,13 @@ const SafetyComplianceSystem: React.FC = () => {
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <FormControlLabel
-                control={<Checkbox checked={Boolean((selectedItem as { injuries?: boolean })?.injuries)} />}
+                control={<Checkbox checked={selectedItem?.injuries || false} />}
                 label="Injuries Reported"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <FormControlLabel
-                control={<Checkbox checked={Boolean((selectedItem as { propertyDamage?: boolean })?.propertyDamage)} />}
+                control={<Checkbox checked={selectedItem?.propertyDamage || false} />}
                 label="Property Damage"
               />
             </Grid>
@@ -1380,185 +1295,160 @@ const SafetyComplianceSystem: React.FC = () => {
                 {viewingType === 'incident' && `Safety Incident - ${viewingItem?.id}`}
                 {viewingType === 'inspection' && `Safety Inspection - ${viewingItem?.id}`}
               </Typography>
-              <Typography variant="body2" color="text: secondary">
+              <Typography variant="body2" color="text.secondary">
                 {viewingType === 'incident' && `${viewingItem?.date} ${viewingItem?.time} | ${viewingItem?.location}`}
                 {viewingType === 'inspection' && `${viewingItem?.date} | ${viewingItem?.vehicleId}`}
               </Typography>
             </Box>
             <Chip
-              label={String((viewingItem as { status?: string })?.status || '')}
-              color={(viewingItem as { status?: string })?.status === 'Closed' || (viewingItem as { status?: string })?.status === 'Completed' ? 'success' : 'warning'}
+              label={viewingItem?.status}
+              color={viewingItem?.status === 'Closed' || viewingItem?.status === 'Completed' ? 'success' : 'warning'}
               size="small"
             />
           </Stack>
         </DialogTitle>
         <DialogContent>
-          {viewingItem && viewingType === 'incident' && (() => {
-            const item = viewingItem as {
-              severity?: string;
-              type?: string;
-              vehicleId?: string;
-              description?: string;
-              driverId?: string;
-              location?: string;
-              injuries?: boolean;
-              propertyDamage?: boolean;
-              status?: string;
-            };
-            return (
-              <Grid container spacing={3}>
-                <Grid size={12}>
-                  <Alert severity={item.severity === 'High' ? 'error' : 'warning'} sx={{ mb: 2 }}>
-                    <Typography variant="body1">
-                      <strong>Type:</strong> {item.type} |
-                      <strong> Severity:</strong> {item.severity} |
-                      <strong> Vehicle:</strong> {item.vehicleId}
-                    </Typography>
-                  </Alert>
-                </Grid>
-
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Card>
-                    <CardContent>
-                      <Typography variant="h6" gutterBottom>
-                        Incident Details
-                      </Typography>
-                      <Stack spacing={2}>
-                        <Box>
-                          <Typography variant="body2" color="text.secondary">Description</Typography>
-                          <Typography variant="body1">{item.description}</Typography>
-                        </Box>
-                        <Box>
-                          <Typography variant="body2" color="text.secondary">Driver Involved</Typography>
-                          <Typography variant="body1">{item.driverId}</Typography>
-                        </Box>
-                        <Box>
-                          <Typography variant="body2" color="text.secondary">Location</Typography>
-                          <Typography variant="body1">{item.location}</Typography>
-                        </Box>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                </Grid>
-
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Card>
-                    <CardContent>
-                      <Typography variant="h6" gutterBottom>
-                        Impact Assessment
-                      </Typography>
-                      <Stack spacing={2}>
-                        <Box>
-                          <Typography variant="body2" color="text.secondary">Injuries Reported</Typography>
-                          <Chip
-                            label={item.injuries ? 'Yes' : 'No'}
-                            color={item.injuries ? 'error' : 'success'}
-                            size="small"
-                          />
-                        </Box>
-                        <Box>
-                          <Typography variant="body2" color="text.secondary">Property Damage</Typography>
-                          <Chip
-                            label={item.propertyDamage ? 'Yes' : 'No'}
-                            color={item.propertyDamage ? 'warning' : 'success'}
-                            size="small"
-                          />
-                        </Box>
-                        <Box>
-                          <Typography variant="body2" color="text.secondary">Current Status</Typography>
-                          <Chip
-                            label={item.status}
-                            color={item.status === 'Closed' ? 'success' : 'warning'}
-                            size="small"
-                          />
-                        </Box>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                </Grid>
+          {viewingItem && viewingType === 'incident' && (
+            <Grid container spacing={3}>
+              <Grid size={12}>
+                <Alert severity={viewingItem.severity === 'High' ? 'error' : 'warning'} sx={{ mb: 2 }}>
+                  <Typography variant="body1">
+                    <strong>Type:</strong> {viewingItem.type} |
+                    <strong> Severity:</strong> {viewingItem.severity} |
+                    <strong> Vehicle:</strong> {viewingItem.vehicleId}
+                  </Typography>
+                </Alert>
               </Grid>
-            );
-          })()}
 
-          {viewingItem && viewingType === 'inspection' && (() => {
-            const item = viewingItem as {
-              inspector?: string;
-              type?: string;
-              score?: number;
-              vehicleId?: string;
-              date?: string;
-              nextDue?: string;
-              status?: string;
-            };
-            const score = item.score || 0;
-            return (
-              <Grid container spacing={3}>
-                <Grid size={12}>
-                  <Alert severity="info" sx={{ mb: 2 }}>
-                    <Typography variant="body1">
-                      <strong>Inspector:</strong> {item.inspector} |
-                      <strong> Type:</strong> {item.type} |
-                      <strong> Score:</strong> {score}/100
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      Incident Details
                     </Typography>
-                  </Alert>
-                </Grid>
-
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Card>
-                    <CardContent>
-                      <Typography variant="h6" gutterBottom>
-                        Inspection Details
-                      </Typography>
-                      <Stack spacing={2}>
-                        <Box>
-                          <Typography variant="body2" color="text.secondary">Vehicle ID</Typography>
-                          <Typography variant="body1">{item.vehicleId}</Typography>
-                        </Box>
-                        <Box>
-                          <Typography variant="body2" color="text.secondary">Inspection Date</Typography>
-                          <Typography variant="body1">{item.date}</Typography>
-                        </Box>
-                        <Box>
-                          <Typography variant="body2" color="text.secondary">Next Due Date</Typography>
-                          <Typography variant="body1">{item.nextDue}</Typography>
-                        </Box>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                </Grid>
-
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Card>
-                    <CardContent>
-                      <Typography variant="h6" gutterBottom>
-                        Inspection Results
-                      </Typography>
-                      <Stack spacing={2}>
-                        <Box>
-                          <Typography variant="body2" color="text.secondary">Overall Score</Typography>
-                          <LinearProgress
-                            variant="determinate"
-                            value={score}
-                            color={score >= 90 ? 'success' : score >= 70 ? 'warning' : 'error'}
-                            sx={{ height: 8, borderRadius: 4 }}
-                          />
-                          <Typography variant="caption">{score}/100</Typography>
-                        </Box>
-                        <Box>
-                          <Typography variant="body2" color="text.secondary">Status</Typography>
-                          <Chip
-                            label={item.status}
-                            color={item.status === 'Completed' ? 'success' : 'warning'}
-                            size="small"
-                          />
-                        </Box>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                </Grid>
+                    <Stack spacing={2}>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">Description</Typography>
+                        <Typography variant="body1">{viewingItem.description}</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">Driver Involved</Typography>
+                        <Typography variant="body1">{viewingItem.driverId}</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">Location</Typography>
+                        <Typography variant="body1">{viewingItem.location}</Typography>
+                      </Box>
+                    </Stack>
+                  </CardContent>
+                </Card>
               </Grid>
-            );
-          })()}
+
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      Impact Assessment
+                    </Typography>
+                    <Stack spacing={2}>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">Injuries Reported</Typography>
+                        <Chip
+                          label={viewingItem.injuries ? 'Yes' : 'No'}
+                          color={viewingItem.injuries ? 'error' : 'success'}
+                          size="small"
+                        />
+                      </Box>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">Property Damage</Typography>
+                        <Chip
+                          label={viewingItem.propertyDamage ? 'Yes' : 'No'}
+                          color={viewingItem.propertyDamage ? 'warning' : 'success'}
+                          size="small"
+                        />
+                      </Box>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">Current Status</Typography>
+                        <Chip
+                          label={viewingItem.status}
+                          color={viewingItem.status === 'Closed' ? 'success' : 'warning'}
+                          size="small"
+                        />
+                      </Box>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          )}
+
+          {viewingItem && viewingType === 'inspection' && (
+            <Grid container spacing={3}>
+              <Grid size={12}>
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  <Typography variant="body1">
+                    <strong>Inspector:</strong> {viewingItem.inspector} |
+                    <strong> Type:</strong> {viewingItem.type} |
+                    <strong> Score:</strong> {viewingItem.score}/100
+                  </Typography>
+                </Alert>
+              </Grid>
+
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      Inspection Details
+                    </Typography>
+                    <Stack spacing={2}>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">Vehicle ID</Typography>
+                        <Typography variant="body1">{viewingItem.vehicleId}</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">Inspection Date</Typography>
+                        <Typography variant="body1">{viewingItem.date}</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">Next Due Date</Typography>
+                        <Typography variant="body1">{viewingItem.nextDue}</Typography>
+                      </Box>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      Inspection Results
+                    </Typography>
+                    <Stack spacing={2}>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">Overall Score</Typography>
+                        <LinearProgress
+                          variant="determinate"
+                          value={viewingItem.score}
+                          color={viewingItem.score >= 90 ? 'success' : viewingItem.score >= 70 ? 'warning' : 'error'}
+                          sx={{ height: 8, borderRadius: 4 }}
+                        />
+                        <Typography variant="caption">{viewingItem.score}/100</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">Status</Typography>
+                        <Chip
+                          label={viewingItem.status}
+                          color={viewingItem.status === 'Completed' ? 'success' : 'warning'}
+                          size="small"
+                        />
+                      </Box>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseViewDialog}>Close</Button>

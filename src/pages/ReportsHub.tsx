@@ -14,11 +14,8 @@
  * @performance Optimized with memoization, code splitting
  */
 
-<<<<<<< HEAD
 import { motion } from 'framer-motion'
 import { Suspense, memo, useCallback, useMemo } from 'react'
-import { BarChart, FileText, Clock, FolderOpen, Zap, Download, Calendar, TrendingUp, Users, PlayCircle, Plus, AlertTriangle } from 'lucide-react'
-=======
 import {
   ChartBar,
   FileText,
@@ -33,40 +30,29 @@ import {
   Plus,
   Warning,
 } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
-import { Suspense, memo, useCallback, useMemo } from 'react'
-
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
->>>>>>> fix/pipeline-eslint-build
 import HubPage from '@/components/ui/hub-page'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useReactiveReportsData } from '@/hooks/use-reactive-reports-data'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { useReactiveReportsData } from '@/hooks/use-reactive-reports-data'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 
 // ============================================================================
 // TYPES
 // ============================================================================
-
-<<<<<<< HEAD
-import logger from '@/utils/logger';
 
 import type {
   ReportTemplate,
   GeneratedReport,
   ScheduledReport,
 } from '@/hooks/use-reactive-reports-data'
-=======
-
-
->>>>>>> fix/pipeline-eslint-build
 
 interface AnimatedListItemProps {
   index: number
@@ -242,7 +228,7 @@ const OverviewTab = memo(() => {
             value={metrics?.activeSchedules?.toString() || '0'}
             icon={Clock}
             trend="up"
-            change={+3}
+            change={3}
             description="Active schedules"
             loading={isLoading}
             aria-label={`Scheduled reports: ${metrics?.activeSchedules || 0}`}
@@ -250,7 +236,7 @@ const OverviewTab = memo(() => {
           <StatCard
             title="Generated Today"
             value={metrics?.generatedToday?.toString() || '0'}
-            icon={TrendingUp}
+            icon={TrendUp}
             trend="up"
             description="Reports created"
             loading={isLoading}
@@ -259,7 +245,7 @@ const OverviewTab = memo(() => {
           <StatCard
             title="Popular Templates"
             value={popularTemplates?.length?.toString() || '0'}
-            icon={BarChart}
+            icon={ChartBar}
             trend="neutral"
             description="Most used"
             loading={isLoading}
@@ -335,7 +321,7 @@ const OverviewTab = memo(() => {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-green-500" aria-hidden="true" />
+                <TrendUp className="h-5 w-5 text-green-500" aria-hidden="true" />
                 <CardTitle>Popular Templates</CardTitle>
               </div>
               <CardDescription>Most frequently generated reports</CardDescription>
@@ -367,7 +353,7 @@ const OverviewTab = memo(() => {
                 </ul>
               ) : (
                 <EmptyState
-                  icon={TrendingUp}
+                  icon={TrendUp}
                   message="No usage data available"
                 />
               )}
@@ -448,7 +434,7 @@ const TemplatesTab = memo(() => {
   }, [domainDistribution])
 
   const handleCreateTemplate = useCallback(() => {
-    logger.info('Create template clicked')
+    console.log('Create template clicked')
     // TODO: Implement template creation dialog
   }, [])
 
@@ -488,14 +474,14 @@ const TemplatesTab = memo(() => {
             value={metrics?.customTemplates?.toString() || '0'}
             icon={FolderOpen}
             trend="up"
-            change={+5}
+            change={5}
             description="Organization-specific"
             loading={isLoading}
           />
           <StatCard
             title="Categories"
             value={Object.keys(domainDistribution).length.toString()}
-            icon={BarChart}
+            icon={ChartBar}
             trend="neutral"
             description="Unique domains"
             loading={isLoading}
@@ -503,7 +489,7 @@ const TemplatesTab = memo(() => {
           <StatCard
             title="Most Popular"
             value={templates.length > 0 ? truncate(templates[0]?.title || 'N/A', 15) : 'N/A'}
-            icon={TrendingUp}
+            icon={TrendUp}
             trend="up"
             description="Top template"
             loading={isLoading}
@@ -607,7 +593,7 @@ const ScheduledTab = memo(() => {
   }, [scheduledReports])
 
   const handleNewSchedule = useCallback(() => {
-    logger.info('New schedule clicked')
+    console.log('New schedule clicked')
     // TODO: Implement schedule creation dialog
   }, [])
 
@@ -661,7 +647,7 @@ const ScheduledTab = memo(() => {
           <StatCard
             title="Next Run"
             value={upcomingScheduled.length > 0 ? 'In 2h' : 'N/A'}
-            icon={Zap}
+            icon={Lightning}
             trend="neutral"
             description="Upcoming execution"
             loading={isLoading}
@@ -831,16 +817,16 @@ const HistoryTab = memo(() => {
           <StatCard
             title="Generated Today"
             value={metrics?.generatedToday?.toString() || '0'}
-            icon={TrendingUp}
+            icon={TrendUp}
             trend="up"
-            change={`+${metrics?.generatedToday || 0}`}
+            change={metrics?.generatedToday || 0}
             description="Today's reports"
             loading={isLoading}
           />
           <StatCard
             title="Failed Today"
             value={metrics?.failedToday?.toString() || '0'}
-            icon={AlertTriangle}
+            icon={Warning}
             trend={metrics && metrics.failedToday > 0 ? 'down' : 'neutral'}
             description="Generation errors"
             loading={isLoading}
@@ -848,7 +834,7 @@ const HistoryTab = memo(() => {
           <StatCard
             title="Average Daily"
             value={Math.round((metrics?.totalGenerated || 0) / 30).toString()}
-            icon={BarChart}
+            icon={ChartBar}
             trend="up"
             description="Last 30 days"
             loading={isLoading}
@@ -863,7 +849,7 @@ const HistoryTab = memo(() => {
           <ResponsiveLineChart
             title="Generation Trend"
             description="Report generation volume over the past week"
-            data={generationTrend}
+            data={generationTrend.map(point => ({ name: point.name, value: point.count }))}
             height={300}
             showArea
             loading={isLoading}
@@ -887,7 +873,7 @@ const HistoryTab = memo(() => {
         <Card className="border-destructive" role="alert" aria-live="assertive">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-destructive" aria-hidden="true" />
+              <Warning className="h-5 w-5 text-destructive" aria-hidden="true" />
               <CardTitle className="text-destructive">Failed Reports</CardTitle>
             </div>
             <CardDescription>Reports that failed to generate today</CardDescription>
@@ -1004,7 +990,7 @@ export default function ReportsHub() {
     {
       id: 'overview',
       label: 'Overview',
-      icon: <BarChart className="h-4 w-4" />,
+      icon: <ChartBar className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <OverviewTab />
@@ -1053,7 +1039,7 @@ export default function ReportsHub() {
     <HubPage
       title="Reports Hub"
       description="Comprehensive report generation and analytics"
-      icon={<BarChart className="h-8 w-8" />}
+      icon={<ChartBar className="h-8 w-8" />}
       tabs={tabs}
       defaultTab="overview"
     />

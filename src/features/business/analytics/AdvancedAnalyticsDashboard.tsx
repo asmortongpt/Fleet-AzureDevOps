@@ -1,6 +1,6 @@
 import {
-  TrendingUp as TrendUpIcon,
-  TrendingDown as TrendDownIcon,
+  TrendingUp as TrendingUpIcon,
+  TrendingDown as TrendingDownIcon,
   Assessment as AssessmentIcon,
   PsychologyAlt as AIIcon,
   Speed as SpeedIcon,
@@ -21,7 +21,6 @@ import {
   CardContent,
   Typography,
   Grid,
-  type GridProps,
   Tabs,
   Tab,
   Paper,
@@ -67,7 +66,6 @@ import {
   Cell
 } from 'recharts';
 
-import logger from '@/utils/logger';
 import AdvancedAnalyticsService, {
   FleetMetrics,
   PredictiveInsight,
@@ -75,16 +73,15 @@ import AdvancedAnalyticsService, {
   BenchmarkData,
   CostOptimization,
   ExecutiveReport
-} from '@/features/services/analytics/AdvancedAnalyticsService';
+} from '../../services/analytics/AdvancedAnalyticsService';
 
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
   value: number;
-  [key: string]: unknown;
 }
 
-function TabPanel(props: TabPanelProps): React.ReactElement {
+function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
   return (
     <div
@@ -99,7 +96,6 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
   );
 }
 
-
 const AdvancedAnalyticsDashboard: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const [fleetMetrics, setFleetMetrics] = useState<FleetMetrics | null>(null);
@@ -109,14 +105,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
   const [optimizations, setOptimizations] = useState<CostOptimization[]>([]);
   const [executiveReport, setExecutiveReport] = useState<ExecutiveReport | null>(null);
   const [selectedInsight, setSelectedInsight] = useState<PredictiveInsight | null>(null);
-  const [realtimeKPIs, setRealtimeKPIs] = useState<{
-    activeVehicles: number;
-    vehiclesInTransit: number;
-    utilizationRateNow: number;
-    revenueToday: number;
-    fuelConsumptionToday: number;
-    safetyIncidentsToday: number;
-  } | null>(null);
+  const [realtimeKPIs, setRealtimeKPIs] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [dateRange, setDateRange] = useState({
@@ -132,7 +121,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const initializeData = async (): Promise<void> => {
+  const initializeData = async () => {
     try {
       setLoading(true);
       const [metricsData, insightsData, trendsData, benchmarkData, optimizationData, reportData, realtimeData] = await Promise.all([
@@ -156,29 +145,29 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
       setExecutiveReport(reportData);
       setRealtimeKPIs(realtimeData);
     } catch (error) {
-      logger.error('Error initializing analytics data:', error);
+      console.error('Error initializing analytics data:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const refreshRealtimeData = async (): Promise<void> => {
+  const refreshRealtimeData = async () => {
     try {
       setRefreshing(true);
       const realtimeData = await AdvancedAnalyticsService.getRealtimeKPIs();
       setRealtimeKPIs(realtimeData);
     } catch (error) {
-      logger.error('Error refreshing real-time data:', error);
+      console.error('Error refreshing real-time data:', error);
     } finally {
       setRefreshing(false);
     }
   };
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number): void => {
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
-  const getImpactColor = (impact: string): 'error' | 'warning' | 'info' | 'default' => {
+  const getImpactColor = (impact: string) => {
     switch (impact) {
       case 'HIGH': return 'error';
       case 'MEDIUM': return 'warning';
@@ -187,15 +176,15 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
     }
   };
 
-  const getTrendIcon = (trend: string): React.ReactNode => {
+  const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'UP': return <TrendUpIcon color="success" />;
-      case 'DOWN': return <TrendDownIcon color="error" />;
+      case 'UP': return <TrendingUpIcon color="success" />;
+      case 'DOWN': return <TrendingDownIcon color="error" />;
       default: return <SpeedIcon color="info" />;
     }
   };
 
-  const getStatusColor = (status: string): 'success' | 'info' | 'warning' | 'error' | 'default' => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'EXCELLENT': return 'success';
       case 'GOOD': return 'info';
@@ -205,7 +194,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
     }
   };
 
-  const getRankingColor = (ranking: string): 'success' | 'info' | 'warning' | 'error' | 'default' => {
+  const getRankingColor = (ranking: string) => {
     switch (ranking) {
       case 'TOP_10': return 'success';
       case 'TOP_25': return 'info';
@@ -215,7 +204,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
     }
   };
 
-  const downloadReport = async (): Promise<void> => {
+  const downloadReport = async () => {
     if (!executiveReport) return;
 
     const reportBlob = new Blob([JSON.stringify(executiveReport, null, 2)], { type: 'application/json' });
@@ -263,35 +252,29 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
 
       {/* Real-time KPI Bar */}
       {realtimeKPIs && (
-        <Paper sx={{ p: 2, mb: 3, bgcolor: 'primary.main', color: 'primary.contrastText' }}>
+        <Paper sx={{ p: 2, mb: 3, bgcolor: 'primary: main', color: 'primary: contrastText' }}>
           <Grid container spacing={3}>
-            {/* @ts-ignore */}
-            <Grid item xs={12} md={2}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <Typography variant="body2">Active Vehicles</Typography>
               <Typography variant="h6">{realtimeKPIs.activeVehicles}</Typography>
             </Grid>
-            {/* @ts-ignore */}
-            <Grid item xs={12} md={2}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <Typography variant="body2">In Transit</Typography>
               <Typography variant="h6">{realtimeKPIs.vehiclesInTransit}</Typography>
             </Grid>
-            {/* @ts-ignore */}
-            <Grid item xs={12} md={2}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <Typography variant="body2">Utilization</Typography>
               <Typography variant="h6">{realtimeKPIs.utilizationRateNow}%</Typography>
             </Grid>
-            {/* @ts-ignore */}
-            <Grid item xs={12} md={2}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <Typography variant="body2">Revenue Today</Typography>
               <Typography variant="h6">${realtimeKPIs.revenueToday.toLocaleString()}</Typography>
             </Grid>
-            {/* @ts-ignore */}
-            <Grid item xs={12} md={2}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <Typography variant="body2">Fuel Today</Typography>
               <Typography variant="h6">{realtimeKPIs.fuelConsumptionToday}L</Typography>
             </Grid>
-            {/* @ts-ignore */}
-            <Grid item xs={12} md={2}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <Typography variant="body2">Safety Incidents</Typography>
               <Typography variant="h6" color={realtimeKPIs.safetyIncidentsToday === 0 ? 'success.main' : 'error.main'}>
                 {realtimeKPIs.safetyIncidentsToday}
@@ -314,8 +297,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
         <TabPanel value={tabValue} index={0}>
           {fleetMetrics && (
             <Grid container spacing={3}>
-              {/* @ts-ignore */}
-              <Grid item xs={12} md={3}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" color="primary" gutterBottom>
@@ -334,8 +316,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                 </Card>
               </Grid>
 
-              {/* @ts-ignore */}
-              <Grid item xs={12} md={3}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" color="success.main" gutterBottom>
@@ -355,8 +336,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                 </Card>
               </Grid>
 
-              {/* @ts-ignore */}
-              <Grid item xs={12} md={3}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" color="info.main" gutterBottom>
@@ -373,8 +353,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                 </Card>
               </Grid>
 
-              {/* @ts-ignore */}
-              <Grid item xs={12} md={3}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" color="warning.main" gutterBottom>
@@ -391,8 +370,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                 </Card>
               </Grid>
 
-              {/* @ts-ignore */}
-              <Grid item xs={12} md={8}>
+              <Grid size={{ xs: 12, md: 8 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
@@ -401,7 +379,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                     <ResponsiveContainer width="100%" height={300}>
                       <LineChart data={kpiTrends[0]?.forecast || []}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" tickFormatter={(date: string) => format(parseISO(date), 'MMM dd')} />
+                        <XAxis dataKey="date" tickFormatter={(date) => format(parseISO(date), 'MMM dd')} />
                         <YAxis />
                         <RechartsTooltip />
                         <Legend />
@@ -412,8 +390,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                 </Card>
               </Grid>
 
-              {/* @ts-ignore */}
-                <Grid item xs={12} md={4}>
+              <Grid size={{ xs: 12, md: 4 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
@@ -442,7 +419,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                             { name: 'Insurance', value: 124600 },
                             { name: 'Operations', value: 234500 },
                             { name: 'Other', value: 102460 }
-                          ].map((entry, index: number) => (
+                          ].map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={`#${Math.floor(Math.random()*16777215).toString(16)}`} />
                           ))}
                         </Pie>
@@ -468,9 +445,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
 
           <Grid container spacing={3}>
             {insights.map((insight) => (
-              <>
-              {/* @ts-ignore */}
-              <Grid item xs={12} md={6} key={insight.id}>
+              <Grid size={{ xs: 12, md: 6 }} key={insight.id}>
                 <Card sx={{ height: '100%' }}>
                   <CardContent>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
@@ -496,8 +471,8 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                           />
                         </Box>
                       </Box>
-                      {insight.trend === 'IMPROVING' && <TrendUpIcon color="success" />}
-                      {insight.trend === 'DECLINING' && <TrendDownIcon color="error" />}
+                      {insight.trend === 'IMPROVING' && <TrendingUpIcon color="success" />}
+                      {insight.trend === 'DECLINING' && <TrendingDownIcon color="error" />}
                       {insight.trend === 'STABLE' && <SpeedIcon color="info" />}
                     </Box>
 
@@ -551,7 +526,6 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              </>
             ))}
           </Grid>
         </TabPanel>
@@ -563,9 +537,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
 
           <Grid container spacing={3}>
             {kpiTrends.map((kpi, index) => (
-              <>
-              {/* @ts-ignore */}
-              <Grid item xs={12} md={6} key={index}>
+              <Grid size={{ xs: 12, md: 6 }} key={index}>
                 <Card>
                   <CardContent>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -608,7 +580,6 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              </>
             ))}
           </Grid>
         </TabPanel>
@@ -673,9 +644,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
 
           <Grid container spacing={3}>
             {optimizations.map((opt) => (
-              <>
-              {/* @ts-ignore */}
-              <Grid item xs={12} key={opt.id}>
+              <Grid size={{ xs: 12 }} key={opt.id}>
                 <Card>
                   <CardContent>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
@@ -722,7 +691,6 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              </>
             ))}
           </Grid>
 
@@ -732,32 +700,28 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                 Total Optimization Impact
               </Typography>
               <Grid container spacing={3}>
-                {/* @ts-ignore */}
-              <Grid item xs={12} md={3}>
+                <Grid size={{ xs: 12, md: 3 }}>
                   <Typography variant="body2" color="text.secondary">Total Potential Savings</Typography>
                   <Typography variant="h4" color="success.main">
-                    ${optimizations.reduce((sum: number, opt: CostOptimization) => sum + opt.savings, 0).toLocaleString()}
+                    ${optimizations.reduce((sum, opt) => sum + opt.savings, 0).toLocaleString()}
                   </Typography>
                 </Grid>
-                {/* @ts-ignore */}
-              <Grid item xs={12} md={3}>
+                <Grid size={{ xs: 12, md: 3 }}>
                   <Typography variant="body2" color="text.secondary">Average ROI</Typography>
                   <Typography variant="h4">
-                    {(optimizations.reduce((sum: number, opt: CostOptimization) => sum + opt.roi, 0) / optimizations.length).toFixed(0)}%
+                    {(optimizations.reduce((sum, opt) => sum + opt.roi, 0) / optimizations.length).toFixed(0)}%
                   </Typography>
                 </Grid>
-                {/* @ts-ignore */}
-              <Grid item xs={12} md={3}>
+                <Grid size={{ xs: 12, md: 3 }}>
                   <Typography variant="body2" color="text.secondary">Immediate Opportunities</Typography>
                   <Typography variant="h4">
-                    {optimizations.filter((opt: CostOptimization) => opt.implementation === 'IMMEDIATE').length}
+                    {optimizations.filter(opt => opt.implementation === 'IMMEDIATE').length}
                   </Typography>
                 </Grid>
-                {/* @ts-ignore */}
-              <Grid item xs={12} md={3}>
+                <Grid size={{ xs: 12, md: 3 }}>
                   <Typography variant="body2" color="text.secondary">Cost Reduction</Typography>
                   <Typography variant="h4">
-                    {(optimizations.reduce((sum: number, opt: CostOptimization) => sum + opt.savings, 0) / optimizations.reduce((sum: number, opt: CostOptimization) => sum + opt.currentCost, 0) * 100).toFixed(1)}%
+                    {(optimizations.reduce((sum, opt) => sum + opt.savings, 0) / optimizations.reduce((sum, opt) => sum + opt.currentCost, 0) * 100).toFixed(1)}%
                   </Typography>
                 </Grid>
               </Grid>
@@ -778,31 +742,26 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
               </Box>
 
               <Grid container spacing={3}>
-                {/* @ts-ignore */}
-              <Grid item xs={12} md={8}>
+                <Grid size={{ xs: 12, md: 8 }}>
                   <Card sx={{ mb: 3 }}>
                     <CardContent>
                       <Typography variant="h6" gutterBottom>
                         Fleet Summary
                       </Typography>
                       <Grid container spacing={2}>
-                        {/* @ts-ignore */}
-                        <Grid item xs={6}>
+                        <Grid size={{ xs: 6 }}>
                           <Typography variant="body2" color="text.secondary">Total Fleet Value</Typography>
                           <Typography variant="h6">${executiveReport.summary.totalFleetValue.toLocaleString()}</Typography>
                         </Grid>
-                        {/* @ts-ignore */}
-                        <Grid item xs={6}>
+                        <Grid size={{ xs: 6 }}>
                           <Typography variant="body2" color="text.secondary">Operational Cost</Typography>
                           <Typography variant="h6">${executiveReport.summary.operationalCost.toLocaleString()}</Typography>
                         </Grid>
-                        {/* @ts-ignore */}
-                        <Grid item xs={6}>
+                        <Grid size={{ xs: 6 }}>
                           <Typography variant="body2" color="text.secondary">Revenue</Typography>
                           <Typography variant="h6">${executiveReport.summary.revenue.toLocaleString()}</Typography>
                         </Grid>
-                        {/* @ts-ignore */}
-                        <Grid item xs={6}>
+                        <Grid size={{ xs: 6 }}>
                           <Typography variant="body2" color="text.secondary">Profitability</Typography>
                           <Typography variant="h6">{executiveReport.summary.profitability}%</Typography>
                         </Grid>
@@ -816,7 +775,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                     </AccordionSummary>
                     <AccordionDetails>
                       <List>
-                        {executiveReport.summary.keyAchievements.map((achievement: string, index: number) => (
+                        {executiveReport.summary.keyAchievements.map((achievement, index) => (
                           <ListItem key={index}>
                             <ListItemIcon>
                               <CheckCircleIcon color="success" />
@@ -834,7 +793,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                     </AccordionSummary>
                     <AccordionDetails>
                       <List>
-                        {executiveReport.summary.majorConcerns.map((concern: string, index: number) => (
+                        {executiveReport.summary.majorConcerns.map((concern, index) => (
                           <ListItem key={index}>
                             <ListItemIcon>
                               <WarningIcon color="warning" />
@@ -852,7 +811,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                     </AccordionSummary>
                     <AccordionDetails>
                       <List>
-                        {executiveReport.recommendations.map((recommendation: string, index: number) => (
+                        {executiveReport.recommendations.map((recommendation, index) => (
                           <ListItem key={index}>
                             <ListItemIcon>
                               <LightbulbIcon color="primary" />
@@ -865,8 +824,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                   </Accordion>
                 </Grid>
 
-                {/* @ts-ignore */}
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <Card sx={{ mb: 3 }}>
                     <CardContent>
                       <Typography variant="h6" gutterBottom>
@@ -899,7 +857,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                       <Typography variant="h6" gutterBottom>
                         High-Impact Insights
                       </Typography>
-                      {executiveReport.insights.map((insight, index: number) => (
+                      {executiveReport.insights.map((insight, index) => (
                         <Box key={index} sx={{ mb: 2 }}>
                           <Typography variant="body2" fontWeight="bold">
                             {insight.title}
@@ -930,14 +888,12 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
             <DialogTitle>{selectedInsight.title}</DialogTitle>
             <DialogContent>
               <Grid container spacing={2}>
-                {/* @ts-ignore */}
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <Typography variant="body1" paragraph>
                     {selectedInsight.description}
                   </Typography>
                 </Grid>
-                {/* @ts-ignore */}
-              <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Typography variant="h6" gutterBottom>Analysis Details</Typography>
                   <Box sx={{ mb: 2 }}>
                     <Typography variant="body2">Category: {selectedInsight.category}</Typography>
@@ -947,8 +903,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                     <Typography variant="body2">Trend: {selectedInsight.trend}</Typography>
                   </Box>
                 </Grid>
-                {/* @ts-ignore */}
-              <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Typography variant="h6" gutterBottom>Recommendations</Typography>
                   <Typography variant="body2">{selectedInsight.recommendedAction}</Typography>
                   {selectedInsight.potentialSavings && (
@@ -958,17 +913,14 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                   )}
                 </Grid>
                 {selectedInsight.affectedVehicles.length > 0 && (
-                  <>
-                    {/* @ts-ignore */}
-                    <Grid item xs={12}>
-                      <Typography variant="h6" gutterBottom>Affected Vehicles</Typography>
-                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                        {selectedInsight.affectedVehicles.map((vehicle: string) => (
-                          <Chip key={vehicle} label={vehicle} size="small" />
-                        ))}
-                      </Box>
-                    </Grid>
-                  </>
+                  <Grid size={{ xs: 12 }}>
+                    <Typography variant="h6" gutterBottom>Affected Vehicles</Typography>
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                      {selectedInsight.affectedVehicles.map((vehicle) => (
+                        <Chip key={vehicle} label={vehicle} size="small" />
+                      ))}
+                    </Box>
+                  </Grid>
                 )}
               </Grid>
             </DialogContent>

@@ -2,8 +2,7 @@
 
 import { useState, useCallback } from 'react';
 
-import { ApiError } from '@/lib/api';
-import logger from '@/utils/logger';
+import { APIError as ApiError } from '@/lib/api';
 
 /**
  * State interface for mutation operations
@@ -54,7 +53,7 @@ interface UseMutationOptions<TData, TVariables> {
  *   (data) => api.post('/api/incidents', data),
  *   {
  *     onSuccess: (incident) => {
- *       logger.info('Incident created:', incident.id);
+ *       console.log('Incident created:', incident.id);
  *       refetchIncidents();
  *     },
  *     onError: (error) => {
@@ -111,7 +110,7 @@ export function useMutation<TData = unknown, TVariables = unknown>(
         const apiError =
           err instanceof ApiError
             ? err
-            : new ApiError(500, 'An unexpected error occurred');
+            : new ApiError('An unexpected error occurred', 500);
 
         setError(apiError);
         setData(null);
@@ -207,7 +206,7 @@ export function useOptimisticMutation<TData = unknown, TVariables = unknown>(
         const apiError =
           err instanceof ApiError
             ? err
-            : new ApiError(500, 'An unexpected error occurred');
+            : new ApiError('An unexpected error occurred', 500);
 
         setError(apiError);
         setData(null);

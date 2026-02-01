@@ -18,7 +18,6 @@ export * from './apiResponse';
 export * from './cache';
 export * from './cors-preflight';
 export * from './damage2Dto3DMapper';
-// export * from './demo-data-generator'; // File doesn't exist - commented out
 export * from './exportUtils';
 export * from './formatDate';
 export * from './formValidation';

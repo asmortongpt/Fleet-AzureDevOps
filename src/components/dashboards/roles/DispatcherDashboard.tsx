@@ -9,12 +9,6 @@
  * - Route assignment & coordination
  */
 
-<<<<<<< HEAD
-import React, { useState, useEffect } from 'react';
-import { Map, Radio, Siren, Route, Car, Clock, CheckCircle, AlertTriangle, Users, Phone, MessageCircle, Zap } from 'lucide-react';
-import { motion } from 'framer-motion';
-import toast from 'react-hot-toast';
-=======
 import {
   MapTrifold,
   Radio,
@@ -33,7 +27,6 @@ import { motion } from 'framer-motion';
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 
->>>>>>> fix/pipeline-eslint-build
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';

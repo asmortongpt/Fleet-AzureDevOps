@@ -330,13 +330,13 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
     }
   };
 
-  const handleExport = async (format: 'csv' | 'pdf' | 'excel') => {
+  const handleExport = async (exportFormat: 'csv' | 'pdf' | 'excel') => {
     try {
       const response = await fetch(`/api/policy-violations/export`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          format,
+          format: exportFormat,
           filters,
           includeResolved: true,
           includeComments: true,
@@ -347,7 +347,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `violations-report-${format}-${format(new Date(), 'yyyy-MM-dd')}.${format}`;
+      a.download = `violations-report-${exportFormat}-${format(new Date(), 'yyyy-MM-dd')}.${exportFormat}`;
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {

@@ -1,17 +1,8 @@
 import {
     Wrench,
-<<<<<<< HEAD
-    TrendingUp,
-    AlertTriangle,
-    CheckCircle,
-    Zap,
-    Clock
-} from "lucide-react"
-=======
     Warning,
     Lightning
 } from "@phosphor-icons/react"
->>>>>>> fix/pipeline-eslint-build
 import { useMemo } from "react"
 
 import { Badge } from "@/components/ui/badge"

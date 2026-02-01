@@ -9,19 +9,114 @@
  * - Role-based access control (RBAC)
  * - Session management with timeout
  * - Audit logging for compliance
- *
- * NOTE: Okta SDK packages not installed - using stub implementations for type safety.
  */
 
-// Legacy import - @okta/okta-react not in package.json
-// import { Security } from '@okta/okta-react';
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { logger } from '@/utils/logger';
+// Type declarations for Okta SDK (packages not installed - this is an optional enterprise feature)
+// These types provide compile-time safety without requiring the actual @okta packages
 
-// Stub implementation for Okta Security component
-const Security: React.FC<{ oktaAuth: unknown; children: React.ReactNode }> = ({ children }) => <>{children}</>;
+interface OktaAuthOptions {
+  issuer: string;
+  clientId: string;
+  redirectUri: string;
+  scopes: string[];
+  pkce: boolean;
+  disableHttpsCheck?: boolean;
+  tokenManager?: {
+    autoRenew?: boolean;
+    autoRemove?: boolean;
+    expireEarlySeconds?: number;
+    storage?: string;
+    storageKey?: string;
+  };
+  cookies?: {
+    secure?: boolean;
+    sameSite?: string;
+  };
+  serviceWorker?: string;
+}
+
+interface OktaAuthInstance {
+  getUser: () => Promise<Record<string, unknown>>;
+  signInWithRedirect: (options: { originalUri: string }) => Promise<void>;
+  signOut: (options: { postLogoutRedirectUri: string }) => Promise<void>;
+  token: {
+    isLoginRedirect: () => boolean;
+  };
+  handleLoginRedirect: () => Promise<void>;
+  tokenManager: {
+    renew: (tokenType: string) => Promise<void>;
+  };
+  authStateManager: {
+    getAuthState: () => Promise<Record<string, unknown>>;
+    subscribe: (callback: (state: Record<string, unknown>) => void) => void;
+    unsubscribe: (callback: (state: Record<string, unknown>) => void) => void;
+  };
+}
+
+// Stub OktaAuth class - actual implementation requires @okta/okta-auth-js package
+class OktaAuth implements OktaAuthInstance {
+  constructor(_options: OktaAuthOptions) {
+    // Stub implementation - requires @okta/okta-auth-js package
+  }
+  getUser(): Promise<Record<string, unknown>> {
+    throw new Error('OktaAuth requires @okta/okta-auth-js package');
+  }
+  signInWithRedirect(_options: { originalUri: string }): Promise<void> {
+    throw new Error('OktaAuth requires @okta/okta-auth-js package');
+  }
+  signOut(_options: { postLogoutRedirectUri: string }): Promise<void> {
+    throw new Error('OktaAuth requires @okta/okta-auth-js package');
+  }
+  token = {
+    isLoginRedirect: (): boolean => false,
+  };
+  handleLoginRedirect(): Promise<void> {
+    throw new Error('OktaAuth requires @okta/okta-auth-js package');
+  }
+  tokenManager = {
+    renew: (_tokenType: string): Promise<void> => {
+      throw new Error('OktaAuth requires @okta/okta-auth-js package');
+    },
+  };
+  authStateManager = {
+    getAuthState: (): Promise<Record<string, unknown>> => {
+      throw new Error('OktaAuth requires @okta/okta-auth-js package');
+    },
+    subscribe: (_callback: (state: Record<string, unknown>) => void): void => {
+      // Stub
+    },
+    unsubscribe: (_callback: (state: Record<string, unknown>) => void): void => {
+      // Stub
+    },
+  };
+}
+
+// Stub Security component - actual implementation requires @okta/okta-react package
+interface SecurityProps {
+  oktaAuth: OktaAuthInstance;
+  onAuthRequired?: () => void;
+  restoreOriginalUri: (oktaAuth: OktaAuthInstance, originalUri: string) => Promise<void>;
+  children: React.ReactNode;
+}
+
+const Security: React.FC<SecurityProps> = ({ children }) => {
+  // Stub implementation - requires @okta/okta-react package
+  return <>{children}</>;
+};
+
+// Utility function stub - actual implementation from @okta/okta-auth-js
+function toRelativeUrl(uri: string, origin: string): string {
+  // Convert absolute URL to relative URL
+  if (uri.startsWith(origin)) {
+    return uri.substring(origin.length) || '/';
+  }
+  return uri;
+}
+
+import { logger } from '@/utils/logger';
 
 // Okta configuration interface
 interface OktaConfig {
@@ -336,7 +431,7 @@ export const OktaAuthProvider: React.FC<OktaAuthProviderProps> = ({
       if (isAuthenticated) {
         // Get user info and groups
         const userInfo = await oktaAuth.getUser();
-        const groups = userInfo.groups || [];
+        const groups = Array.isArray(userInfo.groups) ? userInfo.groups as string[] : [];
 
         // Process user profile with roles and permissions
         const userProfile = processUserProfile(userInfo, groups);
@@ -521,7 +616,7 @@ export const OktaAuthProvider: React.FC<OktaAuthProviderProps> = ({
       <Security
         oktaAuth={oktaAuth}
         onAuthRequired={onAuthRequired}
-        restoreOriginalUri={async (oktaAuth: any, originalUri?: string) => {
+        restoreOriginalUri={async (_oktaAuth: OktaAuthInstance, originalUri: string) => {
           // Handle post-login redirect
           window.location.replace(
             toRelativeUrl(originalUri || '/', window.location.origin)
@@ -621,7 +716,7 @@ export const LoginCallbackComponent: React.FC = () => {
   useEffect(() => {
     oktaAuth.handleLoginRedirect().then(() => {
       navigate('/', { replace: true });
-    }).catch((error: Error) => {
+    }).catch((error: unknown) => {
       logger.error('Login callback error:', error);
     });
   }, [navigate]);

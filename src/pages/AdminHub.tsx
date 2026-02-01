@@ -14,11 +14,8 @@
  * - Screen reader friendly
  */
 
-<<<<<<< HEAD
 import { memo, useMemo, Suspense, lazy, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Settings as AdminIcon, Users, LineChart, Shield, AlertTriangle, CheckCircle, Database, UploadCloud, Lock, Clipboard, BadgeCheck, Search, UserCircle2, Activity as Activity, Clock, XCircle, Key, Sliders, Settings as GearSix } from 'lucide-react'
-=======
 import {
   Gear as AdminIcon,
   Users,
@@ -38,36 +35,27 @@ import {
   XCircle,
   Key,
 } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
-import { memo, useMemo, Suspense } from 'react'
-
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
->>>>>>> fix/pipeline-eslint-build
 import HubPage from '@/components/ui/hub-page'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useReactiveAdminData } from '@/hooks/use-reactive-admin-data'
+import type {
+  User,
+  SystemMetrics,
+  AuditLog,
+  Session,
+  AdminMetrics,
+  ActivityTrendData,
+  TopUserActivity,
+} from '@/hooks/use-reactive-admin-data'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-<<<<<<< HEAD
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { UserManagement } from '@/components/admin/UserManagement'
-import { ConfigurationContent } from '@/components/admin/ConfigurationContent'
-=======
-import { useReactiveAdminData } from '@/hooks/use-reactive-admin-data'
-import type {
-  User,
-  AuditLog,
-  Session,
-} from '@/hooks/use-reactive-admin-data'
->>>>>>> fix/pipeline-eslint-build
 
 // ============================================================================
 // CONSTANTS
@@ -190,7 +178,7 @@ const SessionItem = memo<SessionItemProps>(({ session, index }) => (
     role="listitem"
   >
     <div className="flex items-center gap-3">
-      <UserCircle2 className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
+      <UserCircle className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
       <div>
         <p className="font-medium">{session.userName}</p>
         <p className="text-xs text-muted-foreground" aria-label={`IP Address: ${session.ipAddress}`}>
@@ -229,7 +217,7 @@ const UserItem = memo<UserItemProps>(({ user, index }) => {
       role="listitem"
     >
       <div className="flex items-center gap-3 flex-1">
-        <IdCard className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
+        <IdentificationCard className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
         <div>
           <p className="font-medium">{user.name}</p>
           <p className="text-sm text-muted-foreground">{user.email}</p>
@@ -307,7 +295,7 @@ interface SettingItemProps {
   label: string
   description: string
   value: string
-  variant?: 'default' | 'success' | 'warning' | 'secondary'
+  variant?: 'default' | 'success' | 'warning' | 'secondary' | 'outline'
 }
 
 const SettingItem = memo<SettingItemProps>(({ label, description, value, variant = 'outline' }) => (
@@ -375,7 +363,7 @@ const AdminOverview = memo(() => {
             value={metrics?.totalUsers?.toString() || '0'}
             icon={Users}
             trend="up"
-            change={+5}
+            change={5}
             description="Registered users"
             loading={isLoading}
           />
@@ -399,7 +387,7 @@ const AdminOverview = memo(() => {
           <StatCard
             title="API Calls Today"
             value={systemMetrics ? `${(systemMetrics.apiCalls / 1000).toFixed(1)}K` : '0'}
-            icon={CloudUpload}
+            icon={CloudArrowUp}
             trend="up"
             change={12}
             description="API requests"
@@ -421,7 +409,8 @@ const AdminOverview = memo(() => {
           <ResponsiveLineChart
             title="System Activity (Last 7 Days)"
             description="Successful and failed actions over time"
-            data={activityTrendData}
+            data={activityTrendData.map(d => ({ ...d, value: d.total }))}
+            dataKeys={['success', 'failure']}
             height={300}
             showArea
             loading={isLoading}
@@ -435,7 +424,7 @@ const AdminOverview = memo(() => {
           <ResourceCard
             title="CPU Usage"
             description="Current processor utilization"
-            icon={LineChart}
+            icon={ChartLine}
             iconColor="text-blue-500"
             usage={systemMetrics?.cpuUsage || 0}
             threshold={THRESHOLD_CPU_WARNING}
@@ -510,7 +499,7 @@ const UsersContent = memo(() => {
             value={metrics?.totalUsers?.toString() || '0'}
             icon={Users}
             trend="up"
-            change={+5}
+            change={5}
             description="All users"
             loading={isLoading}
           />
@@ -803,7 +792,7 @@ const AuditContent = memo(() => {
           <StatCard
             title="Total Logs"
             value={metrics?.totalAuditLogs?.toString() || '0'}
-            icon={Clipboard}
+            icon={ClipboardText}
             trend="up"
             description="All audit entries"
             loading={isLoading}
@@ -813,7 +802,7 @@ const AuditContent = memo(() => {
             value="156"
             icon={Activity}
             trend="up"
-            change={+12}
+            change={12}
             description="Actions today"
             loading={isLoading}
           />
@@ -864,7 +853,7 @@ const AuditContent = memo(() => {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Clipboard className="h-5 w-5 text-blue-500" aria-hidden="true" />
+                <ClipboardText className="h-5 w-5 text-blue-500" aria-hidden="true" />
                 <CardTitle>Recent Activity</CardTitle>
               </div>
               <CardDescription>Latest audit log entries</CardDescription>
@@ -891,7 +880,7 @@ const AuditContent = memo(() => {
                 </motion.div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground" role="status">
-                  <Clipboard className="h-12 w-12 mx-auto mb-2" aria-hidden="true" />
+                  <ClipboardText className="h-12 w-12 mx-auto mb-2" aria-hidden="true" />
                   <p>No audit logs available</p>
                 </div>
               )}
@@ -903,7 +892,7 @@ const AuditContent = memo(() => {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-red-500" aria-hidden="true" />
+                  <Warning className="h-5 w-5 text-red-500" aria-hidden="true" />
                   <CardTitle>Failed Actions</CardTitle>
                 </div>
                 <CardDescription>Unsuccessful operations requiring attention</CardDescription>
@@ -942,7 +931,7 @@ export default function AdminHub() {
       {
         id: 'overview',
         label: 'Overview',
-        icon: <LineChart className="h-4 w-4" aria-hidden="true" />,
+        icon: <ChartLine className="h-4 w-4" aria-hidden="true" />,
         content: (
           <ErrorBoundary>
             <Suspense fallback={<div className="p-6" role="status" aria-live="polite">Loading overview...</div>}>
@@ -958,19 +947,7 @@ export default function AdminHub() {
         content: (
           <ErrorBoundary>
             <Suspense fallback={<div className="p-6" role="status" aria-live="polite">Loading user data...</div>}>
-              <UserManagement />
-            </Suspense>
-          </ErrorBoundary>
-        ),
-      },
-      {
-        id: 'configuration',
-        label: 'Configuration',
-        icon: <Sliders className="h-4 w-4" aria-hidden="true" />,
-        content: (
-          <ErrorBoundary>
-            <Suspense fallback={<div className="p-6" role="status" aria-live="polite">Loading configuration...</div>}>
-              <ConfigurationContent />
+              <UsersContent />
             </Suspense>
           </ErrorBoundary>
         ),
@@ -990,7 +967,7 @@ export default function AdminHub() {
       {
         id: 'audit',
         label: 'Audit',
-        icon: <Clipboard className="h-4 w-4" aria-hidden="true" />,
+        icon: <ClipboardText className="h-4 w-4" aria-hidden="true" />,
         content: (
           <ErrorBoundary>
             <Suspense fallback={<div className="p-6" role="status" aria-live="polite">Loading audit logs...</div>}>

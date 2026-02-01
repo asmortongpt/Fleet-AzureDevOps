@@ -64,7 +64,7 @@ export function sanitizeHTML(
   dirty: string,
   options: HTMLSanitizeOptions = {}
 ): string {
-  const config: DOMPurify.Config = {
+  const config = {
     ALLOWED_TAGS: options.allowedTags || DEFAULT_ALLOWED_TAGS,
     ALLOWED_ATTR: options.allowedAttributes || DEFAULT_ALLOWED_ATTRIBUTES,
     ALLOWED_URI_REGEXP: new RegExp(
@@ -72,8 +72,8 @@ export function sanitizeHTML(
       'i'
     ),
     KEEP_CONTENT: !options.stripIgnoreTagBody,
-    RETURN_DOM: false,
-    RETURN_DOM_FRAGMENT: false,
+    RETURN_DOM: false as const,
+    RETURN_DOM_FRAGMENT: false as const,
   };
 
   return DOMPurify.sanitize(dirty, config);

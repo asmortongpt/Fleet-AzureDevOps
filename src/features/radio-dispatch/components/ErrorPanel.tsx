@@ -2,14 +2,14 @@
 
 import { AlertCircle, RefreshCw, WifiOff, Shield, ServerCrash, AlertTriangle } from 'lucide-react';
 
-import { ApiError } from '@/lib/api';
+import { APIError } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 export interface ErrorPanelProps {
   /**
    * The error object to display
    */
-  error: ApiError | Error | string;
+  error: APIError | Error | string;
   /**
    * Optional callback for retry action
    */
@@ -55,7 +55,7 @@ export function ErrorPanel({
   className,
 }: ErrorPanelProps) {
   // Parse error details
-  const apiError = error instanceof ApiError ? error : null;
+  const apiError = error instanceof APIError ? error : null;
   const errorMessage = typeof error === 'string'
     ? error
     : error instanceof Error
@@ -134,7 +134,6 @@ export function ErrorPanel({
               </summary>
               <div className="mt-2 rounded bg-muted p-2 text-left text-xs font-mono">
                 <div><strong>Status:</strong> {apiError.status}</div>
-                {apiError.code && <div><strong>Code:</strong> {apiError.code}</div>}
                 <div><strong>Message:</strong> {apiError.message}</div>
               </div>
             </details>
@@ -172,7 +171,7 @@ export function ErrorPanelInline({
   onRetry,
   className,
 }: {
-  error: ApiError | Error | string;
+  error: APIError | Error | string;
   onRetry?: () => void;
   className?: string;
 }) {
@@ -218,7 +217,7 @@ export function ErrorToast({
   error,
   onRetry,
 }: {
-  error: ApiError | Error | string;
+  error: APIError | Error | string;
   onRetry?: () => void;
 }) {
   const errorMessage = typeof error === 'string'
@@ -247,7 +246,7 @@ export function ErrorToast({
 }
 
 // Helper function to determine error presentation based on error type
-function getErrorPresentation(error: ApiError | null) {
+function getErrorPresentation(error: APIError | null) {
   if (!error) {
     return {
       icon: AlertCircle,
@@ -256,7 +255,8 @@ function getErrorPresentation(error: ApiError | null) {
     };
   }
 
-  if (error.isNetworkError()) {
+  // Network error (status 0 or no status)
+  if (error.status === 0) {
     return {
       icon: WifiOff,
       iconColor: 'bg-orange-100 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400',
@@ -264,7 +264,8 @@ function getErrorPresentation(error: ApiError | null) {
     };
   }
 
-  if (error.isAuthError()) {
+  // Auth error (401, 403)
+  if (error.status === 401 || error.status === 403) {
     return {
       icon: Shield,
       iconColor: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-400',
@@ -272,7 +273,8 @@ function getErrorPresentation(error: ApiError | null) {
     };
   }
 
-  if (error.isServerError()) {
+  // Server error (5xx)
+  if (error.status >= 500 && error.status < 600) {
     return {
       icon: ServerCrash,
       iconColor: 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400',
@@ -280,7 +282,8 @@ function getErrorPresentation(error: ApiError | null) {
     };
   }
 
-  if (error.isClientError()) {
+  // Client error (4xx)
+  if (error.status >= 400 && error.status < 500) {
     return {
       icon: AlertTriangle,
       iconColor: 'bg-amber-100 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400',

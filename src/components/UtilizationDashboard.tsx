@@ -1,30 +1,21 @@
-// Legacy import - antd not in package.json, commented out for type safety
-// import { Table, Button } from 'antd';
-// Using shadcn/ui Button and a basic table implementation instead
-import { Button } from '@/components/ui/button';
 import React, { useEffect, useState } from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
-// Legacy imports - these paths don't exist, commented out
-// import { useAuth } from '../../hooks/useAuth';
-// import { fetchIdleAssets, fetchUtilizationData, fetchROIMetrics } from '../../services/analyticsService';
-// import { exportToCSV, exportToExcel } from '../../utils/exportUtils';
-// import { logger } from '../../utils/logger';
-// import { validateTenantId } from '../../utils/validation';
-
-// Stub implementations for missing utilities
-const useAuth = () => ({ tenantId: 'demo-tenant' });
-const fetchIdleAssets = async () => [];
-const fetchUtilizationData = async () => [];
-const fetchROIMetrics = async () => [];
-const exportToCSV = (data: unknown) => console.log('Export CSV:', data);
-const exportToExcel = (data: unknown) => console.log('Export Excel:', data);
-const logger = {
-  logError: (msg: string, err?: unknown) => console.error(msg, err),
-  logAudit: (msg: string, ctx?: unknown) => console.log(msg, ctx)
-};
-const validateTenantId = (id: string) => !!id;
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { useAuth } from '@/hooks/useAuth';
+import { fetchIdleAssets, fetchUtilizationData, fetchROIMetrics } from '@/services/analyticsService';
+import { exportToCSV, exportToExcel } from '@/utils/exportUtils';
+import { logger } from '@/utils/logger';
+import { validateTenantId } from '@/utils/validation';
 
 interface Asset {
   id: string;
@@ -96,25 +87,26 @@ const UtilizationDashboard: React.FC = () => {
       </Helmet>
       <div>
         <h2>Idle Assets</h2>
-        {/* Replaced antd Table with basic HTML table */}
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead>
-            <tr>
-              <th>Asset Name</th>
-              <th>Idle Days</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Asset Name</TableHead>
+              <TableHead>Idle Days</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {idleAssets.map((asset) => (
-              <tr key={asset.id}>
-                <td>{asset.name}</td>
-                <td>{asset.idleDays}</td>
-              </tr>
+              <TableRow key={asset.id}>
+                <TableCell>{asset.name}</TableCell>
+                <TableCell>{asset.idleDays}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-        <Button onClick={() => exportToCSV(idleAssets)}>Export to CSV</Button>
-        <Button onClick={() => exportToExcel(idleAssets)}>Export to Excel</Button>
+          </TableBody>
+        </Table>
+        <div className="mt-4 space-x-2">
+          <Button onClick={() => exportToCSV(idleAssets)}>Export to CSV</Button>
+          <Button onClick={() => exportToExcel(idleAssets)}>Export to Excel</Button>
+        </div>
       </div>
       <div>
         <h2>Utilization Rate</h2>
@@ -129,27 +121,26 @@ const UtilizationDashboard: React.FC = () => {
       </div>
       <div>
         <h2>ROI Metrics</h2>
-        {/* Replaced antd Table with basic HTML table */}
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead>
-            <tr>
-              <th>Asset ID</th>
-              <th>Revenue</th>
-              <th>Cost</th>
-              <th>ROI</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Asset ID</TableHead>
+              <TableHead>Revenue</TableHead>
+              <TableHead>Cost</TableHead>
+              <TableHead>ROI</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {roiMetrics.map((metric) => (
-              <tr key={metric.assetId}>
-                <td>{metric.assetId}</td>
-                <td>{metric.revenue}</td>
-                <td>{metric.cost}</td>
-                <td>{metric.roi}</td>
-              </tr>
+              <TableRow key={metric.assetId}>
+                <TableCell>{metric.assetId}</TableCell>
+                <TableCell>{metric.revenue}</TableCell>
+                <TableCell>{metric.cost}</TableCell>
+                <TableCell>{metric.roi}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
     </>
   );

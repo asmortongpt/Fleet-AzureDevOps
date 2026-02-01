@@ -9,7 +9,7 @@
  * - Back navigation support
  */
 
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { CaretLeft, CaretRight } from '@phosphor-icons/react'
 import { useState } from 'react'
 import {
   BarChart,
@@ -210,7 +210,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
               {crumb.label}
             </button>
             {index < breadcrumbs.length - 1 && (
-              <ChevronRight className="w-4 h-4 text-slate-400" />
+              <CaretRight className="w-4 h-4 text-slate-400" />
             )}
           </div>
         ))}
@@ -222,10 +222,8 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
           <BarChart
             data={currentData}
             margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-            onClick={(data) => {
-              // @ts-expect-error - Recharts type incompatibility with activePayload
+            onClick={(data: any) => {
               if (data && data.activePayload && data.activePayload[0]) {
-                // @ts-expect-error - Recharts type incompatibility with activePayload
                 handleBarClick(data.activePayload[0].payload)
               }
             }}
@@ -256,7 +254,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
             <Bar
               dataKey="value"
               radius={[4, 4, 0, 0]}
-              onMouseEnter={(data) => setHoveredBar(data.name)}
+              onMouseEnter={(data) => setHoveredBar(data.name ?? null)}
               onMouseLeave={() => setHoveredBar(null)}
               cursor={currentLevel < 3 ? 'pointer' : 'default'}
             >
@@ -288,7 +286,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
             onClick={() => handleBreadcrumbClick(breadcrumbs.length - 2)}
             className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-blue-800 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <CaretLeft className="w-4 h-4" />
             Back to {breadcrumbs[breadcrumbs.length - 2]?.label}
           </button>
         )}
