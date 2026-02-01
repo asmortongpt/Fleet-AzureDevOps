@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts';
 
 // FLAIR expense entry type - defined locally since FLAIRIntegration service is not yet implemented
 export interface FLAIRExpenseEntry {

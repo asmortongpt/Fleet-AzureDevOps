@@ -19,7 +19,7 @@ import {
   isAuthenticated,
   getAccount,
   getAccessToken
-} from '@/lib/auth'
+} from "@/lib/auth/index"
 import logger from '@/utils/logger'
 
 interface ProtectedRouteProps {

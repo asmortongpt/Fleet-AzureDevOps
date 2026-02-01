@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useRealtimeOperations } from '@/hooks/use-realtime-operations';
+import type { Vehicle } from '@/types/Vehicle';
 
 /**
  * Vehicle Status Grid
@@ -25,19 +26,6 @@ import { useRealtimeOperations } from '@/hooks/use-realtime-operations';
  * - Status badges with animations
  * - Alert indicators
  */
-
-interface Vehicle {
-  id: string;
-  vehicleNumber: string;
-  make: string;
-  model: string;
-  status: 'active' | 'idle' | 'maintenance' | 'offline';
-  fuelLevel?: number;
-  batteryLevel?: number;
-  odometer?: number;
-  nextMaintenanceMiles?: number;
-  lastUpdate?: string;
-}
 
 interface VehicleStatusGridProps {
   vehicles: Vehicle[];
@@ -123,7 +111,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
             >
               <div className="flex items-center gap-1 mb-1">
                 {getStatusIcon(health.status, vehicle.isMoving)}
-                <span className="text-xs font-semibold truncate">{vehicle.vehicleNumber}</span>
+                <span className="text-xs font-semibold truncate">{vehicle.number || vehicle.vehicleNumber}</span>
               </div>
               {health.issues.length > 0 && (
                 <p className="text-xs text-slate-600 truncate">{health.issues[0]}</p>
@@ -152,7 +140,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
                 <div className="flex items-center gap-2">
                   <Truck className="h-5 w-5 text-slate-700" />
                   <div>
-                    <h3 className="font-semibold text-sm">{vehicle.vehicleNumber}</h3>
+                    <h3 className="font-semibold text-sm">{vehicle.number || vehicle.vehicleNumber}</h3>
                     <p className="text-xs text-slate-600">
                       {vehicle.make} {vehicle.model}
                     </p>

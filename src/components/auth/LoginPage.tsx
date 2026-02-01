@@ -17,7 +17,7 @@ import {
   initializeMsal,
   isAuthenticated,
   getUserProfile
-} from '@/lib/auth'
+} from "@/lib/auth/index"
 import logger from '@/utils/logger'
 
 export const LoginPage = () => {

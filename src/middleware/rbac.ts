@@ -4,7 +4,7 @@
  * Used for both API routes and UI component rendering
  */
 
-import { UserRole } from '@/contexts/AuthContext';
+import { UserRole } from '@/contexts';
 import logger from '@/utils/logger';
 
 /**

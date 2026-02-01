@@ -16,7 +16,7 @@ import { useState } from 'react';
 import { EmptyState, SearchEmptyState } from '../EmptyState';
 import { ErrorPanel } from '../ErrorPanel';
 import { LoadingSpinner } from '../LoadingSpinner';
-import { api } from "@/lib/api-client";
+import { api } from "@/lib/api";
 import { useApiData } from '../../lib/hooks/useApiData';
 
 // Local Incident type definition for this example

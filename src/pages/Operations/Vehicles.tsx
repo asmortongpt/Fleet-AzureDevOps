@@ -28,13 +28,13 @@ import {
 } from '@phosphor-icons/react';
 import { toast } from 'react-hot-toast';
 
-import { SplitView } from '@/components/operations/SplitView';
+import { SplitView } from "@/components/operations";
 import {
   ActionButton,
   InlineEditPanel,
   ConfirmDialog,
   StatusBadge
-} from '@/components/operations/InlineActions';
+} from "@/components/operations";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';

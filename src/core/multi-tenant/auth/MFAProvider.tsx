@@ -7,7 +7,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/contexts'
 
 import { logger } from '@/utils/logger';
 

@@ -18,8 +18,8 @@ import {
     DepthOfField,
     Vignette,
     ChromaticAberration,
-    BlendFunction,
 } from '@react-three/postprocessing'
+import { BlendFunction } from 'postprocessing'
 import { useRef, useMemo } from 'react'
 import * as THREE from 'three'
 
