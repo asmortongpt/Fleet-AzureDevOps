@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 import { CSRFInput, useCSRFToken } from '../CSRFInput';
-import { api } from '@/lib/api';
+import { api } from "@/lib/api-client";
 import { useMutation } from '../../lib/hooks/useMutation';
 
 /**

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 
-import { APIError as ApiError } from '@/lib/api';
+import { APIError as ApiError } from "@/lib/api-client";
 
 export interface UseApiDataState<T> {
   data: T | null;
