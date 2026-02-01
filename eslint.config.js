@@ -21,13 +21,6 @@ export default tseslint.config(
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
-<<<<<<< HEAD
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-=======
       ecmaVersion: 2020,
       globals: globals.browser,
     },
@@ -93,7 +86,6 @@ export default tseslint.config(
           alphabetize: { order: 'asc' },
         },
       ],
->>>>>>> fix/pipeline-eslint-build
     },
     rules: {
       // TypeScript rules - relaxed for existing codebase

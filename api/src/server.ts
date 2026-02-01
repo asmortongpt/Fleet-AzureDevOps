@@ -32,22 +32,8 @@ import { sentryService } from './monitoring/sentry'
 
 // Core Fleet Management Routes
 import adminJobsRouter from './routes/admin-jobs.routes'
-<<<<<<< HEAD
-import alertsRouter from './routes/alerts.routes'
-import aiSearchRouter from './routes/ai-search'
-import aiTaskAssetRouter from './routes/ai-task-asset.routes'
-import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
-import annualReauthorizationRouter from './routes/annual-reauthorization.routes'
-import arcgisLayersRouter from './routes/arcgis-layers'
-import assetAnalyticsRouter from './routes/asset-analytics.routes'
-import assetManagementRouter from './routes/asset-management.routes'
-import assetsMobileRouter from './routes/assets-mobile.routes'
-import assignmentReportingRouter from './routes/assignment-reporting.routes'
-import authRouter from './routes/auth'
-=======
 // DISABLED: import aiInsightsRouter from './routes/ai-insights.routes'
 // DISABLED: import attachmentsRouter from './routes/attachments.routes'
->>>>>>> fix/pipeline-eslint-build
 import batchRouter from './routes/batch'
 import billingReportsRouter from './routes/billing-reports'
 import breakGlassRouter from './routes/break-glass'
@@ -106,29 +92,10 @@ import damageReportsRouter from './routes/damage-reports'
 // Authentication & User Management Routes
 
 // External Integrations Routes
-<<<<<<< HEAD
-import outlookRouter from './routes/outlook.routes'
-import reservationsRouter from './routes/reservations'
-import hosRouter from './routes/hos'
-
-// Emulator & Testing Routes
-// import emulatorRouter from './routes/emulator.routes'
-// import obd2EmulatorRouter from './routes/obd2-emulator.routes'
-// import demoRouter from './routes/demo.routes' // REMOVED: demo routes deleted during mock data cleanup
-
-// System Management Routes
-// import monitoringRouter from './routes/monitoring'
-import healthRouter from './routes/health.routes' // Microsoft integration health
-import healthSystemRouter from './routes/health-system.routes' // Comprehensive system health (BACKEND-12)
-import healthDetailedRouter from './routes/health-detailed'
-import healthStartupRouter from './routes/health-startup.routes' // Startup health check
-import performanceRouter from './routes/performance.routes'
-=======
 
 // Emulator & Testing Routes
 
 // System Management Routes
->>>>>>> fix/pipeline-eslint-build
 import telemetryRouter from './routes/telemetry'
 import queueRouter from './routes/queue.routes'
 import deploymentsRouter from './routes/deployments'

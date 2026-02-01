@@ -636,11 +636,6 @@ ${content.substring(0, 2000)}...`
 }
 
 // Import pool for singleton instance
-<<<<<<< HEAD
-import pool from '../config/database'
-import logger from '../config/logger'
-=======
->>>>>>> fix/pipeline-eslint-build
 
 // Export singleton instance
 export const documentAiService = new DocumentAiService(pool, logger)
