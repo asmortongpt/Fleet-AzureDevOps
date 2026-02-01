@@ -13,8 +13,12 @@ import { EmulatorOrchestrator } from '../emulators/EmulatorOrchestrator'
 import { csrfProtection } from '../middleware/csrf'
 import { telemetryService } from '../services/TelemetryService'
 import { getVideoDatasetService } from '../services/video-dataset.service'
+import { authenticateJWT } from '../middleware/auth'
 
 const router = express.Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 // Singleton instance of EmulatorOrchestrator
 let orchestrator: EmulatorOrchestrator | null = null

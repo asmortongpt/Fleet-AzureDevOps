@@ -23,6 +23,7 @@ import { csrfProtection } from '../../middleware/csrf'
 import { requirePermission } from '../../middleware/permissions'
 import { validateWebhook, WebhookRequest } from '../../middleware/webhook-validation'
 import webhookService from '../../services/webhook.service'
+import { authenticateJWT } from '../middleware/auth'
 
 // Helper function to get table columns (stubbed if missing)
 async function getTableColumns(pool: any, tableName: string): Promise<string[]> {
@@ -32,6 +33,9 @@ async function getTableColumns(pool: any, tableName: string): Promise<string[]> 
 }
 
 const router = express.Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 /**
  * POST /api/webhooks/outlook

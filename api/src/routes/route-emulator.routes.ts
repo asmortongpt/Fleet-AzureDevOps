@@ -4,9 +4,13 @@ import logger from '../config/logger' // Wave 27: Add Winston logger
 import { RouteEmulator } from '../emulators/RouteEmulator'
 import { csrfProtection } from '../middleware/csrf'
 import { RouteFilters, UpdateStopStatusRequest } from '../types/route.types'
+import { authenticateJWT } from '../middleware/auth'
 
 
 const router = Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 const routeEmulator = RouteEmulator.getInstance()
 
 /**

@@ -2,8 +2,12 @@
 import { Router } from 'express';
 
 import { scanSessionsController } from '../controllers/scan-sessions.controller';
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router();
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 router.post('/', scanSessionsController.create);
 router.get('/:id', scanSessionsController.get);

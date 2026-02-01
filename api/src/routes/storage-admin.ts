@@ -20,9 +20,13 @@ import { ValidationError } from '../errors/app-error'
 import { csrfProtection } from '../middleware/csrf'
 import StorageManager from '../services/StorageManager';
 import { getErrorMessage } from '../utils/error-handler'
+import { authenticateJWT } from '../middleware/auth'
 
 
 const router = express.Router();
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 // Initialize multer for file uploads
 const upload = multer({

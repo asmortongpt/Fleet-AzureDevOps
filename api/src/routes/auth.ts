@@ -14,8 +14,12 @@ import { csrfProtection } from '../middleware/csrf'
 import { registrationLimiter, authLimiter, checkBruteForce } from '../middleware/rateLimiter'
 import { FIPSCryptoService } from '../services/fips-crypto.service'
 import { FIPSJWTService } from '../services/fips-jwt.service'
+import { authenticateJWT } from '../middleware/auth'
 
 const router = express.Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 // Validation schemas
 const loginSchema = z.object({

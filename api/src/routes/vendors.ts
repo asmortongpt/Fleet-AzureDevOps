@@ -2,8 +2,12 @@ import { Router } from "express"
 
 import { csrfProtection } from '../middleware/csrf'
 import { asyncHandler } from '../middleware/errorHandler'
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 router.get("/", asyncHandler(async (req, res) => {
   res.json({ data: [], message: "vendors endpoint working" })

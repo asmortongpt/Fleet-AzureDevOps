@@ -14,8 +14,12 @@ import { pool } from '../db/connection'
 import { asyncHandler } from '../middleware/errorHandler'
 import { validateBody } from '../middleware/validate'
 import logger from '../utils/logger'
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 // Schema for creating a user
 const createUserSchema = z.object({

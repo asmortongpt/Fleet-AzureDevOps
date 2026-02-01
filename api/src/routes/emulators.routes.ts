@@ -7,8 +7,12 @@ import { Router } from 'express';
 
 import { EmulatorOrchestrator } from '../emulators/EmulatorOrchestrator';
 import { connectionHealthService } from '../services/ConnectionHealthService';
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router();
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 // Initialize emulator orchestrator
 let orchestrator: EmulatorOrchestrator | null = null;

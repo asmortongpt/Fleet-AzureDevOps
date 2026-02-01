@@ -10,8 +10,12 @@ import {
   DocumentSearchQuery,
   BulkOperationRequest
 } from '../../services/documents/types'
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 // Configure multer for file uploads
 const storage = multer.memoryStorage()
