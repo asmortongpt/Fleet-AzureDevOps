@@ -1,25 +1,61 @@
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
+import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
+import importPlugin from 'eslint-plugin-import';
+import unusedImports from 'eslint-plugin-unused-imports';
 
 export default tseslint.config(
   {
     ignores: [
+      '**/*',  // Ignore everything by default
+      '!src/**',  // Only lint src/ directory
       'dist/**',
       'node_modules/**',
       'build/**',
       '*.config.js',
       '*.config.ts',
       'api/**',
+      'api-standalone/**',
       'e2e/**',
       'tests/**',
       '*.spec.ts',
       '*.spec.tsx',
+      '.venv-*/**',
+      'verify-*.js',
+      'test-*.js',
+      'test-*.mjs',
+      'capture-*.mjs',
+      'capture-*.js',
+      '.git/**',
+      'coverage/**',
+      'artifacts/**',
+      'azure-*.ts',
+      'azure-*.js',
+      '*.d.ts',
+      'public/**',
+      'scripts/**',
+      'incoming_zips/**',
+      'check-*',
+      'convert-*',
+      'generate-*',
+      '*-orchestrator.ts',
+      'meshy-*.ts',
+      'fleet-3d-*.ts',
+      'screenshot-*.js',
+      'quick-*.mjs',
+      'grok-*.js',
+      'sample-*.tsx',
+      'serve.js',
+      'import-*.cjs',
     ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ['src/**/*.{ts,tsx,js,jsx}'],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
