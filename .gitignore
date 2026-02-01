@@ -163,3 +163,6 @@ incoming_data/
 # CLAWS.BOT
 claws-reports/
 logs/verification-*.log
+MERGE_EXECUTION_SUMMARY.md
+.env.bak*
+*.bak*
