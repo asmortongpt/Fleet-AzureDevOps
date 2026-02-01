@@ -29,7 +29,7 @@ apiClient.interceptors.response.use(
   response => response,
   (error: AxiosError) => {
     logger.error('API Error', error);
-    toast.error('An error occurred while processing your request.');
+    (toast as { error: (msg: string) => void }).error('An error occurred while processing your request.');
     return Promise.reject(error);
   }
 );

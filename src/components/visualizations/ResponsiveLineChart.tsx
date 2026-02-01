@@ -20,11 +20,7 @@ import {
 } from 'recharts'
 
 import { useThemeContext } from '@/components/providers/ThemeProvider'
-<<<<<<< HEAD
-import { TrendingUp, TrendingDown } from 'lucide-react'
-=======
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
->>>>>>> fix/pipeline-eslint-build
 
 interface DataPoint {
   name: string

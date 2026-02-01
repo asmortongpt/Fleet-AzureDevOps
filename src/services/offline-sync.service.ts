@@ -391,16 +391,16 @@ export class OfflineSyncService {
       localVersion: (data as any).localVersion ? (data as any).localVersion + 1 : 1,
     };
 
-    await this.db.put(storeName, entity);
+    await this.db.put(storeName as 'vehicles', entity);
 
     // Add to sync queue
     await this.addToSyncQueue({
       id: `${storeName}-${entity.id}-${Date.now()}`,
       type: (data as any).id ? 'update' : 'create',
-      entity: storeName.replace(/s$/, '') as any,
+      entity: String(storeName).replace(/s$/, '') as any,
       entityId: entity.id,
       data: entity,
-      priority: this.getPriority(storeName),
+      priority: this.getPriority(String(storeName)),
       timestamp: Date.now(),
       retryCount: 0,
     });
@@ -419,7 +419,7 @@ export class OfflineSyncService {
     id: string
   ): Promise<FleetOfflineDB[T]['value'] | undefined> {
     if (!this.db) throw new Error('Database not initialized');
-    return this.db.get(storeName, id);
+    return this.db.get(storeName as 'vehicles', id);
   }
 
   /**
@@ -429,7 +429,7 @@ export class OfflineSyncService {
     storeName: T
   ): Promise<FleetOfflineDB[T]['value'][]> {
     if (!this.db) throw new Error('Database not initialized');
-    return this.db.getAll(storeName);
+    return this.db.getAll(storeName as 'vehicles');
   }
 
   /**
@@ -441,16 +441,16 @@ export class OfflineSyncService {
   ): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
 
-    await this.db.delete(storeName, id);
+    await this.db.delete(storeName as 'vehicles', id);
 
     // Add to sync queue
     await this.addToSyncQueue({
       id: `${storeName}-${id}-delete-${Date.now()}`,
       type: 'delete',
-      entity: storeName.replace(/s$/, '') as any,
+      entity: String(storeName).replace(/s$/, '') as any,
       entityId: id,
       data: null,
-      priority: this.getPriority(storeName),
+      priority: this.getPriority(String(storeName)),
       timestamp: Date.now(),
       retryCount: 0,
     });
@@ -499,7 +499,7 @@ export class OfflineSyncService {
     ];
 
     for (const store of stores) {
-      await this.db.clear(store);
+      await this.db.clear(store as 'vehicles');
     }
 
     logger.info('[OfflineSyncService] All offline data cleared');

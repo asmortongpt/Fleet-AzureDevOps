@@ -40,12 +40,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VEHICLE_COLORS, type MaterialQuality, type PaintType } from '@/lib/3d/pbr-materials';
-<<<<<<< HEAD
-import { useNavigate } from 'react-router-dom';
-import logger from '@/utils/logger';
-=======
 
->>>>>>> fix/pipeline-eslint-build
 
 interface Vehicle {
   id: number;

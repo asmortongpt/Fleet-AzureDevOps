@@ -14,7 +14,8 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 
-import { EnhancedVehicleImageService } from './services/EnhancedVehicleImageService';
+import { EnhancedVehicleImageService } from '../../services/EnhancedVehicleImageService';
+import { RealDataService } from '../../services/RealDataService';
 
 interface Enhanced3DVehicleShowroomProps {
   vehicles: any[];
@@ -25,6 +26,7 @@ interface Enhanced3DVehicleShowroomProps {
 
 interface VehicleData {
   id: string;
+  name: string;
   make: string;
   model: string;
   year: number;
@@ -373,12 +375,21 @@ const Enhanced3DVehicleShowroom: React.FC<Enhanced3DVehicleShowroomProps> = ({
 
     // Sort vehicles
     filtered.sort((a, b) => {
-      let aValue = a[sortBy];
-      let bValue = b[sortBy];
+      let aValue: string | number;
+      let bValue: string | number;
 
       if (sortBy === 'name') {
         aValue = a.name.toLowerCase();
         bValue = b.name.toLowerCase();
+      } else if (sortBy === 'year') {
+        aValue = a.year;
+        bValue = b.year;
+      } else if (sortBy === 'mileage') {
+        aValue = a.mileage;
+        bValue = b.mileage;
+      } else {
+        aValue = a.fuel;
+        bValue = b.fuel;
       }
 
       if (sortOrder === 'asc') {

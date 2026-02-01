@@ -16,11 +16,6 @@
  * @accessibility WCAG 2.1 AA compliant
  */
 
-<<<<<<< HEAD
-import { memo, useCallback, useMemo } from 'react'
-import { motion } from 'framer-motion'
-import { Package, Store, ShoppingCart, FileText, BarChart, AlertTriangle, TrendingUp, DollarSign, Calendar, CheckCircle, Clock, Truck } from 'lucide-react'
-=======
 import {
   Package,
   Storefront,
@@ -40,7 +35,6 @@ import { memo, useMemo } from 'react'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
->>>>>>> fix/pipeline-eslint-build
 import HubPage from '@/components/ui/hub-page'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -227,7 +221,7 @@ const ProcurementOverview = memo(() => {
             value={metrics?.activeVendors?.toString() || '0'}
             icon={Store}
             trend="up"
-            change="+5%"
+            change={5}
             description="Qualified suppliers"
             loading={isLoading}
             aria-label="Active vendors count"
@@ -1017,7 +1011,7 @@ const AnalyticsContent = memo(() => {
             value={formatCurrency(metrics?.monthlySpend || 0)}
             icon={DollarSign}
             trend="up"
-            change="+8%"
+            change={8}
             description="This month"
             loading={isLoading}
           />

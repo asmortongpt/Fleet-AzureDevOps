@@ -6,8 +6,7 @@
 
 import React, { useState } from 'react';
 
-import { VehicleAPI } from '../../services/api/RealDatabaseAPI';
-import logger from '@/utils/logger';
+import { api } from '@/lib/api';
 
 interface VehicleFormData {
   fleet_number: string;
@@ -64,8 +63,8 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
     setError(null);
 
     try {
-      const vehicle = await VehicleAPI.create(formData);
-      // logger.info('✅ Vehicle created in database:', vehicle);
+      const vehicle = await api.post('/vehicles', formData);
+      // console.log('✅ Vehicle created in database:', vehicle);
 
       if (onSuccess) {
         onSuccess(vehicle);
@@ -88,7 +87,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create vehicle');
-      logger.error('❌ Vehicle creation failed:', err);
+      console.error('❌ Vehicle creation failed:', err);
     } finally {
       setIsSubmitting(false);
     }

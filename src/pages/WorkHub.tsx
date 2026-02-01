@@ -38,9 +38,11 @@ const KanbanBoard = memo(({ workItems, onMove, onUpdate }: {
     { id: 'done', title: 'Done', color: '#10B981', icon: '✅' }
   ];
 
-  const handleDragStart = (e: React.DragEvent, itemId: string) => {
+  const handleDragStart = (e: React.DragEvent | MouseEvent | TouchEvent | PointerEvent, itemId: string) => {
     setDraggedItem(itemId);
-    e.dataTransfer.effectAllowed = 'move';
+    if ('dataTransfer' in e && e.dataTransfer) {
+      e.dataTransfer.effectAllowed = 'move';
+    }
   };
 
   const handleDragOver = (e: React.DragEvent, columnId: string) => {
@@ -465,9 +467,11 @@ const PriorityMatrix = memo(({ items, onMove }: {
     return 'not-urgent-not-important';
   };
 
-  const handleDragStart = (e: React.DragEvent, itemId: string) => {
+  const handleDragStart = (e: React.DragEvent | MouseEvent | TouchEvent | PointerEvent, itemId: string) => {
     setDraggedItem(itemId);
-    e.dataTransfer.effectAllowed = 'move';
+    if ('dataTransfer' in e && e.dataTransfer) {
+      e.dataTransfer.effectAllowed = 'move';
+    }
   };
 
   const handleDrop = (e: React.DragEvent, quadrant: typeof quadrants[0]) => {

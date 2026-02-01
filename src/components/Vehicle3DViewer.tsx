@@ -137,11 +137,7 @@ function VehicleModel({
 
   // Load GLTF model (placeholder for now)
   // In production, this would load actual vehicle models
-  const { scene } = useGLTF(url || `/models/vehicles/${
-  vehicleType === 'truck' ? 'trucks' :
-  vehicleType === 'suv' ? 'suvs' :
-  vehicleType === 'van' ? 'vans' : 'sedans'
-}/default.glb`, true);
+  const { scene } = useGLTF(url || '/models/vehicles/sedans/default.glb', true);
 
   useEffect(() => {
     if (scene) {

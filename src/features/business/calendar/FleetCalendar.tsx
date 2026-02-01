@@ -1,7 +1,6 @@
-// Legacy import - moment not in package.json, using date-fns instead
-// import moment from 'moment';
+import moment from 'moment';
 import React, { useState, useEffect } from 'react';
-import { Calendar, dateFnsLocalizer, View, Event } from 'react-big-calendar';
+import { Calendar, momentLocalizer, View, Event } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import {
   CalendarDays,
@@ -22,21 +21,11 @@ import {
 
 import { outlookCalendarService, CalendarEvent } from '../../services/outlookCalendarService';
 
-import { format, addMinutes, parse, startOfWeek, getDay, startOfMonth, endOfMonth, subWeeks, addWeeks } from 'date-fns';
-import { enUS } from 'date-fns/locale';
+import { format, addMinutes } from 'date-fns';
 
 import EventCreateModal from './EventCreateModal';
-import logger from '@/utils/logger';
 
-// Using date-fns localizer instead of moment
-const locales = { 'en-US': enUS };
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales
-});
+const localizer = momentLocalizer(moment);
 
 interface FleetEvent extends Event {
   id?: string;
@@ -87,7 +76,7 @@ const FleetCalendar: React.FC = () => {
         setUserProfile(profile);
         await syncWithOutlook();
       } catch (error) {
-        logger.error('Failed to get user profile:', error);
+        console.error('Failed to get user profile:', error);
       }
     }
   };
@@ -103,7 +92,7 @@ const FleetCalendar: React.FC = () => {
         await syncWithOutlook();
       }
     } catch (error) {
-      logger.error('Sign in failed:', error);
+      console.error('Sign in failed:', error);
     } finally {
       setLoading(false);
     }
@@ -116,7 +105,7 @@ const FleetCalendar: React.FC = () => {
       setUserProfile(null);
       loadLocalEvents(); // Revert to local events
     } catch (error) {
-      logger.error('Sign out failed:', error);
+      console.error('Sign out failed:', error);
     }
   };
 
@@ -125,12 +114,12 @@ const FleetCalendar: React.FC = () => {
 
     setLoading(true);
     try {
-      const startDate = subWeeks(startOfMonth(selectedDate), 1);
-      const endDate = addWeeks(endOfMonth(selectedDate), 1);
+      const startDate = moment(selectedDate).startOf('month').subtract(1, 'week').toDate();
+      const endDate = moment(selectedDate).endOf('month').add(1, 'week').toDate();
 
       const outlookEvents = await outlookCalendarService.getEvents(startDate, endDate);
 
-      const formattedEvents: FleetEvent[] = outlookEvents.map((event: any) => ({
+      const formattedEvents: FleetEvent[] = outlookEvents.map((event: CalendarEvent) => ({
         id: event.id,
         title: event.subject,
         start: new Date(event.start.dateTime),
@@ -148,13 +137,13 @@ const FleetCalendar: React.FC = () => {
 
       setEvents(formattedEvents);
     } catch (error) {
-      logger.error('Failed to sync with Outlook:', error);
+      console.error('Failed to sync with Outlook:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const determineEventType = (event: CalendarEvent): FleetEvent['resource']['type'] => {
+  const determineEventType = (event: CalendarEvent): NonNullable<FleetEvent['resource']>['type'] => {
     if (event.categories?.includes('Maintenance') || event.subject?.toLowerCase().includes('maintenance')) {
       return 'maintenance';
     }
@@ -272,7 +261,7 @@ const FleetCalendar: React.FC = () => {
           driverId: eventData.resource?.driverId
         });
       } catch (error) {
-        logger.error('Failed to create event in Outlook:', error);
+        console.error('Failed to create event in Outlook:', error);
       }
     }
   };
@@ -542,7 +531,7 @@ const FleetCalendar: React.FC = () => {
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onSave={handleSaveEvent}
-        initialData={selectedEvent}
+        initialData={selectedEvent ?? undefined}
       />
     </div>
   );

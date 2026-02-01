@@ -4,54 +4,16 @@
  * Guaranteed to achieve 100% 3D rendering score
  */
 
-import React, { useState, useEffect, useRef, FC } from "react";
-import logger from '@/utils/logger';
-
-interface Vehicle {
-  id: string;
-  make: string;
-  model: string;
-  year: number;
-  color: string;
-  licensePlate: string;
-  status: string;
-  fuel: number;
-  health: number;
-  mileage: number;
-  x: number;
-  y: number;
-  z: number;
-  name: string;
-}
-
-interface Theme {
-  bg: string;
-  text: string;
-  primary: string;
-  secondary: string;
-  surface: string;
-  border: string;
-  textMuted: string;
-  success: string;
-  warning: string;
-  info: string;
-}
+import React, { useState, useEffect, useRef } from "react";
 
 interface WebGL3DVehicleShowroomProps {
-  vehicles: Vehicle[];
-  selectedVehicle: Vehicle | null;
-  onVehicleSelect: (vehicle: Vehicle) => void;
-  currentTheme: Theme;
+  vehicles: any[];
+  selectedVehicle: any;
+  onVehicleSelect: (vehicle: any) => void;
+  currentTheme: any;
 }
 
-interface FilterState {
-  make: string;
-  year: string;
-  status: string;
-  fuel: string;
-}
-
-const WebGL3DVehicleShowroom: FC<WebGL3DVehicleShowroomProps> = ({
+const WebGL3DVehicleShowroom: React.FC<WebGL3DVehicleShowroomProps> = ({
   vehicles,
   selectedVehicle,
   onVehicleSelect,
@@ -60,7 +22,7 @@ const WebGL3DVehicleShowroom: FC<WebGL3DVehicleShowroomProps> = ({
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'3d' | 'grid' | 'list'>('3d');
   const [searchQuery, setSearchQuery] = useState('');
-  const [filters, setFilters] = useState<FilterState>({
+  const [filters, setFilters] = useState({
     make: 'all',
     year: 'all',
     status: 'all',
@@ -75,6 +37,25 @@ const WebGL3DVehicleShowroom: FC<WebGL3DVehicleShowroomProps> = ({
   const glRef = useRef<WebGLRenderingContext | null>(null);
   const programRef = useRef<WebGLProgram | null>(null);
   const animationRef = useRef<number>(0);
+
+  // Enhanced vehicle data
+  const enhancedVehicles = vehicles.map((v, index) => ({
+    ...v,
+    id: v.id || `vehicle-${index}`,
+    name: `${v.make || 'Unknown'} ${v.model || 'Model'} ${v.year || '2020'}`,
+    make: v.make || 'Unknown',
+    model: v.model || 'Model',
+    year: v.year || 2020,
+    color: v.color || '#ff0000',
+    licensePlate: v.licensePlate || `FL-${String(index).padStart(3, '0')}`,
+    status: v.status || 'idle',
+    fuel: v.fuel || Math.floor(Math.random() * 50) + 50,
+    health: v.health || Math.floor(Math.random() * 20) + 80,
+    mileage: v.mileage || Math.floor(Math.random() * 100000) + 10000,
+    x: Math.cos((index / vehicles.length) * Math.PI * 2) * 2,
+    z: Math.sin((index / vehicles.length) * Math.PI * 2) * 2,
+    y: 0
+  }));
 
   // WebGL Shader sources
   const vertexShaderSource = `
@@ -96,8 +77,67 @@ const WebGL3DVehicleShowroom: FC<WebGL3DVehicleShowroomProps> = ({
     }
   `;
 
+  // Initialize WebGL
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
+    if (!gl) {
+      console.error('WebGL not supported');
+      setLoading(false);
+      return;
+    }
+
+    const glContext = gl as WebGLRenderingContext;
+    glRef.current = glContext;
+
+    // Create shaders
+    const vertexShader = createShader(glContext, glContext.VERTEX_SHADER, vertexShaderSource);
+    const fragmentShader = createShader(glContext, glContext.FRAGMENT_SHADER, fragmentShaderSource);
+
+    if (!vertexShader || !fragmentShader) {
+      console.error('Failed to create shaders');
+      setLoading(false);
+      return;
+    }
+
+    // Create program
+    const program = createProgram(glContext, vertexShader, fragmentShader);
+    if (!program) {
+      console.error('Failed to create program');
+      setLoading(false);
+      return;
+    }
+
+    programRef.current = program;
+
+    // Set up viewport and clear settings
+    glContext.viewport(0, 0, canvas.width, canvas.height);
+    glContext.clearColor(0.1, 0.1, 0.18, 1.0); // Dark blue background
+    glContext.enable(glContext.DEPTH_TEST);
+    glContext.enable(glContext.CULL_FACE);
+
+    // Create vehicle geometry
+    createVehicleGeometry(glContext, program);
+
+    setLoading(false);
+
+    // Start animation loop
+    if (animationEnabled) {
+      startAnimation();
+    }
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [animationEnabled]);
+
   // Create shader function
-  const createShader = (gl: WebGLRenderingContext, type: GLenum, source: string): WebGLShader | null => {
+  const createShader = (gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null => {
     const shader = gl.createShader(type);
     if (!shader) return null;
 
@@ -105,8 +145,7 @@ const WebGL3DVehicleShowroom: FC<WebGL3DVehicleShowroomProps> = ({
     gl.compileShader(shader);
 
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      const error = gl.getShaderInfoLog(shader);
-      logger.error('Shader compile error:', error);
+      console.error('Shader compile error:', gl.getShaderInfoLog(shader));
       gl.deleteShader(shader);
       return null;
     }
@@ -115,11 +154,7 @@ const WebGL3DVehicleShowroom: FC<WebGL3DVehicleShowroomProps> = ({
   };
 
   // Create program function
-  const createProgram = (
-    gl: WebGLRenderingContext,
-    vertexShader: WebGLShader,
-    fragmentShader: WebGLShader
-  ): WebGLProgram | null => {
+  const createProgram = (gl: WebGLRenderingContext, vertexShader: WebGLShader, fragmentShader: WebGLShader): WebGLProgram | null => {
     const program = gl.createProgram();
     if (!program) return null;
 
@@ -128,8 +163,7 @@ const WebGL3DVehicleShowroom: FC<WebGL3DVehicleShowroomProps> = ({
     gl.linkProgram(program);
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      const error = gl.getProgramInfoLog(program);
-      logger.error('Program link error:', error);
+      console.error('Program link error:', gl.getProgramInfoLog(program));
       gl.deleteProgram(program);
       return null;
     }
@@ -138,7 +172,7 @@ const WebGL3DVehicleShowroom: FC<WebGL3DVehicleShowroomProps> = ({
   };
 
   // Create vehicle geometry
-  const createVehicleGeometry = (gl: WebGLRenderingContext, program: WebGLProgram): void => {
+  const createVehicleGeometry = (gl: WebGLRenderingContext, program: WebGLProgram) => {
     // Simple cube vertices for vehicle representation
     const vertices = new Float32Array([
       // Front face (red)
@@ -210,146 +244,6 @@ const WebGL3DVehicleShowroom: FC<WebGL3DVehicleShowroomProps> = ({
     gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, stride, 3 * 4);
   };
 
-  // Matrix helper functions
-  const createPerspectiveMatrix = (fov: number, aspect: number, near: number, far: number): Float32Array => {
-    const f = 1 / Math.tan(fov / 2);
-    return new Float32Array([
-      f / aspect, 0, 0, 0,
-      0, f, 0, 0,
-      0, 0, (far + near) / (near - far), (2 * far * near) / (near - far),
-      0, 0, -1, 0
-    ]);
-  };
-
-  const createTranslationMatrix = (x: number, y: number, z: number): Float32Array => {
-    return new Float32Array([
-      1, 0, 0, 0,
-      0, 1, 0, 0,
-      0, 0, 1, 0,
-      x, y, z, 1
-    ]);
-  };
-
-  const createRotationMatrix = (angle: number, x: number, y: number, z: number): Float32Array => {
-    const c = Math.cos(angle);
-    const s = Math.sin(angle);
-    const nc = 1 - c;
-
-    return new Float32Array([
-      x * x * nc + c, y * x * nc + z * s, z * x * nc - y * s, 0,
-      x * y * nc - z * s, y * y * nc + c, z * y * nc + x * s, 0,
-      x * z * nc + y * s, y * z * nc - x * s, z * z * nc + c, 0,
-      0, 0, 0, 1
-    ]);
-  };
-
-  const multiplyMatrix = (out: Float32Array, b: Float32Array): void => {
-    const a00 = out[0], a01 = out[1], a02 = out[2], a03 = out[3];
-    const a10 = out[4], a11 = out[5], a12 = out[6], a13 = out[7];
-    const a20 = out[8], a21 = out[9], a22 = out[10], a23 = out[11];
-    const a30 = out[12], a31 = out[13], a32 = out[14], a33 = out[15];
-
-    const b00 = b[0], b01 = b[1], b02 = b[2], b03 = b[3];
-    const b10 = b[4], b11 = b[5], b12 = b[6], b13 = b[7];
-    const b20 = b[8], b21 = b[9], b22 = b[10], b23 = b[11];
-    const b30 = b[12], b31 = b[13], b32 = b[14], b33 = b[15];
-
-    out[0] = b00 * a00 + b01 * a10 + b02 * a20 + b03 * a30;
-    out[1] = b00 * a01 + b01 * a11 + b02 * a21 + b03 * a31;
-    out[2] = b00 * a02 + b01 * a12 + b02 * a22 + b03 * a32;
-    out[3] = b00 * a03 + b01 * a13 + b02 * a23 + b03 * a33;
-    out[4] = b10 * a00 + b11 * a10 + b12 * a20 + b13 * a30;
-    out[5] = b10 * a01 + b11 * a11 + b12 * a21 + b13 * a31;
-    out[6] = b10 * a02 + b11 * a12 + b12 * a22 + b13 * a32;
-    out[7] = b10 * a03 + b11 * a13 + b12 * a23 + b13 * a33;
-    out[8] = b20 * a00 + b21 * a10 + b22 * a20 + b23 * a30;
-    out[9] = b20 * a01 + b21 * a11 + b22 * a21 + b23 * a31;
-    out[10] = b20 * a02 + b21 * a12 + b22 * a22 + b23 * a32;
-    out[11] = b20 * a03 + b21 * a13 + b22 * a23 + b23 * a33;
-    out[12] = b30 * a00 + b31 * a10 + b32 * a20 + b33 * a30;
-    out[13] = b30 * a01 + b31 * a11 + b32 * a21 + b33 * a31;
-    out[14] = b30 * a02 + b31 * a12 + b32 * a22 + b33 * a32;
-    out[15] = b30 * a03 + b31 * a13 + b32 * a23 + b33 * a33;
-  };
-
-  // Enhanced vehicle data
-  const enhancedVehicles = vehicles.map((v, index) => ({
-    ...v,
-    id: v.id || `vehicle-${index}`,
-    name: `${v.make || 'Unknown'} ${v.model || 'Model'} ${v.year || 2020}`,
-    make: v.make || 'Unknown',
-    model: v.model || 'Model',
-    year: v.year || 2020,
-    color: v.color || '#ff0000',
-    licensePlate: v.licensePlate || `FL-${String(index).padStart(3, '0')}`,
-    status: v.status || 'idle',
-    fuel: v.fuel || Math.floor(Math.random() * 50) + 50,
-    health: v.health || Math.floor(Math.random() * 20) + 80,
-    mileage: v.mileage || Math.floor(Math.random() * 100000) + 10000,
-    x: Math.cos((index / vehicles.length) * Math.PI * 2) * 2,
-    z: Math.sin((index / vehicles.length) * Math.PI * 2) * 2,
-    y: 0
-  }));
-
-  // Initialize WebGL
-  useEffect(() => {
-    if (!canvasRef.current) return;
-
-    const canvas = canvasRef.current;
-    const contextCanvas = canvas as HTMLCanvasElement & { getContext: (type: string) => WebGLRenderingContext | null };
-    const gl = contextCanvas.getContext('webgl') as WebGLRenderingContext | null;
-
-    if (!gl) {
-      logger.error('WebGL not supported');
-      setLoading(false);
-      return;
-    }
-
-    glRef.current = gl;
-
-    // Create shaders
-    const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-    const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-
-    if (!vertexShader || !fragmentShader) {
-      logger.error('Failed to create shaders');
-      setLoading(false);
-      return;
-    }
-
-    // Create program
-    const program = createProgram(gl, vertexShader, fragmentShader);
-    if (!program) {
-      logger.error('Failed to create program');
-      setLoading(false);
-      return;
-    }
-
-    programRef.current = program;
-
-    // Set up viewport and clear settings
-    gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(0.1, 0.1, 0.18, 1.0); // Dark blue background
-    gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.CULL_FACE);
-
-    // Create vehicle geometry
-    createVehicleGeometry(gl, program);
-
-    setLoading(false);
-
-    // Start animation loop
-    if (animationEnabled) {
-      startAnimation();
-    }
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [animationEnabled, vertexShaderSource, fragmentShaderSource]);
-
   // Animation loop
   const startAnimation = () => {
     if (!glRef.current || !programRef.current || !canvasRef.current) return;
@@ -404,6 +298,68 @@ const WebGL3DVehicleShowroom: FC<WebGL3DVehicleShowroomProps> = ({
     animationRef.current = requestAnimationFrame(render);
   };
 
+  // Matrix helper functions
+  const createPerspectiveMatrix = (fov: number, aspect: number, near: number, far: number): Float32Array => {
+    const f = 1 / Math.tan(fov / 2);
+    return new Float32Array([
+      f / aspect, 0, 0, 0,
+      0, f, 0, 0,
+      0, 0, (far + near) / (near - far), (2 * far * near) / (near - far),
+      0, 0, -1, 0
+    ]);
+  };
+
+  const createTranslationMatrix = (x: number, y: number, z: number): Float32Array => {
+    return new Float32Array([
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      x, y, z, 1
+    ]);
+  };
+
+  const createRotationMatrix = (angle: number, x: number, y: number, z: number): Float32Array => {
+    const c = Math.cos(angle);
+    const s = Math.sin(angle);
+    const nc = 1 - c;
+
+    return new Float32Array([
+      x * x * nc + c, y * x * nc + z * s, z * x * nc - y * s, 0,
+      x * y * nc - z * s, y * y * nc + c, z * y * nc + x * s, 0,
+      x * z * nc + y * s, y * z * nc - x * s, z * z * nc + c, 0,
+      0, 0, 0, 1
+    ]);
+  };
+
+  const multiplyMatrix = (out: Float32Array, b: Float32Array) => {
+    const a00 = out[0], a01 = out[1], a02 = out[2], a03 = out[3];
+    const a10 = out[4], a11 = out[5], a12 = out[6], a13 = out[7];
+    const a20 = out[8], a21 = out[9], a22 = out[10], a23 = out[11];
+    const a30 = out[12], a31 = out[13], a32 = out[14], a33 = out[15];
+
+    const b00 = b[0], b01 = b[1], b02 = b[2], b03 = b[3];
+    const b10 = b[4], b11 = b[5], b12 = b[6], b13 = b[7];
+    const b20 = b[8], b21 = b[9], b22 = b[10], b23 = b[11];
+    const b30 = b[12], b31 = b[13], b32 = b[14], b33 = b[15];
+
+    out[0] = b00 * a00 + b01 * a10 + b02 * a20 + b03 * a30;
+    out[1] = b00 * a01 + b01 * a11 + b02 * a21 + b03 * a31;
+    out[2] = b00 * a02 + b01 * a12 + b02 * a22 + b03 * a32;
+    out[3] = b00 * a03 + b01 * a13 + b02 * a23 + b03 * a33;
+    out[4] = b10 * a00 + b11 * a10 + b12 * a20 + b13 * a30;
+    out[5] = b10 * a01 + b11 * a11 + b12 * a21 + b13 * a31;
+    out[6] = b10 * a02 + b11 * a12 + b12 * a22 + b13 * a32;
+    out[7] = b10 * a03 + b11 * a13 + b12 * a23 + b13 * a33;
+    out[8] = b20 * a00 + b21 * a10 + b22 * a20 + b23 * a30;
+    out[9] = b20 * a01 + b21 * a11 + b22 * a21 + b23 * a31;
+    out[10] = b20 * a02 + b21 * a12 + b22 * a22 + b23 * a32;
+    out[11] = b20 * a03 + b21 * a13 + b22 * a23 + b23 * a33;
+    out[12] = b30 * a00 + b31 * a10 + b32 * a20 + b33 * a30;
+    out[13] = b30 * a01 + b31 * a11 + b32 * a21 + b33 * a31;
+    out[14] = b30 * a02 + b31 * a12 + b32 * a22 + b33 * a32;
+    out[15] = b30 * a03 + b31 * a13 + b32 * a23 + b33 * a33;
+  };
+
   // Start/stop animation
   useEffect(() => {
     if (animationEnabled && !loading) {
@@ -429,8 +385,8 @@ const WebGL3DVehicleShowroom: FC<WebGL3DVehicleShowroomProps> = ({
     return matchesSearch && matchesMake && matchesYear && matchesStatus && matchesFuel;
   });
 
-  const uniqueMakes = Array.from(new Set(enhancedVehicles.map(v => v.make)));
-  const uniqueYears = Array.from(new Set(enhancedVehicles.map(v => v.year.toString()))).sort();
+  const uniqueMakes = [...new Set(enhancedVehicles.map(v => v.make))];
+  const uniqueYears = [...new Set(enhancedVehicles.map(v => v.year.toString()))].sort();
 
   if (loading) {
     return (
@@ -572,7 +528,7 @@ const WebGL3DVehicleShowroom: FC<WebGL3DVehicleShowroomProps> = ({
             </label>
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'name' | 'year' | 'fuel')}
+              onChange={(e) => setSortBy(e.target.value as any)}
               style={{
                 width: '100%',
                 padding: '8px 12px',
@@ -598,10 +554,10 @@ const WebGL3DVehicleShowroom: FC<WebGL3DVehicleShowroomProps> = ({
         }}>
           {/* View mode buttons */}
           <div style={{ display: 'flex', gap: '4px' }}>
-            {(['3d', 'grid', 'list'] as const).map(mode => (
+            {['3d', 'grid', 'list'].map(mode => (
               <button
                 key={mode}
-                onClick={() => setViewMode(mode)}
+                onClick={() => setViewMode(mode as any)}
                 style={{
                   padding: '8px 16px',
                   borderRadius: '6px',

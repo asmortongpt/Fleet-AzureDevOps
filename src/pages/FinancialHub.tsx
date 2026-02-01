@@ -3,11 +3,8 @@
  * Real-time financial tracking, budget monitoring, and expense analysis with responsive visualizations
  */
 
-<<<<<<< HEAD
 import { motion } from 'framer-motion'
 import { Suspense } from 'react'
-import { DollarSign as FinancialIcon, Wallet, Receipt, BarChart, TrendingUp, TrendingDown, AlertTriangle, CheckCircle, Clock, CreditCard, FileText as Invoice, Calendar, Plus } from 'lucide-react'
-=======
 import {
   CurrencyDollar as FinancialIcon,
   Wallet,
@@ -20,24 +17,21 @@ import {
   Clock,
   CreditCard,
   Invoice,
+  Calendar,
   Plus,
 } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
-import { Suspense } from 'react'
-
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
->>>>>>> fix/pipeline-eslint-build
 import HubPage from '@/components/ui/hub-page'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useReactiveFinancialData } from '@/hooks/use-reactive-financial-data'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { useReactiveFinancialData } from '@/hooks/use-reactive-financial-data'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 
 /**
  * Overview Tab - Financial summary and key metrics
@@ -56,6 +50,7 @@ function FinancialOverview() {
   // Prepare chart data for budget by category
   const budgetChartData = budgetByCategory.map((cat) => ({
     name: cat.category.charAt(0).toUpperCase() + cat.category.slice(1),
+    value: cat.spent,
     allocated: cat.allocated,
     spent: cat.spent,
     remaining: cat.remaining,
@@ -114,7 +109,7 @@ function FinancialOverview() {
         <StatCard
           title="Budget Utilization"
           value={`${metrics?.budgetUtilization || 0}%`}
-          icon={BarChart}
+          icon={ChartBar}
           trend={metrics?.budgetUtilization > 90 ? 'up' : 'neutral'}
           description="Of total budget"
           loading={isLoading}
@@ -122,7 +117,7 @@ function FinancialOverview() {
         <StatCard
           title="Remaining Budget"
           value={`$${(metrics?.totalRemaining / 1000000 || 0).toFixed(2)}M`}
-          icon={TrendingDown}
+          icon={TrendDown}
           trend="down"
           description="Available funds"
           loading={isLoading}
@@ -157,7 +152,7 @@ function FinancialOverview() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-red-500" />
+                <Warning className="h-5 w-5 text-red-500" />
                 <CardTitle>Overdue Invoices</CardTitle>
               </div>
               <CardDescription>Invoices requiring immediate payment</CardDescription>
@@ -295,7 +290,7 @@ function BudgetContent() {
         <StatCard
           title="Utilization Rate"
           value={`${metrics?.budgetUtilization || 0}%`}
-          icon={BarChart}
+          icon={ChartBar}
           trend={metrics?.budgetUtilization > 90 ? 'up' : 'neutral'}
           description="Budget used"
           loading={isLoading}
@@ -303,7 +298,7 @@ function BudgetContent() {
         <StatCard
           title="Available Funds"
           value={`$${(metrics?.totalRemaining / 1000000 || 0).toFixed(2)}M`}
-          icon={TrendingDown}
+          icon={TrendDown}
           trend="down"
           description="Remaining budget"
           loading={isLoading}
@@ -347,9 +342,9 @@ function BudgetContent() {
                       <span className="font-medium">{variance.category}</span>
                       <div className="flex items-center gap-2">
                         {variance.status === 'under' ? (
-                          <TrendingDown className="h-4 w-4 text-green-500" />
+                          <TrendDown className="h-4 w-4 text-green-500" />
                         ) : (
-                          <TrendingUp className="h-4 w-4 text-red-500" />
+                          <TrendUp className="h-4 w-4 text-red-500" />
                         )}
                         <Badge
                           variant={variance.status === 'under' ? 'default' : 'destructive'}
@@ -460,6 +455,12 @@ function ExpensesContent() {
     lastUpdate,
   } = useReactiveFinancialData()
 
+  // Prepare expense trend data with value property for chart
+  const trendChartData = expenseTrendData.map((item) => ({
+    ...item,
+    value: (item.fuel || 0) + (item.maintenance || 0) + (item.operations || 0) + (item.other || 0),
+  }))
+
   // Prepare expense category chart
   const categoryChartData = expenseByCategory
     .sort((a, b) => b.value - a.value)
@@ -494,7 +495,7 @@ function ExpensesContent() {
         <StatCard
           title="Total Expenses"
           value={`$${(metrics?.totalExpenses / 1000000 || 0).toFixed(2)}M`}
-          icon={BarChart}
+          icon={ChartBar}
           trend="neutral"
           description="Year to date"
           loading={isLoading}
@@ -511,7 +512,7 @@ function ExpensesContent() {
         <StatCard
           title="Avg Daily Spend"
           value={`$${Math.round((metrics?.monthlyExpenses || 0) / 30).toLocaleString()}`}
-          icon={TrendingUp}
+          icon={TrendUp}
           trend="neutral"
           description="Last 30 days"
           loading={isLoading}
@@ -524,7 +525,7 @@ function ExpensesContent() {
         <ResponsiveLineChart
           title="Monthly Expense Trend"
           description="Expenses by category over the last 6 months"
-          data={expenseTrendData}
+          data={trendChartData}
           height={300}
           showArea
           loading={isLoading}
@@ -649,7 +650,7 @@ function ReportsContent() {
           value={metrics?.totalInvoices?.toString() || '0'}
           icon={Invoice}
           trend="up"
-          change={+12}
+          change={12}
           description="This month"
           loading={isLoading}
         />
@@ -731,7 +732,7 @@ function ReportsContent() {
 
                 <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5 text-red-600" />
+                    <Warning className="h-5 w-5 text-red-600" />
                     <span className="font-medium">Overdue</span>
                   </div>
                   <span className="font-bold">{metrics?.overdueInvoices || 0}</span>
@@ -840,7 +841,7 @@ export default function FinancialHub() {
     {
       id: 'reports',
       label: 'Reports',
-      icon: <BarChart className="h-4 w-4" />,
+      icon: <ChartBar className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <Suspense fallback={<div className="p-6">Loading report data...</div>}>

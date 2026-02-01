@@ -223,12 +223,8 @@ const customFilterFn: FilterFn<any> = (row, columnId, filterValue: FilterConfig)
     }
 
     case 'date': {
-      // Type guard for valid date inputs
-      if (cellValue === null || cellValue === undefined || typeof cellValue === 'object') return false
-      if (value === null || value === undefined || typeof value === 'object') return false
-
-      const cellDate = new Date(cellValue as string | number)
-      const filterDate = new Date(value as string | number)
+      const cellDate = new Date(cellValue as string | number | Date)
+      const filterDate = new Date(value as string | number | Date)
 
       if (!isValid(cellDate) || !isValid(filterDate)) return false
 
@@ -240,8 +236,7 @@ const customFilterFn: FilterFn<any> = (row, columnId, filterValue: FilterConfig)
         case 'after':
           return cellDate > filterDate
         case 'between':
-          if (value2 === null || value2 === undefined || typeof value2 === 'object') return false
-          const filterDate2 = new Date(value2 as string | number)
+          const filterDate2 = new Date(value2!)
           return cellDate >= filterDate && cellDate <= filterDate2
         default:
           return true
@@ -281,10 +276,15 @@ function ColumnFilter<T>({
   const [filterValue2, setFilterValue2] = useState(currentFilter?.value2?.toString() || '')
 
   const applyFilter = () => {
-    // Narrow the type properly
-    const cellType = columnDef.type === 'select' ? 'select' : (columnDef.type === 'boolean' ? 'text' : (columnDef.type || 'text'))
+    // Map ColumnType to FilterConfig type
+    const getFilterType = (): FilterConfig['type'] => {
+      if (columnDef.type === 'select') return 'select'
+      if (columnDef.type === 'number') return 'number'
+      if (columnDef.type === 'date') return 'date'
+      return 'text' // 'string', 'boolean', or undefined all map to 'text'
+    }
     const config: FilterConfig = {
-      type: cellType as 'text' | 'number' | 'date' | 'select',
+      type: getFilterType(),
       operation: filterType,
       value: filterValue,
     }
@@ -559,9 +559,8 @@ export function ExcelStyleTable<T extends Record<string, any>>({
 
           switch (col.type) {
             case 'date':
-              if (typeof value === 'object') return '-'
-              return isValid(new Date(value as string | number))
-                ? format(new Date(value as string | number), 'MMM d, yyyy')
+              return isValid(new Date(value as string | number | Date))
+                ? format(new Date(value as string | number | Date), 'MMM d, yyyy')
                 : String(value)
             case 'number':
               return typeof value === 'number' ? value.toLocaleString() : String(value)
@@ -622,8 +621,8 @@ export function ExcelStyleTable<T extends Record<string, any>>({
     enabled: virtualized && !enablePagination,
   })
 
-  const virtualRows = (virtualized && !enablePagination && typeof rowVirtualizer.getVirtualItems === 'function')
-    ? (rowVirtualizer.getVirtualItems() as Array<{ index: number; size: number }>)
+  const virtualRows = virtualized && !enablePagination
+    ? rowVirtualizer.getVirtualItems()
     : rows.map((row, index) => ({ index, size: compact ? 32 : 48 }))
 
   // ============================================================================
@@ -706,10 +705,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
     const ws = XLSX.utils.json_to_sheet(exportData)
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Data')
-    // Type assertion for writeFile which exists at runtime
-    if ('writeFile' in XLSX) {
-      (XLSX as any).writeFile(wb, `export_${format(new Date(), 'yyyy-MM-dd_HHmmss')}.xlsx`)
-    }
+    ;(XLSX as any).writeFile(wb, `export_${format(new Date(), 'yyyy-MM-dd_HHmmss')}.xlsx`)
   }, [columns, table])
 
   const exportToCSV = useCallback(() => {
@@ -922,7 +918,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
           <tbody>
             {virtualized && !enablePagination ? (
               <>
-                {virtualRows.map((virtualRow: { index: number; size: number }) => {
+                {virtualRows.map((virtualRow) => {
                   const row = rows[virtualRow.index]
                   return (
                     <tr

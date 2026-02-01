@@ -10,7 +10,12 @@
  * - Cost savings analysis
  */
 
-import { Cloud, CloudIcon, TrendingDown as ArrowTrendingDownIcon, Download as DocumentArrowDownIcon, Sparkles as SparklesIcon } from 'lucide-react';
+import {
+  Cloud,
+  TrendDown,
+  FileArrowDown,
+  Sparkle
+} from '@phosphor-icons/react';
 import { jsPDF } from 'jspdf';
 import React, { useState, useEffect } from 'react';
 
@@ -319,7 +324,7 @@ const CarbonFootprintTracker: React.FC = () => {
             <option value="year">Last Year</option>
           </select>
           <Button onClick={downloadReport} variant="outline">
-            <DocumentArrowDownIcon className="w-4 h-4 mr-2" />
+            <FileArrowDown className="w-4 h-4 mr-2" />
             Download Report
           </Button>
         </div>
@@ -345,7 +350,7 @@ const CarbonFootprintTracker: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">CO₂ Saved</CardTitle>
-            <ArrowTrendingDownIcon className="w-3 h-3 text-green-500" />
+            <TrendDown className="w-3 h-3 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold text-green-600">
@@ -360,7 +365,7 @@ const CarbonFootprintTracker: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">Reduction</CardTitle>
-            <SparklesIcon className="w-3 h-3 text-blue-800" />
+            <Sparkle className="w-3 h-3 text-blue-800" />
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold text-blue-800">

@@ -13,7 +13,7 @@ export function safeGetLocalStorage(key: string, defaultValue: string | null = n
     }
     return localStorage.getItem(key) ?? defaultValue
   } catch (error) {
-    logger.warn("Failed to access localStorage:", { error })
+    logger.warn("Failed to access localStorage:", { error: error instanceof Error ? error.message : String(error) })
     return defaultValue
   }
 }
@@ -32,7 +32,7 @@ export function safeSetLocalStorage(key: string, value: string): boolean {
     localStorage.setItem(key, value)
     return true
   } catch (error) {
-    logger.warn("Failed to set localStorage:", { error })
+    logger.warn("Failed to set localStorage:", { error: error instanceof Error ? error.message : String(error) })
     return false
   }
 }

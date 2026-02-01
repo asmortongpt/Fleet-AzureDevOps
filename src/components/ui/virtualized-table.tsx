@@ -239,8 +239,7 @@ export function VirtualizedTable<TData>({
       const ws = XLSX.utils.json_to_sheet(exportData as any[])
       const wb = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(wb, ws, 'Data')
-      // @ts-expect-error - XLSX type incompatibility - writeFile may not be exported
-      XLSX.writeFile(wb, `export_${Date.now()}.xlsx`)
+      (XLSX as any).writeFile(wb, `export_${Date.now()}.xlsx`)
     }
   }, [table, onExport])
 
@@ -468,7 +467,7 @@ export function VirtualizedTable<TData>({
             className="relative"
           >
             {enableVirtualization && !enablePagination ? (
-              virtualRows.map((virtualRow: { index: number; size: number; start: number }) => {
+              virtualRows.map((virtualRow) => {
                 const row = rows[virtualRow.index]
                 return (
                   <tr
