@@ -228,7 +228,7 @@ export function HubPage({
                                         )}
                                         data-testid={`hub-tab-${tab.id}`}
                                     >
-                                        {tab.icon && (React.isValidElement(tab.icon) ? tab.icon : React.createElement(tab.icon as React.ComponentType<{ className: string }>, { className: 'h-4 w-4' }))}
+                                        {tab.icon && (React.isValidElement(tab.icon) ? tab.icon : typeof tab.icon === 'function' ? React.createElement(tab.icon as React.ComponentType<{ className: string }>, { className: 'h-4 w-4' }) : null)}
                                         {tab.label}
                                     </TabsTrigger>
                                 </motion.div>

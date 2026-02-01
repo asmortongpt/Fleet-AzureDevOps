@@ -260,7 +260,7 @@ const FleetTabContent = memo(function FleetTabContent() {
       </motion.div>
 
       {/* EV Charging Management */}
-      {user?.role === 'fleet_manager' && (
+      {(user?.role === 'Admin' || user?.role === 'Manager' || user?.role === 'SuperAdmin') && (
         <motion.div variants={fadeInVariant}>
           <Card>
             <CardHeader>

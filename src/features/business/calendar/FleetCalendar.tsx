@@ -28,7 +28,7 @@ import EventCreateModal from './EventCreateModal';
 const localizer = momentLocalizer(moment);
 
 interface FleetEvent extends Event {
-  id?: string;
+  id?: string | number;
   title: string;
   start: Date;
   end: Date;
@@ -450,7 +450,7 @@ const FleetCalendar: React.FC = () => {
 
       {/* Calendar */}
       <div className="bg-white rounded-lg shadow-sm p-2" style={{ height: 'calc(100vh - 280px)' }}>
-        <Calendar<FleetEvent>
+        <Calendar
           localizer={localizer}
           events={filteredEvents}
           startAccessor="start"

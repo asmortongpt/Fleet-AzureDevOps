@@ -196,7 +196,6 @@ export function ResponsivePieChart({
                     </linearGradient>
                   ))}
                 </defs>
-                {/* @ts-expect-error - Recharts Pie types are incomplete for activeIndex/activeShape */}
                 <Pie
                   data={data as any}
                   cx="50%"

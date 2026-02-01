@@ -309,6 +309,6 @@ function playAlertSound() {
     oscillator.start();
     oscillator.stop(audioContext.currentTime + 0.2);
   } catch (error) {
-    logger.debug('Audio playback not supported:', error);
+    logger.debug('Audio playback not supported:', { error: error instanceof Error ? error.message : String(error) });
   }
 }

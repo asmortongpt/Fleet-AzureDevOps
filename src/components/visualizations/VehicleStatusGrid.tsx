@@ -68,7 +68,8 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
     }
 
     if (issues.length > 0) return { status: 'warning' as const, issues };
-    if (vehicle.status === 'maintenance') return { status: 'maintenance' as const, issues: ['In maintenance'] };
+    // "service" status is the maintenance state in the Vehicle type
+    if (vehicle.status === 'service') return { status: 'maintenance' as const, issues: ['In maintenance'] };
     if (vehicle.status === 'offline') return { status: 'offline' as const, issues: ['Offline'] };
     return { status: 'healthy' as const, issues: [] };
   };
