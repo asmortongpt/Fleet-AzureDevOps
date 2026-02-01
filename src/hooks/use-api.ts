@@ -494,21 +494,23 @@ export function useDriverMutations() {
       return res.json();
     },
     onMutate: async (updatedDriver) => {
-      await queryClient.cancelQueries({ queryKey: queryKeyFactory.drivers({ tenant_id: updatedDriver.tenantId }) });
-      const previousDrivers = queryClient.getQueryData<Driver[]>(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenantId }));
-      queryClient.setQueryData<Driver[]>(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenantId }), (old) =>
+      const tenantId = updatedDriver.tenantId || '';
+      await queryClient.cancelQueries({ queryKey: queryKeyFactory.drivers({ tenant_id: tenantId }) });
+      const previousDrivers = queryClient.getQueryData<Driver[]>(queryKeyFactory.drivers({ tenant_id: tenantId }));
+      queryClient.setQueryData<Driver[]>(queryKeyFactory.drivers({ tenant_id: tenantId }), (old) =>
         old?.map((driver) => (driver.id === updatedDriver.id ? updatedDriver : driver))
       );
-      return { previousDrivers };
+      return { previousDrivers, tenantId };
     },
     onError: (_err, updatedDriver, context) => {
-      if (context?.previousDrivers) {
-        queryClient.setQueryData(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenantId }), context.previousDrivers);
+      if (context?.previousDrivers && context?.tenantId) {
+        queryClient.setQueryData(queryKeyFactory.drivers({ tenant_id: context.tenantId }), context.previousDrivers);
       }
     },
     onSettled: (updatedDriver) => {
-      if (updatedDriver) {
-        queryClient.invalidateQueries({ queryKey: queryKeyFactory.drivers({ tenant_id: updatedDriver.tenantId }) });
+      const tenantId = updatedDriver?.tenantId || '';
+      if (updatedDriver && tenantId) {
+        queryClient.invalidateQueries({ queryKey: queryKeyFactory.drivers({ tenant_id: tenantId }) });
       }
     },
   });
