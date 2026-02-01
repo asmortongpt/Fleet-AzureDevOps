@@ -1574,7 +1574,7 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
         }
         return <div>Unsupported expense type</div>;
 
-      case 'documents':
+      case 'documents': {
         const config = EXPENSE_TYPES[selectedType!];
         return (
           <div className="space-y-2">
@@ -1601,8 +1601,9 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
             </div>
           </div>
         );
+      }
 
-      case 'review':
+      case 'review': {
         const expenseConfig = EXPENSE_TYPES[selectedType!];
         const totalAmount = (() => {
           switch (selectedType) {
@@ -1681,6 +1682,7 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
             </div>
           </div>
         );
+      }
 
       default:
         return null;

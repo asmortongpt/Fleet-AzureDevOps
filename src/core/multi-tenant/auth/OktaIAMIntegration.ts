@@ -58,9 +58,7 @@ interface OktaAuthConstructor {
 }
 
 // Dynamic import to avoid compile-time dependency
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const OktaAuth: OktaAuthConstructor = (globalThis as Record<string, unknown>).OktaAuth as OktaAuthConstructor
-  || (typeof require !== 'undefined' ? require('@okta/okta-auth-js').OktaAuth : undefined);
+const OktaAuth: OktaAuthConstructor = (globalThis as Record<string, unknown>).OktaAuth as OktaAuthConstructor;
 
 export interface OktaConfig {
   issuer: string;

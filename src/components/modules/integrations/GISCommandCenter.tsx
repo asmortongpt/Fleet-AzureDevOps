@@ -111,9 +111,10 @@ export function GISCommandCenter() {
         return <Wrench className="w-3 h-3" />
       case "fueling-station":
         return <Fuel className="w-3 h-3" />
-      default:
+      default: {
         const _exhaustive: never = type
         return _exhaustive
+      }
     }
   }
 
