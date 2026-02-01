@@ -490,7 +490,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
       <motion.div variants={fadeInVariant} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Active Routes"
-          value={safeStats.activeRoutes}
+          value={safeStats.activeJobs}
           icon={RouteIcon}
           change={4}
           trend="up"
@@ -498,27 +498,27 @@ const OperationsTabContent = memo(function OperationsTabContent() {
         />
         <StatCard
           title="Pending Tasks"
-          value={safeStats.pendingTasks}
+          value={safeStats.openTasks}
           icon={CheckSquare}
           change={3}
           trend="down"
           description="Need assignment"
         />
         <StatCard
-          title="Fuel Cost Today"
-          value={`$${(safeStats.fuelCostToday || 0).toFixed(2)}`}
+          title="Total Fuel Cost"
+          value={`$${(safeStats.totalFuelCost || 0).toFixed(2)}`}
           icon={Fuel}
           change={12}
           trend="down"
-          description="Daily fuel spend"
+          description="Total fuel spend"
         />
         <StatCard
-          title="Efficiency"
-          value={`${safeStats.routeEfficiency || 0}%`}
+          title="Completion Rate"
+          value={`${safeStats.completionRate.toFixed(1)}%`}
           icon={TrendingUp}
           change={7}
           trend="up"
-          description="Route optimization"
+          description="Route completion"
         />
       </motion.div>
 
@@ -540,13 +540,13 @@ const OperationsTabContent = memo(function OperationsTabContent() {
                     <div className="flex items-center gap-3">
                       <RouteIcon className="h-5 w-5 text-green-500" />
                       <div>
-                        <p className="font-semibold">{route.name || `Route #${route.id}`}</p>
+                        <p className="font-semibold">Route #{route.id}</p>
                         <p className="text-sm text-muted-foreground">
-                          {route.startLocation} → {route.endLocation}
+                          {route.origin || 'Origin'} → {route.destination || 'Destination'}
                         </p>
                       </div>
                     </div>
-                    <Badge variant={route.status === 'active' ? 'default' : 'secondary'}>
+                    <Badge variant={route.status === 'in_transit' ? 'default' : 'secondary'}>
                       {route.status}
                     </Badge>
                   </div>
@@ -579,12 +579,12 @@ const OperationsTabContent = memo(function OperationsTabContent() {
                     <div>
                       <p className="font-semibold">Vehicle #{transaction.vehicleId}</p>
                       <p className="text-sm text-muted-foreground">
-                        {transaction.gallons} gal @ ${transaction.pricePerGallon}/gal
+                        {transaction.amount} gal @ ${(transaction.pricePerUnit || 0).toFixed(2)}/gal
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold">${transaction.totalCost.toFixed(2)}</p>
-                      <p className="text-sm text-muted-foreground">{transaction.location}</p>
+                      <p className="font-semibold">${transaction.cost.toFixed(2)}</p>
+                      <p className="text-sm text-muted-foreground">{transaction.location || 'N/A'}</p>
                     </div>
                   </div>
                 ))
@@ -1070,7 +1070,7 @@ export default function FleetOperationsHub() {
     <HubPage
       title="Fleet Operations"
       description="Comprehensive fleet management, driver tracking, and operations control"
-      icon={Car}
+      icon={<Car className="h-5 w-5" />}
     >
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
