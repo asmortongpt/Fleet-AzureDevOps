@@ -338,13 +338,13 @@ export function useReactiveFleetData(): UseReactiveFleetDataReturn {
 
       try {
         // API returns {data: [...], total: number}, extract the data array
-        const response = await secureFetch(
+        const response = (await secureFetch(
           `${API_BASE}/vehicles`,
           z.object({
             data: z.array(VehicleSchema),
             total: z.number().optional(),
-          })
-        )
+          }) as any  // Type assertion needed due to Zod transform() output type mismatch
+        )) as unknown as { data: any[]; total?: number }
         vehiclesCircuitBreaker.recordSuccess()
         lastUpdateRef.current = new Date()
         return response.data

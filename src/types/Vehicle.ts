@@ -103,7 +103,7 @@ export interface Vehicle {
   cost?: string | number
 
   // Additional Database Fields
-  tenant_id?: number
+  tenant_id?: string  // UUID from database (matches tenantId field)
   license_plate?: string
   fuel_level?: number
   created_at?: Date | string

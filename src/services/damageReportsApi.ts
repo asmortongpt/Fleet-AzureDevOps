@@ -82,7 +82,7 @@ const handleApiError = (error: AxiosError): never => {
     // Server responded with error status
     const errorMessage =
       (error.response.data as any)?.error || 'An error occurred on the server'
-    logger.error('API Error:', errorMessage, error.response.data)
+    logger.error('API Error:', { message: errorMessage, data: error.response.data })
     throw new Error(errorMessage)
   } else if (error.request) {
     // Request was made but no response received

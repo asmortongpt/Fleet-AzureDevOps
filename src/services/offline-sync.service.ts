@@ -282,7 +282,7 @@ export class OfflineSyncService {
         await this.executeSyncOperation(operation);
         await this.db.delete('syncQueue', operation.id);
       } catch (error) {
-        logger.error('[OfflineSyncService] Failed to execute operation:', operation, error);
+        logger.error('[OfflineSyncService] Failed to execute operation:', { operation, error: error instanceof Error ? error.message : String(error) });
 
         // Update retry count
         operation.retryCount++;
