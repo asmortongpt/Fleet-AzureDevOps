@@ -141,7 +141,6 @@ const IncidentCard = memo(function IncidentCard({
           <AlertTriangle className={`h-4 w-4 ${isCritical ? 'text-red-600' : 'text-orange-600'}`} />
           <p className="font-medium text-sm">{incident.incident_number}</p>
           <SeverityBadge severity={incident.severity} />
-          <Badge variant="outline" className="text-xs">
             {incident.type.replace('_', ' ')}
           </Badge>
         </div>
@@ -158,7 +157,6 @@ const IncidentCard = memo(function IncidentCard({
             {incident.location_city}, {incident.location_state}
           </span>
           {incident.injuries_reported && (
-            <Badge variant="destructive" className="text-xs">
               Injuries Reported
             </Badge>
           )}
@@ -188,7 +186,6 @@ const InvestigationCard = memo(function InvestigationCard({ investigation }: { i
           <FileText className="h-4 w-4 text-blue-600" />
           <p className="font-medium text-sm">Investigation #{String(investigation.id).slice(0, 8)}</p>
         </div>
-        <Badge variant={investigation.status === 'completed' ? 'default' : 'secondary'}>
           {investigation.status.replace('_', ' ')}
         </Badge>
       </div>
@@ -295,29 +292,25 @@ function IncidentHubContent() {
                 title="Total Incidents"
                 value={metrics.total_incidents.toString()}
                 icon={<AlertTriangle />}
-                trend={{ value: metrics.month_over_month_change, label: 'vs last month' }}
-                variant={metrics.month_over_month_change > 0 ? 'destructive' : 'success'}
+                trend={metrics.month_over_month_change > 0 ? 'up' : metrics.month_over_month_change < 0 ? 'down' : 'neutral'}
               />
               <StatCard
                 title="Days Since Last"
                 value={metrics.days_since_last_incident.toString()}
                 icon={<Calendar />}
-                trend={{ value: 0, label: 'Safety streak' }}
-                variant="success"
+                trend="neutral"
               />
               <StatCard
                 title="Total Cost"
                 value={`$${(metrics.total_incident_cost / 1000).toFixed(0)}K`}
                 icon={<DollarSign />}
-                trend={{ value: 0, label: 'Last 90 days' }}
-                variant="warning"
+                trend="neutral"
               />
               <StatCard
                 title="Incident Rate"
                 value={metrics.incidents_per_million_miles.toFixed(2)}
                 icon={<TrendingDown />}
-                trend={{ value: 0, label: 'Per million miles' }}
-                variant="info"
+                trend="neutral"
               />
             </div>
           ) : null}
@@ -394,7 +387,6 @@ function IncidentHubContent() {
               </p>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
                 <Filter className="h-4 w-4 mr-2" />
                 Filter
               </Button>

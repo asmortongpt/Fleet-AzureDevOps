@@ -140,7 +140,6 @@ const AdminTabContent = memo(function AdminTabContent() {
           value="68%"
           icon={HardDrive}
           description="Of allocated space"
-          variant="warning"
         />
       </motion.div>
 
@@ -746,7 +745,7 @@ export default function AdminConfigurationHub() {
     <HubPage
       title="Administration & Configuration"
       description="System administration, configuration, data governance, integrations, and document management"
-      icon={Settings}
+      icon={<Settings className="h-5 w-5" />}
     >
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
