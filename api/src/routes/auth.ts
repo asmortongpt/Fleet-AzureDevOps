@@ -633,6 +633,24 @@ router.post('/logout', csrfProtection, async (req: Request, res: Response) => {
  */
 router.get('/me', async (req: Request, res: Response) => {
   try {
+    // DEVELOPMENT AUTH BYPASS: Check if user was set by development middleware
+    // This allows the frontend to work with VITE_SKIP_AUTH=true in development
+    if ((req as any).user && process.env.NODE_ENV === 'development') {
+      logger.info('[Auth] Development bypass user detected');
+      const devUser = (req as any).user;
+      return res.json({
+        user: {
+          id: devUser.id,
+          email: devUser.email,
+          first_name: 'Development',
+          last_name: 'User',
+          role: devUser.role,
+          tenant_id: devUser.tenant_id
+        },
+        token: 'dev-bypass-token' // Placeholder token for development
+      });
+    }
+
     // Get token from Authorization header or cookie
     logger.info('Auth /me request', { cookies: req.cookies?.auth_token ? 'PRESENT' : 'MISSING', headers: req.headers.authorization ? 'PRESENT' : 'MISSING' });
     const token = req.headers.authorization?.split(' ')[1] || req.cookies?.auth_token
