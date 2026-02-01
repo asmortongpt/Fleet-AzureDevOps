@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 /// <reference types="@testing-library/jest-dom" />
+/// <reference types="@react-three/fiber" />
 
 interface ImportMetaEnv {
     readonly VITE_API_URL: string
