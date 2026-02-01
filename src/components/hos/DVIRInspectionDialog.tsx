@@ -281,7 +281,6 @@ export function DVIRInspectionDialog({
       vehicle_id: vehicleId,
       tenant_id: tenantId,
       inspection_type: values.inspection_type as InspectionType,
-      inspection_datetime: new Date().toISOString(),
       odometer: parseInt(values.odometer_reading, 10),
       location: {
         lat: 0, // Default lat/lng - in production, capture from GPS

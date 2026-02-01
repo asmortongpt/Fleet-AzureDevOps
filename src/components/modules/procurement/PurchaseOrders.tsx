@@ -24,7 +24,7 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
-import { useAuth } from "@/contexts/AuthContext"
+import { useAuth } from "@/contexts"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { PurchaseOrder } from "@/lib/types"
 

@@ -460,7 +460,7 @@ export function useVehicleMutations() {
       if (!res.ok) throw new Error('Network response was not ok');
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeyFactory.vehicles({ tenant_id: variables.tenantId }) });
+      queryClient.invalidateQueries({ queryKey: queryKeyFactory.vehicles({ tenant_id: variables.tenant_id }) });
     },
   });
 
@@ -484,7 +484,7 @@ export function useDriverMutations() {
     },
   });
 
-  const updateDriver = useMutation<Driver, Error, Driver, { previousDrivers?: Driver[] }>({
+  const updateDriver = useMutation<Driver, Error, Driver, { previousDrivers?: Driver[]; tenantId?: string }>({
     mutationFn: async (updatedDriver) => {
       const res = await secureFetch(`/api/drivers/${updatedDriver.id}`, {
         method: 'PUT',
@@ -523,7 +523,7 @@ export function useDriverMutations() {
       if (!res.ok) throw new Error('Network response was not ok');
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeyFactory.drivers({ tenant_id: variables.tenantId }) });
+      queryClient.invalidateQueries({ queryKey: queryKeyFactory.drivers({ tenant_id: variables.tenant_id }) });
     },
   });
 

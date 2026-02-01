@@ -541,6 +541,18 @@ export function useReactiveSafetyData(options?: {
     .filter((a) => a.type === 'critical' && a.status === 'active')
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
 
+  // Additional computed properties for SafetyHub tabs
+  const openIncidents = incidents.filter((i) => i.status !== 'closed')
+  const criticalIncidents = incidents.filter((i) => i.severity === 'critical')
+
+  // Mock data for inspections (to be replaced with real data when backend is ready)
+  const inspections: Array<{ id: string; status: string; type: string }> = []
+
+  // Mock data for certifications (to be replaced with real data when backend is ready)
+  const certifications: Array<{ id: string; status: string; type: string }> = []
+  const expiringCertifications = certifications.filter((c) => c.status === 'expiring_soon')
+  const expiredCertifications = certifications.filter((c) => c.status === 'expired')
+
   // Refresh function
   const refresh = useCallback(() => {
     setRealTimeUpdate((prev) => prev + 1)
@@ -551,6 +563,14 @@ export function useReactiveSafetyData(options?: {
     queryClient.invalidateQueries({ queryKey: ['safety-incidents'] })
   }, [queryClient])
 
+  // Enhanced metrics with additional properties
+  const enhancedMetrics = useMemo(() => ({
+    ...metrics,
+    pendingInspections: inspections.filter((i) => i.status === 'pending' || i.status === 'scheduled').length,
+    expiringCertifications: expiringCertifications.length,
+    expiredCertifications: expiredCertifications.length,
+  }), [metrics, inspections, expiringCertifications, expiredCertifications])
+
   return {
     // Core data
     alerts,
@@ -558,9 +578,15 @@ export function useReactiveSafetyData(options?: {
     vehicleSafety,
     trainingRecords,
     incidents,
+    openIncidents,
+    criticalIncidents,
+    inspections,
+    certifications,
+    expiringCertifications,
+    expiredCertifications,
 
     // Metrics
-    metrics,
+    metrics: enhancedMetrics,
     alertsByType,
     driverSafetyRanges,
     incidentTrendData,

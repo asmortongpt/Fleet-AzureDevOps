@@ -24,7 +24,7 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
-import { useAuth } from "@/contexts/AuthContext"
+import { useAuth } from "@/contexts"
 
 
 
