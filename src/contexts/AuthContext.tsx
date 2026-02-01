@@ -432,6 +432,3 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
 // Export the context for advanced use cases
 export { AuthContext };
-
-// Explicit type exports for TypeScript module resolution
-export type { User, UserRole, AuthContextType };
