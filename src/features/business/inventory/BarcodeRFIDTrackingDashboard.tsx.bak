@@ -67,7 +67,6 @@ import {
   Cell
 } from 'recharts';
 
-import logger from '@/utils/logger';
 import {
   barcodeRFIDTrackingService,
   InventoryItem,
@@ -262,7 +261,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
       // In real implementation, would open print dialog or download
       alert(`QR Code generated: ${result.code}`);
     } catch (error) {
-      logger.error('Error generating barcode:', error);
+      console.error('Error generating barcode:', error);
     } finally {
       setLoading(false);
     }
@@ -292,7 +291,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
       setScannedCode('');
       setScanDialogOpen(false);
     } catch (error) {
-      logger.error('Error scanning code:', error);
+      console.error('Error scanning code:', error);
       alert('Error scanning code');
     } finally {
       setLoading(false);
@@ -313,14 +312,14 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
 
       // Update local state
       const updatedItems = inventoryItems.map(i =>
-        i.id === item.id ? { ...i, status: 'checked_out' } : i
+        i.id === item.id ? { ...i, status: 'checked_out' as const } : i
       );
       setInventoryItems(updatedItems);
 
       setCheckoutDialogOpen(false);
       alert('Item checked out successfully');
     } catch (error) {
-      logger.error('Error checking out item:', error);
+      console.error('Error checking out item:', error);
       alert('Error checking out item');
     } finally {
       setLoading(false);
@@ -338,13 +337,13 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
 
       // Update local state
       const updatedItems = inventoryItems.map(i =>
-        i.id === item.id ? { ...i, status: 'in_stock' } : i
+        i.id === item.id ? { ...i, status: 'in_stock' as const } : i
       );
       setInventoryItems(updatedItems);
 
       alert('Item checked in successfully');
     } catch (error) {
-      logger.error('Error checking in item:', error);
+      console.error('Error checking in item:', error);
       alert('Error checking in item');
     } finally {
       setLoading(false);
@@ -364,7 +363,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
       setCurrentAudit(audit);
       setAuditDialogOpen(true);
     } catch (error) {
-      logger.error('Error starting audit:', error);
+      console.error('Error starting audit:', error);
     } finally {
       setLoading(false);
     }
@@ -384,7 +383,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
         Missing: ${result.missingItems.length} items
         Duration: ${result.sweepDuration}ms`);
     } catch (error) {
-      logger.error('Error performing RFID sweep:', error);
+      console.error('Error performing RFID sweep:', error);
     } finally {
       setLoading(false);
     }
@@ -400,7 +399,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
         setScannerActive(true);
       }
     } catch (error) {
-      logger.error('Error accessing camera:', error);
+      console.error('Error accessing camera:', error);
       alert('Camera access denied');
     }
   };
@@ -499,7 +498,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
         {/* Scanner Interface */}
         <Grid container spacing={3}>
           {/* Quick Actions */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -508,7 +507,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
                 </Typography>
 
                 <Grid container spacing={2} sx={{ mt: 1 }}>
-                  <Grid item xs={12} md={3}>
+                  <Grid size={{ xs: 12, md: 3 }}>
                     <Button
                       variant="contained"
                       fullWidth
@@ -519,7 +518,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
                       {scannerActive ? 'Stop Camera' : 'Start Camera'}
                     </Button>
                   </Grid>
-                  <Grid xs={12} md={3}>
+                  <Grid size={{ xs: 12, md: 3 }}>
                     <Button
                       variant="outlined"
                       fullWidth
@@ -529,7 +528,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
                       Manual Entry
                     </Button>
                   </Grid>
-                  <Grid xs={12} md={3}>
+                  <Grid size={{ xs: 12, md: 3 }}>
                     <Button
                       variant="outlined"
                       fullWidth
@@ -539,7 +538,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
                       RFID Sweep
                     </Button>
                   </Grid>
-                  <Grid xs={12} md={3}>
+                  <Grid size={{ xs: 12, md: 3 }}>
                     <Button
                       variant="outlined"
                       fullWidth
@@ -588,7 +587,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
           </Grid>
 
           {/* Recent Scans */}
-          <Grid xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Recent Scan Activity</Typography>
@@ -631,9 +630,9 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
           </Grid>
 
           {/* Quick Stats */}
-          <Grid xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Grid container spacing={2}>
-              <Grid xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Today's Activity</Typography>
@@ -661,48 +660,48 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
         {/* Inventory Tracking */}
         <Grid container spacing={3}>
           {/* Status Overview */}
-          <Grid xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Available Items</Typography>
                 <Typography variant="h3" color="success.main">{metrics.available}</Typography>
-                <Typography variant="body2" color="textSecondary">Ready for use</Typography>
+                <Typography variant="body2" color="text.secondary">Ready for use</Typography>
               </CardContent>
             </Card>
           </Grid>
 
-          <Grid xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Checked Out</Typography>
                 <Typography variant="h3" color="warning.main">{metrics.checkedOut}</Typography>
-                <Typography variant="body2" color="textSecondary">In field use</Typography>
+                <Typography variant="body2" color="text.secondary">In field use</Typography>
               </CardContent>
             </Card>
           </Grid>
 
-          <Grid xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Maintenance</Typography>
                 <Typography variant="h3" color="error.main">{metrics.maintenance}</Typography>
-                <Typography variant="body2" color="textSecondary">Being serviced</Typography>
+                <Typography variant="body2" color="text.secondary">Being serviced</Typography>
               </CardContent>
             </Card>
           </Grid>
 
-          <Grid xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Total Value</Typography>
                 <Typography variant="h3" color="info.main">${metrics.totalValue.toLocaleString()}</Typography>
-                <Typography variant="body2" color="textSecondary">Current inventory</Typography>
+                <Typography variant="body2" color="text.secondary">Current inventory</Typography>
               </CardContent>
             </Card>
           </Grid>
 
           {/* Inventory Table */}
-          <Grid xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Inventory Items</Typography>
@@ -808,7 +807,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
       <TabPanel value={tabValue} index={2}>
         {/* RFID Management */}
         <Grid container spacing={3}>
-          <Grid xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -821,7 +820,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
                 </Alert>
 
                 <Grid container spacing={2}>
-                  <Grid xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <Button
                       variant="contained"
                       fullWidth
@@ -831,7 +830,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
                       Perform RFID Sweep
                     </Button>
                   </Grid>
-                  <Grid xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <Button
                       variant="outlined"
                       fullWidth
@@ -840,7 +839,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
                       Configure Readers
                     </Button>
                   </Grid>
-                  <Grid xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <Button
                       variant="outlined"
                       fullWidth
@@ -898,11 +897,11 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
       <TabPanel value={tabValue} index={3}>
         {/* Audit & Reports */}
         <Grid container spacing={3}>
-          <Grid xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Inventory Audit</Typography>
-                <Typography variant="body2" color="textSecondary" paragraph>
+                <Typography variant="body2" color="text.secondary" paragraph>
                   Perform systematic inventory audits using barcode and RFID technology
                 </Typography>
 
@@ -937,7 +936,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Location Distribution</Typography>
@@ -969,7 +968,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
       <TabPanel value={tabValue} index={4}>
         {/* Analytics */}
         <Grid container spacing={3}>
-          <Grid xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Scan Activity Trend</Typography>
@@ -987,22 +986,22 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Performance Metrics</Typography>
                 <Box sx={{ mb: 2 }}>
-                  <Typography variant="body2" color="textSecondary">Scan Accuracy</Typography>
+                  <Typography variant="body2" color="text.secondary">Scan Accuracy</Typography>
                   <LinearProgress variant="determinate" value={98.5} sx={{ height: 8, mb: 1 }} />
                   <Typography variant="body2">98.5%</Typography>
                 </Box>
                 <Box sx={{ mb: 2 }}>
-                  <Typography variant="body2" color="textSecondary">Inventory Turnover</Typography>
+                  <Typography variant="body2" color="text.secondary">Inventory Turnover</Typography>
                   <LinearProgress variant="determinate" value={75} color="success" sx={{ height: 8, mb: 1 }} />
                   <Typography variant="body2">6.2x annually</Typography>
                 </Box>
                 <Box>
-                  <Typography variant="body2" color="textSecondary">Location Accuracy</Typography>
+                  <Typography variant="body2" color="text.secondary">Location Accuracy</Typography>
                   <LinearProgress variant="determinate" value={96} color="info" sx={{ height: 8, mb: 1 }} />
                   <Typography variant="body2">96.0%</Typography>
                 </Box>
@@ -1039,17 +1038,17 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
         <DialogContent>
           {selectedItem && (
             <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Typography variant="h6">{selectedItem.name}</Typography>
-                <Typography variant="body2" color="textSecondary">{selectedItem.partNumber}</Typography>
+                <Typography variant="body2" color="text.secondary">{selectedItem.partNumber}</Typography>
               </Grid>
-              <Grid xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField fullWidth label="Checked Out To" />
               </Grid>
-              <Grid xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField fullWidth label="Work Order Number" />
               </Grid>
-              <Grid xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField fullWidth label="Purpose" multiline rows={2} />
               </Grid>
             </Grid>
