@@ -214,9 +214,10 @@ const customFilterFn: FilterFn<any> = (row, columnId, filterValue: FilterConfig)
           return num >= filterNum
         case '<=':
           return num <= filterNum
-        case 'between':
+        case 'between': {
           const filterNum2 = Number(value2)
           return num >= filterNum && num <= filterNum2
+        }
         default:
           return true
       }
@@ -235,9 +236,10 @@ const customFilterFn: FilterFn<any> = (row, columnId, filterValue: FilterConfig)
           return cellDate < filterDate
         case 'after':
           return cellDate > filterDate
-        case 'between':
+        case 'between': {
           const filterDate2 = new Date(value2!)
           return cellDate >= filterDate && cellDate <= filterDate2
+        }
         default:
           return true
       }

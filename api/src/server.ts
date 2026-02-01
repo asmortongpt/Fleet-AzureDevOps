@@ -67,6 +67,7 @@ import aiDamageDetectionRouter from './routes/ai-damage-detection.routes'
 import aiSearchRouter from './routes/ai-search'
 import aiTaskAssetRouter from './routes/ai-task-asset.routes'
 import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
+// TEMP DISABLED: import alertsRouter from './routes/alerts.routes'
 import annualReauthorizationRouter from './routes/annual-reauthorization.routes'
 import arcgisLayersRouter from './routes/arcgis-layers'
 import assetAnalyticsRouter from './routes/asset-analytics.routes'
@@ -181,12 +182,14 @@ console.log('--- SERVER STARTING DEBUG ---')
 // Initialize Datadog APM FIRST (must be before ALL other imports)
 // TODO: Re-enable when dd-trace package is properly installed
 console.log('Datadog APM disabled')
-telemetryService.initialize()
+// TEMP: Disabled telemetry to resolve initialization loop
+// telemetryService.initialize()
 
 // ARCHITECTURE FIX: Import new error handling infrastructure
 
 // Initialize Sentry
-sentryService.init()
+// TEMP: Disabled to resolve initialization loop
+// sentryService.init()
 
 console.log('--- IMPORTS COMPLETED, CREATING APP ---');
 const app = express()
@@ -314,7 +317,7 @@ app.use('/api/v1/batch', batchRouter)
 app.use('/api/batch', batchRouter)
 
 // Core Fleet Management Routes
-app.use('/api/alerts', alertsRouter)
+// TEMP DISABLED: app.use('/api/alerts', alertsRouter)  // TODO: Import alertsRouter from './routes/alerts.routes'
 app.use('/api/vehicles', vehiclesRouter)
 app.use('/api/drivers', driversRouter)
 app.use('/api/fuel-transactions', fuelRouter)
@@ -325,8 +328,8 @@ app.use('/api/vendors', vendorsRouter)
 app.use('/api/invoices', invoicesRouter)
 app.use('/api/purchase-orders', purchaseOrdersRouter)
 app.use('/api/tasks', tasksRouter)
-app.use('/api/reservations', reservationsRouter)
-app.use('/api/hos', hosRouter)
+// TEMP DISABLED: app.use('/api/reservations', reservationsRouter)  // TODO: Import reservationsRouter from './routes/reservations.routes'
+// TEMP DISABLED: app.use('/api/hos', hosRouter)  // TODO: Import hosRouter from './routes/hos.routes'
 
 // Asset Management Routes
 app.use('/api/assets', assetManagementRouter)
@@ -445,7 +448,7 @@ app.use('/api/dashboard', dashboardRouter)
 // app.use('/api/monitoring', monitoringRouter)
 app.use('/api/health', healthSystemRouter) // Comprehensive system health (BACKEND-12)
 app.use('/api/health/microsoft', healthRouter) // Microsoft integration health
-app.use('/api/health', healthStartupRouter) // Startup health check (/startup, /startup/summary, /startup/errors)
+// TEMP DISABLED: app.use('/api/health', healthStartupRouter) // TODO: Import healthStartupRouter from './routes/health-startup.routes'
 app.use('/api/health-detailed', healthDetailedRouter)
 app.use('/api/performance', performanceRouter)
 app.use('/api/telemetry', telemetryRouter)
@@ -457,7 +460,7 @@ app.use('/api/presence', presenceRouter)
 app.use('/api/storage-admin', storageAdminRouter)
 app.use('/api/sync', syncRouter)
 app.use('/api/quality-gates', qualityGatesRouter)
-app.use('/api/reservations', reservationsRouter)
+// TEMP DISABLED: app.use('/api/reservations', reservationsRouter) // TODO: Import reservationsRouter
 app.use('/api/admin/jobs', adminJobsRouter)
 
 // E2E Test Routes - DEVELOPMENT ONLY (no authentication required)

@@ -152,12 +152,14 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
   useEffect(() => {
     setLayers(prev => prev.map(layer => {
       switch (layer.id) {
-        case 'vehicles':
+        case 'vehicles': {
           const activeVehicles = vehicles.filter(v => v.status === 'active').length
           return { ...layer, count: `${activeVehicles}/${vehicles.length}` }
-        case 'facilities':
+        }
+        case 'facilities': {
           const operationalFacilities = facilities.filter(f => f.status === 'operational').length
           return { ...layer, count: `${operationalFacilities}/${facilities.length}` }
+        }
         case 'geofences':
           return { ...layer, count: geofences.length }
         default:
@@ -189,7 +191,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
         // Handle Google Maps layers
         if (mapInstance) {
           switch (layerId) {
-            case 'traffic':
+            case 'traffic': {
               if (newEnabled) {
                 const traffic = new google.maps.TrafficLayer()
                 traffic.setMap(mapInstance)
@@ -199,8 +201,9 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
                 setTrafficLayer(null)
               }
               break
+            }
 
-            case 'transit':
+            case 'transit': {
               if (newEnabled) {
                 const transit = new google.maps.TransitLayer()
                 transit.setMap(mapInstance)
@@ -210,8 +213,9 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
                 setTransitLayer(null)
               }
               break
+            }
 
-            case 'bicycling':
+            case 'bicycling': {
               if (newEnabled) {
                 const bicycling = new google.maps.BicyclingLayer()
                 bicycling.setMap(mapInstance)
@@ -221,6 +225,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
                 setBicyclingLayer(null)
               }
               break
+            }
           }
         }
 

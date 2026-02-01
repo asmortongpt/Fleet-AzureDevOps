@@ -1,5 +1,3 @@
-/// <reference path="./global.d.ts" />
-/// <reference path="./window.d.ts" />
-
+// Type declarations are exported below
 export * from './global';
 export * from './window';

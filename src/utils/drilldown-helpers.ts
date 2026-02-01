@@ -80,7 +80,7 @@ export function navigateUp(
   }
 
   let newBreadcrumbs = [...state.breadcrumbs];
-  let newFilters = { ...state.filters };
+  const newFilters = { ...state.filters };
 
   if (targetLevel) {
     const targetIndex = newBreadcrumbs.findIndex(b => b.level === targetLevel);

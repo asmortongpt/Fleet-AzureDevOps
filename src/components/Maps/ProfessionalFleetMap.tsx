@@ -87,7 +87,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
     }
 
     vehicles.forEach(vehicle => {
-      if (metrics.hasOwnProperty(vehicle.status)) {
+      if (Object.prototype.hasOwnProperty.call(metrics, vehicle.status)) {
         metrics[vehicle.status as keyof typeof metrics]++
       }
     })

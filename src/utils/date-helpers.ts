@@ -353,10 +353,11 @@ export function startOf(
       return new Date(dateObj.getFullYear(), 0, 1);
     case 'month':
       return new Date(dateObj.getFullYear(), dateObj.getMonth(), 1);
-    case 'week':
+    case 'week': {
       const day = dateObj.getDay();
       const diff = dateObj.getDate() - day;
       return new Date(dateObj.setDate(diff));
+    }
     case 'day':
       return new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
     case 'hour':
@@ -395,10 +396,11 @@ export function endOf(
       return new Date(dateObj.getFullYear(), 11, 31, 23, 59, 59, 999);
     case 'month':
       return new Date(dateObj.getFullYear(), dateObj.getMonth() + 1, 0, 23, 59, 59, 999);
-    case 'week':
+    case 'week': {
       const day = dateObj.getDay();
       const diff = dateObj.getDate() - day + 6;
       return new Date(dateObj.getFullYear(), dateObj.getMonth(), diff, 23, 59, 59, 999);
+    }
     case 'day':
       return new Date(
         dateObj.getFullYear(),
