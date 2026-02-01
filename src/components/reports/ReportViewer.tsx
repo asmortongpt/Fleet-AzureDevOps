@@ -9,7 +9,7 @@ import { KPITiles, KPIMeasure } from './visualizations/KPITiles';
 import { TrendChart, TrendDataPoint } from './visualizations/TrendChart';
 
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts';
 import logger from '@/utils/logger';
 
 

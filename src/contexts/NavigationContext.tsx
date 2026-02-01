@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useMemo, useCallback, useEf
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { getNavigationItemsForRole } from '@/config/role-navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts';
 import { navigationItems, NavigationItem } from '@/lib/navigation';
 
 interface NavigationContextType {

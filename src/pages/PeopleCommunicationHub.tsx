@@ -52,7 +52,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/contexts'
 import toast from 'react-hot-toast'
 import logger from '@/utils/logger';
 import {

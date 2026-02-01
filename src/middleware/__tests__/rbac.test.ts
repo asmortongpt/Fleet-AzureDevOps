@@ -21,7 +21,7 @@ import {
   logPermissionCheck,
 } from '../rbac';
 
-import type { UserRole } from '@/contexts/AuthContext';
+import type { UserRole } from '@/contexts';
 
 // Mock logger
 vi.mock('@/utils/logger', () => ({

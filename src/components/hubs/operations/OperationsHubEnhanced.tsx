@@ -468,7 +468,7 @@ export function OperationsHubEnhanced() {
             <OperationalMetrics />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <VehicleStatusGrid
-                vehicles={vehicles as unknown as Vehicle[]}
+                vehicles={vehicles}
                 onVehicleClick={(id) => setSelectedVehicleId(id)}
                 compact={true}
               />
@@ -489,7 +489,7 @@ export function OperationsHubEnhanced() {
 
           <TabsContent value="fleet" className="mt-0">
             <VehicleStatusGrid
-              vehicles={vehicles as unknown as Vehicle[]}
+              vehicles={vehicles}
               onVehicleClick={(id) => setSelectedVehicleId(id)}
             />
           </TabsContent>

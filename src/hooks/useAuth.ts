@@ -2,7 +2,7 @@
 // This file exists for backward compatibility.
 // The canonical Auth implementation is in @/contexts/AuthContext.tsx
 
-import { useAuth as useContextAuth, AuthContext as ContextAuth, type UserRole } from '@/contexts/AuthContext';
+import { useAuth as useContextAuth, AuthContext as ContextAuth, type UserRole } from '@/contexts';
 
 // Re-export using the same names
 export const AuthContext = ContextAuth;
