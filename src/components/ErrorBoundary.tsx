@@ -90,14 +90,14 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
     this.storeErrorLog(error, errorInfo)
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps: ErrorBoundaryProps) {
     // Reset error boundary if resetKeys changed
     if (this.state.hasError && this.props.resetKeys) {
       const prevKeys = prevProps.resetKeys || []
       const currentKeys = this.props.resetKeys
 
       if (prevKeys.length !== currentKeys.length ||
-          prevKeys.some((key, index) => key !== currentKeys[index])) {
+          prevKeys.some((key: any, index: number) => key !== currentKeys[index])) {
         this.handleReset()
       }
     }
