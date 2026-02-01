@@ -14,7 +14,6 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 import logger from '@/utils/logger';
-import logger from '@/utils/logger';
 export interface ModelLoadOptions {
   url: string;
   onProgress?: (progress: number) => void;

@@ -14,6 +14,7 @@ import {
   TrendUp,
   TrendDown,
   ClipboardText,
+  Award,
 } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 
@@ -31,7 +32,7 @@ import {
 } from '@/components/visualizations'
 import { useReactiveSafetyData } from '@/hooks/use-reactive-safety-data'
 
-import { AlertCircle, AlertTriangle, CheckCircle, TrendingDown, TrendingUp } from 'lucide-react';
+import { AlertCircle, AlertTriangle, CheckCircle, TrendingDown, TrendingUp, Clipboard } from 'lucide-react';
 import { BarChart } from 'recharts';
 /**
  * Overview Tab - Main safety dashboard with real-time metrics
@@ -1119,7 +1120,7 @@ function IncidentsTab() {
                         }`}
                       />
                       <div>
-                        <p className="font-semibold">Incident #{incident.id.slice(0, 8)}</p>
+                        <p className="font-semibold">Incident #{String(incident.id).slice(0, 8)}</p>
                         <p className="text-sm text-muted-foreground">
                           {incident.type.replace('_', ' ')}
                         </p>
