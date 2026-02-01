@@ -1,27 +1,34 @@
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface DriverRepository {
   // Define methods and properties as needed
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface InspectionRepository {
   // Define methods and properties as needed
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface MaintenanceRepository {
   // Define methods and properties as needed
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface VehicleRepository {
   // Define methods and properties as needed
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface VendorRepository {
   // Define methods and properties as needed
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface WorkOrderRepository {
   // Define methods and properties as needed
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface Logger {
   // Define methods and properties as needed
 }

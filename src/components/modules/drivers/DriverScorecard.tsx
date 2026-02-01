@@ -214,7 +214,7 @@ export function DriverScorecard() {
                     variant="outline"
                     size="sm"
                     className="mt-3"
-                    onClick={(e) => { e.stopPropagation(); leaderboard[1] && fetchDriverDetails(leaderboard[1]) }}
+                    onClick={(e) => { e.stopPropagation(); if (leaderboard[1]) void fetchDriverDetails(leaderboard[1]) }}
                   >
                     View in Tab
                   </Button>
@@ -242,7 +242,7 @@ export function DriverScorecard() {
                     variant="default"
                     size="sm"
                     className="mt-3 w-full"
-                    onClick={(e) => { e.stopPropagation(); leaderboard[0] && fetchDriverDetails(leaderboard[0]) }}
+                    onClick={(e) => { e.stopPropagation(); if (leaderboard[0]) void fetchDriverDetails(leaderboard[0]) }}
                   >
                     View in Tab
                   </Button>
@@ -269,7 +269,7 @@ export function DriverScorecard() {
                     variant="outline"
                     size="sm"
                     className="mt-3"
-                    onClick={(e) => { e.stopPropagation(); leaderboard[2] && fetchDriverDetails(leaderboard[2]) }}
+                    onClick={(e) => { e.stopPropagation(); if (leaderboard[2]) void fetchDriverDetails(leaderboard[2]) }}
                   >
                     View in Tab
                   </Button>

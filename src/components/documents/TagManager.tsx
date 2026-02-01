@@ -159,7 +159,7 @@ export function TagManager({ tags, onCreateTag, onUpdateTag, onDeleteTag }: TagM
                 onChange={(e) => setTagName(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    editingTag ? handleUpdate() : handleCreate();
+                    void (editingTag ? handleUpdate() : handleCreate());
                   }
                 }}
               />

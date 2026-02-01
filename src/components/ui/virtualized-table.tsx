@@ -241,7 +241,7 @@ export function VirtualizedTable<TData>({
       // Default Excel export
       const ws = XLSX.utils.json_to_sheet(exportData as any[])
       const wb = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(wb, ws, 'Data')
+      XLSX.utils.book_append_sheet(wb, ws, 'Data');
       (XLSX as any).writeFile(wb, `export_${Date.now()}.xlsx`)
     }
   }, [table, onExport])
