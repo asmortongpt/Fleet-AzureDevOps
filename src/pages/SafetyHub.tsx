@@ -1587,7 +1587,7 @@ export default function SafetyHub() {
     {
       id: 'certifications',
       label: 'Certifications',
-      icon: <Award className="h-4 w-4" />,
+      icon: <Trophy className="h-4 w-4" />,
       content: (
         <ErrorBoundary>
           <CertificationsTab />
