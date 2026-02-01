@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 
-import { APIError as ApiError } from '@/lib/api';
+import { APIError as ApiError } from "@/lib/api-client";
 
 /**
  * State interface for mutation operations

@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 
-import { api } from '@/lib/api';
+import { api } from "@/lib/api-client";
 
 interface VehicleFormData {
   fleet_number: string;

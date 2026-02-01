@@ -2,7 +2,7 @@
 
 import { AlertCircle, RefreshCw, WifiOff, Shield, ServerCrash, AlertTriangle } from 'lucide-react';
 
-import { APIError } from '@/lib/api';
+import { APIError } from "@/lib/api-client";
 import { cn } from '@/lib/utils';
 
 export interface ErrorPanelProps {

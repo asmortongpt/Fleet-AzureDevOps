@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { apiClient } from '@/lib/api';
+import { apiClient } from "@/lib/api-client";
 import logger from '@/utils/logger';
 interface TaskInspectorProps {
   id: string;
