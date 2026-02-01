@@ -10,6 +10,7 @@ import path from 'path'
 import express, { Request, Response } from 'express'
 
 import { EmulatorOrchestrator } from '../emulators/EmulatorOrchestrator'
+import { csrfProtection } from '../middleware/csrf'
 import { telemetryService } from '../services/TelemetryService'
 import { getVideoDatasetService } from '../services/video-dataset.service'
 
@@ -99,7 +100,7 @@ router.get('/status', async (req: Request, res: Response) => {
  *     summary: Start emulators
  *     description: Start emulation for specified vehicles or all vehicles from database
  */
-router.post('/start', async (req: Request, res: Response) => {
+router.post('/start', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { vehicleIds, count } = req.body
     const orch = await getOrchestrator()
@@ -133,7 +134,7 @@ router.post('/start', async (req: Request, res: Response) => {
  *     tags: [Emulator]
  *     summary: Stop all emulators
  */
-router.post('/stop', async (req: Request, res: Response) => {
+router.post('/stop', csrfProtection, async (req: Request, res: Response) => {
   try {
     const orch = await getOrchestrator()
     await orch.stop()
@@ -157,7 +158,7 @@ router.post('/stop', async (req: Request, res: Response) => {
  *     tags: [Emulator]
  *     summary: Pause all emulators
  */
-router.post('/pause', async (req: Request, res: Response) => {
+router.post('/pause', csrfProtection, async (req: Request, res: Response) => {
   try {
     const orch = await getOrchestrator()
     await orch.pause()
@@ -181,7 +182,7 @@ router.post('/pause', async (req: Request, res: Response) => {
  *     tags: [Emulator]
  *     summary: Resume all emulators
  */
-router.post('/resume', async (req: Request, res: Response) => {
+router.post('/resume', csrfProtection, async (req: Request, res: Response) => {
   try {
     const orch = await getOrchestrator()
     await orch.resume()
@@ -205,7 +206,7 @@ router.post('/resume', async (req: Request, res: Response) => {
  *     tags: [Emulator]
  *     summary: Run a predefined scenario
  */
-router.post('/scenario/:scenarioId', async (req: Request, res: Response) => {
+router.post('/scenario/:scenarioId', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { scenarioId } = req.params
     const orch = await getOrchestrator()
@@ -800,7 +801,7 @@ router.get('/video/library/:videoId', async (req: Request, res: Response) => {
  *     tags: [Emulator]
  *     summary: Start video stream
  */
-router.post('/video/stream/:vehicleId/:cameraAngle/start', async (req: Request, res: Response) => {
+router.post('/video/stream/:vehicleId/:cameraAngle/start', csrfProtection, async (req: Request, res: Response) => {
   try {
     const videoService = getVideoDatasetService()
     const { vehicleId, cameraAngle } = req.params
@@ -838,7 +839,7 @@ router.post('/video/stream/:vehicleId/:cameraAngle/start', async (req: Request, 
  *     tags: [Emulator]
  *     summary: Stop video stream
  */
-router.post('/video/stream/:vehicleId/:cameraAngle/stop', async (req: Request, res: Response) => {
+router.post('/video/stream/:vehicleId/:cameraAngle/stop', csrfProtection, async (req: Request, res: Response) => {
   try {
     const videoService = getVideoDatasetService()
     const { vehicleId, cameraAngle } = req.params
