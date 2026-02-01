@@ -476,7 +476,7 @@ function VehicleSafetyTab() {
 
   const statusChartData = Object.entries(safetyStatusData).map(([name, value]) => ({
     name: name.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-    value,
+    value: value as number,
     fill:
       name === 'compliant'
         ? 'hsl(142, 76%, 36%)'
@@ -994,9 +994,9 @@ function IncidentsTab() {
     return acc
   }, {} as Record<string, number>)
 
-  const severityChartData = Object.entries(severityData).map(([name, value]) => ({
+  const severityChartData: { name: string; value: number; fill?: string }[] = Object.entries(severityData).map(([name, value]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1),
-    value,
+    value: Number(value),
     fill:
       name === 'critical'
         ? 'hsl(var(--destructive))'
@@ -1013,9 +1013,9 @@ function IncidentsTab() {
     return acc
   }, {} as Record<string, number>)
 
-  const typeChartData = Object.entries(typeData).map(([name, value]) => ({
+  const typeChartData: { name: string; value: number }[] = Object.entries(typeData).map(([name, value]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1).replace('_', ' '),
-    value,
+    value: Number(value),
   }))
 
   return (
@@ -1172,9 +1172,9 @@ function InspectionsTab() {
     return acc
   }, {} as Record<string, number>)
 
-  const statusChartData = Object.entries(statusData).map(([name, value]) => ({
+  const statusChartData: { name: string; value: number; fill?: string }[] = Object.entries(statusData).map(([name, value]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1),
-    value,
+    value: Number(value),
     fill:
       name === 'completed'
         ? 'hsl(var(--success))'
@@ -1318,9 +1318,9 @@ function CertificationsTab() {
     return acc
   }, {} as Record<string, number>)
 
-  const statusChartData = Object.entries(statusData).map(([name, value]) => ({
+  const statusChartData: { name: string; value: number; fill?: string }[] = Object.entries(statusData).map(([name, value]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1).replace('_', ' '),
-    value,
+    value: Number(value),
     fill:
       name === 'current'
         ? 'hsl(var(--success))'

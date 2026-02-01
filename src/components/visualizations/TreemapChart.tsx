@@ -145,7 +145,7 @@ export function TreemapChart({
         <CardContent>
           <ResponsiveContainer width="100%" height={height}>
             <Treemap
-              data={data}
+              data={data as readonly any[]}
               dataKey="size"
               stroke={isDark ? '#1f2937' : '#ffffff'}
               fill="hsl(var(--primary))"

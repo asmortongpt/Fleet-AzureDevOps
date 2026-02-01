@@ -15,7 +15,7 @@ export {
   getAccessToken,
   getUserProfile,
   handleAuthCallback
-} from './auth.service.ts'
+} from './auth.service'
 
 // Export types from MSAL
 export type { AccountInfo, AuthenticationResult } from '@azure/msal-browser'

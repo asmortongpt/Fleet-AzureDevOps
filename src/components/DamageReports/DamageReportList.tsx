@@ -276,7 +276,7 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
                       {report.vehicle_id && (
                         <div className="flex items-center gap-1">
                           <Car className="h-4 w-4" />
-                          <span>Vehicle {report.String(vehicle_id).slice(0, 8)}</span>
+                          <span>Vehicle {String(report.vehicle_id).slice(0, 8)}</span>
                         </div>
                       )}
                       <div className="flex items-center gap-1">

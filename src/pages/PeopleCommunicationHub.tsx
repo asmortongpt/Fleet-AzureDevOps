@@ -426,7 +426,6 @@ const WorkTabContent = memo(function WorkTabContent() {
           value={15}
           icon={Calendar}
           description="Next 7 days"
-          variant="warning"
         />
         <StatCard
           title="Team Productivity"

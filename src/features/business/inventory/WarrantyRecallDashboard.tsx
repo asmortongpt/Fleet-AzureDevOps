@@ -253,7 +253,7 @@ const WarrantyRecallDashboard: React.FC = () => {
 
       {warrantyAnalytics && recallAnalytics && (
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid size={{ xs: 12, md: 3 }}>
+          <Grid xs={12} md={3}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -267,7 +267,7 @@ const WarrantyRecallDashboard: React.FC = () => {
               </CardContent>
             </Card>
           </Grid>
-          <Grid size={{ xs: 12, md: 3 }}>
+          <Grid xs={12} md={3}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -281,7 +281,7 @@ const WarrantyRecallDashboard: React.FC = () => {
               </CardContent>
             </Card>
           </Grid>
-          <Grid size={{ xs: 12, md: 3 }}>
+          <Grid xs={12} md={3}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -295,7 +295,7 @@ const WarrantyRecallDashboard: React.FC = () => {
               </CardContent>
             </Card>
           </Grid>
-          <Grid size={{ xs: 12, md: 3 }}>
+          <Grid xs={12} md={3}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -459,7 +459,7 @@ const WarrantyRecallDashboard: React.FC = () => {
               </AccordionSummary>
               <AccordionDetails>
                 <Grid container spacing={3}>
-                  <Grid size={{ xs: 12, md: 8 }}>
+                  <Grid xs={12} md={8}>
                     <Typography variant="body1" paragraph>
                       {recall.description}
                     </Typography>
@@ -523,7 +523,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                     )}
                   </Grid>
 
-                  <Grid size={{ xs: 12, md: 4 }}>
+                  <Grid xs={12} md={4}>
                     <Card variant="outlined">
                       <CardContent>
                         <Typography variant="h6" gutterBottom>Vendor Contact</Typography>
@@ -637,7 +637,7 @@ const WarrantyRecallDashboard: React.FC = () => {
 
           {warrantyAnalytics && recallAnalytics && (
             <Grid container spacing={3}>
-              <Grid size={{ xs: 12, md: 6 }}>
+              <Grid xs={12} md={6}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Warranty Performance</Typography>
@@ -673,7 +673,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                 </Card>
               </Grid>
 
-              <Grid size={{ xs: 12, md: 6 }}>
+              <Grid xs={12} md={6}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Recall Compliance</Typography>
@@ -714,7 +714,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                 </Card>
               </Grid>
 
-              <Grid size={{ xs: 12 }}>
+              <Grid xs={12}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Vendor Performance</Typography>
@@ -759,7 +759,7 @@ const WarrantyRecallDashboard: React.FC = () => {
         <DialogTitle>Submit Warranty Claim</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid size={{ xs: 12 }}>
+            <Grid xs={12}>
               <TextField
                 fullWidth
                 label="Claim Number"
@@ -768,7 +768,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                 required
               />
             </Grid>
-            <Grid size={{ xs: 12 }}>
+            <Grid xs={12}>
               <FormControl fullWidth required>
                 <InputLabel>Claim Type</InputLabel>
                 <Select
@@ -782,7 +782,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={{ xs: 12 }}>
+            <Grid xs={12}>
               <TextField
                 fullWidth
                 multiline

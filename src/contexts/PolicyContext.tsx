@@ -4,6 +4,31 @@ import { toast } from 'sonner';
 import { Policy, PolicyType } from '@/lib/policy-engine/types';
 import logger from '@/utils/logger';
 
+export interface PolicyContextType {
+  policies: Policy[];
+  loading: boolean;
+  error: string | null;
+
+  // CRUD operations
+  fetchPolicies: () => Promise<void>;
+  createPolicy: (policy: Omit<Policy, 'id' | 'createdAt' | 'executionCount' | 'violationCount'>) => Promise<Policy>;
+  updatePolicy: (id: string, updates: Partial<Policy>) => Promise<Policy>;
+  deletePolicy: (id: string) => Promise<void>;
+
+  // Policy activation/deactivation
+  activatePolicy: (id: string) => Promise<void>;
+  deactivatePolicy: (id: string) => Promise<void>;
+
+  // Policy queries
+  getPolicyById: (id: string) => Policy | undefined;
+  getPoliciesByType: (type: PolicyType) => Policy[];
+  getActivePolicies: () => Policy[];
+
+  // Policy evaluation
+  evaluatePolicy: (policyId: string, context: any) => Promise<{ allowed: boolean; reason?: string }>;
+  checkPolicies: (type: PolicyType, context: any) => Promise<{ allowed: boolean; violations: string[] }>;
+}
+
 interface PolicyContextValue {
   policies: Policy[];
   loading: boolean;
@@ -38,6 +63,9 @@ export const usePolicies = () => {
   }
   return context;
 };
+
+// Alias for compatibility with barrel export
+export const usePolicy = usePolicies;
 
 interface PolicyProviderProps {
   children: ReactNode;

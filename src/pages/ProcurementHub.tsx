@@ -1028,7 +1028,7 @@ const AnalyticsContent = memo(() => {
           <StatCard
             title="Budget Usage"
             value={`${budgetPercentage}%`}
-            icon={BarChart}
+            icon={ChartBar}
             trend={Number(budgetPercentage) > 75 ? 'down' : 'up'}
             description="Of monthly budget"
             loading={isLoading}

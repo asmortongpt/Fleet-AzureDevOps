@@ -36,7 +36,7 @@ import {
   ArrowUp,
   ArrowDown,
   XCircle,
-  User,
+  User as UserIcon,
   Shield,
   LineChart,
   Trophy,
@@ -71,7 +71,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useAuth } from '@/contexts/AuthContext'
-import type { User } from '@/contexts/AuthContext'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
 import { useReactiveDriversData } from '@/hooks/use-reactive-drivers-data'
@@ -344,7 +343,7 @@ const DriversTabContent = memo(function DriversTabContent() {
         <StatCard
           title="On Duty"
           value={safeStats.activeDrivers}
-          icon={User}
+          icon={UserIcon}
           change={3}
           trend="up"
           description="Currently working"
