@@ -257,11 +257,15 @@ export const asyncErrorHandler = (
  */
 export const notFoundHandler = () => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const error = new AppError(
-      `Route not found: ${req.method} ${req.originalUrl}`,
+    // Import ApplicationError dynamically to avoid circular dependency
+    const { ApplicationError } = require('../errors/ApplicationError');
+
+    const error = new ApplicationError(
       404,
-      true,
-      'ROUTE_NOT_FOUND'
+      'ROUTE_NOT_FOUND',
+      `Route not found: ${req.method} ${req.originalUrl}`,
+      undefined,
+      true
     );
 
     // Add breadcrumb for 404
