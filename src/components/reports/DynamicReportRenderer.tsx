@@ -165,26 +165,31 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
     if (!dataset || dataset.length === 0) return 0;
 
     if (measure.expression) {
-      // Handle expressions like "available_vehicle_count/total_vehicle_count"
-      // Uses mathjs for safe mathematical expression evaluation
+      // Handle simple expressions like "available_vehicle_count/total_vehicle_count"
       try {
-        // Lazy import mathjs to avoid bundle bloat
-        const math = require('mathjs');
         const context = dataset[0];
 
-        // Create safe evaluation scope from first data row
-        const scope: Record<string, number> = {};
-        Object.keys(context).forEach(key => {
-          const value = context[key];
-          scope[key] = typeof value === 'number' ? value : 0;
-        });
+        // Simple expression evaluation for division
+        const divisionMatch = measure.expression.match(/^(\w+)\s*\/\s*(\w+)$/);
+        if (divisionMatch) {
+          const [, numerator, denominator] = divisionMatch;
+          const num = Number(context[numerator]) || 0;
+          const den = Number(context[denominator]) || 1;
+          return den !== 0 ? num / den : 0;
+        }
 
-        // Parse and compile the expression safely
-        const node = math.parse(measure.expression);
-        const code = node.compile();
-        const result = code.evaluate(scope);
+        // Simple expression evaluation for multiplication
+        const multiplicationMatch = measure.expression.match(/^(\w+)\s*\*\s*(\w+)$/);
+        if (multiplicationMatch) {
+          const [, left, right] = multiplicationMatch;
+          const leftVal = Number(context[left]) || 0;
+          const rightVal = Number(context[right]) || 0;
+          return leftVal * rightVal;
+        }
 
-        return typeof result === 'number' ? result : 0;
+        // For more complex expressions, would need a proper math parser
+        console.warn(`Unsupported expression: ${measure.expression}`);
+        return 0;
       } catch (error) {
         console.warn(`Failed to evaluate expression: ${measure.expression}`, error);
         return 0;
