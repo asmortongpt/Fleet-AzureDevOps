@@ -700,6 +700,7 @@ export function UniversalMap(props: UniversalMapProps) {
     showRoutes,
     center: validatedCenter,
     zoom: validatedZoom,
+    mapStyle,
     className,
   }
 

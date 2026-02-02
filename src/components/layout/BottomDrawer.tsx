@@ -18,7 +18,7 @@ export function BottomDrawer() {
         'absolute bottom-0 left-0 right-0 z-10',
         'bg-[#0A0E27]/95 backdrop-blur-xl border-t border-white/[0.06]',
         'transition-all duration-300 ease-in-out',
-        open ? 'h-[280px]' : 'h-8'
+        open ? 'h-[200px] sm:h-[280px]' : 'h-8'
       )}
     >
       {/* Grab bar */}
@@ -41,7 +41,7 @@ export function BottomDrawer() {
 
       {/* Drawer content */}
       {open && (
-        <div className="px-4 pb-4 overflow-y-auto h-[calc(100%-32px)]">
+        <div className="px-3 pb-3 sm:px-4 sm:pb-4 overflow-y-auto h-[calc(100%-32px)]">
           <div className="space-y-1">
             {[
               { time: '2m ago', text: 'Vehicle VEH-1234 entered Geofence A', type: 'info' },
@@ -55,7 +55,7 @@ export function BottomDrawer() {
                 key={i}
                 className="flex items-start gap-3 py-2 text-xs border-b border-white/[0.04] last:border-0"
               >
-                <span className="text-white/20 shrink-0 w-14 text-right tabular-nums font-mono text-[11px]">
+                <span className="text-white/20 shrink-0 w-12 sm:w-14 text-right tabular-nums font-mono text-[10px] sm:text-[11px]">
                   {item.time}
                 </span>
                 <div className={cn(

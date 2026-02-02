@@ -911,4 +911,19 @@
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
+
+  /* Premium glass morphism */
+  .glass-premium {
+    background: rgba(10, 14, 39, 0.75);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Responsive container queries */
+  @container (max-width: 640px) {
+    .container-responsive {
+      padding-inline: 0.75rem;
+    }
+  }
 }
