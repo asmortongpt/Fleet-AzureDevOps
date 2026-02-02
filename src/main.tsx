@@ -53,6 +53,7 @@ import { TenantProvider } from "./contexts/TenantContext"
 import { initSentry } from "./lib/sentry"
 import { Login } from "./pages/Login"
 import { AuthCallback } from "./pages/AuthCallback"
+import MapDiagnostic from "./pages/MapDiagnostic"
 import { PublicClientApplication } from "@azure/msal-browser"
 import { MsalProvider } from "@azure/msal-react"
 import { msalConfig } from "./lib/msal-config"
@@ -255,6 +256,18 @@ validateStartupConfiguration().then(() => {
 
                               {/* OAuth Callback Route - Public (no auth required) */}
                               <Route path="/auth/callback" element={<AuthCallback />} />
+
+                              {/* Map Diagnostic Route - Public (development only, no auth required) */}
+                              {import.meta.env.DEV && (
+                                <Route
+                                  path="/map-diagnostic"
+                                  element={
+                                    <SentryErrorBoundary level="section">
+                                      <MapDiagnostic />
+                                    </SentryErrorBoundary>
+                                  }
+                                />
+                              )}
 
                               {/* Protected Application Routes - Require SSO Authentication */}
                               <Route
