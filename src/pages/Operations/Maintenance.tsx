@@ -295,7 +295,7 @@ export function MaintenanceOperations() {
     const daysUntilDue = getDaysUntilDue(task);
 
     const statusColors: Record<string, { bg: string; text: string; icon: string }> = {
-      pending: { bg: 'bg-blue-500/10', text: 'text-blue-400', icon: 'pending' },
+      pending: { bg: 'bg-blue-500/10', text: 'text-blue-700', icon: 'pending' },
       active: { bg: 'bg-amber-500/10', text: 'text-amber-400', icon: 'active' },
       error: { bg: 'bg-red-500/10', text: 'text-red-400', icon: 'error' },
       completed: { bg: 'bg-green-500/10', text: 'text-green-400', icon: 'completed' }
@@ -332,16 +332,16 @@ export function MaintenanceOperations() {
                 {task.service_type}
               </h3>
               <div className="space-y-1">
-                <p className="text-xs text-slate-400 truncate flex items-center gap-1">
+                <p className="text-xs text-slate-700 truncate flex items-center gap-1">
                   <Car className="w-3 h-3 flex-shrink-0" weight="bold" />
                   {task.vehicle_number || `Vehicle #${task.vehicle_id}`}
                 </p>
-                <p className="text-xs text-slate-400 truncate flex items-center gap-1">
+                <p className="text-xs text-slate-700 truncate flex items-center gap-1">
                   <Calendar className="w-3 h-3 flex-shrink-0" weight="bold" />
                   {new Date(task.scheduled_date).toLocaleDateString()}
                 </p>
                 {task.total_cost && (
-                  <p className="text-xs text-slate-400 truncate flex items-center gap-1">
+                  <p className="text-xs text-slate-700 truncate flex items-center gap-1">
                     <CurrencyDollar className="w-3 h-3 flex-shrink-0" weight="bold" />
                     ${task.total_cost.toFixed(2)}
                   </p>
@@ -369,7 +369,7 @@ export function MaintenanceOperations() {
                 Due today
               </span>
             ) : (
-              <span className="text-blue-400">
+              <span className="text-blue-700">
                 <Clock className="w-3 h-3 inline mr-1" weight="bold" />
                 {daysUntilDue} days remaining
               </span>
@@ -471,37 +471,37 @@ export function MaintenanceOperations() {
           <h4 className="text-sm font-bold text-white mb-4">Task Overview</h4>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-slate-400">Service Type:</span>
+              <span className="text-slate-700">Service Type:</span>
               <p className="text-white font-semibold">{selectedTask.service_type}</p>
             </div>
             <div>
-              <span className="text-slate-400">Vehicle:</span>
+              <span className="text-slate-700">Vehicle:</span>
               <p className="text-white font-semibold">
                 {selectedTask.vehicle_number || `#${selectedTask.vehicle_id}`}
               </p>
             </div>
             <div>
-              <span className="text-slate-400">Scheduled:</span>
+              <span className="text-slate-700">Scheduled:</span>
               <p className="text-white font-semibold">
                 {new Date(selectedTask.scheduled_date).toLocaleDateString()}
               </p>
             </div>
             <div>
-              <span className="text-slate-400">Status:</span>
+              <span className="text-slate-700">Status:</span>
               <p className="text-white font-semibold capitalize">{selectedTask.status}</p>
             </div>
             {selectedTask.assigned_technician && (
               <div>
-                <span className="text-slate-400">Technician:</span>
+                <span className="text-slate-700">Technician:</span>
                 <p className="text-white font-semibold">{selectedTask.assigned_technician}</p>
               </div>
             )}
             {daysUntilDue !== null && selectedTask.status !== 'completed' && (
               <div>
-                <span className="text-slate-400">Time to Due:</span>
+                <span className="text-slate-700">Time to Due:</span>
                 <p className={cn(
                   "font-semibold",
-                  daysUntilDue < 0 ? "text-red-400" : daysUntilDue === 0 ? "text-amber-400" : "text-blue-400"
+                  daysUntilDue < 0 ? "text-red-400" : daysUntilDue === 0 ? "text-amber-400" : "text-blue-700"
                 )}>
                   {daysUntilDue < 0 ? `${Math.abs(daysUntilDue)} days overdue` : daysUntilDue === 0 ? "Due today" : `${daysUntilDue} days remaining`}
                 </p>
@@ -514,26 +514,26 @@ export function MaintenanceOperations() {
         {(selectedTask.total_cost || selectedTask.labor_cost || selectedTask.parts_cost) && (
           <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-emerald-400/30 p-4">
             <div className="flex items-center gap-2 mb-3">
-              <CurrencyDollar className="w-4 h-4 text-emerald-400" weight="bold" />
+              <CurrencyDollar className="w-4 h-4 text-emerald-700" weight="bold" />
               <h4 className="text-sm font-bold text-white">Cost Tracking</h4>
             </div>
             <div className="space-y-2 text-sm">
               {selectedTask.labor_cost && (
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Labor:</span>
+                  <span className="text-slate-700">Labor:</span>
                   <span className="text-white font-semibold">${selectedTask.labor_cost.toFixed(2)}</span>
                 </div>
               )}
               {selectedTask.parts_cost && (
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Parts:</span>
+                  <span className="text-slate-700">Parts:</span>
                   <span className="text-white font-semibold">${selectedTask.parts_cost.toFixed(2)}</span>
                 </div>
               )}
               {selectedTask.total_cost && (
                 <div className="flex justify-between border-t border-slate-700 pt-2 mt-2">
                   <span className="text-slate-300 font-semibold">Total:</span>
-                  <span className="text-emerald-400 font-bold">${selectedTask.total_cost.toFixed(2)}</span>
+                  <span className="text-emerald-700 font-bold">${selectedTask.total_cost.toFixed(2)}</span>
                 </div>
               )}
             </div>
@@ -618,7 +618,7 @@ export function MaintenanceOperations() {
     <div className="flex flex-col h-full">
       <div className="p-4 space-y-3 border-b border-slate-700/50">
         <div className="relative">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" weight="bold" />
+          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-700" weight="bold" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -645,20 +645,20 @@ export function MaintenanceOperations() {
         {stats && (
           <div className="grid grid-cols-2 gap-2 text-xs bg-slate-700/30 rounded-lg p-3 border border-slate-600/30">
             <div>
-              <span className="text-slate-400 block">Upcoming</span>
+              <span className="text-slate-700 block">Upcoming</span>
               <span className="text-cyan-400 font-bold">{stats.upcoming}</span>
             </div>
             <div>
-              <span className="text-slate-400 block">Overdue</span>
+              <span className="text-slate-700 block">Overdue</span>
               <span className="text-red-400 font-bold">{stats.overdue}</span>
             </div>
             <div>
-              <span className="text-slate-400 block">Total Cost</span>
-              <span className="text-emerald-400 font-bold">${stats.totalCost.toFixed(0)}</span>
+              <span className="text-slate-700 block">Total Cost</span>
+              <span className="text-emerald-700 font-bold">${stats.totalCost.toFixed(0)}</span>
             </div>
             <div>
-              <span className="text-slate-400 block">Avg Cost</span>
-              <span className="text-emerald-400 font-bold">${stats.averageCost.toFixed(0)}</span>
+              <span className="text-slate-700 block">Avg Cost</span>
+              <span className="text-emerald-700 font-bold">${stats.averageCost.toFixed(0)}</span>
             </div>
           </div>
         )}
@@ -673,7 +673,7 @@ export function MaintenanceOperations() {
           filteredTasks.map(renderTaskItem)
         ) : (
           <div className="flex items-center justify-center h-full">
-            <p className="text-slate-400 text-center">No maintenance tasks found</p>
+            <p className="text-slate-700 text-center">No maintenance tasks found</p>
           </div>
         )}
       </div>

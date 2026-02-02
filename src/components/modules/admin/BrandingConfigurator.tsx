@@ -155,7 +155,7 @@ export function BrandingConfigurator() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-white">Document Branding Configuration</h2>
-          <p className="text-slate-400 mt-1">Customize the appearance of exported policy and SOP documents</p>
+          <p className="text-slate-700 mt-1">Customize the appearance of exported policy and SOP documents</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handlePreview}>

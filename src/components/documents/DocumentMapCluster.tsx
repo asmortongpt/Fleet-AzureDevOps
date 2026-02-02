@@ -208,7 +208,7 @@ export function DocumentMapCluster({
                                 </p>
                               )}
                               {doc.location && (
-                                <p className="text-xs text-gray-500 mt-1 font-mono">
+                                <p className="text-xs text-gray-700 mt-1 font-mono">
                                   {doc.location?.lat?.toFixed(4)}, {doc.location?.lng?.toFixed(4)}
                                 </p>
                               )}
@@ -220,7 +220,7 @@ export function DocumentMapCluster({
 
                     {/* Cluster center coordinates */}
                     <div className="mt-3 pt-3 border-t border-gray-200">
-                      <p className="text-xs text-gray-500 font-mono">
+                      <p className="text-xs text-gray-700 font-mono">
                         Center: {cluster.centerLat.toFixed(4)}, {cluster.centerLng.toFixed(4)}
                       </p>
                     </div>
@@ -240,19 +240,19 @@ export function DocumentMapCluster({
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-[#DC2626]" />
-            <span className="text-xs text-slate-700 dark:text-gray-400">High (70%+)</span>
+            <span className="text-xs text-slate-700 dark:text-gray-700">High (70%+)</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-[#F59E0B]" />
-            <span className="text-xs text-slate-700 dark:text-gray-400">Medium-High (40-70%)</span>
+            <span className="text-xs text-slate-700 dark:text-gray-700">Medium-High (40-70%)</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-[#3B82F6]" />
-            <span className="text-xs text-slate-700 dark:text-gray-400">Medium (20-40%)</span>
+            <span className="text-xs text-slate-700 dark:text-gray-700">Medium (20-40%)</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-[#10B981]" />
-            <span className="text-xs text-slate-700 dark:text-gray-400">Low (&lt;20%)</span>
+            <span className="text-xs text-slate-700 dark:text-gray-700">Low (&lt;20%)</span>
           </div>
         </div>
       </div>

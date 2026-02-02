@@ -598,12 +598,12 @@ test.describe('UI Buttons - Evidence Collection', () => {
 test.describe('API Endpoints - Evidence Collection', () => {
   const apiEndpoints = inventory.items.filter(item => item.type === 'api-endpoint');
 
-  // PHASE 2: EXPANDED TESTING from 150 to 250 endpoints to HIT 300+ CERTIFIED!
+  // PHASE 4: TEST ALL API ENDPOINTS to HIT 500+ CERTIFIED!
   const batchStart = 0;  // Start from beginning
-  const batchEnd = 250;   // Test first 250 endpoints (45% of 551 total items) - TARGET: 300+ certified
+  const batchEnd = 458;   // Test ALL 458 API endpoints (83% of 551 total items) - TARGET: 500+ certified
   const batchEndpoints = apiEndpoints.slice(batchStart, Math.min(batchEnd, apiEndpoints.length));
 
-  console.log(`\n🚀 PHASE 2: Testing ${batchEndpoints.length} API endpoints (expanded from 150 to 250 to reach 300+ certified items)\n`);
+  console.log(`\n🚀 PHASE 4: Testing ALL ${batchEndpoints.length} API endpoints (expanded to ALL endpoints to reach 500+ certified items)\n`);
 
   for (const endpoint of batchEndpoints) {
     test(`${endpoint.id} - ${endpoint.metadata?.method} ${endpoint.path}`, async ({ request }) => {

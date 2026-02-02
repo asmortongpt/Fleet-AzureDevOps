@@ -72,7 +72,7 @@ export function TrafficCameraControlPanel({
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                         </div>
-                        <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Live Monitoring</span>
+                        <span className="text-[10px] uppercase tracking-wider text-gray-800 font-semibold">Live Monitoring</span>
                     </div>
                 </div>
                 <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-full" onClick={onClose} aria-label="Close traffic camera panel">

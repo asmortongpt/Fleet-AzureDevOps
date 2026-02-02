@@ -300,7 +300,7 @@ const LoadingComponent: React.FC = () => (
   <div className="flex items-center justify-center w-full h-full bg-slate-900">
     <div className="text-center">
       <Spinner className="w-4 h-4 text-blue-800 mb-2" />
-      <p className="text-slate-400">Loading Google Maps...</p>
+      <p className="text-slate-700">Loading Google Maps...</p>
     </div>
   </div>
 )
@@ -310,7 +310,7 @@ const ErrorComponent: React.FC<{ error: Error }> = ({ error }) => (
     <div className="text-center max-w-md p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
       <AlertCircle className="w-12 h-9 text-red-500 mx-auto mb-2" />
       <h3 className="text-base font-bold text-white mb-2">Map Loading Error</h3>
-      <p className="text-sm text-slate-400 mb-2">{error.message}</p>
+      <p className="text-sm text-slate-700 mb-2">{error.message}</p>
       <p className="text-xs text-slate-500">
         Please check your Google Maps API key configuration.
       </p>

@@ -395,7 +395,7 @@ export default function VideoTelematicsDashboard() {
                           />
                         ) : (
                           <div className="w-32 h-20 bg-gray-200 rounded border flex items-center justify-center">
-                            <Video className="h-8 w-8 text-gray-400" />
+                            <Video className="h-8 w-8 text-gray-700" />
                           </div>
                         )}
                       </div>
@@ -520,7 +520,7 @@ export default function VideoTelematicsDashboard() {
                             />
                           ) : (
                             <div className="w-32 h-20 bg-gray-200 rounded border flex items-center justify-center">
-                              <Video className="h-8 w-8 text-gray-400" />
+                              <Video className="h-8 w-8 text-gray-700" />
                             </div>
                           )}
                         </div>

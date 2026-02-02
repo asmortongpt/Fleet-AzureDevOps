@@ -1,0 +1,20 @@
+{
+  "testId": "tab-FleetOperationsHub-hub-tab-operations",
+  "itemType": "ui-tab",
+  "runDate": "2026-02-01T18:59:34.324Z",
+  "status": "SKIP",
+  "evidencePaths": {
+    "screenshots": [
+      "screenshot-before-tab-click-1769972377117.png"
+    ],
+    "videos": [],
+    "traces": [],
+    "logs": [
+      "console-logs.txt"
+    ],
+    "har": []
+  },
+  "errors": [
+    "Tab not visible: [data-testid=\"hub-tab-operations\"]"
+  ]
+}

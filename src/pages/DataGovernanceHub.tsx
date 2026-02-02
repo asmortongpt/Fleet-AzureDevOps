@@ -36,7 +36,7 @@ function OverviewContent() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-900 dark:text-white">Data Governance Overview</h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">Enterprise data quality, lineage, and master data management</p>
+          <p className="text-slate-600 dark:text-slate-700 mt-1">Enterprise data quality, lineage, and master data management</p>
         </div>
       </div>
 
@@ -169,13 +169,13 @@ function MasterDataDomainCard({
       <div className="flex items-start justify-between mb-3">
         <div>
           <h4 className="font-semibold text-slate-900 dark:text-white">{domain}</h4>
-          <p className="text-sm text-slate-600 dark:text-slate-400">{records.toLocaleString()} records</p>
+          <p className="text-sm text-slate-600 dark:text-slate-700">{records.toLocaleString()} records</p>
         </div>
         {hasIssues && <WarningIcon className="w-3 h-3 text-yellow-600" />}
       </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-slate-600 dark:text-slate-400">Quality Score</span>
+          <span className="text-slate-600 dark:text-slate-700">Quality Score</span>
           <span className={`font-semibold ${qualityScore >= 95 ? 'text-green-600' : qualityScore >= 90 ? 'text-yellow-600' : 'text-red-600'}`}>
             {qualityScore}%
           </span>
@@ -183,7 +183,7 @@ function MasterDataDomainCard({
         <div className="flex items-center justify-between text-xs text-slate-500">
           <span>Updated {lastUpdated}</span>
         </div>
-        <div className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400">
+        <div className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-700">
           <Users className="w-3 h-3" />
           <span>{steward}</span>
         </div>
@@ -247,14 +247,14 @@ function MasterDataContent() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-900 dark:text-white">Master Data Management</h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">Canonical source of truth for critical business entities</p>
+          <p className="text-slate-600 dark:text-slate-700 mt-1">Canonical source of truth for critical business entities</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+          <button className="px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2" aria-label="Button" aria-label="Button" aria-label="Button">
             <Upload className="w-3 h-3" />
             Import Master Data
           </button>
-          <button className="px-2 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-2">
+          <button className="px-2 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-2" aria-label="Button" aria-label="Button" aria-label="Button">
             <Download className="w-3 h-3" />
             Export Master Data
           </button>
@@ -301,7 +301,7 @@ function MasterDataContent() {
           <h3 className="text-sm font-semibold text-slate-900 dark:text-white capitalize">{selectedDomain} Master Data</h3>
           <div className="flex items-center gap-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-700" />
               <input
                 type="text"
                 placeholder="Search master data..."
@@ -398,20 +398,20 @@ function MasterDataRow({
         </span>
       </td>
       <td className="px-3 py-2 whitespace-nowrap">
-        <span className="text-sm text-slate-600 dark:text-slate-400">{steward}</span>
+        <span className="text-sm text-slate-600 dark:text-slate-700">{steward}</span>
       </td>
       <td className="px-3 py-2 whitespace-nowrap">
-        <span className="text-sm text-slate-600 dark:text-slate-400">{lastUpdated}</span>
+        <span className="text-sm text-slate-600 dark:text-slate-700">{lastUpdated}</span>
       </td>
       <td className="px-3 py-2 whitespace-nowrap">
         <div className="flex items-center gap-2">
-          <button className="p-1 text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors">
+          <button className="p-1 text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors" aria-label="Button" aria-label="Button" aria-label="Button">
             <Eye className="w-4 h-4" />
           </button>
-          <button className="p-1 text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded transition-colors">
+          <button className="p-1 text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded transition-colors" aria-label="Button" aria-label="Button" aria-label="Button">
             <Pencil className="w-4 h-4" />
           </button>
-          <button className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors">
+          <button className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors" aria-label="Button" aria-label="Button" aria-label="Button">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
@@ -430,7 +430,7 @@ function DataQualityContent() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-900 dark:text-white">Data Quality Management</h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">Monitor and improve data quality across all domains</p>
+          <p className="text-slate-600 dark:text-slate-700 mt-1">Monitor and improve data quality across all domains</p>
         </div>
         <button className="px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
           Run Quality Check
@@ -485,7 +485,7 @@ function DataQualityContent() {
       {/* Data Profiling */}
       <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm p-3">
         <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Data Profiling Results</h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Statistical analysis of data patterns and anomalies</p>
+        <p className="text-sm text-slate-600 dark:text-slate-700 mb-2">Statistical analysis of data patterns and anomalies</p>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
           <div className="p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
             <h4 className="font-medium text-slate-900 dark:text-white mb-3">Field Completeness</h4>
@@ -500,15 +500,15 @@ function DataQualityContent() {
             <h4 className="font-medium text-slate-900 dark:text-white mb-3">Data Patterns</h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Duplicate records</span>
+                <span className="text-slate-600 dark:text-slate-700">Duplicate records</span>
                 <span className="font-semibold text-slate-900 dark:text-white">5 (0.15%)</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Null values</span>
+                <span className="text-slate-600 dark:text-slate-700">Null values</span>
                 <span className="font-semibold text-slate-900 dark:text-white">138 (4.2%)</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-slate-400">Outliers detected</span>
+                <span className="text-slate-600 dark:text-slate-700">Outliers detected</span>
                 <span className="font-semibold text-slate-900 dark:text-white">12 (0.37%)</span>
               </div>
             </div>
@@ -522,7 +522,7 @@ function DataQualityContent() {
 function DataQualityDimensionCard({ dimension, score }: { dimension: string; score: number }) {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-2">
-      <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{dimension}</p>
+      <p className="text-sm text-slate-600 dark:text-slate-700 mb-2">{dimension}</p>
       <p className={`text-sm font-bold ${score >= 95 ? 'text-green-600' : score >= 90 ? 'text-yellow-600' : 'text-red-600'}`}>
         {score}%
       </p>
@@ -562,7 +562,7 @@ function QualityRuleItem({
             </span>
             <span className="text-sm font-medium text-slate-900 dark:text-white">{rule}</span>
           </div>
-          <p className="text-xs text-slate-600 dark:text-slate-400">{domain}</p>
+          <p className="text-xs text-slate-600 dark:text-slate-700">{domain}</p>
         </div>
         <div className="text-right">
           <p className="text-sm font-semibold text-green-600">{passing.toLocaleString()} passing</p>
@@ -571,7 +571,7 @@ function QualityRuleItem({
       </div>
       <div className="mt-2">
         <div className="flex items-center justify-between text-xs mb-1">
-          <span className="text-slate-600 dark:text-slate-400">Pass Rate</span>
+          <span className="text-slate-600 dark:text-slate-700">Pass Rate</span>
           <span className="font-medium">{passRate}%</span>
         </div>
         <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
@@ -589,7 +589,7 @@ function ProfilingBar({ label, percentage }: { label: string; percentage: number
   return (
     <div>
       <div className="flex items-center justify-between text-sm mb-1">
-        <span className="text-slate-600 dark:text-slate-400">{label}</span>
+        <span className="text-slate-600 dark:text-slate-700">{label}</span>
         <span className="font-medium">{percentage}%</span>
       </div>
       <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
@@ -612,7 +612,7 @@ function DataLineageContent() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-900 dark:text-white">Data Lineage</h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">Track data flow from source to consumption</p>
+          <p className="text-slate-600 dark:text-slate-700 mt-1">Track data flow from source to consumption</p>
         </div>
       </div>
 
@@ -702,7 +702,7 @@ function LineageStep({
           <h4 className="font-semibold text-slate-900 dark:text-white">{process}</h4>
           <span className="text-xs text-slate-500">{timestamp}</span>
         </div>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">{description}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-700 mb-1">{description}</p>
         <span className="text-xs px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded">
           {source}
         </span>
@@ -721,7 +721,7 @@ function ReferenceDataContent() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-900 dark:text-white">Reference Data</h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">Manage lookup tables, codes, and standard values</p>
+          <p className="text-slate-600 dark:text-slate-700 mt-1">Manage lookup tables, codes, and standard values</p>
         </div>
         <button className="px-2 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
           Add Reference Table
@@ -786,12 +786,12 @@ function ReferenceTableCard({
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <h3 className="font-semibold text-slate-900 dark:text-white mb-1">{name}</h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400">{description}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-700">{description}</p>
         </div>
         <Table className="w-4 h-4 text-blue-800" />
       </div>
       <div className="flex items-center justify-between text-sm">
-        <span className="text-slate-600 dark:text-slate-400">{records} records</span>
+        <span className="text-slate-600 dark:text-slate-700">{records} records</span>
         <span className="text-xs text-slate-500">Updated {lastUpdated}</span>
       </div>
     </div>
@@ -808,7 +808,7 @@ function DataSecurityContent() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-900 dark:text-white">Data Security & Privacy</h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">PII/sensitive data identification and protection</p>
+          <p className="text-slate-600 dark:text-slate-700 mt-1">PII/sensitive data identification and protection</p>
         </div>
       </div>
 
@@ -922,11 +922,11 @@ function SensitiveDataItem({
           </div>
           <div className="text-sm space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-slate-600 dark:text-slate-400">Protection:</span>
+              <span className="text-slate-600 dark:text-slate-700">Protection:</span>
               <span className="text-slate-900 dark:text-white">{protection}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-slate-600 dark:text-slate-400">Access:</span>
+              <span className="text-slate-600 dark:text-slate-700">Access:</span>
               <span className="text-slate-900 dark:text-white">{accessRestricted}</span>
             </div>
           </div>
@@ -958,7 +958,7 @@ function RetentionPolicyItem({
             </span>
           )}
         </div>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">{reason}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-700 mb-1">{reason}</p>
         <div className="flex items-center gap-2 text-xs text-slate-500">
           <Clock className="w-3 h-3" />
           <span>Retain for {retentionPeriod}</span>
@@ -978,10 +978,10 @@ function DataCatalogContent() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-900 dark:text-white">Data Catalog</h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">Searchable inventory of all data assets with metadata</p>
+          <p className="text-slate-600 dark:text-slate-700 mt-1">Searchable inventory of all data assets with metadata</p>
         </div>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-700" />
           <input
             type="text"
             placeholder="Search data catalog..."
@@ -1058,13 +1058,13 @@ function CatalogItem({
               {type}
             </span>
           </div>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">{description}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-700 mb-3">{description}</p>
           <div className="flex items-center gap-2 text-sm">
-            <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
+            <div className="flex items-center gap-1 text-slate-600 dark:text-slate-700">
               <Table className="w-4 h-4" />
               <span>{fields} fields</span>
             </div>
-            <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
+            <div className="flex items-center gap-1 text-slate-600 dark:text-slate-700">
               <Users className="w-4 h-4" />
               <span>{steward}</span>
             </div>

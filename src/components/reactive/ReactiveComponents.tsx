@@ -86,7 +86,7 @@ export function ReactiveMetricCard({
   const trendColors: Record<string, string> = {
     up: 'text-green-600 dark:text-green-400',
     down: 'text-red-600 dark:text-red-400',
-    neutral: 'text-slate-700 dark:text-gray-400',
+    neutral: 'text-slate-700 dark:text-gray-700',
   }
 
   return (
@@ -187,7 +187,7 @@ export function ReactiveDataTable<T extends Record<string, any>>({
 
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center p-12 text-gray-500 dark:text-gray-400">
+      <div className="flex items-center justify-center p-12 text-gray-700 dark:text-gray-700">
         {emptyMessage}
       </div>
     )
@@ -201,7 +201,7 @@ export function ReactiveDataTable<T extends Record<string, any>>({
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={`px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider ${
+                className={`px-3 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-700 uppercase tracking-wider ${
                   column.sortable ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700' : ''
                 }`}
                 onClick={() => column.sortable && handleSort(column.key)}
@@ -313,7 +313,7 @@ export function RealtimeAlertsFeed() {
       </AnimatePresence>
 
       {alerts.length === 0 && (
-        <div className="text-center py-3 text-gray-500 dark:text-gray-400">
+        <div className="text-center py-3 text-gray-700 dark:text-gray-700">
           No active alerts
         </div>
       )}

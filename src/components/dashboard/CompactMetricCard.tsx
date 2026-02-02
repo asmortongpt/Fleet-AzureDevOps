@@ -39,7 +39,7 @@ export function CompactMetricCard({
   const getTrendColor = () => {
     if (trend === "up") return "text-green-600 dark:text-green-400"
     if (trend === "down") return "text-red-600 dark:text-red-400"
-    return "text-gray-500 dark:text-gray-400"
+    return "text-gray-700 dark:text-gray-700"
   }
 
   const getStatusStyle = () => {
@@ -47,7 +47,7 @@ export function CompactMetricCard({
       success: "bg-green-100 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-900",
       warning: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-900",
       error: "bg-red-100 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-900",
-      info: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-900"
+      info: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-700 dark:border-blue-900"
     }
     return styles[status]
   }

@@ -50,8 +50,8 @@ export function AlertsFeed({
     const styles = {
       critical: "bg-red-100 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-900",
       warning: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-900",
-      maintenance: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-900",
-      info: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700"
+      maintenance: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-700 dark:border-blue-900",
+      info: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700"
     }
     return styles[type]
   }
@@ -91,7 +91,7 @@ export function AlertsFeed({
             </span>
           )}
           {stats.unread > 0 && (
-            <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold text-blue-700 bg-blue-100 dark:bg-blue-950 dark:text-blue-400 rounded-full border border-blue-200 dark:border-blue-900">
+            <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold text-blue-700 bg-blue-100 dark:bg-blue-950 dark:text-blue-700 rounded-full border border-blue-200 dark:border-blue-900">
               {stats.unread} New
             </span>
           )}

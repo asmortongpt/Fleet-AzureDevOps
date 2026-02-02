@@ -42,8 +42,8 @@ export const CTAHeader: FC<CTAHeaderProps> = ({
         >
           <defs>
             <linearGradient id="ctaGradientHeader" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style={{ stopColor: '#FDB813' }} />
-              <stop offset="100%" style={{ stopColor: '#FF5722' }} />
+              <stop offset="0%" style={{ stopColor: '#F0A000' }} />
+              <stop offset="100%" style={{ stopColor: '#DD3903' }} />
             </linearGradient>
           </defs>
           <path
@@ -70,7 +70,7 @@ export const CTAHeader: FC<CTAHeaderProps> = ({
               letterSpacing: '0.15em',
               color: '#ffffff',
               textShadow: '0 2px 8px rgba(0, 212, 255, 0.6), 0 4px 12px rgba(253, 184, 19, 0.4)',
-              background: 'linear-gradient(90deg, #ffffff 0%, #00D4FF 50%, #ffffff 100%)',
+              background: 'linear-gradient(90deg, #ffffff 0%, #41B2E3 50%, #ffffff 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text'
@@ -82,7 +82,7 @@ export const CTAHeader: FC<CTAHeaderProps> = ({
             <div
               className={`${s.tagline} font-semibold uppercase tracking-[0.2em] text-center`}
               style={{
-                color: '#00D4FF',
+                color: '#41B2E3',
                 textShadow: '0 0 10px rgba(0, 212, 255, 0.8)',
                 fontWeight: 600
               }}
@@ -97,7 +97,7 @@ export const CTAHeader: FC<CTAHeaderProps> = ({
       <div
         className="w-16 h-0.5 rounded-full"
         style={{
-          background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)',
+          background: 'linear-gradient(90deg, #F0A000 0%, #DD3903 100%)',
           boxShadow: '0 2px 8px rgba(253, 184, 19, 0.6)'
         }}
       />

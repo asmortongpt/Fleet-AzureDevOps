@@ -4,38 +4,48 @@
  *
  * ArchonY was selected as the preferred name and logo for
  * the entire suite of CTA enterprise solutions, including fleet management.
+ *
+ * EXACT COLORS EXTRACTED FROM ADELE BRANDING PDF:
+ * - DAYTIME: #2F3359 (Navy Blue - from skyline gradient and fonts)
+ * - BLUE SKIES: #41B2E3 (Bright Cyan - from skyline gradient left side)
+ * - MIDNIGHT: #1A0B2E (Deep Purple - from abstract gradient background)
+ * - NOON: #DD3903 (Deep Orange-Red - from skyline gradient right side)
+ * - GOLDEN HOUR: #F0A000 (Golden Yellow-Orange - from skyline gradient)
  */
 
 export const CTA_BRAND_COLORS = {
-  // Official CTA Color Palette
-  DAYTIME: '#2B3A67',      // Navy - Primary brand color
-  BLUE_SKIES: '#00D4FF',   // Cyan - Accent for highlights
-  MIDNIGHT: '#1A0B2E',     // Deep Purple - Backgrounds
-  NOON: '#FF5722',         // Orange - Call-to-action
-  GOLDEN_HOUR: '#FDB813',  // Yellow/Gold - Premium accents
+  // Official CTA Color Palette - EXACT from ADELE PDF
+  DAYTIME: '#2F3359',      // Navy Blue - Primary brand color, fonts
+  BLUE_SKIES: '#41B2E3',   // Bright Cyan - Interactive elements, highlights
+  MIDNIGHT: '#1A0B2E',     // Deep Purple - Backgrounds, dark sections
+  NOON: '#DD3903',         // Deep Orange-Red - Call-to-action
+  GOLDEN_HOUR: '#F0A000',  // Golden Yellow-Orange - Premium accents
 } as const
 
 export const CTA_GRADIENTS = {
-  // Official CTA Gradient Bar
-  PRIMARY: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)',
+  // Official CTA Gradient Bar - Skyline colors
+  PRIMARY: 'linear-gradient(90deg, #F0A000 0%, #DD3903 100%)',
+
+  // Full Skyline Gradient (blue to golden to orange)
+  SKYLINE: 'linear-gradient(90deg, #0080F0 0%, #41B2E3 25%, #F0A000 75%, #DD3903 100%)',
 
   // Background Gradients
-  MIDNIGHT_TO_DAYTIME: 'linear-gradient(135deg, #1A0B2E 0%, #2B3A67 50%, #1A0B2E 100%)',
+  MIDNIGHT_TO_DAYTIME: 'linear-gradient(135deg, #1A0B2E 0%, #2F3359 50%, #1A0B2E 100%)',
 
   // Text Gradients
-  LOGO_TEXT: 'linear-gradient(90deg, #ffffff 0%, #00D4FF 50%, #ffffff 100%)',
+  LOGO_TEXT: 'linear-gradient(90deg, #ffffff 0%, #41B2E3 50%, #ffffff 100%)',
 
   // Accent Gradients
-  BLUE_SKIES_GLOW: 'radial-gradient(circle, rgba(0, 212, 255, 0.25) 0%, transparent 70%)',
-  NOON_GLOW: 'radial-gradient(circle, rgba(255, 87, 34, 0.2) 0%, transparent 70%)',
+  BLUE_SKIES_GLOW: 'radial-gradient(circle, rgba(65, 178, 227, 0.25) 0%, transparent 70%)',
+  NOON_GLOW: 'radial-gradient(circle, rgba(221, 57, 3, 0.2) 0%, transparent 70%)',
 } as const
 
 export const CTA_SHADOWS = {
-  // Glow effects for brand elements
-  GOLDEN_HOUR_GLOW: '0 20px 40px rgba(253, 184, 19, 0.6), 0 0 0 2px rgba(255, 255, 255, 0.2)',
-  BLUE_SKIES_GLOW: '0 0 10px rgba(0, 212, 255, 0.8)',
-  ARCHONY_TEXT: '0 2px 8px rgba(0, 212, 255, 0.6), 0 4px 12px rgba(253, 184, 19, 0.4)',
-  GRADIENT_BAR: '0 2px 8px rgba(253, 184, 19, 0.6)',
+  // Glow effects for brand elements - updated with exact colors
+  GOLDEN_HOUR_GLOW: '0 20px 40px rgba(240, 160, 0, 0.6), 0 0 0 2px rgba(255, 255, 255, 0.2)',
+  BLUE_SKIES_GLOW: '0 0 10px rgba(65, 178, 227, 0.8)',
+  ARCHONY_TEXT: '0 2px 8px rgba(65, 178, 227, 0.6), 0 4px 12px rgba(240, 160, 0, 0.4)',
+  GRADIENT_BAR: '0 2px 8px rgba(240, 160, 0, 0.6)',
 } as const
 
 export const CTA_TYPOGRAPHY = {
@@ -53,8 +63,10 @@ export const CTA_TYPOGRAPHY = {
 
 export const CTA_BRANDING = {
   PRODUCT_NAME: 'ArchonY',
-  COMPANY_NAME: 'Capital Tech Alliance',
+  COMPANY_NAME: 'Capital Technology Alliance',
+  COMPANY_SHORT: 'CTA',
   TAGLINE: 'INTELLIGENT PERFORMANCE',
+  MAIN_TAGLINE: 'Intelligent Technology. Integrated Partnership.',
   PHILOSOPHY: 'Turn insight into impact',
 } as const
 
@@ -76,7 +88,7 @@ export const ctaBrandStyle = {
 
   gradientButton: () => ({
     background: CTA_GRADIENTS.PRIMARY,
-    boxShadow: '0 10px 20px rgba(253, 184, 19, 0.4)',
+    boxShadow: '0 10px 20px rgba(240, 160, 0, 0.4)',
   }),
 
   accentText: () => ({

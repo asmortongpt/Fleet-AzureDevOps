@@ -150,7 +150,7 @@ export function OSHAComplianceDashboard() {
     const getTRIRStatus = (trir: number) => {
         // Industry average for warehousing is around 4.5-5.5
         if (trir < 3.0) return { label: 'Excellent', color: 'text-green-400', variant: 'default' as const }
-        if (trir < 5.0) return { label: 'Good', color: 'text-blue-400', variant: 'secondary' as const }
+        if (trir < 5.0) return { label: 'Good', color: 'text-blue-700', variant: 'secondary' as const }
         if (trir < 7.0) return { label: 'Fair', color: 'text-yellow-400', variant: 'secondary' as const }
         return { label: 'Needs Improvement', color: 'text-red-400', variant: 'destructive' as const }
     }
@@ -166,7 +166,7 @@ export function OSHAComplianceDashboard() {
                         <ShieldCheck className="w-4 h-4" />
                         OSHA Compliance Dashboard
                     </h2>
-                    <p className="text-slate-400 mt-1">OSHA 300 Log and regulatory compliance metrics</p>
+                    <p className="text-slate-700 mt-1">OSHA 300 Log and regulatory compliance metrics</p>
                 </div>
                 <div className="flex gap-2">
                     <Button variant="outline" className="gap-2">
@@ -188,7 +188,7 @@ export function OSHAComplianceDashboard() {
                             <Clipboard className="w-4 h-4" />
                             TRIR
                         </CardTitle>
-                        <CardDescription className="text-xs text-slate-400">
+                        <CardDescription className="text-xs text-slate-700">
                             Total Recordable Incident Rate
                         </CardDescription>
                     </CardHeader>
@@ -199,7 +199,7 @@ export function OSHAComplianceDashboard() {
                                 {trirStatus.label}
                             </Badge>
                         </div>
-                        <div className="flex items-center gap-1 text-xs text-slate-400">
+                        <div className="flex items-center gap-1 text-xs text-slate-700">
                             <TrendingDown className="w-3 h-3 text-green-400" />
                             <span>12% improvement YoY</span>
                         </div>
@@ -215,7 +215,7 @@ export function OSHAComplianceDashboard() {
                             <FirstAid className="w-4 h-4" />
                             DART Rate
                         </CardTitle>
-                        <CardDescription className="text-xs text-slate-400">
+                        <CardDescription className="text-xs text-slate-700">
                             Days Away, Restricted, or Transferred
                         </CardDescription>
                     </CardHeader>
@@ -223,7 +223,7 @@ export function OSHAComplianceDashboard() {
                         <div className="flex items-baseline gap-2 mb-2">
                             <span className="text-base font-bold text-white">{metrics.dart_rate}</span>
                         </div>
-                        <div className="flex items-center gap-1 text-xs text-slate-400">
+                        <div className="flex items-center gap-1 text-xs text-slate-700">
                             <TrendingDown className="w-3 h-3 text-green-400" />
                             <span>8% improvement YoY</span>
                         </div>
@@ -239,7 +239,7 @@ export function OSHAComplianceDashboard() {
                             <ShieldCheck className="w-4 h-4" />
                             Compliance Score
                         </CardTitle>
-                        <CardDescription className="text-xs text-slate-400">
+                        <CardDescription className="text-xs text-slate-700">
                             Overall OSHA Compliance
                         </CardDescription>
                     </CardHeader>
@@ -248,7 +248,7 @@ export function OSHAComplianceDashboard() {
                             <span className="text-base font-bold text-white">{metrics.compliance_score}%</span>
                         </div>
                         <Progress value={metrics.compliance_score} className="h-2 mb-2" />
-                        <div className="flex items-center gap-1 text-xs text-slate-400">
+                        <div className="flex items-center gap-1 text-xs text-slate-700">
                             <TrendingUp className="w-3 h-3 text-green-400" />
                             <span>+3% this quarter</span>
                         </div>
@@ -261,7 +261,7 @@ export function OSHAComplianceDashboard() {
                             <AlertTriangle className="w-4 h-4" />
                             Recordable Incidents
                         </CardTitle>
-                        <CardDescription className="text-xs text-slate-400">
+                        <CardDescription className="text-xs text-slate-700">
                             Current Year Total
                         </CardDescription>
                     </CardHeader>
@@ -269,7 +269,7 @@ export function OSHAComplianceDashboard() {
                         <div className="flex items-baseline gap-2 mb-2">
                             <span className="text-base font-bold text-white">{metrics.total_recordable_incidents}</span>
                         </div>
-                        <div className="text-xs text-slate-400 space-y-1">
+                        <div className="text-xs text-slate-700 space-y-1">
                             <div>Lost Time: {entries.filter(e => e.days_away_from_work > 0).length}</div>
                             <div>Restricted: {entries.filter(e => e.days_job_transfer_restriction > 0).length}</div>
                         </div>
@@ -286,7 +286,7 @@ export function OSHAComplianceDashboard() {
                                 <FileText className="w-3 h-3" />
                                 OSHA 300 Log - Year {new Date().getFullYear()}
                             </CardTitle>
-                            <CardDescription className="text-slate-400 mt-1">
+                            <CardDescription className="text-slate-700 mt-1">
                                 Log of work-related injuries and illnesses (29 CFR 1904)
                             </CardDescription>
                         </div>
@@ -394,21 +394,21 @@ export function OSHAComplianceDashboard() {
                         <div className="flex items-center justify-between p-3 bg-slate-800/30 rounded">
                             <div>
                                 <div className="text-slate-300 font-medium">OSHA 300A Summary Posting</div>
-                                <div className="text-xs text-slate-400">Annual summary for current year</div>
+                                <div className="text-xs text-slate-700">Annual summary for current year</div>
                             </div>
                             <Badge variant="secondary">Feb 1, 2025</Badge>
                         </div>
                         <div className="flex items-center justify-between p-3 bg-slate-800/30 rounded">
                             <div>
                                 <div className="text-slate-300 font-medium">Electronic Submission</div>
-                                <div className="text-xs text-slate-400">Submit to OSHA Injury Tracking Application</div>
+                                <div className="text-xs text-slate-700">Submit to OSHA Injury Tracking Application</div>
                             </div>
                             <Badge variant="secondary">Mar 2, 2025</Badge>
                         </div>
                         <div className="flex items-center justify-between p-3 bg-slate-800/30 rounded">
                             <div>
                                 <div className="text-slate-300 font-medium">Annual Safety Review</div>
-                                <div className="text-xs text-slate-400">Management review of safety program</div>
+                                <div className="text-xs text-slate-700">Management review of safety program</div>
                             </div>
                             <Badge variant="secondary">Jan 15, 2025</Badge>
                         </div>

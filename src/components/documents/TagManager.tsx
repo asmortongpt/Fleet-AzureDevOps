@@ -32,7 +32,7 @@ const TAG_COLORS = [
   { name: 'Orange', class: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' },
   { name: 'Yellow', class: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' },
   { name: 'Green', class: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
-  { name: 'Blue', class: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
+  { name: 'Blue', class: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-700' },
   { name: 'Indigo', class: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400' },
   { name: 'Purple', class: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' },
   { name: 'Pink', class: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400' },

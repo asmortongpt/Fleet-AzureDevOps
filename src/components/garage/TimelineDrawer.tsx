@@ -54,7 +54,7 @@ interface TimelineDrawerProps {
 
 // Event type colors and icons
 const EVENT_CONFIG: Record<EventType, { icon: any; color: string; bgColor: string }> = {
-  maintenance: { icon: Wrench, color: 'text-blue-400', bgColor: 'bg-blue-950/50' },
+  maintenance: { icon: Wrench, color: 'text-blue-700', bgColor: 'bg-blue-950/50' },
   damage: { icon: AlertTriangle, color: 'text-red-400', bgColor: 'bg-red-950/50' },
   inspection: { icon: ShieldCheck, color: 'text-green-400', bgColor: 'bg-green-950/50' },
   service: { icon: Fuel, color: 'text-amber-400', bgColor: 'bg-amber-950/50' },
@@ -120,7 +120,7 @@ function TimelineEventCard({
                   </Badge>
                 )}
               </div>
-              <div className="flex items-center gap-2 mt-1 text-xs text-slate-400">
+              <div className="flex items-center gap-2 mt-1 text-xs text-slate-700">
                 <Clock className="w-3 h-3" />
                 <span>{format(event.date, 'MMM d, yyyy')}</span>
                 <span className="text-slate-600">|</span>
@@ -176,16 +176,16 @@ function TimelineEventCard({
         {isExpanded && (
           <div className="px-3 pb-3 pt-0 border-t border-slate-700/50 mt-2">
             {event.description && (
-              <p className="text-xs text-slate-400 mt-2">{event.description}</p>
+              <p className="text-xs text-slate-700 mt-2">{event.description}</p>
             )}
             {event.technician && (
               <p className="text-xs text-slate-500 mt-2">
-                Technician: <span className="text-slate-400">{event.technician}</span>
+                Technician: <span className="text-slate-700">{event.technician}</span>
               </p>
             )}
             {event.location && (
               <p className="text-xs text-slate-500">
-                Location: <span className="text-slate-400">{event.location}</span>
+                Location: <span className="text-slate-700">{event.location}</span>
               </p>
             )}
             {event.photos && event.photos.length > 0 && (
@@ -213,20 +213,20 @@ function QuickStats({ events }: { events: TimelineEvent[] }) {
   return (
     <div className="grid grid-cols-4 gap-2 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50">
       <div className="text-center">
-        <p className="text-sm font-bold text-blue-400">{maintenanceCount}</p>
-        <p className="text-[10px] text-slate-500 uppercase">Service</p>
+        <p className="text-sm font-bold text-blue-700">{maintenanceCount}</p>
+        <p className="text-[10px] text-gray-800 uppercase">Service</p>
       </div>
       <div className="text-center">
         <p className="text-sm font-bold text-red-400">{damageCount}</p>
-        <p className="text-[10px] text-slate-500 uppercase">Damage</p>
+        <p className="text-[10px] text-gray-800 uppercase">Damage</p>
       </div>
       <div className="text-center">
         <p className="text-sm font-bold text-green-400">{inspectionCount}</p>
-        <p className="text-[10px] text-slate-500 uppercase">Inspect</p>
+        <p className="text-[10px] text-gray-800 uppercase">Inspect</p>
       </div>
       <div className="text-center">
         <p className="text-sm font-bold text-amber-400">${(totalCost / 1000).toFixed(1)}k</p>
-        <p className="text-[10px] text-slate-500 uppercase">Total</p>
+        <p className="text-[10px] text-gray-800 uppercase">Total</p>
       </div>
     </div>
   )
@@ -269,7 +269,7 @@ export function TimelineDrawer({
       <div className="p-2 border-b border-slate-700/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Clock className="w-3 h-3 text-blue-400" />
+            <Clock className="w-3 h-3 text-blue-700" />
             <h3 className="font-bold text-white">Vehicle Timeline</h3>
           </div>
           <Button

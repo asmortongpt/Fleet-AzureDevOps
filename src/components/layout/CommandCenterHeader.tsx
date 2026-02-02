@@ -46,15 +46,15 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                 <div className="flex items-center gap-3 shrink-0">
                     <div className="flex items-center gap-2">
                         {/* CTA Logo Placeholder - Replace with actual logo when available */}
-                        <div className="h-7 px-2 flex items-center justify-center bg-gradient-to-r from-[#FDB813] to-[#FF5722] rounded">
+                        <div className="h-7 px-2 flex items-center justify-center bg-gradient-to-r from-[#F0A000] to-[#DD3903] rounded">
                             <span className="text-white font-bold text-xs tracking-wide">CTA</span>
                         </div>
                         {!isMobile && (
                             <>
                                 <div className="h-4 w-px bg-border/50" />
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] font-semibold text-foreground leading-none">ArchonY</span>
-                                    <span className="text-[9px] text-muted-foreground leading-none mt-0.5">Intelligent Performance</span>
+                                    <span className="text-xs font-semibold text-foreground leading-tight">ArchonY</span>
+                                    <span className="text-xs text-muted-foreground leading-tight mt-0.5">Intelligent Performance</span>
                                 </div>
                             </>
                         )}
@@ -86,84 +86,84 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                 </div>
 
                 {/* Right Actions */}
-            <div className="flex items-center gap-1 ml-2">
-                {/* Theme Toggle */}
-                <ThemeToggle />
+                <div className="flex items-center gap-1 ml-2">
+                    {/* Theme Toggle */}
+                    <ThemeToggle />
 
-                {/* Notifications */}
-                <NotificationBell onNavigate={setActiveModule} />
+                    {/* Notifications */}
+                    <NotificationBell onNavigate={setActiveModule} />
 
-                {/* Separator - hidden on mobile */}
-                <div className="hidden sm:block h-5 w-px bg-minimalist-subtle mx-1" />
+                    {/* Separator - hidden on mobile */}
+                    <div className="hidden sm:block h-5 w-px bg-minimalist-subtle mx-1" />
 
-                {/* User Menu */}
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button
-                            variant="ghost"
-                            className={cn(
-                                "gap-1.5 h-7 rounded-md transition-all duration-200",
-                                "hover:bg-minimalist-tertiary border border-transparent hover:border-minimalist-medium",
-                                "pl-1 pr-1"
-                            )}
+                    {/* User Menu */}
+                    <DropdownMenu modal={false}>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                className={cn(
+                                    "gap-1.5 h-7 rounded-md transition-all duration-200",
+                                    "hover:bg-minimalist-tertiary border border-transparent hover:border-minimalist-medium",
+                                    "pl-1 pr-1"
+                                )}
+                            >
+                                <div className="hidden lg:flex flex-col items-end">
+                                    <span className="text-xs font-medium text-foreground leading-none">Admin User</span>
+                                    <span className="text-[10px] text-minimalist-secondary leading-none mt-0.5">Fleet Manager</span>
+                                </div>
+                                <Avatar className="h-7 w-7 border border-minimalist-medium">
+                                    <AvatarImage src="https://github.com/shadcn.png" alt="Admin User profile picture" />
+                                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-[10px]">AD</AvatarFallback>
+                                </Avatar>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                            align="end"
+                            className="w-48 bg-minimalist-elevated border-minimalist-medium shadow-sm rounded-md p-0.5"
+                            sideOffset={8}
                         >
-                            <div className="hidden lg:flex flex-col items-end">
-                                <span className="text-xs font-medium text-foreground leading-none">Admin User</span>
-                                <span className="text-[10px] text-minimalist-secondary leading-none mt-0.5">Fleet Manager</span>
-                            </div>
-                            <Avatar className="h-7 w-7 border border-minimalist-medium">
-                                <AvatarImage src="https://github.com/shadcn.png" alt="Admin User profile picture" />
-                                <AvatarFallback className="bg-primary/10 text-primary font-semibold text-[10px]">AD</AvatarFallback>
-                            </Avatar>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                        align="end"
-                        className="w-48 bg-minimalist-elevated border-minimalist-medium shadow-sm rounded-md p-0.5"
-                        sideOffset={8}
-                    >
-                        <DropdownMenuLabel className="px-2 py-1.5">
-                            <div className="flex flex-col">
-                                <span className="font-semibold text-xs">Admin User</span>
-                                <span className="text-[10px] text-minimalist-secondary font-normal">admin@fleetops.com</span>
-                            </div>
-                        </DropdownMenuLabel>
-                        <DropdownMenuSeparator className="bg-minimalist-subtle my-0.5" />
-                        <DropdownMenuItem
-                            className="cursor-pointer rounded-md mx-0.5 px-2 py-1.5 text-xs focus:bg-minimalist-tertiary transition-colors"
-                            onClick={() => setActiveModule('profile')}
-                        >
-                            <User className="w-3 h-3 mr-2 text-minimalist-secondary" />
-                            Profile
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            className="cursor-pointer rounded-md mx-0.5 px-2 py-1.5 text-xs focus:bg-minimalist-tertiary transition-colors"
-                            onClick={() => setActiveModule('settings')}
-                        >
-                            <CreditCard className="w-3 h-3 mr-2 text-minimalist-secondary" />
-                            Billing
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            className="cursor-pointer rounded-md mx-0.5 px-2 py-1.5 text-xs focus:bg-minimalist-tertiary transition-colors"
-                            onClick={() => setActiveModule('settings')}
-                        >
-                            <Users className="w-3 h-3 mr-2 text-minimalist-secondary" />
-                            Team
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-minimalist-subtle my-0.5" />
-                        <DropdownMenuItem
-                            className="cursor-pointer rounded-md mx-0.5 px-2 py-1.5 text-xs text-destructive focus:bg-destructive/10 focus:text-destructive transition-colors"
-                            onClick={handleLogout}
-                        >
-                            <LogOut className="w-3 h-3 mr-2" />
-                            Log out
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
+                            <DropdownMenuLabel className="px-2 py-1.5">
+                                <div className="flex flex-col">
+                                    <span className="font-semibold text-xs">Admin User</span>
+                                    <span className="text-[10px] text-minimalist-secondary font-normal">admin@fleetops.com</span>
+                                </div>
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator className="bg-minimalist-subtle my-0.5" />
+                            <DropdownMenuItem
+                                className="cursor-pointer rounded-md mx-0.5 px-2 py-1.5 text-xs focus:bg-minimalist-tertiary transition-colors"
+                                onClick={() => setActiveModule('profile')}
+                            >
+                                <User className="w-3 h-3 mr-2 text-minimalist-secondary" />
+                                Profile
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                className="cursor-pointer rounded-md mx-0.5 px-2 py-1.5 text-xs focus:bg-minimalist-tertiary transition-colors"
+                                onClick={() => setActiveModule('settings')}
+                            >
+                                <CreditCard className="w-3 h-3 mr-2 text-minimalist-secondary" />
+                                Billing
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                className="cursor-pointer rounded-md mx-0.5 px-2 py-1.5 text-xs focus:bg-minimalist-tertiary transition-colors"
+                                onClick={() => setActiveModule('settings')}
+                            >
+                                <Users className="w-3 h-3 mr-2 text-minimalist-secondary" />
+                                Team
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator className="bg-minimalist-subtle my-0.5" />
+                            <DropdownMenuItem
+                                className="cursor-pointer rounded-md mx-0.5 px-2 py-1.5 text-xs text-destructive focus:bg-destructive/10 focus:text-destructive transition-colors"
+                                onClick={handleLogout}
+                            >
+                                <LogOut className="w-3 h-3 mr-2" />
+                                Log out
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             </div>
             {/* CTA Gradient Bar Accent */}
-            <div className="h-0.5 bg-gradient-to-r from-[#FDB813] to-[#FF5722]" aria-hidden="true" />
+            <div className="h-0.5 bg-gradient-to-r from-[#F0A000] to-[#DD3903]" aria-hidden="true" />
         </header>
     );
 }

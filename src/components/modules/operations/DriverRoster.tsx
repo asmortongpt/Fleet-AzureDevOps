@@ -128,7 +128,7 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                                 <Badge variant="outline" className="h-5 px-1.5">
                                                     {driver.licenseType || 'N/A'}
                                                 </Badge>
-                                                <span className={`flex items-center gap-1 ${driver.status === 'active' ? 'text-green-500' : 'text-gray-500'
+                                                <span className={`flex items-center gap-1 ${driver.status === 'active' ? 'text-green-500' : 'text-gray-700'
                                                     }`}>
                                                     • {driver.status}
                                                 </span>

@@ -80,7 +80,7 @@ export function DrilldownSystem() {
         return renderCostAnalysisDrilldown(data);
 
       default:
-        return <div className="p-3 text-center text-slate-400">
+        return <div className="p-3 text-center text-slate-700">
           <p>Drilldown type "{type}" not yet implemented</p>
           <p className="text-sm mt-2">Check DrilldownSystem.tsx to add this view</p>
         </div>;
@@ -130,29 +130,29 @@ export function DrilldownSystem() {
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <div>
-                      <label className="text-sm text-slate-400">Make / Model</label>
+                      <label className="text-sm text-slate-700">Make / Model</label>
                       <p className="text-sm text-white">{vehicle.make} {vehicle.model} ({vehicle.year})</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-400">VIN</label>
+                      <label className="text-sm text-slate-700">VIN</label>
                       <p className="text-sm text-white font-mono">{vehicle.vin}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-400">Status</label>
+                      <label className="text-sm text-slate-700">Status</label>
                       <p className="text-sm text-white capitalize">{vehicle.status}</p>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div>
-                      <label className="text-sm text-slate-400">Mileage</label>
+                      <label className="text-sm text-slate-700">Mileage</label>
                       <p className="text-sm text-white">{vehicle.mileage?.toLocaleString()} mi</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-400">Driver</label>
+                      <label className="text-sm text-slate-700">Driver</label>
                       <p className="text-sm text-white">{vehicle.assignedDriver || 'Unassigned'}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-400">Facility</label>
+                      <label className="text-sm text-slate-700">Facility</label>
                       <p className="text-sm text-white">{vehicle.department}</p>
                     </div>
                   </div>
@@ -206,29 +206,29 @@ export function DrilldownSystem() {
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <div>
-                      <label className="text-sm text-slate-400">Vehicle</label>
+                      <label className="text-sm text-slate-700">Vehicle</label>
                       <p className="text-sm text-white">{record.unit_number}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-400">Service Type</label>
+                      <label className="text-sm text-slate-700">Service Type</label>
                       <p className="text-sm text-white">{record.service_type}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-400">Status</label>
+                      <label className="text-sm text-slate-700">Status</label>
                       <p className="text-sm text-white capitalize">{record.status}</p>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div>
-                      <label className="text-sm text-slate-400">Cost</label>
-                      <p className="text-sm text-emerald-400 font-semibold">${record.cost.toLocaleString()}</p>
+                      <label className="text-sm text-slate-700">Cost</label>
+                      <p className="text-sm text-emerald-700 font-semibold">${record.cost.toLocaleString()}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-400">Technician</label>
+                      <label className="text-sm text-slate-700">Technician</label>
                       <p className="text-sm text-white">{record.technician}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-400">Facility</label>
+                      <label className="text-sm text-slate-700">Facility</label>
                       <p className="text-sm text-white">{record.facility}</p>
                     </div>
                   </div>
@@ -267,30 +267,30 @@ export function DrilldownSystem() {
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <div>
-                      <label className="text-sm text-slate-400">Email</label>
+                      <label className="text-sm text-slate-700">Email</label>
                       <p className="text-sm text-white">{driver.email}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-400">Phone</label>
+                      <label className="text-sm text-slate-700">Phone</label>
                       <p className="text-sm text-white">{driver.phone}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-400">License</label>
+                      <label className="text-sm text-slate-700">License</label>
                       <p className="text-sm text-white font-mono">{driver.license_number} ({driver.license_state})</p>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div>
-                      <label className="text-sm text-slate-400">Status</label>
+                      <label className="text-sm text-slate-700">Status</label>
                       <p className="text-sm text-white capitalize">{driver.status.replace('-', ' ')}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-400">Assigned Vehicle</label>
+                      <label className="text-sm text-slate-700">Assigned Vehicle</label>
                       <p className="text-sm text-white">{driver.assigned_vehicle || 'None'}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-slate-400">Performance</label>
-                      <p className="text-sm text-emerald-400 font-semibold">{driver.performance_score}/100</p>
+                      <label className="text-sm text-slate-700">Performance</label>
+                      <p className="text-sm text-emerald-700 font-semibold">{driver.performance_score}/100</p>
                     </div>
                   </div>
                 </div>
@@ -306,14 +306,14 @@ export function DrilldownSystem() {
   };
 
   const renderUtilizationDrilldown = async (data: any) => {
-    return <div className="p-3 text-center text-slate-400">
+    return <div className="p-3 text-center text-slate-700">
       <p className="text-base">Utilization Data View</p>
       <p className="text-sm mt-2">Excel-style utilization analytics coming soon</p>
     </div>;
   };
 
   const renderCostAnalysisDrilldown = async (data: any) => {
-    return <div className="p-3 text-center text-slate-400">
+    return <div className="p-3 text-center text-slate-700">
       <p className="text-base">Cost Analysis View</p>
       <p className="text-sm mt-2">Excel-style cost breakdown coming soon</p>
     </div>;
@@ -327,7 +327,7 @@ export function DrilldownSystem() {
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
         <div className="flex items-center gap-3 bg-slate-900/95 border border-slate-700/60 rounded-lg px-3 py-2">
-          <Loader2 className="w-3 h-3 text-blue-400 animate-spin" />
+          <Loader2 className="w-3 h-3 text-blue-700 animate-spin" />
           <span className="text-white">Loading drilldown...</span>
         </div>
       </div>

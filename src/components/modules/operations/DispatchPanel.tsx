@@ -82,7 +82,7 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                 <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
                     <div className="flex items-center justify-between">
                         <SheetTitle className="text-base font-semibold flex items-center gap-2 text-white">
-                            <Radio className="w-4 h-4 text-emerald-400" />
+                            <Radio className="w-4 h-4 text-emerald-700" />
                             Dispatch Radio
                         </SheetTitle>
                         <div className={`w-3 h-3 rounded-full ${dispatch.isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
@@ -102,7 +102,7 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                         <Button
                             className={`h-24 w-full rounded-lg relative overflow-hidden transition-all duration-300 flex flex-col items-center justify-center gap-2 ${(ptt.isTransmitting || isPressing)
                                 ? "bg-red-500/20 border-red-500/50 text-red-500 shadow-[0_0_30px_rgba(239,68,68,0.3)]"
-                                : "bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20 hover:border-emerald-500/40"
+                                : "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 hover:bg-emerald-500/20 hover:border-emerald-500/40"
                                 } border-2`}
                             onMouseDown={() => { setIsPressing(true); ptt.startPTT(); }}
                             onMouseUp={() => { setIsPressing(false); ptt.stopPTT(); }}

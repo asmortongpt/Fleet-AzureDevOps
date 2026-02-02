@@ -1321,7 +1321,7 @@ const DocumentUpload: React.FC<{
               />
             </label>
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-gray-700">
             Supports PDF, images, and Office documents (max 10MB each)
           </div>
         </div>
@@ -1339,7 +1339,7 @@ const DocumentUpload: React.FC<{
                 <span className="text-sm">📄</span>
                 <div>
                   <div className="font-medium text-sm">{doc.fileName}</div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-700">
                     {(doc.fileSize / 1024).toFixed(1)} KB • Uploaded{' '}
                     {new Date(doc.uploadedAt).toLocaleString()}
                   </div>

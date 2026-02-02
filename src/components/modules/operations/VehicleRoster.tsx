@@ -64,7 +64,7 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
         switch (status) {
             case "active": return "text-green-500 border-green-200 bg-green-50";
             case "maintenance": return "text-amber-500 border-amber-200 bg-amber-50";
-            case "inactive": return "text-gray-500 border-gray-200 bg-gray-50";
+            case "inactive": return "text-gray-700 border-gray-200 bg-gray-50";
             default: return "text-blue-800 border-blue-200 bg-blue-50";
         }
     };
@@ -79,7 +79,7 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
                 <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
                     <div className="flex items-center justify-between">
                         <SheetTitle className="text-base font-semibold flex items-center gap-2 text-white">
-                            <Truck className="w-4 h-4 text-emerald-400" />
+                            <Truck className="w-4 h-4 text-emerald-700" />
                             Vehicle Fleet
                         </SheetTitle>
                         <Badge variant="secondary" className="font-mono">

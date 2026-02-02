@@ -144,7 +144,7 @@ const KanbanBoard = memo(({ workItems, onMove, onUpdate }: {
                     )}
 
                     {item.dueDate && (
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <div className="flex items-center gap-1 text-xs text-gray-700">
                         <Clock className="w-3 h-3" />
                         {new Date(item.dueDate).toLocaleDateString()}
                       </div>
@@ -392,7 +392,7 @@ const ResourceUtilizationChart = memo(({ teamMembers }: { teamMembers: TeamMembe
                 )}
                 <div>
                   <p className="font-medium text-sm">{member.name}</p>
-                  <p className="text-xs text-gray-500">{member.role}</p>
+                  <p className="text-xs text-gray-700">{member.role}</p>
                 </div>
               </div>
 
@@ -549,14 +549,14 @@ const PriorityMatrix = memo(({ items, onMove }: {
                           {item.priority}
                         </span>
                         {item.assigneeName && (
-                          <span className="text-xs text-gray-500">{item.assigneeName}</span>
+                          <span className="text-xs text-gray-700">{item.assigneeName}</span>
                         )}
                       </div>
                     </motion.div>
                   ))}
                 </div>
 
-                <div className="absolute bottom-2 right-2 text-xs text-gray-500">
+                <div className="absolute bottom-2 right-2 text-xs text-gray-700">
                   {quadrantItems.length} items
                 </div>
               </div>
@@ -706,19 +706,19 @@ const VelocityGraph = memo(({ data }: { data: WorkMetrics['velocityTrend'] }) =>
           <p className="text-2xl font-bold text-green-600">
             {data[data.length - 1]?.completed || 0}
           </p>
-          <p className="text-xs text-gray-500">Completed Today</p>
+          <p className="text-xs text-gray-700">Completed Today</p>
         </div>
         <div>
           <p className="text-2xl font-bold text-blue-600">
             {data[data.length - 1]?.created || 0}
           </p>
-          <p className="text-xs text-gray-500">Created Today</p>
+          <p className="text-xs text-gray-700">Created Today</p>
         </div>
         <div>
           <p className="text-2xl font-bold text-purple-600">
             {(data.reduce((sum, d) => sum + d.completed, 0) / data.length).toFixed(1)}
           </p>
-          <p className="text-xs text-gray-500">Avg Daily Completion</p>
+          <p className="text-xs text-gray-700">Avg Daily Completion</p>
         </div>
       </div>
     </div>
@@ -806,14 +806,14 @@ export default function WorkHub() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Work Hub</h1>
-                <p className="text-sm text-gray-500">Project Management & Work Order Tracking</p>
+                <p className="text-sm text-gray-700">Project Management & Work Order Tracking</p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
               {/* Search */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-700" />
                 <input
                   type="text"
                   placeholder="Search work items..."
@@ -841,27 +841,27 @@ export default function WorkHub() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             <div className="text-center">
               <p className="text-2xl font-bold text-gray-900">{metrics.totalTasks}</p>
-              <p className="text-xs text-gray-500">Total Tasks</p>
+              <p className="text-xs text-gray-700">Total Tasks</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-green-600">{metrics.completedTasks}</p>
-              <p className="text-xs text-gray-500">Completed</p>
+              <p className="text-xs text-gray-700">Completed</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-blue-600">{metrics.inProgressTasks}</p>
-              <p className="text-xs text-gray-500">In Progress</p>
+              <p className="text-xs text-gray-700">In Progress</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-red-600">{metrics.blockedTasks}</p>
-              <p className="text-xs text-gray-500">Blocked</p>
+              <p className="text-xs text-gray-700">Blocked</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-purple-600">{metrics.teamUtilization.toFixed(0)}%</p>
-              <p className="text-xs text-gray-500">Team Utilization</p>
+              <p className="text-xs text-gray-700">Team Utilization</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-orange-600">{metrics.averageCompletionTime.toFixed(1)}d</p>
-              <p className="text-xs text-gray-500">Avg Completion</p>
+              <p className="text-xs text-gray-700">Avg Completion</p>
             </div>
           </div>
         </div>
@@ -992,7 +992,7 @@ export default function WorkHub() {
                   <div key={deadline.taskId} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors">
                     <div className="flex-1">
                       <p className="font-medium text-sm">{deadline.title}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-700">
                         {new Date(deadline.dueDate).toLocaleDateString('en-US', {
                           weekday: 'short',
                           month: 'short',

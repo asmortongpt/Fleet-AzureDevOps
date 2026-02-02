@@ -57,7 +57,7 @@ export function DarkModeToggle() {
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="relative text-slate-400 hover:text-white hover:bg-white/5 rounded-full"
+                    className="relative text-slate-700 hover:text-white hover:bg-white/5 rounded-full"
                     aria-label="Toggle theme"
                 >
                     <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />

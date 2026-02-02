@@ -172,7 +172,7 @@ export function SafetyNotificationSystem() {
             case 'warning':
                 return <AlertTriangle className="w-3 h-3 text-yellow-400" />
             case 'info':
-                return <Info className="w-3 h-3 text-blue-400" />
+                return <Info className="w-3 h-3 text-blue-700" />
             case 'success':
                 return <CheckCircle className="w-3 h-3 text-green-400" />
         }
@@ -220,7 +220,7 @@ export function SafetyNotificationSystem() {
                             </Badge>
                         )}
                     </h2>
-                    <p className="text-slate-400 mt-1">Real-time safety alerts and compliance notifications</p>
+                    <p className="text-slate-700 mt-1">Real-time safety alerts and compliance notifications</p>
                 </div>
                 <div className="flex gap-2">
                     <Button
@@ -281,7 +281,7 @@ export function SafetyNotificationSystem() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="ml-auto text-sm text-slate-400">
+                        <div className="ml-auto text-sm text-slate-700">
                             Showing {filteredNotifications.length} of {notifications.length} notifications
                         </div>
                     </div>
@@ -297,7 +297,7 @@ export function SafetyNotificationSystem() {
                     <ScrollArea className="h-[600px]">
                         <div className="space-y-2 p-2">
                             {filteredNotifications.length === 0 ? (
-                                <div className="text-center py-12 text-slate-400">
+                                <div className="text-center py-12 text-slate-700">
                                     <Bell className="w-12 h-9 mx-auto mb-2 opacity-50" />
                                     <p>No notifications to display</p>
                                 </div>
@@ -329,7 +329,7 @@ export function SafetyNotificationSystem() {
                                                         </Badge>
                                                         <button
                                                             onClick={() => dismissNotification(notification.id)}
-                                                            className="text-slate-400 hover:text-slate-300"
+                                                            className="text-slate-700 hover:text-slate-300"
                                                         >
                                                             <X className="w-4 h-4" />
                                                         </button>
@@ -339,7 +339,7 @@ export function SafetyNotificationSystem() {
                                                     {notification.message}
                                                 </p>
                                                 <div className="flex items-center justify-between gap-2">
-                                                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                                                    <div className="flex items-center gap-2 text-xs text-slate-700">
                                                         <Clock className="w-3 h-3" />
                                                         {formatTimestamp(notification.timestamp)}
                                                     </div>
@@ -385,21 +385,21 @@ export function SafetyNotificationSystem() {
                     <div className="flex items-center justify-between">
                         <div>
                             <div className="text-sm text-slate-300 font-medium">Critical Incident Alerts</div>
-                            <div className="text-xs text-slate-400">Immediate notification for safety incidents</div>
+                            <div className="text-xs text-slate-700">Immediate notification for safety incidents</div>
                         </div>
                         <Badge variant="default">Enabled</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                         <div>
                             <div className="text-sm text-slate-300 font-medium">Compliance Reminders</div>
-                            <div className="text-xs text-slate-400">Training and certification expirations</div>
+                            <div className="text-xs text-slate-700">Training and certification expirations</div>
                         </div>
                         <Badge variant="default">Enabled</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                         <div>
                             <div className="text-sm text-slate-300 font-medium">Daily Safety Summary</div>
-                            <div className="text-xs text-slate-400">Email digest of safety activities</div>
+                            <div className="text-xs text-slate-700">Email digest of safety activities</div>
                         </div>
                         <Badge variant="secondary">Disabled</Badge>
                     </div>

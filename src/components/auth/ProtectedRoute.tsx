@@ -147,12 +147,12 @@ export const ProtectedRoute = ({
             You don't have permission to access this page.
           </p>
           {requiredRole && (
-            <p className="text-sm text-gray-500 mb-2">
+            <p className="text-sm text-gray-700 mb-2">
               Required role: {Array.isArray(requiredRole) ? requiredRole.join(', ') : requiredRole}
             </p>
           )}
           {requiredPermission && (
-            <p className="text-sm text-gray-500 mb-3">
+            <p className="text-sm text-gray-700 mb-3">
               Required permission: {Array.isArray(requiredPermission) ? requiredPermission.join(', ') : requiredPermission}
             </p>
           )}

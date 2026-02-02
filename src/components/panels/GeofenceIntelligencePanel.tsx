@@ -89,7 +89,7 @@ export function GeofenceIntelligencePanel({
                                                         <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                                                         <div>
                                                             <div className="font-medium text-sm">{v.name || v.number}</div>
-                                                            <div className="text-[10px] text-slate-400">Entered 2m ago</div>
+                                                            <div className="text-[10px] text-slate-700">Entered 2m ago</div>
                                                         </div>
                                                     </div>
                                                     <Button size="sm" variant="ghost" className="h-6 text-xs">View</Button>
@@ -119,7 +119,7 @@ export function GeofenceIntelligencePanel({
                                             <span className="text-xs font-semibold uppercase">Alerts (24h)</span>
                                         </div>
                                         <div className="text-sm font-bold text-amber-600">3</div>
-                                        <div className="text-xs text-slate-400">2 entry, 1 dwell</div>
+                                        <div className="text-xs text-slate-700">2 entry, 1 dwell</div>
                                     </CardContent>
                                 </Card>
                             </div>

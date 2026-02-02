@@ -207,7 +207,7 @@ export const LoginPage = () => {
         </div>
 
         {/* Footer */}
-        <div className="mt-3 text-center text-sm text-gray-500">
+        <div className="mt-3 text-center text-sm text-gray-700">
           <p>By signing in, you agree to our Terms of Service and Privacy Policy</p>
           <p className="mt-2">
             Need help?{' '}

@@ -4,6 +4,7 @@ import type { Policy } from '@/lib/policy-engine/types';
 import type { FuelTransaction } from '@/lib/types';
 import type { Driver, Vehicle } from '@/types';
 import logger from '@/utils/logger';
+import { mockData } from '@/lib/mock-data';
 
 /**
  * SECURITY (CRIT-F-002): CSRF Protection Implementation
@@ -285,9 +286,47 @@ const queryKeyFactory = {
 };
 
 export function useVehicles(filters: VehicleFilters = { tenant_id: '' }) {
+  const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true';
+
   return useQuery<Vehicle[], Error>({
     queryKey: queryKeyFactory.vehicles(filters),
     queryFn: async () => {
+      // DEMO MODE - Return Mock Data
+      if (USE_MOCK_DATA) {
+        logger.debug('[useVehicles] Using mock data');
+
+        // Transform mock vehicles to match expected Vehicle type
+        return mockData.vehicles.map(v => ({
+          id: String(v.id),
+          tenantId: 'mock-tenant',
+          vin: v.vin,
+          make: v.make,
+          model: v.model,
+          year: v.year,
+          licensePlate: v.license_plate,
+          status: v.status as 'active' | 'maintenance' | 'inactive' | 'out_of_service',
+          fuelType: v.fuel_type,
+          mileage: v.odometer || 0,
+          // GPS coordinates for map display
+          latitude: String(v.location?.lat || 0),
+          longitude: String(v.location?.lng || 0),
+          location: v.location?.address || 'Unknown',
+          // Additional fields from mockData
+          assigned_driver: v.assigned_driver,
+          fuel_level: v.fuel_level,
+          department: v.department,
+          registration_expiry: v.registration_expiry,
+          insurance_expiry: v.insurance_expiry,
+          purchase_date: v.purchase_date,
+          purchase_price: v.purchase_price,
+          current_value: v.current_value,
+          // Timestamps
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        } as Vehicle));
+      }
+
+      // Original API fetch logic
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/vehicles?${params}`, { method: 'GET' });
       if (!res.ok) throw new Error('Network response was not ok');

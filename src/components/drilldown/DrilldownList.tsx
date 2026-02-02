@@ -286,7 +286,7 @@ export function DrilldownVehicleList({
                 vehicle.status === 'active' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
                 vehicle.status === 'idle' && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
                 vehicle.status === 'service' && 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-                vehicle.status === 'offline' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
+                vehicle.status === 'offline' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600'
               )}
             >
               {vehicle.status}
@@ -353,8 +353,8 @@ export function DrilldownDriverList({
               className={cn(
                 'px-2 py-1 text-xs rounded-full',
                 driver.status === 'on-duty' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-                driver.status === 'off-duty' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
-                driver.status === 'driving' && 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                driver.status === 'off-duty' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600',
+                driver.status === 'driving' && 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-700'
               )}
             >
               {driver.status}
@@ -435,10 +435,10 @@ export function DrilldownWorkOrderList({
               <span
                 className={cn(
                   'px-2 py-1 text-xs rounded-full',
-                  workOrder.status === 'open' && 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+                  workOrder.status === 'open' && 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-700',
                   workOrder.status === 'in-progress' && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
                   workOrder.status === 'completed' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-                  workOrder.status === 'cancelled' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
+                  workOrder.status === 'cancelled' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600'
                 )}
               >
                 {workOrder.status}

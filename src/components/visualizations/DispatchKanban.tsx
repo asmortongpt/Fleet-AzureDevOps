@@ -207,7 +207,7 @@ export function DispatchKanban({ tasks, onTaskMove, onTaskAssign }: DispatchKanb
               ))}
 
               {columnTasks.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                <div className="flex flex-col items-center justify-center py-12 text-slate-700">
                   <Package className="h-12 w-12 mb-2 opacity-20" />
                   <p className="text-sm">No tasks</p>
                 </div>

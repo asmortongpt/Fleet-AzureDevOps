@@ -253,7 +253,7 @@ export function StepProgress({
   const isHorizontal = orientation === "horizontal";
 
   const statusConfig = {
-    pending: { bg: "bg-gray-200", text: "text-gray-400", border: "border-gray-300" },
+    pending: { bg: "bg-gray-200", text: "text-gray-700", border: "border-gray-300" },
     active: { bg: "bg-blue-500", text: "text-white", border: "border-blue-500" },
     completed: { bg: "bg-green-500", text: "text-white", border: "border-green-500" },
     error: { bg: "bg-red-500", text: "text-white", border: "border-red-500" },
@@ -429,7 +429,7 @@ export function UploadProgress({
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">{fileName}</p>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-gray-700 mt-0.5">
                 {formatBytes(uploadedBytes)} / {formatBytes(fileSize)}
                 {speed && status === "uploading" && ` • ${formatSpeed(speed)}`}
               </p>
@@ -441,7 +441,7 @@ export function UploadProgress({
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={onCancel}
-                className="text-gray-400 hover:text-slate-700 p-1"
+                className="text-gray-700 hover:text-slate-700 p-1"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

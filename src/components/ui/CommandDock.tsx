@@ -68,8 +68,8 @@ export const CommandDock: React.FC<CommandDockProps> = ({ activePanel, onPanelSe
                                 <Icon
                                     className={cn(
                                         "transition-all duration-300",
-                                        isHovered ? "w-4 h-4 text-white" : "w-4 h-4 text-slate-400",
-                                        isActive && "text-emerald-400"
+                                        isHovered ? "w-4 h-4 text-white" : "w-4 h-4 text-slate-700",
+                                        isActive && "text-emerald-700"
                                     )}
                                 />
 

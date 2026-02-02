@@ -360,7 +360,7 @@ export function ExternalServicesStatus() {
             </CardHeader>
             <CardContent className="space-y-3">
               {service.lastCheck && (
-                <p className="text-xs text-gray-500">Last checked: {service.lastCheck.toLocaleTimeString()}</p>
+                <p className="text-xs text-gray-700">Last checked: {service.lastCheck.toLocaleTimeString()}</p>
               )}
 
               {service.error && (

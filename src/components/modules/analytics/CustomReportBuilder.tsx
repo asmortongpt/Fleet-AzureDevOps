@@ -499,7 +499,7 @@ export function CustomReportBuilder() {
             <CardContent>
               {myReports.length === 0 ? (
                 <div className="text-center py-3">
-                  <p className="text-gray-500">You haven't created any custom reports yet.</p>
+                  <p className="text-gray-700">You haven't created any custom reports yet.</p>
                   <Button variant="link" className="mt-2" onClick={() => setActiveTab("builder")}>
                     Create Your First Report
                   </Button>
@@ -513,7 +513,7 @@ export function CustomReportBuilder() {
                     >
                       <div>
                         <h3 className="font-medium">{report.report_name}</h3>
-                        <p className="text-sm text-gray-500">{report.description}</p>
+                        <p className="text-sm text-gray-700">{report.description}</p>
                         <div className="flex gap-2 mt-2">
                           {report.data_sources.map((dsId) => {
                             const ds = dataSources.find((d: DataSource) => d.id === dsId)
@@ -557,7 +557,7 @@ export function CustomReportBuilder() {
               <CardDescription>View past report executions</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-center text-gray-500 py-3">Execution history will be displayed here.</p>
+              <p className="text-center text-gray-700 py-3">Execution history will be displayed here.</p>
             </CardContent>
           </Card>
         </TabsContent>

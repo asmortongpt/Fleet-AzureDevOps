@@ -62,7 +62,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
       case 'medium':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
       case 'low':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-700'
     }
   }
 
@@ -71,7 +71,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
       case 'prediction':
         return 'text-purple-600 dark:text-purple-400'
       case 'recommendation':
-        return 'text-blue-800 dark:text-blue-400'
+        return 'text-blue-800 dark:text-blue-700'
       case 'alert':
         return 'text-red-600 dark:text-red-400'
       case 'optimization':

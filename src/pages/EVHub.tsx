@@ -242,7 +242,7 @@ const EVHub = () => {
               </CardHeader>
               <CardContent className="space-y-3 max-h-[calc(100vh-240px)] overflow-y-auto">
                 {evVehicles.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="text-center py-8 text-gray-700">
                     <AlertCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">No EV vehicles in fleet</p>
                   </div>

@@ -128,7 +128,7 @@ export function KPITiles({ measures, layout = 'grid', className = '' }: KPITiles
                 {formatValue(measure.value, measure.format)}
               </div>
               {measure.trend && (
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-xs text-gray-700 mt-1">
                   {measure.trend.label}
                 </div>
               )}

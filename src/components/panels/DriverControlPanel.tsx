@@ -120,7 +120,7 @@ export function DriverControlPanel({
                     <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50/30 border-b border-slate-100">
                         <div className="bg-white p-2 rounded-lg border border-slate-100 shadow-sm flex items-center justify-between">
                             <div>
-                                <div className="text-[10px] text-slate-500 uppercase font-semibold">Avg Safety</div>
+                                <div className="text-[10px] text-gray-800 uppercase font-semibold">Avg Safety</div>
                                 <div className={`text-sm font-bold ${stats.avgScore >= 90 ? 'text-green-600' : stats.avgScore >= 75 ? 'text-amber-600' : 'text-red-600'}`}>
                                     {stats.avgScore}
                                 </div>
@@ -129,7 +129,7 @@ export function DriverControlPanel({
                         </div>
                         <div className="bg-white p-2 rounded-lg border border-slate-100 shadow-sm flex items-center justify-between">
                             <div>
-                                <div className="text-[10px] text-slate-500 uppercase font-semibold">Attention</div>
+                                <div className="text-[10px] text-gray-800 uppercase font-semibold">Attention</div>
                                 <div className="text-sm font-bold text-slate-700">{stats.actionRequired}</div>
                             </div>
                             <AlertTriangle className="w-4 h-4 text-amber-500" />
@@ -140,7 +140,7 @@ export function DriverControlPanel({
                     <div className="p-3 space-y-3">
                         <div className="flex gap-2">
                             <div className="relative flex-1">
-                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-700" />
                                 <Input
                                     placeholder="Search name or ID..."
                                     className="pl-9 h-9 text-sm"
@@ -219,7 +219,7 @@ export function DriverControlPanel({
                                         </div>
                                         <div>
                                             <div className="font-medium text-sm text-slate-900 leading-none">{driver.name}</div>
-                                            <div className="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+                                            <div className="text-[11px] text-gray-800 mt-1 flex items-center gap-1">
                                                 <Badge variant="outline" className="h-4 px-1 text-[9px] font-normal border-slate-200 text-slate-500">
                                                     {driver.department || 'General'}
                                                 </Badge>
@@ -242,7 +242,7 @@ export function DriverControlPanel({
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Driver actions menu">
-                                                    <MoreVertical className="h-4 w-4 text-slate-400" />
+                                                    <MoreVertical className="h-4 w-4 text-slate-700" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
@@ -259,7 +259,7 @@ export function DriverControlPanel({
                             ))}
 
                             {filteredDrivers.length === 0 && (
-                                <div className="text-center py-10 text-slate-400">
+                                <div className="text-center py-10 text-slate-700">
                                     <p className="text-sm">No drivers found.</p>
                                 </div>
                             )}

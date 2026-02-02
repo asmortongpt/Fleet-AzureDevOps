@@ -14,15 +14,15 @@ export function RegulationsDrilldown() {
             <div className="grid grid-cols-2 gap-3">
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <ShieldCheck className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
+                        <ShieldCheck className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
                         <div className="text-sm font-bold text-white">98%</div>
-                        <div className="text-xs text-slate-400">DOT Compliance</div>
+                        <div className="text-xs text-slate-700">DOT Compliance</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <div className="text-sm font-bold text-emerald-400">100%</div>
-                        <div className="text-xs text-slate-400">IFTA Compliance</div>
+                        <div className="text-sm font-bold text-emerald-700">100%</div>
+                        <div className="text-xs text-slate-700">IFTA Compliance</div>
                     </CardContent>
                 </Card>
             </div>
@@ -43,7 +43,7 @@ export function RegulationsDrilldown() {
                             <div className="flex justify-between text-sm">
                                 <span className="text-slate-300">{item.regulation}</span>
                                 <Badge variant="outline" className={
-                                    item.status === 'compliant' ? 'border-emerald-500 text-emerald-400' : 'border-amber-500 text-amber-400'
+                                    item.status === 'compliant' ? 'border-emerald-500 text-emerald-700' : 'border-amber-500 text-amber-400'
                                 }>
                                     {item.score}%
                                 </Badge>
@@ -71,15 +71,15 @@ export function GeofenceComplianceDrilldown() {
             <div className="grid grid-cols-2 gap-3">
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <MapPin className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
+                        <MapPin className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
                         <div className="text-sm font-bold text-white">10</div>
-                        <div className="text-xs text-slate-400">Compliant Zones</div>
+                        <div className="text-xs text-slate-700">Compliant Zones</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-amber-400">2</div>
-                        <div className="text-xs text-slate-400">Attention Needed</div>
+                        <div className="text-xs text-slate-700">Attention Needed</div>
                     </CardContent>
                 </Card>
             </div>
@@ -95,7 +95,7 @@ export function GeofenceComplianceDrilldown() {
                                 <span className={`w-2 h-2 rounded-full ${zone.status === 'compliant' ? 'bg-emerald-400' : 'bg-amber-400'}`} />
                                 <span className="text-white">{zone.name}</span>
                             </div>
-                            <span className="text-slate-400 text-sm">{zone.violations} violations</span>
+                            <span className="text-slate-700 text-sm">{zone.violations} violations</span>
                         </div>
                     ))}
                 </CardContent>
@@ -112,19 +112,19 @@ export function InspectionsDrilldown() {
                     <CardContent className="p-2 text-center">
                         <Clock className="w-4 h-4 text-amber-400 mx-auto mb-2" />
                         <div className="text-sm font-bold text-amber-400">8</div>
-                        <div className="text-xs text-slate-400">Inspections Due</div>
+                        <div className="text-xs text-slate-700">Inspections Due</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <div className="text-sm font-bold text-emerald-400">0</div>
-                        <div className="text-xs text-slate-400">HOS Violations</div>
+                        <div className="text-sm font-bold text-emerald-700">0</div>
+                        <div className="text-xs text-slate-700">HOS Violations</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <div className="text-sm font-bold text-emerald-400">100%</div>
-                        <div className="text-xs text-slate-400">ELD Status</div>
+                        <div className="text-sm font-bold text-emerald-700">100%</div>
+                        <div className="text-xs text-slate-700">ELD Status</div>
                     </CardContent>
                 </Card>
             </div>
@@ -143,9 +143,9 @@ export function InspectionsDrilldown() {
                         <div key={insp.vehicle} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
                             <div>
                                 <div className="font-medium text-white">{insp.vehicle} - {insp.type}</div>
-                                <div className="text-xs text-slate-400">{insp.due}</div>
+                                <div className="text-xs text-slate-700">{insp.due}</div>
                             </div>
-                            <Badge variant="outline" className={insp.status === 'scheduled' ? 'border-emerald-500 text-emerald-400' : 'border-amber-500 text-amber-400'}>
+                            <Badge variant="outline" className={insp.status === 'scheduled' ? 'border-emerald-500 text-emerald-700' : 'border-amber-500 text-amber-400'}>
                                 {insp.status}
                             </Badge>
                         </div>
@@ -162,15 +162,15 @@ export function IFTADrilldown() {
             <div className="grid grid-cols-2 gap-3">
                 <Card className="bg-blue-900/30 border-blue-700/50">
                     <CardContent className="p-2 text-center">
-                        <Fuel className="w-4 h-4 text-blue-400 mx-auto mb-2" />
+                        <Fuel className="w-4 h-4 text-blue-700 mx-auto mb-2" />
                         <div className="text-sm font-bold text-white">2.4M</div>
-                        <div className="text-xs text-slate-400">Miles Tracked</div>
+                        <div className="text-xs text-slate-700">Miles Tracked</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-slate-800/50 border-slate-700">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-slate-300">$12,450</div>
-                        <div className="text-xs text-slate-400">Fuel Tax Due</div>
+                        <div className="text-xs text-slate-700">Fuel Tax Due</div>
                     </CardContent>
                 </Card>
             </div>
@@ -191,7 +191,7 @@ export function IFTADrilldown() {
                             <span className="text-slate-300">{item.state}</span>
                             <div className="text-right">
                                 <span className="text-white font-medium">{item.tax}</span>
-                                <span className="text-slate-400 text-sm ml-2">({item.miles})</span>
+                                <span className="text-slate-700 text-sm ml-2">({item.miles})</span>
                             </div>
                         </div>
                     ))}
@@ -209,19 +209,19 @@ export function CSADrilldown() {
                     <CardContent className="p-2 text-center">
                         <FileText className="w-4 h-4 text-amber-400 mx-auto mb-2" />
                         <div className="text-sm font-bold text-amber-400">3</div>
-                        <div className="text-xs text-slate-400">Pending</div>
+                        <div className="text-xs text-slate-700">Pending</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-amber-400">2</div>
-                        <div className="text-xs text-slate-400">Incidents YTD</div>
+                        <div className="text-xs text-slate-700">Incidents YTD</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <div className="text-sm font-bold text-emerald-400">47</div>
-                        <div className="text-xs text-slate-400">Days Safe</div>
+                        <div className="text-sm font-bold text-emerald-700">47</div>
+                        <div className="text-xs text-slate-700">Days Safe</div>
                     </CardContent>
                 </Card>
             </div>
@@ -241,7 +241,7 @@ export function CSADrilldown() {
                         <div key={item.category} className="space-y-2">
                             <div className="flex justify-between text-sm">
                                 <span className="text-slate-300">{item.category}</span>
-                                <span className={`font-medium ${item.score < item.threshold / 2 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                                <span className={`font-medium ${item.score < item.threshold / 2 ? 'text-emerald-700' : 'text-amber-400'}`}>
                                     {item.score}%
                                 </span>
                             </div>

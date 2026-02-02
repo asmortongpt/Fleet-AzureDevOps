@@ -23,7 +23,7 @@ export function DrilldownBreadcrumbs() {
       {/* Home button */}
       <button
         onClick={reset}
-        className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors whitespace-nowrap shrink-0"
+        className="flex items-center gap-2 text-slate-700 hover:text-white transition-colors whitespace-nowrap shrink-0"
         data-testid="breadcrumb-0"
         aria-label="Go to home"
       >
@@ -41,7 +41,7 @@ export function DrilldownBreadcrumbs() {
               "text-sm whitespace-nowrap transition-colors",
               index === levels.length - 1
                 ? "text-white font-semibold"
-                : "text-slate-400 hover:text-white font-medium"
+                : "text-slate-700 hover:text-white font-medium"
             )}
             data-testid={`breadcrumb-${index + 1}`}
             aria-current={index === levels.length - 1 ? "page" : undefined}

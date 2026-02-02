@@ -1,0 +1,23 @@
+{
+  "testId": "route--policy-hub",
+  "itemType": "ui-route",
+  "runDate": "2026-02-01T18:56:23.723Z",
+  "status": "PASS",
+  "evidencePaths": {
+    "screenshots": [
+      "screenshot-before-navigation-1769972183724.png",
+      "screenshot-after-navigation-1769972186649.png"
+    ],
+    "videos": [],
+    "traces": [],
+    "logs": [
+      "console-logs.txt"
+    ],
+    "har": []
+  },
+  "metrics": {
+    "loadTime": 2735,
+    "contentLength": 244,
+    "consoleMessages": 63
+  }
+}

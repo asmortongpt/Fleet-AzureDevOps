@@ -43,7 +43,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
       header: 'Service Date',
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-slate-400" />
+          <Calendar className="w-4 h-4 text-slate-700" />
           {new Date(getValue<string>()).toLocaleDateString()}
         </div>
       ),
@@ -54,7 +54,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
       cell: ({ getValue }) => {
         const type = getValue<string>();
         const typeColors: Record<string, string> = {
-          'oil change': 'bg-blue-500/20 text-blue-400',
+          'oil change': 'bg-blue-500/20 text-blue-700',
           'tire rotation': 'bg-purple-500/20 text-purple-400',
           'brake service': 'bg-red-500/20 text-red-400',
           'engine repair': 'bg-orange-500/20 text-orange-400',
@@ -62,7 +62,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
           'inspection': 'bg-green-500/20 text-green-400',
         };
         return (
-          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${typeColors[type?.toLowerCase()] || 'bg-slate-500/20 text-slate-400'}`}>
+          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${typeColors[type?.toLowerCase()] || 'bg-slate-500/20 text-slate-700'}`}>
             {type}
           </span>
         );
@@ -85,7 +85,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
         const statusConfig: Record<string, { icon: React.ReactNode; class: string }> = {
           scheduled: {
             icon: <Clock className="w-4 h-4" />,
-            class: 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+            class: 'bg-blue-500/20 text-blue-700 border-blue-500/30'
           },
           'in-progress': {
             icon: <Wrench className="w-4 h-4" />,
@@ -93,7 +93,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
           },
           completed: {
             icon: <CheckCircle className="w-4 h-4" />,
-            class: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+            class: 'bg-emerald-500/20 text-emerald-700 border-emerald-500/30'
           },
           cancelled: {
             icon: <AlertTriangle className="w-4 h-4" />,
@@ -136,8 +136,8 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
       header: 'Cost',
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
-          <DollarSign className="w-4 h-4 text-emerald-400" />
-          <span className="font-semibold text-emerald-400">${getValue<number>()?.toLocaleString()}</span>
+          <DollarSign className="w-4 h-4 text-emerald-700" />
+          <span className="font-semibold text-emerald-700">${getValue<number>()?.toLocaleString()}</span>
         </div>
       ),
     },
@@ -170,7 +170,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
               </span>
             ))}
             {parts.length > 3 && (
-              <span className="px-2 py-0.5 bg-slate-600/50 text-slate-400 rounded text-xs">
+              <span className="px-2 py-0.5 bg-slate-600/50 text-slate-700 rounded text-xs">
                 +{parts.length - 3}
               </span>
             )}

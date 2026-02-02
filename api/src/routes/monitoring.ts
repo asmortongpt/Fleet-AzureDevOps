@@ -1,11 +1,11 @@
 import { performance } from 'perf_hooks'
-
 import { Router, Request, Response } from 'express'
 
-import { EmulatorOrchestrator } from '../emulators/EmulatorOrchestrator'
-
-
-
+// Mock emulator status since orchestrator was removed
+const mockEmulatorStatus = {
+  activeEmulators: 0,
+  totalRecordsGenerated: 0
+}
 
 const router = Router()
 
@@ -87,8 +87,7 @@ router.get('/health', async (req: Request, res: Response) => {
     const uptime = Math.floor((Date.now() - serverStartTime) / 1000)
 
     // Check emulator status
-    const emulatorOrchestrator = EmulatorOrchestrator.getInstance()
-    const emulatorStatus = emulatorOrchestrator.getStatus()
+    const emulatorStatus = mockEmulatorStatus
 
     // Check API health by measuring a simple operation
     const apiStartTime = performance.now()
@@ -227,8 +226,7 @@ router.get('/metrics', (req: Request, res: Response) => {
  */
 router.get('/emulators', (req: Request, res: Response) => {
   try {
-    const orchestrator = EmulatorOrchestrator.getInstance()
-    const status = orchestrator.getStatus()
+    const status = mockEmulatorStatus
 
     // Mock emulator data for comprehensive monitoring
     const emulators = [

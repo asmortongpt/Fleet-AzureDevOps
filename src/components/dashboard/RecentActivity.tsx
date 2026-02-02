@@ -203,7 +203,7 @@ export function RecentActivity({ className }: RecentActivityProps) {
   const trendIcons = {
     up: <TrendingUp className="h-4 w-4 text-emerald-600" />,
     down: <TrendingDown className="h-4 w-4 text-red-600" />,
-    stable: <ArrowUp className="h-4 w-4 text-gray-400 rotate-90" />
+    stable: <ArrowUp className="h-4 w-4 text-gray-700 rotate-90" />
   };
 
   if (loading) {

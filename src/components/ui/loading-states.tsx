@@ -264,7 +264,7 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
                       transition={{ duration: 0.3 }}
                     />
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 text-center">
+                  <p className="text-xs text-slate-500 dark:text-slate-700 mt-2 text-center">
                     {Math.round(progress)}% complete
                   </p>
                 </div>
@@ -337,7 +337,7 @@ export function AsyncState<T>({
 const DefaultLoadingState: React.FC = () => (
   <div className="flex flex-col items-center justify-center p-3 space-y-2">
     <Spinner size="lg" />
-    <p className="text-sm text-slate-500 dark:text-slate-400">Loading data...</p>
+    <p className="text-sm text-slate-500 dark:text-slate-700">Loading data...</p>
   </div>
 )
 
@@ -350,7 +350,7 @@ const DefaultErrorState: React.FC<{ error: Error }> = ({ error }) => (
       <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
         Failed to load data
       </p>
-      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+      <p className="text-xs text-slate-500 dark:text-slate-700 mt-1">
         {error.message}
       </p>
     </div>
@@ -366,13 +366,13 @@ const DefaultErrorState: React.FC<{ error: Error }> = ({ error }) => (
 const DefaultEmptyState: React.FC = () => (
   <div className="flex flex-col items-center justify-center p-3 space-y-2">
     <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full">
-      <Clock className="w-4 h-4 text-slate-400" />
+      <Clock className="w-4 h-4 text-slate-700" />
     </div>
     <div className="text-center">
       <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
         No data available
       </p>
-      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+      <p className="text-xs text-slate-500 dark:text-slate-700 mt-1">
         Check back later for updates
       </p>
     </div>

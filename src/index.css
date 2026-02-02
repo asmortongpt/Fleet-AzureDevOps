@@ -51,47 +51,50 @@
 }
 
 /*
-  CAPITAL TECH ALLIANCE (CTA) BRAND THEME - VIBRANT PALETTE
+  CAPITAL TECHNOLOGY ALLIANCE (CTA) BRAND THEME - VIBRANT PALETTE
   Fleet Management Platform - ArchonY: Intelligent Performance
   Professional, modern, and highly accessible
   WCAG AAA Compliant (7:1 contrast ratio minimum)
 
-  Brand Colors (Vibrant Palette):
-  - DAYTIME: #2B3A67 (Navy - Headers, primary text)
-  - BLUE SKIES: #00D4FF (Cyan - Interactive, links, highlights)
-  - MIDNIGHT: #1A0B2E (Purple - Backgrounds, dark sections)
-  - NOON: #FF5722 (Orange - CTAs, alerts, important highlights)
-  - GOLDEN HOUR: #FDB813 (Yellow - Accents, secondary highlights, badges)
-  - Gradient Bar: linear-gradient(90deg, #FDB813 0%, #FF5722 100%)
+  Brand Colors (Vibrant Palette) - EXACT from ADELE Branding Second Look 012626:
+  - DAYTIME: #2F3359 (Navy Blue - Headers, primary text, fonts)
+  - BLUE SKIES: #41B2E3 (Bright Cyan - Interactive, links, highlights)
+  - MIDNIGHT: #1A0B2E (Deep Purple - Backgrounds, dark sections)
+  - NOON: #DD3903 (Deep Orange-Red - CTAs, alerts, important highlights)
+  - GOLDEN HOUR: #F0A000 (Golden Yellow-Orange - Accents, secondary highlights, badges)
+  - Gradient Bar: linear-gradient(90deg, #F0A000 0%, #DD3903 100%) - Skyline Gradient
 
   Taglines:
   - "Intelligent Technology. Integrated Partnership."
   - "Intelligent Performance"
 */
 :root {
-  /* CTA DARK THEME - Vibrant Enterprise (Default) */
-  --background: #1A0B2E; /* MIDNIGHT - Deep purple background */
+  /* CTA DARK THEME - ArchonY Enterprise (Default)
+   * All brand colors sourced from ADELE branding document (Jan 26, 2026)
+   * MIDNIGHT adjusted darker per client request (#0A0E27 instead of #1A0B2E)
+   */
+  --background: #0A0E27; /* MIDNIGHT (darker) - App background */
   --foreground: #F8FAFC; /* White text */
 
-  --card: #2B1E3F; /* Slightly lighter than background for cards */
+  --card: #111638; /* Slightly lighter than MIDNIGHT for cards */
   --card-foreground: #F8FAFC;
 
-  --popover: #2B1E3F;
+  --popover: #111638;
   --popover-foreground: #F8FAFC;
 
   /* CTA Primary Brand Color - DAYTIME Navy */
-  --primary: #2B3A67; /* DAYTIME - Navy for primary elements */
+  --primary: #2F3359; /* DAYTIME - Navy for primary elements (EXACT from PDF) */
   --primary-foreground: #ffffff;
 
   /* CTA Secondary - BLUE SKIES Cyan */
-  --secondary: #00D4FF; /* BLUE SKIES - Cyan for interactive elements */
-  --secondary-foreground: #ffffff;
+  --secondary: #41B2E3; /* BLUE SKIES - Bright Cyan for interactive elements (EXACT from PDF) */
+  --secondary-foreground: #0A0E1A;
 
-  --muted: #3D2A54; /* Muted purple */
+  --muted: #161B3D; /* Dark navy muted */
   --muted-foreground: #A5B4C6; /* Light gray-blue */
 
-  /* CTA Accent - NOON Orange */
-  --accent: #FF5722; /* NOON - Orange for CTAs and highlights */
+  /* CTA Accent - NOON Orange-Red */
+  --accent: #DD3903; /* NOON - Deep Orange-Red for CTAs (EXACT from PDF) */
   --accent-foreground: #ffffff;
 
   --destructive: #DC2626;
@@ -99,32 +102,37 @@
 
   /* CTA Success - Emerald Green */
   --success: #10B981;
-  /* CTA Warning - GOLDEN HOUR Yellow */
-  --warning: #FDB813; /* GOLDEN HOUR - Yellow for warnings */
+  /* CTA Warning - GOLDEN HOUR Golden */
+  --warning: #F0A000; /* GOLDEN HOUR - Golden Yellow-Orange (EXACT from PDF) */
 
-  --border: rgba(0, 212, 255, 0.15); /* BLUE SKIES with transparency */
-  --input: #2B1E3F;
-  --ring: #00D4FF; /* BLUE SKIES for focus rings */
+  --border: rgba(65, 178, 227, 0.12); /* BLUE SKIES with transparency (41B2E3) */
+  --input: #111638;
+  --ring: #41B2E3; /* BLUE SKIES for focus rings (EXACT from PDF) */
 
   --radius: 0.5rem;
 
-  /* CTA Brand Colors - Direct Variables */
-  --cta-daytime: #2B3A67;
-  --cta-blue-skies: #00D4FF;
-  --cta-midnight: #1A0B2E;
-  --cta-noon: #FF5722;
-  --cta-golden-hour: #FDB813;
+  /* ==========================================================================
+   * CTA Brand Colors - Direct Variables
+   * Source: ADELE Branding Document, Jan 26 2026, Vibrant Palette (page 4)
+   * MIDNIGHT darkened per client request
+   * ========================================================================== */
+  --cta-daytime: #2F3359;      /* DAYTIME - Navy Blue (EXACT from PDF) */
+  --cta-blue-skies: #41B2E3;   /* BLUE SKIES - Bright Cyan (EXACT from PDF) */
+  --cta-midnight: #1A0B2E;     /* MIDNIGHT - Deep Purple (EXACT from PDF) */
+  --cta-noon: #DD3903;         /* NOON - Deep Orange-Red (EXACT from PDF) */
+  --cta-golden-hour: #F0A000;  /* GOLDEN HOUR - Golden Yellow-Orange (EXACT from PDF) */
 
-  /* CTA Brand Gradients */
-  --cta-gradient-primary: linear-gradient(90deg, #FDB813 0%, #FF5722 100%); /* GOLDEN HOUR to NOON */
-  --cta-gradient-secondary: linear-gradient(135deg, #00D4FF 0%, #2B3A67 100%); /* BLUE SKIES to DAYTIME */
-  --cta-gradient-accent: linear-gradient(135deg, #2B3A67 0%, #1A0B2E 100%); /* DAYTIME to MIDNIGHT */
+  /* CTA Brand Gradients (EXACT from PDF Skyline) */
+  --cta-gradient-primary: linear-gradient(90deg, #F0A000 0%, #DD3903 100%);        /* Golden Hour → Noon */
+  --cta-gradient-secondary: linear-gradient(135deg, #41B2E3 0%, #2F3359 100%);     /* Blue Skies → Daytime */
+  --cta-gradient-accent: linear-gradient(135deg, #2F3359 0%, #1A0B2E 100%);        /* Daytime → Midnight */
+  --cta-gradient-skyline: linear-gradient(90deg, #0080F0 0%, #41B2E3 25%, #F0A000 75%, #DD3903 100%); /* Full skyline */
 
-  /* WCAG AAA Compliant Colors */
-  --blue-badge-bg: #2B3A67; /* DAYTIME Navy */
-  --blue-badge-text: #2B3A67; /* DAYTIME Navy */
-  --gray-text: #334155; /* Slate 700 */
-  --link-color: #00D4FF; /* BLUE SKIES for links */
+  /* WCAG AAA Compliant Colors (EXACT from PDF) */
+  --blue-badge-bg: #2F3359;  /* DAYTIME Navy */
+  --blue-badge-text: #2F3359;
+  --gray-text: #334155;      /* Slate 700 */
+  --link-color: #41B2E3;     /* BLUE SKIES */
 }
 
 .light {
@@ -790,5 +798,46 @@
   .panel-interactive {
     @apply transition-all duration-200 ease-out;
     @apply hover:bg-muted/50 active:bg-muted/70;
+  }
+}
+
+/* ArchonY SPA Layout Utilities */
+@layer utilities {
+  /* Dawn gradient bar - CTA signature brand accent */
+  .dawn-gradient {
+    background: linear-gradient(90deg, var(--cta-golden-hour) 0%, var(--cta-noon) 100%);
+  }
+
+  /* Glass effect for floating panels */
+  .glass-midnight {
+    background: rgba(10, 14, 39, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* Scrollbar-none utility */
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Thin scrollbar for panels */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* Safe area for mobile notch */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }

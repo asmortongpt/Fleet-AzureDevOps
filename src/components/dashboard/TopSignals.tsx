@@ -71,7 +71,7 @@ export function TopSignals({ className }: TopSignalsProps) {
               impact: 'Maximizing asset ROI and operational efficiency',
               metrics: `${activeVehicles}/${totalVehicles} vehicles active`,
               icon: <CheckCircle2 className="h-5 w-5" />,
-              color: 'text-emerald-600 dark:text-emerald-400'
+              color: 'text-emerald-600 dark:text-emerald-700'
             });
           } else if (utilizationRate < 50) {
             detectedSignals.push({
@@ -110,7 +110,7 @@ export function TopSignals({ className }: TopSignalsProps) {
                 impact: 'Preventing unplanned downtime and extending asset life',
                 metrics: `${maintenanceAlerts.upcoming_count} scheduled, 0 overdue`,
                 icon: <CheckCircle2 className="h-5 w-5" />,
-                color: 'text-emerald-600 dark:text-emerald-400'
+                color: 'text-emerald-600 dark:text-emerald-700'
               });
             }
           }
@@ -131,7 +131,7 @@ export function TopSignals({ className }: TopSignalsProps) {
                 impact: 'Optimal staffing levels supporting operations',
                 metrics: `${activeDrivers}/${totalDrivers} drivers on duty`,
                 icon: <TrendingUp className="h-5 w-5" />,
-                color: 'text-emerald-600 dark:text-emerald-400'
+                color: 'text-emerald-600 dark:text-emerald-700'
               });
             }
           }
@@ -153,7 +153,7 @@ export function TopSignals({ className }: TopSignalsProps) {
               impact: 'Exceeding financial efficiency goals',
               metrics: `Fuel: $${costsData.fuel_cost?.toLocaleString() || 0}, Maintenance: $${costsData.maintenance_cost?.toLocaleString() || 0}`,
               icon: <TrendingUp className="h-5 w-5" />,
-              color: 'text-emerald-600 dark:text-emerald-400'
+              color: 'text-emerald-600 dark:text-emerald-700'
             });
           } else if (fuelTrend > 15 || maintenanceTrend > 20) {
             detectedSignals.push({
@@ -178,7 +178,7 @@ export function TopSignals({ className }: TopSignalsProps) {
           impact: 'Uninterrupted operations and data accuracy',
           metrics: 'Database: <20ms, API: 0% errors, Cache: 87% hit rate',
           icon: <Activity className="h-5 w-5" />,
-          color: 'text-blue-600 dark:text-blue-400'
+          color: 'text-blue-600 dark:text-blue-700'
         });
 
         // Sort by priority and take top 5

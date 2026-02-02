@@ -231,7 +231,7 @@ export function FleetManagerDashboard() {
             onClick={handleCreateWorkOrder}
           >
             <div className="flex items-start justify-between mb-2">
-              <Wrench className="w-3 h-3 text-blue-400" />
+              <Wrench className="w-3 h-3 text-blue-700" />
               <span className="text-sm font-semibold text-[var(--minimalist-text-primary)]">
                 {openWorkOrders}
               </span>
@@ -242,7 +242,7 @@ export function FleetManagerDashboard() {
             <Button
               size="sm"
               variant="outline"
-              className="w-full text-blue-400 border-blue-400/30 hover:bg-blue-500/10"
+              className="w-full text-blue-700 border-blue-400/30 hover:bg-blue-500/10"
               onClick={(e) => {
                 e.stopPropagation();
                 handleCreateWorkOrder();

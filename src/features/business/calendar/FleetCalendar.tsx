@@ -434,7 +434,7 @@ const FleetCalendar: React.FC = () => {
               key={type}
               onClick={() => setFilters({ ...filters, [type]: !enabled })}
               className={`flex items-center space-x-1 px-3 py-1 rounded-lg transition-colors ${
-                enabled ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-400'
+                enabled ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'
               }`}
             >
               {type === 'maintenance' && <Wrench className="w-4 h-4" />}

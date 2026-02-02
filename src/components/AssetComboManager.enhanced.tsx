@@ -334,9 +334,9 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
         </div>
         <div className="divide-y divide-gray-200">
           {loading ? (
-            <div className="p-3 text-center text-gray-500">Loading...</div>
+            <div className="p-3 text-center text-gray-700">Loading...</div>
           ) : currentAttachments.length === 0 ? (
-            <div className="p-3 text-center text-gray-500">
+            <div className="p-3 text-center text-gray-700">
               No assets currently attached to this {parentAssetType.toLowerCase().replace('_', ' ')}
             </div>
           ) : (
@@ -359,7 +359,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                         <span>Attached: {new Date(combo.effective_from).toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className="text-gray-400">Type:</span>
+                        <span className="text-gray-700">Type:</span>
                         <span className="font-medium">{combo.child_asset_name}</span>
                       </div>
                     </div>
@@ -415,7 +415,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
           </div>
           <div className="divide-y divide-gray-200">
             {relationshipHistory.length === 0 ? (
-              <div className="p-3 text-center text-gray-500">
+              <div className="p-3 text-center text-gray-700">
                 No relationship history found
               </div>
             ) : (

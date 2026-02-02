@@ -27,7 +27,7 @@ function PeopleSoftContent() {
     return (
         <div className="p-3 space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-sm font-bold text-white">PeopleSoft Integration</h2>
-            <p className="text-slate-400">Enterprise HR, Payroll, and Finance System Integration</p>
+            <p className="text-slate-700">Enterprise HR, Payroll, and Finance System Integration</p>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <StatCard
@@ -78,7 +78,7 @@ function PeopleSoftContent() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'employee-sync', data: { title: 'Employee Data Sync' }, id: 'employee-sync' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Employee Sync</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Employee Sync</h3>
                     <QuickStat label="Active Records" value="342" />
                     <QuickStat label="Updated Today" value="18" trend="up" />
                     <QuickStat label="Last Full Sync" value="2 hrs ago" />
@@ -87,7 +87,7 @@ function PeopleSoftContent() {
 
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'payroll-integration', data: { title: 'Payroll Integration' }, id: 'payroll-integration' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Payroll Integration</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Payroll Integration</h3>
                     <QuickStat label="Current Period" value="2026-01" />
                     <QuickStat label="Hours Synced" value="6,842" trend="up" />
                     <QuickStat label="Mileage Claims" value="234" />
@@ -96,7 +96,7 @@ function PeopleSoftContent() {
 
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'finance-integration', data: { title: 'Finance Module Integration' }, id: 'finance-integration' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Finance Integration</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Finance Integration</h3>
                     <QuickStat label="GL Accounts" value="127" />
                     <QuickStat label="Cost Centers" value="18" />
                     <QuickStat label="AP Invoices" value="456" trend="up" />
@@ -107,12 +107,12 @@ function PeopleSoftContent() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'api-performance', data: { title: 'API Performance Metrics' }, id: 'api-performance' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">API Performance</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">API Performance</h3>
                     <ProgressRing progress={94} color="green" label="94%" sublabel="uptime" />
                     <div className="mt-2 text-sm text-slate-300">
                         <div className="flex justify-between">
                             <span>Avg Response Time:</span>
-                            <span className="font-semibold text-emerald-400">240ms</span>
+                            <span className="font-semibold text-emerald-700">240ms</span>
                         </div>
                         <div className="flex justify-between">
                             <span>API Calls Today:</span>
@@ -123,7 +123,7 @@ function PeopleSoftContent() {
 
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'integration-logs', data: { title: 'Integration Activity Logs' }, id: 'integration-logs' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Recent Activity</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Recent Activity</h3>
                     <QuickStat label="Successful Syncs" value="2,341 today" trend="up" />
                     <QuickStat label="Failed Requests" value="7 today" trend="down" />
                     <QuickStat label="Data Volume" value="24.3 MB" />
@@ -143,7 +143,7 @@ function FuelMasterContent() {
     return (
         <div className="p-3 space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-sm font-bold text-white">Fuel Master Integration</h2>
-            <p className="text-slate-400">Enterprise Fuel Management & Card Program Integration</p>
+            <p className="text-slate-700">Enterprise Fuel Management & Card Program Integration</p>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <StatCard
@@ -194,12 +194,12 @@ function FuelMasterContent() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'transaction-sync', data: { title: 'Transaction Synchronization' }, id: 'transaction-sync' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Transaction Sync</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Transaction Sync</h3>
                     <ProgressRing progress={98} color="green" label="98%" sublabel="sync rate" />
                     <div className="mt-2 text-sm text-slate-300">
                         <div className="flex justify-between">
                             <span>Last Sync:</span>
-                            <span className="font-semibold text-emerald-400">3 min ago</span>
+                            <span className="font-semibold text-emerald-700">3 min ago</span>
                         </div>
                         <div className="flex justify-between">
                             <span>Pending:</span>
@@ -210,7 +210,7 @@ function FuelMasterContent() {
 
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'fuel-pricing', data: { title: 'Fuel Pricing Data' }, id: 'fuel-pricing' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Fuel Pricing</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Fuel Pricing</h3>
                     <QuickStat label="Avg Diesel" value="$3.42/gal" trend="up" />
                     <QuickStat label="Avg Unleaded" value="$2.98/gal" trend="down" />
                     <QuickStat label="Monthly Savings" value="$8,240" trend="up" />
@@ -218,7 +218,7 @@ function FuelMasterContent() {
 
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'fraud-detection', data: { title: 'Fraud Detection & Alerts' }, id: 'fraud-detection' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Fraud Detection</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Fraud Detection</h3>
                     <QuickStat label="Alerts This Month" value="3" trend="down" />
                     <QuickStat label="Flagged Trans." value="12" />
                     <QuickStat label="Resolution Rate" value="100%" trend="up" />
@@ -228,7 +228,7 @@ function FuelMasterContent() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'card-management', data: { title: 'Fuel Card Management' }, id: 'card-management' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Card Management</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Card Management</h3>
                     <QuickStat label="Active Cards" value="287" trend="up" />
                     <QuickStat label="Suspended" value="8" />
                     <QuickStat label="Lost/Stolen" value="2" trend="down" />
@@ -237,7 +237,7 @@ function FuelMasterContent() {
 
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'merchant-network', data: { title: 'Merchant Network Status' }, id: 'merchant-network' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Merchant Network</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Merchant Network</h3>
                     <QuickStat label="Partner Stations" value="2,847" />
                     <QuickStat label="Avg Discount" value="$0.08/gal" trend="up" />
                     <QuickStat label="Preferred Vendors" value="42" />
@@ -257,7 +257,7 @@ function KeyVaultContent() {
     return (
         <div className="p-3 space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-sm font-bold text-white">Azure Key Vault</h2>
-            <p className="text-slate-400">Enterprise Secrets & Credential Management</p>
+            <p className="text-slate-700">Enterprise Secrets & Credential Management</p>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <StatCard
@@ -307,7 +307,7 @@ function KeyVaultContent() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'secret-inventory', data: { title: 'Secret Inventory' }, id: 'secret-inventory' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Secret Types</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Secret Types</h3>
                     <QuickStat label="Database Credentials" value="12" />
                     <QuickStat label="API Keys" value="18" />
                     <QuickStat label="Certificates" value="8" />
@@ -316,7 +316,7 @@ function KeyVaultContent() {
 
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'access-control', data: { title: 'Access Control Policies' }, id: 'access-policies' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Access Control</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Access Control</h3>
                     <QuickStat label="Service Principals" value="8" />
                     <QuickStat label="User Access" value="24" />
                     <QuickStat label="Role Assignments" value="42" />
@@ -325,12 +325,12 @@ function KeyVaultContent() {
 
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'rotation-status', data: { title: 'Secret Rotation Status' }, id: 'rotation-status' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Rotation Status</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Rotation Status</h3>
                     <ProgressRing progress={89} color="blue" label="89%" sublabel="auto-rotated" />
                     <div className="mt-2 text-sm text-slate-300">
                         <div className="flex justify-between">
                             <span>Next Rotation:</span>
-                            <span className="font-semibold text-blue-400">14 days</span>
+                            <span className="font-semibold text-blue-700">14 days</span>
                         </div>
                     </div>
                 </div>
@@ -339,7 +339,7 @@ function KeyVaultContent() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'audit-logs', data: { title: 'Key Vault Audit Logs' }, id: 'audit-logs' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Audit & Compliance</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Audit & Compliance</h3>
                     <QuickStat label="Access Events Today" value="342" />
                     <QuickStat label="Failed Attempts" value="0" trend="down" />
                     <QuickStat label="Secret Updates" value="8" />
@@ -348,7 +348,7 @@ function KeyVaultContent() {
 
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'security-monitoring', data: { title: 'Security Monitoring' }, id: 'security-monitoring' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Security Monitoring</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Security Monitoring</h3>
                     <QuickStat label="Threat Alerts" value="0" trend="down" />
                     <QuickStat label="Anomaly Detection" value="Active" trend="up" />
                     <QuickStat label="Last Security Scan" value="1 hr ago" />
@@ -368,7 +368,7 @@ function APIManagementContent() {
     return (
         <div className="p-3 space-y-2 bg-gradient-to-b from-slate-900/50 to-transparent">
             <h2 className="text-sm font-bold text-white">API Management & Monitoring</h2>
-            <p className="text-slate-400">Centralized API Integration Dashboard</p>
+            <p className="text-slate-700">Centralized API Integration Dashboard</p>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <StatCard
@@ -422,7 +422,7 @@ function APIManagementContent() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'microsoft-365', data: { title: 'Microsoft 365 Integration' }, id: 'microsoft-365' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Microsoft 365</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Microsoft 365</h3>
                     <QuickStat label="Teams Messages" value="1,842" trend="up" />
                     <QuickStat label="Email Sent" value="342" />
                     <QuickStat label="Calendar Syncs" value="124" trend="up" />
@@ -431,7 +431,7 @@ function APIManagementContent() {
 
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'google-workspace', data: { title: 'Google Workspace Integration' }, id: 'google-workspace' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Google Workspace</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Google Workspace</h3>
                     <QuickStat label="Calendar Events" value="89" />
                     <QuickStat label="Drive Files" value="1,234" trend="up" />
                     <QuickStat label="Gmail API Calls" value="2,456" />
@@ -440,7 +440,7 @@ function APIManagementContent() {
 
                 <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'third-party', data: { title: 'Third-Party APIs' }, id: 'third-party-apis' } as Omit<DrilldownLevel, "timestamp">)}>
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Third-Party APIs</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Third-Party APIs</h3>
                     <QuickStat label="ArcGIS" value="Active" trend="up" />
                     <QuickStat label="Smartcar" value="Connected" trend="up" />
                     <QuickStat label="Weather API" value="Running" />
@@ -450,7 +450,7 @@ function APIManagementContent() {
 
             <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                 onClick={() => push({ type: 'integration-health', data: { title: 'Integration Health Dashboard' }, id: 'integration-health' } as Omit<DrilldownLevel, "timestamp">)}>
-                <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">System Health Overview</h3>
+                <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">System Health Overview</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     <QuickStat label="Overall Uptime" value="99.7%" trend="up" />
                     <QuickStat label="Failed Requests" value="42 today" trend="down" />

@@ -146,7 +146,7 @@ export function InteractiveTooltip({
                     <div className="space-y-2 text-sm">
                       {data.location && (
                         <div className="flex items-start gap-2">
-                          <span className="text-gray-500 text-xs">📍</span>
+                          <span className="text-gray-700 text-xs">📍</span>
                           <span className="text-gray-700 text-xs flex-1 leading-relaxed">
                             {data.location}
                           </span>
@@ -154,7 +154,7 @@ export function InteractiveTooltip({
                       )}
                       {data.driver && (
                         <div className="flex items-center gap-2">
-                          <span className="text-gray-500 text-xs">👤</span>
+                          <span className="text-gray-700 text-xs">👤</span>
                           <span className="text-gray-700 text-xs font-medium">
                             {data.driver}
                           </span>
@@ -192,7 +192,7 @@ export function InteractiveTooltip({
 
                   {/* Last Update */}
                   {data.lastUpdate && (
-                    <div className="text-xs text-gray-500 text-center pt-2 border-t">
+                    <div className="text-xs text-gray-700 text-center pt-2 border-t">
                       Updated {formatRelativeTime(data.lastUpdate)}
                     </div>
                   )}
@@ -382,7 +382,7 @@ export function DataTooltip({
                   >
                     {value}
                   </div>
-                  {unit && <span className="text-xs text-gray-500">{unit}</span>}
+                  {unit && <span className="text-xs text-gray-700">{unit}</span>}
                 </div>
                 {change !== undefined && (
                   <div className={cn(

@@ -79,7 +79,7 @@ const MetricCard = React.memo<MetricCardProps>(({
     success: 'text-green-600 dark:text-green-400',
     warning: 'text-yellow-600 dark:text-yellow-400',
     error: 'text-red-600 dark:text-red-400',
-    info: 'text-blue-600 dark:text-blue-400',
+    info: 'text-blue-600 dark:text-blue-700',
   };
 
   const trendIcons = {
@@ -92,14 +92,14 @@ const MetricCard = React.memo<MetricCardProps>(({
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-700">
             {title}
           </p>
           <p className={`text-3xl font-bold mt-2 ${statusColors[status]}`}>
             {value}
           </p>
           {subtitle && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-sm text-gray-700 dark:text-gray-700 mt-1">
               {subtitle}
             </p>
           )}
@@ -147,11 +147,11 @@ const ViolationRow = React.memo<ViolationRowProps>(({ violation, onResolve }) =>
         </span>
       </td>
       <td className="px-4 py-3">
-        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+        <p className="text-sm text-gray-600 dark:text-gray-700 line-clamp-2">
           {violation.description}
         </p>
       </td>
-      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-700">
         {new Date(violation.occurredAt).toLocaleDateString()}
       </td>
       <td className="px-4 py-3">
@@ -168,7 +168,7 @@ const ViolationRow = React.memo<ViolationRowProps>(({ violation, onResolve }) =>
           <button
             onClick={() => onResolve(violation.id)}
             onKeyDown={handleKeyDown}
-            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
+            className="text-blue-600 hover:text-blue-800 dark:text-blue-700 dark:hover:text-blue-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
             aria-label={`Resolve violation: ${violation.description}`}
           >
             Resolve
@@ -193,26 +193,26 @@ const AuditRow = React.memo<AuditRowProps>(({ audit }) => {
           {audit.type}
         </span>
       </td>
-      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-700">
         {audit.auditor}
       </td>
-      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-700">
         {audit.department}
       </td>
-      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-700">
         {new Date(audit.scheduledDate).toLocaleDateString()}
       </td>
       <td className="px-4 py-3">
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          audit.status === 'SCHEDULED' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
+          audit.status === 'SCHEDULED' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-700' :
           audit.status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' :
           audit.status === 'COMPLETED' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-          'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
+          'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-700'
         }`}>
           {audit.status}
         </span>
       </td>
-      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-700">
         {audit.score !== undefined ? `${audit.score}%` : 'N/A'}
       </td>
       <td className="px-4 py-3">
@@ -221,7 +221,7 @@ const AuditRow = React.memo<AuditRowProps>(({ audit }) => {
             href={audit.reportUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
+            className="text-blue-600 hover:text-blue-800 dark:text-blue-700 dark:hover:text-blue-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
             aria-label={`View report for ${audit.type} audit`}
           >
             <FileText className="w-4 h-4" />
@@ -316,7 +316,7 @@ const DashboardTab = React.memo<{
           <p className="text-3xl font-bold text-red-600 dark:text-red-400">
             ${totalCostImpact.toLocaleString()}
           </p>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-sm text-gray-600 dark:text-gray-700 mt-2">
             Total violation costs
           </p>
         </div>
@@ -325,10 +325,10 @@ const DashboardTab = React.memo<{
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
             Avg. Resolution Time
           </h3>
-          <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+          <p className="text-3xl font-bold text-blue-600 dark:text-blue-700">
             {Math.round(avgResolutionTime)} days
           </p>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-sm text-gray-600 dark:text-gray-700 mt-2">
             Time to resolve violations
           </p>
         </div>
@@ -426,7 +426,7 @@ const ViolationsTab = React.memo<{
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
-            <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-700" />
             <input
               type="search"
               placeholder="Search violations..."
@@ -455,22 +455,22 @@ const ViolationsTab = React.memo<{
           <table className="w-full" role="table">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-700 uppercase tracking-wider">
                   Severity
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-700 uppercase tracking-wider">
                   Type
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-700 uppercase tracking-wider">
                   Description
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-700 uppercase tracking-wider">
                   Date
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-700 uppercase tracking-wider">
                   Status
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-700 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -478,7 +478,7 @@ const ViolationsTab = React.memo<{
             <tbody>
               {filteredViolations.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={6} className="px-4 py-8 text-center text-gray-700 dark:text-gray-700">
                     No violations found
                   </td>
                 </tr>
@@ -550,25 +550,25 @@ const AuditsTab = React.memo<{
           <table className="w-full" role="table">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-700 uppercase tracking-wider">
                   Type
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-700 uppercase tracking-wider">
                   Auditor
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-700 uppercase tracking-wider">
                   Department
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-700 uppercase tracking-wider">
                   Scheduled Date
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-700 uppercase tracking-wider">
                   Status
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-700 uppercase tracking-wider">
                   Score
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-700 uppercase tracking-wider">
                   Report
                 </th>
               </tr>
@@ -576,7 +576,7 @@ const AuditsTab = React.memo<{
             <tbody>
               {!data.data || data.data.audits.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={7} className="px-4 py-8 text-center text-gray-700 dark:text-gray-700">
                     No audits scheduled
                   </td>
                 </tr>
@@ -646,7 +646,7 @@ const ReportsTab = React.memo<{
       {/* Reports Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {!data.data || data.data.reports.length === 0 ? (
-          <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
+          <div className="col-span-full text-center py-12 text-gray-700 dark:text-gray-700">
             No reports available
           </div>
         ) : (
@@ -656,11 +656,11 @@ const ReportsTab = React.memo<{
               className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700"
             >
               <div className="flex items-start justify-between mb-4">
-                <FileText className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                <FileText className="w-8 h-8 text-blue-600 dark:text-blue-700" />
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                   report.status === 'APPROVED' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
                   report.status === 'PENDING_REVIEW' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' :
-                  'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
+                  'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-700'
                 }`}>
                   {report.status}
                 </span>
@@ -668,7 +668,7 @@ const ReportsTab = React.memo<{
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
                 {report.title}
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-700 mb-4">
                 {new Date(report.period.start).toLocaleDateString()} - {new Date(report.period.end).toLocaleDateString()}
               </p>
               {report.downloadUrl && (
@@ -676,7 +676,7 @@ const ReportsTab = React.memo<{
                   href={report.downloadUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
+                  className="flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-700 dark:hover:text-blue-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
                   aria-label={`Download ${report.title}`}
                 >
                   <Download className="w-4 h-4" />

@@ -43,8 +43,8 @@ export function MobileBottomNav({ items, activeId, onItemClick }: MobileBottomNa
                 transition-colors duration-200
                 ${
                   isActive
-                    ? 'text-blue-800 dark:text-blue-400'
-                    : 'text-slate-700 dark:text-gray-400'
+                    ? 'text-blue-800 dark:text-blue-700'
+                    : 'text-slate-700 dark:text-gray-700'
                 }
               `}
               aria-label={item.label}
@@ -177,8 +177,8 @@ export function MobileTabs({ tabs, activeId: controlledActiveId, onChange }: Mob
                 transition-colors duration-200 touch-target
                 ${
                   isActive
-                    ? 'text-blue-800 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                    : 'text-slate-700 dark:text-gray-400'
+                    ? 'text-blue-800 dark:text-blue-700 border-b-2 border-blue-600 dark:border-blue-400'
+                    : 'text-slate-700 dark:text-gray-700'
                 }
               `}
               aria-selected={isActive}
@@ -382,11 +382,11 @@ export function MobileSearchBar({
             transition-all duration-200
           "
         />
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</div>
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-700">🔍</div>
         {value && (
           <button
             onClick={() => onChange('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-slate-700 dark:hover:text-gray-300"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-700 hover:text-slate-700 dark:hover:text-gray-300"
             aria-label="Clear search"
           >
             ✕

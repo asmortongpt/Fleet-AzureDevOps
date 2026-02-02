@@ -129,7 +129,7 @@ export function DriverScorecard() {
   const getTrendIcon = (trend: string) => {
     if (trend === 'improving') return <TrendingUp className="h-4 w-4 text-green-500" />
     if (trend === 'declining') return <TrendingDown className="h-4 w-4 text-red-500" />
-    return <Minus className="h-4 w-4 text-gray-500" />
+    return <Minus className="h-4 w-4 text-gray-700" />
   }
 
   const getScoreColor = (score: number) => {
@@ -201,7 +201,7 @@ export function DriverScorecard() {
               >
                 <CardHeader className="text-center pb-3">
                   <div className="flex justify-center mb-2">
-                    <Medal className="h-9 w-12 text-gray-400" />
+                    <Medal className="h-9 w-12 text-gray-700" />
                   </div>
                   <CardTitle className="text-sm">{leaderboard[1]?.driverName}</CardTitle>
                   <CardDescription>2nd Place</CardDescription>
@@ -419,8 +419,8 @@ export function DriverScorecard() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-3 text-gray-500">
-                      <Target className="h-9 w-12 mx-auto mb-3 text-gray-400" />
+                    <div className="text-center py-3 text-gray-700">
+                      <Target className="h-9 w-12 mx-auto mb-3 text-gray-700" />
                       <p>No achievements earned yet. Keep driving safely!</p>
                     </div>
                   )}

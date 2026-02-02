@@ -134,7 +134,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                         <AlertTriangle className="w-3 h-3 text-red-400" />
                         Report Safety Incident
                     </CardTitle>
-                    <CardDescription className="text-slate-400">
+                    <CardDescription className="text-slate-700">
                         All fields marked with * are required for OSHA compliance
                     </CardDescription>
                 </CardHeader>

@@ -62,7 +62,7 @@ export function SplitView({ theme = 'default', listPanel, detailPanel }: SplitVi
             <div>
               <h2 className="text-lg font-bold text-white">{listPanel.title}</h2>
               {listPanel.description && (
-                <p className="text-sm text-slate-400">{listPanel.description}</p>
+                <p className="text-sm text-slate-700">{listPanel.description}</p>
               )}
             </div>
           </div>
@@ -94,14 +94,14 @@ export function SplitView({ theme = 'default', listPanel, detailPanel }: SplitVi
               <div className="min-w-0 flex-1">
                 <h3 className="text-lg font-bold text-white truncate">{detailPanel.title}</h3>
                 {detailPanel.subtitle && (
-                  <p className="text-sm text-slate-400 truncate">{detailPanel.subtitle}</p>
+                  <p className="text-sm text-slate-700 truncate">{detailPanel.subtitle}</p>
                 )}
               </div>
               <div className="flex items-center gap-2 ml-4">
                 {detailPanel.actions}
                 <button
                   onClick={detailPanel.onClose}
-                  className="p-2 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors"
+                  className="p-2 rounded-lg hover:bg-slate-700/50 text-slate-700 hover:text-white transition-colors"
                 >
                   <X className="w-5 h-5" weight="bold" />
                 </button>

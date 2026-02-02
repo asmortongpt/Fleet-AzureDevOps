@@ -373,7 +373,7 @@ export default function SafetyAlertsPage() {
               </div>
               <div>
                 <h1 className="text-sm font-bold text-white">Safety Alerts</h1>
-                <p className="text-sm text-slate-400">Real-time safety monitoring with OSHA compliance</p>
+                <p className="text-sm text-slate-700">Real-time safety monitoring with OSHA compliance</p>
               </div>
             </div>
             <div className="flex gap-2">
@@ -394,7 +394,7 @@ export default function SafetyAlertsPage() {
               <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-slate-400 uppercase tracking-wide">Active Alerts</p>
+                    <p className="text-xs text-slate-700 uppercase tracking-wide">Active Alerts</p>
                     <p className="text-sm font-bold text-white mt-1">{activeAlerts}</p>
                   </div>
                   <div className="p-2 rounded-lg bg-red-500/10">
@@ -408,7 +408,7 @@ export default function SafetyAlertsPage() {
               <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-slate-400 uppercase tracking-wide">Critical</p>
+                    <p className="text-xs text-slate-700 uppercase tracking-wide">Critical</p>
                     <p className="text-sm font-bold text-white mt-1">{criticalAlerts}</p>
                   </div>
                   <div className="p-2 rounded-lg bg-orange-500/10">
@@ -422,7 +422,7 @@ export default function SafetyAlertsPage() {
               <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-slate-400 uppercase tracking-wide">OSHA Recordable</p>
+                    <p className="text-xs text-slate-700 uppercase tracking-wide">OSHA Recordable</p>
                     <p className="text-sm font-bold text-white mt-1">{oshaRecordable}</p>
                   </div>
                   <div className="p-2 rounded-lg bg-purple-500/10">
@@ -436,7 +436,7 @@ export default function SafetyAlertsPage() {
               <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-slate-400 uppercase tracking-wide">Avg Resolution</p>
+                    <p className="text-xs text-slate-700 uppercase tracking-wide">Avg Resolution</p>
                     <p className="text-sm font-bold text-white mt-1">{avgResolutionTime}</p>
                   </div>
                   <div className="p-2 rounded-lg bg-green-500/10">
@@ -612,21 +612,21 @@ export default function SafetyAlertsPage() {
                 <CardContent className="space-y-2">
                   <div className="flex items-center justify-between p-2 bg-slate-900/50 rounded-lg">
                     <div>
-                      <p className="text-sm text-slate-400">Total Recordable Incident Rate (TRIR)</p>
+                      <p className="text-sm text-slate-700">Total Recordable Incident Rate (TRIR)</p>
                       <p className="text-sm font-bold text-white">{oshaMetrics.incidentRate}</p>
                     </div>
                     <TrendingDown className="w-4 h-4 text-green-400" />
                   </div>
                   <div className="flex items-center justify-between p-2 bg-slate-900/50 rounded-lg">
                     <div>
-                      <p className="text-sm text-slate-400">Days Away/Restricted Case Rate (DART)</p>
+                      <p className="text-sm text-slate-700">Days Away/Restricted Case Rate (DART)</p>
                       <p className="text-sm font-bold text-white">{oshaMetrics.daysAwayFromWorkCaseRate}</p>
                     </div>
                     <TrendingUp className="w-4 h-4 text-red-400" />
                   </div>
                   <div className="flex items-center justify-between p-2 bg-slate-900/50 rounded-lg">
                     <div>
-                      <p className="text-sm text-slate-400">Lost Workday Rate</p>
+                      <p className="text-sm text-slate-700">Lost Workday Rate</p>
                       <p className="text-sm font-bold text-white">{oshaMetrics.lostWorkdayRate}</p>
                     </div>
                     <TrendingDown className="w-4 h-4 text-green-400" />
@@ -641,25 +641,25 @@ export default function SafetyAlertsPage() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="p-2 bg-slate-900/50 rounded-lg">
-                    <p className="text-sm text-slate-400 mb-2">Total Recordable Cases</p>
+                    <p className="text-sm text-slate-700 mb-2">Total Recordable Cases</p>
                     <p className="text-base font-bold text-white">{oshaMetrics.totalRecordableIncidents}</p>
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     <div className="p-2 bg-slate-900/50 rounded-lg">
-                      <p className="text-xs text-slate-400 mb-1">Injuries</p>
+                      <p className="text-xs text-slate-700 mb-1">Injuries</p>
                       <p className="text-base font-bold text-white">{oshaMetrics.yearToDate.injuries}</p>
                     </div>
                     <div className="p-2 bg-slate-900/50 rounded-lg">
-                      <p className="text-xs text-slate-400 mb-1">Illnesses</p>
+                      <p className="text-xs text-slate-700 mb-1">Illnesses</p>
                       <p className="text-base font-bold text-white">{oshaMetrics.yearToDate.illnesses}</p>
                     </div>
                     <div className="p-2 bg-slate-900/50 rounded-lg">
-                      <p className="text-xs text-slate-400 mb-1">Fatalities</p>
+                      <p className="text-xs text-slate-700 mb-1">Fatalities</p>
                       <p className="text-base font-bold text-white">{oshaMetrics.yearToDate.fatalities}</p>
                     </div>
                   </div>
                   <div className="p-2 bg-slate-900/50 rounded-lg">
-                    <p className="text-sm text-slate-400 mb-2">Days Away/Restricted/Transfer</p>
+                    <p className="text-sm text-slate-700 mb-2">Days Away/Restricted/Transfer</p>
                     <p className="text-sm font-bold text-white">{oshaMetrics.daysAwayRestrictedTransfer}</p>
                   </div>
                 </CardContent>
@@ -674,9 +674,9 @@ export default function SafetyAlertsPage() {
               <CardContent>
                 <div className="grid grid-cols-3 gap-2">
                   <div className="p-3 bg-slate-900/50 rounded-lg border border-slate-700">
-                    <FileText className="w-4 h-4 text-blue-400 mb-2" />
+                    <FileText className="w-4 h-4 text-blue-700 mb-2" />
                     <h3 className="font-semibold text-white mb-1">OSHA Form 300</h3>
-                    <p className="text-sm text-slate-400 mb-3">Log of Work-Related Injuries and Illnesses</p>
+                    <p className="text-sm text-slate-700 mb-3">Log of Work-Related Injuries and Illnesses</p>
                     <Button variant="outline" className="w-full" size="sm">
                       <Download className="w-4 h-4 mr-2" />
                       Generate Form
@@ -685,7 +685,7 @@ export default function SafetyAlertsPage() {
                   <div className="p-3 bg-slate-900/50 rounded-lg border border-slate-700">
                     <FileText className="w-4 h-4 text-purple-400 mb-2" />
                     <h3 className="font-semibold text-white mb-1">OSHA Form 300A</h3>
-                    <p className="text-sm text-slate-400 mb-3">Summary of Work-Related Injuries and Illnesses</p>
+                    <p className="text-sm text-slate-700 mb-3">Summary of Work-Related Injuries and Illnesses</p>
                     <Button variant="outline" className="w-full" size="sm">
                       <Download className="w-4 h-4 mr-2" />
                       Generate Summary
@@ -694,7 +694,7 @@ export default function SafetyAlertsPage() {
                   <div className="p-3 bg-slate-900/50 rounded-lg border border-slate-700">
                     <FileText className="w-4 h-4 text-green-400 mb-2" />
                     <h3 className="font-semibold text-white mb-1">OSHA Form 301</h3>
-                    <p className="text-sm text-slate-400 mb-3">Injury and Illness Incident Report</p>
+                    <p className="text-sm text-slate-700 mb-3">Injury and Illness Incident Report</p>
                     <Button variant="outline" className="w-full" size="sm">
                       <Download className="w-4 h-4 mr-2" />
                       Generate Report
@@ -717,7 +717,7 @@ export default function SafetyAlertsPage() {
                     {[45, 32, 28, 56, 41, 23, 35, 29, 18, 24, 15, 12].map((h, i) => (
                       <div key={i} className="flex-1 flex flex-col items-center gap-1">
                         <div className="w-full bg-blue-500/80 rounded-t" style={{ height: `${h * 2}px` }} />
-                        <span className="text-[9px] text-slate-500">{['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'][i]}</span>
+                        <span className="text-[9px] text-gray-800">{['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'][i]}</span>
                       </div>
                     ))}
                   </div>
@@ -763,7 +763,7 @@ export default function SafetyAlertsPage() {
                     { label: 'Average Resolution Time', value: '4.2h', trend: '-1.3h', good: true },
                   ].map(metric => (
                     <div key={metric.label} className="p-2 bg-slate-900/50 rounded-lg">
-                      <p className="text-xs text-slate-400 mb-1">{metric.label}</p>
+                      <p className="text-xs text-slate-700 mb-1">{metric.label}</p>
                       <p className="text-sm font-bold text-white">{metric.value}</p>
                       <p className={`text-xs ${metric.good ? 'text-green-400' : 'text-red-400'}`}>{metric.trend}</p>
                     </div>
