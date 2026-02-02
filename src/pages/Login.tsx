@@ -1,15 +1,12 @@
 /**
- * Login Page - System Gateway V3
+ * Login Page - Fleet Management System
  *
- * Ultra-premium entry point for the ArchonY Fleet Management Platform.
- * Features cinematic atmospheric effects, glassmorphic optics, and 
- * SSO-first authentication flow aligned with CTA brand directives.
+ * Clean, professional login interface with SSO support
  */
 import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronRight, ShieldCheck, Zap, Lock } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AlertCircle, Building2, Lock, Mail } from 'lucide-react'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -23,7 +20,7 @@ export function Login() {
   const { login, loginWithMicrosoft } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [isFormVisible, setIsFormVisible] = useState(false)
+  const [showEmailLogin, setShowEmailLogin] = useState(false)
 
   // Handle errors from URL parameters
   const params = new URLSearchParams(window.location.search)
@@ -44,198 +41,158 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen w-full relative overflow-hidden flex items-center justify-center p-4 sm:p-6 bg-[#0A0E27]">
-      {/* CINEMATIC BACKGROUND SYSTEM */}
-      <div className="absolute inset-0 z-0">
-        {/* Deep Galaxy Gradient */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#1A2251_0%,#0A0E27_100%)]" />
+    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjAzIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-40" />
 
-        {/* Atmospheric Orbs */}
-        <motion.div
-          animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.25, 0.15] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] sm:w-[60%] sm:h-[60%] bg-[#41B2E3] rounded-full blur-[150px] pointer-events-none"
-        />
-        <motion.div
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.1, 0.2, 0.1] }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] sm:w-[70%] sm:h-[70%] bg-[#DD3903] rounded-full blur-[180px] pointer-events-none"
-        />
-
-        {/* Data Grid Overlay */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMC41IiBvcGFjaXR5PSIwLjA1Ii8+PC9zdmc+')] opacity-20" />
-      </div>
-
-      {/* SYSTEM ACCESS INTERFACE */}
-      <div className="relative z-10 w-full max-w-sm sm:max-w-md lg:max-w-xl flex flex-col items-center">
-
-        {/* MASTER BRANDING */}
-        <motion.div
-          initial={{ opacity: 0, y: -40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex flex-col items-center mb-6 sm:mb-8 lg:mb-12 text-center"
-        >
-          <div className="relative mb-8 group">
-            <div className="absolute inset-x-[-20px] top-full h-[2px] bg-gradient-to-r from-transparent via-[#41B2E3] to-transparent opacity-40" />
+      <div className="relative w-full max-w-md">
+        {/* Logo and Header */}
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-6">
             <img
               src="/logos/png/archony-logo-reverse-300px.png"
-              alt="ArchonY"
-              className="h-10 sm:h-12 lg:h-16 w-auto drop-shadow-[0_0_30px_rgba(65,178,227,0.4)] mix-blend-lighten"
+              alt="ArchonY Fleet Management"
+              className="h-12 w-auto"
             />
           </div>
+          <h1 className="text-2xl font-bold text-white mb-2">Fleet Management System</h1>
+          <p className="text-slate-400 text-sm">Sign in to access your account</p>
+        </div>
 
-          <h2 className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.5em] text-white/40 mb-2">
-            Intelligence Performance System
-          </h2>
-          <div className="flex items-center gap-3">
-            <div className="h-[1px] w-8 bg-white/10" />
-            <span className="text-xs font-bold text-white/60 tracking-widest uppercase">Gateway Access</span>
-            <div className="h-[1px] w-8 bg-white/10" />
-          </div>
-        </motion.div>
+        {/* Login Card */}
+        <div className="bg-white rounded-lg shadow-xl overflow-hidden">
+          <div className="p-8">
+            {/* Error Alert */}
+            {(urlError || emailLoginMutation.isError) && (
+              <Alert className="mb-6 bg-red-50 border-red-200">
+                <AlertCircle className="h-4 w-4 text-red-600" />
+                <AlertDescription className="text-red-800">
+                  {urlMessage || emailLoginMutation.error?.message || 'Authentication failed. Please try again.'}
+                </AlertDescription>
+              </Alert>
+            )}
 
-        {/* AUTHENTICATION CORE */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="w-full glass-premium rounded-2xl sm:rounded-[28px] lg:rounded-[32px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.4)] sm:shadow-[0_40px_100px_rgba(0,0,0,0.6)]"
-        >
-          {/* Top Accent Bar */}
-          <div className="h-1.5 w-full bg-gradient-to-r from-[#F0A000] via-[#FF8A00] to-[#DD3903]" />
-
-          <div className="p-6 sm:p-10 lg:p-14">
-            <AnimatePresence mode="wait">
-              {!isFormVisible ? (
-                <motion.div
-                  key="sso-view"
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-10"
+            {!showEmailLogin ? (
+              <div className="space-y-4">
+                {/* Microsoft SSO Button */}
+                <Button
+                  onClick={() => loginWithMicrosoft()}
+                  className="w-full h-12 bg-[#2F2F2F] hover:bg-[#1F1F1F] text-white font-medium transition-colors"
                 >
-                  <div className="text-center space-y-3">
-                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight uppercase">System Entrance</h3>
-                    <p className="text-sm text-white/45 font-medium">Verify your identity via Enterprise Gateway</p>
+                  <div className="flex items-center justify-center gap-3">
+                    <svg className="w-5 h-5" viewBox="0 0 23 23">
+                      <path fill="#f25022" d="M1 1h10v10H1z" />
+                      <path fill="#7fba00" d="M12 1h10v10H12z" />
+                      <path fill="#00a4ef" d="M1 12h10v10H1z" />
+                      <path fill="#ffb900" d="M12 12h10v10H12z" />
+                    </svg>
+                    <span>Sign in with Microsoft</span>
                   </div>
+                </Button>
 
-                  {(urlError || emailLoginMutation.isError) && (
-                    <Alert className="bg-red-500/10 border-red-500/30 text-red-200 py-3 rounded-2xl animate-fade-in">
-                      <AlertDescription>
-                        {urlMessage || emailLoginMutation.error?.message || 'Authentication failed. Please retry.'}
-                      </AlertDescription>
-                    </Alert>
-                  )}
-
-                  <div className="space-y-6">
-                    <Button
-                      onClick={() => loginWithMicrosoft()}
-                      className="group relative w-full h-14 sm:h-16 bg-gradient-to-r from-[#DD3903] to-[#F0A000] text-white rounded-2xl border-none overflow-hidden shadow-[0_20px_40px_rgba(221,57,3,0.3)] hover:shadow-[0_20px_60px_rgba(221,57,3,0.5)] transition-all duration-500 transform hover:scale-[1.02] active:scale-[0.98]"
-                    >
-                      <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <div className="relative flex items-center justify-center gap-4 px-6">
-                        <div className="bg-white p-2 text-black rounded-lg flex-shrink-0">
-                          <svg className="w-5 h-5" viewBox="0 0 23 23">
-                            <path fill="#f25022" d="M1 1h10v10H1z" />
-                            <path fill="#7fba00" d="M12 1h10v10H12z" />
-                            <path fill="#00a4ef" d="M1 12h10v10H1z" />
-                            <path fill="#ffb900" d="M12 12h10v10H12z" />
-                          </svg>
-                        </div>
-                        <span className="text-sm sm:text-base lg:text-lg font-black uppercase tracking-wider whitespace-nowrap">Microsoft Identity</span>
-                        <ChevronRight className="w-5 h-5 opacity-40 group-hover:translate-x-2 transition-transform hidden sm:block" />
-                      </div>
-                    </Button>
-
-                    <button
-                      onClick={() => setIsFormVisible(true)}
-                      className="w-full py-4 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 hover:text-white/60 transition-colors flex items-center justify-center gap-3"
-                    >
-                      <div className="w-8 h-px bg-white/5" />
-                      Alternative Protocol
-                      <div className="w-8 h-px bg-white/5" />
-                    </button>
+                {/* Divider */}
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-200" />
                   </div>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="form-view"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="space-y-8"
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-4 bg-white text-slate-500">Or continue with email</span>
+                  </div>
+                </div>
+
+                {/* Email Login Toggle */}
+                <Button
+                  onClick={() => setShowEmailLogin(true)}
+                  variant="outline"
+                  className="w-full h-12 border-slate-300 hover:bg-slate-50"
                 >
-                  <div className="flex items-center gap-4 mb-2">
-                    <button
-                      onClick={() => setIsFormVisible(false)}
-                      className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-all"
-                    >
-                      <ChevronRight className="w-5 h-5 rotate-180" />
-                    </button>
-                    <h3 className="text-xl font-black text-white uppercase tracking-tight">Manual Bypass</h3>
-                  </div>
+                  <Mail className="w-4 h-4 mr-2" />
+                  Sign in with Email
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Back Button */}
+                <button
+                  onClick={() => setShowEmailLogin(false)}
+                  className="text-sm text-slate-600 hover:text-slate-900 mb-4 flex items-center gap-1"
+                >
+                  ← Back to sign in options
+                </button>
 
-                  <form onSubmit={handleEmailLogin} className="space-y-6">
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#41B2E3] ml-1">Terminal ID</Label>
+                {/* Email Login Form */}
+                <form onSubmit={handleEmailLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium text-slate-700">
+                      Email Address
+                    </Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <Input
+                        id="email"
                         type="email"
-                        placeholder="identity@ctafleet.com"
+                        placeholder="you@company.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="h-14 bg-white/5 border-white/10 focus:border-[#41B2E3]/50 text-white rounded-2xl px-6 placeholder:text-white/10"
+                        className="h-12 pl-10 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                         required
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#41B2E3] ml-1">Access Cipher</Label>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="text-sm font-medium text-slate-700">
+                      Password
+                    </Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <Input
+                        id="password"
                         type="password"
-                        placeholder="••••••••••••"
+                        placeholder="Enter your password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="h-14 bg-white/5 border-white/10 focus:border-[#41B2E3]/50 text-white rounded-2xl px-6 placeholder:text-white/10"
+                        className="h-12 pl-10 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                         required
                       />
                     </div>
-                    <Button
-                      type="submit"
-                      disabled={emailLoginMutation.isPending}
-                      className="w-full h-14 bg-white/5 hover:bg-white/10 text-white border border-white/10 hover:border-[#41B2E3]/30 rounded-2xl font-black uppercase tracking-widest transition-all"
-                    >
-                      {emailLoginMutation.isPending ? "Syncing..." : "Execute Login"}
-                    </Button>
-                  </form>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={emailLoginMutation.isPending}
+                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                  >
+                    {emailLoginMutation.isPending ? 'Signing in...' : 'Sign In'}
+                  </Button>
+                </form>
+              </div>
+            )}
           </div>
 
-          {/* Footer Security Badge */}
-          <div className="bg-white/[0.03] px-10 py-6 border-t border-white/[0.05] flex items-center justify-between">
-            <div className="flex items-center gap-2 text-emerald-400/60">
-              <ShieldCheck className="w-4 h-4" />
-              <span className="text-[9px] font-black uppercase tracking-widest">Quantum Encryption Active</span>
-            </div>
-            <div className="flex items-center gap-4 text-white/20">
-              <Zap className="w-3.5 h-3.5" />
-              <Lock className="w-3.5 h-3.5" />
+          {/* Footer */}
+          <div className="bg-slate-50 px-8 py-4 border-t border-slate-200">
+            <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
+              <Lock className="w-3 h-3" />
+              <span>Secure encrypted connection</span>
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* EXTERNAL BRAND FOOTER */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="mt-6 sm:mt-8 lg:mt-12 flex flex-col items-center gap-4"
-        >
-          <div className="flex items-center gap-8 opacity-40 hover:opacity-100 transition-opacity duration-700">
-            <img src="/logos/png/cta-logo-primary-lockup-reverse-300px.png" alt="CTA" className="h-3 sm:h-4 w-auto grayscale contrast-125" />
+        {/* Company Footer */}
+        <div className="mt-8 text-center">
+          <div className="flex items-center justify-center gap-2 mb-3 opacity-60 hover:opacity-100 transition-opacity">
+            <Building2 className="w-4 h-4 text-slate-400" />
+            <img
+              src="/logos/png/cta-logo-primary-lockup-reverse-300px.png"
+              alt="Capital Tech Alliance"
+              className="h-3 w-auto opacity-70"
+            />
           </div>
-          <p className="text-[9px] font-bold text-white/20 uppercase tracking-[0.3em]">
-            © 2026 Capital Tech Alliance. All Rights Reserved.
+          <p className="text-xs text-slate-500">
+            © 2026 Capital Tech Alliance. All rights reserved.
           </p>
-        </motion.div>
+        </div>
       </div>
     </div>
   )
