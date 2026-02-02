@@ -267,11 +267,7 @@ router.post('/events/:eventId/tentative',csrfProtection, authenticateJWT, async 
   }
 })
 
-/**
- * POST /api/calendar/find-times
- * Find available meeting times for attendees
- */
-router.post('/find-times',csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+async function handleFindTimes(req: Request, res: Response) {
   try {
     const {
       organizerEmail,
@@ -290,14 +286,14 @@ router.post('/find-times',csrfProtection, authenticateJWT, async (req: Request, 
 
     const timeConstraints: any = {}
     if (startTime) {
-timeConstraints.startTime = new Date(startTime)
-}
+      timeConstraints.startTime = new Date(startTime)
+    }
     if (endTime) {
-timeConstraints.endTime = new Date(endTime)
-}
+      timeConstraints.endTime = new Date(endTime)
+    }
     if (maxCandidates) {
-timeConstraints.maxCandidates = maxCandidates
-}
+      timeConstraints.maxCandidates = maxCandidates
+    }
 
     const suggestions = await findMeetingTimes(
       organizerEmail,
@@ -315,6 +311,19 @@ timeConstraints.maxCandidates = maxCandidates
     logger.error('Error finding meeting times:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
+}
+
+/**
+ * POST /api/calendar/find-times
+ * Find available meeting times for attendees
+ */
+router.post('/find-times', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+  await handleFindTimes(req, res)
+})
+
+// Alias to match legacy endpoint expectations
+router.post('/findMeetingTimes', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+  await handleFindTimes(req, res)
 })
 
 /**
