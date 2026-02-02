@@ -111,134 +111,39 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
     loadRecentScans();
   }, []);
 
-  const loadInventoryData = () => {
-    // In a real implementation, this would fetch from API
-    const sampleItems: InventoryItem[] = [
-      {
-        id: 'ITEM-001',
-        partNumber: 'OF-2234',
-        name: 'Oil Filter',
-        category: 'Filters',
-        barcode: '*OF-2234*',
-        qrCode: JSON.stringify({ id: 'ITEM-001', type: 'CTAFleet_Inventory' }),
-        rfidTag: 'RFID-001',
-        location: {
-          facility: 'Main Warehouse',
-          building: 'A',
-          room: '101',
-          shelf: 'A-1-B',
-          bin: '05'
-        },
-        status: 'in_stock',
-        condition: 'new',
-        unitCost: 25.99,
-        currentValue: 25.99,
-        lastScanned: new Date(),
-        lastMoved: new Date(),
-        scannedBy: 'system',
-        checkoutHistory: [],
-        maintenanceHistory: []
-      },
-      {
-        id: 'ITEM-002',
-        partNumber: 'BP-5567',
-        name: 'Brake Pads Set',
-        category: 'Brakes',
-        barcode: '*BP-5567*',
-        qrCode: JSON.stringify({ id: 'ITEM-002', type: 'CTAFleet_Inventory' }),
-        rfidTag: 'RFID-002',
-        location: {
-          facility: 'Main Warehouse',
-          building: 'A',
-          room: '102',
-          shelf: 'B-2-A',
-          bin: '12'
-        },
-        status: 'checked_out',
-        condition: 'good',
-        unitCost: 45.99,
-        currentValue: 43.99,
-        lastScanned: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-        lastMoved: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-        scannedBy: 'john.smith',
-        checkoutHistory: [{
-          id: 'CHK-001',
-          itemId: 'ITEM-002',
-          checkedOutBy: 'john.smith',
-          checkedOutTo: 'Vehicle FL-123',
-          checkedOutDate: new Date(Date.now() - 2 * 60 * 60 * 1000),
-          purpose: 'Brake maintenance',
-          workOrderNumber: 'WO-2024-001',
-          condition: {
-            checkoutCondition: 'good'
-          }
-        }],
-        maintenanceHistory: []
-      },
-      {
-        id: 'ITEM-003',
-        partNumber: 'TR-225-65R17',
-        name: '225/65R17 All-Season Tire',
-        category: 'Tires',
-        barcode: '*TR-225-65R17*',
-        qrCode: JSON.stringify({ id: 'ITEM-003', type: 'CTAFleet_Inventory' }),
-        location: {
-          facility: 'Service Bay',
-          building: 'B',
-          room: 'Bay 3',
-          shelf: 'Floor',
-          bin: 'N/A'
-        },
-        status: 'maintenance',
-        condition: 'fair',
-        unitCost: 125.99,
-        currentValue: 100.79,
-        lastScanned: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
-        lastMoved: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-        scannedBy: 'maria.garcia',
-        checkoutHistory: [],
-        maintenanceHistory: [{
-          id: 'MAINT-001',
-          itemId: 'ITEM-003',
-          date: new Date(Date.now() - 24 * 60 * 60 * 1000),
-          type: 'inspection',
-          description: 'Tire pressure and tread inspection',
-          performedBy: 'maria.garcia',
-          notes: 'Tread depth below minimum - requires replacement'
-        }]
+  const loadInventoryData = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/inventory/items');
+      if (response.ok) {
+        const data = await response.json();
+        setInventoryItems(data.data || []);
+      } else {
+        console.warn('Inventory API unavailable');
+        setInventoryItems([]);
       }
-    ];
-
-    setInventoryItems(sampleItems);
+    } catch (error) {
+      console.warn('Failed to fetch inventory items:', error);
+      setInventoryItems([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const loadRecentScans = () => {
-    const sampleScans: ScanEvent[] = [
-      {
-        id: 'SCAN-001',
-        timestamp: new Date(),
-        scanType: 'barcode',
-        scannerId: 'SCANNER-001',
-        scannerLocation: 'Main Warehouse',
-        itemId: 'ITEM-001',
-        scannedBy: 'john.smith',
-        action: 'inventory',
-        notes: 'Weekly inventory check'
-      },
-      {
-        id: 'SCAN-002',
-        timestamp: new Date(Date.now() - 30 * 60 * 1000),
-        scanType: 'rfid',
-        scannerId: 'RFID-READER-001',
-        scannerLocation: 'Service Bay',
-        itemId: 'ITEM-002',
-        scannedBy: 'maria.garcia',
-        action: 'checkout',
-        notes: 'Brake service job'
+  const loadRecentScans = async () => {
+    try {
+      const response = await fetch('/api/inventory/scans?limit=20');
+      if (response.ok) {
+        const data = await response.json();
+        setRecentScans(data.data || []);
+      } else {
+        console.warn('Scans API unavailable');
+        setRecentScans([]);
       }
-    ];
-
-    setRecentScans(sampleScans);
+    } catch (error) {
+      console.warn('Failed to fetch recent scans:', error);
+      setRecentScans([]);
+    }
   };
 
   const handleGenerateBarcode = async (item: InventoryItem) => {
@@ -459,9 +364,13 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
     const last7Days = Array.from({ length: 7 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() - (6 - i));
+      const dateStr = date.toDateString();
+      const count = recentScans.filter(s =>
+        new Date(s.timestamp).toDateString() === dateStr
+      ).length;
       return {
         date: date.toLocaleDateString('en-US', { weekday: 'short' }),
-        scans: Math.floor(Math.random() * 50 + 10)
+        scans: count
       };
     });
     return last7Days;
@@ -871,7 +780,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
                           <TableCell>860-960MHz</TableCell>
                           <TableCell>{item.lastScanned.toLocaleString()}</TableCell>
                           <TableCell>
-                            <Badge badgeContent={Math.floor(Math.random() * 100)} color="primary">
+                            <Badge badgeContent={0} color="primary">
                               <RadioButtonChecked />
                             </Badge>
                           </TableCell>

@@ -83,135 +83,37 @@ const COLORS = {
 
 const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4']
 
-// Mock data generators using useMemo pattern
-const generateMockKPIs = (): KPIData => ({
-  totalVehicles: 124,
-  activeVehicles: 98,
-  inactiveVehicles: 8,
-  maintenanceVehicles: 18,
-  fleetUtilizationRate: 78.5,
-  totalMileageThisMonth: 45230,
-  totalMileageLastMonth: 42150,
-  mileageChange: 7.3,
-  avgFuelEfficiency: 18.4,
-  maintenanceCostPerVehicle: 1245.50,
-  incidentRatePer100kMiles: 2.3,
-  avgDriverSafetyScore: 87.5,
-  assetUtilizationPercentage: 79.0,
-  taskCompletionRate: 92.5,
-  avgAlertResponseTime: 2.4
-})
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 
-const generateMockHealth = (): FleetHealth => ({
-  overall: 82.5,
-  mechanical: 85.0,
-  safety: 87.5,
-  compliance: 78.0,
-  efficiency: 79.5,
-  breakdown: [
-    { category: 'Mechanical', score: 85.0, weight: 0.30 },
-    { category: 'Safety', score: 87.5, weight: 0.35 },
-    { category: 'Compliance', score: 78.0, weight: 0.20 },
-    { category: 'Efficiency', score: 79.5, weight: 0.15 }
-  ]
-})
-
-const generateMockCosts = (): CostAnalysis => ({
-  totalCosts: 154680,
-  fuelCosts: 78340,
-  maintenanceCosts: 62140,
-  incidentCosts: 14200,
-  costPerMile: 3.42,
-  costPerVehicle: 1247.58,
-  breakdown: [
-    { category: 'Fuel', amount: 78340, percentage: 50.6 },
-    { category: 'Maintenance', amount: 62140, percentage: 40.2 },
-    { category: 'Incidents', amount: 14200, percentage: 9.2 }
-  ]
-})
-
-const generateMockInsights = (): AIInsight[] => [
-  {
-    id: '1',
-    type: 'critical',
-    title: 'High Maintenance Costs Detected',
-    message: 'Vehicle F-150 (VIN: 1FTFW1E84MFC12345) has incurred $8,450 in maintenance costs over the last 90 days. Consider replacement evaluation.',
-    confidence: 0.92,
-    actionable: true,
-    relatedVehicle: '1FTFW1E84MFC12345',
-    timestamp: new Date().toISOString()
-  },
-  {
-    id: '2',
-    type: 'warning',
-    title: 'Overdue Maintenance Alert',
-    message: '12 vehicles have overdue maintenance schedules. Immediate action required to prevent breakdowns and ensure compliance.',
-    confidence: 0.95,
-    actionable: true,
-    timestamp: new Date().toISOString()
-  },
-  {
-    id: '3',
-    type: 'recommendation',
-    title: 'Fleet Optimization Opportunity',
-    message: 'Current utilization is at 78.5%. Consider redistributing 8 underutilized vehicles to high-demand routes to improve efficiency by 12%.',
-    confidence: 0.78,
-    actionable: true,
-    timestamp: new Date().toISOString()
-  },
-  {
-    id: '4',
-    type: 'insight',
-    title: 'AI Strategic Recommendation',
-    message: 'Based on historical patterns, implementing predictive maintenance could reduce emergency repairs by 35% and save approximately $18,500 monthly.',
-    confidence: 0.85,
-    actionable: true,
-    timestamp: new Date().toISOString()
-  }
-]
-
-const generateMockTrends = () => ({
-  utilization: Array.from({ length: 30 }, (_, i) => ({
-    date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    value: 70 + Math.random() * 20,
-    label: 'Utilization %'
-  })),
-  costs: Array.from({ length: 30 }, (_, i) => ({
-    date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    value: 3000 + Math.random() * 2000,
-    label: 'Daily Costs'
-  })),
-  incidents: Array.from({ length: 30 }, (_, i) => ({
-    date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    value: Math.floor(Math.random() * 5),
-    label: 'Incidents'
-  }))
-})
-
-// API fetcher function for real API calls
+// API fetcher functions for real API calls
 const fetchDashboardKpis = async (): Promise<KPIData> => {
-  // In production, replace with: return (await fetch('/api/executive-dashboard/kpis')).json()
-  return generateMockKPIs()
+  const response = await fetch(`${API_BASE}/executive-dashboard/kpis`)
+  if (!response.ok) throw new Error('Failed to fetch KPI data')
+  return response.json()
 }
 
 const fetchDashboardHealth = async (): Promise<FleetHealth> => {
-  // In production, replace with: return (await fetch('/api/executive-dashboard/fleet-health')).json()
-  return generateMockHealth()
+  const response = await fetch(`${API_BASE}/executive-dashboard/fleet-health`)
+  if (!response.ok) throw new Error('Failed to fetch fleet health data')
+  return response.json()
 }
 
 const fetchDashboardCosts = async (): Promise<CostAnalysis> => {
-  // In production, replace with: return (await fetch('/api/executive-dashboard/cost-analysis')).json()
-  return generateMockCosts()
+  const response = await fetch(`${API_BASE}/executive-dashboard/cost-analysis`)
+  if (!response.ok) throw new Error('Failed to fetch cost analysis data')
+  return response.json()
 }
 
 const fetchDashboardInsights = async (): Promise<AIInsight[]> => {
-  // In production, replace with: return (await fetch('/api/executive-dashboard/insights')).json()
-  return generateMockInsights()
+  const response = await fetch(`${API_BASE}/executive-dashboard/insights`)
+  if (!response.ok) throw new Error('Failed to fetch insights')
+  return response.json()
 }
 
 const fetchDashboardTrends = async () => {
-  // In production, replace with: return (await fetch('/api/executive-dashboard/trends')).json()
-  return generateMockTrends()
+  const response = await fetch(`${API_BASE}/executive-dashboard/trends`)
+  if (!response.ok) throw new Error('Failed to fetch trends')
+  return response.json()
 }
 
 export function ExecutiveDashboard() {

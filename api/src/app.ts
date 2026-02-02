@@ -103,8 +103,13 @@ export class FleetAPI {
     }));
 
     // CORS
+    const corsOrigin = process.env.CORS_ORIGIN;
+    const allowedOrigins = corsOrigin
+      ? corsOrigin.split(',').map(origin => origin.trim()).filter(Boolean)
+      : undefined;
+
     this.app.use(cors({
-      origin: process.env.CORS_ORIGIN || '*',
+      origin: allowedOrigins || (process.env.NODE_ENV === 'development' ? true : false),
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID']

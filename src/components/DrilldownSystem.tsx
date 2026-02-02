@@ -171,27 +171,22 @@ export function DrilldownSystem() {
 
   const renderMaintenanceDrilldown = async (data: any) => {
     try {
-      // In a real app, fetch from API
-      // For now, generate mock data
-      const mockRecords: MaintenanceRecord[] = Array.from({ length: 50 }, (_, i) => ({
-        id: `maint-${i + 1}`,
-        vehicle_id: `veh-${Math.floor(Math.random() * 100) + 1}`,
-        unit_number: `TLH-${(Math.floor(Math.random() * 900) + 100)}`,
-        service_type: ['Oil Change', 'Tire Rotation', 'Brake Service', 'Inspection'][Math.floor(Math.random() * 4)],
-        description: 'Routine maintenance service',
-        service_date: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-        mileage: Math.floor(Math.random() * 100000) + 50000,
-        cost: Math.floor(Math.random() * 1000) + 100,
-        technician: ['John Smith', 'Jane Doe', 'Mike Johnson'][Math.floor(Math.random() * 3)],
-        facility: ['Main Garage', 'North Bay', 'South Station'][Math.floor(Math.random() * 3)],
-        status: ['completed', 'in-progress', 'scheduled'][Math.floor(Math.random() * 3)] as any,
-        priority: ['routine', 'urgent', 'emergency'][Math.floor(Math.random() * 3)] as any,
-        labor_hours: Math.random() * 8,
-      }));
+      // Fetch maintenance records from API
+      const response = await api.get('/maintenance');
+      const records: MaintenanceRecord[] = response.data.data || [];
+
+      if (records.length === 0) {
+        return (
+          <div className="p-3 text-center text-slate-700">
+            <p className="text-base">No Maintenance Records</p>
+            <p className="text-sm mt-2">No maintenance records are currently available.</p>
+          </div>
+        );
+      }
 
       return (
         <MaintenanceDrilldownView
-          records={mockRecords}
+          records={records}
           onRecordClick={(record) => {
             // Second-level drilldown: individual record details
             push(

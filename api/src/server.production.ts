@@ -30,6 +30,8 @@ import {
   securityLogger,
   errorHandler,
 } from './middleware/security.production';
+import requestIdMiddleware from './middleware/request-id';
+import { formatResponse } from './middleware/response-formatter';
 
 // Import route handlers
 
@@ -45,6 +47,11 @@ import { schema } from './schemas/production.schema';
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
 
+if (process.env.NODE_ENV === 'production' && process.env.ENABLE_LEGACY_API !== 'true') {
+  console.error('Legacy server.production entrypoint is disabled in production. Set ENABLE_LEGACY_API=true to override.');
+  process.exit(1);
+}
+
 // ============================================================================
 // SECURITY MIDDLEWARE (Applied First)
 // ============================================================================
@@ -53,6 +60,7 @@ app.use(helmet()); // Security headers
 app.use(securityHeaders); // Custom security headers
 app.use(securityLogger); // Log all requests
 app.use(cookieParser()); // Parse cookies for CSRF
+app.use(requestIdMiddleware);
 
 // ============================================================================
 // CORS CONFIGURATION
@@ -87,6 +95,7 @@ app.use(cors({
 // ============================================================================
 
 app.use(express.json({ limit: '10mb' }));
+app.use(formatResponse);
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(sanitizeInput); // Sanitize all inputs
 

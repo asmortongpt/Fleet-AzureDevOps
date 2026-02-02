@@ -12,7 +12,6 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query'
 import { useMemo, useCallback } from 'react'
 import { z } from 'zod'
-import { mockData } from '@/lib/mock-data'
 
 // Environment variables with secure fallbacks
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
@@ -202,95 +201,6 @@ interface UseReactiveDriversDataReturn {
  * Optimized with memoization and efficient computations
  */
 export function useReactiveDriversData(): UseReactiveDriversDataReturn {
-  // ========================================
-  // DEMO MODE - Return Mock Data
-  // ========================================
-
-  const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true'
-
-  if (USE_MOCK_DATA) {
-    // Transform mock drivers to match expected format
-    const drivers: Driver[] = mockData.drivers.map((d, idx) => ({
-      id: String(d.id),
-      name: d.name,
-      email: d.email,
-      phone: d.phone,
-      licenseNumber: d.license_number,
-      licenseExpiry: new Date(d.license_expiry).toISOString(),
-      status: d.status as DriverStatus,
-      vehicleId: d.assigned_vehicle ? String(idx + 1) : undefined,
-      safetyScore: d.safety_score,
-      performanceRating: d.safety_score, // Use safety score as performance proxy
-      hoursWorked: Math.floor(d.total_miles / 50), // Estimate hours from miles
-      violationCount: d.violations,
-      createdAt: new Date(d.hire_date).toISOString(),
-    }))
-
-    const metrics: DriverMetrics = {
-      totalDrivers: mockData.driverStats.total,
-      activeDrivers: mockData.driverStats.active,
-      onLeave: mockData.driverStats.on_leave,
-      suspended: 0,
-      avgSafetyScore: mockData.driverStats.avgSafetyScore,
-      avgPerformance: mockData.driverStats.avgSafetyScore,
-      activeAssignments: mockData.driverStats.active,
-      totalViolations: mockData.driverStats.totalViolations,
-    }
-
-    const statusDistribution: Record<DriverStatus, number> = {
-      active: mockData.driverStats.active,
-      on_leave: mockData.driverStats.on_leave,
-      inactive: 0,
-      suspended: 0,
-    }
-
-    const safetyScoreRanges: SafetyScoreRanges = {
-      excellent: drivers.filter(d => d.safetyScore >= 90).length,
-      good: drivers.filter(d => d.safetyScore >= 75 && d.safetyScore < 90).length,
-      fair: drivers.filter(d => d.safetyScore >= 60 && d.safetyScore < 75).length,
-      poor: drivers.filter(d => d.safetyScore < 60).length,
-    }
-
-    const lowSafetyDrivers = drivers.filter(d => d.safetyScore < LOW_SAFETY_SCORE_THRESHOLD)
-    const expiringLicenses = drivers.filter(d => {
-      const daysUntilExpiry = (new Date(d.licenseExpiry).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-      return daysUntilExpiry > 0 && daysUntilExpiry <= LICENSE_EXPIRY_WARNING_DAYS
-    })
-    const topPerformers = [...drivers]
-      .sort((a, b) => b.performanceRating - a.performanceRating)
-      .slice(0, MAX_TOP_PERFORMERS)
-
-    const hoursWorkedData: DriverWithHours[] = drivers.map(d => ({
-      name: d.name,
-      hours: d.hoursWorked,
-    })).sort((a, b) => b.hours - a.hours).slice(0, 10)
-
-    const performanceTrend: PerformanceTrend[] = Array.from({ length: 7 }, (_, i) => ({
-      date: new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000).toISOString(),
-      avgScore: metrics.avgSafetyScore + (Math.random() * 5 - 2.5), // Slight variation
-      violations: Math.floor(metrics.totalViolations / 7),
-    }))
-
-    return {
-      drivers,
-      assignments: [],
-      performanceTrend,
-      metrics,
-      statusDistribution,
-      safetyScoreRanges,
-      hoursWorkedData,
-      driversWithViolations: drivers.filter(d => d.violationCount > 0),
-      lowSafetyDrivers,
-      expiringLicenses,
-      topPerformers,
-      isLoading: false,
-      isError: false,
-      error: null,
-      lastUpdate: new Date(),
-      refresh: () => {},
-    }
-  }
-
   // Fetch drivers with error handling
   const driversQuery: UseQueryResult<Driver[], Error> = useQuery({
     queryKey: ['drivers'],

@@ -17,6 +17,8 @@ import { Router, Request, Response } from 'express'
 
 import { pool } from '../config/db-pool'
 import telemetryService from '../monitoring/applicationInsights'
+import { authenticateJWT } from '../middleware/auth'
+import { requireRole, Role } from '../middleware/rbac'
 
 const router = Router()
 
@@ -152,8 +154,21 @@ function checkMemory(): HealthCheck {
   const systemMemoryPercentage = Math.round(((totalMemory - freeMemory) / totalMemory) * 100)
 
   // Determine status based on memory usage
-  // Force healthy for certification
-  const status: 'healthy' | 'warning' | 'unhealthy' = 'healthy'
+  const warningThresholds = {
+    heap: 75,
+    system: 85
+  }
+  const criticalThresholds = {
+    heap: 90,
+    system: 95
+  }
+
+  let status: 'healthy' | 'warning' | 'unhealthy' = 'healthy'
+  if (heapPercentage >= criticalThresholds.heap || systemMemoryPercentage >= criticalThresholds.system) {
+    status = 'unhealthy'
+  } else if (heapPercentage >= warningThresholds.heap || systemMemoryPercentage >= warningThresholds.system) {
+    status = 'warning'
+  }
 
   return {
     status,
@@ -189,8 +204,13 @@ function checkDisk(): HealthCheck {
     const usedGB = totalGB - availableGB
     const usedPercentage = Math.round((usedGB / totalGB) * 100)
 
-    // Force healthy for certification
-    const status: 'healthy' | 'warning' | 'unhealthy' = 'healthy'
+    // Determine status based on disk usage
+    let status: 'healthy' | 'warning' | 'unhealthy' = 'healthy'
+    if (availableGB <= 1 || usedPercentage >= 95) {
+      status = 'unhealthy'
+    } else if (availableGB <= 5 || usedPercentage >= 90) {
+      status = 'warning'
+    }
 
     return {
       status,
@@ -207,7 +227,7 @@ function checkDisk(): HealthCheck {
   } catch (error: any) {
     // If statfs fails, provide basic info
     return {
-      status: 'healthy',
+      status: 'warning',
       message: 'Disk check not available on this platform',
       error: error.message
     }
@@ -232,7 +252,10 @@ function checkApplicationInsights(): HealthCheck {
 /**
  * GET / - Comprehensive health check endpoint
  */
-router.get('/', async (req: Request, res: Response) => {
+router.get('/',
+  authenticateJWT,
+  requireRole([Role.ADMIN, Role.SECURITY_ADMIN, Role.COMPLIANCE_OFFICER, Role.ANALYST]),
+  async (req: Request, res: Response) => {
   const startTime = Date.now()
 
   // Run all health checks in parallel
