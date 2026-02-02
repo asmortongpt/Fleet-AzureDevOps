@@ -35,49 +35,73 @@ export const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const location = useLocation()
   const auth = useAuth()
-  const { user, hasRole, hasPermission, canAccess } = auth
+  const { user, isLoading: authLoading, hasRole, hasPermission, canAccess } = auth
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [isAuthorized, setIsAuthorized] = useState(false)
 
   useEffect(() => {
+    // Wait for AuthContext to finish initializing (session restoration from cookies)
+    if (authLoading) return
+
     const checkAuth = async () => {
       try {
-        // Initialize MSAL if not already done
-        await initializeMsal()
+        // Check 1: AuthContext user (email/password login sessions via httpOnly cookies)
+        if (user) {
+          if (requiredRole || requiredPermission) {
+            const normalizedRole = requiredRole && (typeof requiredRole === 'string' || Array.isArray(requiredRole))
+              ? requiredRole
+              : undefined
+            const normalizedPermission = requiredPermission && (typeof requiredPermission === 'string' || Array.isArray(requiredPermission))
+              ? requiredPermission
+              : undefined
+            const authorized = canAccess(normalizedRole as any, normalizedPermission as any)
+            setIsAuthorized(authorized)
 
-        // Check if user is authenticated
-        const authenticated = isAuthenticated()
-
-        if (!authenticated) {
-          logger.warn('User not authenticated, redirecting to login')
+            if (!authorized) {
+              logger.warn('User not authorized for this route', {
+                requiredRole,
+                requiredPermission,
+                userRole: user?.role,
+                userPermissions: user?.permissions
+              })
+            }
+          } else {
+            setIsAuthorized(true)
+          }
           setIsCheckingAuth(false)
           return
         }
 
-        // Get account and verify token
+        // Check 2: MSAL authentication (Microsoft SSO)
+        await initializeMsal()
+        const authenticated = isAuthenticated()
+
+        if (!authenticated) {
+          logger.warn('[ProtectedRoute] User not authenticated, redirecting to login')
+          setIsCheckingAuth(false)
+          return
+        }
+
         const account = getAccount()
         if (!account) {
-          logger.warn('No account found, redirecting to login')
+          logger.warn('[ProtectedRoute] No MSAL account found, redirecting to login')
           setIsCheckingAuth(false)
           return
         }
 
         try {
-          // Get fresh access token (will use cache if valid)
           await getAccessToken()
         } catch (error) {
-          logger.error('Failed to get access token:', { error })
+          logger.error('[ProtectedRoute] Failed to get access token:', { error })
           setIsCheckingAuth(false)
           return
         }
 
-        // Check role and permission authorization
+        // Check role and permission authorization for MSAL users
         if (requiredRole || requiredPermission) {
-          // Validate requiredRole is string/string[] before passing
           const normalizedRole = requiredRole && (typeof requiredRole === 'string' || Array.isArray(requiredRole))
             ? requiredRole
             : undefined
-          // Validate requiredPermission is string/string[] before passing
           const normalizedPermission = requiredPermission && (typeof requiredPermission === 'string' || Array.isArray(requiredPermission))
             ? requiredPermission
             : undefined
@@ -85,11 +109,9 @@ export const ProtectedRoute = ({
           setIsAuthorized(authorized)
 
           if (!authorized) {
-            logger.warn('User not authorized for this route', {
+            logger.warn('User not authorized for this route (MSAL)', {
               requiredRole,
               requiredPermission,
-              userRole: user?.role,
-              userPermissions: user?.permissions
             })
           }
         } else {
@@ -104,10 +126,10 @@ export const ProtectedRoute = ({
     }
 
     checkAuth()
-  }, [requiredRole, requiredPermission, user, hasRole, hasPermission, canAccess])
+  }, [authLoading, requiredRole, requiredPermission, user, hasRole, hasPermission, canAccess])
 
   // Show loading spinner while checking authentication
-  if (isCheckingAuth) {
+  if (isCheckingAuth || authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -118,8 +140,8 @@ export const ProtectedRoute = ({
     )
   }
 
-  // Redirect to login if not authenticated
-  if (!isAuthenticated()) {
+  // Redirect to login if not authenticated (check both AuthContext and MSAL)
+  if (!user && !isAuthenticated()) {
     logger.info('Redirecting to login', { from: location.pathname })
     return <Navigate to="/login" state={{ from: location }} replace />
   }
