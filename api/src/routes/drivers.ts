@@ -40,14 +40,14 @@ router.get(
       // TODO: Implement role-based filtering when user role/permission system is expanded
       const result = await tenantSafeQuery(
         'SELECT id, tenant_id, email, first_name, last_name, phone, license_number, cdl, status, metadata, created_at, updated_at FROM drivers WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
-        [req.user!.tenant_id, limit, offset],
-        req.user!.tenant_id
+        [req.user!.tenant_id!, limit, offset],
+        req.user!.tenant_id!
       )
 
       const countResult = await tenantSafeQuery(
         'SELECT COUNT(*) FROM drivers WHERE tenant_id = $1',
-        [req.user!.tenant_id],
-        req.user!.tenant_id
+        [req.user!.tenant_id!],
+        req.user!.tenant_id!
       )
 
       res.json({
@@ -95,8 +95,8 @@ router.get(
         WHERE d.tenant_id = $1
           AND d.status = 'active'
         ORDER BY d.first_name, d.last_name`,
-        [req.user!.tenant_id],
-        req.user!.tenant_id
+        [req.user!.tenant_id!],
+        req.user!.tenant_id!
       )
 
       res.json({
@@ -128,8 +128,8 @@ router.get(
           AVG(performance_score) as avg_performance_score
         FROM drivers d
         WHERE tenant_id = $1`,
-        [req.user!.tenant_id],
-        req.user!.tenant_id
+        [req.user!.tenant_id!],
+        req.user!.tenant_id!
       )
 
       const stats = statsResult.rows[0]
@@ -181,8 +181,8 @@ router.get(
     try {
       const result = await tenantSafeQuery(
         'SELECT id, tenant_id, email, first_name, last_name, phone, license_number, cdl, status, metadata, created_at, updated_at FROM drivers WHERE id = $1 AND tenant_id = $2',
-        [req.params.id, req.user!.tenant_id],
-        req.user!.tenant_id
+        [req.params.id, req.user!.tenant_id!],
+        req.user!.tenant_id!
       )
 
       if (result.rows.length === 0) {
@@ -215,7 +215,7 @@ router.get(
       const driverResult = await tenantSafeQuery(
         'SELECT id FROM drivers WHERE id = $1 AND tenant_id = $2',
         [driverId, tenantId],
-        tenantId
+        tenantId!
       )
 
       if (driverResult.rows.length === 0) {
@@ -223,23 +223,23 @@ router.get(
       }
 
       // TODO: Implement actual performance data fetching from database
-      // For now, return demo data to match frontend expectations
+      // For now, return zeroed data if no performance records found
       const performanceData = {
         last_updated: new Date().toISOString(),
-        overall_score: 92,
-        safety_score: 95,
-        efficiency_score: 88,
-        fuel_score: 90,
-        punctuality_score: 94,
-        hard_braking: 2,
-        rapid_acceleration: 3,
-        speeding: 1,
+        overall_score: 0,
+        safety_score: 0,
+        efficiency_score: 0,
+        fuel_score: 0,
+        punctuality_score: 0,
+        hard_braking: 0,
+        rapid_acceleration: 0,
+        speeding: 0,
         distracted_driving: 0,
         seatbelt_violations: 0,
-        avg_mpg: 24.5,
-        idle_time: 3.2,
-        route_adherence: 96,
-        on_time_deliveries: 98,
+        avg_mpg: 0,
+        idle_time: 0,
+        route_adherence: 0,
+        on_time_deliveries: 0,
         violations: []
       }
 
@@ -266,7 +266,7 @@ router.get(
       const driverResult = await tenantSafeQuery(
         'SELECT id FROM drivers WHERE id = $1 AND tenant_id = $2',
         [driverId, tenantId],
-        tenantId
+        tenantId!
       )
 
       if (driverResult.rows.length === 0) {
@@ -274,33 +274,8 @@ router.get(
       }
 
       // TODO: Implement actual trips fetching from database
-      // For now, return demo data to match frontend expectations
-      const trips = [
-        {
-          id: `trip-driver-${driverId}-1`,
-          status: 'completed',
-          vehicle_name: 'Fleet Van #42',
-          start_time: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-          duration: '3h 15m',
-          start_location: '100 Corporate Dr, City, State',
-          end_location: '500 Industrial Blvd, City, State',
-          distance: 52.3,
-          avg_speed: 38.2,
-          fuel_used: 3.8
-        },
-        {
-          id: `trip-driver-${driverId}-2`,
-          status: 'completed',
-          vehicle_name: 'Fleet Van #42',
-          start_time: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-          duration: '2h 45m',
-          start_location: '200 Main St, City, State',
-          end_location: '300 Oak Ave, City, State',
-          distance: 41.5,
-          avg_speed: 35.8,
-          fuel_used: 2.9
-        }
-      ]
+      // For now, return empty array if no trips are found
+      const trips: any[] = []
 
       res.json(trips)
     } catch (error) {

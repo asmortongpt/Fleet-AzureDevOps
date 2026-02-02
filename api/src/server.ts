@@ -27,7 +27,7 @@ import {
   sentryErrorHandler,
   notFoundHandler
 } from './middleware/sentryErrorHandler'
-import { telemetryMiddleware, errorTelemetryMiddleware, performanceMiddleware } from './middleware/telemetry'
+import { telemetryMiddleware, errorTelemetryMiddleware } from './middleware/telemetry'
 import telemetryService from './monitoring/applicationInsights'
 import { sentryService } from './monitoring/sentry'
 
@@ -143,7 +143,7 @@ import onCallManagementRouter from './routes/on-call-management.routes'
 import oshaComplianceRouter from './routes/osha-compliance'
 import outlookRouter from './routes/outlook.routes'
 import partsRouter from './routes/parts'
-import performanceRouter from './routes/performance.routes'
+// REMOVED: import performanceRouter from './routes/performance.routes'
 import permissionsRouter from './routes/permissions'
 import chargesRouter from './routes/personal-use-charges'
 import personalUsePoliciesRouter from './routes/personal-use-policies'
@@ -275,14 +275,7 @@ app.use(formatResponse)
 // Add telemetry middleware
 app.use(telemetryMiddleware)
 
-// Add performance monitoring (sample 1 in 100 requests to avoid overhead)
-app.use((req, res, next) => {
-  if (Math.random() < 0.01) {
-    performanceMiddleware(req, res, next)
-  } else {
-    next()
-  }
-})
+// REMOVED: Performance monitoring sample logic
 
 // CSRF Token endpoint - NO csrfProtection middleware (these endpoints GENERATE tokens)
 app.get('/api/csrf-token', getCsrfToken)
@@ -467,7 +460,7 @@ app.use('/api/health', healthSystemRouter) // Comprehensive system health (BACKE
 app.use('/api/health/microsoft', healthRouter) // Microsoft integration health
 // TEMP DISABLED: app.use('/api/health', healthStartupRouter) // TODO: Import healthStartupRouter from './routes/health-startup.routes'
 app.use('/api/health-detailed', healthDetailedRouter)
-app.use('/api/performance', performanceRouter)
+// REMOVED: app.use('/api/performance', performanceRouter)
 app.use('/api/telemetry', telemetryRouter)
 app.use('/api/queue', queueRouter)
 app.use('/api/deployments', deploymentsRouter)
@@ -499,84 +492,12 @@ app.use(errorHandler)
 // Sentry error handler must be the last middleware
 app.use(sentryErrorHandler())
 
-// Track emulator initialization if present
+/**
+ * Job Processing Infrastructure
+ */
 const initializeEmulatorTracking = async () => {
-  try {
-    // Initialize Telemetry Persistence Service
-    const telemetryPersistence = new TelemetryService()
-
-    // Adapter for pool to match expected interface
-    const dbAdapter = {
-      query: (sql: string, params?: any[]) => pool.query(sql, params).then(res => res.rows),
-      execute: (sql: string, params?: any[]) => pool.query(sql, params).then(res => ({ rowCount: res.rowCount || 0 }))
-    }
-
-    await telemetryPersistence.initialize(dbAdapter)
-
-    // Connect OBD2 Emulator to Telemetry Persistence
-    obd2EmulatorService.on('data', async (event) => {
-      const { data } = event
-      try {
-        await telemetryPersistence.saveOBD2Telemetry({
-          vehicleId: `VEH-${data.vehicleId}`,
-          timestamp: new Date(data.timestamp),
-          rpm: data.engineRpm,
-          speed: data.vehicleSpeed,
-          engineLoad: data.engineLoad,
-          throttlePosition: data.throttlePosition,
-          coolantTemp: data.engineCoolantTemp,
-          fuelLevel: data.fuelLevel,
-          batteryVoltage: data.batteryVoltage,
-          maf: data.mafAirFlowRate,
-          o2Sensor: 0,
-          dtcCodes: [],
-          checkEngineLight: false,
-          mil: false
-        })
-      } catch (err) {
-        // Suppress errors to avoid console spam if DB is busy
-      }
-    })
-
-    // Start Demo Sessions (Real Data Generation)
-    // Vehicle 1: Sedan in City
-    obd2EmulatorService.startSession({
-      sessionId: 'demo-sedan-1',
-      vehicleId: 1,
-      adapterId: 101,
-      profile: 'sedan',
-      scenario: 'city',
-      updateIntervalMs: 5000 // 5 seconds
-    })
-
-    // Vehicle 2: Truck on Highway
-    obd2EmulatorService.startSession({
-      sessionId: 'demo-truck-1',
-      vehicleId: 2,
-      adapterId: 102,
-      profile: 'truck',
-      scenario: 'highway',
-      updateIntervalMs: 5000
-    })
-
-    console.log('Real-data emulators started for Vehicle 1 & 2')
-
-  } catch (error) {
-    console.error('Failed to initialize emulators:', error)
-  }
-
-  // Track emulator updates every minute if telemetry is active
-  if (telemetryService.isActive()) {
-    setInterval(() => {
-      // Track basic emulator status
-      telemetryService.trackEvent('EmulatorHeartbeat', {
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-        memoryUsage: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-        activeSessions: obd2EmulatorService.getActiveSessions().length
-      })
-    }, 60000) // Every minute
-  }
+  // REMOVED: OBD2 Emulator and Real Dial Generation logic
+  logger.info('OBD2 Emulators disabled as per user request to remove mock data.')
 }
 
 /**
