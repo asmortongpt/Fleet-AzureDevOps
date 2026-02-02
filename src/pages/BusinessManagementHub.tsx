@@ -643,19 +643,19 @@ export default function BusinessManagementHub() {
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="financial" className="flex items-center gap-2" data-testid="hub-tab-financial">
+            <TabsTrigger value="financial" className="flex items-center gap-2" data-testid="hub-tab-financial" aria-label="Financial">
               <DollarSign className="h-4 w-4" />
               <span className="hidden sm:inline">Financial</span>
             </TabsTrigger>
-            <TabsTrigger value="procurement" className="flex items-center gap-2" data-testid="hub-tab-procurement">
+            <TabsTrigger value="procurement" className="flex items-center gap-2" data-testid="hub-tab-procurement" aria-label="Procurement">
               <ShoppingCart className="h-4 w-4" />
               <span className="hidden sm:inline">Procurement</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2" data-testid="hub-tab-analytics">
+            <TabsTrigger value="analytics" className="flex items-center gap-2" data-testid="hub-tab-analytics" aria-label="Analytics">
               <BarChart className="h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
-            <TabsTrigger value="reports" className="flex items-center gap-2" data-testid="hub-tab-reports">
+            <TabsTrigger value="reports" className="flex items-center gap-2" data-testid="hub-tab-reports" aria-label="Reports">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Reports</span>
             </TabsTrigger>

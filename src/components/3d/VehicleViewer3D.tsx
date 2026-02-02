@@ -131,7 +131,7 @@ function DamageMarker3D({
           <div className="bg-black/90 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap shadow-sm">
             <div className="font-semibold">{type}</div>
             <div className="text-xs text-gray-300 capitalize">{severity}</div>
-            {description && <div className="text-xs mt-1 text-gray-400">{description}</div>}
+            {description && <div className="text-xs mt-1 text-gray-700">{description}</div>}
           </div>
         </Html>
       )}

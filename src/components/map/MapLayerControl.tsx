@@ -49,7 +49,7 @@ export function MapLayerControl({ layers }: MapLayerControlProps) {
                                         <div className="flex flex-col">
                                             <span className={`text-sm font-medium ${layer.active ? 'text-slate-900' : 'text-slate-600'}`}>{layer.label}</span>
                                             {layer.count !== undefined && (
-                                                <span className="text-[10px] text-slate-400">{layer.count} items</span>
+                                                <span className="text-[10px] text-slate-700">{layer.count} items</span>
                                             )}
                                         </div>
                                     </div>

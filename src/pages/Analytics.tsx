@@ -83,11 +83,11 @@ export function Analytics() {
         <div className="text-center space-y-4">
           <div className="relative">
             <div className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto" />
-            <BarChart3 className="w-6 h-6 text-blue-400 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+            <BarChart3 className="w-6 h-6 text-blue-700 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
           </div>
           <div>
             <p className="text-lg font-semibold text-white">Loading Analytics</p>
-            <p className="text-sm text-slate-400 mt-2">Fetching real-time fleet data</p>
+            <p className="text-sm text-slate-700 mt-2">Fetching real-time fleet data</p>
           </div>
         </div>
       </div>
@@ -102,11 +102,11 @@ export function Analytics() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="p-2 rounded-lg bg-blue-900/40 border border-blue-700/50">
-                <TrendingUp className="w-6 h-6 text-blue-400" />
+                <TrendingUp className="w-6 h-6 text-blue-700" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">Fleet Analytics</h1>
-                <p className="text-sm text-slate-400">
+                <p className="text-sm text-slate-700">
                   Real-time fleet performance and operational metrics
                 </p>
               </div>
@@ -158,13 +158,13 @@ export function Analytics() {
             <Card className="bg-slate-800/40 border-slate-700/50">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-blue-400" />
+                  <Activity className="w-4 h-4 text-blue-700" />
                   Total Vehicles
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-white">{stats?.total_vehicles || 0}</div>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-slate-700 mt-1">
                   {stats?.active_vehicles || 0} active, {stats?.maintenance_vehicles || 0} in maintenance
                 </p>
               </CardContent>
@@ -181,7 +181,7 @@ export function Analytics() {
               <CardContent>
                 <div className="text-3xl font-bold text-green-400">{stats?.active_vehicles || 0}</div>
                 {stats?.total_vehicles ? (
-                  <p className="text-xs text-slate-400 mt-1">
+                  <p className="text-xs text-slate-700 mt-1">
                     {Math.round((stats.active_vehicles / stats.total_vehicles) * 100)}% utilization
                   </p>
                 ) : null}
@@ -198,7 +198,7 @@ export function Analytics() {
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-amber-400">{stats?.maintenance_vehicles || 0}</div>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-slate-700 mt-1">
                   {stats?.open_work_orders || 0} open work orders
                 </p>
               </CardContent>
@@ -208,13 +208,13 @@ export function Analytics() {
             <Card className="bg-slate-800/40 border-slate-700/50">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-slate-400" />
+                  <Activity className="w-4 h-4 text-slate-700" />
                   Idle Vehicles
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-slate-400">{stats?.idle_vehicles || 0}</div>
-                <p className="text-xs text-slate-400 mt-1">Not in active use</p>
+                <div className="text-3xl font-bold text-slate-700">{stats?.idle_vehicles || 0}</div>
+                <p className="text-xs text-slate-700 mt-1">Not in active use</p>
               </CardContent>
             </Card>
           </div>
@@ -230,7 +230,7 @@ export function Analytics() {
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-white">{stats?.total_drivers || 0}</div>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-slate-700 mt-1">
                   {stats?.active_drivers || 0} active
                 </p>
               </CardContent>
@@ -243,7 +243,7 @@ export function Analytics() {
               <CardContent>
                 <div className="text-3xl font-bold text-green-400">{stats?.active_drivers || 0}</div>
                 {stats?.total_drivers ? (
-                  <p className="text-xs text-slate-400 mt-1">
+                  <p className="text-xs text-slate-700 mt-1">
                     {Math.round((stats.active_drivers / stats.total_drivers) * 100)}% on duty
                   </p>
                 ) : null}
@@ -296,7 +296,7 @@ export function Analytics() {
             <Card className="bg-slate-800/40 border-slate-700/50">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-blue-400" />
+                  <TrendingUp className="w-4 h-4 text-blue-700" />
                   Cost Per Mile
                 </CardTitle>
               </CardHeader>
@@ -304,7 +304,7 @@ export function Analytics() {
                 <div className="text-3xl font-bold text-white">
                   ${(costs?.cost_per_mile || 0).toFixed(2)}
                 </div>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-slate-700 mt-1">
                   Target: ${costs?.target_cost_per_mile || 2.10}
                 </p>
               </CardContent>
@@ -322,7 +322,7 @@ export function Analytics() {
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-white">{stats?.open_work_orders || 0}</div>
-                <p className="text-xs text-slate-400 mt-1">Pending or scheduled</p>
+                <p className="text-xs text-slate-700 mt-1">Pending or scheduled</p>
               </CardContent>
             </Card>
 
@@ -331,15 +331,15 @@ export function Analytics() {
                 <CardTitle className="text-sm font-medium text-slate-300">In Progress</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-blue-400">{stats?.in_progress_work_orders || 0}</div>
-                <p className="text-xs text-slate-400 mt-1">Currently being serviced</p>
+                <div className="text-3xl font-bold text-blue-700">{stats?.in_progress_work_orders || 0}</div>
+                <p className="text-xs text-slate-700 mt-1">Currently being serviced</p>
               </CardContent>
             </Card>
           </div>
         </div>
 
         {/* Last Updated Footer */}
-        <div className="text-center text-xs text-slate-400 mt-8">
+        <div className="text-center text-xs text-slate-700 mt-8">
           <p>Last updated: {lastUpdated.toLocaleString()}</p>
         </div>
       </div>

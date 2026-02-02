@@ -36,9 +36,9 @@ export function StatCard({
   showSparkline = true,
 }: StatCardProps) {
   const getTrendColor = () => {
-    if (trend === 'up') return 'text-emerald-600 dark:text-emerald-400'
+    if (trend === 'up') return 'text-emerald-600 dark:text-emerald-700'
     if (trend === 'down') return 'text-rose-600 dark:text-rose-400'
-    return 'text-slate-600 dark:text-slate-400'
+    return 'text-slate-600 dark:text-slate-700'
   }
 
   const getTrendBg = () => {

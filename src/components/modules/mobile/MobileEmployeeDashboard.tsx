@@ -224,7 +224,7 @@ const MobileEmployeeDashboard: React.FC = () => {
     <div className="space-y-2">
       {dashboardData.assignments.length === 0 ? (
         <div className="bg-white rounded-lg p-3 text-center">
-          <Car className="w-16 h-16 text-gray-400 mx-auto mb-2" />
+          <Car className="w-16 h-16 text-gray-700 mx-auto mb-2" />
           <p className="text-slate-700">No vehicle assignments</p>
         </div>
       ) : (
@@ -272,7 +272,7 @@ const MobileEmployeeDashboard: React.FC = () => {
                     <MapPin className="w-4 h-4 mt-1 flex-shrink-0" />
                     <div>
                       <p className="font-medium">{assignment.secured_parking_name}</p>
-                      <p className="text-xs text-gray-500">{assignment.secured_parking_address}</p>
+                      <p className="text-xs text-gray-700">{assignment.secured_parking_address}</p>
                     </div>
                   </div>
                   {assignment.parking_latitude && (
@@ -308,7 +308,7 @@ const MobileEmployeeDashboard: React.FC = () => {
 
       {dashboardData.on_call_periods.length === 0 ? (
         <div className="bg-white rounded-lg p-3 text-center">
-          <Clock className="w-16 h-16 text-gray-400 mx-auto mb-2" />
+          <Clock className="w-16 h-16 text-gray-700 mx-auto mb-2" />
           <p className="text-slate-700">No upcoming on-call periods</p>
         </div>
       ) : (
@@ -403,7 +403,7 @@ const MobileEmployeeDashboard: React.FC = () => {
 
       {dashboardData.recent_callback_trips.length === 0 ? (
         <div className="bg-white rounded-lg p-3 text-center">
-          <Navigation className="w-16 h-16 text-gray-400 mx-auto mb-2" />
+          <Navigation className="w-16 h-16 text-gray-700 mx-auto mb-2" />
           <p className="text-slate-700">No recent callback trips</p>
         </div>
       ) : (
@@ -460,7 +460,7 @@ const MobileEmployeeDashboard: React.FC = () => {
               <h2 className="text-base font-bold">Log Callback Trip</h2>
               <button
                 onClick={() => setShowCallbackForm(false)}
-                className="text-gray-500 text-sm"
+                className="text-gray-700 text-sm"
               >
                 ×
               </button>

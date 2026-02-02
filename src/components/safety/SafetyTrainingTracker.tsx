@@ -168,7 +168,7 @@ export function SafetyTrainingTracker() {
                         <GraduationCap className="w-4 h-4" />
                         Safety Training Compliance
                     </h2>
-                    <p className="text-slate-400 mt-1">Track OSHA-required training and certifications</p>
+                    <p className="text-slate-700 mt-1">Track OSHA-required training and certifications</p>
                 </div>
                 <Button variant="outline" className="gap-2">
                     <Download className="w-4 h-4" />
@@ -199,7 +199,7 @@ export function SafetyTrainingTracker() {
                         <div className="flex items-center gap-2">
                             <CheckCircle className="w-3 h-3 text-green-400" />
                             <span className="text-base font-bold text-white">{stats.compliant_employees}</span>
-                            <span className="text-slate-400">/ {stats.total_employees}</span>
+                            <span className="text-slate-700">/ {stats.total_employees}</span>
                         </div>
                     </CardContent>
                 </Card>
@@ -213,7 +213,7 @@ export function SafetyTrainingTracker() {
                             <AlertTriangle className="w-3 h-3 text-yellow-400" />
                             <span className="text-base font-bold text-white">{stats.expiring_soon}</span>
                         </div>
-                        <p className="text-xs text-slate-400 mt-1">Within 30 days</p>
+                        <p className="text-xs text-slate-700 mt-1">Within 30 days</p>
                     </CardContent>
                 </Card>
 
@@ -226,7 +226,7 @@ export function SafetyTrainingTracker() {
                             <AlertTriangle className="w-3 h-3 text-red-400" />
                             <span className="text-base font-bold text-white">{stats.expired_certifications}</span>
                         </div>
-                        <p className="text-xs text-slate-400 mt-1">Requires renewal</p>
+                        <p className="text-xs text-slate-700 mt-1">Requires renewal</p>
                     </CardContent>
                 </Card>
 
@@ -236,10 +236,10 @@ export function SafetyTrainingTracker() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
-                            <Clock className="w-3 h-3 text-slate-400" />
+                            <Clock className="w-3 h-3 text-slate-700" />
                             <span className="text-base font-bold text-white">{stats.pending_training}</span>
                         </div>
-                        <p className="text-xs text-slate-400 mt-1">Not started</p>
+                        <p className="text-xs text-slate-700 mt-1">Not started</p>
                     </CardContent>
                 </Card>
             </div>
@@ -289,7 +289,7 @@ export function SafetyTrainingTracker() {
                                         <TableCell className="font-medium text-white">
                                             <div>
                                                 <div>{record.employee_name}</div>
-                                                <div className="text-xs text-slate-400">{record.employee_id}</div>
+                                                <div className="text-xs text-slate-700">{record.employee_id}</div>
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-slate-300 max-w-xs">
@@ -300,7 +300,7 @@ export function SafetyTrainingTracker() {
                                         <TableCell className="text-slate-300">
                                             {record.completion_date ? (
                                                 <div className="flex items-center gap-2">
-                                                    <Calendar className="w-4 h-4 text-slate-400" />
+                                                    <Calendar className="w-4 h-4 text-slate-700" />
                                                     {new Date(record.completion_date).toLocaleDateString()}
                                                 </div>
                                             ) : (
@@ -315,7 +315,7 @@ export function SafetyTrainingTracker() {
                                                         <div className={`text-xs ${
                                                             daysUntilExpiration < 0 ? 'text-red-400' :
                                                             daysUntilExpiration < 30 ? 'text-yellow-400' :
-                                                            'text-slate-400'
+                                                            'text-slate-700'
                                                         }`}>
                                                             {daysUntilExpiration < 0 ?
                                                                 `Expired ${Math.abs(daysUntilExpiration)} days ago` :

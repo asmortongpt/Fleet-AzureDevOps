@@ -275,9 +275,10 @@ export const PolicyProvider: React.FC<PolicyProviderProps> = ({ children }) => {
     };
   }, [getActivePolicies, evaluatePolicy]);
 
-  // Load policies on mount
+  // Load policies on mount (disabled - endpoint not yet implemented)
   useEffect(() => {
-    fetchPolicies();
+    // TODO: Enable when /api/policy-templates endpoint is implemented
+    // fetchPolicies();
   }, [fetchPolicies]);
 
   const value: PolicyContextValue = {

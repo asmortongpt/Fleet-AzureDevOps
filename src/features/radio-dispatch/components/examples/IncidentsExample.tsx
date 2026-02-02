@@ -185,7 +185,7 @@ function IncidentCard({ incident }: { incident: Incident }) {
         <span
           className={`rounded px-2 py-1 text-xs font-medium ${
             incident.status === 'open'
-              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-700'
               : incident.status === 'in_progress'
               ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
               : 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
@@ -208,7 +208,7 @@ function IncidentCard({ incident }: { incident: Incident }) {
               ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400'
               : incident.priority === 'medium'
               ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
-              : 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+              : 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-700'
           }`}
         >
           {incident.priority}

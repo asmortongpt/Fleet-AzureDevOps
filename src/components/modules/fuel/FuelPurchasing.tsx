@@ -292,21 +292,21 @@ export function FuelPurchasing() {
                 <p className="text-sm mb-3">{purchaseRecommendation.reasoning}</p>
                 <div className="grid grid-cols-4 gap-2">
                   <div>
-                    <div className="text-xs text-gray-500">Current Price</div>
+                    <div className="text-xs text-gray-700">Current Price</div>
                     <div className="font-semibold">{formatPrice(purchaseRecommendation.currentPrice)}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-500">Forecasted Price</div>
+                    <div className="text-xs text-gray-700">Forecasted Price</div>
                     <div className="font-semibold">{formatPrice(purchaseRecommendation.forecastedPrice)}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-500">Expected Savings</div>
+                    <div className="text-xs text-gray-700">Expected Savings</div>
                     <div className="font-semibold text-green-600">
                       ${purchaseRecommendation.expectedSavings.toFixed(2)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-500">Optimal Date</div>
+                    <div className="text-xs text-gray-700">Optimal Date</div>
                     <div className="font-semibold">{purchaseRecommendation.optimalPurchaseDate}</div>
                   </div>
                 </div>

@@ -105,12 +105,12 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
         return (
             <div className="space-y-0.5">
                 {isSidebarOpen && (
-                    <div className={cn(
-                        "px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
+                    <h3 className={cn(
+                        "px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wide",
                         accentColor === "primary" ? "text-primary/70" : "text-minimalist-tertiary"
                     )}>
                         {title}
-                    </div>
+                    </h3>
                 )}
                 <ul className="space-y-0">
                     {items.map((item, index) => <NavButton key={item.id} item={item} index={index} />)}
@@ -121,7 +121,8 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
 
     return (
         <TooltipProvider>
-            <aside
+            <div
+                aria-label="Application sidebar"
                 className={cn(
                     "z-20 flex flex-col h-full bg-minimalist-secondary border-r border-minimalist-medium transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
                     isSidebarOpen ? "w-44" : "w-14"
@@ -147,7 +148,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 </div>
 
                 {/* Nav Links */}
-                <nav className="flex-1 py-0.5 px-0.5 space-y-0.5 overflow-y-auto no-scrollbar" aria-label="Main navigation">
+                <nav className="flex-1 py-0.5 px-0.5 space-y-0.5 overflow-y-auto no-scrollbar" aria-label="Primary sidebar navigation">
                     <NavSection title="Hubs" items={groupedItems.hubs} accentColor="primary" />
                     <NavSection title="Command Center" items={groupedItems.main} />
                     <NavSection title="Management" items={groupedItems.management} />
@@ -208,7 +209,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                     {isSidebarOpen ? (
                                         <>
                                             <PanelLeftClose className="w-2.5 h-2.5 shrink-0" />
-                                            <span className="text-[9px]">Collapse</span>
+                                            <span className="text-xs">Collapse</span>
                                         </>
                                     ) : (
                                         <PanelLeft className="w-2.5 h-2.5" />
@@ -223,7 +224,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                         </Tooltip>
                     </div>
                 </div>
-            </aside>
+            </div>
         </TooltipProvider>
     );
 }

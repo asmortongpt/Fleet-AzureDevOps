@@ -176,7 +176,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
         {showLegend && activeLegendItems.length > 0 && (
           <div className="absolute bottom-4 left-4 z-10">
             <div className="shadow-sm bg-slate-900/90 backdrop-blur-md border border-white/10 rounded-lg p-3">
-              <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">
+              <div className="text-[10px] font-semibold text-slate-700 uppercase tracking-wide mb-2">
                 Vehicle Status
               </div>
               <div className="space-y-1.5">
@@ -191,7 +191,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
                         {item.label}
                       </span>
                     </div>
-                    <Badge variant="outline" className="h-4 px-1.5 text-[10px] bg-slate-800 border-slate-700 text-slate-400">
+                    <Badge variant="outline" className="h-4 px-1.5 text-[10px] bg-slate-800 border-slate-700 text-slate-700">
                       {item.count}
                     </Badge>
                   </div>
@@ -205,7 +205,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
         {showLegend && facilities.length > 0 && (
           <div className="absolute bottom-4 right-4 z-10">
             <div className="shadow-sm bg-slate-900/90 backdrop-blur-md border border-white/10 rounded-lg p-3 flex items-center gap-2">
-              <MapPin className="w-3 h-3 text-emerald-500" />
+              <MapPin className="w-3 h-3 text-emerald-600" />
               <span className="text-xs font-medium text-slate-300">
                 {facilities.length} Locations
               </span>

@@ -330,7 +330,7 @@ const EVChargingDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold">{onlineStations}/{stations.length}</div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-700 mt-1">
               {availableStations} available
             </p>
           </CardContent>
@@ -343,7 +343,7 @@ const EVChargingDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold">{totalSessions}</div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-700 mt-1">
               Currently charging
             </p>
           </CardContent>
@@ -356,7 +356,7 @@ const EVChargingDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold">{formatEnergy(totalEnergyDelivered)}</div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-700 mt-1">
               Today's total
             </p>
           </CardContent>
@@ -373,7 +373,7 @@ const EVChargingDashboard: React.FC = () => {
                 ? Math.round(utilization.reduce((sum, u) => sum + (u.utilization_percent ?? 0), 0) / utilization.length)
                 : 0}%
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-700 mt-1">
               Station usage
             </p>
           </CardContent>
@@ -402,7 +402,7 @@ const EVChargingDashboard: React.FC = () => {
                         {getStatusIcon(station.status)}
                         <div>
                           <p className="font-medium">{station.name}</p>
-                          <p className="text-sm text-gray-500">{station.location_name}</p>
+                          <p className="text-sm text-gray-700">{station.location_name}</p>
                         </div>
                       </div>
                       <div className="text-right">

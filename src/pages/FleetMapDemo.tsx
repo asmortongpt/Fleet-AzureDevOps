@@ -173,7 +173,7 @@ export function FleetMapDemo() {
                 </div>
                 <div className="text-right">
                   <div className="text-sm text-slate-700">{vehicle.location}</div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-700">
                     {vehicle.latitude.toFixed(4)}, {vehicle.longitude.toFixed(4)}
                   </div>
                 </div>

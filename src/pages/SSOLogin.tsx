@@ -9,12 +9,12 @@
  * - Greek "archon" meaning "presiding officer" or "ruler"
  *
  * CTA Official Color Palette:
- * - DAYTIME: #2B3A67 (Navy)
- * - BLUE SKIES: #00D4FF (Cyan)
+ * - DAYTIME: #2F3359 (Navy)
+ * - BLUE SKIES: #41B2E3 (Cyan)
  * - MIDNIGHT: #1A0B2E (Deep Purple)
- * - NOON: #FF5722 (Orange)
- * - GOLDEN HOUR: #FDB813 (Yellow)
- * - Gradient Bar: #FDB813 → #FF5722
+ * - NOON: #DD3903 (Orange)
+ * - GOLDEN HOUR: #F0A000 (Yellow)
+ * - Gradient Bar: #F0A000 → #DD3903
  */
 
 import { useMutation } from '@tanstack/react-query'
@@ -93,7 +93,7 @@ export function SSOLogin() {
     <main
       className="relative flex min-h-screen items-center justify-center overflow-hidden"
       style={{
-        background: 'linear-gradient(135deg, #1A0B2E 0%, #2B3A67 50%, #1A0B2E 100%)'
+        background: 'linear-gradient(135deg, #1A0B2E 0%, #2F3359 50%, #1A0B2E 100%)'
       }}
     >
       {/* Premium background effects - MIDNIGHT to DAYTIME gradient */}
@@ -152,7 +152,7 @@ export function SSOLogin() {
           <div
             className="mx-auto w-24 h-1 rounded-full mb-4"
             style={{
-              background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)',
+              background: 'linear-gradient(90deg, #F0A000 0%, #DD3903 100%)',
               boxShadow: '0 2px 8px rgba(253, 184, 19, 0.4)'
             }}
           />
@@ -189,14 +189,14 @@ export function SSOLogin() {
               disabled={isSigningIn}
               size="lg"
               style={{
-                background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)',
+                background: 'linear-gradient(90deg, #F0A000 0%, #DD3903 100%)',
                 boxShadow: '0 4px 12px rgba(253, 184, 19, 0.3)'
               }}
               className="group relative mb-4 h-12 w-full overflow-hidden font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
             >
               <div
                 className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                style={{ background: 'linear-gradient(90deg, #FF5722 0%, #FDB813 100%)' }}
+                style={{ background: 'linear-gradient(90deg, #DD3903 0%, #F0A000 100%)' }}
               />
               <span className="relative flex items-center justify-center gap-2.5">
                 {isSigningIn ? (
@@ -223,7 +223,7 @@ export function SSOLogin() {
               <a
                 href="mailto:support@capitaltechalliance.com"
                 className="font-semibold transition-colors hover:underline"
-                style={{ color: '#2B3A67' }}
+                style={{ color: '#2F3359' }}
               >
                 Contact Support
               </a>

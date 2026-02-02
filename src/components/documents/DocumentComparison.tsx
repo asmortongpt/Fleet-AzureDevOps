@@ -228,7 +228,7 @@ export function DocumentComparison({
                       !isRemoved && !isModified && !showUnchanged && "opacity-30"
                     )}
                   >
-                    <span className="text-xs text-gray-400 mr-2">{idx + 1}</span>
+                    <span className="text-xs text-gray-700 mr-2">{idx + 1}</span>
                     {line || ' '}
                   </div>
                 );
@@ -265,7 +265,7 @@ export function DocumentComparison({
                       !isAdded && !isModified && !showUnchanged && "opacity-30"
                     )}
                   >
-                    <span className="text-xs text-gray-400 mr-2">{idx + 1}</span>
+                    <span className="text-xs text-gray-700 mr-2">{idx + 1}</span>
                     {line || ' '}
                   </div>
                 );
@@ -465,7 +465,7 @@ export function DocumentComparison({
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-500 mx-auto mb-2"></div>
-                <p className="text-gray-500">Analyzing changes...</p>
+                <p className="text-gray-700">Analyzing changes...</p>
               </div>
             </div>
           ) : (

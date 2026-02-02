@@ -697,7 +697,7 @@ export const Login: React.FC = () => {
               </button>
             </div>
 
-            <div className="text-xs text-gray-500 text-center space-y-2">
+            <div className="text-xs text-gray-700 text-center space-y-2">
               <p>🔒 Secure authentication via Florida State Okta</p>
               <p>🛡️ Multi-factor authentication required</p>
               <p>📊 All access is logged for compliance</p>
@@ -828,7 +828,7 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
           </div>
         )}
 
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-700">
           Contact your administrator to request access to this feature.
         </p>
       </div>
@@ -863,27 +863,27 @@ export const UserProfile: React.FC = () => {
 
       <div className="space-y-3">
         <div>
-          <label className="text-sm font-medium text-gray-500">Name</label>
+          <label className="text-sm font-medium text-gray-700">Name</label>
           <p className="text-sm text-gray-900">{user.name}</p>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-500">Email</label>
+          <label className="text-sm font-medium text-gray-700">Email</label>
           <p className="text-sm text-gray-900">{user.email}</p>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-500">Department</label>
+          <label className="text-sm font-medium text-gray-700">Department</label>
           <p className="text-sm text-gray-900">{user.department}</p>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-500">Employee ID</label>
+          <label className="text-sm font-medium text-gray-700">Employee ID</label>
           <p className="text-sm text-gray-900">{user.employee_id || 'N/A'}</p>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-500">Roles</label>
+          <label className="text-sm font-medium text-gray-700">Roles</label>
           <div className="flex flex-wrap gap-1 mt-1">
             {user.roles.map(role => (
               <span key={role} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
@@ -894,7 +894,7 @@ export const UserProfile: React.FC = () => {
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-500">MFA Status</label>
+          <label className="text-sm font-medium text-gray-700">MFA Status</label>
           <p className="text-sm text-gray-900">
             {user.mfa_enabled ? '✅ Enabled' : '❌ Not Enabled'}
           </p>
@@ -902,7 +902,7 @@ export const UserProfile: React.FC = () => {
 
         {sessionExpiry && (
           <div>
-            <label className="text-sm font-medium text-gray-500">Session Expiry</label>
+            <label className="text-sm font-medium text-gray-700">Session Expiry</label>
             <p className="text-sm text-gray-900">
               {minutesUntilExpiry > 0 ? `${minutesUntilExpiry} minutes remaining` : 'Expired'}
             </p>

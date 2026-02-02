@@ -462,7 +462,7 @@ export function InspectionsMatrixView() {
         <Card className="bg-slate-800/50 border-slate-700">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalInspections}</div>
-            <div className="text-xs text-slate-400">Total Inspections</div>
+            <div className="text-xs text-slate-700">Total Inspections</div>
           </CardContent>
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
@@ -471,7 +471,7 @@ export function InspectionsMatrixView() {
               <CheckCircle className="w-3 h-3 text-green-400" />
               <div className="text-sm font-bold text-green-400">{passedCount}</div>
             </div>
-            <div className="text-xs text-slate-400">Passed ({passRate}%)</div>
+            <div className="text-xs text-slate-700">Passed ({passRate}%)</div>
           </CardContent>
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
@@ -480,7 +480,7 @@ export function InspectionsMatrixView() {
               <XCircle className="w-3 h-3 text-red-400" />
               <div className="text-sm font-bold text-red-400">{failedCount}</div>
             </div>
-            <div className="text-xs text-slate-400">Failed</div>
+            <div className="text-xs text-slate-700">Failed</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
@@ -489,7 +489,7 @@ export function InspectionsMatrixView() {
               <AlertTriangle className="w-3 h-3 text-amber-400" />
               <div className="text-sm font-bold text-amber-400">{violationsCount}</div>
             </div>
-            <div className="text-xs text-slate-400">Total Violations</div>
+            <div className="text-xs text-slate-700">Total Violations</div>
           </CardContent>
         </Card>
       </div>
@@ -542,7 +542,7 @@ export function InspectionsMatrixView() {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <ClipboardCheck className="w-3 h-3 text-blue-400" />
+            <ClipboardCheck className="w-3 h-3 text-blue-700" />
             All Safety Inspections - Excel View ({filteredData.length} records)
           </CardTitle>
         </CardHeader>
@@ -664,7 +664,7 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                 )}
               </div>
             </div>
-            <ClipboardCheck className="h-9 w-12 text-blue-400" />
+            <ClipboardCheck className="h-9 w-12 text-blue-700" />
           </div>
 
           {/* Quick Stats */}

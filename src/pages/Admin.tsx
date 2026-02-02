@@ -154,7 +154,7 @@ export default function Admin() {
       case 'critical':
         return <AlertCircle className="h-5 w-5 text-red-500" />;
       default:
-        return <Activity className="h-5 w-5 text-gray-400" />;
+        return <Activity className="h-5 w-5 text-gray-700" />;
     }
   };
 
@@ -183,7 +183,7 @@ export default function Admin() {
   if (loading) {
     return (
       <div className="container mx-auto p-6 flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        <Loader2 className="h-8 w-8 animate-spin text-gray-700" />
       </div>
     );
   }
@@ -264,7 +264,7 @@ export default function Admin() {
                   <div className="text-lg font-bold">
                     {systemStatus.resources.memory.used}/{systemStatus.resources.memory.total}MB
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-700">
                     {systemStatus.resources.memory.percentage}% used
                   </div>
                 </div>
@@ -331,7 +331,7 @@ export default function Admin() {
       <Card>
         <CardHeader>
           <div className="flex items-center space-x-2">
-            <Settings className="h-5 w-5 text-gray-500" />
+            <Settings className="h-5 w-5 text-gray-700" />
             <div>
               <CardTitle>System Configuration</CardTitle>
               <CardDescription>
@@ -390,7 +390,7 @@ export default function Admin() {
                           <div className="mt-2 p-2 bg-gray-50 rounded font-mono text-xs text-gray-700 break-all">
                             {config.value || '(not set)'}
                           </div>
-                          <div className="mt-2 text-xs text-gray-500">
+                          <div className="mt-2 text-xs text-gray-700">
                             Category: <span className="font-medium">{config.category}</span>
                           </div>
                         </div>
@@ -402,7 +402,7 @@ export default function Admin() {
           )}
 
           {configData.length === 0 && !error && (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-700">
               <Settings className="h-8 w-8 mx-auto mb-2 opacity-50" />
               <p>No configuration items available</p>
             </div>

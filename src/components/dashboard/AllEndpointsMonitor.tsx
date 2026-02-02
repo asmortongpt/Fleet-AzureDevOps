@@ -91,7 +91,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
       case 'error':
         return <XCircle className="w-3 h-3 text-red-600" />
       default:
-        return <HelpCircle className="w-3 h-3 text-gray-400" />
+        return <HelpCircle className="w-3 h-3 text-gray-700" />
     }
   }
 
@@ -129,11 +129,11 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
       case 'connecting':
         return 'text-yellow-600'
       case 'disconnected':
-        return 'text-gray-400'
+        return 'text-gray-700'
       case 'error':
         return 'text-red-600'
       default:
-        return 'text-gray-400'
+        return 'text-gray-700'
     }
   }
 
@@ -211,10 +211,10 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
           </div>
         </div>
         <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-gray-950/20 border border-gray-200 dark:border-gray-900">
-          <HelpCircle className="w-3 h-3 text-gray-400" />
+          <HelpCircle className="w-3 h-3 text-gray-700" />
           <div>
             <p className="text-[10px] text-muted-foreground">Unknown</p>
-            <p className="text-sm font-semibold text-gray-700 dark:text-gray-400">{summary.unknownCount}</p>
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-700">{summary.unknownCount}</p>
           </div>
         </div>
       </div>

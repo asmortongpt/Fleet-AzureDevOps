@@ -230,18 +230,18 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
           <div className="mt-3 pt-3 border-t border-gray-200">
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
-                <p className="text-gray-500">Network Status</p>
+                <p className="text-gray-700">Network Status</p>
                 <p className="font-medium text-gray-800">
                   {isOnline ? 'Connected' : 'Disconnected'}
                 </p>
               </div>
               <div>
-                <p className="text-gray-500">Pending Operations</p>
+                <p className="text-gray-700">Pending Operations</p>
                 <p className="font-medium text-gray-800">{pendingCount}</p>
               </div>
               {lastSyncTime && (
                 <div className="col-span-2">
-                  <p className="text-gray-500">Last Sync</p>
+                  <p className="text-gray-700">Last Sync</p>
                   <p className="font-medium text-gray-800">
                     {lastSyncTime.toLocaleString()}
                   </p>
@@ -249,7 +249,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
               )}
               {syncStatus?.error && (
                 <div className="col-span-2">
-                  <p className="text-gray-500">Error</p>
+                  <p className="text-gray-700">Error</p>
                   <p className="font-medium text-red-600 text-xs">
                     {typeof syncStatus.error === 'string'
                       ? syncStatus.error

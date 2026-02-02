@@ -150,20 +150,20 @@ export function AdminDashboard() {
       case 'critical':
         return 'text-red-400 bg-red-950/30 border-red-500/30';
       default:
-        return 'text-slate-400 bg-slate-800 border-slate-700';
+        return 'text-slate-700 bg-slate-800 border-slate-700';
     }
   };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'info':
-        return 'text-blue-400';
+        return 'text-blue-700';
       case 'warning':
         return 'text-amber-400';
       case 'critical':
         return 'text-red-400';
       default:
-        return 'text-slate-400';
+        return 'text-slate-700';
     }
   };
 
@@ -172,7 +172,7 @@ export function AdminDashboard() {
       {/* Header */}
       <div className="mb-2">
         <h1 className="text-sm font-bold text-white mb-1">Admin Dashboard</h1>
-        <p className="text-sm text-slate-400">System Management & Compliance Oversight</p>
+        <p className="text-sm text-slate-700">System Management & Compliance Oversight</p>
       </div>
 
       {/* System Health Summary */}
@@ -294,7 +294,7 @@ export function AdminDashboard() {
 
             {/* By Role */}
             <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
-              <p className="text-slate-400 text-sm mb-3 font-semibold">By Role</p>
+              <p className="text-slate-700 text-sm mb-3 font-semibold">By Role</p>
               <div className="space-y-2">
                 {Object.entries(userStats.by_role).map(([role, count]) => (
                   <div key={role} className="flex items-center justify-between">
@@ -441,7 +441,7 @@ export function AdminDashboard() {
                     )}>
                       {activity.action}
                     </p>
-                    <p className="text-xs text-slate-400">{activity.user}</p>
+                    <p className="text-xs text-slate-700">{activity.user}</p>
                     <p className="text-xs text-slate-500">{activity.timestamp}</p>
                   </div>
                 </div>

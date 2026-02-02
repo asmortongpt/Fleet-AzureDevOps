@@ -55,7 +55,7 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
       value: `${avgUtilization}%`,
       trend: "+5.2%",
       isPositive: true,
-      icon: <Gauge className="h-5 w-5 text-blue-400" />,
+      icon: <Gauge className="h-5 w-5 text-blue-700" />,
       bg: "from-blue-500/10 to-blue-500/5",
       border: "border-blue-500/20"
     },
@@ -63,7 +63,7 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
       title: "Active Vehicles",
       value: activeVehicles,
       subtitle: `of ${totalVehicles} total`,
-      icon: <BarChart3 className="h-5 w-5 text-emerald-400" />,
+      icon: <BarChart3 className="h-5 w-5 text-emerald-700" />,
       bg: "from-emerald-500/10 to-emerald-500/5",
       border: "border-emerald-500/20"
     },
@@ -111,7 +111,7 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
         <div className="flex items-end justify-between">
           <div>
             <h2 className="text-sm font-bold text-white tracking-tight">Executive Overview</h2>
-            <p className="text-sm text-slate-400 mt-1">Real-time fleet performance metrics</p>
+            <p className="text-sm text-slate-700 mt-1">Real-time fleet performance metrics</p>
           </div>
           <Button variant="outline" className="border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white">
             <Download className="h-4 w-4 mr-2" />
@@ -128,14 +128,14 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
                     {kpi.icon}
                   </div>
                   {kpi.trend && (
-                    <Badge variant="outline" className={`bg-black/20 border-white/10 ${kpi.isPositive ? "text-emerald-400" : "text-red-400"}`}>
+                    <Badge variant="outline" className={`bg-black/20 border-white/10 ${kpi.isPositive ? "text-emerald-700" : "text-red-400"}`}>
                       {kpi.isPositive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
                       {kpi.trend}
                     </Badge>
                   )}
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-slate-400 block mb-1">{kpi.title}</span>
+                  <span className="text-sm font-medium text-slate-700 block mb-1">{kpi.title}</span>
                   <div className="flex items-baseline gap-2">
                     <span className="text-base font-bold text-white tracking-tight">{kpi.value}</span>
                     {kpi.subtitle && (

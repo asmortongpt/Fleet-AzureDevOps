@@ -193,9 +193,9 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
               <CardContent>
                 <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center mb-2">
                   <div className="text-center">
-                    <MapPin className="w-12 h-9 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-500">Interactive map would display here</p>
-                    <p className="text-xs text-gray-400 mt-1">
+                    <MapPin className="w-12 h-9 text-gray-700 mx-auto mb-2" />
+                    <p className="text-sm text-gray-700">Interactive map would display here</p>
+                    <p className="text-xs text-gray-700 mt-1">
                       Route from {stops[0]?.name ?? 'Start'} to {stops[stops.length - 1]?.name ?? 'End'}
                     </p>
                   </div>
@@ -404,9 +404,9 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                   </div>
                   <div className="bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center p-2">
                     <div className="text-center">
-                      <Gauge className="w-12 h-9 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">Performance charts would display here</p>
-                      <p className="text-xs text-gray-400 mt-1">Speed, fuel consumption, and RPM over time</p>
+                      <Gauge className="w-12 h-9 text-gray-700 mx-auto mb-2" />
+                      <p className="text-sm text-gray-700">Performance charts would display here</p>
+                      <p className="text-xs text-gray-700 mt-1">Speed, fuel consumption, and RPM over time</p>
                     </div>
                   </div>
                 </div>

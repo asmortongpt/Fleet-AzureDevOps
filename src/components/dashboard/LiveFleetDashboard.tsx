@@ -207,27 +207,27 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
     <div className="space-y-2">
       <div>
         <h2 className="text-base sm:text-sm font-bold text-slate-900 dark:text-slate-100">Fleet Overview</h2>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Real-time vehicle monitoring</p>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-700 mt-1">Real-time vehicle monitoring</p>
       </div>
 
       {/* Quick Stats - Responsive Grid */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
           <CardContent className="pt-3 pb-2 px-2 sm:pt-2 sm:pb-3 sm:px-3">
-            <div className="text-base sm:text-sm font-bold text-emerald-600 dark:text-emerald-400">{activeCount}</div>
-            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Active</div>
+            <div className="text-base sm:text-sm font-bold text-emerald-600 dark:text-emerald-700">{activeCount}</div>
+            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-700 font-medium uppercase tracking-wide">Active</div>
           </CardContent>
         </Card>
         <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
           <CardContent className="pt-3 pb-2 px-2 sm:pt-2 sm:pb-3 sm:px-3">
             <div className="text-base sm:text-sm font-bold text-amber-600 dark:text-amber-400">{maintenanceCount}</div>
-            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Maint.</div>
+            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-700 font-medium uppercase tracking-wide">Maint.</div>
           </CardContent>
         </Card>
         <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
           <CardContent className="pt-3 pb-2 px-2 sm:pt-2 sm:pb-3 sm:px-3">
             <div className="text-base sm:text-sm font-bold text-slate-900 dark:text-slate-100">{totalVehicles}</div>
-            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Total</div>
+            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-700 font-medium uppercase tracking-wide">Total</div>
           </CardContent>
         </Card>
       </div>
@@ -248,7 +248,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
           <CardContent className="space-y-3 pt-3">
             <div className="flex items-center text-sm">
               <div className="p-1.5 rounded-md bg-slate-100 dark:bg-slate-800 mr-3">
-                <Truck className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                <Truck className="h-4 w-4 text-slate-500 dark:text-slate-700" />
               </div>
               <span className="font-medium text-slate-700 dark:text-slate-200">
                 {selectedVehicle.name ||
@@ -258,7 +258,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             </div>
             <div className="flex items-center text-sm">
               <div className="p-1.5 rounded-md bg-slate-100 dark:bg-slate-800 mr-3">
-                <MapPin className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                <MapPin className="h-4 w-4 text-slate-500 dark:text-slate-700" />
               </div>
               <span className="font-mono text-slate-600 dark:text-slate-300">
                 {Number(selectedVehicle.location?.lat ?? selectedVehicle.latitude ?? 0).toFixed(4)},
@@ -335,7 +335,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
           ))}
         </div>
         {/* Desktop: Original design */}
-        <div className="hidden md:block space-y-2 max-h-64 overflow-y-auto">
+        <div className="hidden md:block space-y-2 max-h-64 overflow-y-auto" tabIndex={0} role="region" aria-label="Fleet vehicle list">
           {vehicles.slice(0, 10).map((vehicle: any) => (
             <div
               key={vehicle.id}

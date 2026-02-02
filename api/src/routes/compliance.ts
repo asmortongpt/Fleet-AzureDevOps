@@ -6,9 +6,9 @@
 import express from 'express'
 
 import logger from '../config/logger'
-import { auditLogEnhanced , getAuditLogsByNISTControl, getAuditComplianceSummary } from '../middleware/audit-enhanced'
-import { authenticateJWT as authenticate } from '../middleware/auth'
-import { authorize } from '../middleware/rbac'
+import { auditLogEnhanced, getAuditLogsByNISTControl, getAuditComplianceSummary } from '../middleware/audit-enhanced'
+import { authenticateJWT } from '../middleware/auth'
+import { requirePermission as authorize } from '../middleware/rbac'
 import {
   generateFedRAMPReport,
   getComplianceReportById,
@@ -56,7 +56,7 @@ router.use(authenticateJWT)
  */
 router.post(
   '/fedramp/report',
-  authenticate,
+  authenticateJWT,
   authorize(['view_compliance']),
   auditLogEnhanced({
     action: 'EXECUTE',
@@ -115,7 +115,7 @@ router.post(
  */
 router.get(
   '/reports/:reportId',
-  authenticate,
+  authenticateJWT,
   authorize(['view_compliance']),
   auditLogEnhanced({
     action: 'READ',
@@ -155,7 +155,7 @@ router.get(
  */
 router.get(
   '/reports',
-  authenticate,
+  authenticateJWT,
   authorize(['view_compliance']),
   auditLogEnhanced({
     action: 'QUERY',
@@ -192,7 +192,7 @@ router.get(
  */
 router.get(
   '/nist-controls',
-  authenticate,
+  authenticateJWT,
   authorize(['view_compliance']),
   auditLogEnhanced({
     action: 'READ',
@@ -237,7 +237,7 @@ router.get(
  */
 router.get(
   '/summary',
-  authenticate,
+  authenticateJWT,
   authorize(['view_compliance']),
   auditLogEnhanced({
     action: 'READ',
@@ -270,7 +270,7 @@ router.get(
  */
 router.get(
   '/audit-logs/:controlId',
-  authenticate,
+  authenticateJWT,
   authorize(['view_compliance']),
   auditLogEnhanced({
     action: 'QUERY',
@@ -309,7 +309,7 @@ router.get(
  */
 router.get(
   '/fedramp-controls',
-  authenticate,
+  authenticateJWT,
   authorize(['view_compliance']),
   auditLogEnhanced({
     action: 'READ',
@@ -340,7 +340,7 @@ router.get(
  */
 router.post(
   '/test-control',
-  authenticate,
+  authenticateJWT,
   authorize(['manage_compliance']),
   auditLogEnhanced({
     action: 'EXECUTE',

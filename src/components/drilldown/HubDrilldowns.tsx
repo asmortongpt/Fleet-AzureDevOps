@@ -52,25 +52,25 @@ export function DriversRosterDrilldown() {
                 <Card className="bg-slate-800/50 border-slate-700">
                     <CardContent className="p-2 text-center">
                         <div className="text-base font-bold text-white">{drivers.length}</div>
-                        <div className="text-sm text-slate-400">Total Drivers</div>
+                        <div className="text-sm text-slate-700">Total Drivers</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <div className="text-base font-bold text-emerald-400">{onDuty.length}</div>
-                        <div className="text-sm text-slate-400">On Duty</div>
+                        <div className="text-base font-bold text-emerald-700">{onDuty.length}</div>
+                        <div className="text-sm text-slate-700">On Duty</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-base font-bold text-amber-400">{offDuty.length}</div>
-                        <div className="text-sm text-slate-400">Off Duty</div>
+                        <div className="text-sm text-slate-700">Off Duty</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-slate-800/50 border-slate-700">
                     <CardContent className="p-2 text-center">
                         <div className="text-base font-bold text-slate-300">{onLeave.length}</div>
-                        <div className="text-sm text-slate-400">On Leave</div>
+                        <div className="text-sm text-slate-700">On Leave</div>
                     </CardContent>
                 </Card>
             </div>
@@ -91,18 +91,18 @@ export function DriversRosterDrilldown() {
                                 <div className={`p-2 rounded-full ${driver.status === 'active' ? 'bg-emerald-500/20' :
                                     driver.status === 'off-duty' ? 'bg-amber-500/20' : 'bg-slate-500/20'
                                     }`}>
-                                    <User className={`w-4 h-4 ${driver.status === 'active' ? 'text-emerald-400' :
-                                        driver.status === 'off-duty' ? 'text-amber-400' : 'text-slate-400'
+                                    <User className={`w-4 h-4 ${driver.status === 'active' ? 'text-emerald-700' :
+                                        driver.status === 'off-duty' ? 'text-amber-400' : 'text-slate-700'
                                         }`} weight="fill" />
                                 </div>
                                 <div>
                                     <div className="font-medium text-white">{driver.firstName ?? 'Unknown'} {driver.lastName ?? 'Driver'}</div>
-                                    <div className="text-xs text-slate-400">{driver.licenseNumber ?? 'N/A'}</div>
+                                    <div className="text-xs text-slate-700">{driver.licenseNumber ?? 'N/A'}</div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Badge variant="outline" className={`${driver.status === 'active' ? 'border-emerald-500 text-emerald-400' :
-                                    driver.status === 'off-duty' ? 'border-amber-500 text-amber-400' : 'border-slate-500 text-slate-400'
+                                <Badge variant="outline" className={`${driver.status === 'active' ? 'border-emerald-500 text-emerald-700' :
+                                    driver.status === 'off-duty' ? 'border-amber-500 text-amber-400' : 'border-slate-500 text-slate-700'
                                     }`}>
                                     {driver.status}
                                 </Badge>
@@ -133,14 +133,14 @@ export function DriverPerformanceDrilldown() {
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
-                        <ChartLine className="w-3 h-3 text-blue-400" />
+                        <ChartLine className="w-3 h-3 text-blue-700" />
                         Performance Distribution
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                     <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                            <span className="text-emerald-400">Top Performers (90+)</span>
+                            <span className="text-emerald-700">Top Performers (90+)</span>
                             <span className="text-white">{topPerformers.length}</span>
                         </div>
                         <Progress value={(topPerformers.length / drivers.length) * 100} className="h-2 bg-slate-700">
@@ -149,7 +149,7 @@ export function DriverPerformanceDrilldown() {
                     </div>
                     <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                            <span className="text-blue-400">Meeting Target (75-89)</span>
+                            <span className="text-blue-700">Meeting Target (75-89)</span>
                             <span className="text-white">{meetingTarget.length}</span>
                         </div>
                         <Progress value={(meetingTarget.length / drivers.length) * 100} className="h-2 bg-slate-700">
@@ -198,7 +198,7 @@ export function DriverPerformanceDrilldown() {
                                 </div>
                                 <div>
                                     <div className="font-medium text-white">{driver.firstName ?? 'Unknown'} {driver.lastName ?? 'Driver'}</div>
-                                    <div className="text-xs text-slate-400">Safety Score: {driver.safetyScore ?? 0}</div>
+                                    <div className="text-xs text-slate-700">Safety Score: {driver.safetyScore ?? 0}</div>
                                 </div>
                             </div>
                             <Trophy className="w-3 h-3 text-amber-400" weight="fill" />
@@ -222,16 +222,16 @@ export function DriverScorecardDrilldown() {
             <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
                 <Card className="bg-blue-900/30 border-blue-700/50">
                     <CardContent className="p-2 text-center">
-                        <Trophy className="w-4 h-4 text-blue-400 mx-auto mb-2" />
+                        <Trophy className="w-4 h-4 text-blue-700 mx-auto mb-2" />
                         <div className="text-base font-bold text-white">{avgScore}</div>
-                        <div className="text-sm text-slate-400">Fleet Average</div>
+                        <div className="text-sm text-slate-700">Fleet Average</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <Star className="w-4 h-4 text-amber-400 mx-auto mb-2" weight="fill" />
                         <div className="text-base font-bold text-white">{topScore}</div>
-                        <div className="text-sm text-slate-400">Highest Score</div>
+                        <div className="text-sm text-slate-700">Highest Score</div>
                     </CardContent>
                 </Card>
             </div>
@@ -252,7 +252,7 @@ export function DriverScorecardDrilldown() {
                         <div key={item.label} className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
-                                    <item.icon className="w-4 h-4 text-slate-400" />
+                                    <item.icon className="w-4 h-4 text-slate-700" />
                                     <span className="text-slate-300">{item.label}</span>
                                 </div>
                                 <span className="text-white font-medium">{item.score}%</span>
@@ -286,8 +286,8 @@ export function GarageDrilldown() {
                     return (
                         <Card key={bay} className={`${isOccupied ? 'bg-blue-900/30 border-blue-700/50' : 'bg-slate-800/50 border-slate-700'}`}>
                             <CardContent className="p-3 text-center">
-                                <div className={`text-sm font-bold ${isOccupied ? 'text-blue-400' : 'text-slate-500'}`}>Bay {bay}</div>
-                                <div className="text-xs text-slate-400">{isOccupied ? 'In Use' : 'Open'}</div>
+                                <div className={`text-sm font-bold ${isOccupied ? 'text-blue-700' : 'text-slate-500'}`}>Bay {bay}</div>
+                                <div className="text-xs text-slate-700">{isOccupied ? 'In Use' : 'Open'}</div>
                             </CardContent>
                         </Card>
                     )
@@ -300,21 +300,21 @@ export function GarageDrilldown() {
                     <CardContent className="p-2 text-center">
                         <Wrench className="w-4 h-4 text-amber-400 mx-auto mb-2" />
                         <div className="text-base font-bold text-amber-400">{inProgress.length}</div>
-                        <div className="text-sm text-slate-400">In Progress</div>
+                        <div className="text-sm text-slate-700">In Progress</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-slate-800/50 border-slate-700">
                     <CardContent className="p-2 text-center">
-                        <Warning className="w-4 h-4 text-slate-400 mx-auto mb-2" />
+                        <Warning className="w-4 h-4 text-slate-700 mx-auto mb-2" />
                         <div className="text-base font-bold text-slate-300">{pending.length}</div>
-                        <div className="text-sm text-slate-400">Pending</div>
+                        <div className="text-sm text-slate-700">Pending</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
-                        <div className="text-base font-bold text-emerald-400">{completed.length}</div>
-                        <div className="text-sm text-slate-400">Completed</div>
+                        <CheckCircle className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
+                        <div className="text-base font-bold text-emerald-700">{completed.length}</div>
+                        <div className="text-sm text-slate-700">Completed</div>
                     </CardContent>
                 </Card>
             </div>
@@ -336,12 +336,12 @@ export function GarageDrilldown() {
                                     wo.status === 'pending' ? 'bg-slate-500/20' : 'bg-emerald-500/20'
                                     }`}>
                                     <Wrench className={`w-4 h-4 ${wo.status === 'in-progress' ? 'text-amber-400' :
-                                        wo.status === 'pending' ? 'text-slate-400' : 'text-emerald-400'
+                                        wo.status === 'pending' ? 'text-slate-700' : 'text-emerald-700'
                                         }`} weight="fill" />
                                 </div>
                                 <div>
                                     <div className="font-medium text-white">WO-{wo.workOrderNumber ?? 'N/A'}</div>
-                                    <div className="text-xs text-slate-400">{wo.status}</div>
+                                    <div className="text-xs text-slate-700">{wo.status}</div>
                                 </div>
                             </div>
                             <ArrowRight className="w-4 h-4 text-slate-500" />
@@ -362,7 +362,7 @@ export function PredictiveMaintenanceDrilldown() {
                     <Wrench className="w-3 h-3" weight="fill" /> Predictive Maintenance
                 </CardTitle>
             </CardHeader>
-            <CardContent className="text-slate-400">
+            <CardContent className="text-slate-700">
                 Predictive maintenance insights will be displayed here
             </CardContent>
         </Card>
@@ -377,7 +377,7 @@ export function MaintenanceCalendarDrilldown() {
                     <CalendarDots className="w-3 h-3" weight="fill" /> Maintenance Calendar
                 </CardTitle>
             </CardHeader>
-            <CardContent className="text-slate-400">
+            <CardContent className="text-slate-700">
                 Maintenance calendar will be displayed here
             </CardContent>
         </Card>
@@ -392,7 +392,7 @@ export function ExecutiveDashboardDrilldown() {
                     <ChartLine className="w-5 w-5" weight="fill" /> Executive Dashboard
                 </CardTitle>
             </CardHeader>
-            <CardContent className="text-slate-400">
+            <CardContent className="text-slate-700">
                 Executive dashboard metrics will be displayed here
             </CardContent>
         </Card>
@@ -407,7 +407,7 @@ export function CostAnalysisDrilldown() {
                     <CurrencyDollar className="w-3 h-3" weight="fill" /> Cost Analysis
                 </CardTitle>
             </CardHeader>
-            <CardContent className="text-slate-400">
+            <CardContent className="text-slate-700">
                 Cost analysis details will be displayed here
             </CardContent>
         </Card>
@@ -422,7 +422,7 @@ export function FleetOptimizerDrilldown() {
                     <Gauge className="w-3 h-3" weight="fill" /> Fleet Optimizer
                 </CardTitle>
             </CardHeader>
-            <CardContent className="text-slate-400">
+            <CardContent className="text-slate-700">
                 Fleet optimization recommendations will be displayed here
             </CardContent>
         </Card>

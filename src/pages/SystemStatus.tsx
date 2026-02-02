@@ -176,7 +176,7 @@ export default function SystemStatus() {
       case 'unhealthy':
         return <AlertCircle className="h-5 w-5 text-red-500" />;
       default:
-        return <Clock className="h-5 w-5 text-gray-400" />;
+        return <Clock className="h-5 w-5 text-gray-700" />;
     }
   };
 
@@ -189,7 +189,7 @@ export default function SystemStatus() {
       case 'unhealthy':
         return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-700';
     }
   };
 
@@ -211,7 +211,7 @@ export default function SystemStatus() {
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
-          <p className="text-slate-700 dark:text-gray-400">Loading system status...</p>
+          <p className="text-slate-700 dark:text-gray-700">Loading system status...</p>
         </div>
       </div>
     );
@@ -223,7 +223,7 @@ export default function SystemStatus() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-base font-bold tracking-tight">System Status</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-gray-700 dark:text-gray-700 mt-1">
             Comprehensive system health monitoring and emulator control
           </p>
         </div>
@@ -262,20 +262,20 @@ export default function SystemStatus() {
               {getStatusIcon(systemHealth?.overall || 'unknown')}
               <div>
                 <p className="text-sm font-bold capitalize">{systemHealth?.overall || 'Unknown'}</p>
-                <p className="text-sm text-gray-500">System Status</p>
+                <p className="text-sm text-gray-700">System Status</p>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-2">
               <div>
-                <p className="text-sm text-gray-500">Uptime</p>
+                <p className="text-sm text-gray-700">Uptime</p>
                 <p className="text-sm font-semibold">{formatUptime(systemHealth?.uptime || 0)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Memory</p>
+                <p className="text-sm text-gray-700">Memory</p>
                 <p className="text-sm font-semibold">{systemHealth?.memory.percentage || 0}%</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Connections</p>
+                <p className="text-sm text-gray-700">Connections</p>
                 <p className="text-sm font-semibold">
                   {systemHealth?.connections.filter(c => c.status === 'healthy').length || 0}/
                   {systemHealth?.connections.length || 0}
@@ -316,7 +316,7 @@ export default function SystemStatus() {
                       {getStatusIcon(conn.status)}
                       <div>
                         <p className="font-medium">{conn.name}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-700">
                           {conn.message || 'No message'}
                         </p>
                       </div>
@@ -325,7 +325,7 @@ export default function SystemStatus() {
                       <Badge className={getStatusColor(conn.status)}>
                         {conn.status}
                       </Badge>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-gray-700">
                         {conn.responseTime}ms
                       </span>
                     </div>
@@ -384,19 +384,19 @@ export default function SystemStatus() {
                 <div className="space-y-2">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <p className="text-sm text-slate-700 dark:text-gray-400">Total Vehicles</p>
+                      <p className="text-sm text-slate-700 dark:text-gray-700">Total Vehicles</p>
                       <p className="text-sm font-bold text-blue-800">{emulatorStatus.stats.totalVehicles}</p>
                     </div>
                     <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <p className="text-sm text-slate-700 dark:text-gray-400">Active</p>
+                      <p className="text-sm text-slate-700 dark:text-gray-700">Active</p>
                       <p className="text-sm font-bold text-green-600">{emulatorStatus.stats.activeVehicles}</p>
                     </div>
                     <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                      <p className="text-sm text-slate-700 dark:text-gray-400">Events/sec</p>
+                      <p className="text-sm text-slate-700 dark:text-gray-700">Events/sec</p>
                       <p className="text-sm font-bold text-purple-600">{emulatorStatus.stats.eventsPerSecond}</p>
                     </div>
                     <div className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                      <p className="text-sm text-slate-700 dark:text-gray-400">Total Events</p>
+                      <p className="text-sm text-slate-700 dark:text-gray-700">Total Events</p>
                       <p className="text-sm font-bold text-orange-600">{emulatorStatus.stats.totalEvents.toLocaleString()}</p>
                     </div>
                   </div>
@@ -405,7 +405,7 @@ export default function SystemStatus() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     {Object.entries(emulatorStatus.emulators).map(([type, count]) => (
                       <div key={type} className="p-3 border rounded-lg">
-                        <p className="text-sm text-slate-700 dark:text-gray-400 capitalize">{type}</p>
+                        <p className="text-sm text-slate-700 dark:text-gray-700 capitalize">{type}</p>
                         <p className="text-base font-semibold">{count} active</p>
                       </div>
                     ))}
@@ -433,12 +433,12 @@ export default function SystemStatus() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <p className="font-medium">Memory Usage</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-700">
                     {systemHealth?.memory.used}MB / {systemHealth?.memory.total}MB
                   </p>
                 </div>
                 <Progress value={systemHealth?.memory.percentage || 0} className="h-2" />
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-700 mt-1">
                   {systemHealth?.memory.percentage}% used
                 </p>
               </div>

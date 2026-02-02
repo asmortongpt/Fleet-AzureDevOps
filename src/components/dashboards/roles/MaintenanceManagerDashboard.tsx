@@ -149,7 +149,7 @@ export function MaintenanceManagerDashboard() {
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h1 className="text-sm font-bold text-white mb-1">Maintenance Dashboard</h1>
-          <p className="text-sm text-slate-400">Work Order Management & Preventive Maintenance</p>
+          <p className="text-sm text-slate-700">Work Order Management & Preventive Maintenance</p>
         </div>
         <Button size="sm"
           onClick={handleViewCalendar}
@@ -198,7 +198,7 @@ export function MaintenanceManagerDashboard() {
             className="bg-blue-950/30 rounded-md p-2 border border-blue-500/30 hover:border-blue-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <Wrench className="w-4 h-4 text-blue-400" />
+              <Wrench className="w-4 h-4 text-blue-700" />
               <span className="text-sm font-black text-white">{workOrderStats.in_progress}</span>
             </div>
             <p className="text-blue-300 font-semibold">In Progress</p>
@@ -325,7 +325,7 @@ export function MaintenanceManagerDashboard() {
                     </div>
                     <div>
                       <p className="font-bold text-white">{schedule.date}</p>
-                      <p className="text-sm text-slate-400">{schedule.count} vehicles scheduled</p>
+                      <p className="text-sm text-slate-700">{schedule.count} vehicles scheduled</p>
                     </div>
                   </div>
                   <Button size="sm"
@@ -404,7 +404,7 @@ export function MaintenanceManagerDashboard() {
               {/* Total Items */}
               <div className="bg-slate-900/50 rounded-lg p-3 border border-slate-700">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400 text-sm">Total Inventory Items</span>
+                  <span className="text-slate-700 text-sm">Total Inventory Items</span>
                   <span className="text-sm font-bold text-white">
                     {partsInventory.total_items}
                   </span>

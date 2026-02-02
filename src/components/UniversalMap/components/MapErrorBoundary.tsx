@@ -61,7 +61,7 @@ export class MapErrorBoundary extends Component<
             <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2">
               Map Failed to Load
             </h2>
-            <p className="text-slate-700 dark:text-gray-400 mb-2">
+            <p className="text-slate-700 dark:text-gray-700 mb-2">
               {this.state.error?.message || "An unexpected error occurred while loading the map."}
             </p>
             <button

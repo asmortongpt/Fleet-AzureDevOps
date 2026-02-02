@@ -267,13 +267,13 @@ export function MaintenanceHubMap({
                   <p className="text-xs text-slate-700 mt-1">{selectedWorkOrder.description}</p>
                 </div>
 
-                <div className="flex items-center gap-1 text-xs text-gray-500">
+                <div className="flex items-center gap-1 text-xs text-gray-700">
                   <MapPin className="w-3 h-3" />
                   <span>{selectedWorkOrder.location.address}</span>
                 </div>
 
                 {selectedWorkOrder.estimatedCompletion && (
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <div className="flex items-center gap-1 text-xs text-gray-700">
                     <Clock className="w-3 h-3" />
                     <span>ETA: {selectedWorkOrder.estimatedCompletion}</span>
                   </div>
@@ -307,7 +307,7 @@ export function MaintenanceHubMap({
                   </Badge>
                 </div>
 
-                <div className="flex items-center gap-1 text-xs text-gray-500">
+                <div className="flex items-center gap-1 text-xs text-gray-700">
                   <MapPin className="w-3 h-3" />
                   <span>{selectedLocation.location.address}</span>
                 </div>

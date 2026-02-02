@@ -315,7 +315,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
               {showDetails && error && (
                 <details className="mt-2">
-                  <summary className="cursor-pointer text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100">
+                  <summary className="cursor-pointer text-sm font-medium text-slate-600 dark:text-slate-700 hover:text-slate-900 dark:hover:text-slate-100">
                     Technical Details
                   </summary>
                   <div className="mt-2 p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
@@ -337,7 +337,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                       {error.stack && (
                         <div className="mt-2">
                           <span className="text-slate-500">Stack Trace:</span>
-                          <pre className="mt-1 text-[10px] text-slate-600 dark:text-slate-400 overflow-auto max-h-32">
+                          <pre className="mt-1 text-[10px] text-slate-600 dark:text-slate-700 overflow-auto max-h-32">
                             {error.stack}
                           </pre>
                         </div>
@@ -351,7 +351,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                 <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   What you can try:
                 </h3>
-                <ul className="space-y-1 text-sm text-slate-600 dark:text-slate-400">
+                <ul className="space-y-1 text-sm text-slate-600 dark:text-slate-700">
                   {errorType === 'network' && (
                     <>
                       <li>• Check your internet connection</li>
@@ -417,7 +417,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
             {errorId && (
               <div className="px-3 pb-2">
-                <p className="text-xs text-center text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-center text-slate-500 dark:text-slate-700">
                   Reference this ID when contacting support: <code className="font-mono">{errorId}</code>
                 </p>
               </div>

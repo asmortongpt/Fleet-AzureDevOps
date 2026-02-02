@@ -69,6 +69,7 @@ import aiTaskAssetRouter from './routes/ai-task-asset.routes'
 import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
 // TEMP DISABLED: import alertsRouter from './routes/alerts.routes'
 import annualReauthorizationRouter from './routes/annual-reauthorization.routes'
+import analyticsRouter from './routes/analytics'
 import arcgisLayersRouter from './routes/arcgis-layers'
 import assetAnalyticsRouter from './routes/asset-analytics.routes'
 import assetManagementRouter from './routes/asset-management.routes'
@@ -121,7 +122,7 @@ import incidentsRouter from './routes/incidents'
 import inspectionsRouter from './routes/inspections'
 import invoicesRouter from './routes/invoices'
 import lidarRouter from './routes/lidar.routes'
-import maintenanceRouter from './routes/maintenance'
+import maintenanceRouter from './modules/maintenance/routes/maintenance.routes'
 import maintenanceDrilldownsRouter from './routes/maintenance-drilldowns'
 import maintenanceSchedulesRouter from './routes/maintenance-schedules'
 import microsoftAuthRouter from './routes/microsoft-auth'
@@ -143,6 +144,14 @@ import permissionsRouter from './routes/permissions'
 import chargesRouter from './routes/personal-use-charges'
 import personalUsePoliciesRouter from './routes/personal-use-policies'
 import policiesRouter from './routes/policies'
+
+// Missing importers
+import alertsRouter from './routes/alerts.routes'
+import complianceRouter from './routes/compliance'
+import inventoryRouter from './routes/inventory.routes'
+// monitoringRouter imported in separate block
+import reportsRouter from './routes/reports.routes'
+import reservationsRouter from './routes/reservations.routes'
 import policyTemplatesRouter from './routes/policy-templates'
 import presenceRouter from './routes/presence.routes'
 import purchaseOrdersRouter from './routes/purchase-orders'
@@ -151,6 +160,8 @@ import qualityGatesRouter from './routes/quality-gates'
 // import routeEmulatorRouter from './routes/route-emulator.routes'
 import routesRouter from './routes/routes'
 import safetyIncidentsRouter from './routes/safety-incidents'
+import tripsRouter from './routes/trips'
+import safetyAlertsRouter from './routes/safety-alerts'
 import schedulingRouter from './routes/scheduling.routes'
 import searchRouter from './routes/search'
 import sessionRevocationRouter from './routes/session-revocation'
@@ -317,21 +328,23 @@ app.use('/api/v1/batch', batchRouter)
 app.use('/api/batch', batchRouter)
 
 // Core Fleet Management Routes
-// TEMP DISABLED: app.use('/api/alerts', alertsRouter)  // TODO: Import alertsRouter from './routes/alerts.routes'
+app.use('/api/alerts', alertsRouter)
 app.use('/api/vehicles', vehiclesRouter)
 app.use('/api/drivers', driversRouter)
 app.use('/api/fuel-transactions', fuelRouter)
 app.use('/api/maintenance', maintenanceRouter)
 app.use('/api/incidents', incidentsRouter)
 app.use('/api/parts', partsRouter)
+app.use('/api/inventory', inventoryRouter) // Registered here as core
 app.use('/api/vendors', vendorsRouter)
 app.use('/api/invoices', invoicesRouter)
 app.use('/api/purchase-orders', purchaseOrdersRouter)
 app.use('/api/tasks', tasksRouter)
-// TEMP DISABLED: app.use('/api/reservations', reservationsRouter)  // TODO: Import reservationsRouter from './routes/reservations.routes'
+app.use('/api/reservations', reservationsRouter)
 // TEMP DISABLED: app.use('/api/hos', hosRouter)  // TODO: Import hosRouter from './routes/hos.routes'
 
 // Asset Management Routes
+app.use('/api/analytics', analyticsRouter)
 app.use('/api/assets', assetManagementRouter)
 app.use('/api/asset-analytics', assetAnalyticsRouter)
 app.use('/api/assets-mobile', assetsMobileRouter)
@@ -408,18 +421,24 @@ app.use('/api/lidar', lidarRouter)
 
 // Trip & Route Management Routes
 app.use('/api/routes', routesRouter)
+app.use('/api/trips', tripsRouter)
 // app.use('/api/route-emulator', routeEmulatorRouter)
 app.use('/api/trip-usage', tripUsageRouter)
 
 // Safety & Compliance Routes
 app.use('/api/safety-incidents', safetyIncidentsRouter)
+app.use('/api/safety-alerts', safetyAlertsRouter)
 app.use('/api/osha-compliance', oshaComplianceRouter)
+app.use('/api/compliance', complianceRouter)
 app.use('/api/annual-reauthorization', annualReauthorizationRouter)
 
 // Policy & Permission Routes
 app.use('/api/policies', policiesRouter)
 app.use('/api/policy-templates', policyTemplatesRouter)
 app.use('/api/permissions', permissionsRouter)
+
+// Reporting
+app.use('/api/reports', reportsRouter)
 
 // Authentication & User Management Routes
 app.use('/api/auth', authRouter)
@@ -445,7 +464,7 @@ app.use('/api/dashboard', dashboardRouter)
 // app.use('/api/demo', demoRouter) // REMOVED: demo routes deleted during mock data cleanup
 
 // System Management Routes
-// app.use('/api/monitoring', monitoringRouter)
+app.use('/api/monitoring', monitoringRouter)
 app.use('/api/health', healthSystemRouter) // Comprehensive system health (BACKEND-12)
 app.use('/api/health/microsoft', healthRouter) // Microsoft integration health
 // TEMP DISABLED: app.use('/api/health', healthStartupRouter) // TODO: Import healthStartupRouter from './routes/health-startup.routes'

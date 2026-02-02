@@ -238,7 +238,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
       case 'environmental':
         return <AlertTriangle className="h-5 w-5 text-yellow-500" />
       default:
-        return <AlertTriangle className="h-5 w-5 text-gray-500" />
+        return <AlertTriangle className="h-5 w-5 text-gray-700" />
     }
   }
 
@@ -253,7 +253,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
       case 'update':
         return <Clock className="h-4 w-4 text-yellow-500" />
       default:
-        return <Clock className="h-4 w-4 text-gray-500" />
+        return <Clock className="h-4 w-4 text-gray-700" />
     }
   }
 

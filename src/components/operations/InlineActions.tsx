@@ -74,14 +74,14 @@ export function StatusBadge({ status, size = 'md', label }: StatusBadgeProps) {
     active: {
       bg: 'bg-emerald-500/20',
       border: 'border-emerald-500/50',
-      text: 'text-emerald-400',
+      text: 'text-emerald-700',
       dot: 'bg-emerald-400',
       label: label || 'Active',
     },
     inactive: {
       bg: 'bg-slate-500/20',
       border: 'border-slate-500/50',
-      text: 'text-slate-400',
+      text: 'text-slate-700',
       dot: 'bg-slate-400',
       label: label || 'Inactive',
     },
@@ -95,7 +95,7 @@ export function StatusBadge({ status, size = 'md', label }: StatusBadgeProps) {
     completed: {
       bg: 'bg-blue-500/20',
       border: 'border-blue-500/50',
-      text: 'text-blue-400',
+      text: 'text-blue-700',
       dot: 'bg-blue-400',
       label: label || 'Completed',
     },
@@ -195,7 +195,7 @@ export function InlineEditPanel({
             onClick={onCancel}
             variant="ghost"
             size="sm"
-            className="text-slate-400 hover:text-white"
+            className="text-slate-700 hover:text-white"
             disabled={isSaving}
           >
             <X className="w-4 h-4" weight="bold" />

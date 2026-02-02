@@ -58,7 +58,7 @@ function OverviewContent() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-900 dark:text-white">Configuration Overview</h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">Complete control over application behavior and appearance</p>
+          <p className="text-slate-600 dark:text-slate-700 mt-1">Complete control over application behavior and appearance</p>
         </div>
         <div className="flex items-center gap-3">
           <button className="px-2 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2">
@@ -158,9 +158,9 @@ function CategoryCard({ category }: { category: ConfigCategory }) {
         </div>
         <div className="flex-1">
           <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{category.name}</h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{category.description}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-700 mt-1">{category.description}</p>
           <div className="flex items-center gap-2 mt-3 text-sm">
-            <span className="text-slate-600 dark:text-slate-400">{totalSettings} settings</span>
+            <span className="text-slate-600 dark:text-slate-700">{totalSettings} settings</span>
             {policyDriven > 0 && (
               <span className="flex items-center gap-1 text-purple-600">
                 <Wand2 className="w-4 h-4" />
@@ -193,7 +193,7 @@ function ConfigChangeItem({
     <div className="flex items-start justify-between p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
       <div className="flex-1">
         <p className="font-medium text-slate-900 dark:text-white">{setting}</p>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+        <p className="text-sm text-slate-600 dark:text-slate-700 mt-1">
           <span className="text-red-600 line-through">{oldValue}</span>
           {' → '}
           <span className="text-green-600 font-semibold">{newValue}</span>
@@ -276,7 +276,7 @@ function BusinessRulesContent() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-900 dark:text-white">Business Rules & Thresholds</h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">Most of these are automatically configured by policies</p>
+          <p className="text-slate-600 dark:text-slate-700 mt-1">Most of these are automatically configured by policies</p>
         </div>
         <div className="flex items-center gap-2 px-2 py-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
           <Wand2 className="w-3 h-3 text-purple-600" />
@@ -318,7 +318,7 @@ function RBACConfiguration() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-900 dark:text-white">Role-Based Access Control</h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">Permissions automatically configured from SOPs and policies</p>
+          <p className="text-slate-600 dark:text-slate-700 mt-1">Permissions automatically configured from SOPs and policies</p>
         </div>
         <button className="px-2 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2">
           <Wand2 className="w-3 h-3" />
@@ -349,7 +349,7 @@ function RBACConfiguration() {
       <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
         <div className="p-3 border-b border-slate-200 dark:border-slate-700">
           <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Role Permissions Matrix</h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Auto-generated from 47 SOPs</p>
+          <p className="text-sm text-slate-600 dark:text-slate-700 mt-1">Auto-generated from 47 SOPs</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -478,7 +478,7 @@ function SOPSource({
           </div>
           <div className="mt-2 space-y-1">
             <div className="flex items-center gap-2 text-xs">
-              <span className="text-slate-600 dark:text-slate-400">Roles:</span>
+              <span className="text-slate-600 dark:text-slate-700">Roles:</span>
               <div className="flex items-center gap-1 flex-wrap">
                 {rolesAffected.map((role) => (
                   <span key={role} className="px-2 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded">
@@ -488,7 +488,7 @@ function SOPSource({
               </div>
             </div>
             <div className="flex items-center gap-2 text-xs">
-              <span className="text-slate-600 dark:text-slate-400">Permissions:</span>
+              <span className="text-slate-600 dark:text-slate-700">Permissions:</span>
               <div className="flex items-center gap-1 flex-wrap">
                 {permissionsGranted.map((permission) => (
                   <span key={permission} className="px-2 py-0.5 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded">
@@ -526,7 +526,7 @@ function ConfigSection({
       <div className="flex items-start justify-between mb-2">
         <div className="flex-1">
           <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{title}</h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{description}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-700 mt-1">{description}</p>
         </div>
         {policyDriven && (
           <div className="flex items-center gap-2 px-3 py-1 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
@@ -549,7 +549,7 @@ function ConfigSection({
             <span className="text-sm font-medium text-slate-900 dark:text-white">Live Preview</span>
           </div>
           <div className="p-2 bg-white dark:bg-slate-800 rounded-lg">
-            <p className="text-sm text-slate-600 dark:text-slate-400">Preview of changes will appear here</p>
+            <p className="text-sm text-slate-600 dark:text-slate-700">Preview of changes will appear here</p>
           </div>
         </div>
       )}
@@ -572,7 +572,7 @@ function ConfigSettingInput({ setting }: { setting: ConfigSetting }) {
           {setting.label}
           {setting.validation?.required && <span className="text-red-500 ml-1">*</span>}
         </label>
-        <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">{setting.description}</p>
+        <p className="text-xs text-slate-600 dark:text-slate-700 mb-2">{setting.description}</p>
 
         {setting.type === 'boolean' && (
           <label className="flex items-center gap-2 cursor-pointer">
@@ -722,7 +722,7 @@ function SecurityContent() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-900 dark:text-white">Security & Access Control</h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">Critical security settings - changes require approval</p>
+          <p className="text-slate-600 dark:text-slate-700 mt-1">Critical security settings - changes require approval</p>
         </div>
         <div className="flex items-center gap-2 px-2 py-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
           <WarningIcon className="w-3 h-3 text-red-600" />
@@ -761,7 +761,7 @@ function AdvancedContent() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-900 dark:text-white">Advanced Configuration</h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">Advanced settings for power users</p>
+          <p className="text-slate-600 dark:text-slate-700 mt-1">Advanced settings for power users</p>
         </div>
       </div>
 
@@ -776,7 +776,7 @@ function AdvancedContent() {
         <div className="space-y-2">
           <div>
             <h4 className="text-sm font-medium text-slate-900 dark:text-white mb-2">Export Configuration</h4>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+            <p className="text-sm text-slate-600 dark:text-slate-700 mb-3">
               Download current configuration as JSON for backup or transfer to another environment
             </p>
             <button className="px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
@@ -786,7 +786,7 @@ function AdvancedContent() {
           </div>
           <div>
             <h4 className="text-sm font-medium text-slate-900 dark:text-white mb-2">Import Configuration</h4>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+            <p className="text-sm text-slate-600 dark:text-slate-700 mb-3">
               Upload a configuration JSON file to apply settings from another environment
             </p>
             <button className="px-2 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-2">

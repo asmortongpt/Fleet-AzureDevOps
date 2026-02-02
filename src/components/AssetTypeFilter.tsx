@@ -179,7 +179,7 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
           )}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-gray-400 hover:text-slate-700 transition-colors"
+            className="text-gray-700 hover:text-slate-700 transition-colors"
           >
             {isExpanded ? <X className="w-3 h-3" /> : <Filter className="w-3 h-3" />}
           </button>

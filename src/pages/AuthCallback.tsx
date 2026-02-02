@@ -58,7 +58,7 @@ export function AuthCallback() {
     <div
       className="relative flex min-h-screen items-center justify-center overflow-hidden"
       style={{
-        background: 'linear-gradient(135deg, #1A0B2E 0%, #2B3A67 50%, #1A0B2E 100%)',
+        background: 'linear-gradient(135deg, #1A0B2E 0%, #2F3359 50%, #1A0B2E 100%)',
         minHeight: '100vh'
       }}
     >
@@ -103,8 +103,8 @@ export function AuthCallback() {
           >
             <defs>
               <linearGradient id="ctaGradientAuthCallback" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style={{ stopColor: '#FDB813' }} />
-                <stop offset="100%" style={{ stopColor: '#FF5722' }} />
+                <stop offset="0%" style={{ stopColor: '#F0A000' }} />
+                <stop offset="100%" style={{ stopColor: '#DD3903' }} />
               </linearGradient>
             </defs>
             <path
@@ -131,7 +131,7 @@ export function AuthCallback() {
                 letterSpacing: '0.15em',
                 color: '#ffffff',
                 textShadow: '0 2px 8px rgba(0, 212, 255, 0.6), 0 4px 12px rgba(253, 184, 19, 0.4)',
-                background: 'linear-gradient(90deg, #ffffff 0%, #00D4FF 50%, #ffffff 100%)',
+                background: 'linear-gradient(90deg, #ffffff 0%, #41B2E3 50%, #ffffff 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text'
@@ -147,7 +147,7 @@ export function AuthCallback() {
           <Loader2
             className="h-6 w-6 animate-spin"
             style={{
-              color: '#00D4FF',
+              color: '#41B2E3',
               filter: 'drop-shadow(0 0 8px rgba(0, 212, 255, 0.6))'
             }}
           />
@@ -166,7 +166,7 @@ export function AuthCallback() {
         <div
           className="w-16 h-0.5 rounded-full mt-2"
           style={{
-            background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)',
+            background: 'linear-gradient(90deg, #F0A000 0%, #DD3903 100%)',
             boxShadow: '0 2px 8px rgba(253, 184, 19, 0.6)'
           }}
         />

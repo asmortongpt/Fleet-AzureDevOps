@@ -195,7 +195,7 @@ export function IncidentListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-red-400">
               {filteredIncidents.filter(i => i.status === 'open' || i.status === 'investigating').length}
             </div>
-            <div className="text-xs text-slate-400">Open/Investigating</div>
+            <div className="text-xs text-slate-700">Open/Investigating</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
@@ -203,15 +203,15 @@ export function IncidentListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-amber-400">
               {filteredIncidents.filter(i => i.oshaRecordable).length}
             </div>
-            <div className="text-xs text-slate-400">OSHA Recordable</div>
+            <div className="text-xs text-slate-700">OSHA Recordable</div>
           </CardContent>
         </Card>
         <Card className="bg-emerald-900/30 border-emerald-700/50">
           <CardContent className="p-2 text-center">
-            <div className="text-sm font-bold text-emerald-400">
+            <div className="text-sm font-bold text-emerald-700">
               {filteredIncidents.reduce((sum, i) => sum + i.workDaysLost, 0)}
             </div>
-            <div className="text-xs text-slate-400">Total Days Lost</div>
+            <div className="text-xs text-slate-700">Total Days Lost</div>
           </CardContent>
         </Card>
       </div>
@@ -312,7 +312,7 @@ export function LostTimeIncidentsView() {
         <CardContent className="p-3 text-center">
           <AlertTriangle className="w-10 h-8 text-red-400 mx-auto mb-2" />
           <div className="text-sm font-bold text-white">{totalDaysLost}</div>
-          <div className="text-sm text-slate-400">Total Work Days Lost</div>
+          <div className="text-sm text-slate-700">Total Work Days Lost</div>
           <div className="text-xs text-slate-500 mt-1">
             from {incidents?.length || 0} incidents
           </div>
@@ -352,10 +352,10 @@ export function OSHAComplianceView() {
       {/* Overall Score */}
       <Card className="bg-emerald-900/30 border-emerald-700/50">
         <CardContent className="p-3 text-center">
-          <ShieldCheck className="w-10 h-8 text-emerald-400 mx-auto mb-2" />
+          <ShieldCheck className="w-10 h-8 text-emerald-700 mx-auto mb-2" />
           <div className="text-sm font-bold text-white">87%</div>
-          <div className="text-sm text-slate-400">OSHA Compliance Score</div>
-          <div className="text-xs text-emerald-400 mt-1">+3% from last month</div>
+          <div className="text-sm text-slate-700">OSHA Compliance Score</div>
+          <div className="text-xs text-emerald-700 mt-1">+3% from last month</div>
         </CardContent>
       </Card>
 
@@ -403,7 +403,7 @@ export function OSHAComplianceView() {
             <div key={index} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
               <div>
                 <div className="font-medium text-white">{item.action}</div>
-                <div className="text-xs text-slate-400">{new Date(item.date).toLocaleDateString()}</div>
+                <div className="text-xs text-slate-700">{new Date(item.date).toLocaleDateString()}</div>
               </div>
               <Badge variant={item.status === 'completed' ? 'outline' : 'default'}>
                 {item.status}
@@ -428,17 +428,17 @@ export function DaysIncidentFreeView() {
       {/* Current Streak */}
       <Card className="bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 border-emerald-700/50">
         <CardContent className="p-3 text-center">
-          <ShieldCheck className="w-12 h-9 text-emerald-400 mx-auto mb-2" />
+          <ShieldCheck className="w-12 h-9 text-emerald-700 mx-auto mb-2" />
           <div className="text-6xl font-bold text-white mb-2">{currentStreak}</div>
           <div className="text-sm text-slate-300 mb-2">Days Without Incident</div>
           <div className="flex justify-center gap-2 text-sm">
             <div>
-              <div className="text-slate-400">Target</div>
+              <div className="text-slate-700">Target</div>
               <div className="text-base font-bold text-white">{target}</div>
             </div>
             <div>
-              <div className="text-slate-400">Record</div>
-              <div className="text-base font-bold text-emerald-400">{longestStreak}</div>
+              <div className="text-slate-700">Record</div>
+              <div className="text-base font-bold text-emerald-700">{longestStreak}</div>
             </div>
           </div>
           {/* Progress Bar */}
@@ -448,7 +448,7 @@ export function DaysIncidentFreeView() {
               style={{ width: `${Math.min((currentStreak / target) * 100, 100)}%` }}
             />
           </div>
-          <div className="text-xs text-slate-400 mt-2">
+          <div className="text-xs text-slate-700 mt-2">
             {Math.round((currentStreak / target) * 100)}% to target
           </div>
         </CardContent>
@@ -469,7 +469,7 @@ export function DaysIncidentFreeView() {
             <div key={index} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
               <div>
                 <div className="font-medium text-white">{item.period}</div>
-                <div className="text-xs text-slate-400">{item.days} days</div>
+                <div className="text-xs text-slate-700">{item.days} days</div>
               </div>
               {item.status === 'longest' && (
                 <Badge variant="default" className="bg-emerald-600">

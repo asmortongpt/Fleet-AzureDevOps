@@ -130,7 +130,7 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
             <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-500 mx-auto mb-2"></div>
-            <p className="text-gray-500">Loading document...</p>
+            <p className="text-gray-700">Loading document...</p>
           </div>
         </div>
       );
@@ -162,7 +162,7 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
             loading={
               <div className="text-center">
                 <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-500 mx-auto mb-2"></div>
-                <p className="text-gray-500">Loading PDF...</p>
+                <p className="text-gray-700">Loading PDF...</p>
               </div>
             }
           >
@@ -244,9 +244,9 @@ export function DocumentPreview({ open, onClose, document, downloadUrl }: Docume
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
-          <File className="h-16 w-16 mx-auto mb-2 text-gray-400" />
+          <File className="h-16 w-16 mx-auto mb-2 text-gray-700" />
           <p className="text-slate-700 mb-2">Preview not available for this file type</p>
-          <p className="text-sm text-gray-500 mb-2">
+          <p className="text-sm text-gray-700 mb-2">
             {document.file_type || 'Unknown file type'}
           </p>
           <Button onClick={handleDownload}>

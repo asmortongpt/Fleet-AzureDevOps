@@ -1612,7 +1612,7 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
                     </div>
                   ) : (
                     <div className="text-center py-3">
-                      <XCircle className="w-12 h-9 text-gray-400 mx-auto mb-2" />
+                      <XCircle className="w-12 h-9 text-gray-600 mx-auto mb-2" />
                       <p className="text-muted-foreground">No active warranty</p>
                     </div>
                   )}
@@ -2018,7 +2018,7 @@ export function GarageBaysMatrixPanel() {
       cellClassName: 'font-semibold',
       colorRules: [
         { condition: (v) => v >= 75, className: 'text-green-600 dark:text-green-400' },
-        { condition: (v) => v >= 50 && v < 75, className: 'text-blue-800 dark:text-blue-400' },
+        { condition: (v) => v >= 50 && v < 75, className: 'text-blue-800 dark:text-blue-700' },
         { condition: (v) => v >= 25 && v < 50, className: 'text-yellow-600 dark:text-yellow-400' },
         { condition: (v) => v < 25, className: 'text-orange-600 dark:text-orange-400' },
       ],

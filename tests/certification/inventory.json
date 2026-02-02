@@ -1,0 +1,5385 @@
+{
+  "generated": "2026-02-01T17:25:20.460Z",
+  "summary": {
+    "totalItems": 551,
+    "byType": {
+      "ui-route": 10,
+      "ui-tab": 21,
+      "ui-button": 21,
+      "api-endpoint": 458,
+      "ai-feature": 22,
+      "integration": 4,
+      "background-service": 15
+    },
+    "testableItems": 551,
+    "coverage": "100.0%"
+  },
+  "items": [
+    {
+      "type": "ui-route",
+      "path": "/",
+      "component": "FleetHub ",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/routes.tsx",
+      "testable": true,
+      "id": "route_0000"
+    },
+    {
+      "type": "ui-route",
+      "path": "/fleet",
+      "component": "FleetHub ",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/routes.tsx",
+      "testable": true,
+      "id": "route_0001"
+    },
+    {
+      "type": "ui-route",
+      "path": "/analytics",
+      "component": "AnalyticsHub ",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/routes.tsx",
+      "testable": true,
+      "id": "route_0002"
+    },
+    {
+      "type": "ui-route",
+      "path": "/reservations",
+      "component": "ReservationsHub ",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/routes.tsx",
+      "testable": true,
+      "id": "route_0003"
+    },
+    {
+      "type": "ui-route",
+      "path": "/policy-hub",
+      "component": "PolicyHub ",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/routes.tsx",
+      "testable": true,
+      "id": "route_0004"
+    },
+    {
+      "type": "ui-route",
+      "path": "/documents",
+      "component": "DocumentsHub ",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/routes.tsx",
+      "testable": true,
+      "id": "route_0005"
+    },
+    {
+      "type": "ui-route",
+      "path": "/documents-hub",
+      "component": "DocumentsHub ",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/routes.tsx",
+      "testable": true,
+      "id": "route_0006"
+    },
+    {
+      "type": "ui-route",
+      "path": "/configuration",
+      "component": "ConfigurationHub ",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/routes.tsx",
+      "testable": true,
+      "id": "route_0007"
+    },
+    {
+      "type": "ui-route",
+      "path": "/cta-configuration-hub",
+      "component": "ConfigurationHub ",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/routes.tsx",
+      "testable": true,
+      "id": "route_0008"
+    },
+    {
+      "type": "ui-route",
+      "path": "/map-diagnostics",
+      "component": "MapDiagnostics ",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/routes.tsx",
+      "testable": true,
+      "id": "route_0009"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "PeopleCommunicationHub",
+      "tabName": "",
+      "testId": "hub-tab-people",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/PeopleCommunicationHub.tsx",
+      "testable": true,
+      "id": "tab_0010"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "PeopleCommunicationHub",
+      "tabName": "",
+      "testId": "hub-tab-communication",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/PeopleCommunicationHub.tsx",
+      "testable": true,
+      "id": "tab_0011"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "PeopleCommunicationHub",
+      "tabName": "",
+      "testId": "hub-tab-work",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/PeopleCommunicationHub.tsx",
+      "testable": true,
+      "id": "tab_0012"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "FleetOperationsHub",
+      "tabName": "",
+      "testId": "hub-tab-fleet",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/FleetOperationsHub.tsx",
+      "testable": true,
+      "id": "tab_0013"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "FleetOperationsHub",
+      "tabName": "",
+      "testId": "hub-tab-drivers",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/FleetOperationsHub.tsx",
+      "testable": true,
+      "id": "tab_0014"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "FleetOperationsHub",
+      "tabName": "",
+      "testId": "hub-tab-operations",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/FleetOperationsHub.tsx",
+      "testable": true,
+      "id": "tab_0015"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "FleetOperationsHub",
+      "tabName": "",
+      "testId": "hub-tab-maintenance",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/FleetOperationsHub.tsx",
+      "testable": true,
+      "id": "tab_0016"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "FleetOperationsHub",
+      "tabName": "",
+      "testId": "hub-tab-assets",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/FleetOperationsHub.tsx",
+      "testable": true,
+      "id": "tab_0017"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "ComplianceSafetyHub",
+      "tabName": "",
+      "testId": "hub-tab-compliance",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/ComplianceSafetyHub.tsx",
+      "testable": true,
+      "id": "tab_0018"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "ComplianceSafetyHub",
+      "tabName": "",
+      "testId": "hub-tab-safety",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/ComplianceSafetyHub.tsx",
+      "testable": true,
+      "id": "tab_0019"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "ComplianceSafetyHub",
+      "tabName": "",
+      "testId": "hub-tab-policies",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/ComplianceSafetyHub.tsx",
+      "testable": true,
+      "id": "tab_0020"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "ComplianceSafetyHub",
+      "tabName": "",
+      "testId": "hub-tab-reports",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/ComplianceSafetyHub.tsx",
+      "testable": true,
+      "id": "tab_0021"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "BusinessManagementHub",
+      "tabName": "",
+      "testId": "hub-tab-financial",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/BusinessManagementHub.tsx",
+      "testable": true,
+      "id": "tab_0022"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "BusinessManagementHub",
+      "tabName": "",
+      "testId": "hub-tab-procurement",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/BusinessManagementHub.tsx",
+      "testable": true,
+      "id": "tab_0023"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "BusinessManagementHub",
+      "tabName": "",
+      "testId": "hub-tab-analytics",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/BusinessManagementHub.tsx",
+      "testable": true,
+      "id": "tab_0024"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "BusinessManagementHub",
+      "tabName": "",
+      "testId": "hub-tab-reports",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/BusinessManagementHub.tsx",
+      "testable": true,
+      "id": "tab_0025"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "AdminConfigurationHub",
+      "tabName": "",
+      "testId": "hub-tab-admin",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/AdminConfigurationHub.tsx",
+      "testable": true,
+      "id": "tab_0026"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "AdminConfigurationHub",
+      "tabName": "",
+      "testId": "hub-tab-config",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/AdminConfigurationHub.tsx",
+      "testable": true,
+      "id": "tab_0027"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "AdminConfigurationHub",
+      "tabName": "",
+      "testId": "hub-tab-data",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/AdminConfigurationHub.tsx",
+      "testable": true,
+      "id": "tab_0028"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "AdminConfigurationHub",
+      "tabName": "",
+      "testId": "hub-tab-integrations",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/AdminConfigurationHub.tsx",
+      "testable": true,
+      "id": "tab_0029"
+    },
+    {
+      "type": "ui-tab",
+      "hubName": "AdminConfigurationHub",
+      "tabName": "",
+      "testId": "hub-tab-documents",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/pages/AdminConfigurationHub.tsx",
+      "testable": true,
+      "id": "tab_0030"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/workspaces/ComplianceWorkspace.tsx",
+      "buttonText": "upload-document-btn",
+      "testId": "upload-document-btn",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/workspaces/ComplianceWorkspace.tsx",
+      "testable": true,
+      "id": "button_0031"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/workspaces/ComplianceWorkspace.tsx",
+      "buttonText": "create-incident-btn",
+      "testId": "create-incident-btn",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/workspaces/ComplianceWorkspace.tsx",
+      "testable": true,
+      "id": "button_0032"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/workspaces/AnalyticsWorkspace.tsx",
+      "buttonText": "generate-report-btn",
+      "testId": "generate-report-btn",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/workspaces/AnalyticsWorkspace.tsx",
+      "testable": true,
+      "id": "button_0033"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/map/ProfessionalFleetMap.tsx",
+      "buttonText": "map-locate",
+      "testId": "map-locate",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/map/ProfessionalFleetMap.tsx",
+      "testable": true,
+      "id": "button_0034"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/mobile/MobileMapControls.tsx",
+      "buttonText": "{isFullscreen ? (",
+      "testId": "fullscreen-control",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/mobile/MobileMapControls.tsx",
+      "testable": true,
+      "id": "button_0035"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/mobile/MobileMapControls.tsx",
+      "buttonText": "layers-control",
+      "testId": "layers-control",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/mobile/MobileMapControls.tsx",
+      "testable": true,
+      "id": "button_0036"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/mobile/MobileMapControls.tsx",
+      "buttonText": "locate-control",
+      "testId": "locate-control",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/mobile/MobileMapControls.tsx",
+      "testable": true,
+      "id": "button_0037"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/mobile/MobileMapControls.tsx",
+      "buttonText": "zoom-in-control",
+      "testId": "zoom-in-control",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/mobile/MobileMapControls.tsx",
+      "testable": true,
+      "id": "button_0038"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/mobile/MobileMapControls.tsx",
+      "buttonText": "zoom-out-control",
+      "testId": "zoom-out-control",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/mobile/MobileMapControls.tsx",
+      "testable": true,
+      "id": "button_0039"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/mobile/MobileFilterSheet.tsx",
+      "buttonText": "reset-filters-btn",
+      "testId": "reset-filters-btn",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/mobile/MobileFilterSheet.tsx",
+      "testable": true,
+      "id": "button_0040"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/mobile/MobileFilterSheet.tsx",
+      "buttonText": "Apply Filters\n              {activeFilterCount > 0 && (",
+      "testId": "apply-filters-btn",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/mobile/MobileFilterSheet.tsx",
+      "testable": true,
+      "id": "button_0041"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/mobile/MobileFilterSheet.tsx",
+      "buttonText": "open-filters-btn",
+      "testId": "open-filters-btn",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/mobile/MobileFilterSheet.tsx",
+      "testable": true,
+      "id": "button_0042"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/mobile/MobileFilterSheet.tsx",
+      "buttonText": "edit-filters-btn",
+      "testId": "edit-filters-btn",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/mobile/MobileFilterSheet.tsx",
+      "testable": true,
+      "id": "button_0043"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/dialogs/AddVehicleDialog.tsx",
+      "buttonText": "add-vehicle-btn",
+      "testId": "add-vehicle-btn",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/dialogs/AddVehicleDialog.tsx",
+      "testable": true,
+      "id": "button_0044"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/dashboard/LiveFleetDashboard.tsx",
+      "buttonText": "dispatch-action",
+      "testId": "dispatch-action",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/dashboard/LiveFleetDashboard.tsx",
+      "testable": true,
+      "id": "button_0045"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/dashboard/LiveFleetDashboard.tsx",
+      "buttonText": "maintenance-action",
+      "testId": "maintenance-action",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/dashboard/LiveFleetDashboard.tsx",
+      "testable": true,
+      "id": "button_0046"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/dashboard/LiveFleetDashboard.tsx",
+      "buttonText": "alerts-action",
+      "testId": "alerts-action",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/dashboard/LiveFleetDashboard.tsx",
+      "testable": true,
+      "id": "button_0047"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/dashboard/LiveFleetDashboard.tsx",
+      "buttonText": "fuel-action",
+      "testId": "fuel-action",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/dashboard/LiveFleetDashboard.tsx",
+      "testable": true,
+      "id": "button_0048"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/analytics/AnalyticsDashboard.tsx",
+      "buttonText": "export-report-btn",
+      "testId": "export-report-btn",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/analytics/AnalyticsDashboard.tsx",
+      "testable": true,
+      "id": "button_0049"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/analytics/AnalyticsDashboard.tsx",
+      "buttonText": "share-report-btn",
+      "testId": "share-report-btn",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/analytics/AnalyticsDashboard.tsx",
+      "testable": true,
+      "id": "button_0050"
+    },
+    {
+      "type": "ui-button",
+      "location": "src/components/hubs/operations/OperationsHubMap.tsx",
+      "buttonText": "map-locate",
+      "testId": "map-locate",
+      "filePath": "/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/components/hubs/operations/OperationsHubMap.tsx",
+      "testable": true,
+      "id": "button_0051"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/vehicle-idling/active",
+      "routeFile": "api/src/routes/vehicle-idling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0052"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/vehicle-identification/qr/generate/:vehicleId",
+      "routeFile": "api/src/routes/vehicle-identification.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0053"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/vehicle-identification/qr/scan",
+      "routeFile": "api/src/routes/vehicle-identification.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0054"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/vehicle-identification/vin",
+      "routeFile": "api/src/routes/vehicle-identification.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0055"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/vehicle-identification/license-plate",
+      "routeFile": "api/src/routes/vehicle-identification.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0056"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/vehicle-identification/license-plate/ocr",
+      "routeFile": "api/src/routes/vehicle-identification.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0057"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/vehicle-identification/search",
+      "routeFile": "api/src/routes/vehicle-identification.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0058"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/vehicle-identification/label/:vehicleId",
+      "routeFile": "api/src/routes/vehicle-identification.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0059"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/vehicle-3d/:id/3d-model",
+      "routeFile": "api/src/routes/vehicle-3d.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0060"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/vehicle-3d/:id/ar-model",
+      "routeFile": "api/src/routes/vehicle-3d.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0061"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/vehicle-3d/models",
+      "routeFile": "api/src/routes/vehicle-3d.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0062"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/vehicle-3d/models/catalog",
+      "routeFile": "api/src/routes/vehicle-3d.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0063"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/vehicle-3d/:id/ar-session",
+      "routeFile": "api/src/routes/vehicle-3d.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0064"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/vehicle-3d/ar-sessions/:sessionId",
+      "routeFile": "api/src/routes/vehicle-3d.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0065"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/vehicle-3d/:id/renders",
+      "routeFile": "api/src/routes/vehicle-3d.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0066"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/vehicle-3d/3d-performance",
+      "routeFile": "api/src/routes/vehicle-3d.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0067"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/teams/",
+      "routeFile": "api/src/routes/teams.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0068"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/teams/:teamId/channels",
+      "routeFile": "api/src/routes/teams.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0069"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/teams/:teamId/channels/:channelId/messages",
+      "routeFile": "api/src/routes/teams.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0070"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/teams/:teamId/channels/:channelId/messages",
+      "routeFile": "api/src/routes/teams.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0071"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/teams/:teamId/channels/:channelId/messages/:messageId/replies",
+      "routeFile": "api/src/routes/teams.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0072"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/teams/:teamId/channels/:channelId/messages/:messageId/reactions",
+      "routeFile": "api/src/routes/teams.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0073"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/teams/:teamId/channels",
+      "routeFile": "api/src/routes/teams.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0074"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PATCH",
+      "path": "/api/teams/:teamId/channels/:channelId/messages/:messageId",
+      "routeFile": "api/src/routes/teams.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0075"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/teams/:teamId/channels/:channelId/messages/:messageId",
+      "routeFile": "api/src/routes/teams.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0076"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/task-management/",
+      "routeFile": "api/src/routes/task-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0077"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/task-management/",
+      "routeFile": "api/src/routes/task-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0078"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/task-management/:id",
+      "routeFile": "api/src/routes/task-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0079"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/task-management/:id/comments",
+      "routeFile": "api/src/routes/task-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0080"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/task-management/:id/time-entries",
+      "routeFile": "api/src/routes/task-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0081"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/task-management/analytics/summary",
+      "routeFile": "api/src/routes/task-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0082"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/system-health/",
+      "routeFile": "api/src/routes/system-health.routes.ts",
+      "authenticated": false,
+      "testable": true,
+      "id": "endpoint_0083"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/system-health/connections",
+      "routeFile": "api/src/routes/system-health.routes.ts",
+      "authenticated": false,
+      "testable": true,
+      "id": "endpoint_0084"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/system-health/memory",
+      "routeFile": "api/src/routes/system-health.routes.ts",
+      "authenticated": false,
+      "testable": true,
+      "id": "endpoint_0085"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/system-health/uptime",
+      "routeFile": "api/src/routes/system-health.routes.ts",
+      "authenticated": false,
+      "testable": true,
+      "id": "endpoint_0086"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/system-health/metrics",
+      "routeFile": "api/src/routes/system-health.routes.ts",
+      "authenticated": false,
+      "testable": true,
+      "id": "endpoint_0087"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/sync/status",
+      "routeFile": "api/src/routes/sync.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0088"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/sync/full",
+      "routeFile": "api/src/routes/sync.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0089"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/sync/errors",
+      "routeFile": "api/src/routes/sync.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0090"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/sync/jobs",
+      "routeFile": "api/src/routes/sync.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0091"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/sync/errors/:id",
+      "routeFile": "api/src/routes/sync.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0092"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/sync/health",
+      "routeFile": "api/src/routes/sync.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0093"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/smartcar/status",
+      "routeFile": "api/src/routes/smartcar.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:manage:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0094"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/smartcar/connect",
+      "routeFile": "api/src/routes/smartcar.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:manage:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0095"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/smartcar/callback",
+      "routeFile": "api/src/routes/smartcar.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:manage:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0096"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/scheduling/reservations",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0097"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/scheduling/reservations",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0098"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PATCH",
+      "path": "/api/scheduling/reservations/:id",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0099"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/scheduling/reservations/:id",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0100"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/scheduling/reservations/:id/approve",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0101"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/scheduling/reservations/:id/reject",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0102"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/scheduling/maintenance",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0103"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/scheduling/maintenance",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0104"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PATCH",
+      "path": "/api/scheduling/maintenance/:id",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0105"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/scheduling/check-conflicts",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0106"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/scheduling/available-vehicles",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0107"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/scheduling/available-service-bays",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0108"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/scheduling/vehicle/:vehicleId/schedule",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0109"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/scheduling/calendar/integrations",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0110"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/scheduling/calendar/google/authorize",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0111"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/scheduling/calendar/google/callback",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0112"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/scheduling/calendar/integrations/:id",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0113"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/scheduling/calendar/sync",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0114"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/scheduling/appointment-types",
+      "routeFile": "api/src/routes/scheduling.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0115"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/scheduling-notifications/preferences",
+      "routeFile": "api/src/routes/scheduling-notifications.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0116"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/scheduling-notifications/preferences",
+      "routeFile": "api/src/routes/scheduling-notifications.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0117"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/scheduling-notifications/test",
+      "routeFile": "api/src/routes/scheduling-notifications.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0118"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/scheduling-notifications/history",
+      "routeFile": "api/src/routes/scheduling-notifications.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0119"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/scheduling-notifications/stats",
+      "routeFile": "api/src/routes/scheduling-notifications.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0120"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/scheduling-notifications/resend/:id",
+      "routeFile": "api/src/routes/scheduling-notifications.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0121"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/scan-sessions/",
+      "routeFile": "api/src/routes/scan-sessions.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0122"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/scan-sessions/:id",
+      "routeFile": "api/src/routes/scan-sessions.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0123"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/scan-sessions/vehicle/:vehicleId",
+      "routeFile": "api/src/routes/scan-sessions.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0124"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/scan-sessions/:id/upload-credentials",
+      "routeFile": "api/src/routes/scan-sessions.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0125"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/scan-sessions/:id/upload-complete",
+      "routeFile": "api/src/routes/scan-sessions.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0126"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/scan-sessions/:id",
+      "routeFile": "api/src/routes/scan-sessions.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0127"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/route-emulator/",
+      "routeFile": "api/src/routes/route-emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0128"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/route-emulator/optimize",
+      "routeFile": "api/src/routes/route-emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0129"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/route-emulator/:id",
+      "routeFile": "api/src/routes/route-emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0130"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/route-emulator/vehicle/:vehicleId",
+      "routeFile": "api/src/routes/route-emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0131"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/route-emulator/driver/:driverId",
+      "routeFile": "api/src/routes/route-emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0132"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/route-emulator/",
+      "routeFile": "api/src/routes/route-emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0133"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/route-emulator/:id",
+      "routeFile": "api/src/routes/route-emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0134"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/route-emulator/:routeId/stops/:stopId",
+      "routeFile": "api/src/routes/route-emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0135"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/route-emulator/:id",
+      "routeFile": "api/src/routes/route-emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0136"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/reservations/",
+      "routeFile": "api/src/routes/reservations.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0137"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/reservations/pending",
+      "routeFile": "api/src/routes/reservations.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0138"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/reservations/:id",
+      "routeFile": "api/src/routes/reservations.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0139"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/reservations/",
+      "routeFile": "api/src/routes/reservations.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0140"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/reservations/:id",
+      "routeFile": "api/src/routes/reservations.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0141"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/reservations/:id",
+      "routeFile": "api/src/routes/reservations.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0142"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/reservations/:id/approve",
+      "routeFile": "api/src/routes/reservations.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0143"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/reservations/vehicles/:vehicleId/availability",
+      "routeFile": "api/src/routes/reservations.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0144"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/reservations/vehicles/:vehicleId/reservations",
+      "routeFile": "api/src/routes/reservations.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0145"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/queue/health",
+      "routeFile": "api/src/routes/queue.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0146"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/queue/:queueName/failed",
+      "routeFile": "api/src/routes/queue.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0147"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/queue/dead-letter",
+      "routeFile": "api/src/routes/queue.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0148"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/queue/:queueName/retry/:jobId",
+      "routeFile": "api/src/routes/queue.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0149"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/queue/:queueName/clear",
+      "routeFile": "api/src/routes/queue.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0150"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/queue/dead-letter/:jobId/review",
+      "routeFile": "api/src/routes/queue.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0151"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/queue/metrics",
+      "routeFile": "api/src/routes/queue.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0152"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/queue/:queueName/job/:jobId",
+      "routeFile": "api/src/routes/queue.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0153"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/push-notifications/:id/clicked",
+      "routeFile": "api/src/routes/push-notifications.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "communication:send:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0154"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/push-notifications/test",
+      "routeFile": "api/src/routes/push-notifications.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "communication:send:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0155"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/purchase-orders-enhanced/",
+      "routeFile": "api/src/routes/purchase-orders-enhanced.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0156"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/purchase-orders-enhanced/:id",
+      "routeFile": "api/src/routes/purchase-orders-enhanced.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0157"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/purchase-orders-enhanced/",
+      "routeFile": "api/src/routes/purchase-orders-enhanced.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0158"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/purchase-orders-enhanced/:id/submit-for-approval",
+      "routeFile": "api/src/routes/purchase-orders-enhanced.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0159"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/purchase-orders-enhanced/:id/approve",
+      "routeFile": "api/src/routes/purchase-orders-enhanced.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0160"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/purchase-orders-enhanced/:id/send-to-vendor",
+      "routeFile": "api/src/routes/purchase-orders-enhanced.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0161"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/purchase-orders-enhanced/:id/receive",
+      "routeFile": "api/src/routes/purchase-orders-enhanced.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0162"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/purchase-orders-enhanced/:id/cancel",
+      "routeFile": "api/src/routes/purchase-orders-enhanced.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0163"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/purchase-orders-enhanced/auto-create-from-alerts",
+      "routeFile": "api/src/routes/purchase-orders-enhanced.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0164"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/purchase-orders-enhanced/summary/statistics",
+      "routeFile": "api/src/routes/purchase-orders-enhanced.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0165"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/presence/:userId",
+      "routeFile": "api/src/routes/presence.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0166"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/presence/",
+      "routeFile": "api/src/routes/presence.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0167"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/presence/batch/users",
+      "routeFile": "api/src/routes/presence.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0168"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/presence/driver/:driverId",
+      "routeFile": "api/src/routes/presence.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0169"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/presence/drivers/all",
+      "routeFile": "api/src/routes/presence.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0170"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/presence/drivers/available",
+      "routeFile": "api/src/routes/presence.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0171"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/presence/intelligent-routing",
+      "routeFile": "api/src/routes/presence.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0172"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/presence/subscribe",
+      "routeFile": "api/src/routes/presence.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0173"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/permissions/me/permissions",
+      "routeFile": "api/src/routes/permissions.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0174"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/permissions/check",
+      "routeFile": "api/src/routes/permissions.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0175"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/permissions/roles",
+      "routeFile": "api/src/routes/permissions.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0176"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/permissions/roles",
+      "routeFile": "api/src/routes/permissions.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0177"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/permissions/users/:userId/roles",
+      "routeFile": "api/src/routes/permissions.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0178"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/permissions/users/:userId/roles",
+      "routeFile": "api/src/routes/permissions.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0179"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/permissions/users/:userId/roles/:roleName",
+      "routeFile": "api/src/routes/permissions.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0180"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/permissions/audit/permissions",
+      "routeFile": "api/src/routes/permissions.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0181"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/permissions/audit/summary/:resourceType/:resourceId",
+      "routeFile": "api/src/routes/permissions.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0182"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/performance/health",
+      "routeFile": "api/src/routes/performance.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0183"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/performance/database/pools",
+      "routeFile": "api/src/routes/performance.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0184"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/performance/database/replica-lag",
+      "routeFile": "api/src/routes/performance.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0185"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/performance/database/connection-leaks",
+      "routeFile": "api/src/routes/performance.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0186"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/performance/queries/stats",
+      "routeFile": "api/src/routes/performance.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0187"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/performance/queries/slow",
+      "routeFile": "api/src/routes/performance.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0188"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/performance/queries/recent",
+      "routeFile": "api/src/routes/performance.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0189"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/performance/queries/summary",
+      "routeFile": "api/src/routes/performance.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0190"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/performance/queries/analyze",
+      "routeFile": "api/src/routes/performance.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0191"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/performance/queries/metrics",
+      "routeFile": "api/src/routes/performance.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0192"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/performance/workers/stats",
+      "routeFile": "api/src/routes/performance.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0193"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/performance/workers/info",
+      "routeFile": "api/src/routes/performance.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0194"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/performance/memory",
+      "routeFile": "api/src/routes/performance.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0195"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/performance/gc",
+      "routeFile": "api/src/routes/performance.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0196"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/outlook/status",
+      "routeFile": "api/src/routes/outlook.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0197"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/ocr/process",
+      "routeFile": "api/src/routes/ocr.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0198"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/ocr/batch",
+      "routeFile": "api/src/routes/ocr.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0199"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/ocr/job/:jobId",
+      "routeFile": "api/src/routes/ocr.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0200"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/ocr/batch/:batchId",
+      "routeFile": "api/src/routes/ocr.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0201"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/ocr/result/:documentId",
+      "routeFile": "api/src/routes/ocr.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0202"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/ocr/search",
+      "routeFile": "api/src/routes/ocr.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0203"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/ocr/job/:jobId",
+      "routeFile": "api/src/routes/ocr.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0204"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/ocr/job/:jobId/retry",
+      "routeFile": "api/src/routes/ocr.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0205"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/ocr/statistics",
+      "routeFile": "api/src/routes/ocr.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0206"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/ocr/providers",
+      "routeFile": "api/src/routes/ocr.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0207"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/ocr/languages",
+      "routeFile": "api/src/routes/ocr.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0208"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/ocr/cleanup",
+      "routeFile": "api/src/routes/ocr.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0209"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/obd2-emulator/profiles",
+      "routeFile": "api/src/routes/obd2-emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0210"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/obd2-emulator/scenarios",
+      "routeFile": "api/src/routes/obd2-emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0211"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/obd2-emulator/start",
+      "routeFile": "api/src/routes/obd2-emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0212"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/obd2-emulator/stop/:sessionId",
+      "routeFile": "api/src/routes/obd2-emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0213"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/obd2-emulator/data/:sessionId",
+      "routeFile": "api/src/routes/obd2-emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0214"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/obd2-emulator/sessions",
+      "routeFile": "api/src/routes/obd2-emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0215"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/obd2-emulator/sample-data",
+      "routeFile": "api/src/routes/obd2-emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0216"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/obd2-emulator/sample-dtcs",
+      "routeFile": "api/src/routes/obd2-emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0217"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-trips/start",
+      "routeFile": "api/src/routes/mobile-trips.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:create:own"
+      ],
+      "testable": true,
+      "id": "endpoint_0218"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-trips/:id/end",
+      "routeFile": "api/src/routes/mobile-trips.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:create:own"
+      ],
+      "testable": true,
+      "id": "endpoint_0219"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-trips/:id/metrics",
+      "routeFile": "api/src/routes/mobile-trips.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:create:own"
+      ],
+      "testable": true,
+      "id": "endpoint_0220"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-trips/:id",
+      "routeFile": "api/src/routes/mobile-trips.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:create:own"
+      ],
+      "testable": true,
+      "id": "endpoint_0221"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PATCH",
+      "path": "/api/mobile-trips/:id/classify",
+      "routeFile": "api/src/routes/mobile-trips.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:create:own"
+      ],
+      "testable": true,
+      "id": "endpoint_0222"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-trips/",
+      "routeFile": "api/src/routes/mobile-trips.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:create:own"
+      ],
+      "testable": true,
+      "id": "endpoint_0223"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-obd2/connect",
+      "routeFile": "api/src/routes/mobile-obd2.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0224"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-obd2/adapters",
+      "routeFile": "api/src/routes/mobile-obd2.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0225"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-obd2/adapters/:adapterId",
+      "routeFile": "api/src/routes/mobile-obd2.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0226"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-obd2/dtcs",
+      "routeFile": "api/src/routes/mobile-obd2.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0227"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-obd2/dtcs/:vehicleId",
+      "routeFile": "api/src/routes/mobile-obd2.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0228"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-obd2/live-data",
+      "routeFile": "api/src/routes/mobile-obd2.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0229"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-obd2/live-data/:vehicleId",
+      "routeFile": "api/src/routes/mobile-obd2.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0230"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-obd2/connection-log",
+      "routeFile": "api/src/routes/mobile-obd2.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0231"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-obd2/health/:vehicleId",
+      "routeFile": "api/src/routes/mobile-obd2.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0232"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-obd2/fuel-economy/:vehicleId",
+      "routeFile": "api/src/routes/mobile-obd2.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0233"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-obd2/dtc-info/:dtcCode",
+      "routeFile": "api/src/routes/mobile-obd2.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:update:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0234"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-notifications/register-device",
+      "routeFile": "api/src/routes/mobile-notifications.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "communication:send:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0235"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/mobile-notifications/device/:deviceId",
+      "routeFile": "api/src/routes/mobile-notifications.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "communication:send:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0236"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-notifications/send-to-user",
+      "routeFile": "api/src/routes/mobile-notifications.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "communication:send:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0237"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-notifications/preferences",
+      "routeFile": "api/src/routes/mobile-notifications.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "communication:send:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0238"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/mobile-notifications/preferences",
+      "routeFile": "api/src/routes/mobile-notifications.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "communication:send:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0239"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-notifications/webhooks/twilio",
+      "routeFile": "api/src/routes/mobile-notifications.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "communication:send:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0240"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/mobile-notifications/:id/opened",
+      "routeFile": "api/src/routes/mobile-notifications.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "communication:send:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0241"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/mobile-notifications/:id/clicked",
+      "routeFile": "api/src/routes/mobile-notifications.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "communication:send:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0242"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-integration/register",
+      "routeFile": "api/src/routes/mobile-integration.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "driver:create:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0243"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-integration/sync",
+      "routeFile": "api/src/routes/mobile-integration.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "driver:create:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0244"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-integration/route/:vehicleId",
+      "routeFile": "api/src/routes/mobile-integration.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "driver:create:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0245"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-integration/ar-navigation",
+      "routeFile": "api/src/routes/mobile-integration.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "driver:create:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0246"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-integration/keyless-entry",
+      "routeFile": "api/src/routes/mobile-integration.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "driver:create:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0247"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-integration/damage-detection",
+      "routeFile": "api/src/routes/mobile-integration.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "driver:create:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0248"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-integration/dispatch/messages",
+      "routeFile": "api/src/routes/mobile-integration.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "driver:create:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0249"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-integration/charging-stations/nearby",
+      "routeFile": "api/src/routes/mobile-integration.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "driver:create:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0250"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-integration/push-notification",
+      "routeFile": "api/src/routes/mobile-integration.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "driver:create:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0251"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-hardware/parts/scan",
+      "routeFile": "api/src/routes/mobile-hardware.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "inventory:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0252"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-hardware/parts/search",
+      "routeFile": "api/src/routes/mobile-hardware.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "inventory:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0253"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-hardware/checkin/nfc",
+      "routeFile": "api/src/routes/mobile-hardware.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "inventory:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0254"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-hardware/vehicles/details",
+      "routeFile": "api/src/routes/mobile-hardware.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "inventory:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0255"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-hardware/beacons/register",
+      "routeFile": "api/src/routes/mobile-hardware.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "inventory:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0256"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-hardware/beacons/nearby",
+      "routeFile": "api/src/routes/mobile-hardware.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "inventory:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0257"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-hardware/dashcam/events",
+      "routeFile": "api/src/routes/mobile-hardware.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "inventory:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0258"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/mobile-hardware/work-orders/:workOrderId/parts",
+      "routeFile": "api/src/routes/mobile-hardware.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "inventory:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0259"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-hardware/work-orders/:workOrderId/parts",
+      "routeFile": "api/src/routes/mobile-hardware.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "inventory:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0260"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-hardware/work-orders/:workOrderId/parts/batch",
+      "routeFile": "api/src/routes/mobile-hardware.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "inventory:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0261"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/mobile-hardware/assets/scan",
+      "routeFile": "api/src/routes/mobile-hardware.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "inventory:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0262"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/langchain/execute",
+      "routeFile": "api/src/routes/langchain.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:generate:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0263"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/langchain/chat",
+      "routeFile": "api/src/routes/langchain.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:generate:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0264"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/langchain/supervisor/query",
+      "routeFile": "api/src/routes/langchain.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:generate:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0265"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/langchain/agents",
+      "routeFile": "api/src/routes/langchain.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:generate:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0266"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/langchain/agents/:agentId",
+      "routeFile": "api/src/routes/langchain.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:generate:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0267"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/langchain/workflows",
+      "routeFile": "api/src/routes/langchain.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:generate:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0268"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/langchain/workflows/:workflowId",
+      "routeFile": "api/src/routes/langchain.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:generate:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0269"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/langchain/mcp/servers",
+      "routeFile": "api/src/routes/langchain.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:generate:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0270"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/langchain/mcp/tools",
+      "routeFile": "api/src/routes/langchain.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:generate:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0271"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/langchain/sessions/:sessionId",
+      "routeFile": "api/src/routes/langchain.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:generate:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0272"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/langchain/sessions",
+      "routeFile": "api/src/routes/langchain.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:generate:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0273"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/inventory/items",
+      "routeFile": "api/src/routes/inventory.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0274"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/inventory/items/:id",
+      "routeFile": "api/src/routes/inventory.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0275"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/inventory/items",
+      "routeFile": "api/src/routes/inventory.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0276"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/inventory/items/:id",
+      "routeFile": "api/src/routes/inventory.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0277"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/inventory/items/:id",
+      "routeFile": "api/src/routes/inventory.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0278"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/inventory/transactions",
+      "routeFile": "api/src/routes/inventory.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0279"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/inventory/transactions",
+      "routeFile": "api/src/routes/inventory.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0280"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/inventory/alerts/low-stock",
+      "routeFile": "api/src/routes/inventory.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0281"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/inventory/alerts/low-stock/:id/resolve",
+      "routeFile": "api/src/routes/inventory.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0282"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/inventory/reservations",
+      "routeFile": "api/src/routes/inventory.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0283"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/inventory/reservations/:id/release",
+      "routeFile": "api/src/routes/inventory.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0284"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/inventory/summary",
+      "routeFile": "api/src/routes/inventory.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0285"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/inventory/scan",
+      "routeFile": "api/src/routes/inventory.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0286"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/inventory/export",
+      "routeFile": "api/src/routes/inventory.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0287"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/incident-management/",
+      "routeFile": "api/src/routes/incident-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "safety_incident:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0288"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/incident-management/:id",
+      "routeFile": "api/src/routes/incident-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "safety_incident:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0289"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/incident-management/",
+      "routeFile": "api/src/routes/incident-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "safety_incident:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0290"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/incident-management/:id",
+      "routeFile": "api/src/routes/incident-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "safety_incident:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0291"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/incident-management/:id/actions",
+      "routeFile": "api/src/routes/incident-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "safety_incident:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0292"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/incident-management/:id/close",
+      "routeFile": "api/src/routes/incident-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "safety_incident:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0293"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/incident-management/analytics/summary",
+      "routeFile": "api/src/routes/incident-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "safety_incident:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0294"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/heavy-equipment/",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0295"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/heavy-equipment/:id",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0296"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/heavy-equipment/",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0297"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/heavy-equipment/:id",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0298"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/heavy-equipment/:id/hour-meter",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0299"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/heavy-equipment/:id/hour-meter",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0300"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/heavy-equipment/certifications/all",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0301"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/heavy-equipment/certifications/expiring",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0302"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/heavy-equipment/certifications/matrix",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0303"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/heavy-equipment/certifications/create",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0304"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/heavy-equipment/attachments/:equipmentId",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0305"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/heavy-equipment/attachments",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0306"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PATCH",
+      "path": "/api/heavy-equipment/attachments/:id/status",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0307"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/heavy-equipment/:id/inspection",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0308"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/heavy-equipment/:id/inspection",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0309"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/heavy-equipment/:id/utilization",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0310"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/heavy-equipment/:id/cost-analysis",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0311"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/heavy-equipment/maintenance/schedules",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0312"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/heavy-equipment/:id/telemetrics",
+      "routeFile": "api/src/routes/heavy-equipment.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0313"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/health/microsoft",
+      "routeFile": "api/src/routes/health.routes.ts",
+      "authenticated": false,
+      "testable": true,
+      "id": "endpoint_0314"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/health/microsoft/simple",
+      "routeFile": "api/src/routes/health.routes.ts",
+      "authenticated": false,
+      "testable": true,
+      "id": "endpoint_0315"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/health/microsoft/metrics",
+      "routeFile": "api/src/routes/health.routes.ts",
+      "authenticated": false,
+      "testable": true,
+      "id": "endpoint_0316"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/health-system/",
+      "routeFile": "api/src/routes/health-system.routes.ts",
+      "authenticated": false,
+      "testable": true,
+      "id": "endpoint_0317"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/health-system/simple",
+      "routeFile": "api/src/routes/health-system.routes.ts",
+      "authenticated": false,
+      "testable": true,
+      "id": "endpoint_0318"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/health-system/ready",
+      "routeFile": "api/src/routes/health-system.routes.ts",
+      "authenticated": false,
+      "testable": true,
+      "id": "endpoint_0319"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/health-system/live",
+      "routeFile": "api/src/routes/health-system.routes.ts",
+      "authenticated": false,
+      "testable": true,
+      "id": "endpoint_0320"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/health-system/ping",
+      "routeFile": "api/src/routes/health-system.routes.ts",
+      "authenticated": false,
+      "testable": true,
+      "id": "endpoint_0321"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/health-startup/startup",
+      "routeFile": "api/src/routes/health-startup.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0322"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/health-startup/startup/summary",
+      "routeFile": "api/src/routes/health-startup.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0323"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/health-startup/startup/errors",
+      "routeFile": "api/src/routes/health-startup.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0324"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/health-startup/startup/refresh",
+      "routeFile": "api/src/routes/health-startup.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0325"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/health-microsoft/microsoft",
+      "routeFile": "api/src/routes/health-microsoft.routes.ts",
+      "authenticated": false,
+      "testable": true,
+      "id": "endpoint_0326"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/fuel/",
+      "routeFile": "api/src/routes/fuel.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0327"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/fuel/statistics",
+      "routeFile": "api/src/routes/fuel.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0328"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/example-di/vehicle-count",
+      "routeFile": "api/src/routes/example-di.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0329"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/example-di/vehicle-action/:vehicleId",
+      "routeFile": "api/src/routes/example-di.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0330"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/example-di/test-di",
+      "routeFile": "api/src/routes/example-di.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0331"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/example-di/complex-operation/:vehicleId",
+      "routeFile": "api/src/routes/example-di.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0332"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulators/status",
+      "routeFile": "api/src/routes/emulators.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0333"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/emulators/start-all",
+      "routeFile": "api/src/routes/emulators.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0334"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/emulators/stop-all",
+      "routeFile": "api/src/routes/emulators.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0335"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/emulators/pause",
+      "routeFile": "api/src/routes/emulators.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0336"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/emulators/resume",
+      "routeFile": "api/src/routes/emulators.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0337"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/emulators/scenario/:scenarioId",
+      "routeFile": "api/src/routes/emulators.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0338"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulators/vehicle/:vehicleId",
+      "routeFile": "api/src/routes/emulators.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0339"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulators/inventory",
+      "routeFile": "api/src/routes/emulators.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0340"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulators/inventory/category/:category",
+      "routeFile": "api/src/routes/emulators.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0341"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulators/inventory/search/:sku",
+      "routeFile": "api/src/routes/emulators.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0342"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulators/types",
+      "routeFile": "api/src/routes/emulators.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0343"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/status",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0344"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/emulator/start",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0345"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/emulator/stop",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0346"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/emulator/pause",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0347"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/emulator/resume",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0348"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/emulator/scenario/:scenarioId",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0349"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/vehicles",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0350"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/vehicles/:vehicleId",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0351"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/vehicles/:vehicleId/telemetry",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0352"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/vehicles/:vehicleId/telemetry/history",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0353"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/routes",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0354"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/routes/:routeId",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0355"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/channels",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0356"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/fleet/overview",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0357"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/fleet/positions",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0358"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/inventory",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0359"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/inventory/category/:category",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0360"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/inventory/search",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0361"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/scenarios",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0362"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/video/library",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0363"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/video/library/:videoId",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0364"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/emulator/video/stream/:vehicleId/:cameraAngle/start",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0365"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/emulator/video/stream/:vehicleId/:cameraAngle/stop",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0366"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/video/stream/:vehicleId/:cameraAngle",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0367"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/video/streams",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0368"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/emulator/geofences",
+      "routeFile": "api/src/routes/emulator.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0369"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/e2e-test/users",
+      "routeFile": "api/src/routes/e2e-test.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0370"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/e2e-test/users",
+      "routeFile": "api/src/routes/e2e-test.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0371"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/e2e-test/maintenance-schedules",
+      "routeFile": "api/src/routes/e2e-test.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0372"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/e2e-test/maintenance-schedules",
+      "routeFile": "api/src/routes/e2e-test.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0373"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/e2e-test/vehicles",
+      "routeFile": "api/src/routes/e2e-test.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0374"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/e2e-test/health",
+      "routeFile": "api/src/routes/e2e-test.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0375"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/documents/upload",
+      "routeFile": "api/src/routes/documents.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "document:create:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0376"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/documents/",
+      "routeFile": "api/src/routes/documents.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "document:create:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0377"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/documents/:id",
+      "routeFile": "api/src/routes/documents.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "document:create:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0378"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/documents/:id",
+      "routeFile": "api/src/routes/documents.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "document:create:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0379"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/documents/:id",
+      "routeFile": "api/src/routes/documents.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "document:create:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0380"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/documents/:id/download",
+      "routeFile": "api/src/routes/documents.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "document:create:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0381"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/documents/categories/all",
+      "routeFile": "api/src/routes/documents.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "document:create:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0382"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/documents/categories",
+      "routeFile": "api/src/routes/documents.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "document:create:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0383"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/documents/search",
+      "routeFile": "api/src/routes/documents.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "document:create:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0384"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/documents/ask",
+      "routeFile": "api/src/routes/documents.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "document:create:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0385"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/documents/queries/history",
+      "routeFile": "api/src/routes/documents.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "document:create:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0386"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/documents/queries/:id/feedback",
+      "routeFile": "api/src/routes/documents.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "document:create:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0387"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/documents/:id/access-log",
+      "routeFile": "api/src/routes/documents.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "document:create:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0388"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/documents/analytics/stats",
+      "routeFile": "api/src/routes/documents.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "document:create:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0389"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/document-geo/nearby",
+      "routeFile": "api/src/routes/document-geo.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0390"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/document-geo/within-polygon",
+      "routeFile": "api/src/routes/document-geo.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0391"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/document-geo/along-route",
+      "routeFile": "api/src/routes/document-geo.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0392"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/document-geo/heatmap",
+      "routeFile": "api/src/routes/document-geo.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0393"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/document-geo/clusters",
+      "routeFile": "api/src/routes/document-geo.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0394"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/document-geo/geocode",
+      "routeFile": "api/src/routes/document-geo.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0395"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/document-geo/reverse-geocode",
+      "routeFile": "api/src/routes/document-geo.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0396"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/document-geo/:id/location",
+      "routeFile": "api/src/routes/document-geo.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0397"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/document-geo/all",
+      "routeFile": "api/src/routes/document-geo.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0398"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/document-geo/:id/extract-location",
+      "routeFile": "api/src/routes/document-geo.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0399"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/dispatch/channels",
+      "routeFile": "api/src/routes/dispatch.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0400"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/dispatch/channels/:id",
+      "routeFile": "api/src/routes/dispatch.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0401"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/dispatch/channels",
+      "routeFile": "api/src/routes/dispatch.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0402"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/dispatch/channels/:id/history",
+      "routeFile": "api/src/routes/dispatch.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0403"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/dispatch/channels/:id/listeners",
+      "routeFile": "api/src/routes/dispatch.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0404"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/dispatch/emergency",
+      "routeFile": "api/src/routes/dispatch.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0405"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/dispatch/emergency",
+      "routeFile": "api/src/routes/dispatch.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0406"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/dispatch/emergency/:id/acknowledge",
+      "routeFile": "api/src/routes/dispatch.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0407"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/dispatch/emergency/:id/resolve",
+      "routeFile": "api/src/routes/dispatch.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0408"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/dispatch/metrics",
+      "routeFile": "api/src/routes/dispatch.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0409"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/dispatch/webrtc/offer",
+      "routeFile": "api/src/routes/dispatch.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0410"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/dispatch/webrtc/answer",
+      "routeFile": "api/src/routes/dispatch.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0411"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/dispatch/webrtc/ice-candidate",
+      "routeFile": "api/src/routes/dispatch.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "route:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0412"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/database/health",
+      "routeFile": "api/src/routes/database.routes.ts",
+      "authenticated": false,
+      "testable": true,
+      "id": "endpoint_0413"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/database/ping",
+      "routeFile": "api/src/routes/database.routes.ts",
+      "authenticated": false,
+      "testable": true,
+      "id": "endpoint_0414"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/dashboard/",
+      "routeFile": "api/src/routes/dashboard.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0415"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/dashboard/stats",
+      "routeFile": "api/src/routes/dashboard.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0416"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/dashboard/maintenance/alerts",
+      "routeFile": "api/src/routes/dashboard.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0417"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/dashboard/fleet/stats",
+      "routeFile": "api/src/routes/dashboard.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0418"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/dashboard/costs/summary",
+      "routeFile": "api/src/routes/dashboard.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0419"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/dashboard/drivers/me/vehicle",
+      "routeFile": "api/src/routes/dashboard.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0420"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/dashboard/drivers/me/trips/today",
+      "routeFile": "api/src/routes/dashboard.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0421"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/dashboard/inspections",
+      "routeFile": "api/src/routes/dashboard.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0422"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/dashboard/reports/daily",
+      "routeFile": "api/src/routes/dashboard.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0423"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/crash-detection/crash",
+      "routeFile": "api/src/routes/crash-detection.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0424"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/crash-detection/crash/history",
+      "routeFile": "api/src/routes/crash-detection.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0425"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/crash-detection/crash/fleet",
+      "routeFile": "api/src/routes/crash-detection.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0426"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/calendar/events",
+      "routeFile": "api/src/routes/calendar.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0427"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/calendar/events",
+      "routeFile": "api/src/routes/calendar.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0428"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/calendar/events/:eventId",
+      "routeFile": "api/src/routes/calendar.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0429"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PATCH",
+      "path": "/api/calendar/events/:eventId",
+      "routeFile": "api/src/routes/calendar.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0430"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/calendar/events/:eventId",
+      "routeFile": "api/src/routes/calendar.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0431"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/calendar/events/:eventId/accept",
+      "routeFile": "api/src/routes/calendar.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0432"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/calendar/events/:eventId/decline",
+      "routeFile": "api/src/routes/calendar.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0433"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/calendar/events/:eventId/tentative",
+      "routeFile": "api/src/routes/calendar.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0434"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/calendar/find-times",
+      "routeFile": "api/src/routes/calendar.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0435"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/calendar/availability",
+      "routeFile": "api/src/routes/calendar.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0436"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/calendar/schedule-maintenance",
+      "routeFile": "api/src/routes/calendar.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0437"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/calendar/schedule-training",
+      "routeFile": "api/src/routes/calendar.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0438"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/auth/register",
+      "routeFile": "api/src/routes/auth.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0439"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "routeFile": "api/src/routes/auth.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0440"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/auth/logout",
+      "routeFile": "api/src/routes/auth.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0441"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/auth/refresh",
+      "routeFile": "api/src/routes/auth.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0442"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/auth/mfa/setup",
+      "routeFile": "api/src/routes/auth.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0443"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/auth/mfa/verify",
+      "routeFile": "api/src/routes/auth.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0444"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "routeFile": "api/src/routes/auth.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0445"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/asset-management/",
+      "routeFile": "api/src/routes/asset-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0446"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/asset-management/:id",
+      "routeFile": "api/src/routes/asset-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0447"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/asset-management/",
+      "routeFile": "api/src/routes/asset-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0448"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/asset-management/:id",
+      "routeFile": "api/src/routes/asset-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0449"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/asset-management/:id/assign",
+      "routeFile": "api/src/routes/asset-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0450"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/asset-management/:id/transfer",
+      "routeFile": "api/src/routes/asset-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0451"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/asset-management/:id/depreciation",
+      "routeFile": "api/src/routes/asset-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0452"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/asset-management/analytics/summary",
+      "routeFile": "api/src/routes/asset-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0453"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/asset-management/:id",
+      "routeFile": "api/src/routes/asset-management.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "vehicle:view:fleet"
+      ],
+      "testable": true,
+      "id": "endpoint_0454"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/alerts/",
+      "routeFile": "api/src/routes/alerts.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0455"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/alerts/stats",
+      "routeFile": "api/src/routes/alerts.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0456"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/alerts/:id/acknowledge",
+      "routeFile": "api/src/routes/alerts.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0457"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/alerts/:id/resolve",
+      "routeFile": "api/src/routes/alerts.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0458"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/alerts/rules",
+      "routeFile": "api/src/routes/alerts.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0459"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/alerts/rules",
+      "routeFile": "api/src/routes/alerts.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0460"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PUT",
+      "path": "/api/alerts/rules/:id",
+      "routeFile": "api/src/routes/alerts.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0461"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/alerts/rules/:id",
+      "routeFile": "api/src/routes/alerts.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0462"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/alerts/notifications",
+      "routeFile": "api/src/routes/alerts.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0463"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/alerts/notifications/:id/read",
+      "routeFile": "api/src/routes/alerts.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0464"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/alerts/notifications/read-all",
+      "routeFile": "api/src/routes/alerts.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:view:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0465"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/ai-task-prioritization/health",
+      "routeFile": "api/src/routes/ai-task-prioritization.routes.ts",
+      "authenticated": true,
+      "permissions": [
+        "report:generate:global"
+      ],
+      "testable": true,
+      "id": "endpoint_0466"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/ai-task-asset/task-suggestions",
+      "routeFile": "api/src/routes/ai-task-asset.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0467"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/ai-task-asset/suggest-assignee",
+      "routeFile": "api/src/routes/ai-task-asset.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0468"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/ai-task-asset/parse-task",
+      "routeFile": "api/src/routes/ai-task-asset.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0469"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/ai-task-asset/predict-maintenance",
+      "routeFile": "api/src/routes/ai-task-asset.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0470"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/ai-task-asset/workflow-suggestion",
+      "routeFile": "api/src/routes/ai-task-asset.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0471"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/ai-task-asset/ask-question",
+      "routeFile": "api/src/routes/ai-task-asset.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0472"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/ai-task-asset/mcp/optimize-schedule",
+      "routeFile": "api/src/routes/ai-task-asset.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0473"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/ai-task-asset/mcp/analyze-asset-lifecycle",
+      "routeFile": "api/src/routes/ai-task-asset.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0474"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/ai-task-asset/mcp/servers",
+      "routeFile": "api/src/routes/ai-task-asset.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0475"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/ai-task-asset/config/workflows",
+      "routeFile": "api/src/routes/ai-task-asset.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0476"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/ai-task-asset/config/workflows",
+      "routeFile": "api/src/routes/ai-task-asset.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0477"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/ai-task-asset/config/business-rules",
+      "routeFile": "api/src/routes/ai-task-asset.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0478"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/ai-task-asset/config/business-rules",
+      "routeFile": "api/src/routes/ai-task-asset.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0479"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/ai-task-asset/config/evaluate-rules",
+      "routeFile": "api/src/routes/ai-task-asset.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0480"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/ai-damage-detection/:id",
+      "routeFile": "api/src/routes/ai-damage-detection.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0481"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/ai-damage-detection/vehicle/:vehicleId",
+      "routeFile": "api/src/routes/ai-damage-detection.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0482"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/ai-damage-detection/pending",
+      "routeFile": "api/src/routes/ai-damage-detection.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0483"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "PATCH",
+      "path": "/api/ai-damage-detection/:id/repair-status",
+      "routeFile": "api/src/routes/ai-damage-detection.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0484"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/ai-damage-detection/stats",
+      "routeFile": "api/src/routes/ai-damage-detection.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0485"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/admin/config",
+      "routeFile": "api/src/routes/admin.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0486"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/admin/status",
+      "routeFile": "api/src/routes/admin.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0487"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/admin/config/stats",
+      "routeFile": "api/src/routes/admin.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0488"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/admin-jobs/",
+      "routeFile": "api/src/routes/admin-jobs.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0489"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/admin-jobs/health",
+      "routeFile": "api/src/routes/admin-jobs.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0490"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/admin-jobs/:queueName",
+      "routeFile": "api/src/routes/admin-jobs.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0491"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/admin-jobs/:queueName/jobs",
+      "routeFile": "api/src/routes/admin-jobs.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0492"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/admin-jobs/:queueName/failed",
+      "routeFile": "api/src/routes/admin-jobs.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0493"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/admin-jobs/:queueName/retry/:jobId",
+      "routeFile": "api/src/routes/admin-jobs.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0494"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "DELETE",
+      "path": "/api/admin-jobs/:queueName/:jobId",
+      "routeFile": "api/src/routes/admin-jobs.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0495"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/admin-jobs/:queueName/clean",
+      "routeFile": "api/src/routes/admin-jobs.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0496"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/admin-jobs/:queueName/pause",
+      "routeFile": "api/src/routes/admin-jobs.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0497"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/admin-jobs/:queueName/resume",
+      "routeFile": "api/src/routes/admin-jobs.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0498"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/admin-jobs/:queueName/job/:jobId",
+      "routeFile": "api/src/routes/admin-jobs.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0499"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/admin-jobs/:queueName/job/:jobId/promote",
+      "routeFile": "api/src/routes/admin-jobs.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0500"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/adaptive-cards/vehicle-maintenance",
+      "routeFile": "api/src/routes/adaptive-cards.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0501"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/adaptive-cards/work-order",
+      "routeFile": "api/src/routes/adaptive-cards.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0502"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/adaptive-cards/incident",
+      "routeFile": "api/src/routes/adaptive-cards.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0503"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/adaptive-cards/approval",
+      "routeFile": "api/src/routes/adaptive-cards.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0504"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/adaptive-cards/driver-performance",
+      "routeFile": "api/src/routes/adaptive-cards.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0505"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/adaptive-cards/fuel-receipt",
+      "routeFile": "api/src/routes/adaptive-cards.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0506"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/adaptive-cards/inspection-checklist",
+      "routeFile": "api/src/routes/adaptive-cards.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0507"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "POST",
+      "path": "/api/adaptive-cards/:cardType/action",
+      "routeFile": "api/src/routes/adaptive-cards.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0508"
+    },
+    {
+      "type": "api-endpoint",
+      "method": "GET",
+      "path": "/api/adaptive-cards/preview/:cardType",
+      "routeFile": "api/src/routes/adaptive-cards.routes.ts",
+      "authenticated": true,
+      "testable": true,
+      "id": "endpoint_0509"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "ai-task-prioritization",
+      "apiPath": "/api/ai-task-prioritization",
+      "serviceFile": "api/src/routes/ai-task-prioritization.routes.ts",
+      "modelType": "unknown",
+      "testable": true,
+      "id": "ai_feature_0510"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "ai-task-asset",
+      "apiPath": "/api/ai-task-asset",
+      "serviceFile": "api/src/routes/ai-task-asset.routes.ts",
+      "modelType": "unknown",
+      "testable": true,
+      "id": "ai_feature_0511"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "ai-insights",
+      "apiPath": "/api/ai-insights",
+      "serviceFile": "api/src/routes/ai-insights.routes.ts",
+      "modelType": "unknown",
+      "testable": true,
+      "id": "ai_feature_0512"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "ai-dispatch",
+      "apiPath": "/api/ai-dispatch",
+      "serviceFile": "api/src/routes/ai-dispatch.routes.ts",
+      "modelType": "unknown",
+      "testable": true,
+      "id": "ai_feature_0513"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "ai-damage-detection",
+      "apiPath": "/api/ai-damage-detection",
+      "serviceFile": "api/src/routes/ai-damage-detection.routes.ts",
+      "modelType": "unknown",
+      "testable": true,
+      "id": "ai_feature_0514"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "langchain",
+      "apiPath": "/api/langchain",
+      "serviceFile": "api/src/routes/langchain.routes.ts",
+      "modelType": "LangChain",
+      "testable": true,
+      "id": "ai_feature_0515"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "ml-training",
+      "serviceFile": "api/src/services/ml-training.service.ts",
+      "testable": true,
+      "id": "ai_feature_0516"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "langchain-orchestrator",
+      "serviceFile": "api/src/services/langchain-orchestrator.service.ts",
+      "testable": true,
+      "id": "ai_feature_0517"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "driver-safety-ai",
+      "serviceFile": "api/src/services/driver-safety-ai.service.ts",
+      "testable": true,
+      "id": "ai_feature_0518"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "ai-validation",
+      "serviceFile": "api/src/services/ai-validation.service.ts",
+      "testable": true,
+      "id": "ai_feature_0519"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "ai-safety-detection",
+      "serviceFile": "api/src/services/ai-safety-detection.service.ts",
+      "testable": true,
+      "id": "ai_feature_0520"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "ai-intake",
+      "serviceFile": "api/src/services/ai-intake.service.ts",
+      "testable": true,
+      "id": "ai_feature_0521"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "ai-damage-detection",
+      "serviceFile": "api/src/services/ai-damage-detection.service.ts",
+      "testable": true,
+      "id": "ai_feature_0522"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "ai-controls",
+      "serviceFile": "api/src/services/ai-controls.service.ts",
+      "testable": true,
+      "id": "ai_feature_0523"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "ai-agent-supervisor",
+      "serviceFile": "api/src/services/ai-agent-supervisor.service.ts",
+      "testable": true,
+      "id": "ai_feature_0524"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "ml-training",
+      "serviceFile": "api/src/services/ml-training.service.ts",
+      "testable": true,
+      "id": "ai_feature_0525"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "ml-decision-engine",
+      "serviceFile": "api/src/services/ml-decision-engine.service.ts",
+      "testable": true,
+      "id": "ai_feature_0526"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "rag-engine",
+      "serviceFile": "api/src/services/rag-engine.service.ts",
+      "testable": true,
+      "id": "ai_feature_0527"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "photo-storage",
+      "serviceFile": "api/src/services/photo-storage.service.ts",
+      "testable": true,
+      "id": "ai_feature_0528"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "offline-storage",
+      "serviceFile": "api/src/services/offline-storage.service.ts",
+      "testable": true,
+      "id": "ai_feature_0529"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "document-storage",
+      "serviceFile": "api/src/services/document-storage.service.ts",
+      "testable": true,
+      "id": "ai_feature_0530"
+    },
+    {
+      "type": "ai-feature",
+      "featureName": "document-rag",
+      "serviceFile": "api/src/services/document-rag.service.ts",
+      "testable": true,
+      "id": "ai_feature_0531"
+    },
+    {
+      "type": "integration",
+      "name": "Smartcar API",
+      "integrationType": "external",
+      "serviceFile": "api/src/routes/smartcar.routes.ts",
+      "testable": true,
+      "id": "integration_0532"
+    },
+    {
+      "type": "integration",
+      "name": "Microsoft Outlook",
+      "integrationType": "external",
+      "serviceFile": "api/src/routes/outlook.routes.ts",
+      "testable": true,
+      "id": "integration_0533"
+    },
+    {
+      "type": "integration",
+      "name": "Microsoft Calendar",
+      "integrationType": "external",
+      "serviceFile": "api/src/routes/calendar.routes.ts",
+      "testable": true,
+      "id": "integration_0534"
+    },
+    {
+      "type": "integration",
+      "name": "Microsoft Adaptive Cards",
+      "integrationType": "external",
+      "serviceFile": "api/src/routes/adaptive-cards.routes.ts",
+      "testable": true,
+      "id": "integration_0535"
+    },
+    {
+      "type": "background-service",
+      "serviceName": "queue",
+      "serviceType": "queue",
+      "filePath": "api/src/jobs/queue.ts",
+      "testable": true,
+      "id": "background_service_0536"
+    },
+    {
+      "type": "background-service",
+      "serviceName": "queue-processors",
+      "serviceType": "queue",
+      "filePath": "api/src/jobs/queue-processors.ts",
+      "testable": true,
+      "id": "background_service_0537"
+    },
+    {
+      "type": "background-service",
+      "serviceName": "queue.service",
+      "serviceType": "queue",
+      "filePath": "api/src/services/queue.service.ts",
+      "testable": true,
+      "id": "background_service_0538"
+    },
+    {
+      "type": "background-service",
+      "serviceName": "OcrQueueService",
+      "serviceType": "queue",
+      "filePath": "api/src/services/OcrQueueService.ts",
+      "testable": true,
+      "id": "background_service_0539"
+    },
+    {
+      "type": "background-service",
+      "serviceName": "webhook-renewal.job",
+      "serviceType": "job",
+      "filePath": "api/src/jobs/webhook-renewal.job.ts",
+      "testable": true,
+      "id": "background_service_0540"
+    },
+    {
+      "type": "background-service",
+      "serviceName": "video-retention-policy.job",
+      "serviceType": "job",
+      "filePath": "api/src/jobs/video-retention-policy.job.ts",
+      "testable": true,
+      "id": "background_service_0541"
+    },
+    {
+      "type": "background-service",
+      "serviceName": "teams-sync.job",
+      "serviceType": "job",
+      "filePath": "api/src/jobs/teams-sync.job.ts",
+      "testable": true,
+      "id": "background_service_0542"
+    },
+    {
+      "type": "background-service",
+      "serviceName": "scheduling-reminders.job",
+      "serviceType": "job",
+      "filePath": "api/src/jobs/scheduling-reminders.job.ts",
+      "testable": true,
+      "id": "background_service_0543"
+    },
+    {
+      "type": "background-service",
+      "serviceName": "report-scheduler.job",
+      "serviceType": "job",
+      "filePath": "api/src/jobs/report-scheduler.job.ts",
+      "testable": true,
+      "id": "background_service_0544"
+    },
+    {
+      "type": "background-service",
+      "serviceName": "push-notification-scheduler.job",
+      "serviceType": "job",
+      "filePath": "api/src/jobs/push-notification-scheduler.job.ts",
+      "testable": true,
+      "id": "background_service_0545"
+    },
+    {
+      "type": "background-service",
+      "serviceName": "outlook-sync.job",
+      "serviceType": "job",
+      "filePath": "api/src/jobs/outlook-sync.job.ts",
+      "testable": true,
+      "id": "background_service_0546"
+    },
+    {
+      "type": "background-service",
+      "serviceName": "alert-checker.job",
+      "serviceType": "job",
+      "filePath": "api/src/jobs/alert-checker.job.ts",
+      "testable": true,
+      "id": "background_service_0547"
+    },
+    {
+      "type": "background-service",
+      "serviceName": "task-realtime.server",
+      "serviceType": "websocket",
+      "filePath": "api/src/websocket/task-realtime.server.ts",
+      "testable": true,
+      "id": "background_service_0548"
+    },
+    {
+      "type": "background-service",
+      "serviceName": "presence.service",
+      "serviceType": "websocket",
+      "filePath": "api/src/websocket/presence.service.ts",
+      "testable": true,
+      "id": "background_service_0549"
+    },
+    {
+      "type": "background-service",
+      "serviceName": "conflict-resolution.service",
+      "serviceType": "websocket",
+      "filePath": "api/src/websocket/conflict-resolution.service.ts",
+      "testable": true,
+      "id": "background_service_0550"
+    }
+  ]
+}

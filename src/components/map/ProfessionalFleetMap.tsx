@@ -152,7 +152,7 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
         {/* Legend */}
         <div className="absolute bottom-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md rounded-lg p-3 border border-slate-700">
           <div className="text-xs font-semibold text-slate-300 mb-2">Fleet Status</div>
-          <div className="flex flex-col gap-1.5 text-xs text-slate-400">
+          <div className="flex flex-col gap-1.5 text-xs text-slate-700">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-emerald-500" />
               <span>Active ({vehiclesWithCoords.filter(v => v.status === 'active').length})</span>
@@ -170,8 +170,8 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
 
         {/* Stats overlay */}
         <div className="absolute top-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md rounded-lg px-2 py-2 border border-slate-700">
-          <span className="text-sm font-semibold text-emerald-400">{vehiclesWithCoords.length}</span>
-          <span className="text-sm text-slate-400 ml-1">vehicles tracked</span>
+          <span className="text-sm font-semibold text-emerald-700">{vehiclesWithCoords.length}</span>
+          <span className="text-sm text-slate-700 ml-1">vehicles tracked</span>
         </div>
       </div>
 

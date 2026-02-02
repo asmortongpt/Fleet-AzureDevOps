@@ -750,23 +750,23 @@ export default function AdminConfigurationHub() {
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="admin" className="flex items-center gap-2" data-testid="hub-tab-admin">
+            <TabsTrigger value="admin" className="flex items-center gap-2" data-testid="hub-tab-admin" aria-label="Admin">
               <UserCog className="h-4 w-4" />
               <span className="hidden sm:inline">Admin</span>
             </TabsTrigger>
-            <TabsTrigger value="config" className="flex items-center gap-2" data-testid="hub-tab-config">
+            <TabsTrigger value="config" className="flex items-center gap-2" data-testid="hub-tab-config" aria-label="Configuration">
               <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Config</span>
+              <span className="hidden sm:inline">Configuration</span>
             </TabsTrigger>
-            <TabsTrigger value="data" className="flex items-center gap-2" data-testid="hub-tab-data">
+            <TabsTrigger value="data" className="flex items-center gap-2" data-testid="hub-tab-data" aria-label="Data">
               <Database className="h-4 w-4" />
               <span className="hidden sm:inline">Data</span>
             </TabsTrigger>
-            <TabsTrigger value="integrations" className="flex items-center gap-2" data-testid="hub-tab-integrations">
+            <TabsTrigger value="integrations" className="flex items-center gap-2" data-testid="hub-tab-integrations" aria-label="Integrations">
               <Plug className="h-4 w-4" />
               <span className="hidden sm:inline">Integrations</span>
             </TabsTrigger>
-            <TabsTrigger value="documents" className="flex items-center gap-2" data-testid="hub-tab-documents">
+            <TabsTrigger value="documents" className="flex items-center gap-2" data-testid="hub-tab-documents" aria-label="Documents">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Documents</span>
             </TabsTrigger>

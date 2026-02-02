@@ -372,7 +372,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
               </div>
               <div className="text-right">
                 <div className="text-base font-bold">{Math.round(analysis.safetyScore)}</div>
-                <div className="text-xs text-gray-500">Safety Score</div>
+                <div className="text-xs text-gray-700">Safety Score</div>
               </div>
             </div>
           </CardHeader>
@@ -616,7 +616,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                           <div className="text-sm text-slate-700">
                             Driver: {driver?.firstName} {driver?.lastName}
                           </div>
-                          <div className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                          <div className="text-xs text-gray-700 flex items-center gap-1 mt-1">
                             <Clock className="w-3 h-3" />
                             {alert.timestamp.toLocaleTimeString()}
                           </div>
@@ -774,7 +774,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="text-sm text-gray-500 flex items-center gap-1">
+          <div className="text-sm text-gray-700 flex items-center gap-1">
             <Timer className="w-4 h-4" />
             Last updated: {lastUpdate.toLocaleTimeString()}
           </div>
@@ -830,7 +830,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-64 flex items-center justify-center text-gray-500">
+                    <div className="h-64 flex items-center justify-center text-gray-700">
                       Safety score trend chart would go here
                     </div>
                   </CardContent>
@@ -876,7 +876,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                 ) : (
                   <Card>
                     <CardContent className="p-3 text-center">
-                      <Car className="w-12 h-9 mx-auto mb-2 text-gray-400" />
+                      <Car className="w-12 h-9 mx-auto mb-2 text-gray-600" />
                       <h3 className="text-sm font-semibold mb-2">No Active Drivers</h3>
                       <p className="text-slate-700">No drivers are currently being monitored.</p>
                     </CardContent>

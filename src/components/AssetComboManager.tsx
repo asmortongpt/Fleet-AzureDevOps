@@ -253,9 +253,9 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
         </div>
         <div className="divide-y divide-gray-200">
           {loading ? (
-            <div className="p-3 text-center text-gray-500">Loading...</div>
+            <div className="p-3 text-center text-gray-700">Loading...</div>
           ) : filteredCombos.length === 0 ? (
-            <div className="p-3 text-center text-gray-500">
+            <div className="p-3 text-center text-gray-700">
               No active asset combinations found
             </div>
           ) : (
@@ -273,7 +273,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                     </div>
                     <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
                       <span>{combo.parent_asset_name}</span>
-                      <span className="text-gray-400">→</span>
+                      <span className="text-gray-700">→</span>
                       <span>{combo.child_asset_name}</span>
                     </div>
                     <div className="flex items-center gap-2 mt-2 text-sm text-slate-700">
@@ -282,11 +282,11 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                         <span>Effective from: {new Date(combo.effective_from).toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className="text-gray-400">Parent:</span>
+                        <span className="text-gray-700">Parent:</span>
                         <span className="font-medium">{combo.parent_asset_type}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className="text-gray-400">Child:</span>
+                        <span className="text-gray-700">Child:</span>
                         <span className="font-medium">{combo.child_asset_type}</span>
                       </div>
                     </div>
@@ -315,14 +315,14 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
           </div>
           <div className="divide-y divide-gray-200">
             {relationshipHistory.length === 0 ? (
-              <div className="p-3 text-center text-gray-500">
+              <div className="p-3 text-center text-gray-700">
                 No relationship history found
               </div>
             ) : (
               relationshipHistory.map((entry, index) => (
                 <div key={index} className="p-3">
                   <div className="flex items-start gap-3">
-                    <Clock className="w-3 h-3 text-gray-400 mt-0.5" />
+                    <Clock className="w-3 h-3 text-gray-700 mt-0.5" />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded">
@@ -370,7 +370,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                   setShowCreateDialog(false)
                   setError(null)
                 }}
-                className="text-gray-400 hover:text-slate-700"
+                className="text-gray-700 hover:text-slate-700"
               >
                 <X className="w-3 h-3" />
               </button>

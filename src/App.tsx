@@ -9,6 +9,7 @@ import { ToastContainer } from "@/components/common/ToastContainer"
 import { EnhancedErrorBoundary } from "@/components/errors/EnhancedErrorBoundary"
 import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
 import { CommandCenterLayout } from "@/components/layout/CommandCenterLayout"
+import { SinglePageShell } from "@/components/layout/SinglePageShell"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts"
 import { useNavigation } from "@/contexts/NavigationContext"
@@ -16,6 +17,9 @@ import { useFleetData } from "@/hooks/use-fleet-data"
 import { navigationItems } from "@/lib/navigation"
 import telemetryService from '@/lib/telemetry'
 import logger from '@/utils/logger'
+
+// Feature flag for new single-page layout
+const USE_NEW_LAYOUT = import.meta.env.VITE_USE_NEW_LAYOUT === 'true'
 
 // Lazy load all modules for code splitting - reduces initial bundle by 80%+
 // Modules now organized in feature-based folders for better maintainability
@@ -523,6 +527,36 @@ function App() {
 
 
 
+  // New single-page layout (feature-flagged)
+  if (USE_NEW_LAYOUT) {
+    return (
+      <DrilldownManager>
+        <SinglePageShell />
+
+        {/* Toast notifications */}
+        <div role="status" aria-live="polite" aria-label="Toast notifications">
+          <ToastContainer />
+        </div>
+        <div role="status" aria-live="polite" aria-label="Notifications">
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: 'hsl(var(--card))',
+                color: 'hsl(var(--card-foreground))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '0.75rem',
+                fontSize: '0.875rem',
+              },
+            }}
+          />
+        </div>
+      </DrilldownManager>
+    )
+  }
+
+  // Legacy layout (default)
   return (
     <DrilldownManager>
       <CommandCenterLayout>
