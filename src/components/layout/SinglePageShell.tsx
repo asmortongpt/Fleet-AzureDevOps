@@ -9,6 +9,7 @@
  * - Tablet/Mobile (<1024px): Bottom tab bar + full-width panels
  */
 import { useState, useEffect, memo } from 'react'
+import { cn } from '@/lib/utils'
 import { usePanel } from '@/contexts/PanelContext'
 import { IconRail } from './IconRail'
 import { FlyoutMenu } from './FlyoutMenu'
@@ -61,7 +62,7 @@ export const SinglePageShell = memo(function SinglePageShell() {
         <CompactHeader />
 
         {/* Content: Map + Overlays */}
-        <div className="flex-1 relative overflow-hidden">
+        <div className={cn("flex-1 relative overflow-hidden", !isDesktop && "pb-14")}>
           {/* Map (always mounted behind everything) */}
           <MapCanvas />
 
