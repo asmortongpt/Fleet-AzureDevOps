@@ -73,8 +73,7 @@ export const ROLE_NAVIGATION_CONFIG: Record<string, string[]> = {
     'work-hub',
     'people-hub',
     'insights-hub',
-    'configuration-hub',
-    'meta-glasses-hub'
+    'configuration-hub'
   ],
   'SuperAdmin': [ // Alias
     'fleet-hub-consolidated',
@@ -98,8 +97,7 @@ export const ROLE_NAVIGATION_CONFIG: Record<string, string[]> = {
     'work-hub',
     'people-hub',
     'insights-hub',
-    'configuration-hub',
-    'meta-glasses-hub'
+    'configuration-hub'
   ],
 
   // ==================== ADMIN / TENANT ADMIN ====================

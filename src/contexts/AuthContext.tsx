@@ -103,17 +103,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         });
 
         if (response.ok) {
-          const data = await response.json();
+          const responseData = await response.json();
+          // Handle both wrapped ({ success, data: { user } }) and unwrapped ({ user }) response formats
+          const payload = responseData.data || responseData;
+          const userInfo = payload.user;
+          if (!userInfo) {
+            logger.warn('[Auth] /api/auth/me returned ok but no user data');
+            setIsLoading(false);
+            return;
+          }
           const userData: User = {
-            id: data.user.id,
-            email: data.user.email,
-            firstName: data.user.first_name,
-            lastName: data.user.last_name,
-            role: data.user.role,
-            avatar: data.user.avatar,
-            permissions: data.user.permissions || [],
-            tenantId: data.user.tenant_id,
-            tenantName: data.user.tenant_name
+            id: userInfo.id,
+            email: userInfo.email,
+            firstName: userInfo.first_name,
+            lastName: userInfo.last_name,
+            role: userInfo.role,
+            avatar: userInfo.avatar,
+            permissions: userInfo.permissions || [],
+            tenantId: userInfo.tenant_id,
+            tenantName: userInfo.tenant_name
           };
           setUserState(userData);
 
@@ -163,17 +171,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         throw new Error(error.message || 'Login failed');
       }
 
-      const data = await response.json();
+      const loginResponse = await response.json();
+      // Handle both wrapped ({ success, data: { user } }) and unwrapped ({ user }) response formats
+      const loginPayload = loginResponse.data || loginResponse;
+      const loginUser = loginPayload.user;
       const userData: User = {
-        id: data.user.id,
-        email: data.user.email,
-        firstName: data.user.first_name,
-        lastName: data.user.last_name,
-        role: data.user.role,
-        avatar: data.user.avatar,
-        permissions: data.user.permissions || [],
-        tenantId: data.user.tenant_id,
-        tenantName: data.user.tenant_name
+        id: loginUser.id,
+        email: loginUser.email,
+        firstName: loginUser.first_name,
+        lastName: loginUser.last_name,
+        role: loginUser.role,
+        avatar: loginUser.avatar,
+        permissions: loginUser.permissions || [],
+        tenantId: loginUser.tenant_id,
+        tenantName: loginUser.tenant_name
       };
 
       setUserState(userData);
