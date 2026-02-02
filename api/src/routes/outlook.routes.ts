@@ -595,55 +595,69 @@ router.get(
 // Search Emails
 // ============================================================================
 
+async function handleSearch(req: AuthRequest, res: Response) {
+  try {
+    const {
+      query,
+      folderId,
+      top = '50',
+      skip = '0',
+      orderBy,
+      userId
+    } = req.query
+
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        error: 'Query parameter is required'
+      })
+    }
+
+    const request = {
+      query: query as string,
+      folderId: folderId as string,
+      top: parseInt(top as string),
+      skip: parseInt(skip as string),
+      orderBy: orderBy as string
+    }
+
+    const result = await outlookService.searchEmails(request, userId as string)
+
+    res.json({
+      success: true,
+      data: result.value,
+      pagination: {
+        count: result.value.length,
+        total: result['@odata.count'],
+        hasMore: !!result['@odata.nextLink'],
+        nextLink: result['@odata.nextLink']
+      }
+    })
+  } catch (error) {
+    logger.error('Search emails error:', error)
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
+    })
+  }
+}
+
 router.get(
   '/search',
   authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'READ', resourceType: 'outlook_search' }),
   async (req: AuthRequest, res: Response) => {
-    try {
-      const {
-        query,
-        folderId,
-        top = '50',
-        skip = '0',
-        orderBy,
-        userId
-      } = req.query
+    await handleSearch(req, res)
+  }
+)
 
-      if (!query) {
-        return res.status(400).json({
-          success: false,
-          error: 'Query parameter is required'
-        })
-      }
-
-      const request = {
-        query: query as string,
-        folderId: folderId as string,
-        top: parseInt(top as string),
-        skip: parseInt(skip as string),
-        orderBy: orderBy as string
-      }
-
-      const result = await outlookService.searchEmails(request, userId as string)
-
-      res.json({
-        success: true,
-        data: result.value,
-        pagination: {
-          count: result.value.length,
-          total: result['@odata.count'],
-          hasMore: !!result['@odata.nextLink'],
-          nextLink: result['@odata.nextLink']
-        }
-      })
-    } catch (error) {
-      logger.error('Search emails error:', error)
-      res.status(500).json({
-        success: false,
-        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
-      })
-    }
+// Alias to match legacy endpoint expectations
+router.get(
+  '/messages/search',
+  authorize('admin', 'fleet_manager', 'dispatcher'),
+  auditLog({ action: 'READ', resourceType: 'outlook_search' }),
+  async (req: AuthRequest, res: Response) => {
+    await handleSearch(req, res)
   }
 )
 

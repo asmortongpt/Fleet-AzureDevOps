@@ -92,6 +92,52 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 
 /**
  * @openapi
+ * /api/teams/{teamId}:
+ *   get:
+ *     summary: Get a single team
+ *     tags:
+ *       - Teams
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: teamId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Team details
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
+router.get('/:teamId', async (req: AuthRequest, res: Response) => {
+  try {
+    const { teamId } = req.params
+    const team = await teamsService.getTeam(teamId)
+
+    res.json({
+      success: true,
+      team
+    })
+  } catch (error) {
+    logger.error('Error getting team', {
+      error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
+      teamId: req.params.teamId,
+      userId: req.user?.id
+    })
+
+    res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve team'
+    })
+  }
+})
+
+/**
+ * @openapi
  * /api/teams/{teamId}/channels:
  *   get:
  *     summary: Get all channels in a team

@@ -67,6 +67,7 @@ import costBenefitAnalysisRouter from './routes/cost-benefit-analysis.routes'
 
 // AI & Automation Routes
 import aiChatRouter from './routes/ai-chat'
+import aiRouter from './routes/ai.routes'
 import aiDamageDetectionRouter from './routes/ai-damage-detection.routes'
 import aiSearchRouter from './routes/ai-search'
 import aiTaskAssetRouter from './routes/ai-task-asset.routes'
@@ -77,6 +78,7 @@ import analyticsRouter from './routes/analytics'
 import arcgisLayersRouter from './routes/arcgis-layers'
 import assetAnalyticsRouter from './routes/asset-analytics.routes'
 import assetManagementRouter from './routes/asset-management.routes'
+import assetRelationshipsRouter from './routes/asset-relationships.routes'
 import assetsMobileRouter from './routes/assets-mobile.routes'
 import assignmentReportingRouter from './routes/assignment-reporting.routes'
 import authRouter from './routes/auth'
@@ -137,6 +139,7 @@ import mobileIntegrationRouter from './routes/mobile-integration.routes'
 import mobileMessagingRouter from './routes/mobile-messaging.routes'
 import mobilePhotosRouter from './routes/mobile-photos.routes'
 import mobileTripsRouter from './routes/mobile-trips.routes'
+import mobileOcrRouter from './routes/mobile-ocr.routes'
 import monitoringRouter from './routes/monitoring'
 import obd2EmulatorRouter from './routes/obd2-emulator.routes'
 import onCallManagementRouter from './routes/on-call-management.routes'
@@ -165,6 +168,7 @@ import qualityGatesRouter from './routes/quality-gates'
 import routesRouter from './routes/routes'
 import safetyIncidentsRouter from './routes/safety-incidents'
 import tripsRouter from './routes/trips'
+import tripMarkingRouter from './routes/trip-marking'
 import safetyAlertsRouter from './routes/safety-alerts'
 import schedulingRouter from './routes/scheduling.routes'
 import searchRouter from './routes/search'
@@ -186,6 +190,7 @@ import vendorsRouter from './routes/vendors'
 import videoEventsRouter from './routes/video-events'
 import videoTelematicsRouter from './routes/video-telematics.routes'
 import workOrdersRouter from './routes/work-orders'
+import adaptiveCardsRouter from './routes/adaptive-cards.routes'
 
 // E2E Testing Routes (DEVELOPMENT ONLY - NO AUTH)
 import e2eTestRouter from './routes/e2e-test.routes'
@@ -345,6 +350,7 @@ app.use('/api/reservations', reservationsRouter)
 app.use('/api/analytics', analyticsRouter)
 app.use('/api/assets', assetManagementRouter)
 app.use('/api/asset-analytics', assetAnalyticsRouter)
+app.use('/api/asset-relationships', assetRelationshipsRouter)
 app.use('/api/assets-mobile', assetsMobileRouter)
 app.use('/api/heavy-equipment', heavyEquipmentRouter)
 
@@ -390,6 +396,7 @@ app.use('/api/driver-scorecard', driverScorecardRouter)
 
 // AI & Automation Routes
 app.use('/api/ai/chat', aiChatRouter) // AI Chat interface for document Q&A
+app.use('/api/ai', aiRouter)
 app.use('/api/ai-search', aiSearchRouter)
 app.use('/api/ai-task-asset', aiTaskAssetRouter)
 app.use('/api/ai-tasks', aiTaskPrioritizationRouter)
@@ -406,6 +413,7 @@ app.use('/api/mobile-integration', mobileIntegrationRouter)
 app.use('/api/mobile-messaging', mobileMessagingRouter)
 app.use('/api/mobile-photos', mobilePhotosRouter)
 app.use('/api/mobile-trips', mobileTripsRouter)
+app.use('/api/mobile', mobileOcrRouter)
 app.use('/api/push-notifications', pushNotificationsRouter)
 
 // Vehicle Management Routes
@@ -420,6 +428,7 @@ app.use('/api/lidar', lidarRouter)
 // Trip & Route Management Routes
 app.use('/api/routes', routesRouter)
 app.use('/api/trips', tripsRouter)
+app.use('/api/trips', tripMarkingRouter)
 // app.use('/api/route-emulator', routeEmulatorRouter)
 app.use('/api/trip-usage', tripUsageRouter)
 
@@ -452,13 +461,17 @@ app.use('/api/arcgis-layers', arcgisLayersRouter)
 app.use('/api/outlook', outlookRouter)
 app.use('/api/video-events', videoEventsRouter)
 app.use('/api/video-telematics', videoTelematicsRouter)
+app.use('/api/adaptive-cards', adaptiveCardsRouter)
+app.use('/api/cards', adaptiveCardsRouter)
 
 // Dashboard API Routes (Role-Based Dashboards)
 app.use('/api/dashboard', dashboardRouter)
 
 // Emulator & Testing Routes
 // app.use('/api/emulator', emulatorRouter)
-// app.use('/api/obd2-emulator', obd2EmulatorRouter)
+if (process.env.ENABLE_OBD2_EMULATOR === 'true') {
+  app.use('/api/obd2-emulator', obd2EmulatorRouter)
+}
 // app.use('/api/demo', demoRouter) // REMOVED: demo routes deleted during mock data cleanup
 
 // System Management Routes

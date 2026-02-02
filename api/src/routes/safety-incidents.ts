@@ -111,6 +111,35 @@ router.post(
   }
 )
 
+// PUT /safety-incidents/:id
+router.put(
+  '/:id',
+  csrfProtection,
+  requirePermission('safety_incident:update:global'),
+  auditLog({ action: 'UPDATE', resourceType: 'safety_incidents' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const data = req.body
+      const { fields, values } = buildUpdateClause(data, 3)
+
+      const result = await pool.query(
+        `UPDATE safety_incidents SET ${fields}, updated_at = NOW()
+         WHERE id = $1 AND tenant_id = $2 RETURNING *`,
+        [req.params.id, req.user!.tenant_id, ...values]
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: `Safety incident not found` })
+      }
+
+      res.json(result.rows[0])
+    } catch (error) {
+      logger.error(`Update safety-incidents error:`, error) // Wave 17: Winston logger
+      res.status(500).json({ error: `Internal server error` })
+    }
+  }
+)
+
 // PUT /safety-incidents/:id/approve
 router.put(
   `/:id/approve`,

@@ -3,10 +3,13 @@ import express, { Request, Response, NextFunction } from 'express';
 
 import pool from '../config/database';
 import { authenticateJWT } from '../middleware/auth';
+import { CameraSyncService } from '../services/camera-sync';
 
 // Assuming pool is exported from db/connection or config/database
 
 const router = express.Router();
+
+const cameraSyncService = new CameraSyncService()
 
 // Camera sources endpoints (stub implementations until camera_sources table is created)
 // IMPORTANT: These must be defined BEFORE /:id to avoid route conflicts
@@ -14,6 +17,16 @@ router.get('/sources', authenticateJWT, async (req: Request, res: Response, next
   try {
     // TODO: Implement camera sources table and query
     // For now, return empty array to prevent 500 error
+    res.json([]);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Alias for /sources to match legacy endpoint expectations
+router.get('/sources/list', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // TODO: Implement camera sources table and query
     res.json([]);
   } catch (err) {
     next(err);
@@ -55,6 +68,33 @@ router.delete('/sources/:id', authenticateJWT, async (req: Request, res: Respons
     next(err);
   }
 });
+
+// Sync endpoints
+router.post('/sync', authenticateJWT, async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    await cameraSyncService.syncAll()
+    res.json({ success: true, message: 'Camera sync started' })
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.post('/sources/:id/sync', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, name, source_type, service_url, field_mapping, authentication
+       FROM camera_data_sources WHERE id = $1`,
+      [req.params.id]
+    )
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Camera source not found' })
+    }
+    await cameraSyncService.syncSource(result.rows[0])
+    res.json({ success: true, message: 'Camera source sync started', sourceId: req.params.id })
+  } catch (err) {
+    next(err)
+  }
+})
 
 // Specific routes before parameterized routes
 router.get('/nearby', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {

@@ -56,12 +56,12 @@ import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { format } from 'date-fns'
 import { FuelTransactionDialog } from '@/components/fuel/FuelTransactionDialog'
 import { FuelCardDialog } from '@/components/fuel/FuelCardDialog'
+import { useAuth } from '@/contexts'
 
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
 
-const TENANT_ID = '00000000-0000-0000-0000-000000000001' // TODO: Get from auth context
 const ANIMATION_STAGGER_DELAY = 0.1
 const MAX_ANIMATION_ITEMS = 10
 
@@ -194,13 +194,16 @@ function FuelHubContent() {
   const [isCardDialogOpen, setIsCardDialogOpen] = useState(false)
 
   // Fetch fuel data
-  const { data: metrics, isLoading: metricsLoading } = useFuelMetrics(TENANT_ID)
+  const { user } = useAuth()
+  const tenantId = user?.tenantId || ''
+
+  const { data: metrics, isLoading: metricsLoading } = useFuelMetrics(tenantId)
   const { data: transactions = [], isLoading: transactionsLoading } = useFuelTransactions({
-    tenant_id: TENANT_ID,
+    tenant_id: tenantId,
     ...dateRange
   })
-  const { data: cards = [], isLoading: cardsLoading } = useFuelCards(TENANT_ID)
-  const { data: analytics, isLoading: analyticsLoading } = useFuelAnalytics(TENANT_ID, dateRange)
+  const { data: cards = [], isLoading: cardsLoading } = useFuelCards(tenantId)
+  const { data: analytics, isLoading: analyticsLoading } = useFuelAnalytics(tenantId, dateRange)
 
   // Prepare chart data
   const costTrendData = useMemo(() => {
@@ -541,7 +544,7 @@ function FuelHubContent() {
       <FuelTransactionDialog
         open={isTransactionDialogOpen}
         onOpenChange={setIsTransactionDialogOpen}
-        tenantId={TENANT_ID}
+        tenantId={tenantId}
         onSuccess={() => {
           // Automatically refetch data after successful transaction
         }}
@@ -550,7 +553,7 @@ function FuelHubContent() {
       <FuelCardDialog
         open={isCardDialogOpen}
         onOpenChange={setIsCardDialogOpen}
-        tenantId={TENANT_ID}
+        tenantId={tenantId}
         onSuccess={() => {
           // Automatically refetch data after successful card creation
         }}

@@ -19,7 +19,7 @@ import telemetryService from '@/lib/telemetry'
 import logger from '@/utils/logger'
 
 // Feature flag for new single-page layout
-const USE_NEW_LAYOUT = import.meta.env.VITE_USE_NEW_LAYOUT === 'true'
+const USE_NEW_LAYOUT = true // Enabled by default for all users
 
 // Lazy load all modules for code splitting - reduces initial bundle by 80%+
 // Modules now organized in feature-based folders for better maintainability
@@ -252,7 +252,7 @@ function App() {
           <p className="text-slate-700 mb-3">
             You do not have permission to view this module.
           </p>
-          <Button onClick={() => setActiveModule('live-fleet-dashboard')}>
+          <Button onClick={() => setActiveModule('fleet-hub-consolidated')}>
             Return to Dashboard
           </Button>
         </div>
@@ -582,29 +582,29 @@ function App() {
       {/* React Hot Toast - Modern notifications */}
       <div role="status" aria-live="polite" aria-label="Notifications">
         <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: 'hsl(var(--card))',
-            color: 'hsl(var(--card-foreground))',
-            border: '1px solid hsl(var(--border))',
-            borderRadius: '0.75rem',
-            fontSize: '0.875rem',
-          },
-          success: {
-            iconTheme: {
-              primary: 'hsl(var(--primary))',
-              secondary: 'hsl(var(--primary-foreground))',
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: 'hsl(var(--card))',
+              color: 'hsl(var(--card-foreground))',
+              border: '1px solid hsl(var(--border))',
+              borderRadius: '0.75rem',
+              fontSize: '0.875rem',
             },
-          },
-          error: {
-            iconTheme: {
-              primary: '#ef4444',
-              secondary: 'white',
+            success: {
+              iconTheme: {
+                primary: 'hsl(var(--primary))',
+                secondary: 'hsl(var(--primary-foreground))',
+              },
             },
-          },
-        }}
+            error: {
+              iconTheme: {
+                primary: '#ef4444',
+                secondary: 'white',
+              },
+            },
+          }}
         />
       </div>
 

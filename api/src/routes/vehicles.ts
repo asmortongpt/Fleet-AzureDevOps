@@ -2,21 +2,25 @@ import { Router, Request, Response } from "express"
 
 import { cacheService } from '../config/cache';
 import logger from '../config/logger'; // Wave 10: Add Winston logger
+import pool from '../config/database';
 import { container } from '../container'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import { authenticateJWT } from '../middleware/auth';
 import { doubleCsrfProtection as csrfProtection } from '../middleware/csrf'
 import { asyncHandler } from '../middleware/errorHandler'
 import { policyEnforcement } from '../middleware/policy-enforcement';
+import { requirePermission } from '../middleware/permissions';
 import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 import { validateBody, validateQuery, validateParams, validateAll } from '../middleware/validate';
 import { VehicleService } from '../modules/fleet/services/vehicle.service'
+import { createTelemetrySchema } from '../schemas/telemetry.schema';
 import {
   vehicleCreateSchema,
   vehicleUpdateSchema,
   vehicleQuerySchema,
   vehicleIdSchema
 } from '../schemas/vehicles.schema';
+import { buildInsertClause } from '../utils/sql-safety';
 import { TYPES } from '../types'
 
 const router = Router()
@@ -307,6 +311,46 @@ router.put("/:id",
       }
       throw error
     }
+  })
+)
+
+// POST vehicle telemetry - Lightweight ingestion endpoint
+router.post(
+  "/:id/telemetry",
+  csrfProtection,
+  requirePermission('telemetry:create:fleet'),
+  asyncHandler(async (req: Request, res: Response) => {
+    const tenantId = (req as any).user?.tenant_id
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
+    const payload = {
+      ...req.body,
+      vehicle_id: req.params.id,
+      timestamp: req.body.timestamp || new Date().toISOString()
+    }
+
+    const validation = createTelemetrySchema.safeParse(payload)
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Invalid telemetry data',
+        details: validation.error.issues
+      })
+    }
+
+    const { columnNames, placeholders, values } = buildInsertClause(
+      validation.data,
+      ['tenant_id'],
+      1
+    )
+
+    const result = await pool.query(
+      `INSERT INTO telemetry_data (${columnNames}) VALUES (${placeholders}) RETURNING *`,
+      [tenantId, ...values]
+    )
+
+    res.status(201).json({ data: result.rows[0] })
   })
 )
 
