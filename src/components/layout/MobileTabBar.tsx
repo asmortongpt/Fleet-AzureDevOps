@@ -59,8 +59,8 @@ export function MobileTabBar() {
   )
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[--cta-midnight]/95 backdrop-blur-xl border-t border-white/10 safe-bottom lg:hidden">
-      <div className="flex items-center justify-around h-14">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#1A0B2E]/95 backdrop-blur-xl border-t border-white/10 safe-bottom lg:hidden">
+      <div className="flex items-center justify-around h-12 sm:h-14">
         {tabs.map(tab => {
           const isActive =
             (tab.id === 'map' && !state.stack.length) ||
@@ -72,12 +72,12 @@ export function MobileTabBar() {
               onClick={() => handleTabClick(tab)}
               className={cn(
                 'flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors',
-                isActive ? 'text-[--cta-blue-skies]' : 'text-white/40'
+                isActive ? 'text-[#41B2E3]' : 'text-white/40'
               )}
               aria-label={tab.label}
             >
               {tab.icon}
-              <span className="text-[10px]">{tab.label}</span>
+              <span className="text-[9px] sm:text-[10px]">{tab.label}</span>
             </button>
           )
         })}

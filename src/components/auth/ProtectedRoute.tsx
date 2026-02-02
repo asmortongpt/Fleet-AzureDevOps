@@ -47,7 +47,6 @@ export const ProtectedRoute = ({
       try {
         // Check 1: AuthContext user (email/password login sessions via httpOnly cookies)
         if (user) {
-          // User is authenticated via AuthContext (email/password or session cookie)
           if (requiredRole || requiredPermission) {
             const normalizedRole = requiredRole && (typeof requiredRole === 'string' || Array.isArray(requiredRole))
               ? requiredRole
