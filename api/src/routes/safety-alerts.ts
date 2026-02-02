@@ -434,17 +434,18 @@ router.get(
     const tenantId = req.user?.tenant_id;
 
     // Calculate OSHA metrics using parameterized queries
+    // TODO: Implement actual database aggregation
     const metrics = {
-      totalRecordableIncidents: 12,
-      daysAwayRestrictedTransfer: 8,
-      totalCases: 12,
-      incidentRate: 2.4,
-      daysAwayFromWorkCaseRate: 1.6,
-      lostWorkdayRate: 45,
-      totalHoursWorked: 500000,
+      totalRecordableIncidents: 0,
+      daysAwayRestrictedTransfer: 0,
+      totalCases: 0,
+      incidentRate: 0,
+      daysAwayFromWorkCaseRate: 0,
+      lostWorkdayRate: 0,
+      totalHoursWorked: 0,
       yearToDate: {
-        injuries: 8,
-        illnesses: 4,
+        injuries: 0,
+        illnesses: 0,
         fatalities: 0
       }
     };

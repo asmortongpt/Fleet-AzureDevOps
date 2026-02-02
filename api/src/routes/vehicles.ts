@@ -186,39 +186,14 @@ router.get("/:id/trips",
     }
 
     // TODO: Implement actual trip fetching from database
-    // For now, return demo data to match frontend expectations
-    const demoTrips = [
-      {
-        id: `trip-${vehicleId}-1`,
-        status: 'completed',
-        driver_name: 'John Doe',
-        start_time: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        duration: '2h 30m',
-        start_location: '123 Main St, City, State',
-        end_location: '456 Oak Ave, City, State',
-        distance: 45.2,
-        avg_speed: 35.5,
-        fuel_used: 3.2
-      },
-      {
-        id: `trip-${vehicleId}-2`,
-        status: 'completed',
-        driver_name: 'Jane Smith',
-        start_time: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-        duration: '1h 45m',
-        start_location: '789 Elm St, City, State',
-        end_location: '321 Pine Rd, City, State',
-        distance: 28.7,
-        avg_speed: 32.1,
-        fuel_used: 2.1
-      }
-    ]
+    // For now, return empty array if no trips are found
+    const trips: any[] = []
 
     // Cache for 5 minutes
-    await cacheService.set(cacheKey, demoTrips, 300)
+    await cacheService.set(cacheKey, trips, 300)
 
-    logger.info('Fetched vehicle trips', { vehicleId, tenantId, count: demoTrips.length })
-    res.json(demoTrips)
+    logger.info('Fetched vehicle trips', { vehicleId, tenantId, count: trips.length })
+    res.json(trips)
   })
 )
 

@@ -44,19 +44,19 @@ export function FlyoutMenu() {
 
   return (
     <div
-      className="absolute left-14 top-0 bottom-0 z-40 flex"
+      className="absolute left-12 lg:left-14 top-0 bottom-0 z-40 flex"
     >
       <div
         className={cn(
-          'w-56 h-full bg-[#0A0E27]/97 backdrop-blur-2xl',
+          'w-48 lg:w-56 h-full bg-[#0A0E27]/97 backdrop-blur-2xl',
           'border-r border-white/[0.06]',
           'shadow-[4px_0_24px_rgba(0,0,0,0.5)]',
           'overflow-y-auto scrollbar-none',
         )}
       >
         {/* Category header */}
-        <div className="sticky top-0 bg-[#0A0E27]/97 backdrop-blur px-4 pt-4 pb-2 border-b border-white/[0.06]">
-          <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#41B2E3]/80">
+        <div className="sticky top-0 bg-[#0A0E27]/97 backdrop-blur px-3 pt-3 pb-1.5 lg:px-4 lg:pt-4 lg:pb-2 border-b border-white/[0.06]">
+          <h3 className="text-[10px] lg:text-[11px] font-semibold uppercase tracking-[0.15em] text-[#41B2E3]/80">
             {categoryLabels[flyoutCategory]}
           </h3>
         </div>
@@ -68,7 +68,7 @@ export function FlyoutMenu() {
               key={mod.id}
               onClick={() => handleSelectModule(mod.id)}
               className={cn(
-                'w-full text-left px-3 py-2.5 rounded-lg text-[13px] transition-all duration-150',
+                'w-full text-left px-2.5 py-2 lg:px-3 lg:py-2.5 rounded-lg text-xs lg:text-[13px] transition-all duration-150',
                 'text-white/55 hover:text-white hover:bg-white/[0.05]',
                 'focus:outline-none focus:ring-1 focus:ring-[#41B2E3]/40',
               )}
