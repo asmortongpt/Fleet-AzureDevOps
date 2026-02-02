@@ -53,7 +53,7 @@ export function IconRail() {
 
   return (
     <aside
-      className="relative flex flex-col items-center w-14 h-full shrink-0 bg-[#0F1535] border-r border-white/[0.06] z-30"
+      className="relative flex flex-col items-center w-12 lg:w-14 h-full shrink-0 bg-[#0F1535] border-r border-white/[0.06] z-30"
     >
       {/* Dawn gradient accent bar at top */}
       <div className="w-full h-[3px] bg-gradient-to-r from-[#F0A000] via-[#FF8A00] to-[#DD3903] shrink-0" />
@@ -77,7 +77,7 @@ export function IconRail() {
                 aria-label={cat.label}
                 title={cat.label}
                 className={cn(
-                  'flex flex-col items-center justify-center w-11 h-12 rounded-lg transition-all duration-200',
+                  'flex flex-col items-center justify-center w-10 h-11 lg:w-11 lg:h-12 rounded-lg transition-all duration-200',
                   isActive
                     ? 'text-[#41B2E3] bg-[#41B2E3]/[0.08]'
                     : isHovered
@@ -87,7 +87,7 @@ export function IconRail() {
               >
                 {cat.icon}
                 <span className={cn(
-                  'text-[8px] mt-0.5 font-medium tracking-wide',
+                  'text-[7px] lg:text-[8px] mt-0.5 font-medium tracking-wide',
                   isActive ? 'text-[#41B2E3]/70' : 'text-inherit'
                 )}>
                   {cat.label}
@@ -100,7 +100,7 @@ export function IconRail() {
 
       {/* Bottom: CTA square logo mark - Option 2 from ADELE branding doc (page 6) */}
       <div className="pb-3 flex flex-col items-center">
-        <div className="w-9 h-9 rounded-lg bg-[#2B3A67] flex flex-col items-center justify-center border border-white/[0.08] shadow-lg">
+        <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-lg bg-[#2B3A67] flex flex-col items-center justify-center border border-white/[0.08] shadow-lg">
           <span className="text-[9px] font-extrabold text-white tracking-wide leading-none">CTA</span>
           <div className="w-5 h-[2px] mt-1 rounded-full bg-gradient-to-r from-[#FDB813] to-[#FF5722]" />
         </div>
