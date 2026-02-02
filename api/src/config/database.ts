@@ -87,20 +87,6 @@ let initializationPromise: Promise<void> | null = null
 
 const poolProxy = new Proxy({} as Pool, {
   get(target, prop) {
-    if (process.env.USE_MOCK_DATA === 'true') {
-      // Lazy load mock pool to avoid circular dependencies
-      // Note: This is synchronous but imports mockPool at runtime
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { mockPool } = require('../middleware/mock-database')
-      const result = (mockPool as any)[prop]
-
-      // If the property is a function, bind it to the mockPool instance
-      if (typeof result === 'function') {
-        return result.bind(mockPool)
-      }
-      return result
-    }
-
     // Lazy initialize on first access
     if (!isInitializing && !(connectionManager as any).initialized) {
       isInitializing = true

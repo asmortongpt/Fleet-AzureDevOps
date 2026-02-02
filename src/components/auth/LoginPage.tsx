@@ -3,14 +3,15 @@
  *
  * Provides Azure AD authentication with MFA enforcement
  * Supports both redirect and popup flows
+ * Updated with Premium ArchonY Design System
  */
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Shield, Lock, Truck, ChevronRight, AlertCircle, Fingerprint } from 'lucide-react'
 
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import {
   loginWithRedirect,
   loginWithPopup,
@@ -19,6 +20,7 @@ import {
   getUserProfile
 } from "@/lib/auth/index"
 import logger from '@/utils/logger'
+import { cn } from '@/lib/utils'
 
 export const LoginPage = () => {
   const navigate = useNavigate()
@@ -85,138 +87,147 @@ export const LoginPage = () => {
 
   if (!msalReady) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <Card className="w-full max-w-md p-3">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
-            <p className="text-slate-700">Initializing authentication...</p>
-          </div>
-        </Card>
+      <div className="flex items-center justify-center min-h-screen bg-[#0A0E27] text-white">
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-2xl flex flex-col items-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#41B2E3] mb-4"></div>
+          <p className="text-white/60 text-sm tracking-wide">INITIALIZING SECURE SESSION</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <Card className="w-full max-w-md p-3 shadow-sm">
-        {/* Logo and Title */}
-        <div className="text-center mb-3">
-          <div className="flex items-center justify-center mb-2">
-            <svg
-              className="w-16 h-16 text-blue-800"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-              />
-            </svg>
+    <div className="flex min-h-screen w-full bg-[#0A0E27] relative overflow-hidden font-sans">
+      {/* Dynamic Background Elements */}
+      <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#41B2E3]/10 blur-[120px]" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[#7342F9]/10 blur-[100px]" />
+
+      <div className="w-full h-full flex items-center justify-center p-4 relative z-10">
+        <div className="w-full max-w-[1000px] grid md:grid-cols-2 gap-0 overflow-hidden rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] border border-white/10 bg-[#0F1535]/80 backdrop-blur-xl">
+
+          {/* Left Side - Brand & Info */}
+          <div className="hidden md:flex flex-col justify-between p-10 bg-gradient-to-br from-[#1A1F45] to-[#0A0E27] relative overflow-hidden">
+            {/* Overlay grid pattern */}
+            <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+
+            {/* Glowing Accent */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#F0A000] via-[#FF8A00] to-[#DD3903]" />
+
+            <div>
+              <div className="inline-flex items-center gap-2 mb-2 p-1.5 pr-3 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm">
+                <div className="bg-[#41B2E3] rounded-full p-1">
+                  <Truck className="w-3.5 h-3.5 text-white" />
+                </div>
+                <span className="text-[10px] font-bold tracking-wider text-[#41B2E3] uppercase">Fleet Command</span>
+              </div>
+              <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
+                Capital Technology Alliance
+              </h1>
+              <p className="text-white/50 text-sm leading-relaxed max-w-sm">
+                Next-generation fleet management system powered by AI analytics and real-time telemetry.
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
+                  <Shield className="w-5 h-5 text-[#41B2E3]" />
+                </div>
+                <div>
+                  <h3 className="text-white text-sm font-semibold">Enterprise Security</h3>
+                  <p className="text-white/40 text-xs">MFA-enforced access control</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
+                  <Fingerprint className="w-5 h-5 text-[#7342F9]" />
+                </div>
+                <div>
+                  <h3 className="text-white text-sm font-semibold">Biometric Ready</h3>
+                  <p className="text-white/40 text-xs">Seamless FIDO2 integration</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-[10px] text-white/30 font-mono mt-8">
+              SYSTEM_ID: ARCHON-Y-2026<br />
+              SECURE_GATEWAY_V4.2
+            </div>
           </div>
-          <h1 className="text-base font-bold text-gray-900 mb-2">
-            Fleet Management System
-          </h1>
-          <p className="text-slate-700">
-            Secure authentication with Microsoft Azure AD
-          </p>
-        </div>
 
-        {/* Error Alert */}
-        {error && (
-          <Alert variant="destructive" className="mb-3">
-            <svg
-              className="w-3 h-3 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            {error}
-          </Alert>
-        )}
+          {/* Right Side - Login Form */}
+          <div className="p-8 md:p-12 flex flex-col justify-center bg-white/[0.02]">
+            <div className="text-center mb-10 md:hidden">
+              <h2 className="text-xl font-bold text-white">Fleet Connect</h2>
+              <p className="text-white/40 text-sm">Secure Access Portal</p>
+            </div>
 
-        {/* Login Methods */}
-        <div className="space-y-2">
-          {/* Primary Login Button (Redirect) */}
-          <Button
-            onClick={handleLoginRedirect}
-            disabled={isLoading}
-            className="w-full h-9 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            {isLoading ? (
-              <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                Signing in...
-              </div>
-            ) : (
-              <div className="flex items-center justify-center">
-                <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M5.85 3.5h12.3c1.35 0 2.45 1.1 2.45 2.45v12.3c0 1.35-1.1 2.45-2.45 2.45H5.85c-1.35 0-2.45-1.1-2.45-2.45V5.95c0-1.35 1.1-2.45 2.45-2.45zm6.15 2.85c-3.45 0-6.3 2.85-6.3 6.3s2.85 6.3 6.3 6.3 6.3-2.85 6.3-6.3-2.85-6.3-6.3-6.3zm0 1.8c2.55 0 4.5 2.1 4.5 4.5s-2.1 4.5-4.5 4.5-4.5-2.1-4.5-4.5 2.1-4.5 4.5-4.5z" />
-                </svg>
-                Sign in with Microsoft
-              </div>
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-white mb-2">Welcome Back</h2>
+              <p className="text-white/50 text-sm">
+                Please authenticate using your organizational account to access the command center.
+              </p>
+            </div>
+
+            {error && (
+              <Alert variant="destructive" className="mb-6 bg-red-500/10 border-red-500/20 text-red-200">
+                <AlertCircle className="h-4 w-4" />
+                <span className="ml-2">{error}</span>
+              </Alert>
             )}
-          </Button>
 
-          {/* Alternative Login Button (Popup) */}
-          <Button
-            onClick={handleLoginPopup}
-            disabled={isLoading}
-            variant="outline"
-            className="w-full h-9 text-sm font-semibold border-2 border-blue-600 text-blue-800 hover:bg-blue-50"
-          >
-            Sign in with Popup
-          </Button>
-        </div>
+            <div className="space-y-4">
+              <Button
+                onClick={handleLoginRedirect}
+                disabled={isLoading}
+                className={cn(
+                  "w-full h-12 text-sm font-semibold relative overflow-hidden group transition-all duration-300",
+                  "bg-[#0078D4] hover:bg-[#006cbd] text-white border-none shadow-[0_0_20px_rgba(0,120,212,0.3)]"
+                )}
+              >
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                <div className="relative flex items-center justify-center gap-3">
+                  <svg className="w-5 h-5" viewBox="0 0 215 215" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                    <path d="M102.5 0H0V102.5H102.5V0Z" fill="#F25022" />
+                    <path d="M215 0H112.5V102.5H215V0Z" fill="#7FBA00" />
+                    <path d="M102.5 112.5H0V215H102.5V112.5Z" fill="#00A4EF" />
+                    <path d="M215 112.5H112.5V215H215V112.5Z" fill="#FFB900" />
+                  </svg>
+                  <span>{isLoading ? 'Connecting...' : 'Sign in with Microsoft'}</span>
+                  {!isLoading && <ChevronRight className="w-4 h-4 opacity-60" />}
+                </div>
+              </Button>
 
-        {/* Security Notice */}
-        <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
-          <div className="flex items-start">
-            <svg
-              className="w-3 h-3 text-blue-800 mr-2 mt-0.5 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <div className="text-sm text-blue-800">
-              <p className="font-semibold mb-1">Enterprise-Grade Security</p>
-              <ul className="list-disc list-inside space-y-1 text-blue-700">
-                <li>Multi-Factor Authentication (MFA) required</li>
-                <li>OAuth 2.0 with PKCE flow</li>
-                <li>Secure token management</li>
-                <li>Session monitoring and audit logging</li>
-              </ul>
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-white/10" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-[#0F1535] px-2 text-white/30">Alternative Methods</span>
+                </div>
+              </div>
+
+              <Button
+                onClick={handleLoginPopup}
+                disabled={isLoading}
+                variant="outline"
+                className="w-full h-12 border-white/10 bg-white/5 hover:bg-white/10 text-white hover:text-white"
+              >
+                <Lock className="w-4 h-4 mr-2 text-white/40" />
+                Use Browser Popup
+              </Button>
+            </div>
+
+            <div className="mt-10 text-center">
+              <div className="flex items-center justify-center gap-2 text-[10px] text-white/20 uppercase tracking-widest hover:text-white/40 transition-colors cursor-help">
+                <Shield className="w-3 h-3" />
+                <span>Protected by Azure Sentinel</span>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Footer */}
-        <div className="mt-3 text-center text-sm text-gray-700">
-          <p>By signing in, you agree to our Terms of Service and Privacy Policy</p>
-          <p className="mt-2">
-            Need help?{' '}
-            <a href="mailto:support@capitaltechalliance.com" className="text-blue-800 hover:underline">
-              Contact Support
-            </a>
-          </p>
-        </div>
-      </Card>
+      </div>
     </div>
   )
 }

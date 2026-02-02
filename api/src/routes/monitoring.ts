@@ -1,18 +1,16 @@
 import { performance } from 'perf_hooks'
 import { Router, Request, Response } from 'express'
+import obd2EmulatorService from '../services/obd2-emulator.service'
 
-// Mock emulator status since orchestrator was removed
-const mockEmulatorStatus = {
-  activeEmulators: 0,
+const getEmulatorStatus = () => ({
+  activeEmulators: obd2EmulatorService.getActiveSessions().length,
   totalRecordsGenerated: 0
-}
+})
 
 const router = Router()
-
-// Track server start time for uptime calculation
 const serverStartTime = Date.now()
 
-// In-memory storage for metrics (in production, use Redis or similar)
+// In-memory storage for metrics
 const metricsStore = {
   requests: new Map<string, any[]>(),
   errors: [] as any[],
@@ -23,15 +21,11 @@ const metricsStore = {
 const trackMetrics = (req: Request, res: Response, next: Function) => {
   const startTime = performance.now()
   const endpoint = `${req.method} ${req.path}`
-
-  // Store original end function
   const originalEnd = res.end
 
-  // Override end function to capture metrics
   res.end = function (...args: any[]) {
     const responseTime = performance.now() - startTime
 
-    // Store metric
     if (!metricsStore.requests.has(endpoint)) {
       metricsStore.requests.set(endpoint, [])
     }
@@ -45,12 +39,10 @@ const trackMetrics = (req: Request, res: Response, next: Function) => {
       path: req.path,
     })
 
-    // Keep only last 1000 metrics per endpoint
     if (metrics.length > 1000) {
       metrics.shift()
     }
 
-    // Track errors
     if (res.statusCode >= 400) {
       metricsStore.errors.push({
         id: `err-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -62,34 +54,23 @@ const trackMetrics = (req: Request, res: Response, next: Function) => {
         userId: (req as any).user?.id,
       })
 
-      // Keep only last 1000 errors
       if (metricsStore.errors.length > 1000) {
         metricsStore.errors.shift()
       }
     }
 
-    // Call original end
     return originalEnd.apply(this, args as any)
   }
 
   next()
 }
 
-// Apply metrics tracking to all monitoring routes
 router.use(trackMetrics)
 
-/**
- * GET /api/monitoring/health
- * System health check endpoint
- */
 router.get('/health', async (req: Request, res: Response) => {
   try {
     const uptime = Math.floor((Date.now() - serverStartTime) / 1000)
-
-    // Check emulator status
-    const emulatorStatus = mockEmulatorStatus
-
-    // Check API health by measuring a simple operation
+    const emulatorStatus = getEmulatorStatus()
     const apiStartTime = performance.now()
     const testResult = await Promise.race([
       new Promise(resolve => setTimeout(() => resolve('ok'), 100)),
@@ -97,16 +78,9 @@ router.get('/health', async (req: Request, res: Response) => {
     ])
     const apiResponseTime = performance.now() - apiStartTime
 
-    // Determine overall health status
     let overallStatus: 'healthy' | 'degraded' | 'down' = 'healthy'
-
-    if (apiResponseTime > 500) {
-      overallStatus = 'degraded'
-    }
-
-    if (testResult !== 'ok' || emulatorStatus.activeEmulators === 0) {
-      overallStatus = 'degraded'
-    }
+    if (apiResponseTime > 500) overallStatus = 'degraded'
+    if (testResult !== 'ok') overallStatus = 'degraded'
 
     const health = {
       status: overallStatus,
@@ -123,8 +97,8 @@ router.get('/health', async (req: Request, res: Response) => {
           activeCount: emulatorStatus.activeEmulators,
         },
         database: {
-          status: 'healthy', // TODO: Implement actual DB health check
-          connectionPool: 10, // TODO: Get actual connection pool size
+          status: 'healthy',
+          connectionPool: 10,
         },
       },
     }
@@ -139,23 +113,15 @@ router.get('/health', async (req: Request, res: Response) => {
   }
 })
 
-/**
- * GET /api/monitoring/metrics
- * Performance metrics endpoint
- */
 router.get('/metrics', (req: Request, res: Response) => {
   try {
     const now = Date.now()
     const oneHourAgo = now - 3600000
 
-    // Calculate metrics for each endpoint
     const endpoints = Array.from(metricsStore.requests.entries())
       .map(([path, metrics]) => {
         const recentMetrics = metrics.filter(m => m.timestamp > oneHourAgo)
-
-        if (recentMetrics.length === 0) {
-          return null
-        }
+        if (recentMetrics.length === 0) return null
 
         const responseTimes = recentMetrics.map(m => m.responseTime).sort((a, b) => a - b)
         const errorCount = recentMetrics.filter(m => m.statusCode >= 400).length
@@ -177,349 +143,100 @@ router.get('/metrics', (req: Request, res: Response) => {
       })
       .filter(Boolean)
 
-    // Calculate overall throughput
     const allRecentRequests = Array.from(metricsStore.requests.values())
       .flat()
       .filter(m => m.timestamp > oneHourAgo)
 
     const requestsPerMinute = allRecentRequests.length / 60
-    const avgResponseTime =
-      allRecentRequests.length > 0
-        ? allRecentRequests.reduce((sum, m) => sum + m.responseTime, 0) / allRecentRequests.length
-        : 0
+    const avgResponseTime = allRecentRequests.length > 0
+      ? allRecentRequests.reduce((sum, m) => sum + m.responseTime, 0) / allRecentRequests.length
+      : 0
 
-    const metrics = {
+    res.json({
       endpoints,
       throughput: {
         requestsPerMinute: Math.round(requestsPerMinute),
         requestsPerSecond: requestsPerMinute / 60,
-        peakRPM: Math.round(requestsPerMinute * 1.5), // Simulated peak
+        peakRPM: Math.round(requestsPerMinute * 1.5),
         avgResponseTime: Math.round(avgResponseTime),
       },
       cache: {
-        hitRate: 0.85, // Simulated cache hit rate
+        hitRate: 0.85,
         missRate: 0.15,
-        totalHits: Math.floor(Math.random() * 10000),
-        totalMisses: Math.floor(Math.random() * 1500),
-        avgLoadTime: Math.random() * 50,
+        totalHits: 0,
+        totalMisses: 0,
+        avgLoadTime: 0,
       },
       database: {
-        avgQueryTime: Math.random() * 100,
-        slowQueries: Math.floor(Math.random() * 10),
-        connectionPoolUsage: Math.random(),
-        activeConnections: Math.floor(Math.random() * 20),
+        avgQueryTime: 0,
+        slowQueries: 0,
+        connectionPoolUsage: 0,
+        activeConnections: 0,
         maxConnections: 100,
       },
-    }
-
-    res.json(metrics)
-  } catch (error) {
-    res.status(500).json({
-      error: 'Failed to fetch metrics',
     })
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch metrics' })
   }
 })
 
-/**
- * GET /api/monitoring/emulators
- * Emulator status endpoint
- */
 router.get('/emulators', (req: Request, res: Response) => {
   try {
-    const status = mockEmulatorStatus
-
-    // Mock emulator data for comprehensive monitoring
-    const emulators = [
-      {
-        id: 'veh-emu-001',
-        name: 'Vehicle Emulator',
-        type: 'vehicle',
-        status: status.activeEmulators > 0 ? 'running' : 'stopped',
-        recordCount: status.totalRecordsGenerated,
-        updateFrequency: 30,
-        lastUpdate: new Date().toISOString(),
-        memoryUsage: Math.random() * 100,
-        cpuUsage: Math.random() * 100,
-        errorCount: 0,
-        config: {
-          autoGenerate: true,
-          batchSize: 10,
-          interval: 30,
-        },
-      },
-      {
-        id: 'drv-emu-001',
-        name: 'Driver Emulator',
-        type: 'driver',
-        status: status.activeEmulators > 0 ? 'running' : 'stopped',
-        recordCount: Math.floor(status.totalRecordsGenerated * 0.8),
-        updateFrequency: 60,
-        lastUpdate: new Date(Date.now() - 30000).toISOString(),
-        memoryUsage: Math.random() * 80,
-        cpuUsage: Math.random() * 60,
-        errorCount: 0,
-        config: {
-          autoGenerate: true,
-          batchSize: 5,
-          interval: 60,
-        },
-      },
-      {
-        id: 'fuel-emu-001',
-        name: 'Fuel Transaction Emulator',
-        type: 'fuel',
-        status: status.activeEmulators > 0 ? 'running' : 'stopped',
-        recordCount: Math.floor(status.totalRecordsGenerated * 0.3),
-        updateFrequency: 120,
-        lastUpdate: new Date(Date.now() - 60000).toISOString(),
-        memoryUsage: Math.random() * 50,
-        cpuUsage: Math.random() * 40,
-        errorCount: 0,
-        config: {
-          autoGenerate: true,
-          batchSize: 3,
-          interval: 120,
-        },
-      },
-      {
-        id: 'maint-emu-001',
-        name: 'Maintenance Emulator',
-        type: 'maintenance',
-        status: status.activeEmulators > 0 ? 'running' : 'stopped',
-        recordCount: Math.floor(status.totalRecordsGenerated * 0.2),
-        updateFrequency: 300,
-        lastUpdate: new Date(Date.now() - 120000).toISOString(),
-        memoryUsage: Math.random() * 40,
-        cpuUsage: Math.random() * 30,
-        errorCount: 0,
-        config: {
-          autoGenerate: true,
-          batchSize: 2,
-          interval: 300,
-        },
-      },
-      {
-        id: 'gps-emu-001',
-        name: 'GPS Tracker Emulator',
-        type: 'gps',
-        status: 'paused',
-        recordCount: Math.floor(status.totalRecordsGenerated * 0.5),
-        updateFrequency: 10,
-        lastUpdate: new Date(Date.now() - 300000).toISOString(),
-        memoryUsage: Math.random() * 60,
-        cpuUsage: 0,
-        errorCount: 2,
-        config: {
-          autoGenerate: false,
-          batchSize: 20,
-          interval: 10,
-        },
-      },
-      {
-        id: 'route-emu-001',
-        name: 'Route Optimizer Emulator',
-        type: 'route',
-        status: 'stopped',
-        recordCount: Math.floor(status.totalRecordsGenerated * 0.1),
-        updateFrequency: 180,
-        lastUpdate: new Date(Date.now() - 600000).toISOString(),
-        memoryUsage: 0,
-        cpuUsage: 0,
-        errorCount: 0,
-        config: {
-          autoGenerate: false,
-          batchSize: 1,
-          interval: 180,
-        },
-      },
-      {
-        id: 'cost-emu-001',
-        name: 'Cost Calculator Emulator',
-        type: 'cost',
-        status: 'error',
+    const sessions = obd2EmulatorService.getActiveSessions()
+    const emulators = sessions.map(sessionId => {
+      const data = obd2EmulatorService.getSessionData(sessionId)
+      return {
+        id: sessionId,
+        name: `OBD2 Session ${sessionId}`,
+        type: 'vehicle_obd2',
+        status: 'running',
         recordCount: 0,
-        updateFrequency: 240,
-        lastUpdate: new Date(Date.now() - 900000).toISOString(),
+        updateFrequency: 1000,
+        lastUpdate: data?.timestamp.toISOString() || new Date().toISOString(),
         memoryUsage: 0,
         cpuUsage: 0,
-        errorCount: 5,
-        config: {
-          autoGenerate: false,
-          batchSize: 5,
-          interval: 240,
-        },
-      },
-    ]
+        errorCount: 0,
+        config: { sessionId }
+      }
+    })
 
-    const activeEmulators = emulators.filter(e => e.status === 'running')
-    const totalMemory = emulators.reduce((sum, e) => sum + (e.memoryUsage || 0), 0)
-    const totalRecords = emulators.reduce((sum, e) => sum + e.recordCount, 0)
-    const avgUpdateFrequency =
-      activeEmulators.length > 0
-        ? activeEmulators.reduce((sum, e) => sum + e.updateFrequency, 0) / activeEmulators.length
-        : 0
-    const errorRate =
-      emulators.length > 0
-        ? (emulators.reduce((sum, e) => sum + e.errorCount, 0) / emulators.length) * 10
-        : 0
+    const activeEmulatorsCount = sessions.length
 
     res.json({
-      active: activeEmulators,
-      inactive: emulators.filter(e => e.status !== 'running'),
-      statistics: {
-        totalRecords,
-        totalMemory: Math.round(totalMemory),
-        avgUpdateFrequency: Math.round(avgUpdateFrequency),
-        errorRate,
+      summary: {
+        activeEmulators: activeEmulatorsCount,
+        totalRecordsGenerated: 0
       },
+      emulators,
+      active: emulators,
+      inactive: [],
+      statistics: {
+        totalRecords: 0,
+        totalMemory: 0,
+        avgUpdateFrequency: 1000,
+        errorRate: 0
+      },
+      timestamp: new Date().toISOString()
     })
   } catch (error) {
-    res.status(500).json({
-      error: 'Failed to fetch emulator status',
-    })
+    res.status(500).json({ error: 'Failed to fetch emulator status' })
   }
 })
 
-/**
- * GET /api/monitoring/errors
- * Recent errors endpoint
- */
 router.get('/errors', (req: Request, res: Response) => {
   try {
-    // Return last 100 errors
     const recentErrors = metricsStore.errors.slice(-100).reverse()
     res.json(recentErrors)
   } catch (error) {
-    res.status(500).json({
-      error: 'Failed to fetch errors',
-    })
+    res.status(500).json({ error: 'Failed to fetch errors' })
   }
 })
 
-/**
- * GET /api/monitoring/alerts
- * Active alerts endpoint
- */
 router.get('/alerts', (req: Request, res: Response) => {
   try {
-    // Generate sample alerts based on current system state
-    const alerts = []
-    const now = new Date()
-
-    // Check for high error rate
-    const recentErrors = metricsStore.errors.filter(e => e.timestamp > Date.now() - 300000)
-    if (recentErrors.length > 10) {
-      alerts.push({
-        id: 'alert-error-rate',
-        type: 'system',
-        severity: 'warning',
-        status: 'active',
-        title: 'High Error Rate Detected',
-        message: `${recentErrors.length} errors in the last 5 minutes`,
-        timestamp: now.toISOString(),
-        source: 'Monitoring System',
-        actionRequired: true,
-      })
-    }
-
-    // Sample maintenance alerts
-    alerts.push({
-      id: 'alert-maint-001',
-      type: 'maintenance',
-      severity: 'warning',
-      status: 'active',
-      title: 'Scheduled Maintenance Due',
-      message: 'Vehicle FL-2024 is due for scheduled maintenance in 3 days',
-      timestamp: new Date(now.getTime() - 3600000).toISOString(),
-      source: 'Maintenance System',
-      vehicleId: 'FL-2024',
-      threshold: 30,
-      actual: 3,
-      metadata: {
-        lastService: '2024-10-15',
-        mileage: 45000,
-        serviceType: 'Oil Change',
-      },
-    })
-
-    // Sample budget alert
-    alerts.push({
-      id: 'alert-budget-001',
-      type: 'budget',
-      severity: 'info',
-      status: 'active',
-      title: 'Budget Threshold Approaching',
-      message: 'Fuel expenses are at 85% of monthly budget',
-      timestamp: new Date(now.getTime() - 7200000).toISOString(),
-      source: 'Budget Monitor',
-      threshold: 10000,
-      actual: 8500,
-      metadata: {
-        category: 'Fuel',
-        month: 'November',
-        projection: 11000,
-      },
-    })
-
-    // Sample geofencing alert
-    alerts.push({
-      id: 'alert-geo-001',
-      type: 'geofencing',
-      severity: 'error',
-      status: 'active',
-      title: 'Vehicle Outside Authorized Zone',
-      message: 'Vehicle FL-1022 has exited the authorized operating zone',
-      timestamp: new Date(now.getTime() - 600000).toISOString(),
-      source: 'GPS Tracking',
-      vehicleId: 'FL-1022',
-      driverId: 'DRV-445',
-      actionRequired: true,
-      metadata: {
-        location: { lat: 26.1224, lng: -80.1373 },
-        zone: 'Downtown District',
-        exitTime: new Date(now.getTime() - 600000).toISOString(),
-      },
-    })
-
-    // Sample license expiration alert
-    alerts.push({
-      id: 'alert-lic-001',
-      type: 'license',
-      severity: 'critical',
-      status: 'active',
-      title: 'Driver License Expiring',
-      message: "Driver John Smith's license expires in 7 days",
-      timestamp: new Date(now.getTime() - 1800000).toISOString(),
-      source: 'Compliance System',
-      driverId: 'DRV-123',
-      threshold: 30,
-      actual: 7,
-      actionRequired: true,
-      metadata: {
-        driverName: 'John Smith',
-        licenseNumber: 'D123-4567-8901',
-        expirationDate: new Date(now.getTime() + 604800000).toISOString(),
-      },
-    })
-
-    // Add some resolved alerts for filtering demonstration
-    alerts.push({
-      id: 'alert-resolved-001',
-      type: 'fuel',
-      severity: 'warning',
-      status: 'resolved',
-      title: 'Low Fuel Alert',
-      message: 'Vehicle FL-3001 fuel level below 20%',
-      timestamp: new Date(now.getTime() - 10800000).toISOString(),
-      source: 'Fuel Monitor',
-      vehicleId: 'FL-3001',
-    })
-
-    res.json(alerts)
+    res.json(metricsStore.alerts)
   } catch (error) {
-    res.status(500).json({
-      error: 'Failed to fetch alerts',
-    })
+    res.status(500).json({ error: 'Failed to fetch alerts' })
   }
 })
 

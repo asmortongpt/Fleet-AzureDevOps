@@ -16,7 +16,7 @@ export default defineConfig({
   envPrefix: 'VITE_', // Only load variables with VITE_ prefix
   envDir: './', // Load from project root
   server: {
-    port: 5180, // Use different port to avoid HSTS cache
+    port: 5173, // Default port for Azure AD SSO redirect
     strictPort: false,
     proxy: {
       '/api': {

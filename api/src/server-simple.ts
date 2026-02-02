@@ -22,10 +22,17 @@ import geospatialRouter from './routes/geospatial.routes';
 import obd2EmulatorRouter, { setupOBD2WebSocket } from './routes/obd2-emulator.routes';
 import scanSessionsRouter from './routes/scan-sessions.routes';
 import systemHealthRouter from './routes/system-health.routes';
+import requestIdMiddleware from './middleware/request-id';
+import { formatResponse } from './middleware/response-formatter';
 import { schema } from './schemas/production.schema';
 import { connectionHealthService } from './services/ConnectionHealthService';
 
 // Import OBD2 Emulator Components
+
+if (process.env.NODE_ENV === 'production' && process.env.ENABLE_LEGACY_API !== 'true') {
+  console.error('Legacy server-simple entrypoint is disabled in production. Set ENABLE_LEGACY_API=true to override.');
+  process.exit(1);
+}
 
 
 const app = express();
@@ -71,6 +78,7 @@ app.use(helmet({
 app.use('/api/auth', authLimiter); // Apply stricter limit to auth routes
 app.use(limiter); // Apply to all other routes
 app.use(cookieParser());
+app.use(requestIdMiddleware);
 app.use(cors({
   origin: process.env.CORS_ORIGIN?.split(',') || [
     'http://localhost:5173',
@@ -82,6 +90,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
+app.use(formatResponse);
 
 // ============================================================================
 // EMULATORS - OBD2 & Testing

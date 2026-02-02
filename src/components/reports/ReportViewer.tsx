@@ -166,8 +166,8 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
       setReportData(data);
     } catch (err) {
       logger.error('Error fetching report data:', err);
-      // Use mock data for demo
-      setReportData(generateMockData(reportDef));
+      // Return empty data structure when API is unavailable
+      setReportData(generateEmptyData(reportDef));
     } finally {
       setLoading(false);
     }
@@ -417,37 +417,21 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
   );
 }
 
-// Mock data generator for demo purposes
-function generateMockData(reportDef: ReportDefinition): Record<string, any> {
+// Returns empty data structure when API is unavailable
+function generateEmptyData(reportDef: ReportDefinition): Record<string, any> {
   const data: Record<string, any> = {};
 
   reportDef.visuals.forEach((visual) => {
     if (visual.type === 'kpiTiles') {
       visual.measures?.forEach((measure) => {
-        data[measure.id] = Math.random() * 1000000;
-        data[`${measure.id}_trend`] = {
-          direction: Math.random() > 0.5 ? 'up' : 'down',
-          value: Math.random() * 20,
-          label: 'vs last period'
-        };
-        data[`${measure.id}_target`] = Math.random() * 1200000;
+        data[measure.id] = 0;
+        data[`${measure.id}_trend`] = null;
+        data[`${measure.id}_target`] = null;
       });
     } else if (visual.type === 'line') {
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      data[visual.id] = months.map((month) => ({
-        month,
-        amount: Math.random() * 100000,
-        category: 'Total'
-      }));
+      data[visual.id] = [];
     } else if (visual.type === 'table') {
-      data[visual.id] = Array.from({ length: 100 }, (_, i) => ({
-        month: 'Jan 2024',
-        category: `Category ${i % 5}`,
-        department: `Dept ${i % 3}`,
-        equipment_key: `EQ-${1000 + i}`,
-        work_order_number: `WO-${10000 + i}`,
-        amount: Math.random() * 10000
-      }));
+      data[visual.id] = [];
     }
   });
 

@@ -22,7 +22,8 @@ import {
   CheckCircle,
   X,
   Plus,
-  Search
+  Search,
+  Loader2
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -38,6 +39,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { useTenant } from '@/contexts/TenantContext'
+import { useVehicles } from '@/hooks/use-api'
 import { useVehicleScheduleWithUtils } from '@/hooks/useVehicleSchedule'
 import toast from 'react-hot-toast'
 import logger from '@/utils/logger';
@@ -48,11 +51,15 @@ interface VehicleReservationProps {
 }
 
 export default function VehicleReservation({ vehicleId, driverId }: VehicleReservationProps) {
+  const { tenantId } = useTenant()
   const [selectedVehicle, setSelectedVehicle] = useState<string>(vehicleId || '')
   const [startDate, setStartDate] = useState<string>('')
   const [endDate, setEndDate] = useState<string>('')
   const [purpose, setPurpose] = useState<string>('')
   const [searchTerm, setSearchTerm] = useState<string>('')
+
+  // Fetch real vehicles from API
+  const { data: vehiclesData, isLoading: vehiclesLoading } = useVehicles({ tenant_id: tenantId || '' })
 
   // Fetch vehicle schedule using the existing hook
   const {
@@ -130,13 +137,14 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
     refresh()
   }
 
-  // Mock vehicle data (replace with real API call)
-  const mockVehicles = [
-    { id: '1', name: 'Vehicle 1234 - Ford F-150 (2022)', status: 'available' },
-    { id: '2', name: 'Vehicle 5678 - Chevrolet Silverado (2021)', status: 'available' },
-    { id: '3', name: 'Vehicle 9012 - Toyota Tacoma (2023)', status: 'available' },
-    { id: '4', name: 'Vehicle 3456 - Ram 1500 (2022)', status: 'maintenance' },
-  ].filter(v => v.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  // Map API vehicles for selection dropdown
+  const availableVehicles = (vehiclesData || [])
+    .map(v => ({
+      id: String(v.id),
+      name: `Vehicle ${v.number || v.id} - ${v.make} ${v.model} (${v.year})`,
+      status: v.status === 'active' || v.status === 'idle' ? 'available' : v.status === 'service' ? 'maintenance' : v.status,
+    }))
+    .filter(v => v.name.toLowerCase().includes(searchTerm.toLowerCase()))
 
   return (
     <div className="space-y-6">
@@ -174,7 +182,7 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
                   <SelectValue placeholder="Select a vehicle" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockVehicles.map((vehicle) => (
+                  {availableVehicles.map((vehicle) => (
                     <SelectItem key={vehicle.id} value={vehicle.id}>
                       <div className="flex items-center justify-between w-full">
                         <span>{vehicle.name}</span>
@@ -372,29 +380,9 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {/* Mock reservations - replace with real API data */}
-            {[
-              { id: 'RES-001', vehicle: 'Vehicle 1234', status: 'approved', start: '2026-02-01 09:00', end: '2026-02-03 17:00' },
-              { id: 'RES-002', vehicle: 'Vehicle 5678', status: 'pending', start: '2026-02-10 08:00', end: '2026-02-12 18:00' },
-            ].map((reservation) => (
-              <div key={reservation.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <p className="font-semibold">{reservation.id} - {reservation.vehicle}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {reservation.start} - {reservation.end}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant={reservation.status === 'confirmed' || reservation.status === 'active' ? 'default' : 'secondary'}>
-                    {reservation.status}
-                  </Badge>
-                  <Button variant="outline" size="sm">
-                    View Details
-                  </Button>
-                </div>
-              </div>
-            ))}
+          <div className="text-center py-8 text-muted-foreground">
+            <Car className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p>No active reservations</p>
           </div>
         </CardContent>
       </Card>

@@ -802,19 +802,78 @@ export class OBD2Service {
     return AdapterType.GENERIC
   }
 
-  private parseVIN(_response: string): string {
-    // Mock implementation - would parse VIN from response
-    return 'VIN12345678901234'
+  private parseVIN(response: string): string {
+    // Parse VIN from OBD-II Mode 09 PID 02 response
+    // Response format: "49 02 01 XX XX XX..." where XX are ASCII hex values
+    if (!response || response === 'OK' || response === 'NO DATA' || response === 'ERROR') {
+      throw new Error('No OBD2 device connected - unable to read VIN')
+    }
+
+    // Remove headers and spaces, convert hex pairs to ASCII
+    const cleaned = response.replace(/[\s\r\n]/g, '').replace(/^4902\d{2}/, '')
+    const bytes = cleaned.match(/.{2}/g)
+    if (!bytes || bytes.length < 17) {
+      throw new Error('Invalid VIN response from OBD2 device')
+    }
+
+    return bytes.slice(0, 17).map(hex => String.fromCharCode(parseInt(hex, 16))).join('')
   }
 
-  private parseDTCs(_response: string): DiagnosticTroubleCode[] {
-    // Mock implementation - would parse DTCs from response
-    return []
+  private parseDTCs(response: string): DiagnosticTroubleCode[] {
+    // Parse DTCs from OBD-II Mode 03/07 response
+    if (!response || response === 'OK' || response === 'NO DATA' || response === 'ERROR') {
+      return [] // No DTCs found or no device connected
+    }
+
+    const dtcs: DiagnosticTroubleCode[] = []
+    // Remove mode header (43 for stored, 47 for pending)
+    const cleaned = response.replace(/[\s\r\n]/g, '').replace(/^4[37]/, '')
+    const pairs = cleaned.match(/.{4}/g)
+
+    if (!pairs) return []
+
+    for (const pair of pairs) {
+      if (pair === '0000') continue // No DTC
+
+      const firstChar = parseInt(pair[0], 16)
+      const typePrefix = ['P', 'C', 'B', 'U'][firstChar >> 2]
+      const firstDigit = (firstChar & 0x03).toString()
+      const code = `${typePrefix}${firstDigit}${pair.substring(1)}`
+
+      const typeMap: Record<string, 'powertrain' | 'chassis' | 'body' | 'network'> = {
+        P: 'powertrain', C: 'chassis', B: 'body', U: 'network'
+      }
+
+      dtcs.push({
+        code,
+        type: typeMap[typePrefix] || 'powertrain',
+        description: `Diagnostic trouble code ${code}`,
+        severity: 'moderate',
+        isMILOn: true,
+      })
+    }
+
+    return dtcs
   }
 
-  private parsePIDResponse(_response: string, pid: OBD2_PID): number | number[] {
-    // Mock implementation - would parse raw response data
-    const mockData = new Array(pid.bytes).fill(0)
-    return pid.formula(mockData)
+  private parsePIDResponse(response: string, pid: OBD2_PID): number | number[] {
+    // Parse real PID response data from OBD-II adapter
+    if (!response || response === 'OK' || response === 'NO DATA' || response === 'ERROR') {
+      throw new Error(`No OBD2 device connected - unable to read PID ${pid.name}`)
+    }
+
+    // Remove mode+pid header (e.g., "41 0C" for Mode 01 PID 0C response)
+    const cleaned = response.replace(/[\s\r\n]/g, '')
+    // Response header is mode+0x40 followed by PID
+    const headerLen = 4 // e.g., "410C"
+    const dataHex = cleaned.substring(headerLen)
+    const bytes = dataHex.match(/.{2}/g)
+
+    if (!bytes || bytes.length < pid.bytes) {
+      throw new Error(`Invalid response for PID ${pid.name}: insufficient data bytes`)
+    }
+
+    const dataValues = bytes.slice(0, pid.bytes).map(hex => parseInt(hex, 16))
+    return pid.formula(dataValues)
   }
 }

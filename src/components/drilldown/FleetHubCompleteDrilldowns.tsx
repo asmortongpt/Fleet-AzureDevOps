@@ -28,7 +28,7 @@ import {
   Award,
   Database
 } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -36,6 +36,7 @@ import { ExcelStyleTable, ExcelColumn } from '@/components/ui/excel-style-table'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { useFleetData } from '@/hooks/use-fleet-data'
 
 // ============================================================================
 // COMPREHENSIVE VEHICLE DETAILS DRILLDOWN
@@ -1239,31 +1240,35 @@ export function CostDetailsDrilldown() {
 // Active Vehicles Excel Drilldown
 export function ActiveVehiclesExcelDrilldown() {
   const { push } = useDrilldown()
+  const { vehicles: rawVehicles, isLoading } = useFleetData()
 
-  // Generate comprehensive vehicle data
-  const vehiclesData = Array.from({ length: 245 }, (_, i) => ({
-    id: `V-${1001 + i}`,
-    vin: `1FTFW1E84PFA${String(12345 + i).padStart(5, '0')}`,
-    unitNumber: `FLEET-${1001 + i}`,
-    make: ['Ford', 'Chevrolet', 'RAM', 'GMC', 'Toyota'][i % 5],
-    model: ['F-150', 'Silverado', '1500', 'Sierra', 'Tundra'][i % 5],
-    year: 2020 + (i % 5),
-    mileage: 25000 + (i * 183),
-    driver: ['Michael Rodriguez', 'Jennifer Smith', 'David Chen', 'Sarah Wilson', 'Robert Lee'][i % 5],
-    department: ['Logistics', 'Operations', 'Maintenance', 'Sales', 'Field Service'][i % 5],
-    location: ['Chicago, IL', 'Detroit, MI', 'Houston, TX', 'Phoenix, AZ', 'Seattle, WA'][i % 5],
-    status: i % 20 === 0 ? 'maintenance' : i % 50 === 0 ? 'inactive' : 'active',
-    lastService: new Date(2025, 0, 3 - (i % 30)).toISOString().split('T')[0],
-    nextService: new Date(2025, 3, 3 + (i % 30)).toISOString().split('T')[0],
-    fuelLevel: 50 + (i % 50),
-    mpg: 15 + (i % 10) * 0.5,
-    utilization: 70 + (i % 30),
-    licensePlate: `ABC-${String(1000 + i).slice(-4)}`,
-    insurance: 'Active',
-    registration: 'Valid',
-    odometer: 25000 + (i * 183),
-    engineHours: 1200 + (i * 8)
-  }))
+  // Transform real API vehicle data into the table format
+  const vehiclesData = useMemo(() => {
+    if (!rawVehicles || rawVehicles.length === 0) return []
+    return rawVehicles.map((v: any) => ({
+      id: String(v.id),
+      vin: v.vin || '',
+      unitNumber: v.vehicleNumber || v.number || `V-${v.id}`,
+      make: v.make || '',
+      model: v.model || '',
+      year: v.year || 0,
+      mileage: v.mileage || 0,
+      driver: v.driver || v.assignedDriver || '',
+      department: v.department || '',
+      location: v.location?.address || v.lastKnownLocation || '',
+      status: v.status || 'unknown',
+      lastService: v.lastServiceDate || '',
+      nextService: v.nextServiceDate || '',
+      fuelLevel: v.fuelLevel || 0,
+      mpg: v.mpg || v.fuelEfficiency || 0,
+      utilization: v.utilization || 0,
+      licensePlate: v.licensePlate || '',
+      insurance: v.insuranceStatus || '',
+      registration: v.registrationStatus || '',
+      odometer: v.mileage || 0,
+      engineHours: v.engineHours || 0
+    }))
+  }, [rawVehicles])
 
   const columns: ExcelColumn[] = [
     { key: 'unitNumber', label: 'Unit #', width: 120 },
@@ -1312,6 +1317,29 @@ export function ActiveVehiclesExcelDrilldown() {
     })
   }
 
+  if (isLoading) {
+    return (
+      <div className="p-3 flex items-center justify-center h-64">
+        <div className="text-center">
+          <Truck className="w-12 h-12 text-slate-500 mx-auto mb-3 animate-pulse" />
+          <p className="text-slate-400">Loading vehicles...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (vehiclesData.length === 0) {
+    return (
+      <div className="p-3 flex items-center justify-center h-64">
+        <div className="text-center">
+          <Truck className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+          <p className="text-white font-semibold">No Vehicles Found</p>
+          <p className="text-slate-400 mt-1">No vehicle records are available from the API.</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
@@ -1320,7 +1348,7 @@ export function ActiveVehiclesExcelDrilldown() {
           <p className="text-slate-700 mt-1">Full fleet vehicle matrix • Click row for details</p>
         </div>
         <Badge variant="default" className="bg-emerald-500 text-sm px-2 py-2">
-          245 Vehicles
+          {vehiclesData.length} Vehicles
         </Badge>
       </div>
 
@@ -1339,28 +1367,27 @@ export function ActiveVehiclesExcelDrilldown() {
 
 // Maintenance Records Excel Drilldown
 export function MaintenanceRecordsExcelDrilldown() {
-  const maintenanceData = Array.from({ length: 150 }, (_, i) => ({
-    id: `MNT-${String(1001 + i).padStart(4, '0')}`,
-    date: new Date(2025, 0, 15 - (i % 90)).toISOString().split('T')[0],
-    type: ['Oil Change', 'Tire Rotation', 'Brake Service', 'Inspection', 'Engine Repair', 'Transmission Service'][i % 6],
-    description: [
-      'Full synthetic oil change, oil filter replacement',
-      'All four tires rotated, pressure adjusted',
-      'Front brake pads replaced, rotors resurfaced',
-      'Annual safety inspection completed',
-      'Engine diagnostic and repair',
-      'Transmission fluid flush and filter change'
-    ][i % 6],
-    mileage: 45000 - (i * 200),
-    cost: [89.99, 45.00, 345.50, 125.00, 850.00, 425.00][i % 6],
-    technician: ['Robert Martinez', 'Lisa Thompson', 'David Lee', 'Amanda Chen', 'Mike Johnson'][i % 5],
-    status: i % 10 === 0 ? 'scheduled' : i % 15 === 0 ? 'in-progress' : 'completed',
-    nextDue: new Date(2025, 3, 15 + (i % 90)).toISOString().split('T')[0],
-    vehicle: `FLEET-${1001 + (i % 245)}`,
-    workOrder: `WO-${String(5000 + i).padStart(5, '0')}`,
-    vendor: ['In-House', 'Quick Lube', 'Brake Masters', 'State Inspection', 'Engine Pro', 'Transmission Plus'][i % 6],
-    laborHours: [0.5, 0.3, 2.5, 1.0, 4.5, 3.0][i % 6]
-  }))
+  const { workOrders: rawWorkOrders, isLoading } = useFleetData()
+
+  // Transform real API work order data into the maintenance records table format
+  const maintenanceData = useMemo(() => {
+    if (!rawWorkOrders || rawWorkOrders.length === 0) return []
+    return rawWorkOrders.map((wo: any) => ({
+      id: String(wo.id || wo.work_order_number || ''),
+      date: wo.scheduled_start || wo.actual_start || wo.created_at || '',
+      type: wo.type || wo.maintenance_type || '',
+      description: wo.description || wo.title || '',
+      mileage: wo.odometer_reading || 0,
+      cost: (wo.labor_cost || 0) + (wo.parts_cost || 0),
+      technician: wo.assigned_technician || wo.assigned_technician_id || '',
+      status: wo.status || '',
+      nextDue: wo.scheduled_end || '',
+      vehicle: wo.vehicleId || wo.vehicle_id || '',
+      workOrder: wo.work_order_number || String(wo.id || ''),
+      vendor: wo.vendor || wo.facility_id || '',
+      laborHours: wo.labor_hours || 0
+    }))
+  }, [rawWorkOrders])
 
   const columns: ExcelColumn[] = [
     { key: 'id', label: 'Record ID', width: 110 },
@@ -1387,6 +1414,29 @@ export function MaintenanceRecordsExcelDrilldown() {
     { key: 'laborHours', label: 'Labor Hrs', width: 90, render: (val) => `${val} hrs` }
   ]
 
+  if (isLoading) {
+    return (
+      <div className="p-3 flex items-center justify-center h-64">
+        <div className="text-center">
+          <Wrench className="w-12 h-12 text-slate-500 mx-auto mb-3 animate-pulse" />
+          <p className="text-slate-400">Loading maintenance records...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (maintenanceData.length === 0) {
+    return (
+      <div className="p-3 flex items-center justify-center h-64">
+        <div className="text-center">
+          <Wrench className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+          <p className="text-white font-semibold">No Maintenance Records</p>
+          <p className="text-slate-400 mt-1">No work orders are available from the API.</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="p-3 space-y-2">
       <div className="flex items-center justify-between">
@@ -1411,27 +1461,57 @@ export function MaintenanceRecordsExcelDrilldown() {
 
 // Cost Analysis Excel Drilldown
 export function CostAnalysisExcelDrilldown() {
-  const costData = Array.from({ length: 200 }, (_, i) => ({
-    id: `COST-${String(2001 + i).padStart(5, '0')}`,
-    date: new Date(2025, 0, 20 - (i % 60)).toISOString().split('T')[0],
-    category: ['Fuel', 'Maintenance', 'Insurance', 'Registration', 'Depreciation', 'Repairs'][i % 6],
-    description: [
-      'Diesel fuel purchase - 45 gallons',
-      'Scheduled maintenance service',
-      'Monthly insurance premium',
-      'Annual vehicle registration',
-      'Monthly depreciation expense',
-      'Unscheduled repair work'
-    ][i % 6],
-    amount: [245.50, 345.00, 450.00, 125.00, 380.00, 680.00][i % 6],
-    vendor: ['Shell', 'In-House', 'State Farm', 'Illinois DMV', 'Internal', 'AutoCare Plus'][i % 6],
-    vehicle: `FLEET-${1001 + (i % 245)}`,
-    approvalStatus: i % 10 === 0 ? 'pending' : i % 20 === 0 ? 'rejected' : 'approved',
-    invoiceNumber: `INV-${String(10000 + i).padStart(6, '0')}`,
-    paymentMethod: ['Credit Card', 'Check', 'ACH', 'Wire'][i % 4],
-    approvedBy: ['Sarah Chen', 'Amanda Roberts', 'James Wilson', 'Patricia Martinez'][i % 4],
-    department: ['Logistics', 'Operations', 'Maintenance', 'Fleet Management'][i % 4]
-  }))
+  const { fuelTransactions: rawFuelTransactions, workOrders: rawWorkOrders, isLoading } = useFleetData()
+
+  // Combine fuel transactions and work order costs into a unified cost dataset
+  const costData = useMemo(() => {
+    const costs: any[] = []
+
+    // Add fuel transactions as cost records
+    if (rawFuelTransactions && rawFuelTransactions.length > 0) {
+      rawFuelTransactions.forEach((tx: any) => {
+        costs.push({
+          id: String(tx.id || ''),
+          date: tx.date || tx.created_at || '',
+          category: 'Fuel',
+          description: tx.description || `Fuel purchase - ${tx.gallons || 0} gallons`,
+          amount: tx.cost || tx.totalCost || 0,
+          vendor: tx.station || tx.vendor || '',
+          vehicle: tx.vehicleId || tx.vehicle_id || '',
+          approvalStatus: 'approved',
+          invoiceNumber: tx.receiptNumber || tx.invoice || '',
+          paymentMethod: tx.paymentMethod || '',
+          approvedBy: tx.approvedBy || '',
+          department: tx.department || ''
+        })
+      })
+    }
+
+    // Add work order costs as maintenance cost records
+    if (rawWorkOrders && rawWorkOrders.length > 0) {
+      rawWorkOrders.forEach((wo: any) => {
+        const totalCost = (wo.labor_cost || 0) + (wo.parts_cost || 0)
+        if (totalCost > 0) {
+          costs.push({
+            id: String(wo.id || wo.work_order_number || ''),
+            date: wo.actual_end || wo.scheduled_start || wo.created_at || '',
+            category: wo.type === 'preventive' ? 'Maintenance' : wo.type === 'inspection' ? 'Inspection' : 'Repairs',
+            description: wo.description || wo.title || '',
+            amount: totalCost,
+            vendor: wo.vendor || wo.facility_id || '',
+            vehicle: wo.vehicleId || wo.vehicle_id || '',
+            approvalStatus: wo.status === 'completed' ? 'approved' : wo.status === 'cancelled' ? 'rejected' : 'pending',
+            invoiceNumber: wo.work_order_number || '',
+            paymentMethod: wo.paymentMethod || '',
+            approvedBy: wo.approvedBy || wo.created_by || '',
+            department: wo.department || ''
+          })
+        }
+      })
+    }
+
+    return costs
+  }, [rawFuelTransactions, rawWorkOrders])
 
   const columns: ExcelColumn[] = [
     { key: 'id', label: 'Cost ID', width: 110 },
@@ -1464,12 +1544,36 @@ export function CostAnalysisExcelDrilldown() {
   ]
 
   // Calculate totals by category
-  const categoryTotals = costData.reduce((acc, item) => {
+  const categoryTotals: Record<string, number> = costData.reduce((acc: Record<string, number>, item) => {
     acc[item.category] = (acc[item.category] || 0) + item.amount
     return acc
-  }, {} as Record<string, number>)
+  }, {})
 
-  const totalAmount = Object.values(categoryTotals).reduce((sum, val) => sum + val, 0)
+  const categoryEntries: [string, number][] = Object.entries(categoryTotals)
+  const totalAmount: number = categoryEntries.reduce((sum, [, val]) => sum + val, 0)
+
+  if (isLoading) {
+    return (
+      <div className="p-3 flex items-center justify-center h-64">
+        <div className="text-center">
+          <DollarSign className="w-12 h-12 text-slate-500 mx-auto mb-3 animate-pulse" />
+          <p className="text-slate-400">Loading cost data...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (costData.length === 0) {
+    return (
+      <div className="p-3 flex items-center justify-center h-64">
+        <div className="text-center">
+          <DollarSign className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+          <p className="text-white font-semibold">No Cost Records</p>
+          <p className="text-slate-400 mt-1">No cost data is available from the API.</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="p-3 space-y-2">
@@ -1483,7 +1587,7 @@ export function CostAnalysisExcelDrilldown() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-6 gap-3">
-        {Object.entries(categoryTotals).map(([category, total]) => (
+        {categoryEntries.map(([category, total]) => (
           <Card key={category} className="bg-slate-800/50 border-slate-700">
             <CardContent className="pt-2">
               <p className="text-xs text-slate-700">{category}</p>
@@ -1508,27 +1612,30 @@ export function CostAnalysisExcelDrilldown() {
 
 // Utilization Data Excel Drilldown
 export function UtilizationDataExcelDrilldown() {
-  const utilizationData = Array.from({ length: 180 }, (_, i) => {
-    const date = new Date(2025, 0, 20 - (i % 60))
-    return {
-      id: `UTIL-${String(3001 + i).padStart(5, '0')}`,
-      date: date.toISOString().split('T')[0],
-      vehicle: `FLEET-${1001 + (i % 245)}`,
-      hours: 6 + (i % 12) * 0.5,
-      miles: 150 + (i % 200),
-      idleTime: 0.5 + (i % 5) * 0.2,
-      driver: ['Michael Rodriguez', 'Jennifer Smith', 'David Chen', 'Sarah Wilson', 'Robert Lee'][i % 5],
-      tripCount: 8 + (i % 15),
-      fuelUsed: 12 + (i % 20),
-      avgSpeed: 45 + (i % 25),
-      utilizationRate: 70 + (i % 30),
-      department: ['Logistics', 'Operations', 'Field Service', 'Sales', 'Maintenance'][i % 5],
-      startLocation: ['Chicago, IL', 'Detroit, MI', 'Houston, TX', 'Phoenix, AZ', 'Seattle, WA'][i % 5],
-      endLocation: ['Chicago, IL', 'Detroit, MI', 'Houston, TX', 'Phoenix, AZ', 'Seattle, WA'][(i + 1) % 5],
-      engineOnTime: 7 + (i % 10),
-      maxSpeed: 65 + (i % 15)
-    }
-  })
+  const { vehicles: rawVehicles, isLoading } = useFleetData()
+
+  // Transform real vehicle data into utilization records
+  const utilizationData = useMemo(() => {
+    if (!rawVehicles || rawVehicles.length === 0) return []
+    return rawVehicles.map((v: any) => ({
+      id: String(v.id || ''),
+      date: v.lastUpdated || v.updated_at || new Date().toISOString().split('T')[0],
+      vehicle: v.vehicleNumber || v.number || `V-${v.id}`,
+      hours: v.engineHours || v.dailyHours || 0,
+      miles: v.mileage || 0,
+      idleTime: v.idleTime || v.idle_hours || 0,
+      driver: v.driver || v.assignedDriver || '',
+      tripCount: v.tripCount || v.trips || 0,
+      fuelUsed: v.fuelUsed || v.fuel_consumed || 0,
+      avgSpeed: v.avgSpeed || v.average_speed || 0,
+      utilizationRate: v.utilization || v.utilizationRate || 0,
+      department: v.department || '',
+      startLocation: v.location?.address || v.lastKnownLocation || '',
+      endLocation: v.destination || '',
+      engineOnTime: v.engineOnTime || v.engineHours || 0,
+      maxSpeed: v.maxSpeed || v.top_speed || 0
+    }))
+  }, [rawVehicles])
 
   const columns: ExcelColumn[] = [
     { key: 'id', label: 'Record ID', width: 110 },
@@ -1548,6 +1655,29 @@ export function UtilizationDataExcelDrilldown() {
     { key: 'engineOnTime', label: 'Engine On', width: 110, render: (val) => `${val.toFixed(1)} hrs` },
     { key: 'maxSpeed', label: 'Max Speed', width: 100, render: (val) => `${val} mph` }
   ]
+
+  if (isLoading) {
+    return (
+      <div className="p-3 flex items-center justify-center h-64">
+        <div className="text-center">
+          <Activity className="w-12 h-12 text-slate-500 mx-auto mb-3 animate-pulse" />
+          <p className="text-slate-400">Loading utilization data...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (utilizationData.length === 0) {
+    return (
+      <div className="p-3 flex items-center justify-center h-64">
+        <div className="text-center">
+          <Activity className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+          <p className="text-white font-semibold">No Utilization Data</p>
+          <p className="text-slate-400 mt-1">No utilization records are available from the API.</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="p-3 space-y-2">

@@ -25,9 +25,10 @@ import {
   Zap,
   Sparkles,
   Eye,
-  ArrowLeft
+  ArrowLeft,
+  Loader2
 } from 'lucide-react';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useSearchParams , useNavigate } from 'react-router-dom';
 
 import ARModeExport from '@/components/3d/ARModeExport';
@@ -39,6 +40,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useTenant } from '@/contexts/TenantContext';
+import { useVehicles } from '@/hooks/use-api';
 import { VEHICLE_COLORS, type MaterialQuality, type PaintType } from '@/lib/3d/pbr-materials';
 
 
@@ -60,6 +63,7 @@ interface Vehicle {
 export default function VehicleShowroom3D() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { tenantId } = useTenant();
 
   // Get vehicle ID from URL params
   const vehicleIdParam = searchParams.get('id');
@@ -74,55 +78,33 @@ export default function VehicleShowroom3D() {
   const [autoRotate, setAutoRotate] = useState(false);
   const [showDamage, setShowDamage] = useState(false);
 
-  // Mock vehicle data - In production, fetch from API
-  const mockVehicles: Vehicle[] = [
-    {
-      id: 1,
-      make: 'Ford',
-      model: 'F-150',
-      year: 2024,
-      vehicleType: 'pickup',
-      modelUrl: '/models/vehicles/ford-f150.glb',
-      usdzUrl: '/models/vehicles/ford-f150.usdz',
-      exteriorColor: '#1a1a1a',
-      trim: 'Lariat',
-    },
-    {
-      id: 2,
-      make: 'Chevrolet',
-      model: 'Silverado',
-      year: 2024,
-      vehicleType: 'pickup',
-      modelUrl: '/models/vehicles/chevy-silverado.glb',
-      exteriorColor: '#c0c0c0',
-      trim: 'LT',
-    },
-    {
-      id: 3,
-      make: 'Toyota',
-      model: 'Camry',
-      year: 2024,
-      vehicleType: 'sedan',
-      modelUrl: '/models/vehicles/toyota-camry.glb',
-      exteriorColor: '#0066cc',
-      trim: 'XSE',
-    },
-    {
-      id: 4,
-      make: 'Honda',
-      model: 'CR-V',
-      year: 2024,
-      vehicleType: 'suv',
-      modelUrl: '/models/vehicles/honda-crv.glb',
-      exteriorColor: '#ff0000',
-      trim: 'EX-L',
-    },
-  ];
+  // Fetch vehicles from API
+  const { data: vehiclesData, isLoading: vehiclesLoading } = useVehicles({ tenant_id: tenantId || '' });
+
+  // Map API vehicles to showroom Vehicle interface
+  const showroomVehicles: Vehicle[] = useMemo(() => {
+    if (!vehiclesData) return [];
+    return vehiclesData.map((v) => {
+      const typeMap: Record<string, Vehicle['vehicleType']> = {
+        sedan: 'sedan', suv: 'suv', truck: 'truck', van: 'van', bus: 'bus',
+      };
+      return {
+        id: typeof v.id === 'string' ? parseInt(v.id, 10) || 0 : Number(v.id),
+        make: v.make,
+        model: v.model,
+        year: v.year,
+        vehicleType: typeMap[v.type] || 'sedan',
+        modelUrl: `/models/vehicles/${v.make.toLowerCase()}-${v.model.toLowerCase().replace(/\s+/g, '-')}.glb`,
+        exteriorColor: '#ffffff',
+      };
+    });
+  }, [vehiclesData]);
 
   // Load vehicle on mount or when ID changes
   useEffect(() => {
+    if (showroomVehicles.length === 0) return;
     if (vehicleIdParam) {
-      const vehicle = mockVehicles.find(v => v.id === parseInt(vehicleIdParam));
+      const vehicle = showroomVehicles.find(v => v.id === parseInt(vehicleIdParam));
       if (vehicle) {
         setSelectedVehicle(vehicle);
         setExteriorColor(vehicle.exteriorColor || '#ffffff');
@@ -130,10 +112,10 @@ export default function VehicleShowroom3D() {
       }
     } else {
       // Default to first vehicle
-      setSelectedVehicle(mockVehicles[0]);
-      setExteriorColor(mockVehicles[0].exteriorColor || '#ffffff');
+      setSelectedVehicle(showroomVehicles[0]);
+      setExteriorColor(showroomVehicles[0].exteriorColor || '#ffffff');
     }
-  }, [vehicleIdParam]);
+  }, [vehicleIdParam, showroomVehicles]);
 
   const handleVehicleSelect = useCallback((vehicle: Vehicle) => {
     setSelectedVehicle(vehicle);
@@ -161,12 +143,27 @@ export default function VehicleShowroom3D() {
     }
   }, [selectedVehicle]);
 
+  if (vehiclesLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center space-y-2">
+          <Loader2 className="w-16 h-16 text-muted-foreground mx-auto animate-spin" />
+          <p className="text-muted-foreground">Loading vehicles...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!selectedVehicle) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-2">
           <Car className="w-16 h-16 text-muted-foreground mx-auto" />
-          <p className="text-muted-foreground">Loading vehicle...</p>
+          <p className="text-muted-foreground">No vehicles available</p>
+          <Button variant="outline" onClick={() => navigate('/virtual-garage')}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Garage
+          </Button>
         </div>
       </div>
     );
@@ -227,7 +224,7 @@ export default function VehicleShowroom3D() {
                 Fleet Vehicles
               </h2>
               <div className="space-y-2">
-                {mockVehicles.map((vehicle) => (
+                {showroomVehicles.map((vehicle) => (
                   <button
                     key={vehicle.id}
                     onClick={() => handleVehicleSelect(vehicle)}
