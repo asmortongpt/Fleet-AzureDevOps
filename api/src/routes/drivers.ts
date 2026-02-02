@@ -222,25 +222,65 @@ router.get(
         return res.status(404).json({ error: `Driver not found` })
       }
 
-      // TODO: Implement actual performance data fetching from database
-      // For now, return zeroed data if no performance records found
+      const scorecardResult = await tenantSafeQuery(
+        `SELECT
+          safety_score,
+          overall_score,
+          incidents_count,
+          violations_count,
+          harsh_braking_count,
+          harsh_acceleration_count,
+          speeding_violations,
+          mpg_average,
+          idling_hours,
+          total_miles,
+          fuel_consumption_gallons,
+          inspections_completed,
+          training_completed,
+          metadata,
+          updated_at
+        FROM driver_scorecards
+        WHERE driver_id = $1 AND tenant_id = $2
+        ORDER BY period_end DESC
+        LIMIT 1`,
+        [driverId, tenantId],
+        tenantId!
+      )
+
+      const row = scorecardResult.rows[0]
+      const metadata = row?.metadata && typeof row.metadata === 'object'
+        ? row.metadata
+        : row?.metadata
+          ? (() => {
+              try {
+                return JSON.parse(row.metadata)
+              } catch {
+                return {}
+              }
+            })()
+          : {}
+
+      const efficiencyScore = metadata?.efficiency_score ?? metadata?.efficiencyScore ?? null
+      const fuelScore = metadata?.fuel_score ?? metadata?.fuelScore ?? null
+      const punctualityScore = metadata?.punctuality_score ?? metadata?.punctualityScore ?? null
+
       const performanceData = {
-        last_updated: new Date().toISOString(),
-        overall_score: 0,
-        safety_score: 0,
-        efficiency_score: 0,
-        fuel_score: 0,
-        punctuality_score: 0,
-        hard_braking: 0,
-        rapid_acceleration: 0,
-        speeding: 0,
-        distracted_driving: 0,
-        seatbelt_violations: 0,
-        avg_mpg: 0,
-        idle_time: 0,
-        route_adherence: 0,
-        on_time_deliveries: 0,
-        violations: []
+        last_updated: row?.updated_at || new Date().toISOString(),
+        overall_score: row?.overall_score ? Number(row.overall_score) : 0,
+        safety_score: row?.safety_score ? Number(row.safety_score) : 0,
+        efficiency_score: efficiencyScore ?? 0,
+        fuel_score: fuelScore ?? 0,
+        punctuality_score: punctualityScore ?? 0,
+        hard_braking: row?.harsh_braking_count ? Number(row.harsh_braking_count) : 0,
+        rapid_acceleration: row?.harsh_acceleration_count ? Number(row.harsh_acceleration_count) : 0,
+        speeding: row?.speeding_violations ? Number(row.speeding_violations) : 0,
+        distracted_driving: metadata?.distracted_driving ?? 0,
+        seatbelt_violations: metadata?.seatbelt_violations ?? 0,
+        avg_mpg: row?.mpg_average ? Number(row.mpg_average) : 0,
+        idle_time: row?.idling_hours ? Number(row.idling_hours) : 0,
+        route_adherence: metadata?.route_adherence ?? 0,
+        on_time_deliveries: metadata?.on_time_deliveries ?? 0,
+        violations: metadata?.violations ?? []
       }
 
       res.json(performanceData)
@@ -273,9 +313,64 @@ router.get(
         return res.status(404).json({ error: `Driver not found` })
       }
 
-      // TODO: Implement actual trips fetching from database
-      // For now, return empty array if no trips are found
-      const trips: any[] = []
+      const tripsResult = await tenantSafeQuery(
+        `SELECT
+          mt.id,
+          mt.status,
+          mt.start_time,
+          mt.end_time,
+          mt.duration_minutes,
+          mt.start_location,
+          mt.end_location,
+          mt.distance_miles,
+          mt.metadata,
+          v.name as vehicle_name
+        FROM mobile_trips mt
+        LEFT JOIN vehicles v ON mt.vehicle_id = v.id
+        WHERE mt.tenant_id = $1 AND mt.driver_id = $2
+        ORDER BY mt.start_time DESC
+        LIMIT 200`,
+        [tenantId, driverId],
+        tenantId!
+      )
+
+      const trips = tripsResult.rows.map((row: any) => {
+        const metadata = row.metadata && typeof row.metadata === 'object'
+          ? row.metadata
+          : row.metadata
+            ? (() => {
+                try {
+                  return JSON.parse(row.metadata)
+                } catch {
+                  return {}
+                }
+              })()
+            : {}
+        const durationMinutes = row.duration_minutes ? Number(row.duration_minutes) : null
+        const distanceMiles = row.distance_miles ? Number(row.distance_miles) : null
+        const avgSpeed = durationMinutes && distanceMiles
+          ? distanceMiles / (durationMinutes / 60)
+          : null
+        const fuelUsed = metadata?.fuelUsed ?? metadata?.fuel_used ?? null
+
+        const durationString = durationMinutes !== null
+          ? `${Math.floor(durationMinutes / 60)}h ${Math.round(durationMinutes % 60)}m`
+          : null
+
+        return {
+          id: row.id,
+          status: row.status,
+          vehicle_name: row.vehicle_name,
+          start_time: row.start_time,
+          end_time: row.end_time,
+          duration: durationString || undefined,
+          start_location: row.start_location,
+          end_location: row.end_location,
+          distance: distanceMiles ?? undefined,
+          avg_speed: avgSpeed ?? undefined,
+          fuel_used: fuelUsed ?? undefined
+        }
+      })
 
       res.json(trips)
     } catch (error) {

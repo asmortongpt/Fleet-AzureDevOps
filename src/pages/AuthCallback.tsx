@@ -4,35 +4,58 @@
  * Cinematic transition screen for session establishment.
  * Aligned with ArchonY's ultra-premium design language.
  */
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Loader2, ShieldCheck, Zap } from 'lucide-react'
 
-import { handleAuthCallback } from '@/lib/auth/auth.service'
+import { handleAuthCallback, getMsalInstance } from '@/lib/auth/auth.service'
 import logger from '@/utils/logger'
 
 export function AuthCallback() {
   const navigate = useNavigate()
+  const [hasProcessed, setHasProcessed] = React.useState(false)
 
   useEffect(() => {
+    // Prevent multiple executions
+    if (hasProcessed) return
+
     async function processAuthCallback() {
       try {
+        setHasProcessed(true)
         logger.info('[Auth Callback] Processing authentication callback')
+
         const response = await handleAuthCallback()
 
         if (response && response.account) {
           logger.info('[Auth Callback] Authentication successful', {
             account: response.account.username
           })
-          // Small delay for visual impact
-          setTimeout(() => navigate('/dashboard', { replace: true }), 1500)
+
+          // Wait a bit for the auth context to update
+          setTimeout(() => {
+            logger.info('[Auth Callback] Redirecting to home page')
+            navigate('/', { replace: true })
+          }, 1000)
         } else {
-          logger.warn('[Auth Callback] No authentication response')
-          navigate('/login', { replace: true })
+          logger.warn('[Auth Callback] No authentication response, checking for existing session')
+
+          // Check if we already have an account in MSAL
+          const msalInstance = getMsalInstance()
+          const accounts = msalInstance.getAllAccounts()
+
+          if (accounts.length > 0) {
+            logger.info('[Auth Callback] Found existing MSAL account, redirecting to home')
+            navigate('/', { replace: true })
+          } else {
+            logger.warn('[Auth Callback] No MSAL account found, redirecting to login')
+            navigate('/login', { replace: true })
+          }
         }
       } catch (error) {
         logger.error('[Auth Callback] Authentication callback failed:', error)
+        setHasProcessed(false) // Allow retry on error
+
         navigate(
           `/login?error=callback_failed&error_description=${encodeURIComponent(
             error instanceof Error ? error.message : 'Authentication failed'
@@ -43,7 +66,7 @@ export function AuthCallback() {
     }
 
     processAuthCallback()
-  }, [navigate])
+  }, [navigate, hasProcessed])
 
   return (
     <div className="min-h-screen w-full relative overflow-hidden flex flex-col items-center justify-center bg-[#0A0E27]">

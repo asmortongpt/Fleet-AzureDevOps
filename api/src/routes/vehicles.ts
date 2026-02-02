@@ -185,9 +185,64 @@ router.get("/:id/trips",
       return res.json(cached)
     }
 
-    // TODO: Implement actual trip fetching from database
-    // For now, return empty array if no trips are found
-    const trips: any[] = []
+    const tripsResult = await pool.query(
+      `SELECT
+        mt.id,
+        mt.status,
+        mt.start_time,
+        mt.end_time,
+        mt.duration_minutes,
+        mt.start_location,
+        mt.end_location,
+        mt.distance_miles,
+        mt.metadata,
+        d.first_name,
+        d.last_name
+      FROM mobile_trips mt
+      LEFT JOIN drivers d ON mt.driver_id = d.id
+      WHERE mt.tenant_id = $1 AND mt.vehicle_id = $2
+      ORDER BY mt.start_time DESC
+      LIMIT 200`,
+      [tenantId, vehicleId]
+    )
+
+    const trips = tripsResult.rows.map((row: any) => {
+      const metadata = row.metadata && typeof row.metadata === 'object'
+        ? row.metadata
+        : row.metadata
+          ? (() => {
+              try {
+                return JSON.parse(row.metadata)
+              } catch {
+                return {}
+              }
+            })()
+          : {}
+      const durationMinutes = row.duration_minutes ? Number(row.duration_minutes) : null
+      const distanceMiles = row.distance_miles ? Number(row.distance_miles) : null
+      const avgSpeed = durationMinutes && distanceMiles
+        ? distanceMiles / (durationMinutes / 60)
+        : null
+      const fuelUsed = metadata?.fuelUsed ?? metadata?.fuel_used ?? null
+
+      const durationString = durationMinutes !== null
+        ? `${Math.floor(durationMinutes / 60)}h ${Math.round(durationMinutes % 60)}m`
+        : null
+
+      return {
+        id: row.id,
+        status: row.status,
+        driver_name: row.first_name ? `${row.first_name} ${row.last_name || ''}`.trim() : undefined,
+        start_time: row.start_time,
+        end_time: row.end_time,
+        duration: durationString || undefined,
+        start_location: row.start_location,
+        end_location: row.end_location,
+        distance: distanceMiles ?? undefined,
+        avg_speed: avgSpeed ?? undefined,
+        fuel_used: fuelUsed ?? undefined
+      }
+    })
 
     // Cache for 5 minutes
     await cacheService.set(cacheKey, trips, 300)
