@@ -25,16 +25,7 @@ interface FuelPanelProps {
 export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
     const { fuelTransactions = [] } = useFleetData();
 
-    // Mock data if empty
-    const transactions = fuelTransactions.length > 0 ? fuelTransactions : Array.from({ length: 10 }).map((_, i) => ({
-        id: `tx-${i}`,
-        date: new Date(Date.now() - i * 86400000).toISOString(),
-        vehicleNumber: `Unit ${100 + i}`,
-        station: i % 2 === 0 ? "Shell Station 42" : "Chevron West",
-        gallons: 15 + Math.random() * 10,
-        pricePerGallon: 3.50 + Math.random(),
-        totalCost: 65 + Math.random() * 20
-    }));
+    const transactions = fuelTransactions;
 
     const totalCost = transactions.reduce((acc, t) => acc + (t.totalCost || 0), 0);
     const totalVolume = transactions.reduce((acc, t) => acc + (t.gallons || 0), 0);
@@ -91,7 +82,12 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                     <div className="px-2 pb-2">
                         <div className="text-sm font-semibold mb-3 px-1">Recent Transactions</div>
                         <div className="bg-card rounded-md border shadow-sm overflow-hidden">
-                            {transactions.map((tx, i) => (
+                            {transactions.length === 0 ? (
+                                <div className="p-6 text-center text-muted-foreground text-sm">
+                                    <Fuel className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                                    No fuel transactions available
+                                </div>
+                            ) : transactions.map((tx, i) => (
                                 <div key={tx.id} className={`p-3 flex items-center justify-between border-b last:border-0 hover:bg-muted/50 transition-colors`}>
                                     <div className="flex items-center gap-3">
                                         <div className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center text-green-700">
@@ -116,6 +112,7 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                             ))}
                         </div>
                     </div>
+
 
                     {/* Efficiency Tip */}
                     <div className="p-2">

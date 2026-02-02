@@ -4,7 +4,7 @@ import { AppError } from '../errors/AppError';
 
 export function standardizeErrors(err: Error, req: Request, res: Response, next: NextFunction) {
   const timestamp = new Date().toISOString();
-  const requestId = req.id || '';
+  const requestId = (req as any).requestId || req.headers['x-request-id'] || '';
 
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({

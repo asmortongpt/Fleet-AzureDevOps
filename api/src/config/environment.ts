@@ -41,7 +41,6 @@ interface EnvironmentConfig {
   CORS_ORIGIN?: string;
 
   // Feature Flags
-  USE_MOCK_DATA?: string;
   ENABLE_CACHE?: string;
   ENABLE_RATE_LIMITING?: string;
 }
@@ -93,7 +92,6 @@ class Environment {
       CORS_ORIGIN: process.env.CORS_ORIGIN,
 
       // Feature Flags
-      USE_MOCK_DATA: process.env.USE_MOCK_DATA,
       ENABLE_CACHE: process.env.ENABLE_CACHE,
       ENABLE_RATE_LIMITING: process.env.ENABLE_RATE_LIMITING
     };
@@ -117,11 +115,6 @@ class Environment {
       // Database must be configured
       if (!this.config.DATABASE_URL && (!this.config.DB_HOST || !this.config.DB_NAME)) {
         errors.push('Database configuration required (DATABASE_URL or DB_HOST/DB_NAME)');
-      }
-
-      // Mock data not allowed in production
-      if (this.config.USE_MOCK_DATA === 'true') {
-        errors.push('USE_MOCK_DATA cannot be enabled in production');
       }
     }
 

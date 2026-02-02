@@ -186,7 +186,7 @@ router.get('/cost', cacheMiddleware('analytics:cost'), async (req: Request, res:
         )
 
         // If no data from DB, return demo data
-        const data = result.rows.length > 0 ? result.rows : generateDemoCostData()
+        const data = result.rows
 
         res.json({
             data: data.map((row: any) => ({
@@ -256,7 +256,7 @@ router.get('/efficiency', cacheMiddleware('analytics:efficiency'), async (req: R
             params
         )
 
-        const data = result.rows.length > 0 ? result.rows : generateDemoEfficiencyData()
+        const data = result.rows
 
         res.json({
             data: data.map((row: any) => ({
@@ -524,7 +524,7 @@ router.get('/performance', cacheMiddleware('analytics:performance'), async (req:
             `)
         ])
 
-        const performanceData = efficiencyResult.rows.length > 0 ? efficiencyResult.rows : generateDemoPerformanceData()
+        const performanceData = efficiencyResult.rows
 
         const performance = {
             timeSeries: performanceData.map((row: any) => ({
@@ -611,7 +611,7 @@ router.get('/costs/trends', cacheMiddleware('analytics:costs:trends'), async (re
             params
         )
 
-        const trends = result.rows.length > 0 ? result.rows : generateDemoCostTrends(dateInterval)
+        const trends = result.rows
 
         // Calculate period-over-period changes
         const trendsWithChanges = trends.map((row: any, index: number) => {
@@ -671,109 +671,6 @@ router.delete('/cache', async (req: Request, res: Response) => {
     }
 })
 
-// Demo data generators (used when DB is empty)
-function generateDemoCostData() {
-    const data = []
-    const today = new Date()
 
-    for (let i = 90; i >= 0; i--) {
-        const date = new Date(today)
-        date.setDate(date.getDate() - i)
-
-        data.push({
-            date: date,
-            fuel: Math.random() * 10000 + 5000,
-            maintenance: Math.random() * 5000 + 2000,
-            insurance: Math.random() * 2000 + 1000,
-            depreciation: Math.random() * 3000 + 1500,
-            total: 0, // Will be calculated
-            budget: 25000,
-        })
-
-        const last = data[data.length - 1]
-        last.total = last.fuel + last.maintenance + last.insurance + last.depreciation
-    }
-
-    return data
-}
-
-function generateDemoEfficiencyData() {
-    const data = []
-    const today = new Date()
-
-    for (let i = 90; i >= 0; i--) {
-        const date = new Date(today)
-        date.setDate(date.getDate() - i)
-
-        data.push({
-            date: date,
-            mpg: Math.random() * 10 + 15,
-            utilization: Math.random() * 30 + 70,
-            idle_time: Math.random() * 5 + 1,
-            efficiency_score: Math.random() * 20 + 80,
-            vehicle_count: 150,
-        })
-    }
-
-    return data
-}
-
-function generateDemoPerformanceData() {
-    const data = []
-    const today = new Date()
-
-    for (let i = 30; i >= 0; i--) {
-        const date = new Date(today)
-        date.setDate(date.getDate() - i)
-
-        data.push({
-            date: date,
-            avg_mpg: Math.random() * 10 + 15,
-            avg_utilization: Math.random() * 30 + 70,
-            avg_idle_time: Math.random() * 5 + 1,
-            avg_efficiency_score: Math.random() * 20 + 80,
-            avg_safety_score: Math.random() * 15 + 85,
-            avg_on_time_rate: Math.random() * 10 + 90,
-            vehicle_count: 150,
-        })
-    }
-
-    return data
-}
-
-function generateDemoCostTrends(interval: string) {
-    const data = []
-    const today = new Date()
-    const periods = interval === 'month' ? 12 : interval === 'week' ? 52 : 90
-
-    for (let i = periods; i >= 0; i--) {
-        const date = new Date(today)
-        if (interval === 'month') {
-            date.setMonth(date.getMonth() - i)
-        } else if (interval === 'week') {
-            date.setDate(date.getDate() - (i * 7))
-        } else {
-            date.setDate(date.getDate() - i)
-        }
-
-        const fuelCost = Math.random() * 10000 + 5000
-        const maintenanceCost = Math.random() * 5000 + 2000
-        const insuranceCost = Math.random() * 2000 + 1000
-        const depreciationCost = Math.random() * 3000 + 1500
-
-        data.push({
-            period: date,
-            fuel_cost: fuelCost,
-            maintenance_cost: maintenanceCost,
-            insurance_cost: insuranceCost,
-            depreciation_cost: depreciationCost,
-            total_cost: fuelCost + maintenanceCost + insuranceCost + depreciationCost,
-            avg_cost_per_mile: Math.random() * 1 + 1.5,
-            vehicle_count: 150,
-        })
-    }
-
-    return data
-}
 
 export default router

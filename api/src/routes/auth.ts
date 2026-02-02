@@ -14,12 +14,8 @@ import { csrfProtection } from '../middleware/csrf'
 import { registrationLimiter, authLimiter, checkBruteForce } from '../middleware/rateLimiter'
 import { FIPSCryptoService } from '../services/fips-crypto.service'
 import { FIPSJWTService } from '../services/fips-jwt.service'
-import { authenticateJWT } from '../middleware/auth'
 
 const router = express.Router()
-
-// Apply authentication to all routes
-router.use(authenticateJWT)
 
 // Validation schemas
 const loginSchema = z.object({
@@ -310,7 +306,7 @@ router.post('/login', ...loginMiddleware, async (req: Request, res: Response) =>
     });
     res.cookie('auth_token', token, {
       httpOnly: true,
-      secure: false, // MUST be false for localhost (http://)
+      secure: !isDevelopment, // Use secure cookies outside localhost
       sameSite: 'lax',
       domain: isDevelopment ? 'localhost' : undefined, // Explicit localhost domain for development
       maxAge: 15 * 60 * 1000 // 15 minutes matching token expiry
@@ -637,24 +633,6 @@ router.post('/logout', csrfProtection, async (req: Request, res: Response) => {
  */
 router.get('/me', async (req: Request, res: Response) => {
   try {
-    // DEVELOPMENT AUTH BYPASS: Check if user was set by development middleware
-    // This allows the frontend to work with VITE_SKIP_AUTH=true in development
-    if ((req as any).user && process.env.NODE_ENV === 'development') {
-      logger.info('[Auth] Development bypass user detected');
-      const devUser = (req as any).user;
-      return res.json({
-        user: {
-          id: devUser.id,
-          email: devUser.email,
-          first_name: 'Development',
-          last_name: 'User',
-          role: devUser.role,
-          tenant_id: devUser.tenant_id
-        },
-        token: 'dev-bypass-token' // Placeholder token for development
-      });
-    }
-
     // Get token from Authorization header or cookie
     logger.info('Auth /me request', { cookies: req.cookies?.auth_token ? 'PRESENT' : 'MISSING', headers: req.headers.authorization ? 'PRESENT' : 'MISSING' });
     const token = req.headers.authorization?.split(' ')[1] || req.cookies?.auth_token

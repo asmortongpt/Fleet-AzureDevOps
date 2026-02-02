@@ -171,8 +171,8 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       setViolations(data.data || []);
     } catch (error) {
       logger.error('Failed to load violations:', error);
-      // Load demo data for development
-      setViolations(generateDemoViolations());
+      // API unavailable - show empty state
+      setViolations([]);
     } finally {
       setLoading(false);
     }
@@ -185,7 +185,17 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       setStatistics(data.data);
     } catch (error) {
       logger.error('Failed to load statistics:', error);
-      setStatistics(generateDemoStatistics());
+      // API unavailable - show empty state
+      setStatistics({
+        totalViolations: 0,
+        openViolations: 0,
+        resolvedViolations: 0,
+        criticalViolations: 0,
+        avgResolutionHours: 0,
+        topViolationType: undefined,
+        topViolatingVehicle: undefined,
+        topViolatingDriver: undefined,
+      } as ViolationStatistics);
     }
   };
 
@@ -1005,50 +1015,5 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
     </div>
   );
 };
-
-// Demo data generators
-function generateDemoViolations(): PolicyViolation[] {
-  const types: ViolationType[] = [
-    'personal_use_unauthorized',
-    'mileage_limit_exceeded',
-    'speed_violation',
-    'geofence_breach',
-    'after_hours_usage',
-  ];
-  const severities: ViolationSeverity[] = ['low', 'medium', 'high', 'critical'];
-  const statuses: ViolationStatus[] = ['open', 'acknowledged', 'under_review', 'resolved'];
-
-  return Array.from({ length: 25 }, (_, i) => ({
-    id: `demo-${i}`,
-    tenantId: 'demo',
-    violationType: types[Math.floor(Math.random() * types.length)],
-    severity: severities[Math.floor(Math.random() * severities.length)],
-    policyName: 'Demo Policy',
-    description: `Violation ${i + 1} - Auto-generated demo data`,
-    vehicleNumber: `V-${1000 + i}`,
-    driverName: `Driver ${i + 1}`,
-    status: statuses[Math.floor(Math.random() * statuses.length)],
-    occurredAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
-    detectedAt: new Date().toISOString(),
-    overrideRequested: false,
-    notificationSent: true,
-    escalationSent: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }));
-}
-
-function generateDemoStatistics(): ViolationStatistics {
-  return {
-    totalViolations: 125,
-    openViolations: 18,
-    resolvedViolations: 107,
-    criticalViolations: 5,
-    avgResolutionHours: 24.5,
-    topViolationType: 'speed_violation',
-    topViolatingVehicle: 'V-1234',
-    topViolatingDriver: 'John Doe',
-  };
-}
 
 export default PolicyViolations;

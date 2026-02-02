@@ -146,20 +146,16 @@ export class TelemetryService extends EventEmitter {
       const results = await this.db.query(`
         SELECT
           v.id,
-          v.vehicle_number,
+          v.vin as vehicle_number,
           v.make,
           v.model,
           v.year,
           v.vin,
           v.license_plate,
           v.status,
-          v.mileage,
-          v.fuel_type,
-          v.specifications,
-          f.name as facility_name,
-          f.coordinates as facility_coords
+          v.odometer as mileage,
+          v.fuel_type
         FROM vehicles v
-        LEFT JOIN facilities f ON v.facility_id = f.id
         WHERE v.status = 'active'
         ORDER BY v.id
       `)

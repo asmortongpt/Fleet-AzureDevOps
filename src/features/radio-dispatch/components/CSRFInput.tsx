@@ -7,11 +7,6 @@ import { useEffect, useState } from 'react';
  * Returns the token string or null if unavailable
  */
 async function fetchCsrfToken(): Promise<string | null> {
-  // Skip CSRF token in development mock mode
-  if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-    return null;
-  }
-
   const baseURL = (import.meta.env.VITE_API_URL || window.location.origin).replace(/\/api$/, '');
 
   try {

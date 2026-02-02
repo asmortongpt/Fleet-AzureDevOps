@@ -4,6 +4,9 @@ import 'dotenv/config'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
+import { pool } from './db'
+import { TelemetryService } from './services/TelemetryService'
+import obd2EmulatorService from './services/obd2-emulator.service'
 
 import { initializeConnectionManager } from './config/connection-manager' // Import connection manager initialization
 import { processEmailJob } from './jobs/processors/email.processor'
@@ -12,8 +15,9 @@ import { processReportJob } from './jobs/processors/report.processor'
 import { emailQueue, notificationQueue, reportQueue, closeAllQueues } from './jobs/queue'
 import { getCorsConfig, validateCorsConfiguration } from './middleware/corsConfig'
 import { getCsrfToken } from './middleware/csrf'
-import { developmentAuthBypass, isDevelopmentBypassEnabled } from './middleware/development-auth-bypass'
 import { errorHandler } from './middleware/errorHandler'
+import requestIdMiddleware from './middleware/request-id'
+import { formatResponse } from './middleware/response-formatter'
 import { initializeProcessErrorHandlers } from './middleware/processErrorHandlers'
 import { globalLimiter } from './middleware/rateLimiter'
 import { securityHeaders } from './middleware/security-headers'
@@ -259,8 +263,14 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 // 3.5. Cookie Parser - Required for CSRF protection
 app.use(cookieParser())
 
+// 3.6 Request ID - Traceability for logs and response metadata
+app.use(requestIdMiddleware)
+
 // 4. Global Rate Limiting - Apply to all routes to prevent DoS attacks
 app.use(globalLimiter)
+
+// 4.5 Standard response envelope
+app.use(formatResponse)
 
 // Add telemetry middleware
 app.use(telemetryMiddleware)
@@ -305,18 +315,6 @@ if (process.env.NODE_ENV === 'development') {
       throw new Error('Test error from Fleet API - This is intentional!')
     }
   })
-}
-
-// ============================================================================
-// DEVELOPMENT AUTH BYPASS (Development Only)
-// ============================================================================
-// Sets a default user for local development to bypass JWT authentication
-// This allows frontend VITE_SKIP_AUTH=true to work with real backend API
-if (isDevelopmentBypassEnabled()) {
-  app.use(developmentAuthBypass)
-  console.log('[AUTH] 🔓 Development auth bypass enabled')
-} else {
-  console.log('[AUTH] 🔒 Production mode - JWT authentication required')
 }
 
 // ============================================================================
@@ -502,7 +500,71 @@ app.use(errorHandler)
 app.use(sentryErrorHandler())
 
 // Track emulator initialization if present
-const initializeEmulatorTracking = () => {
+const initializeEmulatorTracking = async () => {
+  try {
+    // Initialize Telemetry Persistence Service
+    const telemetryPersistence = new TelemetryService()
+
+    // Adapter for pool to match expected interface
+    const dbAdapter = {
+      query: (sql: string, params?: any[]) => pool.query(sql, params).then(res => res.rows),
+      execute: (sql: string, params?: any[]) => pool.query(sql, params).then(res => ({ rowCount: res.rowCount || 0 }))
+    }
+
+    await telemetryPersistence.initialize(dbAdapter)
+
+    // Connect OBD2 Emulator to Telemetry Persistence
+    obd2EmulatorService.on('data', async (event) => {
+      const { data } = event
+      try {
+        await telemetryPersistence.saveOBD2Telemetry({
+          vehicleId: `VEH-${data.vehicleId}`,
+          timestamp: new Date(data.timestamp),
+          rpm: data.engineRpm,
+          speed: data.vehicleSpeed,
+          engineLoad: data.engineLoad,
+          throttlePosition: data.throttlePosition,
+          coolantTemp: data.engineCoolantTemp,
+          fuelLevel: data.fuelLevel,
+          batteryVoltage: data.batteryVoltage,
+          maf: data.mafAirFlowRate,
+          o2Sensor: 0,
+          dtcCodes: [],
+          checkEngineLight: false,
+          mil: false
+        })
+      } catch (err) {
+        // Suppress errors to avoid console spam if DB is busy
+      }
+    })
+
+    // Start Demo Sessions (Real Data Generation)
+    // Vehicle 1: Sedan in City
+    obd2EmulatorService.startSession({
+      sessionId: 'demo-sedan-1',
+      vehicleId: 1,
+      adapterId: 101,
+      profile: 'sedan',
+      scenario: 'city',
+      updateIntervalMs: 5000 // 5 seconds
+    })
+
+    // Vehicle 2: Truck on Highway
+    obd2EmulatorService.startSession({
+      sessionId: 'demo-truck-1',
+      vehicleId: 2,
+      adapterId: 102,
+      profile: 'truck',
+      scenario: 'highway',
+      updateIntervalMs: 5000
+    })
+
+    console.log('Real-data emulators started for Vehicle 1 & 2')
+
+  } catch (error) {
+    console.error('Failed to initialize emulators:', error)
+  }
+
   // Track emulator updates every minute if telemetry is active
   if (telemetryService.isActive()) {
     setInterval(() => {
@@ -510,7 +572,8 @@ const initializeEmulatorTracking = () => {
       telemetryService.trackEvent('EmulatorHeartbeat', {
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        memoryUsage: Math.round(process.memoryUsage().heapUsed / 1024 / 1024)
+        memoryUsage: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+        activeSessions: obd2EmulatorService.getActiveSessions().length
       })
     }, 60000) // Every minute
   }

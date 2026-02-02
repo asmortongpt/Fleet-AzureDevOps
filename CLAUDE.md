@@ -81,13 +81,11 @@ Simple Express.js server with PostgreSQL:
 - **Path aliases**: `@/` maps to `src/` (configured in tsconfig.json and vite.config.ts)
 - **Lazy loading**: Heavy components use React.lazy() for code splitting
 - **Named vs Default exports**: Check component exports - some use named exports requiring `.then(m => ({ default: m.ComponentName }))`
-- **Demo mode**: Set `VITE_USE_MOCK_DATA=true` in `.env` to bypass authentication
 
 ## Environment Setup
 
 Create `.env` from `.env.example`:
 ```bash
-VITE_USE_MOCK_DATA=true          # Enable demo mode (bypasses auth)
 VITE_API_URL=http://localhost:3000
 VITE_GOOGLE_MAPS_API_KEY=        # Optional: for map features
 ```

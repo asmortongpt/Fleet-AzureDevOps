@@ -21,7 +21,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useCallback, useRef } from 'react'
 import { z } from 'zod'
-import { mockData } from '@/lib/mock-data'
 
 // ============================================================================
 // CONFIGURATION
@@ -314,118 +313,6 @@ async function secureFetch<T>(
 export function useReactiveFleetData(): UseReactiveFleetDataReturn {
   const queryClient = useQueryClient()
   const lastUpdateRef = useRef(new Date())
-
-  // ========================================
-  // DEMO MODE - Return Mock Data
-  // ========================================
-
-  const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true'
-
-  if (USE_MOCK_DATA) {
-    // Transform mock vehicles to match expected format
-    const vehicles: Vehicle[] = mockData.vehicles.map(v => ({
-      id: v.id,
-      license_plate: v.license_plate,
-      vin: v.vin,
-      make: v.make,
-      model: v.model,
-      year: v.year,
-      status: v.status as 'active' | 'maintenance' | 'inactive' | 'retired',
-      mileage: v.odometer || 0,
-      fuel_type: v.fuel_type,
-      fuel_level: v.fuel_level,
-      current_latitude: v.location?.lat,
-      current_longitude: v.location?.lng,
-      driver: v.assigned_driver,
-      location: v.location?.address,
-    }))
-
-    // Calculate metrics from mock data
-    const metrics: FleetMetrics = {
-      totalVehicles: mockData.vehicleStats.total,
-      activeVehicles: mockData.vehicleStats.active,
-      maintenanceVehicles: mockData.vehicleStats.maintenance,
-      idleVehicles: mockData.vehicleStats.inactive,
-      averageFuelLevel: mockData.vehicleStats.avgFuelEfficiency,
-      totalMileage: mockData.vehicleStats.averageMileage * mockData.vehicleStats.total,
-    }
-
-    // Calculate distributions
-    const statusDist: Record<string, number> = {}
-    vehicles.forEach((vehicle) => {
-      statusDist[vehicle.status] = (statusDist[vehicle.status] || 0) + 1
-    })
-    const statusDistribution: FleetDistribution[] = Object.entries(statusDist).map(([name, value]) => ({
-      name: name.charAt(0).toUpperCase() + name.slice(1),
-      value,
-      fill:
-        name === 'active'
-          ? 'hsl(var(--primary))'
-          : name === 'maintenance'
-            ? 'hsl(var(--warning))'
-            : name === 'inactive'
-              ? 'hsl(var(--muted))'
-              : 'hsl(var(--destructive))',
-    }))
-
-    const makeDist: Record<string, number> = {}
-    vehicles.forEach((vehicle) => {
-      makeDist[vehicle.make] = (makeDist[vehicle.make] || 0) + 1
-    })
-    const makeDistribution: FleetDistribution[] = Object.entries(makeDist)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 8)
-
-    const statusGroups: Record<string, Vehicle[]> = {}
-    vehicles.forEach((vehicle) => {
-      if (!statusGroups[vehicle.status]) {
-        statusGroups[vehicle.status] = []
-      }
-      statusGroups[vehicle.status].push(vehicle)
-    })
-    const avgMileageByStatus: FleetDistribution[] = Object.entries(statusGroups).map(([status, vehicleGroup]) => {
-      const avgMileage =
-        vehicleGroup.reduce((sum, v) => sum + v.mileage, 0) / vehicleGroup.length || 0
-      return {
-        name: status.charAt(0).toUpperCase() + status.slice(1),
-        value: Math.round(avgMileage),
-      }
-    })
-
-    const lowFuelVehicles: AlertVehicle[] = vehicles
-      .filter((v) => v.fuel_level !== undefined && v.fuel_level < 25)
-      .map((vehicle) => ({
-        ...vehicle,
-        alertType: 'fuel' as const,
-        severity: (vehicle.fuel_level! < 15 ? 'high' : 'medium') as 'high' | 'medium',
-      }))
-      .sort((a, b) => (a.fuel_level || 0) - (b.fuel_level || 0))
-
-    const highMileageVehicles: AlertVehicle[] = vehicles
-      .filter((v) => v.mileage > 100000)
-      .map((vehicle) => ({
-        ...vehicle,
-        alertType: 'mileage' as const,
-        severity: (vehicle.mileage > 200000 ? 'high' : 'medium') as 'high' | 'medium',
-      }))
-      .sort((a, b) => b.mileage - a.mileage)
-
-    return {
-      vehicles,
-      metrics,
-      statusDistribution,
-      makeDistribution,
-      avgMileageByStatus,
-      lowFuelVehicles,
-      highMileageVehicles,
-      isLoading: false,
-      error: null,
-      lastUpdate: new Date(),
-      refetch: () => {},
-      isRefetching: false,
-    }
-  }
 
   // ========================================
   // Fetch Vehicles
