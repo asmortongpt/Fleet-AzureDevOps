@@ -1,45 +1,42 @@
 /**
- * Hub Pages Index
+ * Consolidated Hub Pages Index
  * 
- * Exports all consolidated hub pages for the new routing architecture.
- * These 11 hubs consolidate 79 screens into a unified navigation structure.
+ * Exports the 5 primary consolidated hubs that power the ArchonY navigation architecture.
+ * These hubs consolidate 120+ individual screens into 5 workflow-optimized centers.
  */
 
-// Core Fleet Operations
-export { default as FleetHub } from './FleetHub'
-export { default as OperationsHub } from './OperationsHub'
-export { default as MaintenanceHub } from './MaintenanceHub'
-export { default as DriversHub } from './DriversHub'
+// 1. Fleet Operations Hub
+// Consolidates: Fleet, Drivers, Operations, Maintenance, Assets
+export { default as FleetOperationsHub } from './FleetOperationsHub'
 
-// Analytics & Reporting
-export { default as AnalyticsHub } from './AnalyticsHub'
+// 2. Safety & Compliance Hub
+// Consolidates: Compliance, Safety, Policies, HOS
+export { default as ComplianceSafetyHub } from './ComplianceSafetyHub'
 
-// Compliance & Safety
-export { default as ComplianceHub } from './ComplianceHub'
-export { default as SafetyHub } from './SafetyHub'
+// 3. Business Management Hub
+// Consolidates: Financial, Procurement, Analytics, Reports
+export { default as BusinessManagementHub } from './BusinessManagementHub'
 
-// Procurement & Assets
-export { default as ProcurementHub } from './ProcurementHub'
-export { default as AssetsHub } from './AssetsHub'
+// 4. People & Communication Hub
+// Consolidates: People, Communication, Work, Dispatch
+export { default as PeopleCommunicationHub } from './PeopleCommunicationHub'
 
-// Administration & Communication
-export { default as AdminHub } from './AdminHub'
-export { default as CommunicationHub } from './CommunicationHub'
+// 5. Admin & Configuration Hub
+// Consolidates: Admin, Config, Data, Integrations, Documents
+export { default as AdminConfigurationHub } from './AdminConfigurationHub'
+
+// Interactive Tools
+export { default as VehicleShowroom3D } from './VehicleShowroom3D'
 
 /**
  * Hub Route Configuration
- * Use with React Router for new navigation structure
+ * Mapped to the primary consolidated hub architecture
  */
 export const hubRoutes = [
-    { path: '/fleet', component: 'FleetHub', label: 'Fleet Hub' },
-    { path: '/operations', component: 'OperationsHub', label: 'Operations Hub' },
-    { path: '/maintenance', component: 'MaintenanceHub', label: 'Maintenance Hub' },
-    { path: '/drivers', component: 'DriversHub', label: 'Drivers Hub' },
-    { path: '/analytics', component: 'AnalyticsHub', label: 'Analytics Hub' },
-    { path: '/compliance', component: 'ComplianceHub', label: 'Compliance Hub' },
-    { path: '/safety', component: 'SafetyHub', label: 'Safety Hub' },
-    { path: '/procurement', component: 'ProcurementHub', label: 'Procurement Hub' },
-    { path: '/assets', component: 'AssetsHub', label: 'Assets Hub' },
-    { path: '/admin', component: 'AdminHub', label: 'Admin Hub' },
-    { path: '/communication', component: 'CommunicationHub', label: 'Communication Hub' },
+    { path: '/fleet', component: 'FleetOperationsHub', label: 'Fleet Hub' },
+    { path: '/safety', component: 'ComplianceSafetyHub', label: 'Safety & Compliance' },
+    { path: '/financial', component: 'BusinessManagementHub', label: 'Financial Hub' },
+    { path: '/communication', component: 'PeopleCommunicationHub', label: 'Communication Hub' },
+    { path: '/admin', component: 'AdminConfigurationHub', label: 'Admin Hub' },
+    { path: '/3d-garage', component: 'VehicleShowroom3D', label: '3D Garage' },
 ]

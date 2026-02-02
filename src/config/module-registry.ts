@@ -100,7 +100,7 @@ const BusinessManagementHub = lazy(() => import('@/pages/BusinessManagementHub')
 // ADMIN & CONFIGURATION MODULES
 // ============================================================================
 
-const AdminDashboard = lazy(() => import('@/pages/AdminHub'))
+// const AdminDashboard = lazy(() => import('@/pages/AdminHub'))
 const AdminConfigurationHub = lazy(() => import('@/pages/AdminConfigurationHub'))
 const Notifications = lazyNamed(() => import('@/components/modules/admin/Notifications'), 'Notifications')
 const PushNotificationAdmin = lazy(() => import('@/components/modules/admin/PushNotificationAdmin'))
@@ -145,12 +145,7 @@ const ProfilePage = lazy(() => import('@/pages/ProfilePage'))
 const SafetyAlertsPage = lazy(() => import('@/pages/SafetyAlertsPage'))
 const VehicleShowroom3D = lazy(() => import('@/pages/VehicleShowroom3D'))
 
-// LEGACY HUB PAGES (backward compat)
-const HOSHubPage = lazy(() => import('@/pages/HOSHub'))
-const FuelHubPage = lazy(() => import('@/pages/FuelHub'))
-const IncidentHubPage = lazy(() => import('@/pages/IncidentHub'))
-const AnalyticsHubPage = lazy(() => import('@/pages/AnalyticsHub'))
-const ReportsHubPage = lazy(() => import('@/pages/ReportsHub'))
+
 
 // WORKSPACE MODULES
 const FleetWorkspace = lazyNamed(() => import('@/components/workspaces/FleetWorkspace'), 'FleetWorkspace')
@@ -327,7 +322,7 @@ export const moduleRegistry: ModuleDefinition[] = [
     id: 'fuel-management',
     label: 'Fuel Hub',
     category: 'operations',
-    component: FuelHubPage,
+    component: FleetOperationsHub,
     panelWidth: 'wide',
     keywords: ['fuel', 'hub'],
   },
@@ -486,7 +481,7 @@ export const moduleRegistry: ModuleDefinition[] = [
     id: 'incidents',
     label: 'Incidents Hub',
     category: 'safety',
-    component: IncidentHubPage,
+    component: ComplianceSafetyHub,
     panelWidth: 'wide',
     keywords: ['incidents', 'hub'],
   },
@@ -511,7 +506,7 @@ export const moduleRegistry: ModuleDefinition[] = [
     id: 'hos',
     label: 'Hours of Service',
     category: 'safety',
-    component: HOSHubPage,
+    component: ComplianceSafetyHub,
     panelWidth: 'wide',
     keywords: ['hours', 'service', 'hos', 'eld', 'compliance'],
     aliases: ['hours-of-service'],
@@ -595,7 +590,7 @@ export const moduleRegistry: ModuleDefinition[] = [
     id: 'analytics',
     label: 'Analytics Hub',
     category: 'analytics',
-    component: AnalyticsHubPage,
+    component: BusinessManagementHub,
     panelWidth: 'wide',
     keywords: ['analytics', 'hub'],
   },
@@ -611,7 +606,7 @@ export const moduleRegistry: ModuleDefinition[] = [
     id: 'reports',
     label: 'Reports Hub',
     category: 'analytics',
-    component: ReportsHubPage,
+    component: BusinessManagementHub,
     panelWidth: 'wide',
     keywords: ['reports', 'hub', 'generate'],
   },
@@ -678,7 +673,7 @@ export const moduleRegistry: ModuleDefinition[] = [
     id: 'admin-dashboard',
     label: 'Admin Dashboard',
     category: 'admin',
-    component: AdminDashboard,
+    component: AdminConfigurationHub,
     panelWidth: 'takeover',
     keywords: ['admin', 'dashboard', 'system'],
   },
