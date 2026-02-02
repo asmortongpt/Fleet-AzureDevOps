@@ -42,8 +42,7 @@ const AnalyticsDashboard = lazy(() => import("@/components/analytics/AnalyticsDa
 
 // ADMIN MODULES
 // const CommandCenter = lazy(() => import("@/pages/CommandCenter"))
-// AdminDashboard has been consolidated into AdminHub
-const AdminDashboard = lazy(() => import("@/pages/AdminHub"))
+
 
 const PolicyEngineWorkbench = lazy(() => import("@/components/modules/admin/PolicyEngineWorkbench").then(m => ({ default: m.PolicyEngineWorkbench })))
 const Notifications = lazy(() => import("@/components/modules/admin/Notifications").then(m => ({ default: m.Notifications })))
@@ -136,7 +135,8 @@ const AnalyticsWorkspace = lazy(() => import("@/components/workspaces/AnalyticsW
 const ComplianceWorkspace = lazy(() => import("@/components/workspaces/ComplianceWorkspace").then(m => ({ default: m.ComplianceWorkspace })))
 
 // HUB MODULES (Phase 2-3 Map-First UX Transformation)
-const ReportsHubPage = lazy(() => import("@/pages/ReportsHub"))
+
+
 const OperationsHub = lazy(() => import("@/components/hubs/operations/OperationsHub").then(m => ({ default: m.OperationsHub })))
 const MaintenanceHub = lazy(() => import("@/components/hubs/maintenance/MaintenanceHub").then(m => ({ default: m.MaintenanceHub })))
 const ProcurementHub = lazy(() => import("@/components/hubs/procurement/ProcurementHub").then(m => ({ default: m.ProcurementHub })))
@@ -157,32 +157,9 @@ const AdminConfigurationHub = lazy(() => import("@/pages/AdminConfigurationHub")
 const VehicleShowroom3D = lazy(() => import("@/pages/VehicleShowroom3D"))
 
 // ============================================================================
-// DEPRECATED: OLD INDIVIDUAL HUB PAGES (kept for backward compatibility)
-// ============================================================================
-// TODO: Remove after migration complete and routing updated
-const FleetHubPage = lazy(() => import("@/pages/FleetHub"))
-const OperationsHubPage = lazy(() => import("@/pages/OperationsHub"))
-const MaintenanceHubPage = lazy(() => import("@/pages/MaintenanceHub"))
-const DriversHubPage = lazy(() => import("@/pages/DriversHub"))
-const AnalyticsHubPage = lazy(() => import("@/pages/AnalyticsHub"))
-const ComplianceHubPage = lazy(() => import("@/pages/ComplianceHub"))
-const ProcurementHubPage = lazy(() => import("@/pages/ProcurementHub"))
-const AdminHubPage = lazy(() => import("@/pages/AdminHub"))
-const SafetyHubPage = lazy(() => import("@/pages/SafetyHub"))
-const AssetsHubPage = lazy(() => import("@/pages/AssetsHub"))
-const CommunicationHubPage = lazy(() => import("@/pages/CommunicationHub"))
-const FinancialHubPage = lazy(() => import("@/pages/FinancialHub"))
-const IntegrationsHubPage = lazy(() => import("@/pages/IntegrationsHub"))
-const PolicyHubPage = lazy(() => import("@/pages/PolicyHub"))
-const SafetyComplianceHubPage = lazy(() => import("@/pages/SafetyComplianceHub"))
-const CTAConfigurationHubPage = lazy(() => import("@/pages/CTAConfigurationHub"))
-const DataGovernanceHubPage = lazy(() => import("@/pages/DataGovernanceHub"))
-const DocumentsHubPage = lazy(() => import("@/pages/DocumentsHub"))
-const PeopleHubPage = lazy(() => import("@/pages/PeopleHub"))
-const WorkHubPage = lazy(() => import("@/pages/WorkHub"))
-const HOSHubPage = lazy(() => import("@/pages/HOSHub"))
-const FuelHubPage = lazy(() => import("@/pages/FuelHub"))
-const IncidentHubPage = lazy(() => import("@/pages/IncidentHub"))
+// DEPRECATED: OLD INDIVIDUAL HUB PAGES removed in deep clean consolidate-hubs-v4
+// TODO: Clean up any remaining switch case references if they still point to removed files
+
 
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
@@ -269,7 +246,7 @@ function App() {
       case "executive-dashboard":
         return <ExecutiveDashboard />
       case "admin-dashboard":
-        return <AdminDashboard />
+        return <AdminConfigurationHub />
       case "operations-workspace":
         return <OperationsWorkspace />
       case "fleet-workspace":
@@ -286,7 +263,7 @@ function App() {
       // DEPRECATED: Consolidated into BusinessManagementHub
       // case "reports-hub":
       case "reports":
-        return <ReportsHubPage />
+        return <BusinessManagementHub />
 
       // DEPRECATED: Consolidated into FleetOperationsHub
       // case "operations-hub":
@@ -410,12 +387,12 @@ function App() {
       case "fuel-purchasing":
         return <FuelPurchasing />
       case "fuel-management":
-        return <FuelHubPage />
+        return <FleetOperationsHub />
       case "hos":
       case "hours-of-service":
-        return <HOSHubPage />
+        return <ComplianceSafetyHub />
       case "incidents":
-        return <IncidentHubPage />
+        return <ComplianceSafetyHub />
       case "endpoint-monitor":
         return <EndpointMonitor />
       case "driver-mgmt":
@@ -435,7 +412,7 @@ function App() {
       case "custom-reports":
         return <CustomReportBuilder />
       case "analytics":
-        return <AnalyticsHubPage />
+        return <BusinessManagementHub />
       case "maintenance-request":
         return <MaintenanceRequest data={fleetData} />
 
@@ -521,7 +498,7 @@ function App() {
       //     return <Suspense fallback={<div>Loading...</div>}><FleetDesignDemo /></Suspense>
 
       default:
-        return <LiveFleetDashboard />
+        return <FleetOperationsHub />
     }
   }
 
