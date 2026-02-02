@@ -259,13 +259,13 @@ export function QualityControlPanel({
         <div className="absolute bottom-4 left-4 w-72 bg-slate-900/95 backdrop-blur-sm rounded-md border border-slate-700 shadow-sm z-50">
             <div className="p-3 border-b border-slate-700 flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-white">Rendering Quality</h4>
-                <button onClick={onToggle} className="text-slate-400 hover:text-white">✕</button>
+                <button onClick={onToggle} className="text-slate-700 hover:text-white">✕</button>
             </div>
 
             <div className="p-3 space-y-3">
                 {/* Quality Preset */}
                 <div>
-                    <label className="block text-xs text-slate-400 mb-1">Preset</label>
+                    <label className="block text-xs text-slate-700 mb-1">Preset</label>
                     <div className="grid grid-cols-4 gap-1">
                         {(['low', 'medium', 'high', 'ultra'] as QualityPreset[]).map((preset) => (
                             <button
@@ -273,7 +273,7 @@ export function QualityControlPanel({
                                 onClick={() => onChange(getPresetConfig(preset))}
                                 className={`px-2 py-1 rounded text-xs font-medium transition-colors ${config.quality === preset
                                     ? 'bg-blue-600 text-white'
-                                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                                    : 'bg-slate-800 text-slate-700 hover:bg-slate-700'
                                     }`}
                             >
                                 {preset.toUpperCase()}
@@ -306,7 +306,7 @@ export function QualityControlPanel({
                 {/* Intensity sliders */}
                 {config.dofEnabled && (
                     <div>
-                        <label className="block text-xs text-slate-400 mb-1">
+                        <label className="block text-xs text-slate-700 mb-1">
                             DOF Bokeh: {config.dofBokehScale.toFixed(1)}
                         </label>
                         <input
@@ -323,7 +323,7 @@ export function QualityControlPanel({
 
                 {config.aoEnabled && (
                     <div>
-                        <label className="block text-xs text-slate-400 mb-1">
+                        <label className="block text-xs text-slate-700 mb-1">
                             AO Intensity: {config.aoIntensity.toFixed(1)}
                         </label>
                         <input

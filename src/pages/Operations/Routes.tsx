@@ -229,7 +229,7 @@ export function RoutesOperations() {
             <h3 className="text-sm font-bold text-white mb-1 truncate">
               {route.date ? `${route.startLocation} → ${route.endLocation}` : 'Unnamed Route'}
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-700">
               {route.stops.length} stops • {distance} mi • {formatDuration(route.estimatedDuration)}
             </p>
             {nextStop && (
@@ -248,7 +248,7 @@ export function RoutesOperations() {
         {/* Optimization Score */}
         {route.optimizationScore > 0 && (
           <div className="mt-2 flex items-center gap-2">
-            <div className="text-xs text-slate-400">Efficiency:</div>
+            <div className="text-xs text-slate-700">Efficiency:</div>
             <div className="w-20 h-1.5 bg-slate-700 rounded-full overflow-hidden">
               <div
                 className={cn(
@@ -300,7 +300,7 @@ export function RoutesOperations() {
       return (
         <div className="flex flex-col items-center justify-center h-full text-center p-6">
           <Briefcase className="w-12 h-12 text-slate-600 mb-4" />
-          <p className="text-sm text-slate-400">Select a route to view details</p>
+          <p className="text-sm text-slate-700">Select a route to view details</p>
         </div>
       );
     }
@@ -312,23 +312,23 @@ export function RoutesOperations() {
           <h4 className="text-sm font-bold text-white mb-4">Route Details</h4>
           <div className="space-y-3 text-sm">
             <div className="flex justify-between">
-              <span className="text-slate-400">Status:</span>
+              <span className="text-slate-700">Status:</span>
               <StatusBadge status={getStatusColor(selectedRoute.status)} size="sm" />
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-400">Stops:</span>
+              <span className="text-slate-700">Stops:</span>
               <span className="text-white font-semibold">{selectedRoute.stops.length}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-400">Distance:</span>
+              <span className="text-slate-700">Distance:</span>
               <span className="text-white font-semibold">{formatDistance(selectedRoute.stops)} mi</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-400">Est. Duration:</span>
+              <span className="text-slate-700">Est. Duration:</span>
               <span className="text-white font-semibold">{formatDuration(selectedRoute.estimatedDuration)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-400">Route Type:</span>
+              <span className="text-slate-700">Route Type:</span>
               <span className="text-white font-semibold capitalize">{selectedRoute.type}</span>
             </div>
           </div>
@@ -339,7 +339,7 @@ export function RoutesOperations() {
           <h4 className="text-sm font-bold text-white mb-3">Efficiency Score</h4>
           <div className="mb-3">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-xs text-slate-400">Overall Optimization</span>
+              <span className="text-xs text-slate-700">Overall Optimization</span>
               <span className="text-sm font-bold text-white">{Math.round(selectedRoute.optimizationScore)}%</span>
             </div>
             <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
@@ -373,10 +373,10 @@ export function RoutesOperations() {
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {selectedRoute.stops.map((stop) => (
                 <div key={stop.stopNumber} className="flex items-start gap-2 p-2 bg-slate-700/20 rounded text-xs">
-                  <div className="text-slate-400 font-semibold">#{stop.stopNumber}</div>
+                  <div className="text-slate-700 font-semibold">#{stop.stopNumber}</div>
                   <div className="flex-1 min-w-0">
                     <p className="text-white truncate">{stop.address}</p>
-                    <p className="text-slate-400 text-xs">
+                    <p className="text-slate-700 text-xs">
                       {new Date(stop.estimatedArrival).toLocaleTimeString()}
                     </p>
                   </div>
@@ -412,7 +412,7 @@ export function RoutesOperations() {
       <div className="p-4 border-b border-slate-700/50">
         <div className="relative">
           <MagnifyingGlass
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-700"
             weight="bold"
           />
           <Input
@@ -427,7 +427,7 @@ export function RoutesOperations() {
       {/* Routes List */}
       <div className="flex-1 overflow-y-auto">
         {isLoading && (
-          <div className="flex flex-col items-center justify-center h-full text-slate-400">
+          <div className="flex flex-col items-center justify-center h-full text-slate-700">
             <Spinner className="w-8 h-8 animate-spin mb-2" />
             <p className="text-sm">Loading routes...</p>
           </div>
@@ -448,7 +448,7 @@ export function RoutesOperations() {
         )}
 
         {!isLoading && !error && routes.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-slate-400 p-4">
+          <div className="flex flex-col items-center justify-center h-full text-slate-700 p-4">
             <MapPin className="w-8 h-8 mb-2" />
             <p className="text-sm">No routes found</p>
             {searchQuery && (

@@ -254,7 +254,7 @@ export function AIChatbot() {
           </Button>
         </div>
         <div className="flex items-center justify-between mt-2">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-700">
             Press Enter to send
           </p>
           <Button

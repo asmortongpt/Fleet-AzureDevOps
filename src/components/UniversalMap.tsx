@@ -192,7 +192,7 @@ class MapErrorBoundary extends Component<
             <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2">
               Map Failed to Load
             </h2>
-            <p className="text-slate-700 dark:text-gray-400 mb-2">
+            <p className="text-slate-700 dark:text-gray-700 mb-2">
               {this.state.error?.message || "An unexpected error occurred while loading the map."}
             </p>
             <button
@@ -711,7 +711,7 @@ export function UniversalMap(props: UniversalMapProps) {
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-gray-900/80">
             <div className="flex flex-col items-center gap-3">
               <div className="w-12 h-9 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm text-slate-700 dark:text-gray-400">
+              <p className="text-sm text-slate-700 dark:text-gray-700">
                 Loading {provider === "google" ? "Google Maps" : "OpenStreetMap"}...
               </p>
             </div>

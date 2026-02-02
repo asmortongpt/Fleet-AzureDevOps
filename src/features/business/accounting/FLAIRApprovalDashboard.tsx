@@ -598,7 +598,7 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
           <h2 className="text-sm font-bold text-gray-900">FLAIR Approval Dashboard</h2>
           <p className="text-slate-700">Review and approve expense submissions</p>
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-700">
           Logged in as: {user ? `${user.firstName} ${user.lastName}`.trim() : ''} ({user?.role})
         </div>
       </div>

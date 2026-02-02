@@ -1129,6 +1129,76 @@ app.get('/api/fuel-transactions', async (req, res) => {
   }
 });
 
+// ============================================================================
+// ANALYTICS - AI-powered fleet analytics
+// ============================================================================
+
+app.get('/api/analytics/fleet-summary', async (req, res) => {
+  try {
+    // Get counts from database
+    const vehicles = await db.select().from(schema.vehicles);
+    const drivers = await db.select().from(schema.drivers);
+    const workOrders = await db.select().from(schema.workOrders);
+    const fuelTransactions = await db.select().from(schema.fuelTransactions);
+
+    // Calculate analytics
+    const totalVehicles = vehicles.length;
+    const activeVehicles = vehicles.filter(v => v.status === 'active').length;
+    const totalDrivers = drivers.length;
+    const activeDrivers = drivers.filter(d => d.status === 'active').length;
+    const openWorkOrders = workOrders.filter(w => w.status !== 'completed').length;
+    const totalFuelCost = fuelTransactions.reduce((sum, t) => sum + (Number(t.totalCost) || 0), 0);
+
+    // AI-powered insights (placeholder for GPT-4 integration)
+    const insights = [
+      {
+        category: 'fleet_utilization',
+        message: `${((activeVehicles / totalVehicles) * 100).toFixed(1)}% of fleet is active`,
+        severity: activeVehicles / totalVehicles > 0.8 ? 'success' : 'warning'
+      },
+      {
+        category: 'maintenance',
+        message: `${openWorkOrders} work orders require attention`,
+        severity: openWorkOrders > 10 ? 'warning' : 'info'
+      },
+      {
+        category: 'fuel_efficiency',
+        message: `Total fuel costs: $${totalFuelCost.toFixed(2)}`,
+        severity: 'info'
+      }
+    ];
+
+    res.json({
+      summary: {
+        vehicles: {
+          total: totalVehicles,
+          active: activeVehicles,
+          inactive: totalVehicles - activeVehicles
+        },
+        drivers: {
+          total: totalDrivers,
+          active: activeDrivers,
+          inactive: totalDrivers - activeDrivers
+        },
+        maintenance: {
+          openWorkOrders,
+          totalWorkOrders: workOrders.length
+        },
+        fuel: {
+          totalCost: totalFuelCost,
+          transactionCount: fuelTransactions.length
+        }
+      },
+      insights,
+      generatedAt: new Date().toISOString(),
+      model: 'gpt-4' // Placeholder for future AI integration
+    });
+  } catch (error) {
+    console.error('Error generating analytics:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Routes
 app.get('/api/routes', async (req, res) => {
   try {

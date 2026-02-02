@@ -350,7 +350,7 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                   {photos.map((photo) => (
                     <div key={photo.id} className="border rounded-lg overflow-hidden">
                       <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                        <ImageIcon className="w-12 h-9 text-gray-400" />
+                        <ImageIcon className="w-12 h-9 text-gray-700" />
                       </div>
                       <div className="p-3">
                         <p className="text-sm font-medium mb-1">{photo.caption}</p>

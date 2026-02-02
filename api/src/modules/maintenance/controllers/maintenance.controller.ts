@@ -12,7 +12,7 @@ export class MaintenanceController {
   constructor(
     @inject(TYPES.MaintenanceService)
     private maintenanceService: MaintenanceService
-  ) {}
+  ) { }
 
   async getAllMaintenance(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -148,6 +148,52 @@ export class MaintenanceController {
 
       logger.info('Fetched vehicle maintenance records', { vehicleId, tenantId, count: records.length });
       res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getUpcomingMaintenance(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const tenantId = (req as any).user?.tenant_id;
+      const { vehicleId } = req.query;
+
+      if (!tenantId) {
+        throw new ValidationError('Tenant ID is required');
+      }
+
+      const records = await this.maintenanceService.getUpcomingMaintenance(tenantId, vehicleId as string);
+      res.json({ data: records });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getOverdueMaintenance(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const tenantId = (req as any).user?.tenant_id;
+
+      if (!tenantId) {
+        throw new ValidationError('Tenant ID is required');
+      }
+
+      const records = await this.maintenanceService.getOverdueMaintenance(tenantId);
+      res.json({ data: records });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getMaintenanceStatistics(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const tenantId = (req as any).user?.tenant_id;
+
+      if (!tenantId) {
+        throw new ValidationError('Tenant ID is required');
+      }
+
+      const stats = await this.maintenanceService.getMaintenanceStatistics(tenantId);
+      res.json({ data: stats });
     } catch (error) {
       next(error);
     }

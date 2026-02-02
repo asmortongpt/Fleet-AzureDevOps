@@ -492,7 +492,7 @@ flowchart LR
               <span className="text-sm">Execution</span>
             </div>
             <div className="flex items-center gap-2">
-              <Database className="w-4 h-4 text-gray-500" />
+              <Database className="w-4 h-4 text-gray-700" />
               <span className="text-sm">Data Store</span>
             </div>
           </div>

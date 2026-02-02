@@ -390,9 +390,9 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card className="bg-blue-900/30 border-blue-700/50">
           <CardContent className="p-2 text-center">
-            <Truck className="w-4 h-4 text-blue-400 mx-auto mb-1" />
-            <div className="text-sm font-bold text-blue-400">{metrics.activeVehicles}</div>
-            <div className="text-xs text-slate-400">Active</div>
+            <Truck className="w-4 h-4 text-blue-700 mx-auto mb-1" />
+            <div className="text-sm font-bold text-blue-700">{metrics.activeVehicles}</div>
+            <div className="text-xs text-slate-700">Active</div>
           </CardContent>
         </Card>
 
@@ -400,7 +400,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
           <CardContent className="p-2 text-center">
             <Clock className="w-4 h-4 text-amber-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-amber-400">{metrics.idleVehicles}</div>
-            <div className="text-xs text-slate-400">Idle</div>
+            <div className="text-xs text-slate-700">Idle</div>
           </CardContent>
         </Card>
 
@@ -408,7 +408,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
           <CardContent className="p-2 text-center">
             <AlertCircle className="w-4 h-4 text-red-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-red-400">{metrics.maintenanceVehicles}</div>
-            <div className="text-xs text-slate-400">Maintenance</div>
+            <div className="text-xs text-slate-700">Maintenance</div>
           </CardContent>
         </Card>
 
@@ -416,7 +416,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
           <CardContent className="p-2 text-center">
             <TrendingUp className="w-4 h-4 text-green-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-green-400">{metrics.avgUtilization}%</div>
-            <div className="text-xs text-slate-400">Avg Utilization</div>
+            <div className="text-xs text-slate-700">Avg Utilization</div>
           </CardContent>
         </Card>
       </div>
@@ -425,7 +425,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <Activity className="w-3 h-3 text-blue-400" />
+            <Activity className="w-3 h-3 text-blue-700" />
             Current Assignments ({filteredAssignments.length})
           </CardTitle>
         </CardHeader>

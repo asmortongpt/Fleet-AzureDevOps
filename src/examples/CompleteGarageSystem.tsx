@@ -202,25 +202,25 @@ export function CompleteGarageSystem() {
                     <p className="text-base font-bold text-red-400">
                       {damageReport.summary.bySeverity.critical}
                     </p>
-                    <p className="text-slate-400 text-sm">Critical</p>
+                    <p className="text-slate-700 text-sm">Critical</p>
                   </div>
                   <div className="text-center">
                     <p className="text-base font-bold text-orange-400">
                       {damageReport.summary.bySeverity.severe}
                     </p>
-                    <p className="text-slate-400 text-sm">Severe</p>
+                    <p className="text-slate-700 text-sm">Severe</p>
                   </div>
                   <div className="text-center">
                     <p className="text-base font-bold text-yellow-400">
                       {damageReport.summary.bySeverity.moderate}
                     </p>
-                    <p className="text-slate-400 text-sm">Moderate</p>
+                    <p className="text-slate-700 text-sm">Moderate</p>
                   </div>
                   <div className="text-center">
                     <p className="text-base font-bold text-green-400">
                       {damageReport.summary.bySeverity.minor}
                     </p>
-                    <p className="text-slate-400 text-sm">Minor</p>
+                    <p className="text-slate-700 text-sm">Minor</p>
                   </div>
                 </div>
 

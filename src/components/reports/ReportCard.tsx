@@ -57,7 +57,7 @@ export function ReportCard({ report, domainMeta, onClick }: ReportCardProps) {
             <div className={`p-2 bg-gradient-to-br ${domainMeta.color} rounded-lg text-white shadow-sm`}>
               <FileText className="h-4 w-4" />
             </div>
-            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            <span className="text-xs font-medium text-gray-700 uppercase tracking-wide">
               {domainMeta.label}
             </span>
           </div>
@@ -70,7 +70,7 @@ export function ReportCard({ report, domainMeta, onClick }: ReportCardProps) {
             className="p-1 rounded-full hover:bg-gray-100 transition-colors"
             aria-label="Add to favorites"
           >
-            <Star className="h-4 w-4 text-gray-400 hover:text-yellow-500" />
+            <Star className="h-4 w-4 text-gray-700 hover:text-yellow-500" />
           </button>
         </div>
 
@@ -80,7 +80,7 @@ export function ReportCard({ report, domainMeta, onClick }: ReportCardProps) {
         </h3>
 
         {/* Report ID and metadata */}
-        <div className="flex items-center gap-2 text-xs text-gray-500">
+        <div className="flex items-center gap-2 text-xs text-gray-700">
           <span className="font-mono bg-gray-100 px-2 py-1 rounded">{report.id}</span>
           <div className="flex items-center gap-1">
             <Clock className="h-3 w-3" />

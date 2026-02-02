@@ -140,19 +140,19 @@ export function DamageAnalysisResults({
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
             <div>
-              <p className="text-gray-500">Make</p>
+              <p className="text-gray-700">Make</p>
               <p className="font-medium">{analysis.vehicleInfo.make || 'Unknown'}</p>
             </div>
             <div>
-              <p className="text-gray-500">Model</p>
+              <p className="text-gray-700">Model</p>
               <p className="font-medium">{analysis.vehicleInfo.model || 'Unknown'}</p>
             </div>
             <div>
-              <p className="text-gray-500">Year</p>
+              <p className="text-gray-700">Year</p>
               <p className="font-medium">{analysis.vehicleInfo.year || 'Unknown'}</p>
             </div>
             <div>
-              <p className="text-gray-500">Color</p>
+              <p className="text-gray-700">Color</p>
               <p className="font-medium">{analysis.vehicleInfo.color}</p>
             </div>
           </div>
@@ -215,7 +215,7 @@ export function DamageAnalysisResults({
           <div className="text-base font-bold text-gray-900">
             ${selectedCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-700 mt-1">
             Total: ${costEstimate.totalEstimate.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </p>
         </CardContent>
@@ -262,7 +262,7 @@ export function DamageAnalysisResults({
                         onClick={(e) => e.stopPropagation()}
                       />
                       <span className="capitalize">{damage.type.replace(/_/g, ' ')}</span>
-                      <span className="text-gray-400">•</span>
+                      <span className="text-gray-700">•</span>
                       <span className="capitalize">{damage.part.replace(/_/g, ' ')}</span>
                     </CardTitle>
                     <CardDescription className="mt-1">
@@ -283,22 +283,22 @@ export function DamageAnalysisResults({
                 {/* Measurements */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                   <div>
-                    <p className="text-gray-500">Estimated Size</p>
+                    <p className="text-gray-700">Estimated Size</p>
                     <p className="font-medium">{damage.estimatedSize}</p>
                   </div>
 
                   {lidarDimensions && (
                     <>
                       <div>
-                        <p className="text-gray-500">Actual Width</p>
+                        <p className="text-gray-700">Actual Width</p>
                         <p className="font-medium">{(lidarDimensions.actualWidth * 100).toFixed(1)} cm</p>
                       </div>
                       <div>
-                        <p className="text-gray-500">Actual Depth</p>
+                        <p className="text-gray-700">Actual Depth</p>
                         <p className="font-medium">{(lidarDimensions.actualDepth * 100).toFixed(1)} cm</p>
                       </div>
                       <div>
-                        <p className="text-gray-500">Surface Area</p>
+                        <p className="text-gray-700">Surface Area</p>
                         <p className="font-medium">{(lidarDimensions.surfaceArea * 10000).toFixed(0)} cm²</p>
                       </div>
                     </>
@@ -306,7 +306,7 @@ export function DamageAnalysisResults({
 
                   {depthData && !lidarDimensions && (
                     <div>
-                      <p className="text-gray-500">Depth Measurement</p>
+                      <p className="text-gray-700">Depth Measurement</p>
                       <p className="font-medium">{depthData.depthMeasurement.toFixed(1)} mm</p>
                     </div>
                   )}
@@ -318,20 +318,20 @@ export function DamageAnalysisResults({
                 {costBreakdown && (
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
                     <div>
-                      <p className="text-gray-500">Labor</p>
+                      <p className="text-gray-700">Labor</p>
                       <p className="font-medium">
                         ${costBreakdown.laborCost.toFixed(2)}
-                        <span className="text-xs text-gray-500 ml-1">
+                        <span className="text-xs text-gray-700 ml-1">
                           ({costBreakdown.estimatedHours}h)
                         </span>
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-500">Parts</p>
+                      <p className="text-gray-700">Parts</p>
                       <p className="font-medium">${costBreakdown.partsCost.toFixed(2)}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500">Total</p>
+                      <p className="text-gray-700">Total</p>
                       <p className="font-bold text-blue-800">
                         ${(costBreakdown.laborCost + costBreakdown.partsCost).toFixed(2)}
                       </p>

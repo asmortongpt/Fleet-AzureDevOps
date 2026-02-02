@@ -270,19 +270,19 @@ export const DriverToolbox: React.FC = () => {
       <div className="px-3 py-3">
         <div className="grid grid-cols-2 gap-2">
           <div className="bg-white rounded-md p-2 shadow-sm">
-            <p className="text-gray-500 text-sm">Assigned Vehicles</p>
+            <p className="text-gray-700 text-sm">Assigned Vehicles</p>
             <p className="text-sm font-bold text-gray-800">{stats.assignedVehicles}</p>
           </div>
           <div className="bg-white rounded-md p-2 shadow-sm">
-            <p className="text-gray-500 text-sm">Active Work Orders</p>
+            <p className="text-gray-700 text-sm">Active Work Orders</p>
             <p className="text-sm font-bold text-orange-600">{stats.activeWorkOrders}</p>
           </div>
           <div className="bg-white rounded-md p-2 shadow-sm">
-            <p className="text-gray-500 text-sm">Pending Inspections</p>
+            <p className="text-gray-700 text-sm">Pending Inspections</p>
             <p className="text-sm font-bold text-blue-800">{stats.pendingInspections}</p>
           </div>
           <div className="bg-white rounded-md p-2 shadow-sm">
-            <p className="text-gray-500 text-sm">Pending Sync</p>
+            <p className="text-gray-700 text-sm">Pending Sync</p>
             <p className="text-sm font-bold text-purple-600">{stats.pendingSyncCount}</p>
           </div>
         </div>

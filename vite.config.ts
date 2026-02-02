@@ -16,6 +16,8 @@ export default defineConfig({
   envPrefix: 'VITE_', // Only load variables with VITE_ prefix
   envDir: './', // Load from project root
   server: {
+    port: 5180, // Use different port to avoid HSTS cache
+    strictPort: false,
     proxy: {
       '/api': {
         target: 'http://localhost:3001',
@@ -39,6 +41,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
+      disable: true, // Disable PWA temporarily to fix TLS issues
       registerType: 'autoUpdate',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],

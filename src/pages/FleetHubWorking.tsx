@@ -60,7 +60,7 @@ const TabsListWrap = ({ className, ...props }: React.ComponentProps<typeof TabsP
 const TabsTriggerWrap = ({ className, children, ...props }: React.ComponentProps<typeof TabsPrimitive.Trigger>) => (
     <TabsPrimitive.Trigger
         className={cn(
-            "group inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-slate-400 transition-all hover:bg-white/10 hover:text-white data-[state=active]:bg-white/10 data-[state=active]:text-white",
+            "group inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all hover:bg-white/10 hover:text-white data-[state=active]:bg-white/10 data-[state=active]:text-white",
             className
         )}
         {...props}
@@ -81,7 +81,7 @@ const OverviewContent = memo(function OverviewContent() {
             </div>
             <div className="bg-slate-900/50 p-6 rounded-lg border border-slate-800">
                 <h3 className="text-lg font-semibold mb-2">Vehicle Stats & Maintenance Summary</h3>
-                <p className="text-slate-400">
+                <p className="text-slate-700">
                     Real-time fleet health monitoring. 3 vehicles require immediate attention.
                 </p>
             </div>
@@ -113,8 +113,8 @@ const ModelsContent = memo(function ModelsContent() {
             <div className="grid grid-cols-3 gap-4">
                 <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-800">
                     <h4 className="font-bold">Ford F-150</h4>
-                    <p className="text-sm text-slate-400">Make: Ford</p>
-                    <p className="text-sm text-slate-400">Specification: Class 2 Truck</p>
+                    <p className="text-sm text-slate-700">Make: Ford</p>
+                    <p className="text-sm text-slate-700">Specification: Class 2 Truck</p>
                 </div>
             </div>
         </div>
@@ -195,11 +195,11 @@ export default function FleetHub() {
             <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4 bg-slate-900/50 backdrop-blur">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-blue-500/10 rounded-lg">
-                        <Truck className="w-6 h-6 text-blue-400" />
+                        <Truck className="w-6 h-6 text-blue-700" />
                     </div>
                     <div>
                         <h1 className="text-lg font-bold">Fleet Hub</h1>
-                        <p className="text-xs text-slate-400">Vehicle and maintenance management</p>
+                        <p className="text-xs text-slate-700">Vehicle and maintenance management</p>
                     </div>
                 </div>
             </div>
@@ -264,7 +264,7 @@ export default function FleetHub() {
                                 <div className="space-y-3">
                                     <div className="flex items-center justify-between p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
                                         <span className="text-sm text-slate-300">Total Vehicles</span>
-                                        <span className="font-bold text-blue-400">{metrics.total}</span>
+                                        <span className="font-bold text-blue-700">{metrics.total}</span>
                                     </div>
                                     <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/10 border border-green-500/20">
                                         <span className="text-sm text-slate-300">In Service</span>

@@ -408,37 +408,22 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const workOrderId = req.params.id
+      const tenantId = req.user?.tenant_id
 
-      // TODO: Implement actual parts fetching from database
-      // For now, return demo data to match frontend expectations
-      const parts = [
-        {
-          id: `part-${workOrderId}-1`,
-          name: 'Oil Filter',
-          part_number: 'OF-12345',
-          quantity: 2,
-          unit_cost: 12.50,
-          supplier: 'Auto Parts Inc.'
-        },
-        {
-          id: `part-${workOrderId}-2`,
-          name: 'Engine Oil (5W-30)',
-          part_number: 'EO-67890',
-          quantity: 6,
-          unit_cost: 8.75,
-          supplier: 'Auto Parts Inc.'
-        },
-        {
-          id: `part-${workOrderId}-3`,
-          name: 'Air Filter',
-          part_number: 'AF-54321',
-          quantity: 1,
-          unit_cost: 22.00,
-          supplier: 'OEM Supplier'
-        }
-      ]
+      const client = (req as any).dbClient
+      if (!client) {
+        return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
+      }
 
-      res.json(parts)
+      const result = await client.query(
+        `SELECT id, part_number, name, quantity, unit_cost, 
+                (quantity * unit_cost) as total_cost, supplier, notes
+         FROM work_order_parts 
+         WHERE work_order_id = $1 AND tenant_id = $2`,
+        [workOrderId, tenantId]
+      )
+
+      res.json(result.rows)
     } catch (error) {
       logger.error('Failed to fetch work order parts', {
         error,
@@ -464,40 +449,23 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const workOrderId = req.params.id
+      const tenantId = req.user?.tenant_id
 
-      // TODO: Implement actual labor details fetching from database
-      // For now, return demo data to match frontend expectations
-      const labor = [
-        {
-          id: `labor-${workOrderId}-1`,
-          technician_name: 'Mike Johnson',
-          task: 'Oil change',
-          hours: 0.5,
-          rate: 75.00,
-          total: 37.50,
-          date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: `labor-${workOrderId}-2`,
-          technician_name: 'Mike Johnson',
-          task: 'Filter replacement',
-          hours: 0.25,
-          rate: 75.00,
-          total: 18.75,
-          date: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: `labor-${workOrderId}-3`,
-          technician_name: 'Sarah Williams',
-          task: 'Inspection',
-          hours: 1.0,
-          rate: 85.00,
-          total: 85.00,
-          date: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
-        }
-      ]
+      const client = (req as any).dbClient
+      if (!client) {
+        return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
+      }
 
-      res.json(labor)
+      const result = await client.query(
+        `SELECT id, technician_name, task, hours, rate, 
+                (hours * rate) as total, date, notes
+         FROM work_order_labor 
+         WHERE work_order_id = $1 AND tenant_id = $2
+         ORDER BY date DESC`,
+        [workOrderId, tenantId]
+      )
+
+      res.json(result.rows)
     } catch (error) {
       logger.error('Failed to fetch work order labor', {
         error,

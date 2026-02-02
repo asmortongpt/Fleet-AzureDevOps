@@ -77,18 +77,18 @@ export function OperationsWorkspace() {
               <Button
                 variant="ghost"
                 size="sm"
-                className={cn("h-9 w-9 p-0 hover:bg-white/10 rounded-lg", !isSidebarCollapsed && "text-blue-400 bg-blue-500/10")}
+                className={cn("h-9 w-9 p-0 hover:bg-white/10 rounded-lg", !isSidebarCollapsed && "text-blue-700 bg-blue-500/10")}
                 onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
               >
                 <Layout className="h-5 w-5" />
               </Button>
               <Separator orientation="vertical" className="h-5 bg-white/10 mx-1" />
               <Button variant="ghost" size="sm" className="h-9 px-3 gap-2 hover:bg-white/10 text-xs font-medium text-slate-300 rounded-lg">
-                <MapIcon className="h-4 w-4 text-slate-400" />
+                <MapIcon className="h-4 w-4 text-slate-700" />
                 Map Layers
               </Button>
               <Button variant="ghost" size="sm" className="h-9 px-3 gap-2 hover:bg-white/10 text-xs font-medium text-slate-300 rounded-lg">
-                <Filter className="h-4 w-4 text-slate-400" />
+                <Filter className="h-4 w-4 text-slate-700" />
                 Filters
               </Button>
             </div>
@@ -97,12 +97,12 @@ export function OperationsWorkspace() {
           {/* Global Search / Command Bar */}
           <div className="pointer-events-auto w-96">
             <div className="glass-panel rounded-md flex items-center px-2 h-9 shadow-sm border-white/10 bg-black/40 focus-within:ring-1 focus-within:ring-blue-500/50 transition-all backdrop-blur-xl">
-              <Search className="h-4 w-4 text-slate-400 mr-3" />
+              <Search className="h-4 w-4 text-slate-700 mr-3" />
               <input
                 className="bg-transparent border-none outline-none text-sm text-slate-200 placeholder:text-slate-500 w-full"
                 placeholder="Search drivers, vehicles, or locations..."
               />
-              <kbd className="hidden sm:inline-flex h-6 items-center gap-1 rounded border border-white/10 bg-white/5 px-2 font-mono text-[10px] font-medium text-slate-400 opacity-100">
+              <kbd className="hidden sm:inline-flex h-6 items-center gap-1 rounded border border-white/10 bg-white/5 px-2 font-mono text-[10px] font-medium text-slate-700 opacity-100">
                 <span className="text-xs">⌘</span>K
               </kbd>
             </div>
@@ -133,17 +133,17 @@ export function OperationsWorkspace() {
                   </div>
                   <div>
                     <h2 className="font-semibold text-sm tracking-wide text-slate-200">Dispatch Queue</h2>
-                    <p className="text-[10px] text-slate-500">Real-time operations feed</p>
+                    <p className="text-[10px] text-gray-800">Real-time operations feed</p>
                   </div>
                 </div>
                 <div className="flex gap-1">
-                  <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-[10px] h-6 px-2">
+                  <Badge variant="outline" className="bg-blue-500/10 text-blue-700 border-blue-500/20 text-[10px] h-6 px-2">
                     {tasks.length} Active
                   </Badge>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-white/10 rounded-full" aria-label="More options">
-                        <MoreHorizontal className="h-4 w-4 text-slate-400" />
+                        <MoreHorizontal className="h-4 w-4 text-slate-700" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48 bg-[#1a1f2e] border-white/10 text-slate-200">
@@ -166,7 +166,7 @@ export function OperationsWorkspace() {
                   />
                 </div>
                 <Button size="icon" variant="ghost" className="h-9 w-9 bg-white/5 border border-white/5 hover:bg-white/10 rounded-lg shrink-0" aria-label="Add new task">
-                  <Plus className="h-4 w-4 text-slate-400" />
+                  <Plus className="h-4 w-4 text-slate-700" />
                 </Button>
               </div>
             </div>
@@ -174,10 +174,10 @@ export function OperationsWorkspace() {
             <div className="px-5 py-3 shrink-0 bg-white/[0.02] border-b border-white/5">
               <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
                 <TabsList className="w-full bg-black/40 p-1 h-9 border border-white/5 rounded-lg">
-                  <TabsTrigger value="all" className="flex-1 text-[10px] uppercase tracking-wider font-semibold h-7 data-[state=active]:bg-white/10 data-[state=active]:text-white text-slate-500">All</TabsTrigger>
-                  <TabsTrigger value="active" className="flex-1 text-[10px] uppercase tracking-wider font-semibold h-7 data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 text-slate-500">Active</TabsTrigger>
-                  <TabsTrigger value="pending" className="flex-1 text-[10px] uppercase tracking-wider font-semibold h-7 data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400 text-slate-500">Pending</TabsTrigger>
-                  <TabsTrigger value="alerts" className="flex-1 text-[10px] uppercase tracking-wider font-semibold h-7 data-[state=active]:bg-red-500/20 data-[state=active]:text-red-400 text-slate-500">Alerts</TabsTrigger>
+                  <TabsTrigger value="all" className="flex-1 text-[10px] uppercase tracking-wider font-semibold h-7 data-[state=active]:bg-white/10 data-[state=active]:text-white text-gray-800">All</TabsTrigger>
+                  <TabsTrigger value="active" className="flex-1 text-[10px] uppercase tracking-wider font-semibold h-7 data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-700 text-gray-800">Active</TabsTrigger>
+                  <TabsTrigger value="pending" className="flex-1 text-[10px] uppercase tracking-wider font-semibold h-7 data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400 text-gray-800">Pending</TabsTrigger>
+                  <TabsTrigger value="alerts" className="flex-1 text-[10px] uppercase tracking-wider font-semibold h-7 data-[state=active]:bg-red-500/20 data-[state=active]:text-red-400 text-gray-800">Alerts</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -200,7 +200,7 @@ export function OperationsWorkspace() {
             </ScrollArea>
 
             {/* Footer Status */}
-            <div className="p-3 border-t border-white/5 text-[10px] text-slate-500 flex justify-between bg-[#0a0f1c]">
+            <div className="p-3 border-t border-white/5 text-[10px] text-gray-800 flex justify-between bg-[#0a0f1c]">
               <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> System Online</span>
               <span>Updated: Just now</span>
             </div>
@@ -213,11 +213,11 @@ export function OperationsWorkspace() {
 
 function TaskCard({ task }: { task: any }) {
   const statusConfig = {
-    'active': { color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20', solid: 'bg-blue-500' },
+    'active': { color: 'text-blue-700', bg: 'bg-blue-500/10', border: 'border-blue-500/20', solid: 'bg-blue-500' },
     'delayed': { color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', solid: 'bg-red-500' },
-    'completed': { color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', solid: 'bg-emerald-500' },
+    'completed': { color: 'text-emerald-700', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', solid: 'bg-emerald-500' },
     'pending': { color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', solid: 'bg-amber-500' },
-  }[task.status as string] || { color: 'text-slate-400', bg: 'bg-slate-500/10', border: 'border-slate-500/20', solid: 'bg-slate-500' };
+  }[task.status as string] || { color: 'text-slate-700', bg: 'bg-slate-500/10', border: 'border-slate-500/20', solid: 'bg-slate-500' };
 
   return (
     <Card className="glass-card border border-white/5 bg-[#161b2c]/80 hover:bg-[#1c2236] rounded-md p-0 cursor-pointer transition-all group relative overflow-hidden shadow-sm hover:shadow-md hover:border-white/10">
@@ -229,21 +229,21 @@ function TaskCard({ task }: { task: any }) {
           <Badge variant="outline" className={cn("text-[10px] h-5 border px-2 uppercase tracking-wider font-bold rounded-md", statusConfig.color, statusConfig.bg, statusConfig.border)}>
             {task.status}
           </Badge>
-          <span className="text-[10px] text-slate-500 font-mono flex items-center gap-1.5 bg-black/20 px-1.5 py-0.5 rounded">
+          <span className="text-[10px] text-gray-800 font-mono flex items-center gap-1.5 bg-black/20 px-1.5 py-0.5 rounded">
             <Clock className="h-3 w-3" /> {task.time}
           </span>
         </div>
 
-        <h4 className="text-sm font-semibold text-slate-200 mb-1.5 leading-snug group-hover:text-blue-400 transition-colors pr-3">
+        <h4 className="text-sm font-semibold text-slate-200 mb-1.5 leading-snug group-hover:text-blue-700 transition-colors pr-3">
           {task.title}
         </h4>
 
         <div className="grid grid-cols-2 gap-2 mt-3">
-          <div className="flex items-center gap-2 text-xs text-slate-400 bg-white/[0.03] p-1.5 rounded-lg border border-white/5">
+          <div className="flex items-center gap-2 text-xs text-slate-700 bg-white/[0.03] p-1.5 rounded-lg border border-white/5">
             <Truck className="h-3.5 w-3.5 text-slate-500 shrink-0" />
             <span className="truncate">{task.vehicle}</span>
           </div>
-          <div className="flex items-center gap-2 text-xs text-slate-400 bg-white/[0.03] p-1.5 rounded-lg border border-white/5">
+          <div className="flex items-center gap-2 text-xs text-slate-700 bg-white/[0.03] p-1.5 rounded-lg border border-white/5">
             <User className="h-3.5 w-3.5 text-slate-500 shrink-0" />
             <span className="truncate">{task.driver}</span>
           </div>
@@ -251,7 +251,7 @@ function TaskCard({ task }: { task: any }) {
 
         {/* Hover Actions (Desktop) */}
         <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-          <Button size="icon" variant="ghost" className="h-7 w-7 rounded-full hover:bg-white/10 text-slate-400 hover:text-white" aria-label="Task actions">
+          <Button size="icon" variant="ghost" className="h-7 w-7 rounded-full hover:bg-white/10 text-slate-700 hover:text-white" aria-label="Task actions">
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </div>

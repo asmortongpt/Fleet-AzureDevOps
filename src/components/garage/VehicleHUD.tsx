@@ -105,8 +105,8 @@ function StatCard({
       )}
     >
       <div className="flex items-center gap-2">
-        <Icon className={cn('w-4 h-4', warning ? 'text-red-400' : 'text-blue-400')} />
-        <span className="text-xs text-slate-400 uppercase tracking-wider">{label}</span>
+        <Icon className={cn('w-4 h-4', warning ? 'text-red-400' : 'text-blue-700')} />
+        <span className="text-xs text-slate-700 uppercase tracking-wider">{label}</span>
       </div>
       <div className="flex items-baseline gap-1">
         <span className={cn(
@@ -182,12 +182,12 @@ function CircularGauge({
         </svg>
         {/* Center content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <Icon className={cn('w-4 h-4 mb-0.5', warning ? 'text-red-400' : 'text-blue-400')} />
+          <Icon className={cn('w-4 h-4 mb-0.5', warning ? 'text-red-400' : 'text-blue-700')} />
           <span className="text-sm font-bold text-white tabular-nums">{value}</span>
-          <span className="text-[10px] text-slate-500">{unit}</span>
+          <span className="text-[10px] text-gray-800">{unit}</span>
         </div>
       </div>
-      <span className="text-xs text-slate-400 mt-1">{label}</span>
+      <span className="text-xs text-slate-700 mt-1">{label}</span>
     </div>
   )
 }
@@ -246,7 +246,7 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
             </Badge>
           )}
           {stats.vin && (
-            <Badge variant="outline" className="text-xs font-mono text-slate-400">
+            <Badge variant="outline" className="text-xs font-mono text-slate-700">
               VIN: ...{stats.vin.slice(-6)}
             </Badge>
           )}
@@ -316,7 +316,7 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
 
       {/* Health Stats */}
       <div className="space-y-2">
-        <h4 className="text-xs font-medium text-slate-400 uppercase tracking-wider">Health Status</h4>
+        <h4 className="text-xs font-medium text-slate-700 uppercase tracking-wider">Health Status</h4>
         <div className="grid grid-cols-2 gap-2">
           <StatCard
             icon={Drop}

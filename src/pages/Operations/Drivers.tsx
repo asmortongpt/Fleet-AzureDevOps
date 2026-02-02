@@ -134,13 +134,13 @@ export function DriversOperations() {
           <div className="flex items-start gap-3 flex-1 min-w-0">
             {/* Avatar */}
             <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-400/20 to-teal-500/20 flex items-center justify-center border border-emerald-400/30 flex-shrink-0">
-              <User className="w-6 h-6 text-emerald-400" weight="bold" />
+              <User className="w-6 h-6 text-emerald-700" weight="bold" />
             </div>
 
             {/* Driver Info */}
             <div className="min-w-0 flex-1">
               <h3 className="text-sm font-bold text-white mb-1 truncate">{fullName}</h3>
-              <p className="text-xs text-slate-400 line-clamp-2">
+              <p className="text-xs text-slate-700 line-clamp-2">
                 {driver.licenseNumber} • Safety: {driver.safetyScore || 0}
               </p>
             </div>
@@ -234,27 +234,27 @@ export function DriversOperations() {
             <div className="space-y-3 text-sm">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-slate-400">Email:</span>
+                  <span className="text-slate-700">Email:</span>
                   <p className="text-white font-medium">{selectedDriver.email}</p>
                 </div>
                 <div>
-                  <span className="text-slate-400">Phone:</span>
+                  <span className="text-slate-700">Phone:</span>
                   <p className="text-white font-medium">{selectedDriver.phone || '-'}</p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-slate-400">License:</span>
+                  <span className="text-slate-700">License:</span>
                   <p className="text-white font-mono text-xs">{selectedDriver.licenseNumber}</p>
                 </div>
                 <div>
-                  <span className="text-slate-400">Status:</span>
+                  <span className="text-slate-700">Status:</span>
                   <p className="text-white font-semibold capitalize">{selectedDriver.status}</p>
                 </div>
               </div>
               {selectedDriver.hireDate && (
                 <div>
-                  <span className="text-slate-400">Hire Date:</span>
+                  <span className="text-slate-700">Hire Date:</span>
                   <p className="text-white font-medium">
                     {new Date(selectedDriver.hireDate).toLocaleDateString()}
                   </p>
@@ -286,25 +286,25 @@ export function DriversOperations() {
         {/* Performance Metrics */}
         <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-emerald-400/30 p-4">
           <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-emerald-400" weight="bold" />
+            <Trophy className="w-4 h-4 text-emerald-700" weight="bold" />
             Performance Metrics
           </h4>
           <div className="grid grid-cols-3 gap-3 text-sm">
             <div>
-              <p className="text-slate-400 text-xs mb-1">Safety Score</p>
-              <p className="text-emerald-400 font-bold text-lg">
+              <p className="text-slate-700 text-xs mb-1">Safety Score</p>
+              <p className="text-emerald-700 font-bold text-lg">
                 {selectedDriver.safetyScore || 0}
               </p>
             </div>
             <div>
-              <p className="text-slate-400 text-xs mb-1">Total Trips</p>
+              <p className="text-slate-700 text-xs mb-1">Total Trips</p>
               <p className="text-cyan-400 font-bold text-lg">
                 {selectedDriver.totalTrips || 0}
               </p>
             </div>
             <div>
-              <p className="text-slate-400 text-xs mb-1">Total Miles</p>
-              <p className="text-blue-400 font-bold text-lg">
+              <p className="text-slate-700 text-xs mb-1">Total Miles</p>
+              <p className="text-blue-700 font-bold text-lg">
                 {(selectedDriver.totalMiles || 0).toLocaleString()}
               </p>
             </div>
@@ -332,7 +332,7 @@ export function DriversOperations() {
       {/* Search bar */}
       <div className="p-4 border-b border-slate-700/50">
         <div className="relative">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" weight="bold" />
+          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-700" weight="bold" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -349,14 +349,14 @@ export function DriversOperations() {
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
               <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-              <p className="text-sm text-slate-400">Loading drivers...</p>
+              <p className="text-sm text-slate-700">Loading drivers...</p>
             </div>
           </div>
         ) : error ? (
           <div className="flex items-center justify-center h-full p-4">
             <div className="text-center">
               <Warning className="w-8 h-8 text-red-400 mx-auto mb-3" weight="bold" />
-              <p className="text-sm text-slate-400">Failed to load drivers</p>
+              <p className="text-sm text-slate-700">Failed to load drivers</p>
               <p className="text-xs text-slate-500 mt-1">Please try refreshing the page</p>
             </div>
           </div>
@@ -364,7 +364,7 @@ export function DriversOperations() {
           <div className="flex items-center justify-center h-full p-4">
             <div className="text-center">
               <User className="w-8 h-8 text-slate-500 mx-auto mb-3" weight="bold" />
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-slate-700">
                 {searchQuery ? 'No drivers found' : 'No drivers yet'}
               </p>
             </div>

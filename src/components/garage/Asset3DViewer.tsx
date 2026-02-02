@@ -267,7 +267,7 @@ function DamageMarker({ point, isSelected, onClick }: DamageMarkerProps) {
             <div className="font-semibold">{point.zone}</div>
             <div className="text-slate-300 capitalize">{point.severity} damage</div>
             {point.description && (
-              <div className="text-slate-400 mt-1">{point.description}</div>
+              <div className="text-slate-700 mt-1">{point.description}</div>
             )}
           </div>
         </Html>
@@ -641,7 +641,7 @@ export function Asset3DViewer({
           <div className="text-center text-white p-3">
             <div className="text-red-400 text-sm mb-3">⚠️</div>
             <p className="text-sm font-semibold mb-2">Failed to load 3D model</p>
-            <p className="text-sm text-slate-400">{loadError.message}</p>
+            <p className="text-sm text-slate-700">{loadError.message}</p>
           </div>
         </div>
       )}
@@ -674,7 +674,7 @@ export function Asset3DViewer({
           <span className={deviceCapabilities.webgl2 ? 'text-green-400' : 'text-yellow-400'}>●</span>
           <span>WebGL {deviceCapabilities.webgl2 ? '2.0' : '1.0'}</span>
           {deviceCapabilities.maxTextureSize && (
-            <span className="text-slate-400">| {deviceCapabilities.maxTextureSize}px max</span>
+            <span className="text-slate-700">| {deviceCapabilities.maxTextureSize}px max</span>
           )}
         </div>
       )}

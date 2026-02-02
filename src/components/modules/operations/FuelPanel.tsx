@@ -50,7 +50,7 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                 <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
                     <div className="flex items-center justify-between">
                         <SheetTitle className="text-base font-semibold flex items-center gap-2 text-white">
-                            <Fuel className="w-4 h-4 text-emerald-400" />
+                            <Fuel className="w-4 h-4 text-emerald-700" />
                             Fuel Intelligence
                         </SheetTitle>
                     </div>

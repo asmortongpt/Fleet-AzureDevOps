@@ -1,4 +1,6 @@
 import { test, expect, Page } from '@playwright/test';
+import fs from 'fs';
+import path from 'path';
 
 /**
  * FOCUSED HUB BUTTONS TEST
@@ -13,7 +15,7 @@ import { test, expect, Page } from '@playwright/test';
  * - Data loads from API (not hardcoded)
  */
 
-const BASE_URL = 'http://localhost:5174';
+const BASE_URL = 'http://localhost:5173';
 
 interface IssueFound {
   hub: string;
@@ -35,7 +37,21 @@ test.describe('Hub Content Buttons - Focused Interactive Test', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(BASE_URL);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(1000);
+
+    // Check if we're on the login page and authenticate
+    const loginVisible = await page.locator('text=Welcome Back').isVisible().catch(() => false);
+    if (loginVisible) {
+      // Fill in login form
+      await page.fill('input[type="email"], input[name="email"]', 'admin@fleet.local');
+      await page.fill('input[type="password"], input[name="password"]', 'admin123');
+      await page.click('button[type="submit"]');
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(2000); // Wait for auth to complete
+    }
+
+    // Close any open modals/dialogs/dropdowns by pressing Escape
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
   });
 
   test('1. FleetOperationsHub - 5 tabs, action buttons, data loading', async ({ page }) => {
@@ -48,6 +64,8 @@ test.describe('Hub Content Buttons - Focused Interactive Test', () => {
 
     // Test: Fleet Tab
     console.log('   Testing Fleet tab...');
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
     const fleetTab = page.getByRole('tab', { name: /^Fleet$/i });
     await fleetTab.click();
     await page.waitForTimeout(1000);
@@ -69,6 +87,8 @@ test.describe('Hub Content Buttons - Focused Interactive Test', () => {
 
     // Test: Drivers Tab
     console.log('   Testing Drivers tab...');
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
     const driversTab = page.getByRole('tab', { name: /Drivers/i });
     await driversTab.click();
     await page.waitForTimeout(1000);
@@ -83,6 +103,8 @@ test.describe('Hub Content Buttons - Focused Interactive Test', () => {
 
     // Test: Operations Tab
     console.log('   Testing Operations tab...');
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
     const opsTab = page.getByRole('tab', { name: /Operations/i });
     await opsTab.click();
     await page.waitForTimeout(1000);
@@ -97,6 +119,8 @@ test.describe('Hub Content Buttons - Focused Interactive Test', () => {
 
     // Test: Maintenance Tab
     console.log('   Testing Maintenance tab...');
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
     const maintTab = page.getByRole('tab', { name: /Maintenance/i });
     await maintTab.click();
     await page.waitForTimeout(1000);
@@ -108,6 +132,8 @@ test.describe('Hub Content Buttons - Focused Interactive Test', () => {
 
     // Test: Assets Tab
     console.log('   Testing Assets tab...');
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
     const assetsTab = page.getByRole('tab', { name: /Assets/i });
     await assetsTab.click();
     await page.waitForTimeout(1000);
@@ -127,6 +153,8 @@ test.describe('Hub Content Buttons - Focused Interactive Test', () => {
 
     // Test: Compliance Tab
     console.log('   Testing Compliance tab...');
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
     const complianceTab = page.getByRole('tab', { name: /Compliance/i });
     await complianceTab.click();
     await page.waitForTimeout(1000);
@@ -148,6 +176,8 @@ test.describe('Hub Content Buttons - Focused Interactive Test', () => {
 
     // Test: Safety Tab
     console.log('   Testing Safety tab...');
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
     const safetyTab = page.getByRole('tab', { name: /^Safety$/i });
     await safetyTab.click();
     await page.waitForTimeout(1000);
@@ -159,6 +189,8 @@ test.describe('Hub Content Buttons - Focused Interactive Test', () => {
 
     // Test: Policies Tab
     console.log('   Testing Policies tab...');
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
     const policiesTab = page.getByRole('tab', { name: /Policies/i });
     await policiesTab.click();
     await page.waitForTimeout(1000);
@@ -179,6 +211,8 @@ test.describe('Hub Content Buttons - Focused Interactive Test', () => {
 
     // Test: Reporting Tab
     console.log('   Testing Reporting tab...');
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
     const reportsTab = page.getByRole('tab', { name: /Reports/i });
     await reportsTab.click();
     await page.waitForTimeout(1000);
@@ -205,11 +239,21 @@ test.describe('Hub Content Buttons - Focused Interactive Test', () => {
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1500);
 
-    const tabs = ['Financial', 'Procurement', 'Analytics', 'Reports'];
+    const tabs = [
+      { name: 'Financial', testid: 'hub-tab-financial' },
+      { name: 'Procurement', testid: 'hub-tab-procurement' },
+      { name: 'Analytics', testid: 'hub-tab-analytics' },
+      { name: 'Reports', testid: 'hub-tab-reports' }
+    ];
 
-    for (const tabName of tabs) {
+    for (const { name: tabName, testid } of tabs) {
       console.log(`   Testing ${tabName} tab...`);
-      const tab = page.getByRole('tab', { name: new RegExp(tabName, 'i') });
+
+      // Close any open dropdowns/modals before clicking tab
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
+
+      const tab = page.locator(`[data-testid="${testid}"]`);
       await tab.click();
       await page.waitForTimeout(1000);
 
@@ -251,6 +295,8 @@ test.describe('Hub Content Buttons - Focused Interactive Test', () => {
 
     for (const tabName of tabs) {
       console.log(`   Testing ${tabName} tab...`);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
       const tab = page.getByRole('tab', { name: new RegExp(tabName, 'i') });
       await tab.click();
       await page.waitForTimeout(1000);
@@ -287,11 +333,22 @@ test.describe('Hub Content Buttons - Focused Interactive Test', () => {
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1500);
 
-    const tabs = ['Admin', 'Configuration', 'Data', 'Integrations', 'Documents'];
+    const tabs = [
+      { name: 'Admin', testid: 'hub-tab-admin' },
+      { name: 'Configuration', testid: 'hub-tab-config' },
+      { name: 'Data', testid: 'hub-tab-data' },
+      { name: 'Integrations', testid: 'hub-tab-integrations' },
+      { name: 'Documents', testid: 'hub-tab-documents' }
+    ];
 
-    for (const tabName of tabs) {
+    for (const { name: tabName, testid } of tabs) {
       console.log(`   Testing ${tabName} tab...`);
-      const tab = page.getByRole('tab', { name: new RegExp(tabName, 'i') });
+
+      // Close any open dropdowns/modals before clicking tab
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
+
+      const tab = page.locator(`[data-testid="${testid}"]`);
 
       try {
         await tab.click({ timeout: 5000 });
@@ -332,19 +389,19 @@ test.describe('Hub Content Buttons - Focused Interactive Test', () => {
     await fleetTab.click();
     await page.waitForTimeout(1500);
 
-    // Look for map container
-    const mapContainer = page.locator('[class*="map"], [id*="map"], canvas').first();
+    // Look for map container - check for ProfessionalFleetMap component
+    const mapContainer = page.locator('[data-testid="professional-fleet-map"]').first();
     const mapExists = await mapContainer.isVisible().catch(() => false);
 
     if (mapExists) {
-      console.log('   ✅ Map container found on page');
+      console.log('   ✅ Professional Fleet Map container found and visible');
 
-      // Try to interact with map (check if it's actually a Google/Mapbox map)
-      const mapText = await page.locator('body').textContent();
-      if (mapText?.includes('Google') || mapText?.includes('Mapbox')) {
-        console.log('   ✅ Map provider detected');
+      // Verify map has content (vehicle markers or controls)
+      const mapHasContent = await page.locator('[data-testid="professional-fleet-map"] button, [data-testid="professional-fleet-map"] .vehicle-marker').count();
+      if (mapHasContent > 0) {
+        console.log('   ✅ Map is interactive with controls/markers');
       } else {
-        reportIssue('FleetOperationsHub', 'Fleet', 'Map container exists but map may not be loading', 'medium');
+        reportIssue('FleetOperationsHub', 'Fleet', 'Map visible but no interactive content loaded', 'low');
       }
     } else {
       reportIssue('FleetOperationsHub', 'Fleet', 'Map not visible on Fleet tab', 'high');
@@ -388,9 +445,7 @@ test.describe('Hub Content Buttons - Focused Interactive Test', () => {
     }
 
     // Save to JSON
-    const fs = require('fs');
-    const path = require('path');
-    const resultsPath = path.join(__dirname, 'hub-issues-found.json');
+    const resultsPath = path.join(process.cwd(), 'tests', 'hub-issues-found.json');
     fs.writeFileSync(resultsPath, JSON.stringify({
       totalIssues: issues.length,
       bySeverity: {

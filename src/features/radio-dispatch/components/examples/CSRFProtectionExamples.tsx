@@ -322,7 +322,7 @@ export function CSRFTokenDisplay() {
             {csrfToken}
           </code>
         ) : (
-          <p className="text-sm text-gray-400">Loading token...</p>
+          <p className="text-sm text-gray-600">Loading token...</p>
         )}
       </div>
     </div>

@@ -279,7 +279,7 @@ const ProcurementOverview = memo(() => {
         <Card className={budgetAlerts ? 'border-amber-500' : ''}>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-emerald-500" aria-hidden="true" />
+              <DollarSign className="h-5 w-5 text-emerald-600" aria-hidden="true" />
               <CardTitle>Budget Status</CardTitle>
             </div>
             <CardDescription>Monthly budget tracking and alerts</CardDescription>
@@ -902,7 +902,7 @@ const TopPerformingVendorsCard = memo<{
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-emerald-500" aria-hidden="true" />
+          <TrendingUp className="h-5 w-5 text-emerald-600" aria-hidden="true" />
           <CardTitle>Top Performing Vendors</CardTitle>
         </div>
         <CardDescription>Highest rated vendors by performance</CardDescription>

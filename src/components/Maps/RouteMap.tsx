@@ -71,7 +71,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
         <div className="text-center max-w-md p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
           <AlertCircle className="w-12 h-9 text-red-500 mx-auto mb-2" />
           <h3 className="text-base font-bold text-white mb-2">Failed to Load Routes</h3>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-700">
             {error instanceof Error ? error.message : 'An unknown error occurred'}
           </p>
         </div>
@@ -104,7 +104,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ className = '' }) => {
           <div>Active Vehicles: {activeVehicles.length}</div>
           <div>Total Routes: {showRoutes ? SAMPLE_ROUTES.length : 0}</div>
           <div className="mt-2 pt-2 border-t border-gray-200">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-700">
               Routes shown are optimized paths calculated by the dispatch system.
             </p>
           </div>

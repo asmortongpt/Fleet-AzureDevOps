@@ -1,0 +1,23 @@
+{
+  "testId": "route--cta-configuration-hub",
+  "itemType": "ui-route",
+  "runDate": "2026-02-01T18:56:29.627Z",
+  "status": "PASS",
+  "evidencePaths": {
+    "screenshots": [
+      "screenshot-before-navigation-1769972189628.png",
+      "screenshot-after-navigation-1769972191404.png"
+    ],
+    "videos": [],
+    "traces": [],
+    "logs": [
+      "console-logs.txt"
+    ],
+    "har": []
+  },
+  "metrics": {
+    "loadTime": 1724,
+    "contentLength": 244,
+    "consoleMessages": 71
+  }
+}

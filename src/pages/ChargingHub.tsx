@@ -267,7 +267,7 @@ const ChargingHub = () => {
               </CardHeader>
               <CardContent className="space-y-3 max-h-[calc(100vh-240px)] overflow-y-auto">
                 {stations.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="text-center py-8 text-gray-700">
                     <AlertCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">No charging stations configured</p>
                   </div>
@@ -327,7 +327,7 @@ const ChargingHub = () => {
               </CardHeader>
               <CardContent className="space-y-3 max-h-[calc(100vh-240px)] overflow-y-auto">
                 {activeSessions.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="text-center py-8 text-gray-700">
                     <Battery className="w-12 h-12 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">No active charging sessions</p>
                   </div>
@@ -350,7 +350,7 @@ const ChargingHub = () => {
                             <span className="text-xs text-gray-700 font-medium">
                               {session.energy_delivered_kwh.toFixed(1)} kWh
                             </span>
-                            <span className="text-xs text-gray-500">•</span>
+                            <span className="text-xs text-gray-700">•</span>
                             <span className="text-xs text-gray-700">
                               {session.duration_minutes}m
                             </span>

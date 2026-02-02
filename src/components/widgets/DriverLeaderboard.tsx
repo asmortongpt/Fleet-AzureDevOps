@@ -130,7 +130,7 @@ function RankBadge({ rank }: { rank: number }) {
         )
     }
     return (
-        <div className="w-4 h-4 rounded-full bg-slate-800 flex items-center justify-center text-sm font-bold text-slate-400">
+        <div className="w-4 h-4 rounded-full bg-slate-800 flex items-center justify-center text-sm font-bold text-slate-700">
             {rank}
         </div>
     )
@@ -140,7 +140,7 @@ function RankChange({ previous, current }: { previous: number; current: number }
     const change = previous - current
     if (change > 0) {
         return (
-            <div className="flex items-center gap-1 text-emerald-400">
+            <div className="flex items-center gap-1 text-emerald-700">
                 <TrendingUp className="w-3 h-3" />
                 <span className="text-xs font-medium">+{change}</span>
             </div>
@@ -219,10 +219,10 @@ export function DriverLeaderboard({
                                     </Avatar>
                                     <div className="min-w-0">
                                         <p className="font-medium text-white truncate">{driver.name}</p>
-                                        <div className="flex items-center gap-2 text-xs text-slate-400">
+                                        <div className="flex items-center gap-2 text-xs text-slate-700">
                                             <span>{driver.tripsCompleted} trips</span>
                                             {driver.streak && driver.streak > 0 && (
-                                                <Badge variant="secondary" className="h-4 px-1.5 text-[10px] bg-emerald-500/20 text-emerald-400">
+                                                <Badge variant="secondary" className="h-4 px-1.5 text-[10px] bg-emerald-500/20 text-emerald-700">
                                                     🔥 {driver.streak} day streak
                                                 </Badge>
                                             )}
@@ -239,13 +239,13 @@ export function DriverLeaderboard({
                                 <div className="text-right">
                                     <p className={cn(
                                         "text-sm font-bold",
-                                        driver.score >= 95 ? "text-emerald-400" :
-                                            driver.score >= 85 ? "text-blue-400" :
+                                        driver.score >= 95 ? "text-emerald-700" :
+                                            driver.score >= 85 ? "text-blue-700" :
                                                 driver.score >= 75 ? "text-yellow-400" : "text-red-400"
                                     )}>
                                         {driver.score}
                                     </p>
-                                    <p className="text-[10px] text-slate-500 uppercase">Score</p>
+                                    <p className="text-[10px] text-gray-800 uppercase">Score</p>
                                 </div>
                             </button>
                         ))}

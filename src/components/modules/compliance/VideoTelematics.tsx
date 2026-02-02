@@ -576,7 +576,7 @@ export function VideoTelematics() {
           {selectedEvent && (
             <div className="space-y-2">
               <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
-                <div className="text-center text-gray-400">
+                <div className="text-center text-gray-700">
                   <Video className="w-16 h-16 mx-auto mb-2" />
                   <p>Video Player</p>
                   <p className="text-sm">

@@ -24,11 +24,11 @@ export function CompactVehicleList({
   const getStatusColor = (status: Vehicle["status"]) => {
     const colors = {
       active: "bg-green-100 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-900",
-      idle: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700",
-      charging: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-900",
+      idle: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700",
+      charging: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-700 dark:border-blue-900",
       service: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-900",
       emergency: "bg-red-100 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-900",
-      offline: "bg-gray-100 text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-500 dark:border-gray-700"
+      offline: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700"
     }
     return colors[status]
   }
@@ -128,7 +128,7 @@ export function CompactVehicleList({
                       {vehicle.number}
                     </div>
                     {wasRecentlyUpdated && (
-                      <span className="inline-flex px-1.5 py-0.5 text-[8px] font-semibold text-blue-700 bg-blue-100 dark:bg-blue-950 dark:text-blue-400 rounded border border-blue-200 dark:border-blue-900">
+                      <span className="inline-flex px-1.5 py-0.5 text-[8px] font-semibold text-blue-700 bg-blue-100 dark:bg-blue-950 dark:text-blue-700 rounded border border-blue-200 dark:border-blue-900">
                         LIVE
                       </span>
                     )}
@@ -187,11 +187,11 @@ export function CompactVehicleListMini({
   const getStatusColor = (status: Vehicle["status"]) => {
     const colors = {
       active: "text-green-600 dark:text-green-400",
-      idle: "text-gray-500 dark:text-gray-400",
-      charging: "text-blue-800 dark:text-blue-400",
+      idle: "text-gray-700 dark:text-gray-700",
+      charging: "text-blue-800 dark:text-blue-700",
       service: "text-amber-600 dark:text-amber-400",
       emergency: "text-red-600 dark:text-red-400",
-      offline: "text-gray-400 dark:text-gray-500"
+      offline: "text-gray-700 dark:text-gray-700"
     }
     return colors[status]
   }

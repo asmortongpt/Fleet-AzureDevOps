@@ -48,6 +48,7 @@ import { ThemeProvider } from "./components/providers/ThemeProvider"
 import { AuthProvider } from "./contexts/AuthContext"
 import { DrilldownProvider } from "./contexts/DrilldownContext"
 import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
+import { PolicyProvider } from "./contexts/PolicyContext"
 import { TenantProvider } from "./contexts/TenantContext"
 import { initSentry } from "./lib/sentry"
 import { Login } from "./pages/Login"
@@ -77,6 +78,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
 import { InspectProvider } from "./services/inspect/InspectContext"
 import { NavigationProvider } from "./contexts/NavigationContext"
+import { PanelProvider } from "./contexts/PanelContext"
 import { BrandingProvider } from "./shared/branding/BrandingProvider"
 
 // Professional theme with high contrast colors - fixes green-on-green readability
@@ -240,10 +242,12 @@ validateStartupConfiguration().then(() => {
               <BrandingProvider>
                 <AuthProvider>
                   <TenantProvider>
-                    <FeatureFlagProvider>
-                      <DrilldownProvider>
-                        <InspectProvider>
-                          <BrowserRouter>
+                    <PolicyProvider>
+                      <FeatureFlagProvider>
+                        <DrilldownProvider>
+                          <InspectProvider>
+                            <PanelProvider>
+                            <BrowserRouter>
                             {/* <GlobalCommandPalette /> */}
                             <SentryRoutes>
                               {/* Public Login Route */}
@@ -267,12 +271,14 @@ validateStartupConfiguration().then(() => {
                               />
                             </SentryRoutes>
                           </BrowserRouter>
+                          </PanelProvider>
                         </InspectProvider>
                       </DrilldownProvider>
                     </FeatureFlagProvider>
-                  </TenantProvider>
-                </AuthProvider>
-              </BrandingProvider>
+                  </PolicyProvider>
+                </TenantProvider>
+              </AuthProvider>
+            </BrandingProvider>
             </SentryErrorBoundary>
           </ThemeProvider>
         </MsalProvider>

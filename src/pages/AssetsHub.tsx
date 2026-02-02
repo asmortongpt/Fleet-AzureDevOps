@@ -47,14 +47,14 @@ function AssetsContent() {
                     className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'utilization', label: 'Asset Utilization', data: { activeCount: 234, totalCount: 256, rate: 91 } })}
                 >
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Utilization</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Utilization</h3>
                     <ProgressRing progress={91} color="green" label="Active" sublabel="234 of 256" />
                 </div>
                 <div
                     className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-md border border-slate-700/50 p-3 cursor-pointer hover:border-slate-600/50 transition-colors"
                     onClick={() => push({ type: 'asset-value', label: 'Asset Value Analysis', data: { totalValue: 4200000, depreciation: 320000, avgAge: 3.4 } })}
                 >
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-2">Value</h3>
+                    <h3 className="text-sm font-medium text-slate-700 uppercase tracking-wide mb-2">Value</h3>
                     <QuickStat
                         label="Total Value"
                         value="$4.2M"

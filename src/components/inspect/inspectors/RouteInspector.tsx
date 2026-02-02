@@ -125,7 +125,7 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
 
   if (!route) {
     return (
-      <div className="p-3 text-gray-500">
+      <div className="p-3 text-gray-700">
         No route data available
       </div>
     );
@@ -140,7 +140,7 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
             <h2 className="text-sm font-bold text-gray-900 dark:text-white">
               {route.name}
             </h2>
-            <p className="text-sm text-slate-700 dark:text-gray-400">
+            <p className="text-sm text-slate-700 dark:text-gray-700">
               {route.description}
             </p>
           </div>
@@ -216,7 +216,7 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
             <Card className="p-2 md:col-span-2">
               <h3 className="text-sm font-semibold mb-2">Route Map</h3>
               <div className="bg-gray-100 dark:bg-gray-800 rounded-lg h-96 flex items-center justify-center">
-                <p className="text-gray-500">Map visualization would appear here</p>
+                <p className="text-gray-700">Map visualization would appear here</p>
               </div>
             </Card>
           </div>
@@ -249,10 +249,10 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
                       </Badge>
                     </div>
                     <p className="text-sm text-slate-700 mb-1">{stop.location.address}</p>
-                    <p className="text-xs text-gray-500 font-mono">
+                    <p className="text-xs text-gray-700 font-mono">
                       {stop.location.latitude.toFixed(6)}, {stop.location.longitude.toFixed(6)}
                     </p>
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-gray-700 mt-2">
                       Est. Arrival: {new Date(stop.estimatedArrival).toLocaleTimeString()}
                     </p>
                   </div>
@@ -284,17 +284,17 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
                   <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                     <p className="text-sm text-slate-700">Distance Savings</p>
                     <p className="text-base font-bold text-blue-800">12.3 mi</p>
-                    <p className="text-xs text-gray-500">vs. unoptimized</p>
+                    <p className="text-xs text-gray-700">vs. unoptimized</p>
                   </div>
                   <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                     <p className="text-sm text-slate-700">Time Savings</p>
                     <p className="text-base font-bold text-green-600">45 min</p>
-                    <p className="text-xs text-gray-500">vs. unoptimized</p>
+                    <p className="text-xs text-gray-700">vs. unoptimized</p>
                   </div>
                   <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                     <p className="text-sm text-slate-700">Fuel Savings</p>
                     <p className="text-base font-bold text-purple-600">$18.50</p>
-                    <p className="text-xs text-gray-500">estimated</p>
+                    <p className="text-xs text-gray-700">estimated</p>
                   </div>
                 </div>
               </div>

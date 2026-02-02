@@ -135,9 +135,9 @@ export function HubPage({
                 transition={{ duration: 0.3 }}
                 className={cn(
                     "flex items-center justify-between px-3 py-2 border-b",
-                    "bg-gradient-to-r from-[#2B3A67]/90 via-[#00D4FF]/80 to-[#2B3A67]/90",
-                    "backdrop-blur-lg border-[#00D4FF]/30",
-                    "shadow-lg shadow-[#00D4FF]/20"
+                    "bg-gradient-to-r from-[#2F3359]/90 via-[#41B2E3]/80 to-[#2F3359]/90",
+                    "backdrop-blur-lg border-[#41B2E3]/30",
+                    "shadow-lg shadow-[#41B2E3]/20"
                 )}
                 data-testid="hub-header"
                 style={{
@@ -153,8 +153,8 @@ export function HubPage({
                             transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
                             className={cn(
                                 "flex items-center justify-center w-10 h-8 rounded-lg",
-                                "bg-[#00D4FF]/25 backdrop-blur-sm border border-[#FDB813]/40",
-                                "text-[#FDB813] shadow-md shadow-[#00D4FF]/20"
+                                "bg-[#41B2E3]/25 backdrop-blur-sm border border-[#F0A000]/40",
+                                "text-[#F0A000] shadow-md shadow-[#41B2E3]/20"
                             )}
                         >
                             {React.isValidElement(icon) ? icon : React.createElement(icon as React.ComponentType<{ className: string }>, { className: 'h-5 w-5' })}
@@ -202,9 +202,9 @@ export function HubPage({
                         <TabsList
                             className={cn(
                                 "w-full justify-start rounded-none border-b px-3 h-9",
-                                "bg-gradient-to-b from-[#2B3A67]/70 to-[#1A0B2E]/60",
-                                "backdrop-blur-sm border-[#00D4FF]/30",
-                                "shadow-md shadow-[#00D4FF]/10"
+                                "bg-gradient-to-b from-[#2F3359]/70 to-[#1A0B2E]/60",
+                                "backdrop-blur-sm border-[#41B2E3]/30",
+                                "shadow-md shadow-[#41B2E3]/10"
                             )}
                             data-testid="hub-tabs"
                         >
@@ -221,9 +221,9 @@ export function HubPage({
                                         aria-label={tab.ariaLabel || tab.label}
                                         className={cn(
                                             "gap-2 rounded-none px-2",
-                                            "data-[state=active]:bg-gradient-to-b data-[state=active]:from-[#00D4FF]/15 data-[state=active]:to-transparent",
-                                            "data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#FDB813]",
-                                            "hover:bg-[#00D4FF]/10 hover:text-[#FDB813]",
+                                            "data-[state=active]:bg-gradient-to-b data-[state=active]:from-[#41B2E3]/15 data-[state=active]:to-transparent",
+                                            "data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#F0A000]",
+                                            "hover:bg-[#41B2E3]/10 hover:text-[#F0A000]",
                                             "transition-all duration-200"
                                         )}
                                         data-testid={`hub-tab-${tab.id}`}

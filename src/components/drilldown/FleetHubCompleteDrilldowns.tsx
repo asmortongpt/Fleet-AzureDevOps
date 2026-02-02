@@ -256,7 +256,7 @@ export function VehicleDetailsDrilldown() {
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-base font-bold text-white">{vehicle.name}</h2>
-          <p className="text-slate-400 mt-1">{vehicle.number} • VIN: {vehicle.vin}</p>
+          <p className="text-slate-700 mt-1">{vehicle.number} • VIN: {vehicle.vin}</p>
           <div className="flex gap-2 mt-3">
             <Badge variant={vehicle.status === 'active' ? 'default' : 'secondary'} className="bg-emerald-500">
               {vehicle.status.toUpperCase()}
@@ -264,7 +264,7 @@ export function VehicleDetailsDrilldown() {
             <Badge variant="outline">{vehicle.licensePlate}</Badge>
           </div>
         </div>
-        <Truck className="w-16 h-16 text-blue-400" />
+        <Truck className="w-16 h-16 text-blue-700" />
       </div>
 
       {/* Key Metrics */}
@@ -272,9 +272,9 @@ export function VehicleDetailsDrilldown() {
         <Card className="bg-slate-800/50 border-slate-700">
           <CardContent className="pt-3">
             <div className="flex items-center gap-3">
-              <Gauge className="w-4 h-4 text-blue-400" />
+              <Gauge className="w-4 h-4 text-blue-700" />
               <div>
-                <p className="text-sm text-slate-400">Mileage</p>
+                <p className="text-sm text-slate-700">Mileage</p>
                 <p className="text-sm font-bold text-white">{vehicle.mileage.toLocaleString()}</p>
               </div>
             </div>
@@ -284,9 +284,9 @@ export function VehicleDetailsDrilldown() {
         <Card className="bg-slate-800/50 border-slate-700">
           <CardContent className="pt-3">
             <div className="flex items-center gap-3">
-              <Fuel className="w-4 h-4 text-emerald-400" />
+              <Fuel className="w-4 h-4 text-emerald-700" />
               <div>
-                <p className="text-sm text-slate-400">Fuel Level</p>
+                <p className="text-sm text-slate-700">Fuel Level</p>
                 <p className="text-sm font-bold text-white">{vehicle.fuelLevel}%</p>
               </div>
             </div>
@@ -298,7 +298,7 @@ export function VehicleDetailsDrilldown() {
             <div className="flex items-center gap-3">
               <MapPin className="w-4 h-4 text-purple-400" />
               <div>
-                <p className="text-sm text-slate-400">Location</p>
+                <p className="text-sm text-slate-700">Location</p>
                 <p className="text-sm font-medium text-white">{vehicle.location.address.split(',')[1]}</p>
               </div>
             </div>
@@ -310,7 +310,7 @@ export function VehicleDetailsDrilldown() {
             <div className="flex items-center gap-3">
               <CheckCircle className="w-4 h-4 text-green-400" />
               <div>
-                <p className="text-sm text-slate-400">Health</p>
+                <p className="text-sm text-slate-700">Health</p>
                 <p className="text-sm font-bold text-white">94%</p>
               </div>
             </div>
@@ -339,19 +339,19 @@ export function VehicleDetailsDrilldown() {
             <CardContent>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <p className="text-sm text-slate-400">Make/Model/Year</p>
+                  <p className="text-sm text-slate-700">Make/Model/Year</p>
                   <p className="text-sm font-semibold text-white">{vehicle.make} {vehicle.model} {vehicle.year}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-400">VIN</p>
+                  <p className="text-sm text-slate-700">VIN</p>
                   <p className="text-sm font-mono text-white">{vehicle.vin}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-400">License Plate</p>
+                  <p className="text-sm text-slate-700">License Plate</p>
                   <p className="text-sm font-semibold text-white">{vehicle.licensePlate}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-400">Current Location</p>
+                  <p className="text-sm text-slate-700">Current Location</p>
                   <p className="text-sm text-white">{vehicle.location.address}</p>
                 </div>
               </div>
@@ -371,7 +371,7 @@ export function VehicleDetailsDrilldown() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold text-white">{vehicle.assignedDriver.name}</p>
-                    <p className="text-sm text-slate-400">{vehicle.assignedDriver.employeeId} • {vehicle.assignedDriver.department}</p>
+                    <p className="text-sm text-slate-700">{vehicle.assignedDriver.employeeId} • {vehicle.assignedDriver.department}</p>
                   </div>
                   <div className="flex gap-3">
                     <a href={`tel:${vehicle.assignedDriver.phone}`}
@@ -388,15 +388,15 @@ export function VehicleDetailsDrilldown() {
                 </div>
                 <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-700">
                   <div>
-                    <p className="text-sm text-slate-400">License Number</p>
+                    <p className="text-sm text-slate-700">License Number</p>
                     <p className="text-white font-medium">{vehicle.assignedDriver.licenseNumber}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-400">License Expiry</p>
+                    <p className="text-sm text-slate-700">License Expiry</p>
                     <p className="text-white font-medium">{new Date(vehicle.assignedDriver.licenseExpiry).toLocaleDateString()}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-400">Certifications</p>
+                    <p className="text-sm text-slate-700">Certifications</p>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {vehicle.assignedDriver.certifications.map((cert: string, idx: number) => (
                         <Badge key={idx} variant="outline" className="text-xs">{cert}</Badge>
@@ -423,7 +423,7 @@ export function VehicleDetailsDrilldown() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-white">{vehicle.fleetManager.name}</p>
-                  <p className="text-sm text-slate-400">{vehicle.fleetManager.role} • {vehicle.fleetManager.department}</p>
+                  <p className="text-sm text-slate-700">{vehicle.fleetManager.role} • {vehicle.fleetManager.department}</p>
                 </div>
                 <div className="flex gap-3">
                   <a href={`tel:${vehicle.fleetManager.phone}`}
@@ -453,7 +453,7 @@ export function VehicleDetailsDrilldown() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-white">{vehicle.maintenanceSupervisor.name}</p>
-                  <p className="text-sm text-slate-400">{vehicle.maintenanceSupervisor.role} • {vehicle.maintenanceSupervisor.department}</p>
+                  <p className="text-sm text-slate-700">{vehicle.maintenanceSupervisor.role} • {vehicle.maintenanceSupervisor.department}</p>
                 </div>
                 <div className="flex gap-3">
                   <a href={`tel:${vehicle.maintenanceSupervisor.phone}`}
@@ -475,7 +475,7 @@ export function VehicleDetailsDrilldown() {
           <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                <User className="w-3 h-3 text-blue-400" />
+                <User className="w-3 h-3 text-blue-700" />
                 Assigned Driver
               </CardTitle>
             </CardHeader>
@@ -483,7 +483,7 @@ export function VehicleDetailsDrilldown() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-white">{vehicle.assignedDriver.name}</p>
-                  <p className="text-sm text-slate-400">{vehicle.assignedDriver.employeeId} • {vehicle.assignedDriver.department}</p>
+                  <p className="text-sm text-slate-700">{vehicle.assignedDriver.employeeId} • {vehicle.assignedDriver.department}</p>
                 </div>
                 <div className="flex gap-3">
                   <a href={`tel:${vehicle.assignedDriver.phone}`}
@@ -518,7 +518,7 @@ export function VehicleDetailsDrilldown() {
                   <div key={idx} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
                     <div>
                       <p className="font-semibold text-white">{service.service}</p>
-                      <p className="text-sm text-slate-400">Last: {new Date(service.lastPerformed).toLocaleDateString()}</p>
+                      <p className="text-sm text-slate-700">Last: {new Date(service.lastPerformed).toLocaleDateString()}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-medium text-white">Due: {new Date(service.nextDue).toLocaleDateString()}</p>
@@ -545,7 +545,7 @@ export function VehicleDetailsDrilldown() {
                     <div className="flex items-start justify-between">
                       <div>
                         <p className="font-semibold text-white">{record.type}</p>
-                        <p className="text-sm text-slate-400">{record.description}</p>
+                        <p className="text-sm text-slate-700">{record.description}</p>
                         <p className="text-xs text-slate-500 mt-1">
                           {new Date(record.date).toLocaleDateString()} • {record.mileage.toLocaleString()} mi
                         </p>
@@ -556,17 +556,17 @@ export function VehicleDetailsDrilldown() {
                     </div>
                     <div className="flex items-center justify-between pt-3 border-t border-slate-700">
                       <div>
-                        <p className="text-sm text-slate-400">Technician</p>
+                        <p className="text-sm text-slate-700">Technician</p>
                         <p className="text-sm font-medium text-white">{record.technician.name}</p>
                       </div>
                       <div className="flex gap-2">
                         <a href={`tel:${record.technician.phone}`}
-                          className="flex items-center gap-1 px-3 py-1 bg-blue-500/20 hover:bg-blue-500/30 rounded text-blue-400 text-sm transition-colors">
+                          className="flex items-center gap-1 px-3 py-1 bg-blue-500/20 hover:bg-blue-500/30 rounded text-blue-700 text-sm transition-colors">
                           <Phone className="w-3 h-3" />
                           {record.technician.phone}
                         </a>
                         <a href={`mailto:${record.technician.email}`}
-                          className="flex items-center gap-1 px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 rounded text-emerald-400 text-sm transition-colors">
+                          className="flex items-center gap-1 px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 rounded text-emerald-700 text-sm transition-colors">
                           <Mail className="w-3 h-3" />
                           Email
                         </a>
@@ -587,13 +587,13 @@ export function VehicleDetailsDrilldown() {
                 <div className="space-y-2">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
-                      <FileText className="w-4 h-4 text-blue-400" />
+                      <FileText className="w-4 h-4 text-blue-700" />
                       <div>
                         <p className="font-semibold text-white text-sm">{doc.name}</p>
-                        <p className="text-sm text-slate-400 mt-1">Issued by: {doc.issuer}</p>
+                        <p className="text-sm text-slate-700 mt-1">Issued by: {doc.issuer}</p>
                         <div className="flex gap-2 mt-2 text-sm">
-                          <span className="text-slate-400">Issue: {new Date(doc.issueDate).toLocaleDateString()}</span>
-                          <span className="text-slate-400">Expiry: {new Date(doc.expiryDate).toLocaleDateString()}</span>
+                          <span className="text-slate-700">Issue: {new Date(doc.issueDate).toLocaleDateString()}</span>
+                          <span className="text-slate-700">Expiry: {new Date(doc.expiryDate).toLocaleDateString()}</span>
                         </div>
                       </div>
                     </div>
@@ -608,9 +608,9 @@ export function VehicleDetailsDrilldown() {
                   {doc.contactPerson && (
                     <div className="flex items-center justify-between pt-2 border-t border-slate-700">
                       <div>
-                        <p className="text-sm text-slate-400">Contact Person</p>
+                        <p className="text-sm text-slate-700">Contact Person</p>
                         <p className="text-white font-medium">{doc.contactPerson.name}</p>
-                        <p className="text-sm text-slate-400">{doc.contactPerson.role}</p>
+                        <p className="text-sm text-slate-700">{doc.contactPerson.role}</p>
                       </div>
                       <div className="flex gap-2">
                         <a href={`tel:${doc.contactPerson.phone}`}
@@ -730,9 +730,9 @@ export function UtilizationDetailsDrilldown() {
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-base font-bold text-white">Fleet Utilization Analysis</h2>
-          <p className="text-slate-400 mt-1">{utilizationData.vehicleName}</p>
+          <p className="text-slate-700 mt-1">{utilizationData.vehicleName}</p>
         </div>
-        <Activity className="w-16 h-16 text-blue-400" />
+        <Activity className="w-16 h-16 text-blue-700" />
       </div>
 
       {/* Utilization Overview */}
@@ -740,8 +740,8 @@ export function UtilizationDetailsDrilldown() {
         <Card className="bg-slate-800/50 border-slate-700">
           <CardContent className="pt-3">
             <div className="text-center">
-              <p className="text-sm text-slate-400">Current Utilization</p>
-              <p className="text-sm font-bold text-emerald-400">{utilizationData.currentUtilization}%</p>
+              <p className="text-sm text-slate-700">Current Utilization</p>
+              <p className="text-sm font-bold text-emerald-700">{utilizationData.currentUtilization}%</p>
               <p className="text-xs text-slate-500 mt-1">Target: {utilizationData.targetUtilization}%</p>
             </div>
           </CardContent>
@@ -750,7 +750,7 @@ export function UtilizationDetailsDrilldown() {
         <Card className="bg-slate-800/50 border-slate-700">
           <CardContent className="pt-3">
             <div className="text-center">
-              <p className="text-sm text-slate-400">Daily Avg Hours</p>
+              <p className="text-sm text-slate-700">Daily Avg Hours</p>
               <p className="text-sm font-bold text-white">{utilizationData.dailyAverageHours}</p>
               <p className="text-xs text-slate-500 mt-1">8 hour target</p>
             </div>
@@ -760,7 +760,7 @@ export function UtilizationDetailsDrilldown() {
         <Card className="bg-slate-800/50 border-slate-700">
           <CardContent className="pt-3">
             <div className="text-center">
-              <p className="text-sm text-slate-400">Weekly Avg Hours</p>
+              <p className="text-sm text-slate-700">Weekly Avg Hours</p>
               <p className="text-sm font-bold text-white">{utilizationData.weeklyAverageHours}</p>
               <p className="text-xs text-slate-500 mt-1">40 hour target</p>
             </div>
@@ -770,7 +770,7 @@ export function UtilizationDetailsDrilldown() {
         <Card className="bg-slate-800/50 border-slate-700">
           <CardContent className="pt-3">
             <div className="text-center">
-              <p className="text-sm text-slate-400">Monthly Hours</p>
+              <p className="text-sm text-slate-700">Monthly Hours</p>
               <p className="text-sm font-bold text-white">{utilizationData.monthlyAverageHours}</p>
               <p className="text-xs text-slate-500 mt-1">173 hour target</p>
             </div>
@@ -791,7 +791,7 @@ export function UtilizationDetailsDrilldown() {
             <div>
               <div className="flex justify-between mb-2">
                 <span className="text-white font-medium">Active Time</span>
-                <span className="text-emerald-400 font-bold">{utilizationData.activeTime} hrs ({Math.round((utilizationData.activeTime / totalTime) * 100)}%)</span>
+                <span className="text-emerald-700 font-bold">{utilizationData.activeTime} hrs ({Math.round((utilizationData.activeTime / totalTime) * 100)}%)</span>
               </div>
               <Progress value={(utilizationData.activeTime / totalTime) * 100} className="h-3" />
             </div>
@@ -805,14 +805,14 @@ export function UtilizationDetailsDrilldown() {
             <div>
               <div className="flex justify-between mb-2">
                 <span className="text-white font-medium">Maintenance Time</span>
-                <span className="text-blue-400 font-bold">{utilizationData.maintenanceTime} hrs ({Math.round((utilizationData.maintenanceTime / totalTime) * 100)}%)</span>
+                <span className="text-blue-700 font-bold">{utilizationData.maintenanceTime} hrs ({Math.round((utilizationData.maintenanceTime / totalTime) * 100)}%)</span>
               </div>
               <Progress value={(utilizationData.maintenanceTime / totalTime) * 100} className="h-3 bg-blue-200" />
             </div>
             <div>
               <div className="flex justify-between mb-2">
                 <span className="text-white font-medium">Offline Time</span>
-                <span className="text-slate-400 font-bold">{utilizationData.offlineTime} hrs ({Math.round((utilizationData.offlineTime / totalTime) * 100)}%)</span>
+                <span className="text-slate-700 font-bold">{utilizationData.offlineTime} hrs ({Math.round((utilizationData.offlineTime / totalTime) * 100)}%)</span>
               </div>
               <Progress value={(utilizationData.offlineTime / totalTime) * 100} className="h-3 bg-slate-600" />
             </div>
@@ -835,7 +835,7 @@ export function UtilizationDetailsDrilldown() {
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <p className="font-semibold text-white text-sm">{assignment.driver}</p>
-                    <p className="text-sm text-slate-400">{assignment.department}</p>
+                    <p className="text-sm text-slate-700">{assignment.department}</p>
                     <p className="text-xs text-slate-500 mt-1">
                       {new Date(assignment.startDate).toLocaleDateString()} - {assignment.endDate ? new Date(assignment.endDate).toLocaleDateString() : 'Present'}
                     </p>
@@ -846,22 +846,22 @@ export function UtilizationDetailsDrilldown() {
                 </div>
                 <div className="grid grid-cols-2 gap-2 mb-3">
                   <div>
-                    <p className="text-sm text-slate-400">Hours Logged</p>
+                    <p className="text-sm text-slate-700">Hours Logged</p>
                     <p className="text-white font-bold">{assignment.hoursLogged} hrs</p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-400">Utilization</p>
+                    <p className="text-sm text-slate-700">Utilization</p>
                     <p className="text-white font-bold">{assignment.utilization}%</p>
                   </div>
                 </div>
                 <div className="flex gap-2 pt-3 border-t border-slate-700">
                   <a href={`tel:${assignment.phone}`}
-                    className="flex items-center gap-1 px-3 py-1 bg-blue-500/20 hover:bg-blue-500/30 rounded text-blue-400 text-sm transition-colors">
+                    className="flex items-center gap-1 px-3 py-1 bg-blue-500/20 hover:bg-blue-500/30 rounded text-blue-700 text-sm transition-colors">
                     <Phone className="w-3 h-3" />
                     {assignment.phone}
                   </a>
                   <a href={`mailto:${assignment.email}`}
-                    className="flex items-center gap-1 px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 rounded text-emerald-400 text-sm transition-colors">
+                    className="flex items-center gap-1 px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 rounded text-emerald-700 text-sm transition-colors">
                     <Mail className="w-3 h-3" />
                     {assignment.email}
                   </a>
@@ -890,9 +890,9 @@ export function UtilizationDetailsDrilldown() {
                       'bg-blue-500/10 border-blue-500/30'
                   }`}>
                   <div className="flex items-start gap-3">
-                    <Icon className={`w-4 h-4 ${rec.priority === 'high' ? 'text-emerald-400' :
+                    <Icon className={`w-4 h-4 ${rec.priority === 'high' ? 'text-emerald-700' :
                         rec.priority === 'medium' ? 'text-amber-400' :
-                          'text-blue-400'
+                          'text-blue-700'
                       }`} />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -902,7 +902,7 @@ export function UtilizationDetailsDrilldown() {
                         </Badge>
                       </div>
                       <p className="text-sm text-slate-300 mb-2">{rec.description}</p>
-                      <p className="text-sm text-slate-400">→ {rec.action}</p>
+                      <p className="text-sm text-slate-700">→ {rec.action}</p>
                     </div>
                   </div>
                 </div>
@@ -917,9 +917,9 @@ export function UtilizationDetailsDrilldown() {
         <CardContent className="pt-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-400">Need to discuss utilization?</p>
+              <p className="text-sm text-slate-700">Need to discuss utilization?</p>
               <p className="text-sm font-semibold text-white">{utilizationData.fleetManager.name}</p>
-              <p className="text-sm text-slate-400">{utilizationData.fleetManager.role}</p>
+              <p className="text-sm text-slate-700">{utilizationData.fleetManager.role}</p>
             </div>
             <div className="flex gap-3">
               <a href={`tel:${utilizationData.fleetManager.phone}`}
@@ -1021,9 +1021,9 @@ export function CostDetailsDrilldown() {
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-base font-bold text-white">Cost Analysis</h2>
-          <p className="text-slate-400 mt-1">{costData.vehicleName}</p>
+          <p className="text-slate-700 mt-1">{costData.vehicleName}</p>
         </div>
-        <DollarSign className="w-16 h-16 text-emerald-400" />
+        <DollarSign className="w-16 h-16 text-emerald-700" />
       </div>
 
       {/* Total Cost of Ownership */}
@@ -1068,7 +1068,7 @@ export function CostDetailsDrilldown() {
         <CardContent>
           <div className="grid grid-cols-3 gap-2 mb-3">
             <div className="text-center p-2 bg-slate-900/50 rounded-lg">
-              <p className="text-sm text-slate-400">This Month</p>
+              <p className="text-sm text-slate-700">This Month</p>
               <p className="text-sm font-bold text-white">${costData.fuelCosts.thisMonth.toLocaleString()}</p>
               <div className="flex items-center justify-center gap-1 mt-1">
                 {costData.fuelCosts.thisMonth > costData.fuelCosts.lastMonth ? (
@@ -1078,28 +1078,28 @@ export function CostDetailsDrilldown() {
                   </>
                 ) : (
                   <>
-                    <TrendingDown className="w-4 h-4 text-emerald-400" />
-                    <span className="text-xs text-emerald-400">-{((costData.fuelCosts.lastMonth - costData.fuelCosts.thisMonth) / costData.fuelCosts.lastMonth * 100).toFixed(1)}%</span>
+                    <TrendingDown className="w-4 h-4 text-emerald-700" />
+                    <span className="text-xs text-emerald-700">-{((costData.fuelCosts.lastMonth - costData.fuelCosts.thisMonth) / costData.fuelCosts.lastMonth * 100).toFixed(1)}%</span>
                   </>
                 )}
               </div>
             </div>
             <div className="text-center p-2 bg-slate-900/50 rounded-lg">
-              <p className="text-sm text-slate-400">Year to Date</p>
+              <p className="text-sm text-slate-700">Year to Date</p>
               <p className="text-sm font-bold text-white">${costData.fuelCosts.yearToDate.toLocaleString()}</p>
             </div>
             <div className="text-center p-2 bg-slate-900/50 rounded-lg">
-              <p className="text-sm text-slate-400">Cost Per Mile</p>
+              <p className="text-sm text-slate-700">Cost Per Mile</p>
               <p className="text-sm font-bold text-white">${costData.fuelCosts.avgPerMile.toFixed(2)}</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <p className="text-sm text-slate-400">Total Gallons (YTD)</p>
+              <p className="text-sm text-slate-700">Total Gallons (YTD)</p>
               <p className="text-sm font-semibold text-white">{costData.fuelCosts.totalGallons.toLocaleString()} gal</p>
             </div>
             <div>
-              <p className="text-sm text-slate-400">Average MPG</p>
+              <p className="text-sm text-slate-700">Average MPG</p>
               <p className="text-sm font-semibold text-white">{costData.fuelCosts.avgMPG} mpg</p>
             </div>
           </div>
@@ -1117,15 +1117,15 @@ export function CostDetailsDrilldown() {
         <CardContent>
           <div className="grid grid-cols-3 gap-2 mb-3">
             <div className="text-center p-2 bg-slate-900/50 rounded-lg">
-              <p className="text-sm text-slate-400">This Month</p>
+              <p className="text-sm text-slate-700">This Month</p>
               <p className="text-sm font-bold text-white">${costData.maintenanceCosts.thisMonth.toLocaleString()}</p>
             </div>
             <div className="text-center p-2 bg-slate-900/50 rounded-lg">
-              <p className="text-sm text-slate-400">Year to Date</p>
+              <p className="text-sm text-slate-700">Year to Date</p>
               <p className="text-sm font-bold text-white">${costData.maintenanceCosts.yearToDate.toLocaleString()}</p>
             </div>
             <div className="text-center p-2 bg-slate-900/50 rounded-lg">
-              <p className="text-sm text-slate-400">Cost Per Mile</p>
+              <p className="text-sm text-slate-700">Cost Per Mile</p>
               <p className="text-sm font-bold text-white">${costData.maintenanceCosts.avgPerMile.toFixed(3)}</p>
             </div>
           </div>
@@ -1133,7 +1133,7 @@ export function CostDetailsDrilldown() {
             <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
               <p className="text-sm text-blue-300">Preventive Maintenance</p>
               <p className="text-base font-bold text-white">${costData.maintenanceCosts.preventive.toLocaleString()}</p>
-              <p className="text-xs text-blue-400 mt-1">{((costData.maintenanceCosts.preventive / costData.maintenanceCosts.yearToDate) * 100).toFixed(1)}% of total</p>
+              <p className="text-xs text-blue-700 mt-1">{((costData.maintenanceCosts.preventive / costData.maintenanceCosts.yearToDate) * 100).toFixed(1)}% of total</p>
             </div>
             <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
               <p className="text-sm text-amber-300">Corrective Maintenance</p>
@@ -1166,7 +1166,7 @@ export function CostDetailsDrilldown() {
             <div className="pt-2 border-t border-slate-700">
               <div className="flex justify-between">
                 <span className="text-white font-bold text-sm">Total Cost Per Mile</span>
-                <span className="text-emerald-400 font-bold text-sm">${costData.costPerMile.total.toFixed(2)}/mi</span>
+                <span className="text-emerald-700 font-bold text-sm">${costData.costPerMile.total.toFixed(2)}/mi</span>
               </div>
             </div>
           </div>
@@ -1183,7 +1183,7 @@ export function CostDetailsDrilldown() {
             <div className="space-y-3">
               <div>
                 <p className="text-sm font-semibold text-white">{costData.financeManager.name}</p>
-                <p className="text-sm text-slate-400">{costData.financeManager.role}</p>
+                <p className="text-sm text-slate-700">{costData.financeManager.role}</p>
               </div>
               <div className="flex gap-2">
                 <a href={`tel:${costData.financeManager.phone}`}
@@ -1209,7 +1209,7 @@ export function CostDetailsDrilldown() {
             <div className="space-y-3">
               <div>
                 <p className="text-sm font-semibold text-white">{costData.fleetManager.name}</p>
-                <p className="text-sm text-slate-400">{costData.fleetManager.role}</p>
+                <p className="text-sm text-slate-700">{costData.fleetManager.role}</p>
               </div>
               <div className="flex gap-2">
                 <a href={`tel:${costData.fleetManager.phone}`}
@@ -1317,7 +1317,7 @@ export function ActiveVehiclesExcelDrilldown() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-bold text-white">Active Vehicles</h2>
-          <p className="text-slate-400 mt-1">Full fleet vehicle matrix • Click row for details</p>
+          <p className="text-slate-700 mt-1">Full fleet vehicle matrix • Click row for details</p>
         </div>
         <Badge variant="default" className="bg-emerald-500 text-sm px-2 py-2">
           245 Vehicles
@@ -1392,7 +1392,7 @@ export function MaintenanceRecordsExcelDrilldown() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-bold text-white">Maintenance Records</h2>
-          <p className="text-slate-400 mt-1">Complete service history • Filter by date, type, or status</p>
+          <p className="text-slate-700 mt-1">Complete service history • Filter by date, type, or status</p>
         </div>
         <Wrench className="w-16 h-16 text-orange-400" />
       </div>
@@ -1476,9 +1476,9 @@ export function CostAnalysisExcelDrilldown() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-bold text-white">Cost Analysis</h2>
-          <p className="text-slate-400 mt-1">Full cost breakdown • Filter by category, vendor, or date range</p>
+          <p className="text-slate-700 mt-1">Full cost breakdown • Filter by category, vendor, or date range</p>
         </div>
-        <DollarSign className="w-16 h-16 text-emerald-400" />
+        <DollarSign className="w-16 h-16 text-emerald-700" />
       </div>
 
       {/* Summary Cards */}
@@ -1486,7 +1486,7 @@ export function CostAnalysisExcelDrilldown() {
         {Object.entries(categoryTotals).map(([category, total]) => (
           <Card key={category} className="bg-slate-800/50 border-slate-700">
             <CardContent className="pt-2">
-              <p className="text-xs text-slate-400">{category}</p>
+              <p className="text-xs text-slate-700">{category}</p>
               <p className="text-base font-bold text-white">${total.toFixed(2)}</p>
               <p className="text-xs text-slate-500">{((total / totalAmount) * 100).toFixed(1)}%</p>
             </CardContent>
@@ -1554,9 +1554,9 @@ export function UtilizationDataExcelDrilldown() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-bold text-white">Utilization Data</h2>
-          <p className="text-slate-400 mt-1">Daily usage matrix • Filter by vehicle, driver, or date</p>
+          <p className="text-slate-700 mt-1">Daily usage matrix • Filter by vehicle, driver, or date</p>
         </div>
-        <Activity className="w-16 h-16 text-blue-400" />
+        <Activity className="w-16 h-16 text-blue-700" />
       </div>
 
       <ExcelStyleTable
@@ -1693,9 +1693,9 @@ export function ComplianceDetailsDrilldown() {
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-base font-bold text-white">Compliance Status</h2>
-          <p className="text-slate-400 mt-1">{complianceData.vehicleName}</p>
+          <p className="text-slate-700 mt-1">{complianceData.vehicleName}</p>
         </div>
-        <Shield className="w-16 h-16 text-emerald-400" />
+        <Shield className="w-16 h-16 text-emerald-700" />
       </div>
 
       {/* Overall Status */}
@@ -1703,7 +1703,7 @@ export function ComplianceDetailsDrilldown() {
         <CardContent className="pt-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-12 h-9 text-emerald-400" />
+              <CheckCircle className="w-12 h-9 text-emerald-700" />
               <div>
                 <p className="text-sm text-emerald-200">Overall Compliance Status</p>
                 <p className="text-base font-bold text-white">COMPLIANT</p>
@@ -1751,18 +1751,18 @@ export function ComplianceDetailsDrilldown() {
                   {/* Dates */}
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-sm text-slate-400">Last Check</p>
+                      <p className="text-sm text-slate-700">Last Check</p>
                       <p className="text-white font-medium">{new Date(item.lastCheck).toLocaleDateString()}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-slate-400">Next Due</p>
+                      <p className="text-sm text-slate-700">Next Due</p>
                       <p className="text-white font-medium">{new Date(item.nextDue).toLocaleDateString()}</p>
                     </div>
                   </div>
 
                   {/* Documents */}
                   <div>
-                    <p className="text-sm text-slate-400 mb-2">Documents</p>
+                    <p className="text-sm text-slate-700 mb-2">Documents</p>
                     <div className="flex flex-wrap gap-2">
                       {item.documents.map((doc, docIdx) => (
                         <Badge key={docIdx} variant="outline" className="flex items-center gap-1">
@@ -1778,9 +1778,9 @@ export function ComplianceDetailsDrilldown() {
                     <div className="pt-2 border-t border-slate-700">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-slate-400">Contact</p>
+                          <p className="text-sm text-slate-700">Contact</p>
                           <p className="text-white font-semibold">{item.inspector.name}</p>
-                          <p className="text-sm text-slate-400">{item.inspector.role}</p>
+                          <p className="text-sm text-slate-700">{item.inspector.role}</p>
                         </div>
                         <div className="flex gap-2">
                           <a href={`tel:${item.inspector.phone}`}
@@ -1817,7 +1817,7 @@ export function ComplianceDetailsDrilldown() {
             <div className="flex items-center justify-between p-2 bg-slate-900/50 rounded-lg">
               <div>
                 <p className="text-sm font-semibold text-white">{complianceData.complianceManager.name}</p>
-                <p className="text-sm text-slate-400">{complianceData.complianceManager.role} • {complianceData.complianceManager.department}</p>
+                <p className="text-sm text-slate-700">{complianceData.complianceManager.role} • {complianceData.complianceManager.department}</p>
               </div>
               <div className="flex gap-2">
                 <a href={`tel:${complianceData.complianceManager.phone}`}
@@ -1836,7 +1836,7 @@ export function ComplianceDetailsDrilldown() {
             <div className="flex items-center justify-between p-2 bg-slate-900/50 rounded-lg">
               <div>
                 <p className="text-sm font-semibold text-white">{complianceData.fleetManager.name}</p>
-                <p className="text-sm text-slate-400">{complianceData.fleetManager.role}</p>
+                <p className="text-sm text-slate-700">{complianceData.fleetManager.role}</p>
               </div>
               <div className="flex gap-2">
                 <a href={`tel:${complianceData.fleetManager.phone}`}

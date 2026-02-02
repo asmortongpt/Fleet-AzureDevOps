@@ -201,7 +201,7 @@ export function DriverDashboard() {
       {/* Header */}
       <div className="mb-2">
         <h1 className="text-sm font-bold text-white mb-1">My Dashboard</h1>
-        <p className="text-sm text-slate-400">Driver: {driverName}</p>
+        <p className="text-sm text-slate-700">Driver: {driverName}</p>
       </div>
 
       {/* Assigned Vehicle */}
@@ -235,7 +235,7 @@ export function DriverDashboard() {
             {/* Fuel Level */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Fuel className="w-4 h-4 text-slate-400" />
+                <Fuel className="w-4 h-4 text-slate-700" />
                 <span className="text-sm text-slate-300 text-sm">Fuel</span>
               </div>
               <div className="flex items-center gap-2">
@@ -252,7 +252,7 @@ export function DriverDashboard() {
             {/* Mileage */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Gauge className="w-4 h-4 text-slate-400" />
+                <Gauge className="w-4 h-4 text-slate-700" />
                 <span className="text-sm text-slate-300 text-sm">Mileage</span>
               </div>
               <p className="text-sm font-bold text-white">
@@ -263,7 +263,7 @@ export function DriverDashboard() {
             {/* Last Inspection */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Calendar className="w-4 h-4 text-slate-400" />
+                <Calendar className="w-4 h-4 text-slate-700" />
                 <span className="text-sm text-slate-300 text-sm">Last Inspection</span>
               </div>
               <p className="text-sm font-bold text-white flex items-center gap-2">
@@ -311,7 +311,7 @@ export function DriverDashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-slate-400 text-sm mb-3">
+              <div className="flex items-center gap-2 text-slate-700 text-sm mb-3">
                 <Clock className="w-4 h-4" />
                 <span>
                   Scheduled: {formatTime(trip.scheduled_start)} - {formatTime(trip.scheduled_end)}
@@ -404,7 +404,7 @@ export function DriverDashboard() {
             "w-full",
             allInspectionsDone
               ? "bg-green-600 hover:bg-green-700 text-white"
-              : "bg-slate-700 text-slate-400 cursor-not-allowed"
+              : "bg-slate-700 text-slate-700 cursor-not-allowed"
           )}
         >
           <CheckCircle className="w-4 h-4 mr-2" />

@@ -528,7 +528,7 @@ const FleetTrainingAcademy: React.FC = () => {
               <div className="flex-1">
                 <Label htmlFor="search">Search Courses</Label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                  <Search className="absolute left-3 top-3 w-4 h-4 text-gray-600" />
                   <Input
                     id="search"
                     placeholder="Search by title, description, or tags..."
@@ -600,7 +600,7 @@ const FleetTrainingAcademy: React.FC = () => {
                         <span>{progress.progress}%</span>
                       </div>
                       <Progress value={progress.progress} className="h-2" />
-                      <div className="flex justify-between text-xs text-gray-500">
+                      <div className="flex justify-between text-xs text-gray-700">
                         <span>
                           {progress.completedModules.length} of {course.modules.length} modules
                         </span>
@@ -610,7 +610,7 @@ const FleetTrainingAcademy: React.FC = () => {
                   )}
 
                   {/* Course info */}
-                  <div className="flex items-center justify-between text-sm text-gray-500">
+                  <div className="flex items-center justify-between text-sm text-gray-700">
                     <div className="flex items-center">
                       <Clock className="w-4 h-4 mr-1" />
                       {Math.floor(course.duration / 60)}h {course.duration % 60}m
@@ -637,7 +637,7 @@ const FleetTrainingAcademy: React.FC = () => {
                     </div>
                     <div>
                       <p className="text-sm font-medium">{course.instructor.name}</p>
-                      <p className="text-xs text-gray-500">{course.instructor.title}</p>
+                      <p className="text-xs text-gray-700">{course.instructor.title}</p>
                     </div>
                   </div>
 
@@ -725,7 +725,7 @@ const FleetTrainingAcademy: React.FC = () => {
                                         <p className="font-medium">
                                           {index + 1}. {module.title}
                                         </p>
-                                        <p className="text-sm text-gray-500 flex items-center">
+                                        <p className="text-sm text-gray-700 flex items-center">
                                           <Clock className="w-3 h-3 mr-1" />
                                           {module.duration} minutes
                                         </p>

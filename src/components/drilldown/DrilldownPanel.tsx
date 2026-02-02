@@ -112,7 +112,7 @@ export function DrilldownPanel({
                 aria-label="Go back"
                 data-testid="back-button"
               >
-                <ArrowLeft className="w-3 h-3 text-slate-400" />
+                <ArrowLeft className="w-3 h-3 text-slate-700" />
               </button>
             )}
 
@@ -126,7 +126,7 @@ export function DrilldownPanel({
                 </h2>
               )}
               {subtitle && (
-                <p className="text-sm text-slate-400 mt-0.5 truncate">
+                <p className="text-sm text-slate-700 mt-0.5 truncate">
                   {subtitle}
                 </p>
               )}
@@ -147,7 +147,7 @@ export function DrilldownPanel({
             className="shrink-0 p-2 hover:bg-slate-700 rounded-lg transition-colors"
             aria-label="Close panel"
           >
-            <X className="w-3 h-3 text-slate-400" />
+            <X className="w-3 h-3 text-slate-700" />
           </button>
         </div>
       </div>

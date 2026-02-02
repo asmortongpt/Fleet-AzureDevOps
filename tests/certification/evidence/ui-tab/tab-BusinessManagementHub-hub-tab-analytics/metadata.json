@@ -1,0 +1,20 @@
+{
+  "testId": "tab-BusinessManagementHub-hub-tab-analytics",
+  "itemType": "ui-tab",
+  "runDate": "2026-02-01T18:59:44.345Z",
+  "status": "SKIP",
+  "evidencePaths": {
+    "screenshots": [
+      "screenshot-before-tab-click-1769972386403.png"
+    ],
+    "videos": [],
+    "traces": [],
+    "logs": [
+      "console-logs.txt"
+    ],
+    "har": []
+  },
+  "errors": [
+    "Tab not visible: [data-testid=\"hub-tab-analytics\"]"
+  ]
+}

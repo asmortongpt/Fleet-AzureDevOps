@@ -68,10 +68,10 @@ const SECTION_CONFIGS: SectionConfig[] = [
   { type: 'fuel', key: 'fuelTransactions', label: 'Fuel', icon: Fuel, color: 'text-amber-500', badgeVariant: 'outline' },
   { type: 'part', key: 'parts', label: 'Parts', icon: Package, color: 'text-cyan-500', badgeVariant: 'secondary' },
   { type: 'vendor', key: 'vendors', label: 'Vendors', icon: Truck, color: 'text-indigo-500', badgeVariant: 'outline' },
-  { type: 'invoice', key: 'invoices', label: 'Invoices', icon: DollarSign, color: 'text-emerald-500', badgeVariant: 'default' },
+  { type: 'invoice', key: 'invoices', label: 'Invoices', icon: DollarSign, color: 'text-emerald-600', badgeVariant: 'default' },
   { type: 'asset', key: 'assets', label: 'Assets', icon: Stack, color: 'text-slate-500', badgeVariant: 'secondary' },
   { type: 'alert', key: 'alerts', label: 'Alerts', icon: AlertTriangle, color: 'text-red-500', badgeVariant: 'destructive' },
-  { type: 'document', key: 'documents', label: 'Documents', icon: FileText, color: 'text-gray-500', badgeVariant: 'outline' },
+  { type: 'document', key: 'documents', label: 'Documents', icon: FileText, color: 'text-gray-700', badgeVariant: 'outline' },
   { type: 'facility', key: 'facilities', label: 'Facilities', icon: MapPin, color: 'text-teal-500', badgeVariant: 'secondary' }
 ]
 

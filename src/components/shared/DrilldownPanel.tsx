@@ -45,7 +45,7 @@ export function DrilldownPanel({ levels, onClose, onNavigateToLevel, className =
                   <nav className="flex items-center gap-2 text-sm overflow-x-auto">
                     <button
                       onClick={() => onNavigateToLevel(0)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-slate-200 transition-colors whitespace-nowrap"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-700/50 text-slate-700 hover:text-slate-200 transition-colors whitespace-nowrap"
                     >
                       <Home className="w-4 h-4" />
                       Home
@@ -59,7 +59,7 @@ export function DrilldownPanel({ levels, onClose, onNavigateToLevel, className =
                           className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap ${
                             index === levels.length - 1
                               ? 'bg-blue-600 text-white font-medium'
-                              : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'
+                              : 'hover:bg-slate-700/50 text-slate-700 hover:text-slate-200'
                           }`}
                         >
                           {level.breadcrumb || level.title}
@@ -76,7 +76,7 @@ export function DrilldownPanel({ levels, onClose, onNavigateToLevel, className =
 
               <button
                 onClick={onClose}
-                className="flex-shrink-0 p-2 hover:bg-slate-700/50 rounded-lg text-slate-400 hover:text-slate-200 transition-all ml-2"
+                className="flex-shrink-0 p-2 hover:bg-slate-700/50 rounded-lg text-slate-700 hover:text-slate-200 transition-all ml-2"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -101,7 +101,7 @@ export function DrilldownPanel({ levels, onClose, onNavigateToLevel, className =
 
           {/* Footer */}
           <div className="flex-shrink-0 px-3 py-2 border-t border-slate-700/60 bg-slate-800/40">
-            <div className="flex items-center justify-between text-sm text-slate-400">
+            <div className="flex items-center justify-between text-sm text-slate-700">
               <div>Level {levels.length} of drilldown</div>
               <div className="flex gap-2">
                 {levels.length > 1 && (

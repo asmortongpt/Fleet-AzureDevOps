@@ -50,7 +50,7 @@ export function PasswordReset() {
     <div
       className="relative flex min-h-screen items-center justify-center overflow-hidden"
       style={{
-        background: 'linear-gradient(135deg, #1A0B2E 0%, #2B3A67 50%, #1A0B2E 100%)',
+        background: 'linear-gradient(135deg, #1A0B2E 0%, #2F3359 50%, #1A0B2E 100%)',
         minHeight: '100vh'
       }}
     >
@@ -97,8 +97,8 @@ export function PasswordReset() {
             >
               <defs>
                 <linearGradient id="ctaGradientPasswordReset" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" style={{ stopColor: '#FDB813' }} />
-                  <stop offset="100%" style={{ stopColor: '#FF5722' }} />
+                  <stop offset="0%" style={{ stopColor: '#F0A000' }} />
+                  <stop offset="100%" style={{ stopColor: '#DD3903' }} />
                 </linearGradient>
               </defs>
               <path
@@ -125,7 +125,7 @@ export function PasswordReset() {
                   letterSpacing: '0.15em',
                   color: '#ffffff',
                   textShadow: '0 2px 8px rgba(0, 212, 255, 0.6), 0 4px 12px rgba(253, 184, 19, 0.4)',
-                  background: 'linear-gradient(90deg, #ffffff 0%, #00D4FF 50%, #ffffff 100%)',
+                  background: 'linear-gradient(90deg, #ffffff 0%, #41B2E3 50%, #ffffff 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text'
@@ -136,7 +136,7 @@ export function PasswordReset() {
               <div
                 className="text-[10px] font-semibold uppercase tracking-[0.2em]"
                 style={{
-                  color: '#00D4FF',
+                  color: '#41B2E3',
                   textShadow: '0 0 10px rgba(0, 212, 255, 0.8)',
                   fontWeight: 600
                 }}
@@ -161,7 +161,7 @@ export function PasswordReset() {
           <div
             className="mx-auto w-24 h-1 rounded-full mb-3"
             style={{
-              background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)',
+              background: 'linear-gradient(90deg, #F0A000 0%, #DD3903 100%)',
               boxShadow: '0 2px 8px rgba(253, 184, 19, 0.6)'
             }}
           />
@@ -173,20 +173,20 @@ export function PasswordReset() {
             {/* Card Title Section */}
             <div className="mb-3.5 text-center">
               <h2 className="mb-1 flex items-center justify-center gap-2 text-xl font-semibold text-slate-900">
-                <Shield className="h-5 w-5" style={{ color: '#00D4FF' }} />
+                <Shield className="h-5 w-5" style={{ color: '#41B2E3' }} />
                 <span>Reset Password</span>
               </h2>
               <p className="text-xs text-slate-600 mb-2">
                 Enter your email address and we'll send you a link to reset your password
               </p>
-              <div className="text-[10px] text-slate-500 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md p-2">
+              <div className="text-[10px] text-gray-800 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md p-2">
                 <strong>Note:</strong> If you sign in with Microsoft, please use{' '}
                 <a
                   href="https://aka.ms/sspr"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-semibold hover:underline"
-                  style={{ color: '#00D4FF' }}
+                  style={{ color: '#41B2E3' }}
                 >
                   Microsoft Self-Service Password Reset
                 </a> instead.
@@ -221,7 +221,7 @@ export function PasswordReset() {
                     type="submit"
                     size="lg"
                     style={{
-                      background: 'linear-gradient(90deg, #FDB813 0%, #FF5722 100%)',
+                      background: 'linear-gradient(90deg, #F0A000 0%, #DD3903 100%)',
                       boxShadow: '0 10px 20px rgba(253, 184, 19, 0.4)'
                     }}
                     className="group relative mb-3.5 h-11 w-full overflow-hidden font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
@@ -229,7 +229,7 @@ export function PasswordReset() {
                   >
                     <div
                       className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                      style={{ background: 'linear-gradient(90deg, #FF5722 0%, #FDB813 100%)' }}
+                      style={{ background: 'linear-gradient(90deg, #DD3903 0%, #F0A000 100%)' }}
                     />
                     <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-20">
                       <div className="h-full w-full bg-gradient-to-r from-transparent via-white to-transparent animate-shimmer" />
@@ -251,7 +251,7 @@ export function PasswordReset() {
                   <Link
                     to="/login"
                     className="text-sm font-medium hover:underline"
-                    style={{ color: '#00D4FF' }}
+                    style={{ color: '#41B2E3' }}
                   >
                     ← Back to Login
                   </Link>
@@ -276,7 +276,7 @@ export function PasswordReset() {
                         setEmail('')
                       }}
                       className="font-medium hover:underline"
-                      style={{ color: '#00D4FF' }}
+                      style={{ color: '#41B2E3' }}
                     >
                       try again
                     </button>
@@ -284,7 +284,7 @@ export function PasswordReset() {
                   <Link
                     to="/login"
                     className="block text-sm font-medium hover:underline"
-                    style={{ color: '#00D4FF' }}
+                    style={{ color: '#41B2E3' }}
                   >
                     ← Back to Login
                   </Link>
@@ -293,12 +293,12 @@ export function PasswordReset() {
             )}
 
             {/* Support Link */}
-            <p className="text-center text-[10px] text-slate-500">
+            <p className="text-center text-[10px] text-gray-800">
               Need assistance?{' '}
               <a
                 href="mailto:support@capitaltechalliance.com"
                 className="font-semibold transition-colors hover:underline"
-                style={{ color: '#00D4FF' }}
+                style={{ color: '#41B2E3' }}
               >
                 Contact Support
               </a>

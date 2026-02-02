@@ -157,7 +157,7 @@ export function CostAnalysisCenter() {
   const getTrendIcon = (trend: string) => {
     if (trend === 'increasing') return <TrendingUp className="h-4 w-4 text-red-500" />
     if (trend === 'decreasing') return <TrendingDown className="h-4 w-4 text-green-500" />
-    return <TrendingDown className="h-4 w-4 text-gray-500" />
+    return <TrendingDown className="h-4 w-4 text-gray-700" />
   }
 
   const getCategoryColor = (category: string) => {
@@ -521,7 +521,7 @@ export function CostAnalysisCenter() {
                     </TableBody>
                   </Table>
                 ) : (
-                  <div className="text-center py-3 text-gray-500">
+                  <div className="text-center py-3 text-gray-700">
                     No anomalies detected for this period.
                   </div>
                 )}

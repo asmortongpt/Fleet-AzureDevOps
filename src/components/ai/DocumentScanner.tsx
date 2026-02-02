@@ -181,7 +181,7 @@ export function DocumentScanner({
               className="hidden"
             />
 
-            <Upload className="w-12 h-9 mx-auto mb-2 text-gray-400" />
+            <Upload className="w-12 h-9 mx-auto mb-2 text-gray-700" />
 
             <h3 className="text-sm font-semibold mb-2">
               Upload {documentType ? documentType.replace('_', ' ') : 'Document'}

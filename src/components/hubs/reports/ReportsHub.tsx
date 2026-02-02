@@ -272,7 +272,7 @@ const getCategoryColor = (category: ReportCategory): string => {
     case "compliance": return "bg-purple-500/10 text-purple-500"
     case "financial": return "bg-green-500/10 text-green-500"
     case "operations": return "bg-cyan-500/10 text-cyan-500"
-    default: return "bg-gray-500/10 text-gray-500"
+    default: return "bg-gray-500/10 text-gray-700"
   }
 }
 
@@ -282,7 +282,7 @@ const getStatusColor = (status: ReportStatus): string => {
     case "generating": return "bg-blue-500/10 text-blue-800"
     case "scheduled": return "bg-yellow-500/10 text-yellow-500"
     case "failed": return "bg-red-500/10 text-red-500"
-    default: return "bg-gray-500/10 text-gray-500"
+    default: return "bg-gray-500/10 text-gray-700"
   }
 }
 

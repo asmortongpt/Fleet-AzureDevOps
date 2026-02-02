@@ -56,14 +56,14 @@ function IntegrationCard({ integration, onRefresh, refreshing }: {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center justify-between text-sm text-gray-500">
+        <div className="flex items-center justify-between text-sm text-gray-700">
           <span>Latency: {integration.latency ?? 'N/A'}ms</span>
           <Button variant="ghost" size="sm" onClick={onRefresh} disabled={refreshing}>
             <RefreshCw className={`h-3 w-3 ${refreshing ? 'animate-spin' : ''}`} />
           </Button>
         </div>
         {integration.message && (
-          <p className="text-xs text-gray-400 mt-2">{integration.message}</p>
+          <p className="text-xs text-gray-700 mt-2">{integration.message}</p>
         )}
       </CardContent>
     </Card>
@@ -156,7 +156,7 @@ export default function IntegrationsStatus() {
     return (
       <div className="container mx-auto p-6 flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-gray-400" />
+          <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-gray-700" />
           <p className="text-gray-600">Loading integration status...</p>
         </div>
       </div>
@@ -265,7 +265,7 @@ export default function IntegrationsStatus() {
             <span><strong>Down:</strong> Integration is not working</span>
           </div>
           <div className="flex items-center space-x-2">
-            <HelpCircle className="h-4 w-4 text-gray-400" />
+            <HelpCircle className="h-4 w-4 text-gray-700" />
             <span><strong>Unknown:</strong> Status could not be determined</span>
           </div>
         </CardContent>

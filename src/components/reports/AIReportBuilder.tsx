@@ -167,7 +167,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                   }}
                 />
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-700">
                     Press Ctrl+Enter to generate
                   </p>
                   <Button
@@ -280,7 +280,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                       <div className="flex items-center justify-between mb-2">
                         <div>
                           <div className="font-medium text-gray-900">{visual.title}</div>
-                          <div className="text-xs text-gray-500">Type: {visual.type}</div>
+                          <div className="text-xs text-gray-700">Type: {visual.type}</div>
                         </div>
                         <Button variant="ghost" size="sm">
                           <Eye className="h-4 w-4 mr-1" />

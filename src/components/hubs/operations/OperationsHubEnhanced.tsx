@@ -257,7 +257,7 @@ export function OperationsHubEnhanced() {
         </div>
         <p className="text-xs text-slate-500">Real-time fleet operations control center</p>
         {lastUpdate && (
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-700 mt-1">
             Last update: {lastUpdate.toLocaleTimeString()}
           </p>
         )}

@@ -69,14 +69,14 @@ const CommandCenter: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1.5 text-[10px] font-medium text-emerald-400">
+                        <div className="flex items-center gap-1.5 text-[10px] font-medium text-emerald-600">
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                             ONLINE
                         </div>
                     </div>
 
                     <div className="h-6 overflow-hidden flex flex-col justify-end w-32 relative mask-gradient-top border-t border-white/5 pt-1">
-                        <div className="text-[9px] font-mono text-emerald-500/70 animate-scroll-up space-y-0.5 leading-none text-right">
+                        <div className="text-[9px] font-mono text-emerald-600/70 animate-scroll-up space-y-0.5 leading-none text-right">
                             <div>SYS_CHECK_OK</div>
                             <div>LINK_STABLE</div>
                             <div>UPDATING...</div>

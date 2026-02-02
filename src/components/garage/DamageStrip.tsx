@@ -234,7 +234,7 @@ function DamageListItem({
         <p className="text-sm font-medium text-white truncate">
           {ZONE_POSITIONS[damage.zone]?.label || 'Custom'}
         </p>
-        <p className="text-xs text-slate-400 truncate">{damage.description}</p>
+        <p className="text-xs text-slate-700 truncate">{damage.description}</p>
       </div>
       <Badge
         variant={damage.repaired ? 'outline' : damage.severity === 'severe' ? 'destructive' : 'secondary'}
@@ -361,7 +361,7 @@ export function DamageStrip({
           {/* Damage List */}
           <div className="bg-slate-900/50 rounded-lg border border-slate-700/50 overflow-hidden">
             <div className="p-2 border-b border-slate-700/50">
-              <h4 className="text-xs font-medium text-slate-400 uppercase">Damage Points</h4>
+              <h4 className="text-xs font-medium text-slate-700 uppercase">Damage Points</h4>
             </div>
             <div className="h-36 overflow-y-auto p-2 space-y-1">
               {damages.length > 0 ? (

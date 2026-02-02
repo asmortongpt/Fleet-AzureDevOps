@@ -88,30 +88,62 @@ export const setTenantContext = async (
   }
 
   try {
-    // Validate tenant context without holding a connection
-    // Each query will set its own tenant context when it acquires a connection
-    // This prevents connection pool exhaustion
+    // P0-1 SECURITY & FUNCTIONALITY FIX:
+    // Many routes (work-orders, maintenance-schedules, etc.) expect req.dbClient
+    // to be pre-initialized with the tenant context for RLS.
+    // We acquire a connection here, set the context, and ensure it's released on finish.
+    const client = await pool.connect()
 
-    console.log('✅ TENANT CONTEXT - Tenant validated', {
+    // CRITICAL: Start a transaction so SET LOCAL persists throughout the request
+    // SET LOCAL only works within a transaction block - without BEGIN, it's immediately discarded
+    await client.query('BEGIN')
+
+    // Set the session variable for RLS within the transaction
+    // Note: SET LOCAL doesn't support parameterized queries, so we use set_config() instead
+    // set_config(setting, value, is_local) - is_local=true makes it local to the transaction
+    await client.query('SELECT set_config($1, $2, true)', ['app.current_tenant_id', req.user.tenant_id])
+
+      // Attach client to request
+      ; (req as any).dbClient = client
+      ; (req as any).tenantId = req.user.tenant_id
+
+    // Track if we've already cleaned up
+    let cleanedUp = false
+    const cleanup = async () => {
+      if (cleanedUp) return
+      cleanedUp = true
+      try {
+        // COMMIT the transaction (or ROLLBACK if there was an error)
+        await client.query('COMMIT')
+        client.release()
+      } catch (releaseError) {
+        try {
+          await client.query('ROLLBACK')
+          client.release()
+        } catch (rollbackError) {
+          // Ignore - client may already be released
+        }
+      }
+    }
+
+    // Ensure connection is released when request is finished
+    res.on('finish', cleanup)
+
+    // Also handle premature close
+    res.on('close', cleanup)
+
+    console.log('✅ TENANT CONTEXT - Database client initialized with transaction', {
       tenantId: req.user.tenant_id,
-      userId: req.user.id,
-      method: req.method,
-      path: req.path,
-      environment: isDevelopment ? 'development' : 'production'
+      userId: req.user.id
     })
-
-    // Store tenant_id on request for easy access by routes
-    ;(req as any).tenantId = req.user.tenant_id
 
     next()
   } catch (error) {
-    console.error('❌ TENANT CONTEXT - Failed to set session variable', {
+    console.error('❌ TENANT CONTEXT - Failed to initialize database client', {
       error: error instanceof Error ? error.message : 'Unknown error',
       tenantId: req.user.tenant_id,
-      userId: req.user.id,
-      stack: error instanceof Error ? error.stack : undefined
+      userId: req.user.id
     })
-
     return res.status(500).json({
       error: 'Database configuration error',
       details: 'Unable to establish tenant context. Please try again.',

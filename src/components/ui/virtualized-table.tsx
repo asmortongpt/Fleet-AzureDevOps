@@ -298,7 +298,7 @@ export function VirtualizedTable<TData>({
         {/* Search */}
         {enableSearch && (
           <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-700" />
             <Input
               placeholder="Search all columns..."
               value={globalFilter ?? ''}
@@ -312,7 +312,7 @@ export function VirtualizedTable<TData>({
                 className="absolute right-3 top-1/2 transform -translate-y-1/2"
                 aria-label="Clear search"
               >
-                <X className="w-4 h-4 text-slate-400 hover:text-slate-600" />
+                <X className="w-4 h-4 text-slate-700 hover:text-slate-600" />
               </button>
             )}
           </div>
@@ -642,7 +642,7 @@ const DefaultEmptyState = ({ message }: { message: string }) => (
   <div className="flex items-center justify-center h-64">
     <div className="text-center space-y-2">
       <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full inline-flex">
-        <Search className="w-4 h-4 text-slate-400" />
+        <Search className="w-4 h-4 text-slate-700" />
       </div>
       <p className="text-sm font-medium">{message}</p>
       <p className="text-xs text-slate-500">Try adjusting your filters or search</p>

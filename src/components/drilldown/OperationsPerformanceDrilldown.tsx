@@ -416,9 +416,9 @@ export function OperationsPerformanceDrilldown() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card className="bg-blue-900/30 border-blue-700/50">
           <CardContent className="p-2 text-center">
-            <Zap className="w-4 h-4 text-blue-400 mx-auto mb-1" />
-            <div className="text-sm font-bold text-blue-400">{summary.avgEfficiency}%</div>
-            <div className="text-xs text-slate-400">Avg Efficiency</div>
+            <Zap className="w-4 h-4 text-blue-700 mx-auto mb-1" />
+            <div className="text-sm font-bold text-blue-700">{summary.avgEfficiency}%</div>
+            <div className="text-xs text-slate-700">Avg Efficiency</div>
           </CardContent>
         </Card>
 
@@ -426,7 +426,7 @@ export function OperationsPerformanceDrilldown() {
           <CardContent className="p-2 text-center">
             <Fuel className="w-4 h-4 text-green-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-green-400">{summary.avgFuelEconomy}</div>
-            <div className="text-xs text-slate-400">Avg MPG</div>
+            <div className="text-xs text-slate-700">Avg MPG</div>
           </CardContent>
         </Card>
 
@@ -434,7 +434,7 @@ export function OperationsPerformanceDrilldown() {
           <CardContent className="p-2 text-center">
             <Navigation className="w-4 h-4 text-purple-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-purple-400">{summary.totalMiles}</div>
-            <div className="text-xs text-slate-400">Total Miles</div>
+            <div className="text-xs text-slate-700">Total Miles</div>
           </CardContent>
         </Card>
 
@@ -442,7 +442,7 @@ export function OperationsPerformanceDrilldown() {
           <CardContent className="p-2 text-center">
             <DollarSign className="w-4 h-4 text-amber-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-amber-400">${summary.totalCost}</div>
-            <div className="text-xs text-slate-400">Total Cost</div>
+            <div className="text-xs text-slate-700">Total Cost</div>
           </CardContent>
         </Card>
       </div>
@@ -451,7 +451,7 @@ export function OperationsPerformanceDrilldown() {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <Target className="w-3 h-3 text-blue-400" />
+            <Target className="w-3 h-3 text-blue-700" />
             Key Performance Metrics
           </CardTitle>
         </CardHeader>

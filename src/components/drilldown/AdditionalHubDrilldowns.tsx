@@ -26,19 +26,19 @@ export function IncidentsDrilldown() {
                 <Card className="bg-red-900/30 border-red-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-red-400">3</div>
-                        <div className="text-xs text-slate-400">Open</div>
+                        <div className="text-xs text-slate-700">Open</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-amber-400">5</div>
-                        <div className="text-xs text-slate-400">Under Review</div>
+                        <div className="text-xs text-slate-700">Under Review</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <div className="text-sm font-bold text-emerald-400">12</div>
-                        <div className="text-xs text-slate-400">Resolved (30d)</div>
+                        <div className="text-sm font-bold text-emerald-700">12</div>
+                        <div className="text-xs text-slate-700">Resolved (30d)</div>
                     </CardContent>
                 </Card>
             </div>
@@ -56,11 +56,11 @@ export function IncidentsDrilldown() {
                         <div key={incident.id} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
                             <div>
                                 <div className="font-medium text-white">{incident.type}</div>
-                                <div className="text-xs text-slate-400">{incident.driver} • {incident.vehicle} • {incident.date}</div>
+                                <div className="text-xs text-slate-700">{incident.driver} • {incident.vehicle} • {incident.date}</div>
                             </div>
                             <Badge variant="outline" className={`${incident.severity === 'high' ? 'border-red-500 text-red-400' :
                                     incident.severity === 'medium' ? 'border-amber-500 text-amber-400' :
-                                        'border-slate-500 text-slate-400'
+                                        'border-slate-500 text-slate-700'
                                 }`}>
                                 {incident.severity}
                             </Badge>
@@ -78,9 +78,9 @@ export function SafetyScoreDetailDrilldown() {
             {/* Overall Score */}
             <Card className="bg-emerald-900/30 border-emerald-700/50">
                 <CardContent className="p-3 text-center">
-                    <ShieldCheck className="w-10 h-8 text-emerald-400 mx-auto mb-2" />
+                    <ShieldCheck className="w-10 h-8 text-emerald-700 mx-auto mb-2" />
                     <div className="text-sm font-bold text-white">92</div>
-                    <div className="text-sm text-slate-400">Fleet Safety Score</div>
+                    <div className="text-sm text-slate-700">Fleet Safety Score</div>
                 </CardContent>
             </Card>
 
@@ -128,15 +128,15 @@ export function VideoTelematicsDrilldown() {
             <div className="grid grid-cols-2 gap-3">
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <Video className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
+                        <Video className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
                         <div className="text-sm font-bold text-white">148</div>
-                        <div className="text-xs text-slate-400">Cameras Online</div>
+                        <div className="text-xs text-slate-700">Cameras Online</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-amber-900/30 border-amber-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-amber-400">23</div>
-                        <div className="text-xs text-slate-400">Events Today</div>
+                        <div className="text-xs text-slate-700">Events Today</div>
                     </CardContent>
                 </Card>
             </div>
@@ -150,14 +150,14 @@ export function VideoTelematicsDrilldown() {
                     {events.map(event => (
                         <div key={event.id} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
                             <div className="flex items-center gap-3">
-                                <Play className="w-3 h-3 text-blue-400" />
+                                <Play className="w-3 h-3 text-blue-700" />
                                 <div>
                                     <div className="font-medium text-white">{event.type}</div>
-                                    <div className="text-xs text-slate-400">{event.vehicle} • {event.time}</div>
+                                    <div className="text-xs text-slate-700">{event.vehicle} • {event.time}</div>
                                 </div>
                             </div>
                             {event.reviewed ? (
-                                <Badge variant="outline" className="border-emerald-500 text-emerald-400">
+                                <Badge variant="outline" className="border-emerald-500 text-emerald-700">
                                     <Eye className="w-3 h-3 mr-1" /> Reviewed
                                 </Badge>
                             ) : (
@@ -191,26 +191,26 @@ export function DispatchDrilldown() {
             <div className="grid grid-cols-4 gap-2">
                 <Card className="bg-blue-900/30 border-blue-700/50">
                     <CardContent className="p-3 text-center">
-                        <div className="text-base font-bold text-blue-400">24</div>
-                        <div className="text-xs text-slate-400">Active</div>
+                        <div className="text-base font-bold text-blue-700">24</div>
+                        <div className="text-xs text-slate-700">Active</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-3 text-center">
-                        <div className="text-base font-bold text-emerald-400">18</div>
-                        <div className="text-xs text-slate-400">In Transit</div>
+                        <div className="text-base font-bold text-emerald-700">18</div>
+                        <div className="text-xs text-slate-700">In Transit</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-purple-900/30 border-purple-700/50">
                     <CardContent className="p-3 text-center">
                         <div className="text-base font-bold text-purple-400">156</div>
-                        <div className="text-xs text-slate-400">Completed</div>
+                        <div className="text-xs text-slate-700">Completed</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-red-900/30 border-red-700/50">
                     <CardContent className="p-3 text-center">
                         <div className="text-base font-bold text-red-400">3</div>
-                        <div className="text-xs text-slate-400">Delayed</div>
+                        <div className="text-xs text-slate-700">Delayed</div>
                     </CardContent>
                 </Card>
             </div>
@@ -219,7 +219,7 @@ export function DispatchDrilldown() {
             <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
-                        <Package className="w-3 h-3 text-blue-400" />
+                        <Package className="w-3 h-3 text-blue-700" />
                         Active Jobs
                     </CardTitle>
                 </CardHeader>
@@ -227,17 +227,17 @@ export function DispatchDrilldown() {
                     {jobs.map(job => (
                         <div key={job.id} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
                             <div className="flex items-center gap-3">
-                                <Truck className={`w-3 h-3 ${job.status === 'in-transit' ? 'text-emerald-400' :
-                                        job.status === 'delayed' ? 'text-red-400' : 'text-slate-400'
+                                <Truck className={`w-3 h-3 ${job.status === 'in-transit' ? 'text-emerald-700' :
+                                        job.status === 'delayed' ? 'text-red-400' : 'text-slate-700'
                                     }`} />
                                 <div>
                                     <div className="font-medium text-white text-sm">{job.destination}</div>
-                                    <div className="text-xs text-slate-400">{job.driver} • ETA: {job.eta}</div>
+                                    <div className="text-xs text-slate-700">{job.driver} • ETA: {job.eta}</div>
                                 </div>
                             </div>
-                            <Badge variant="outline" className={`${job.status === 'in-transit' ? 'border-emerald-500 text-emerald-400' :
+                            <Badge variant="outline" className={`${job.status === 'in-transit' ? 'border-emerald-500 text-emerald-700' :
                                     job.status === 'delayed' ? 'border-red-500 text-red-400' :
-                                        'border-slate-500 text-slate-400'
+                                        'border-slate-500 text-slate-700'
                                 }`}>
                                 {job.status}
                             </Badge>
@@ -256,21 +256,21 @@ export function RoutesDrilldown() {
             <div className="grid grid-cols-3 gap-3">
                 <Card className="bg-blue-900/30 border-blue-700/50">
                     <CardContent className="p-2 text-center">
-                        <Map className="w-4 h-4 text-blue-400 mx-auto mb-2" />
+                        <Map className="w-4 h-4 text-blue-700 mx-auto mb-2" />
                         <div className="text-sm font-bold text-white">45</div>
-                        <div className="text-xs text-slate-400">Active Routes</div>
+                        <div className="text-xs text-slate-700">Active Routes</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <div className="text-sm font-bold text-emerald-400">12</div>
-                        <div className="text-xs text-slate-400">Optimized Today</div>
+                        <div className="text-sm font-bold text-emerald-700">12</div>
+                        <div className="text-xs text-slate-700">Optimized Today</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-slate-800/50 border-slate-700">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-slate-300">2.4h</div>
-                        <div className="text-xs text-slate-400">Avg Duration</div>
+                        <div className="text-xs text-slate-700">Avg Duration</div>
                     </CardContent>
                 </Card>
             </div>
@@ -296,7 +296,7 @@ export function TasksDrilldown() {
             <CardHeader>
                 <CardTitle className="text-white">Tasks Drilldown</CardTitle>
             </CardHeader>
-            <CardContent className="text-slate-400">
+            <CardContent className="text-slate-700">
                 Task details will be displayed here
             </CardContent>
         </Card>
@@ -309,7 +309,7 @@ export function VendorsDrilldown() {
             <CardHeader>
                 <CardTitle className="text-white">Vendors Drilldown</CardTitle>
             </CardHeader>
-            <CardContent className="text-slate-400">
+            <CardContent className="text-slate-700">
                 Vendor details will be displayed here
             </CardContent>
         </Card>
@@ -322,7 +322,7 @@ export function PartsInventoryDrilldown() {
             <CardHeader>
                 <CardTitle className="text-white">Parts Inventory Drilldown</CardTitle>
             </CardHeader>
-            <CardContent className="text-slate-400">
+            <CardContent className="text-slate-700">
                 Parts inventory details will be displayed here
             </CardContent>
         </Card>
@@ -335,7 +335,7 @@ export function PurchaseOrdersDrilldown() {
             <CardHeader>
                 <CardTitle className="text-white">Purchase Orders Drilldown</CardTitle>
             </CardHeader>
-            <CardContent className="text-slate-400">
+            <CardContent className="text-slate-700">
                 Purchase order details will be displayed here
             </CardContent>
         </Card>
@@ -348,7 +348,7 @@ export function FuelPurchasingDrilldown() {
             <CardHeader>
                 <CardTitle className="text-white">Fuel Purchasing Drilldown</CardTitle>
             </CardHeader>
-            <CardContent className="text-slate-400">
+            <CardContent className="text-slate-700">
                 Fuel purchasing details will be displayed here
             </CardContent>
         </Card>

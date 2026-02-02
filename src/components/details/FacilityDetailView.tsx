@@ -279,7 +279,7 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                   <Progress value={capacityMetrics.utilizationRate} className="mb-2" />
                   <div className="flex justify-between text-xs">
                     <span className="text-green-600">Used: {capacityMetrics.currentVehicles}</span>
-                    <span className="text-gray-500">Available: {capacityMetrics.availableSpaces}</span>
+                    <span className="text-gray-700">Available: {capacityMetrics.availableSpaces}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -299,7 +299,7 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                   <Progress value={capacityMetrics.bayUtilization} className="mb-2" />
                   <div className="flex justify-between text-xs">
                     <span className="text-green-600">Active: {capacityMetrics.activeBays}</span>
-                    <span className="text-gray-500">Idle: {capacityMetrics.maintenanceBays - capacityMetrics.activeBays}</span>
+                    <span className="text-gray-700">Idle: {capacityMetrics.maintenanceBays - capacityMetrics.activeBays}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -319,7 +319,7 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                   <Progress value={capacityMetrics.staffUtilization} className="mb-2" />
                   <div className="flex justify-between text-xs">
                     <span className="text-green-600">Active: {capacityMetrics.currentStaff}</span>
-                    <span className="text-gray-500">Open: {capacityMetrics.staffCapacity - capacityMetrics.currentStaff}</span>
+                    <span className="text-gray-700">Open: {capacityMetrics.staffCapacity - capacityMetrics.currentStaff}</span>
                   </div>
                 </CardContent>
               </Card>
