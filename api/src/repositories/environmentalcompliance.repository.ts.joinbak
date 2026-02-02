@@ -1,0 +1,117 @@
+import { Pool } from 'pg';
+import { BaseRepository } from './BaseRepository';
+
+export class EnvironmentalComplianceRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LEnvironmental_LCompliance_s');
+  }
+
+
+    this.pool = pool;
+  }
+
+  async createEnvironmentalCompliance(data: {
+    tenant_id: string;
+    facility_id: string;
+    compliance_status: string;
+    compliance_date: Date;
+    notes: string;
+  }): Promise<number> {
+    const query = `
+      INSERT INTO environmental_compliance (tenant_id, facility_id, compliance_status, compliance_date, notes)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id
+    `;
+    const values = [
+      data.tenant_id,
+      data.facility_id,
+      data.compliance_status,
+      data.compliance_date,
+      data.notes,
+    ];
+    const result = await this.query(query, values);
+    return result.rows[0].id;
+  }
+
+  async getEnvironmentalComplianceById(id: number, tenant_id: string): Promise<any> {
+    const query = `
+      SELECT id, created_at, updated_at FROM environmental_compliance
+      WHERE id = $1 AND tenant_id = $2
+    `;
+    const values = [id, tenant_id];
+    const result = await this.query(query, values);
+    return result.rows[0];
+  }
+
+  async getAllEnvironmentalCompliances(tenant_id: string): Promise<any[]> {
+    const query = `
+      SELECT id, created_at, updated_at FROM environmental_compliance
+      WHERE tenant_id = $1
+    `;
+    const values = [tenant_id];
+    const result = await this.query(query, values);
+    return result.rows;
+  }
+
+  async updateEnvironmentalCompliance(id: number, data: {
+    tenant_id: string;
+    facility_id: string;
+    compliance_status: string;
+    compliance_date: Date;
+    notes: string;
+  }): Promise<void> {
+    const query = `
+      UPDATE environmental_compliance
+      SET facility_id = $2, compliance_status = $3, compliance_date = $4, notes = $5
+      WHERE id = $1 AND tenant_id = $6
+    `;
+    const values = [
+      id,
+      data.facility_id,
+      data.compliance_status,
+      data.compliance_date,
+      data.notes,
+      data.tenant_id,
+    ];
+    await this.query(query, values);
+  }
+
+  async deleteEnvironmentalCompliance(id: number, tenant_id: string): Promise<void> {
+    const query = `
+      DELETE FROM environmental_compliance
+      WHERE id = $1 AND tenant_id = $2
+    `;
+    const values = [id, tenant_id];
+    await this.query(query, values);
+  }
+}
+
+  /**
+   * N+1 PREVENTION: Find with related data
+   * Override this method in subclasses for specific relationships
+   */
+  async findWithRelatedData(id: string, tenantId: string) {
+    const query = `
+      SELECT t.*
+      FROM ${this.tableName} t
+      WHERE t.id = $1 AND t.tenant_id = $2 AND t.deleted_at IS NULL
+    `;
+    const result = await this.query(query, [id, tenantId]);
+    return result.rows[0] || null;
+  }
+
+  /**
+   * N+1 PREVENTION: Find all with related data
+   * Override this method in subclasses for specific relationships
+   */
+  async findAllWithRelatedData(tenantId: string) {
+    const query = `
+      SELECT t.*
+      FROM ${this.tableName} t
+      WHERE t.tenant_id = $1 AND t.deleted_at IS NULL
+      ORDER BY t.created_at DESC
+    `;
+    const result = await this.query(query, [tenantId]);
+    return result.rows;
+  }
+}
