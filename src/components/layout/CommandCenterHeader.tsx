@@ -39,22 +39,22 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
     return (
         <header className="relative shrink-0">
             <div className={cn(
-                "h-11 border-b border-border/50 bg-card/95 backdrop-blur-sm z-30 flex items-center justify-between transition-all duration-200",
-                isMobile ? "px-3" : "px-2"
+                "h-16 border-b border-border/50 bg-card/95 backdrop-blur-sm z-30 flex items-center justify-between transition-all duration-200",
+                isMobile ? "px-4" : "px-4"
             )}>
                 {/* Left: CTA Branding */}
-                <div className="flex items-center gap-3 shrink-0">
-                    <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4 shrink-0">
+                    <div className="flex items-center gap-3">
                         {/* CTA Logo Placeholder - Replace with actual logo when available */}
-                        <div className="h-7 px-2 flex items-center justify-center bg-gradient-to-r from-[#F0A000] to-[#DD3903] rounded">
-                            <span className="text-white font-bold text-xs tracking-wide">CTA</span>
+                        <div className="h-10 px-4 flex items-center justify-center bg-gradient-to-r from-[#F0A000] to-[#DD3903] rounded-lg shadow-md">
+                            <span className="text-white font-bold text-sm tracking-wide">CTA</span>
                         </div>
                         {!isMobile && (
                             <>
-                                <div className="h-4 w-px bg-border/50" />
+                                <div className="h-8 w-px bg-border/50" />
                                 <div className="flex flex-col">
-                                    <span className="text-xs font-semibold text-foreground leading-tight">ArchonY</span>
-                                    <span className="text-xs text-muted-foreground leading-tight mt-0.5">Intelligent Performance</span>
+                                    <span className="text-sm font-semibold text-foreground leading-tight">ArchonY</span>
+                                    <span className="text-xs text-muted-foreground leading-tight mt-1">Intelligent Performance</span>
                                 </div>
                             </>
                         )}
@@ -63,8 +63,8 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
 
                 {/* Center: Search Bar */}
                 <div className={cn(
-                    "flex-1 max-w-md mx-4 transition-all duration-300",
-                    isSearchFocused && "max-w-lg"
+                    "flex-1 max-w-lg mx-6 transition-all duration-300",
+                    isSearchFocused && "max-w-2xl"
                 )}>
                     <div className="relative">
                         <SearchInput
@@ -74,10 +74,10 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                             placeholder={isMobile ? "Search..." : "Search fleet, drivers, or assets..."}
                             ariaLabel="Search fleet, drivers, or assets"
                             className={cn(
-                                "[&_input]:rounded-md [&_input]:bg-background/50 [&_input]:border-border/50",
-                                "[&_input]:h-7 [&_input]:text-xs",
+                                "[&_input]:rounded-lg [&_input]:bg-background/50 [&_input]:border-border/50",
+                                "[&_input]:h-10 [&_input]:text-sm [&_input]:px-4",
                                 "[&_input]:transition-all [&_input]:duration-200",
-                                "[&_input:focus]:bg-background [&_input:focus]:border-secondary/40 [&_input:focus]:shadow-sm [&_input:focus]:shadow-secondary/10"
+                                "[&_input:focus]:bg-background [&_input:focus]:border-secondary/40 [&_input:focus]:shadow-lg [&_input:focus]:shadow-secondary/10"
                             )}
                             onFocus={() => setIsSearchFocused(true)}
                             onBlur={() => setIsSearchFocused(false)}
@@ -86,7 +86,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                 </div>
 
                 {/* Right Actions */}
-                <div className="flex items-center gap-1 ml-2">
+                <div className="flex items-center gap-2 ml-4">
                     {/* Theme Toggle */}
                     <ThemeToggle />
 
@@ -94,7 +94,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                     <NotificationBell onNavigate={setActiveModule} />
 
                     {/* Separator - hidden on mobile */}
-                    <div className="hidden sm:block h-5 w-px bg-minimalist-subtle mx-1" />
+                    <div className="hidden sm:block h-8 w-px bg-minimalist-subtle mx-2" />
 
                     {/* User Menu */}
                     <DropdownMenu modal={false}>
@@ -102,60 +102,60 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                             <Button
                                 variant="ghost"
                                 className={cn(
-                                    "gap-1.5 h-7 rounded-md transition-all duration-200",
+                                    "gap-3 h-11 rounded-lg transition-all duration-200",
                                     "hover:bg-minimalist-tertiary border border-transparent hover:border-minimalist-medium",
-                                    "pl-1 pr-1"
+                                    "pl-3 pr-3"
                                 )}
                             >
                                 <div className="hidden lg:flex flex-col items-end">
-                                    <span className="text-xs font-medium text-foreground leading-none">Admin User</span>
-                                    <span className="text-[10px] text-minimalist-secondary leading-none mt-0.5">Fleet Manager</span>
+                                    <span className="text-sm font-medium text-foreground leading-none">Admin User</span>
+                                    <span className="text-xs text-muted-foreground leading-none mt-1">Fleet Manager</span>
                                 </div>
-                                <Avatar className="h-7 w-7 border border-minimalist-medium">
+                                <Avatar className="h-9 w-9 border-2 border-minimalist-medium">
                                     <AvatarImage src="https://github.com/shadcn.png" alt="Admin User profile picture" />
-                                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-[10px]">AD</AvatarFallback>
+                                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">AD</AvatarFallback>
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                             align="end"
-                            className="w-48 bg-minimalist-elevated border-minimalist-medium shadow-sm rounded-md p-0.5"
+                            className="w-56 bg-minimalist-elevated border-minimalist-medium shadow-lg rounded-lg p-1"
                             sideOffset={8}
                         >
-                            <DropdownMenuLabel className="px-2 py-1.5">
+                            <DropdownMenuLabel className="px-3 py-2">
                                 <div className="flex flex-col">
-                                    <span className="font-semibold text-xs">Admin User</span>
-                                    <span className="text-[10px] text-minimalist-secondary font-normal">admin@fleetops.com</span>
+                                    <span className="font-semibold text-sm">Admin User</span>
+                                    <span className="text-xs text-muted-foreground font-normal">admin@fleetops.com</span>
                                 </div>
                             </DropdownMenuLabel>
-                            <DropdownMenuSeparator className="bg-minimalist-subtle my-0.5" />
+                            <DropdownMenuSeparator className="bg-minimalist-subtle my-1" />
                             <DropdownMenuItem
-                                className="cursor-pointer rounded-md mx-0.5 px-2 py-1.5 text-xs focus:bg-minimalist-tertiary transition-colors"
+                                className="cursor-pointer rounded-md mx-1 px-3 py-2 text-sm focus:bg-minimalist-tertiary transition-colors"
                                 onClick={() => setActiveModule('profile')}
                             >
-                                <User className="w-3 h-3 mr-2 text-minimalist-secondary" />
+                                <User className="w-4 h-4 mr-3 text-minimalist-secondary" />
                                 Profile
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                className="cursor-pointer rounded-md mx-0.5 px-2 py-1.5 text-xs focus:bg-minimalist-tertiary transition-colors"
+                                className="cursor-pointer rounded-md mx-1 px-3 py-2 text-sm focus:bg-minimalist-tertiary transition-colors"
                                 onClick={() => setActiveModule('settings')}
                             >
-                                <CreditCard className="w-3 h-3 mr-2 text-minimalist-secondary" />
+                                <CreditCard className="w-4 h-4 mr-3 text-minimalist-secondary" />
                                 Billing
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                className="cursor-pointer rounded-md mx-0.5 px-2 py-1.5 text-xs focus:bg-minimalist-tertiary transition-colors"
+                                className="cursor-pointer rounded-md mx-1 px-3 py-2 text-sm focus:bg-minimalist-tertiary transition-colors"
                                 onClick={() => setActiveModule('settings')}
                             >
-                                <Users className="w-3 h-3 mr-2 text-minimalist-secondary" />
+                                <Users className="w-4 h-4 mr-3 text-minimalist-secondary" />
                                 Team
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator className="bg-minimalist-subtle my-0.5" />
+                            <DropdownMenuSeparator className="bg-minimalist-subtle my-1" />
                             <DropdownMenuItem
-                                className="cursor-pointer rounded-md mx-0.5 px-2 py-1.5 text-xs text-destructive focus:bg-destructive/10 focus:text-destructive transition-colors"
+                                className="cursor-pointer rounded-md mx-1 px-3 py-2 text-sm text-destructive focus:bg-destructive/10 focus:text-destructive transition-colors"
                                 onClick={handleLogout}
                             >
-                                <LogOut className="w-3 h-3 mr-2" />
+                                <LogOut className="w-4 h-4 mr-3" />
                                 Log out
                             </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -163,7 +163,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                 </div>
             </div>
             {/* CTA Gradient Bar Accent */}
-            <div className="h-0.5 bg-gradient-to-r from-[#F0A000] to-[#DD3903]" aria-hidden="true" />
+            <div className="h-1 bg-gradient-to-r from-[#F0A000] to-[#DD3903] shadow-sm" aria-hidden="true" />
         </header>
     );
 }
