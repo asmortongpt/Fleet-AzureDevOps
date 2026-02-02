@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fleet-config
+  namespace: fleet-management
+  labels:
+    app: fleet-frontend
+    component: configuration
+data:
+  # API Configuration
+  api-url: "https://api.fleet-management.com"
+  ws-url: "wss://api.fleet-management.com/ws"
+
+  # Application Settings
+  app-name: "Fleet Management System"
+  app-version: "1.0.0"
+  app-environment: "production"
+
+  # Feature Flags
+  feature-analytics: "true"
+  feature-realtime-updates: "true"
+  feature-notifications: "true"
+
+  # Nginx Configuration (if needed for customization)
+  nginx.conf: |
+    server {
+        listen 8080;
+        server_name _;
+        root /usr/share/nginx/html;
+        index index.html;
+
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+
+        location /health.txt {
+            access_log off;
+        }
+    }
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fleet-logging-config
+  namespace: fleet-management
+  labels:
+    app: fleet-frontend
+    component: logging
+data:
+  log-level: "info"
+  log-format: "json"
+  log-output: "stdout"

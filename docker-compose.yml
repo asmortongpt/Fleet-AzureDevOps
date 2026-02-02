@@ -1,0 +1,235 @@
+version: '3.8'
+
+# ============================================================================
+# Fleet Management System - Docker Compose
+# Development and Production configurations
+# ============================================================================
+
+services:
+  # Frontend - Production build
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+      args:
+        NODE_ENV: production
+        BUILD_DATE: ${BUILD_DATE:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
+        VCS_REF: ${VCS_REF:-$(git rev-parse --short HEAD)}
+    container_name: fleet-frontend
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health.txt"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - fleet-network
+    labels:
+      - "com.fleet.service=frontend"
+      - "com.fleet.version=1.0.0"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  # Frontend - Development mode
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: fleet-frontend-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_AZURE_AD_CLIENT_ID=${VITE_AZURE_AD_CLIENT_ID}
+      - VITE_AZURE_AD_TENANT_ID=${VITE_AZURE_AD_TENANT_ID}
+      - VITE_AZURE_AD_REDIRECT_URI=${VITE_AZURE_AD_REDIRECT_URI}
+    networks:
+      - fleet-network
+    profiles:
+      - development
+
+  # Redis - Caching layer
+  redis:
+    image: redis:7-alpine
+    container_name: fleet-redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-fleetredis123}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - fleet-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.10'
+          memory: 128M
+
+  # PostgreSQL - Database (optional for future use)
+  postgres:
+    image: postgres:16-alpine
+    container_name: fleet-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-fleet_db}
+      POSTGRES_USER: ${POSTGRES_USER:-fleet_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fleet_password}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fleet_user}"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    networks:
+      - fleet-network
+    profiles:
+      - database
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  # Backend API (optional - for future microservices)
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   container_name: fleet-backend
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     - NODE_ENV=production
+  #     - DATABASE_URL=postgresql://${POSTGRES_USER:-fleet_user}:${POSTGRES_PASSWORD:-fleet_password}@postgres:5432/${POSTGRES_DB:-fleet_db}
+  #     - REDIS_URL=redis://redis:6379
+  #     - JWT_SECRET=${JWT_SECRET}
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+  #   networks:
+  #     - fleet-network
+  #   profiles:
+  #     - backend
+
+  # Nginx reverse proxy (for multi-service setup)
+  # nginx-proxy:
+  #   image: nginx:1.25-alpine
+  #   container_name: fleet-nginx-proxy
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
+  #     - ./ssl:/etc/nginx/ssl:ro
+  #   depends_on:
+  #     - frontend
+  #   restart: unless-stopped
+  #   networks:
+  #     - fleet-network
+  #   profiles:
+  #     - proxy
+
+  # Monitoring - Prometheus (optional)
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: fleet-prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+  #     - prometheus-data:/prometheus
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  #     - '--storage.tsdb.path=/prometheus'
+  #   networks:
+  #     - fleet-network
+  #   profiles:
+  #     - monitoring
+
+  # Monitoring - Grafana (optional)
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: fleet-grafana
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - grafana-data:/var/lib/grafana
+  #   environment:
+  #     - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+  #   networks:
+  #     - fleet-network
+  #   profiles:
+  #     - monitoring
+
+networks:
+  fleet-network:
+    driver: bridge
+    name: fleet-network
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
+
+volumes:
+  redis-data:
+    name: fleet-redis-data
+    driver: local
+  postgres-data:
+    name: fleet-postgres-data
+    driver: local
+  # prometheus-data:
+  #   name: fleet-prometheus-data
+  #   driver: local
+  # grafana-data:
+  #   name: fleet-grafana-data
+  #   driver: local
+
+# ============================================================================
+# Usage:
+# ============================================================================
+# Production:   docker-compose up -d
+# Development:  docker-compose --profile development up -d
+# With DB:      docker-compose --profile database up -d
+# Full stack:   docker-compose --profile development --profile database up -d
+#
+# Stop:         docker-compose down
+# Stop + clean: docker-compose down -v
+# Logs:         docker-compose logs -f [service-name]
+# ============================================================================

@@ -1,0 +1,22 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install only express and cors
+RUN npm install express cors
+
+# Copy minimal server
+COPY src/server-minimal.ts ./server.ts
+
+# Install tsx globally
+RUN npm install -g tsx typescript @types/node @types/express @types/cors
+
+# Expose port
+EXPOSE 3001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3001/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); });"
+
+# Run minimal server
+CMD ["tsx", "server.ts"]
