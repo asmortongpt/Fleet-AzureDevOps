@@ -12,7 +12,7 @@ export const API_ENDPOINT_CATEGORIES: EndpointCategory[] = [
       { id: 'auth-login', category: 'Authentication', path: '/api/auth/login', method: 'POST', description: 'User login' },
       { id: 'auth-register', category: 'Authentication', path: '/api/auth/register', method: 'POST', description: 'User registration' },
       { id: 'auth-logout', category: 'Authentication', path: '/api/auth/logout', method: 'POST', description: 'User logout', requiresAuth: true },
-      { id: 'auth-csrf', category: 'Authentication', path: '/api/csrf', method: 'GET', description: 'Get CSRF token' },
+      { id: 'auth-csrf', category: 'Authentication', path: '/api/csrf-token', method: 'GET', description: 'Get CSRF token' },
     ]
   },
   {

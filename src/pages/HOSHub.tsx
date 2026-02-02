@@ -64,12 +64,12 @@ import { HOSLogEntryDialog } from '@/components/hos/HOSLogEntryDialog'
 import { DVIRInspectionDialog } from '@/components/hos/DVIRInspectionDialog'
 import { ViolationResolutionDialog } from '@/components/hos/ViolationResolutionDialog'
 import { DOTReportsDialog } from '@/components/hos/DOTReportsDialog'
+import { useAuth } from '@/contexts'
 
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
 
-const TENANT_ID = '00000000-0000-0000-0000-000000000001' // TODO: Get from auth context
 const ANIMATION_STAGGER_DELAY = 0.1
 const MAX_ANIMATION_ITEMS = 10
 
@@ -343,6 +343,10 @@ const DVIRCard = memo(function DVIRCard({ dvir, index }: DVIRCardProps) {
 // ============================================================================
 
 function HOSHubContent() {
+  const { user } = useAuth()
+  const tenantId = user?.tenantId || ''
+  const driverId = user?.id || ''
+
   // Date range (last 7 days)
   const [dateRange] = useState({
     start_date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -358,17 +362,17 @@ function HOSHubContent() {
 
   // Fetch HOS data
   const { data: hosLogs = [], isLoading: logsLoading } = useHOSLogs({
-    tenant_id: TENANT_ID,
+    tenant_id: tenantId,
     ...dateRange,
   })
 
   const { data: violations = [], isLoading: violationsLoading } = useHOSViolations({
-    tenant_id: TENANT_ID,
+    tenant_id: tenantId,
     ...dateRange,
   })
 
   const { data: dvirReports = [], isLoading: dvirLoading } = useDVIRReports({
-    tenant_id: TENANT_ID,
+    tenant_id: tenantId,
     ...dateRange,
   })
 
@@ -696,8 +700,8 @@ function HOSHubContent() {
       <HOSLogEntryDialog
         open={isLogEntryDialogOpen}
         onOpenChange={setIsLogEntryDialogOpen}
-        driverId="demo-driver-123" // TODO: Get from auth context
-        tenantId={TENANT_ID}
+        driverId={driverId}
+        tenantId={tenantId}
         onSuccess={() => {
           // Refetch will happen automatically via React Query cache invalidation
         }}
@@ -707,9 +711,9 @@ function HOSHubContent() {
       <DVIRInspectionDialog
         open={isDVIRDialogOpen}
         onOpenChange={setIsDVIRDialogOpen}
-        driverId="demo-driver-123" // TODO: Get from auth context
-        vehicleId="demo-vehicle-456" // TODO: Get from context or selection
-        tenantId={TENANT_ID}
+        driverId={driverId}
+        vehicleId="" // Set when a vehicle is selected in UI
+        tenantId={tenantId}
         onSuccess={() => {
           // Refetch will happen automatically via React Query cache invalidation
         }}
@@ -720,7 +724,7 @@ function HOSHubContent() {
         open={isViolationResolveDialogOpen}
         onOpenChange={setIsViolationResolveDialogOpen}
         violation={selectedViolation}
-        tenantId={TENANT_ID}
+        tenantId={tenantId}
         onSuccess={() => {
           // Refetch will happen automatically via React Query cache invalidation
           setSelectedViolation(null)
@@ -731,7 +735,7 @@ function HOSHubContent() {
       <DOTReportsDialog
         open={isDOTReportsDialogOpen}
         onOpenChange={setIsDOTReportsDialogOpen}
-        tenantId={TENANT_ID}
+        tenantId={tenantId}
       />
     </>
   )
