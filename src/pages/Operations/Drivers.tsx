@@ -61,7 +61,7 @@ export function DriversOperations() {
   // Handler: Create driver
   const handleCreateDriver = async () => {
     try {
-      if (!formData.name || !formData.email || !formData.licenseNumber) {
+      if (!formData.name || !formData.email || !formData.phone || !formData.licenseNumber || !formData.licenseExpiry) {
         toast.error('Please fill in all required fields');
         return;
       }
@@ -190,6 +190,23 @@ export function DriversOperations() {
         placeholder="License number"
         value={formData.licenseNumber || ''}
         onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
+        className="bg-slate-700/50 border-slate-600 text-white"
+        disabled={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <Input
+        placeholder="License state"
+        value={formData.licenseState || ''}
+        onChange={(e) => setFormData({ ...formData, licenseState: e.target.value })}
+        className="bg-slate-700/50 border-slate-600 text-white"
+        disabled={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <Input
+        placeholder="License expiry"
+        type="date"
+        value={formData.licenseExpiry ? String(formData.licenseExpiry).slice(0, 10) : ''}
+        onChange={(e) => setFormData({ ...formData, licenseExpiry: e.target.value })}
         className="bg-slate-700/50 border-slate-600 text-white"
         disabled={createMutation.isPending || updateMutation.isPending}
       />

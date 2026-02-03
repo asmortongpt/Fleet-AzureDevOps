@@ -13,7 +13,7 @@
 import { Pool } from 'pg';
 
 interface Vehicle3DModel {
-  id: number;
+  id: string;
   make: string;
   model: string;
   year: number;
@@ -43,9 +43,9 @@ interface Vehicle3DModel {
 }
 
 interface Vehicle3DInstance {
-  id: number;
-  vehicleId: number;
-  model3dId: number;
+  id: string;
+  vehicleId: string;
+  model3dId: string;
   exteriorColorHex?: string;
   exteriorColorName?: string;
   interiorColorHex?: string;
@@ -67,7 +67,7 @@ interface DamageMarker {
 }
 
 interface CustomizationOption {
-  id: number;
+  id: string;
   category: string;
   itemName: string;
   itemCode?: string;
@@ -82,8 +82,8 @@ interface CustomizationOption {
 }
 
 interface ARSessionData {
-  vehicleId: number;
-  userId?: number;
+  vehicleId: string;
+  userId?: string;
   platform: 'iOS' | 'Android' | 'WebXR';
   arFramework: string;
   deviceModel?: string;
@@ -96,8 +96,8 @@ interface ARSessionData {
 }
 
 interface RenderRequest {
-  vehicleId: number;
-  instance3dId?: number;
+  vehicleId: string;
+  instance3dId?: string;
   renderName: string;
   cameraAngle: 'front' | 'rear' | 'side' | '3quarter' | 'interior' | 'overhead';
   resolutionWidth?: number;
@@ -117,18 +117,55 @@ class VehicleModelsService {
   /**
    * Get 3D model for a vehicle
    */
-  async getVehicle3DModel(vehicleId: number): Promise<any> {
-    const query = `
-      SELECT id, tenant_id, vehicle_id, viewer_config, created_at, updated_at FROM vehicle_3d_viewer_data
-      WHERE vehicle_id = $1
+  async getVehicle3DModel(vehicleId: string): Promise<any> {
+    const baseSelect = `
+      SELECT
+        id,
+        tenant_id,
+        vehicle_id,
+        model_name,
+        model_type,
+        file_url as glb_model_url,
+        thumbnail_url,
+        poly_count,
+        status,
+        metadata,
+        created_at,
+        updated_at
+      FROM vehicle_3d_models
+      WHERE status = 'active'
     `;
 
-    const result = await this.db.query(query, [vehicleId]);
-    if (result.rows.length === 0) {
-      throw new Error(`3D model not found for vehicle`);
+    const direct = await this.db.query(
+      `${baseSelect} AND vehicle_id = $1 ORDER BY created_at DESC LIMIT 1`,
+      [vehicleId]
+    );
+
+    if (direct.rows.length > 0) {
+      return direct.rows[0];
     }
 
-    return result.rows[0];
+    const vehicleResult = await this.db.query(
+      `SELECT type FROM vehicles WHERE id = $1`,
+      [vehicleId]
+    );
+    const vehicleType = vehicleResult.rows[0]?.type;
+
+    if (vehicleType) {
+      const generic = await this.db.query(
+        `${baseSelect} AND model_type = $1 AND vehicle_id IS NULL ORDER BY created_at DESC LIMIT 1`,
+        [vehicleType]
+      );
+
+      if (generic.rows.length > 0) {
+        return generic.rows[0];
+      }
+    }
+
+    const fallback = await this.db.query(
+      `${baseSelect} ORDER BY created_at DESC LIMIT 1`
+    );
+    return fallback.rows[0] || null;
   }
 
   /**
@@ -141,34 +178,47 @@ class VehicleModelsService {
     bodyStyle?: string;
   }): Promise<Vehicle3DModel[]> {
     let query = `
-      SELECT id, tenant_id, model_name, model_file, created_at, updated_at FROM vehicle_3d_models
-      WHERE is_published = true
+      SELECT
+        id,
+        tenant_id,
+        vehicle_id,
+        model_name,
+        model_type,
+        file_url as glb_model_url,
+        thumbnail_url,
+        poly_count,
+        status,
+        metadata,
+        created_at,
+        updated_at
+      FROM vehicle_3d_models
+      WHERE status = 'active'
     `;
     const params: any[] = [];
     let paramIndex = 1;
 
     if (filters?.make) {
-      query += ` AND make = $${paramIndex}`;
+      query += ` AND (metadata->>'make') = $${paramIndex}`;
       params.push(filters.make);
       paramIndex++;
     }
     if (filters?.model) {
-      query += ` AND model = $${paramIndex}`;
+      query += ` AND (metadata->>'model') = $${paramIndex}`;
       params.push(filters.model);
       paramIndex++;
     }
     if (filters?.year) {
-      query += ` AND year = $${paramIndex}`;
-      params.push(filters.year);
+      query += ` AND (metadata->>'year') = $${paramIndex}`;
+      params.push(String(filters.year));
       paramIndex++;
     }
     if (filters?.bodyStyle) {
-      query += ` AND body_style = $${paramIndex}`;
+      query += ` AND (metadata->>'bodyStyle' = $${paramIndex} OR model_type = $${paramIndex})`;
       params.push(filters.bodyStyle);
       paramIndex++;
     }
 
-    query += ` ORDER BY make, model, year DESC`;
+    query += ` ORDER BY created_at DESC`;
 
     const result = await this.db.query(query, params);
     return result.rows;
@@ -220,7 +270,7 @@ class VehicleModelsService {
   /**
    * Update vehicle customization
    */
-  async updateCustomization(vehicleId: number, customization: {
+  async updateCustomization(vehicleId: string, customization: {
     exteriorColorHex?: string;
     exteriorColorName?: string;
     interiorColorHex?: string;
@@ -228,6 +278,45 @@ class VehicleModelsService {
     wheelStyle?: string;
     trimPackage?: string;
   }): Promise<Vehicle3DInstance> {
+    const instanceTable = await this.db.query(
+      `SELECT to_regclass('public.vehicle_3d_instances') as table_name`
+    );
+
+    if (!instanceTable.rows[0]?.table_name) {
+      const metadataPatch = {
+        customization: {
+          exteriorColorHex: customization.exteriorColorHex,
+          exteriorColorName: customization.exteriorColorName,
+          interiorColorHex: customization.interiorColorHex,
+          interiorColorName: customization.interiorColorName,
+          wheelStyle: customization.wheelStyle,
+          trimPackage: customization.trimPackage
+        }
+      };
+
+      await this.db.query(
+        `UPDATE vehicle_3d_models
+         SET metadata = COALESCE(metadata, '{}'::jsonb) || $2::jsonb, updated_at = NOW()
+         WHERE vehicle_id = $1`,
+        [vehicleId, JSON.stringify(metadataPatch)]
+      );
+
+      const fallback = await this.db.query(
+        `SELECT id, vehicle_id as "vehicleId", file_url as "glbModelUrl", metadata
+         FROM vehicle_3d_models
+         WHERE vehicle_id = $1
+         ORDER BY created_at DESC
+         LIMIT 1`,
+        [vehicleId]
+      );
+
+      if (fallback.rows.length === 0) {
+        throw new Error('Vehicle 3D model not found');
+      }
+
+      return fallback.rows[0] as any;
+    }
+
     const query = `
       UPDATE vehicle_3d_instances
       SET
@@ -262,9 +351,32 @@ class VehicleModelsService {
   /**
    * Get customization options for a model
    */
-  async getCustomizationOptions(model3dId?: number, category?: string): Promise<CustomizationOption[]> {
+  async getCustomizationOptions(model3dId?: string, category?: string): Promise<CustomizationOption[]> {
+    const existsResult = await this.db.query(
+      `SELECT to_regclass('public.vehicle_3d_customization_catalog') as table_name`
+    );
+    if (!existsResult.rows[0]?.table_name) {
+      return [];
+    }
+
     let query = `
-      SELECT id, tenant_id, customization_name, category, preview_url, created_at FROM vehicle_3d_customization_catalog
+      SELECT
+        id,
+        model_3d_id as "model3dId",
+        category,
+        item_name as "itemName",
+        item_code as "itemCode",
+        preview_image_url as "previewImageUrl",
+        model_url as "modelUrl",
+        texture_url as "textureUrl",
+        color_hex as "colorHex",
+        metallic_value as "metallicValue",
+        roughness_value as "roughnessValue",
+        price_usd as "priceUsd",
+        is_available as "isAvailable",
+        display_order as "displayOrder",
+        description
+      FROM vehicle_3d_customization_catalog
       WHERE is_available = true
     `;
     const params: any[] = [];
@@ -291,7 +403,25 @@ class VehicleModelsService {
   /**
    * Update damage markers from AI detection
    */
-  async updateDamageMarkers(vehicleId: number, damageMarkers: DamageMarker[]): Promise<void> {
+  async updateDamageMarkers(vehicleId: string, damageMarkers: DamageMarker[]): Promise<void> {
+    const instanceTable = await this.db.query(
+      `SELECT to_regclass('public.vehicle_3d_instances') as table_name`
+    );
+
+    if (!instanceTable.rows[0]?.table_name) {
+      const metadataPatch = {
+        damageMarkers
+      };
+
+      await this.db.query(
+        `UPDATE vehicle_3d_models
+         SET metadata = COALESCE(metadata, '{}'::jsonb) || $2::jsonb, updated_at = NOW()
+         WHERE vehicle_id = $1`,
+        [vehicleId, JSON.stringify(metadataPatch)]
+      );
+      return;
+    }
+
     const query = `
       UPDATE vehicle_3d_instances
       SET
@@ -307,7 +437,7 @@ class VehicleModelsService {
   /**
    * Track AR session
    */
-  async trackARSession(sessionData: ARSessionData): Promise<number> {
+  async trackARSession(sessionData: ARSessionData): Promise<string> {
     const query = `
       INSERT INTO ar_sessions (
         vehicle_id, user_id, platform, ar_framework, device_model, os_version,
@@ -338,7 +468,7 @@ class VehicleModelsService {
   /**
    * End AR session
    */
-  async endARSession(sessionId: number, updates: {
+  async endARSession(sessionId: string, updates: {
     placementAttempts?: number;
     successfulPlacements?: number;
     screenshotsTaken?: number;
@@ -378,7 +508,8 @@ class VehicleModelsService {
     const daysNum = Math.max(1, Math.min(365, days || 30))
 
     const query = `
-      SELECT id, tenant_id, session_date, total_sessions, avg_session_duration, unique_users FROM ar_session_analytics
+      SELECT *
+      FROM ar_session_analytics
       WHERE session_date >= CURRENT_DATE - INTERVAL '${daysNum} days'
       ORDER BY session_date DESC
     `;
@@ -390,7 +521,7 @@ class VehicleModelsService {
   /**
    * Create render request
    */
-  async createRenderRequest(renderData: RenderRequest): Promise<number> {
+  async createRenderRequest(renderData: RenderRequest): Promise<string> {
     const query = `
       INSERT INTO vehicle_3d_renders (
         vehicle_id, instance_3d_id, render_name, camera_angle,
@@ -504,7 +635,7 @@ class VehicleModelsService {
    * Get performance summary
    */
   async getPerformanceSummary(): Promise<any[]> {
-    const query = `SELECT id, tenant_id, render_date, total_renders, avg_render_time, cache_hit_rate FROM performance_3d_summary`;
+    const query = `SELECT * FROM performance_3d_summary`;
     const result = await this.db.query(query);
     return result.rows;
   }
@@ -513,62 +644,111 @@ class VehicleModelsService {
    * Find or create 3D model for vehicle
    */
   async findOrCreateModelForVehicle(
-    vehicleId: number,
+    vehicleId: string,
     vehicleInfo: { make: string; model: string; year: number; trim?: string }
   ): Promise<Vehicle3DInstance> {
-    // Check if vehicle already has a 3D instance
-    const existingQuery = `
-      SELECT id, tenant_id, vehicle_id, model_id, customization_data, created_at FROM vehicle_3d_instances WHERE vehicle_id = $1
-    `;
-    const existing = await this.db.query(existingQuery, [vehicleId]);
+    const existing = await this.db.query(
+      `SELECT
+        id,
+        vehicle_id as "vehicleId",
+        model_name as "modelName",
+        model_type as "modelType",
+        file_url as "glbModelUrl",
+        thumbnail_url as "thumbnailUrl",
+        poly_count as "polyCount",
+        metadata,
+        created_at,
+        updated_at
+       FROM vehicle_3d_models
+       WHERE vehicle_id = $1
+       ORDER BY created_at DESC
+       LIMIT 1`,
+      [vehicleId]
+    );
 
     if (existing.rows.length > 0) {
-      return existing.rows[0];
+      return existing.rows[0] as any;
     }
 
-    // Find matching 3D model
-    const modelQuery = `
-      SELECT id FROM vehicle_3d_models
-      WHERE make = $1 AND model = $2 AND year = $3
-        AND ($4::text IS NULL OR trim = $4)
-        AND is_published = true
-      ORDER BY version DESC
-      LIMIT 1
-    `;
-    const modelResult = await this.db.query(modelQuery, [
-      vehicleInfo.make,
-      vehicleInfo.model,
-      vehicleInfo.year,
-      vehicleInfo.trim
-    ]);
+    const vehicleResult = await this.db.query(
+      `SELECT tenant_id, type FROM vehicles WHERE id = $1`,
+      [vehicleId]
+    );
+    const tenantId = vehicleResult.rows[0]?.tenant_id;
+    const vehicleType = vehicleResult.rows[0]?.type;
 
-    let model3dId: number;
-
-    if (modelResult.rows.length > 0) {
-      model3dId = modelResult.rows[0].id;
-    } else {
-      // Use placeholder based on body type
-      const placeholderQuery = `
-        SELECT id FROM vehicle_3d_models
-        WHERE make = 'Generic'
-        ORDER BY year DESC
-        LIMIT 1
-      `;
-      const placeholder = await this.db.query(placeholderQuery);
-      model3dId = placeholder.rows[0]?.id;
-
-      if (!model3dId) {
-        throw new Error('No 3D models available');
-      }
+    if (!tenantId) {
+      throw new Error('Vehicle not found');
     }
 
-    // Create instance
-    return this.upsertVehicle3DInstance({
-      vehicleId,
-      model3dId,
-      exteriorColorHex: '#ffffff',
-      exteriorColorName: 'White'
-    });
+    const templateResult = await this.db.query(
+      `SELECT
+         model_name,
+         model_type,
+         file_url,
+         thumbnail_url,
+         poly_count,
+         metadata
+       FROM vehicle_3d_models
+       WHERE status = 'active' AND vehicle_id IS NULL
+         AND ($1::text IS NULL OR metadata->>'make' = $1)
+         AND ($2::text IS NULL OR metadata->>'model' = $2)
+       ORDER BY created_at DESC
+       LIMIT 1`,
+      [vehicleInfo.make || null, vehicleInfo.model || null]
+    );
+
+    const template = templateResult.rows[0]
+      || (await this.db.query(
+        `SELECT model_name, model_type, file_url, thumbnail_url, poly_count, metadata
+         FROM vehicle_3d_models
+         WHERE status = 'active'
+         ORDER BY created_at DESC
+         LIMIT 1`
+      )).rows[0];
+
+    if (!template) {
+      throw new Error('No 3D models available');
+    }
+
+    const insertResult = await this.db.query(
+      `INSERT INTO vehicle_3d_models (
+        tenant_id,
+        vehicle_id,
+        model_name,
+        model_type,
+        file_url,
+        thumbnail_url,
+        poly_count,
+        status,
+        metadata,
+        created_at,
+        updated_at
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,'active',$8,NOW(),NOW())
+      RETURNING
+        id,
+        vehicle_id as "vehicleId",
+        model_name as "modelName",
+        model_type as "modelType",
+        file_url as "glbModelUrl",
+        thumbnail_url as "thumbnailUrl",
+        poly_count as "polyCount",
+        metadata,
+        created_at,
+        updated_at`,
+      [
+        tenantId,
+        vehicleId,
+        template.model_name || vehicleInfo.model || 'Fleet Model',
+        template.model_type || vehicleType || null,
+        template.file_url,
+        template.thumbnail_url,
+        template.poly_count,
+        template.metadata || {}
+      ]
+    );
+
+    return insertResult.rows[0] as any;
   }
 
   /**
@@ -580,33 +760,35 @@ class VehicleModelsService {
     yearRange: { min: number; max: number };
   }> {
     const makesQuery = `
-      SELECT DISTINCT make FROM vehicle_3d_models
-      WHERE is_published = true
+      SELECT DISTINCT COALESCE(metadata->>'make', model_name) as make
+      FROM vehicle_3d_models
+      WHERE status = 'active'
       ORDER BY make
     `;
     const makesResult = await this.db.query(makesQuery);
-    const makes = makesResult.rows.map(r => r.make);
+    const makes = makesResult.rows.map(r => r.make).filter(Boolean);
 
     const modelsByMake: Record<string, string[]> = {};
     for (const make of makes) {
       const modelsQuery = `
-        SELECT DISTINCT model FROM vehicle_3d_models
-        WHERE make = $1 AND is_published = true
+        SELECT DISTINCT COALESCE(metadata->>'model', model_name) as model
+        FROM vehicle_3d_models
+        WHERE status = 'active' AND (metadata->>'make' = $1 OR model_name = $1)
         ORDER BY model
       `;
       const modelsResult = await this.db.query(modelsQuery, [make]);
-      modelsByMake[make] = modelsResult.rows.map(r => r.model);
+      modelsByMake[make] = modelsResult.rows.map(r => r.model).filter(Boolean);
     }
 
     const yearsQuery = `
-      SELECT MIN(year) as min_year, MAX(year) as max_year
+      SELECT MIN((metadata->>'year')::int) as min_year, MAX((metadata->>'year')::int) as max_year
       FROM vehicle_3d_models
-      WHERE is_published = true
+      WHERE status = 'active' AND metadata ? 'year'
     `;
     const yearsResult = await this.db.query(yearsQuery);
     const yearRange = {
-      min: yearsResult.rows[0].min_year,
-      max: yearsResult.rows[0].max_year
+      min: yearsResult.rows[0].min_year || 0,
+      max: yearsResult.rows[0].max_year || 0
     };
 
     return { makes, modelsByMake, yearRange };

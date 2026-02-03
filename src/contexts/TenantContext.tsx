@@ -59,13 +59,14 @@ export const TenantProvider = ({ children }: TenantProviderProps) => {
                 }
 
                 const payload = await response.json();
-                const settingsData = payload?.data?.settings || {};
+                const tenantPayload = payload?.data?.data || payload?.data || payload;
+                const settingsData = tenantPayload?.settings || {};
 
                 setSettings({
                     branding: {
                         primaryColor: settingsData.branding?.primaryColor || '#0f172a',
                         logoUrl: settingsData.branding?.logoUrl || '/logos/logo-horizontal.svg',
-                        companyName: settingsData.branding?.companyName || user.tenantName || 'Organization',
+                        companyName: settingsData.branding?.companyName || tenantPayload?.name || user.tenantName || 'Organization',
                     },
                     features: settingsData.features || {},
                     region: settingsData.region || 'US-East',

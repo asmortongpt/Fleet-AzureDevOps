@@ -24,8 +24,10 @@ export function PdfViewer({ document, state, onStateChange }: PdfViewerProps) {
   const [showAnnotations, setShowAnnotations] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const pageCount = document.pageCount || 10; // Mock page count
+  const pageCount = document.pageCount ?? state.pageCount ?? 1;
+  const hasPageCount = typeof document.pageCount === 'number' || typeof state.pageCount === 'number';
   const currentPage = state.currentPage || 1;
+  const pdfSrc = document.url ? `${document.url}#page=${currentPage}&zoom=${state.zoom}` : null;
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= pageCount) {
@@ -93,7 +95,7 @@ export function PdfViewer({ document, state, onStateChange }: PdfViewerProps) {
                 aria-label="Current page"
               />
               <span className="text-sm text-muted-foreground">
-                / {pageCount}
+                / {hasPageCount ? pageCount : '—'}
               </span>
             </div>
 
@@ -147,36 +149,17 @@ export function PdfViewer({ document, state, onStateChange }: PdfViewerProps) {
               transition: 'transform 0.2s ease',
             }}
           >
-            {/* PDF.js canvas will be rendered here */}
-            {/* For now, showing a placeholder */}
-            <div className="bg-white shadow-sm" style={{ width: 612, minHeight: 792 }}>
-              <div className="p-12 space-y-2">
-                <div className="h-6 bg-gray-200 rounded w-3/4" />
-                <div className="h-4 bg-gray-100 rounded" />
-                <div className="h-4 bg-gray-100 rounded" />
-                <div className="h-4 bg-gray-100 rounded w-5/6" />
-                <div className="h-8" />
-                <div className="h-4 bg-gray-100 rounded" />
-                <div className="h-4 bg-gray-100 rounded w-4/5" />
-                <div className="h-4 bg-gray-100 rounded" />
-                <div className="h-8" />
-                <div className="h-6 bg-gray-200 rounded w-1/2" />
-                <div className="h-4 bg-gray-100 rounded" />
-                <div className="h-4 bg-gray-100 rounded w-5/6" />
-
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-                  <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
-                    <p className="text-sm text-muted-foreground mb-2">PDF Viewer</p>
-                    <p className="text-xs text-muted-foreground">
-                      Page {currentPage} of {pageCount}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Integrate pdf.js for full PDF rendering
-                    </p>
-                  </div>
-                </div>
+            {pdfSrc ? (
+              <iframe
+                src={pdfSrc}
+                className="w-full h-[80vh] bg-white shadow-sm rounded-md"
+                title={`PDF Preview: ${document.name}`}
+              />
+            ) : (
+              <div className="text-sm text-muted-foreground">
+                PDF source unavailable for this document.
               </div>
-            </div>
+            )}
           </div>
         </ScrollArea>
       </div>

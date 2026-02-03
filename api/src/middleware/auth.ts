@@ -13,6 +13,8 @@ export interface AuthRequest extends Request {
     tenant_id?: string
     scope_level?: string
     team_driver_ids?: string[]
+    // Session management
+    sessionId?: string
     // Aliases for compatibility
     userId?: string
     tenantId?: string
@@ -53,15 +55,90 @@ export const authenticateJWT = async (
 
   if (!token) {
     logger.info('❌ AUTH MIDDLEWARE - No token provided (checked header and cookie)')
-    return res.status(401).json({ error: 'Authentication required' })
+    return res.status(401).json({
+      error: 'Authentication required',
+      errorCode: 'NO_TOKEN'
+    })
   }
 
   // SECURITY: All auth must use FIPS-compliant RS256 verification
+  // Try to validate token using both local and Azure AD methods
   try {
+    logger.info('🔑 AUTH MIDDLEWARE - Attempting token validation')
+
+    // First, try to decode token to identify its type
     const { FIPSJWTService } = await import('../services/fips-jwt.service')
-    const decoded = FIPSJWTService.verifyAccessToken(token)
-    req.user = decoded
-    logger.info('✅ AUTH MIDDLEWARE - JWT token validated successfully via FIPS Service')
+    const decoded = FIPSJWTService.decode(token)
+
+    // Check if token is from Azure AD (has 'tid' claim) or local (has 'type' claim)
+    const isAzureADToken = decoded && decoded.tid && !decoded.type
+    const isLocalToken = decoded && decoded.type === 'access'
+
+    let validatedUser: any = null
+
+    if (isAzureADToken) {
+      // Azure AD token validation
+      logger.info('🔵 AUTH MIDDLEWARE - Detected Azure AD token, validating...')
+      const { default: AzureADTokenValidator } = await import('../services/azure-ad-token-validator')
+      const { default: jwtConfig } = await import('../config/jwt-config')
+
+      const validationResult = await AzureADTokenValidator.validateToken(token, {
+        tenantId: jwtConfig.azureAD.tenantId,
+        audience: jwtConfig.azureAD.clientId,
+        allowedAlgorithms: jwtConfig.azureAD.allowedAlgorithms
+      })
+
+      if (!validationResult.valid) {
+        logger.error('❌ AUTH MIDDLEWARE - Azure AD token validation failed:', {
+          error: validationResult.error,
+          errorCode: validationResult.errorCode
+        })
+        return res.status(403).json({
+          error: validationResult.error || 'Invalid Azure AD token',
+          errorCode: validationResult.errorCode || 'AZURE_AD_VALIDATION_FAILED'
+        })
+      }
+
+      // Extract user info from Azure AD token
+      const userInfo = AzureADTokenValidator.extractUserInfo(validationResult.payload!)
+
+      // Map Azure AD user to our user object format
+      validatedUser = {
+        id: userInfo.id,
+        email: userInfo.email,
+        name: userInfo.name,
+        role: 'viewer', // Default role for Azure AD users
+        tenant_id: userInfo.tenantId,
+        // Add compatibility aliases
+        userId: userInfo.id,
+        tenantId: userInfo.tenantId,
+        azureAD: true // Flag to indicate this is an Azure AD user
+      }
+
+      logger.info('✅ AUTH MIDDLEWARE - Azure AD token validated successfully', {
+        userId: userInfo.id,
+        email: userInfo.email
+      })
+    } else if (isLocalToken) {
+      // Local Fleet token validation
+      logger.info('🟢 AUTH MIDDLEWARE - Detected local Fleet token, validating...')
+      validatedUser = FIPSJWTService.verifyAccessToken(token)
+      logger.info('✅ AUTH MIDDLEWARE - Local JWT token validated successfully via FIPS Service')
+    } else {
+      // Unknown token format
+      logger.error('❌ AUTH MIDDLEWARE - Unknown token format', {
+        hasType: !!decoded?.type,
+        hasTid: !!decoded?.tid,
+        hasIss: !!decoded?.iss
+      })
+      return res.status(403).json({
+        error: 'Unknown token format',
+        errorCode: 'INVALID_TOKEN_FORMAT'
+      })
+    }
+
+    // Set user on request
+    req.user = validatedUser
 
     // SECURITY FIX: Check if token has been revoked (CVSS 7.2)
     // Call checkRevoked if it has been registered
@@ -73,8 +150,30 @@ export const authenticateJWT = async (
       return next()
     }
   } catch (error: any) {
-    logger.error('❌ AUTH MIDDLEWARE - Invalid or expired token:', error.message)
-    return res.status(403).json({ error: 'Invalid or expired token', message: error.message })
+    logger.error('❌ AUTH MIDDLEWARE - Token validation error:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack
+    })
+
+    // Map error to specific error codes
+    let errorCode = 'VALIDATION_FAILED'
+    let statusCode = 403
+
+    if (error.name === 'TokenExpiredError') {
+      errorCode = 'TOKEN_EXPIRED'
+      statusCode = 401
+    } else if (error.name === 'JsonWebTokenError') {
+      errorCode = 'INVALID_TOKEN'
+    } else if (error.name === 'NotBeforeError') {
+      errorCode = 'TOKEN_NOT_ACTIVE'
+    }
+
+    return res.status(statusCode).json({
+      error: 'Invalid or expired token',
+      message: error.message,
+      errorCode
+    })
   }
 }
 

@@ -22,8 +22,8 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import { useState, useMemo, Suspense, lazy, useEffect } from 'react'
 
-import { DamageStrip, generateDemoDamages, type DamagePin } from '@/components/garage/DamageStrip'
-import { TimelineDrawer, generateDemoEvents, type TimelineEvent } from '@/components/garage/TimelineDrawer'
+import { DamageStrip, type DamagePin } from '@/components/garage/DamageStrip'
+import { TimelineDrawer, type TimelineEvent } from '@/components/garage/TimelineDrawer'
 import { VehicleHUD, type VehicleStats } from '@/components/garage/VehicleHUD'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -84,76 +84,6 @@ interface OBD2Telemetry {
 }
 
 // ============================================================================
-// DEMO DATA
-// ============================================================================
-
-const DEMO_VEHICLES: GarageVehicle[] = [
-  {
-    id: 'demo-1',
-    name: 'Fleet Truck #1',
-    make: 'Ford',
-    model: 'F-150 Lightning',
-    year: 2024,
-    vin: '1FTFW1E82NFA12345',
-    licensePlate: 'FL-ELEC-01',
-    assetTag: 'FLT-001',
-    category: 'LIGHT_COMMERCIAL',
-    type: 'PICKUP_TRUCK',
-    color: '#2563eb',
-    department: 'Operations',
-    status: 'AVAILABLE',
-    mileage: 45230,
-    oilLife: 72,
-    brakeLife: 65,
-    tireHealth: 80,
-    batteryHealth: 95,
-    bayId: 'bay-1'
-  },
-  {
-    id: 'demo-2',
-    name: 'Executive SUV',
-    make: 'Tesla',
-    model: 'Model Y',
-    year: 2024,
-    vin: '5YJSA1E26FF123456',
-    licensePlate: 'FL-EV-002',
-    assetTag: 'EXEC-002',
-    category: 'PASSENGER_VEHICLE',
-    type: 'SUV',
-    color: '#dc2626',
-    department: 'Executive',
-    status: 'AVAILABLE',
-    mileage: 28500,
-    oilLife: 100, // EV
-    brakeLife: 90,
-    tireHealth: 75,
-    batteryHealth: 98,
-    bayId: 'bay-2'
-  },
-  {
-    id: 'demo-3',
-    name: 'Service Van #3',
-    make: 'Mercedes',
-    model: 'Sprinter',
-    year: 2023,
-    vin: 'WD3PF0CD5PP123456',
-    licensePlate: 'FL-VAN-03',
-    assetTag: 'SVC-003',
-    category: 'LIGHT_COMMERCIAL',
-    type: 'CARGO_VAN',
-    color: '#6366f1',
-    department: 'Service',
-    status: 'AVAILABLE',
-    mileage: 62400,
-    oilLife: 45,
-    brakeLife: 55,
-    tireHealth: 60,
-    batteryHealth: 85,
-    bayId: 'bay-3'
-  }
-]
-
-// ============================================================================
 // FETCH FUNCTIONS
 // ============================================================================
 
@@ -180,17 +110,17 @@ async function fetchVehicles(): Promise<GarageVehicle[]> {
           status: v.status,
           mileage: v.mileage || v.odometer,
           engineHours: v.engineHours,
-          oilLife: v.oilLife || Math.floor(Math.random() * 40 + 60),
-          brakeLife: v.brakeLife || Math.floor(Math.random() * 40 + 50),
-          tireHealth: v.tireHealth || Math.floor(Math.random() * 30 + 60),
-          batteryHealth: v.batteryHealth || Math.floor(Math.random() * 20 + 75)
+          oilLife: v.oilLife,
+          brakeLife: v.brakeLife,
+          tireHealth: v.tireHealth,
+          batteryHealth: v.batteryHealth
         }))
       }
     }
   } catch (e) {
-    logger.debug('[VirtualGarage3D] API unavailable, using demo data')
+    logger.debug('[VirtualGarage3D] API unavailable')
   }
-  return DEMO_VEHICLES
+  return []
 }
 
 async function fetchTelemetry(vehicleId: string): Promise<OBD2Telemetry | null> {
@@ -204,22 +134,9 @@ async function fetchTelemetry(vehicleId: string): Promise<OBD2Telemetry | null> 
       }
     }
   } catch {
-    // Return simulated data
+    return null
   }
-  // Return simulated telemetry
-  return {
-    vehicleId,
-    timestamp: new Date(),
-    rpm: Math.floor(Math.random() * 2000 + 800),
-    speed: Math.floor(Math.random() * 45),
-    coolantTemp: Math.floor(Math.random() * 30 + 180),
-    fuelLevel: Math.floor(Math.random() * 40 + 40),
-    batteryVoltage: 12.4 + Math.random() * 1.2,
-    engineLoad: Math.floor(Math.random() * 40 + 20),
-    throttlePosition: Math.floor(Math.random() * 30),
-    dtcCodes: [],
-    checkEngineLight: false
-  }
+  return null
 }
 
 // ============================================================================
@@ -314,15 +231,15 @@ export function VirtualGarage3D({ data: _data }: { data?: any }) {
     }
   }, [vehicles, selectedVehicle])
 
-  // Generate demo timeline and damage data for selected vehicle
+  // Timeline and damage data (real API integration pending)
   const timelineEvents = useMemo<TimelineEvent[]>(() => {
     if (!selectedVehicle) return []
-    return generateDemoEvents(selectedVehicle.id)
+    return []
   }, [selectedVehicle])
 
   const damageData = useMemo<DamagePin[]>(() => {
     if (!selectedVehicle) return []
-    return generateDemoDamages(selectedVehicle.id)
+    return []
   }, [selectedVehicle])
 
   // Build vehicle stats for HUD
