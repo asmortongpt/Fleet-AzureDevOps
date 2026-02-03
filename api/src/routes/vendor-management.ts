@@ -329,10 +329,10 @@ router.get(
       ${status ? `AND status = $${[vendor_id, contract_type].filter(Boolean).length + 2}` : ''}
     `;
 
-    const countParams = [tenantId];
-    if (vendor_id) countParams.push(vendor_id);
-    if (contract_type) countParams.push(contract_type);
-    if (status) countParams.push(status);
+    const countParams: any[] = [tenantId];
+    if (vendor_id) countParams.push(vendor_id as string);
+    if (contract_type) countParams.push(contract_type as string);
+    if (status) countParams.push(status as string);
 
     const countResult = await pool.query(countQuery, countParams);
 
