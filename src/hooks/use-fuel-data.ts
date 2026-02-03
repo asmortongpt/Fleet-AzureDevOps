@@ -1,5 +1,6 @@
 import { useMemo } from "react"
 
+import { useFuelTransactions } from "@/hooks/use-api"
 import { Vehicle } from "@/lib/types"
 
 export interface FuelRecord {
@@ -15,40 +16,60 @@ export interface FuelRecord {
 }
 
 export function useFuelData(vehicles: Vehicle[]) {
-  const fuelRecords = useMemo((): FuelRecord[] => {
-    const records: FuelRecord[] = []
-    const locations = ["Main Depot", "North Station", "South Station", "Highway 95", "Downtown"]
+  const { data } = useFuelTransactions()
 
-    vehicles.slice(0, 20).forEach((vehicle, idx) => {
-      const numRecords = Math.floor(Math.random() * 8) + 3
-      let currentOdometer = vehicle.mileage
-
-      for (let i = 0; i < numRecords; i++) {
-        const daysAgo = (numRecords - i - 1) * 3
-        const date = new Date()
-        date.setDate(date.getDate() - daysAgo)
-
-        const gallons = Math.floor(Math.random() * 20) + 5
-        const costPerGallon = 3.2 + Math.random() * 0.8
-        const milesDriven = Math.floor(Math.random() * 300) + 50
-        currentOdometer -= milesDriven
-
-        records.push({
-          id: `fuel-${idx}-${i}`,
-          vehicleNumber: vehicle.number,
-          vehicleName: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
-          date: date.toISOString().split("T")[0],
-          gallons: gallons,
-          cost: parseFloat((gallons * costPerGallon).toFixed(2)),
-          odometer: currentOdometer,
-          mpg: parseFloat((milesDriven / gallons).toFixed(1)),
-          location: locations[Math.floor(Math.random() * locations.length)]
-        })
-      }
+  const vehicleById = useMemo(() => {
+    const map = new Map<string, Vehicle>()
+    vehicles.forEach((vehicle) => {
+      if (vehicle.id) map.set(String(vehicle.id), vehicle)
+      if (vehicle.number) map.set(String(vehicle.number), vehicle)
     })
-
-    return records.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    return map
   }, [vehicles])
+
+  const fuelRecords = useMemo((): FuelRecord[] => {
+    const transactions = Array.isArray(data)
+      ? data
+      : Array.isArray((data as any)?.data)
+        ? (data as any).data
+        : []
+
+    return transactions
+      .map((transaction: any) => {
+        const vehicleId =
+          transaction.vehicleId ||
+          transaction.vehicle_id ||
+          transaction.vehicleNumber ||
+          transaction.vehicle_number
+        const vehicle = vehicleId ? vehicleById.get(String(vehicleId)) : undefined
+
+        const date =
+          transaction.date ||
+          transaction.transaction_date ||
+          transaction.created_at ||
+          transaction.createdAt
+
+        const gallons = Number(transaction.gallons ?? transaction.quantity ?? 0)
+        const cost = Number(transaction.totalCost ?? transaction.total_cost ?? transaction.cost ?? 0)
+
+        return {
+          id: String(transaction.id || `${vehicleId || "fuel"}-${date || "record"}`),
+          vehicleNumber: transaction.vehicleNumber || transaction.vehicle_number || vehicle?.number || "",
+          vehicleName:
+            transaction.vehicleName ||
+            transaction.vehicle_name ||
+            (vehicle ? `${vehicle.year ?? ""} ${vehicle.make ?? ""} ${vehicle.model ?? ""}`.trim() : ""),
+          date: date || "",
+          gallons,
+          cost,
+          odometer: Number(transaction.odometer ?? transaction.odometer_reading ?? 0),
+          mpg: Number(transaction.mpg ?? 0),
+          location: transaction.location || transaction.station
+        }
+      })
+      .filter((record) => record.date)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  }, [data, vehicleById])
 
   return { fuelRecords }
 }
