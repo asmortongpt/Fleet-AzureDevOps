@@ -128,7 +128,7 @@ router.post(
   '/',
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
-    permissions: [PERMISSIONS.VEHICLE_WRITE]
+    permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
     const tenantId = (req as any).user?.tenant_id;
@@ -235,7 +235,7 @@ router.put(
   '/:id',
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
-    permissions: [PERMISSIONS.VEHICLE_WRITE]
+    permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
     const tenantId = (req as any).user?.tenant_id;
@@ -306,7 +306,7 @@ router.post(
   '/vehicles/:vehicleId/tires/mount',
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
-    permissions: [PERMISSIONS.VEHICLE_WRITE]
+    permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
     const tenantId = (req as any).user?.tenant_id;
@@ -365,7 +365,7 @@ router.post(
   '/vehicles/:vehicleId/tires/unmount',
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
-    permissions: [PERMISSIONS.VEHICLE_WRITE]
+    permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
     const tenantId = (req as any).user?.tenant_id;
@@ -432,7 +432,7 @@ router.post(
   '/vehicles/:vehicleId/tires/rotate',
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
-    permissions: [PERMISSIONS.VEHICLE_WRITE]
+    permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
     const tenantId = (req as any).user?.tenant_id;
@@ -493,7 +493,7 @@ router.post(
   '/vehicles/:vehicleId/tires/inspect',
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
-    permissions: [PERMISSIONS.VEHICLE_WRITE]
+    permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
     const tenantId = (req as any).user?.tenant_id;
@@ -570,7 +570,7 @@ router.post(
   '/pressure-log',
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER, Role.USER],
-    permissions: [PERMISSIONS.VEHICLE_WRITE]
+    permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
     const tenantId = (req as any).user?.tenant_id;

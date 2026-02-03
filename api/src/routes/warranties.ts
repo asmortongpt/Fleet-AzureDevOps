@@ -76,7 +76,7 @@ const createWarrantySchema = z.object({
     transferable: z.boolean().optional(),
     prorated: z.boolean().optional(),
     notes: z.string().optional(),
-    metadata: z.record(z.any()).optional()
+    metadata: z.record(z.string(), z.any()).optional()
 });
 
 const updateWarrantySchema = createWarrantySchema.partial().extend({
@@ -112,7 +112,7 @@ const createClaimSchema = z.object({
         upload_date: z.string().or(z.date())
     })).optional(),
     notes: z.string().optional(),
-    metadata: z.record(z.any()).optional()
+    metadata: z.record(z.string(), z.any()).optional()
 });
 
 const updateClaimStatusSchema = z.object({

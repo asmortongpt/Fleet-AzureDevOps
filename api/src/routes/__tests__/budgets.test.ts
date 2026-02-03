@@ -5,7 +5,7 @@
  * @created 2026-02-02
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { Pool } from 'pg';
 import { BudgetTrackingService } from '../../services/budget-tracking';
 import { ApprovalWorkflowService } from '../../services/approval-workflow';
