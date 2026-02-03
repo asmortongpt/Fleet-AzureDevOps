@@ -22,13 +22,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import logger from '@/utils/logger';
 import {
   sendMessage,
   generateContextPrompt,
   type Message,
-  type AIModel,
   type StreamCallback
 } from '@/services/aiService';
 
@@ -42,13 +40,12 @@ export function AIChatPanel({ hubType = 'general', onClose }: AIChatPanelProps) 
     {
       id: '1',
       role: 'assistant',
-      content: `Hello! I'm your Fleet Intelligence Assistant powered by AI. I can help you with:\n\n• Vehicle maintenance scheduling and tracking\n• Route optimization and fuel efficiency\n• Cost analysis and budget forecasting\n• Safety compliance and driver performance\n• Real-time operations and dispatching\n\nWhat would you like to know?`,
+      content: `Hello! I'm your Fleet Intelligence Assistant.\n\nI can help with:\n\n• Vehicle maintenance scheduling and tracking\n• Route optimization and fuel efficiency\n• Cost analysis and budget forecasting\n• Safety compliance and audit readiness\n• Real-time operations and dispatching\n\nAsk a question to get started.`,
       timestamp: new Date()
     }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedModel, setSelectedModel] = useState<AIModel>('claude');
   const [streamingContent, setStreamingContent] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -109,9 +106,10 @@ export function AIChatPanel({ hubType = 'general', onClose }: AIChatPanelProps) 
       // Send message to AI with streaming
       await sendMessage(
         contextPrompt,
-        selectedModel,
+        'openai',
         messages.filter(m => m.role !== 'system'),
-        streamCallback
+        streamCallback,
+        hubType
       );
     } catch (error) {
       logger.error('AI error:', error);
@@ -213,16 +211,6 @@ export function AIChatPanel({ hubType = 'general', onClose }: AIChatPanelProps) 
               Fleet AI Assistant
             </CardTitle>
             <div className="flex items-center gap-2">
-              <Select value={selectedModel} onValueChange={(value) => setSelectedModel(value as AIModel)}>
-                <SelectTrigger className="w-[140px] h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="claude">Claude 3.5</SelectItem>
-                  <SelectItem value="openai">GPT-4 Turbo</SelectItem>
-                  <SelectItem value="gemini">Gemini Pro</SelectItem>
-                </SelectContent>
-              </Select>
               <Button
                 variant="ghost"
                 size="sm"
@@ -331,7 +319,7 @@ export function AIChatPanel({ hubType = 'general', onClose }: AIChatPanelProps) 
             <div className="flex items-center gap-2 mb-2">
               <AlertCircle className="h-3 w-3 text-muted-foreground" />
               <p className="text-xs text-muted-foreground">
-                Powered by {selectedModel === 'claude' ? 'Claude 3.5 Sonnet' : selectedModel === 'openai' ? 'GPT-4 Turbo' : 'Gemini Pro'}
+                Powered by server-configured AI
               </p>
             </div>
             <div className="flex gap-2">
@@ -348,7 +336,11 @@ export function AIChatPanel({ hubType = 'general', onClose }: AIChatPanelProps) 
                 disabled={isLoading}
                 className="flex-1"
               />
-              <Button onClick={sendUserMessage} disabled={isLoading || !input.trim()}>
+              <Button
+                onClick={sendUserMessage}
+                disabled={isLoading || !input.trim()}
+                aria-label="Send message"
+              >
                 <Send className="h-4 w-4" />
               </Button>
             </div>

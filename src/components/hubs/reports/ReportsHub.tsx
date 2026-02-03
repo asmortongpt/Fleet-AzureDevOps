@@ -21,12 +21,14 @@ import {
   FolderOpen,
   Zap
 } from "lucide-react"
-import { useState, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -43,6 +45,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useAuth } from "@/contexts/AuthContext"
+import { secureFetch } from "@/hooks/use-api"
 
 // Report types and status
 type ReportCategory = "fleet" | "maintenance" | "safety" | "compliance" | "financial" | "operations"
@@ -84,186 +88,6 @@ interface ScheduledReport {
   enabled: boolean
 }
 
-// Demo data for report templates
-const demoTemplates: ReportTemplate[] = [
-  {
-    id: "tpl-001",
-    name: "Fleet Utilization Report",
-    description: "Comprehensive analysis of fleet utilization rates, idle time, and efficiency metrics",
-    category: "fleet",
-    lastGenerated: "2025-12-29",
-    frequency: "weekly",
-    format: ["pdf", "xlsx"],
-    estimatedTime: "2-3 min"
-  },
-  {
-    id: "tpl-002",
-    name: "Maintenance Cost Analysis",
-    description: "Detailed breakdown of maintenance costs by vehicle, category, and vendor",
-    category: "maintenance",
-    lastGenerated: "2025-12-28",
-    frequency: "monthly",
-    format: ["pdf", "xlsx", "csv"],
-    estimatedTime: "3-5 min"
-  },
-  {
-    id: "tpl-003",
-    name: "Safety Incident Summary",
-    description: "Monthly safety incident report with OSHA compliance metrics",
-    category: "safety",
-    lastGenerated: "2025-12-01",
-    frequency: "monthly",
-    format: ["pdf"],
-    estimatedTime: "1-2 min"
-  },
-  {
-    id: "tpl-004",
-    name: "Compliance Status Report",
-    description: "Vehicle registration, inspection, and certification compliance status",
-    category: "compliance",
-    lastGenerated: "2025-12-15",
-    frequency: "weekly",
-    format: ["pdf", "xlsx"],
-    estimatedTime: "2-3 min"
-  },
-  {
-    id: "tpl-005",
-    name: "Fuel Consumption Analysis",
-    description: "Fuel usage trends, efficiency metrics, and cost analysis by vehicle and route",
-    category: "operations",
-    lastGenerated: "2025-12-29",
-    frequency: "daily",
-    format: ["xlsx", "csv"],
-    estimatedTime: "1-2 min"
-  },
-  {
-    id: "tpl-006",
-    name: "Driver Performance Scorecard",
-    description: "Individual and team driver performance metrics and safety scores",
-    category: "operations",
-    lastGenerated: "2025-12-27",
-    frequency: "weekly",
-    format: ["pdf", "xlsx"],
-    estimatedTime: "2-3 min"
-  },
-  {
-    id: "tpl-007",
-    name: "Financial Summary",
-    description: "Fleet operational costs, revenue metrics, and budget variance analysis",
-    category: "financial",
-    lastGenerated: "2025-12-01",
-    frequency: "monthly",
-    format: ["pdf", "xlsx"],
-    estimatedTime: "4-6 min"
-  },
-  {
-    id: "tpl-008",
-    name: "Vehicle Lifecycle Report",
-    description: "Asset depreciation, replacement planning, and TCO analysis",
-    category: "fleet",
-    lastGenerated: "2025-11-30",
-    frequency: "quarterly",
-    format: ["pdf", "xlsx"],
-    estimatedTime: "5-8 min"
-  }
-]
-
-// Demo generated reports
-const demoGeneratedReports: GeneratedReport[] = [
-  {
-    id: "rpt-001",
-    templateId: "tpl-001",
-    name: "Fleet Utilization Report - Dec 2025",
-    generatedAt: "2025-12-29T14:30:00Z",
-    generatedBy: "System (Scheduled)",
-    format: "pdf",
-    size: "2.4 MB",
-    status: "ready",
-    downloadUrl: "#"
-  },
-  {
-    id: "rpt-002",
-    templateId: "tpl-005",
-    name: "Fuel Consumption Analysis - Dec 29",
-    generatedAt: "2025-12-29T06:00:00Z",
-    generatedBy: "System (Scheduled)",
-    format: "xlsx",
-    size: "1.8 MB",
-    status: "ready",
-    downloadUrl: "#"
-  },
-  {
-    id: "rpt-003",
-    templateId: "tpl-002",
-    name: "Maintenance Cost Analysis - Nov 2025",
-    generatedAt: "2025-12-01T09:15:00Z",
-    generatedBy: "John Smith",
-    format: "pdf",
-    size: "3.2 MB",
-    status: "ready",
-    downloadUrl: "#"
-  },
-  {
-    id: "rpt-004",
-    templateId: "tpl-006",
-    name: "Driver Performance Scorecard - Week 52",
-    generatedAt: "2025-12-27T08:00:00Z",
-    generatedBy: "System (Scheduled)",
-    format: "xlsx",
-    size: "1.1 MB",
-    status: "ready",
-    downloadUrl: "#"
-  }
-]
-
-// Demo scheduled reports
-const demoScheduledReports: ScheduledReport[] = [
-  {
-    id: "sch-001",
-    templateId: "tpl-001",
-    name: "Fleet Utilization Report",
-    frequency: "Weekly (Monday)",
-    nextRun: "2026-01-06T08:00:00Z",
-    lastRun: "2025-12-29T08:00:00Z",
-    recipients: ["fleet-managers@company.com", "operations@company.com"],
-    format: "pdf",
-    enabled: true
-  },
-  {
-    id: "sch-002",
-    templateId: "tpl-005",
-    name: "Fuel Consumption Analysis",
-    frequency: "Daily (6:00 AM)",
-    nextRun: "2025-12-30T06:00:00Z",
-    lastRun: "2025-12-29T06:00:00Z",
-    recipients: ["operations@company.com"],
-    format: "xlsx",
-    enabled: true
-  },
-  {
-    id: "sch-003",
-    templateId: "tpl-003",
-    name: "Safety Incident Summary",
-    frequency: "Monthly (1st)",
-    nextRun: "2026-01-01T09:00:00Z",
-    lastRun: "2025-12-01T09:00:00Z",
-    recipients: ["safety@company.com", "hr@company.com", "management@company.com"],
-    format: "pdf",
-    enabled: true
-  },
-  {
-    id: "sch-004",
-    templateId: "tpl-007",
-    name: "Financial Summary",
-    frequency: "Monthly (5th)",
-    nextRun: "2026-01-05T07:00:00Z",
-    lastRun: "2025-12-05T07:00:00Z",
-    recipients: ["finance@company.com", "cfo@company.com"],
-    format: "xlsx",
-    enabled: false
-  }
-]
-
 const getCategoryColor = (category: ReportCategory): string => {
   switch (category) {
     case "fleet": return "bg-blue-500/10 text-blue-800"
@@ -287,24 +111,153 @@ const getStatusColor = (status: ReportStatus): string => {
 }
 
 export function ReportsHub() {
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState("templates")
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
+  const [templates, setTemplates] = useState<ReportTemplate[]>([])
+  const [generatedReports, setGeneratedReports] = useState<GeneratedReport[]>([])
+  const [scheduledReports, setScheduledReports] = useState<ScheduledReport[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false)
+  const [scheduleForm, setScheduleForm] = useState({
+    templateId: "",
+    schedule: "weekly",
+    recipients: "",
+    format: "pdf" as ReportFormat
+  })
+
+  const fetchJson = async (path: string, options?: RequestInit) => {
+    const response = await secureFetch(path, options)
+    if (!response.ok) {
+      const message = await response.text()
+      throw new Error(message || `Request failed: ${response.status}`)
+    }
+    return response.json()
+  }
+
+  const loadReports = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const [templatesResponse, historyResponse, scheduledResponse] = await Promise.all([
+        fetchJson("/api/reports/templates"),
+        fetchJson("/api/reports/history"),
+        fetchJson("/api/reports/scheduled")
+      ])
+
+      const mappedTemplates: ReportTemplate[] = (templatesResponse.data || []).map((template: any) => ({
+        id: template.id,
+        name: template.title,
+        description: template.description,
+        category: (template.category || template.domain || "operations") as ReportCategory,
+        lastGenerated: template.lastUsed,
+        format: [],
+        estimatedTime: ""
+      }))
+
+      const mappedHistory: GeneratedReport[] = (historyResponse.data || []).map((report: any) => ({
+        id: report.id,
+        templateId: report.templateId,
+        name: report.title,
+        generatedAt: report.generatedAt,
+        generatedBy: report.generatedBy,
+        format: report.format,
+        size: report.size ? `${Math.round(report.size / 1024)} KB` : "0 KB",
+        status: report.status === "completed" ? "ready" : report.status,
+        downloadUrl: report.downloadUrl
+      }))
+
+      const mappedScheduled: ScheduledReport[] = (scheduledResponse.data || []).map((schedule: any) => ({
+        id: schedule.id,
+        templateId: schedule.templateId,
+        name: schedule.name || schedule.templateId,
+        frequency: schedule.schedule,
+        nextRun: schedule.nextRun,
+        lastRun: schedule.lastRun,
+        recipients: schedule.recipients || [],
+        format: schedule.format,
+        enabled: schedule.status === "active"
+      }))
+
+      setTemplates(mappedTemplates)
+      setGeneratedReports(mappedHistory)
+      setScheduledReports(mappedScheduled)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load reports")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadReports()
+  }, [])
+
+  const handleGenerateReport = async (template: ReportTemplate) => {
+    try {
+      await fetchJson("/api/reports/execute", {
+        method: "POST",
+        body: JSON.stringify({
+          reportId: template.id,
+          filters: {},
+          userId: user?.id
+        })
+      })
+      await loadReports()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate report")
+    }
+  }
+
+  const openScheduleDialog = (template: ReportTemplate) => {
+    setScheduleForm({
+      templateId: template.id,
+      schedule: "weekly",
+      recipients: "",
+      format: "pdf"
+    })
+    setScheduleDialogOpen(true)
+  }
+
+  const handleScheduleReport = async () => {
+    try {
+      const recipients = scheduleForm.recipients
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean)
+
+      await fetchJson("/api/reports/scheduled", {
+        method: "POST",
+        body: JSON.stringify({
+          templateId: scheduleForm.templateId,
+          schedule: scheduleForm.schedule,
+          recipients,
+          format: scheduleForm.format
+        })
+      })
+      setScheduleDialogOpen(false)
+      await loadReports()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to schedule report")
+    }
+  }
 
   const filteredTemplates = useMemo(() => {
-    return demoTemplates.filter(template => {
+    return templates.filter(template => {
       if (categoryFilter !== "all" && template.category !== categoryFilter) return false
       if (searchQuery && !template.name.toLowerCase().includes(searchQuery.toLowerCase())) return false
       return true
     })
-  }, [categoryFilter, searchQuery])
+  }, [categoryFilter, searchQuery, templates])
 
   const stats = useMemo(() => ({
-    totalTemplates: demoTemplates.length,
-    generatedThisMonth: demoGeneratedReports.length,
-    scheduledActive: demoScheduledReports.filter(r => r.enabled).length,
-    scheduledTotal: demoScheduledReports.length
-  }), [])
+    totalTemplates: templates.length,
+    generatedThisMonth: generatedReports.length,
+    scheduledActive: scheduledReports.filter(r => r.enabled).length,
+    scheduledTotal: scheduledReports.length
+  }), [generatedReports.length, scheduledReports, templates.length])
 
   return (
     <div className="h-screen overflow-hidden bg-background flex flex-col">
@@ -319,6 +272,9 @@ export function ReportsHub() {
             <p className="text-sm text-muted-foreground mt-1">
               Generate, schedule, and manage fleet reports
             </p>
+            {error && (
+              <p className="text-xs text-red-600 mt-1">{error}</p>
+            )}
           </div>
           <div className="flex gap-2">
             <Button variant="outline">
@@ -456,22 +412,30 @@ export function ReportsHub() {
                         <Badge className={getCategoryColor(template.category)}>
                           {template.category}
                         </Badge>
-                        <Badge variant="outline">
-                          {template.frequency}
-                        </Badge>
+                        {template.frequency && (
+                          <Badge variant="outline">
+                            {template.frequency}
+                          </Badge>
+                        )}
                       </div>
 
                       <div className="flex items-center justify-between text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          <span>{template.estimatedTime}</span>
+                          <span>{template.estimatedTime || "—"}</span>
                         </div>
                         <div className="flex gap-1">
-                          {template.format.map(f => (
-                            <Badge key={f} variant="secondary" className="text-xs">
-                              {f.toUpperCase()}
+                          {template.format.length > 0 ? (
+                            template.format.map(f => (
+                              <Badge key={f} variant="secondary" className="text-xs">
+                                {f.toUpperCase()}
+                              </Badge>
+                            ))
+                          ) : (
+                            <Badge variant="secondary" className="text-xs">
+                              N/A
                             </Badge>
-                          ))}
+                          )}
                         </div>
                       </div>
 
@@ -482,11 +446,11 @@ export function ReportsHub() {
                       )}
 
                       <div className="flex gap-2 pt-2">
-                        <Button size="sm" className="flex-1">
+                        <Button size="sm" className="flex-1" onClick={() => handleGenerateReport(template)}>
                           <Play className="w-3 h-3 mr-1" />
                           Generate
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => openScheduleDialog(template)}>
                           <Calendar className="w-3 h-3 mr-1" />
                           Schedule
                         </Button>
@@ -495,6 +459,9 @@ export function ReportsHub() {
                   </CardContent>
                 </Card>
               ))}
+              {!loading && filteredTemplates.length === 0 && (
+                <div className="text-sm text-muted-foreground">No report templates available.</div>
+              )}
             </div>
           </TabsContent>
 
@@ -518,7 +485,7 @@ export function ReportsHub() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {demoGeneratedReports.map(report => (
+                    {generatedReports.map(report => (
                       <TableRow key={report.id}>
                         <TableCell className="font-medium">{report.name}</TableCell>
                         <TableCell>
@@ -535,13 +502,25 @@ export function ReportsHub() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button size="sm" variant="outline">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => report.downloadUrl && window.open(report.downloadUrl, "_blank")}
+                            disabled={!report.downloadUrl}
+                          >
                             <Download className="w-3 h-3 mr-1" />
                             Download
                           </Button>
                         </TableCell>
                       </TableRow>
                     ))}
+                    {!loading && generatedReports.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center text-muted-foreground">
+                          No reports generated yet.
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -568,7 +547,7 @@ export function ReportsHub() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {demoScheduledReports.map(schedule => (
+                    {scheduledReports.map(schedule => (
                       <TableRow key={schedule.id}>
                         <TableCell className="font-medium">{schedule.name}</TableCell>
                         <TableCell>{schedule.frequency}</TableCell>
@@ -595,6 +574,13 @@ export function ReportsHub() {
                         </TableCell>
                       </TableRow>
                     ))}
+                    {!loading && scheduledReports.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center text-muted-foreground">
+                          No scheduled reports configured.
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -602,6 +588,63 @@ export function ReportsHub() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <Dialog open={scheduleDialogOpen} onOpenChange={setScheduleDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Schedule Report</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label htmlFor="schedule">Schedule</Label>
+              <Select
+                value={scheduleForm.schedule}
+                onValueChange={(value) => setScheduleForm((prev) => ({ ...prev, schedule: value }))}
+              >
+                <SelectTrigger id="schedule">
+                  <SelectValue placeholder="Select schedule" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="daily">Daily</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="recipients">Recipients</Label>
+              <Input
+                id="recipients"
+                placeholder="email1@agency.gov, email2@agency.gov"
+                value={scheduleForm.recipients}
+                onChange={(e) => setScheduleForm((prev) => ({ ...prev, recipients: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="format">Format</Label>
+              <Select
+                value={scheduleForm.format}
+                onValueChange={(value) => setScheduleForm((prev) => ({ ...prev, format: value as ReportFormat }))}
+              >
+                <SelectTrigger id="format">
+                  <SelectValue placeholder="Select format" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pdf">PDF</SelectItem>
+                  <SelectItem value="xlsx">XLSX</SelectItem>
+                  <SelectItem value="csv">CSV</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setScheduleDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleScheduleReport}>Save Schedule</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

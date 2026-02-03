@@ -106,11 +106,32 @@ export class FleetAPI {
     const corsOrigin = process.env.CORS_ORIGIN;
     const allowedOrigins = corsOrigin
       ? corsOrigin.split(',').map(origin => origin.trim()).filter(Boolean)
-      : undefined;
+      : [];
+
+    const defaultDevOrigins = [
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      'http://localhost:4173',
+      'http://127.0.0.1:4173',
+    ];
+
+    const isDevelopment = process.env.NODE_ENV !== 'production';
+    const allowlist = [...allowedOrigins, ...(isDevelopment ? defaultDevOrigins : [])];
+
+    if (!isDevelopment && allowlist.length === 0) {
+      throw new Error('CORS_ORIGIN must be set in production to at least one allowed origin (no wildcard allowed when credentials=true)');
+    }
+
+    logger.info('[CORS] Allowlist configured', { allowlist, isDevelopment });
 
     this.app.use(cors({
-      origin: allowedOrigins || (process.env.NODE_ENV === 'development' ? true : false),
-      credentials: true,
+      origin: (origin, callback) => {
+        // Allow same-origin or non-browser requests with no Origin header
+        if (!origin) return callback(null, true);
+        if (allowlist.includes(origin)) return callback(null, true);
+        return callback(new Error(`CORS: Origin ${origin} not allowed`), false);
+      },
+      credentials: true, // requires explicit allowlist (no wildcard)
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID']
     }));

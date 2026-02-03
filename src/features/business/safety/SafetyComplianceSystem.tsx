@@ -58,17 +58,7 @@ import {
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 
-// Mock database hook functions for demonstration
-const useDatabase = () => ({
-  getDrivers: () => [
-    { id: 'DRV-001', firstName: 'John', lastName: 'Smith' },
-    { id: 'DRV-002', firstName: 'Jane', lastName: 'Doe' },
-    { id: 'DRV-003', firstName: 'Bob', lastName: 'Johnson' },
-    { id: 'DRV-004', firstName: 'Alice', lastName: 'Williams' },
-    { id: 'DRV-005', firstName: 'Charlie', lastName: 'Brown' },
-  ],
-  getVehicles: () => []
-});
+import { useAuth } from '@/contexts';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -104,7 +94,8 @@ const SafetyComplianceSystem: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterStatus, setFilterStatus] = useState('all');
 
-  const { getDrivers, getVehicles } = useDatabase();
+  const { getCurrentTenant } = useAuth();
+  const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
   useEffect(() => {
     loadData();
@@ -113,228 +104,132 @@ const SafetyComplianceSystem: React.FC = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const driversData = getDrivers();
-      setDrivers(driversData);
-
-      // Generate safety incidents data
-      const incidentsData = [
-        {
-          id: 'INC-2024-001',
-          date: '2024-01-15',
-          time: '14:30',
-          type: 'Vehicle Collision',
-          severity: 'Minor',
-          vehicleId: 'VEH-003',
-          driverId: 'DRV-003',
-          location: 'Parking Lot B',
-          description: 'Minor fender bender while backing up',
-          injuries: false,
-          propertyDamage: true,
-          estimatedCost: 500,
-          status: 'Under Review',
-          investigator: 'John Safety',
-          rootCause: 'Driver Error',
-          correctiveActions: ['Additional training required', 'Review backing procedures'],
-          witnesses: ['Jane Doe', 'Bob Smith'],
-          policeReport: false,
-          insuranceClaim: 'CLM-2024-001'
-        },
-        {
-          id: 'INC-2024-002',
-          date: '2024-01-10',
-          time: '09:15',
-          type: 'Near Miss',
-          severity: 'Low',
-          vehicleId: 'VEH-001',
-          driverId: 'DRV-001',
-          location: 'Highway 275',
-          description: 'Close call with merging vehicle',
-          injuries: false,
-          propertyDamage: false,
-          status: 'Closed',
-          rootCause: 'Other Driver Error'
-        },
-        {
-          id: 'INC-2024-003',
-          date: '2024-01-08',
-          time: '16:45',
-          type: 'Equipment Failure',
-          severity: 'Medium',
-          vehicleId: 'VEH-002',
-          driverId: 'DRV-002',
-          location: 'Route 12',
-          description: 'Tire blowout on highway',
-          injuries: false,
-          propertyDamage: false,
-          status: 'Closed',
-          rootCause: 'Equipment Wear',
-          correctiveActions: ['Increase tire inspection frequency']
+      const fetchApi = async (path: string) => {
+        const response = await fetch(API_BASE + path, { credentials: 'include' });
+        if (!response.ok) {
+          throw new Error('Failed to fetch ' + path);
         }
-      ];
-      setIncidents(incidentsData);
+        const payload = await response.json();
+        return payload?.data ?? payload;
+      };
 
-      // Generate training records
-      const trainingsData = [
-        {
-          id: 'TRN-001',
-          name: 'Defensive Driving',
-          type: 'Required',
-          duration: '8 hours',
-          provider: 'National Safety Council',
-          validFor: '2 years',
-          completions: [
-            { driverId: 'DRV-001', completedDate: '2023-06-15', expiryDate: '2025-06-15', score: 95 },
-            { driverId: 'DRV-002', completedDate: '2023-07-20', expiryDate: '2025-07-20', score: 88 },
-            { driverId: 'DRV-003', completedDate: '2023-05-10', expiryDate: '2025-05-10', score: 92 }
-          ]
-        },
-        {
-          id: 'TRN-002',
-          name: 'First Aid/CPR',
-          type: 'Required',
-          duration: '4 hours',
-          provider: 'Red Cross',
-          validFor: '1 year',
-          completions: [
-            { driverId: 'DRV-001', completedDate: '2023-09-01', expiryDate: '2024-09-01', score: 100 },
-            { driverId: 'DRV-004', completedDate: '2023-10-15', expiryDate: '2024-10-15', score: 95 }
-          ]
-        },
-        {
-          id: 'TRN-003',
-          name: 'Hazmat Handling',
-          type: 'Specialized',
-          duration: '16 hours',
-          provider: 'DOT Certified',
-          validFor: '3 years',
-          completions: [
-            { driverId: 'DRV-003', completedDate: '2022-11-01', expiryDate: '2025-11-01', score: 90 }
-          ]
-        },
-        {
-          id: 'TRN-004',
-          name: 'School Bus Safety',
-          type: 'Required',
-          duration: '6 hours',
-          provider: 'State DOE',
-          validFor: '1 year',
-          completions: [
-            { driverId: 'DRV-001', completedDate: '2023-08-01', expiryDate: '2024-08-01', score: 98 }
-          ]
-        }
-      ];
-      setTrainings(trainingsData);
+      const tenantId = getCurrentTenant();
 
-      // Generate inspection records
-      const inspectionsData = [
-        {
-          id: 'INSP-2024-001',
-          date: '2024-01-17',
-          type: 'DOT Annual',
-          vehicleId: 'VEH-003',
-          inspector: 'DOT Inspector #4521',
-          result: 'Pass',
-          violations: [],
-          certificateNumber: 'DOT-2024-0117-003',
-          nextDue: '2025-01-17',
-          status: 'Completed'
-        },
-        {
-          id: 'INSP-2024-002',
-          date: '2024-01-15',
-          type: 'Pre-Trip',
-          vehicleId: 'VEH-001',
-          inspector: 'DRV-001',
-          result: 'Pass with Issues',
-          violations: ['Left turn signal dim'],
-          status: 'Action Required',
-          notes: 'Minor maintenance needed'
-        },
-        {
-          id: 'INSP-2024-003',
-          date: '2024-01-14',
-          type: 'Random Safety',
-          vehicleId: 'VEH-002',
-          inspector: 'Safety Team',
-          result: 'Pass',
-          violations: [],
-          status: 'Completed'
-        }
-      ];
-      setInspections(inspectionsData);
+      const [
+        driversPayload,
+        incidentsPayload,
+        trainingsPayload,
+        trainingProgressPayload,
+        inspectionsPayload,
+        policiesPayload,
+        violationsPayload
+      ] = await Promise.all([
+        fetchApi('/drivers?limit=200'),
+        fetchApi('/incidents?limit=200'),
+        fetchApi('/training/courses?limit=200'),
+        fetchApi('/training/progress'),
+        fetchApi('/osha-compliance/safety-inspections?limit=200'),
+        fetchApi('/policies?limit=200'),
+        tenantId ? fetchApi('/hos/violations?tenant_id=' + tenantId) : Promise.resolve([])
+      ]);
 
-      // Generate violations data
-      const violationsData = [
-        {
-          id: 'VIO-2024-001',
-          date: '2024-01-05',
-          driverId: 'DRV-003',
-          type: 'Moving Violation',
-          description: 'Speeding - 10mph over limit',
-          location: 'Interstate 75',
-          fineAmount: 150,
-          points: 3,
-          status: 'Paid',
-          courtDate: null
-        },
-        {
-          id: 'VIO-2023-012',
-          date: '2023-11-20',
-          driverId: 'DRV-005',
-          type: 'Equipment',
-          description: 'Broken taillight',
-          location: 'State Road 60',
-          fineAmount: 75,
-          points: 0,
-          status: 'Resolved',
-          courtDate: null
-        }
-      ];
-      setViolations(violationsData);
+      const driversData = Array.isArray(driversPayload) ? driversPayload : [];
+      setDrivers(driversData.map((driver: any) => ({
+        id: driver.id,
+        firstName: driver.first_name || driver.firstName || '',
+        lastName: driver.last_name || driver.lastName || ''
+      })));
 
-      // Generate safety policies
-      const policiesData = [
-        {
-          id: 'POL-001',
-          name: 'Vehicle Operation Safety Policy',
-          version: '2.1',
-          effectiveDate: '2023-01-01',
-          category: 'Operations',
-          mandatory: true,
-          description: 'Comprehensive vehicle operation safety guidelines',
-          lastReviewed: '2023-12-01',
-          nextReview: '2024-12-01',
-          acknowledgements: 45,
-          totalRequired: 50
-        },
-        {
-          id: 'POL-002',
-          name: 'Personal Protective Equipment',
-          version: '1.5',
-          effectiveDate: '2023-06-01',
-          category: 'Safety Equipment',
-          mandatory: true,
-          description: 'PPE requirements for all maintenance staff',
-          lastReviewed: '2023-11-15',
-          nextReview: '2024-05-15',
-          acknowledgements: 12,
-          totalRequired: 12
-        },
-        {
-          id: 'POL-003',
-          name: 'Incident Reporting Procedures',
-          version: '3.0',
-          effectiveDate: '2023-03-01',
-          category: 'Compliance',
-          mandatory: true,
-          description: 'Guidelines for reporting and documenting incidents',
-          lastReviewed: '2023-09-01',
-          nextReview: '2024-03-01',
-          acknowledgements: 50,
-          totalRequired: 50
-        }
-      ];
-      setPolicies(policiesData);
+      const incidentsData = Array.isArray(incidentsPayload) ? incidentsPayload : [];
+      setIncidents(incidentsData.map((incident: any) => {
+        const incidentDate = incident.incident_date || incident.date || incident.created_at;
+        const dateObj = incidentDate ? new Date(incidentDate) : null;
+        return {
+          id: incident.number || incident.id,
+          date: dateObj ? dateObj.toISOString().split('T')[0] : '',
+          time: dateObj ? dateObj.toTimeString().slice(0, 5) : '',
+          type: incident.type || incident.incident_type || 'Incident',
+          severity: incident.severity || 'Unknown',
+          vehicleId: incident.vehicle_id,
+          driverId: incident.driver_id,
+          location: incident.location || incident.address || '',
+          description: incident.description || incident.incident_description || '',
+          injuries: Boolean(incident.injuries_count) || Boolean(incident.injuries),
+          propertyDamage: Boolean(incident.property_damage),
+          estimatedCost: incident.estimated_cost || 0,
+          status: incident.status || 'Open',
+          investigator: incident.investigator || incident.reported_by_name || '',
+          rootCause: incident.root_cause || '',
+          correctiveActions: incident.corrective_actions || [],
+          witnesses: incident.witnesses || [],
+          policeReport: Boolean(incident.police_report),
+          insuranceClaim: incident.insurance_claim_id || ''
+        };
+      }));
+
+      const trainings = Array.isArray(trainingsPayload) ? trainingsPayload : [];
+      const progress = Array.isArray(trainingProgressPayload) ? trainingProgressPayload : [];
+      const progressByCourse = new Map();
+      progress.forEach((row: any) => {
+        const list = progressByCourse.get(row.course_id) || [];
+        list.push({
+          driverId: row.driver_id,
+          completedDate: row.last_accessed || row.completed_date || row.updated_at,
+          expiryDate: row.expiry_date,
+          score: row.score
+        });
+        progressByCourse.set(row.course_id, list);
+      });
+
+      setTrainings(trainings.map((course: any) => ({
+        id: course.id,
+        name: course.title,
+        type: course.category || 'Required',
+        duration: course.duration_minutes ? String(course.duration_minutes) + ' minutes' : '',
+        provider: course.instructor || course.certification || 'Internal',
+        validFor: course.certification || '',
+        completions: progressByCourse.get(course.id) || []
+      })));
+
+      const inspections = Array.isArray(inspectionsPayload) ? inspectionsPayload : [];
+      setInspections(inspections.map((inspection: any) => ({
+        id: inspection.id,
+        type: inspection.type || inspection.inspection_type || 'Inspection',
+        date: inspection.started_at || inspection.scheduled_at || inspection.created_at,
+        inspector: inspection.inspector_name || inspection.inspector || 'Inspector',
+        vehicleId: inspection.vehicle_id,
+        status: inspection.status || 'pending',
+        findings: inspection.findings || inspection.notes || '',
+        nextDue: inspection.next_due_date
+      })));
+
+      const violations = Array.isArray(violationsPayload) ? violationsPayload : [];
+      setViolations(violations.map((violation: any) => ({
+        id: violation.id,
+        type: violation.violation_type || violation.type || 'Violation',
+        date: violation.date_issued || violation.created_at,
+        vehicleId: violation.vehicle_id,
+        driverId: violation.driver_id,
+        severity: violation.severity || 'unknown',
+        status: violation.status || 'open',
+        description: violation.description || violation.notes || '',
+        fine: violation.fine_amount || 0
+      })));
+
+      const policies = Array.isArray(policiesPayload) ? policiesPayload : [];
+      setPolicies(policies.map((policy: any) => ({
+        id: policy.id,
+        name: policy.name,
+        version: policy.version,
+        effectiveDate: policy.effective_date,
+        category: policy.category,
+        mandatory: Boolean(policy.is_active),
+        description: policy.description || '',
+        lastReviewed: policy.updated_at || policy.created_at,
+        nextReview: policy.next_review_date || '',
+        acknowledgements: policy.acknowledgements_count || 0,
+        totalRequired: driversData.length
+      })));
     } catch (error) {
       console.error('Error loading safety data:', error);
     } finally {
@@ -346,8 +241,9 @@ const SafetyComplianceSystem: React.FC = () => {
     const totalIncidents = incidents.length;
     const openIncidents = incidents.filter(i => i.status !== 'Closed').length;
     const injuryIncidents = incidents.filter(i => i.injuries).length;
-    const daysSinceLastIncident = incidents.length > 0
-      ? Math.floor((new Date().getTime() - new Date(incidents[0].date).getTime()) / (1000 * 60 * 60 * 24))
+    const lastIncidentDate = incidents.length > 0 && incidents[0].date ? new Date(incidents[0].date) : null;
+    const daysSinceLastIncident = lastIncidentDate && !isNaN(lastIncidentDate.getTime())
+      ? Math.floor((new Date().getTime() - lastIncidentDate.getTime()) / (1000 * 60 * 60 * 24))
       : 0;
 
     const totalTrainings = trainings.reduce((sum, t) => sum + t.completions.length, 0);
@@ -355,9 +251,11 @@ const SafetyComplianceSystem: React.FC = () => {
       sum + t.completions.filter((c: { expiryDate: string }) => new Date(c.expiryDate) < new Date()).length, 0
     );
 
-    const complianceRate = policies.reduce((sum, p) =>
-      sum + (p.acknowledgements / p.totalRequired), 0
-    ) / policies.length * 100;
+    const complianceRate = policies.length > 0
+      ? policies.reduce((sum, p) =>
+        sum + (p.acknowledgements / Math.max(p.totalRequired || drivers.length || 1, 1)), 0
+      ) / policies.length * 100
+      : 0;
 
     return {
       totalIncidents,
@@ -372,23 +270,53 @@ const SafetyComplianceSystem: React.FC = () => {
   };
 
   const getIncidentTrend = () => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-    return months.map(month => ({
-      month,
-      incidents: Math.floor(Math.random() * 5),
-      nearMiss: Math.floor(Math.random() * 8),
-      target: 2
-    }));
+    const now = new Date();
+    const months = Array.from({ length: 6 }).map((_, index) => {
+      const date = new Date(now.getFullYear(), now.getMonth() - (5 - index), 1);
+      return {
+        key: date.toISOString().slice(0, 7),
+        label: date.toLocaleDateString('en-US', { month: 'short' })
+      };
+    });
+
+    return months.map(month => {
+      const monthIncidents = incidents.filter((incident) => incident.date?.startsWith(month.key));
+      const nearMiss = monthIncidents.filter((incident) =>
+        String(incident.type || '').toLowerCase().includes('near')
+      ).length;
+      return {
+        month: month.label,
+        incidents: monthIncidents.length,
+        nearMiss,
+        target: 2
+      };
+    });
   };
 
   const getSafetyRadarData = () => {
+    const trainingCompletion = drivers.length > 0
+      ? Math.round((trainings.reduce((sum, t) => sum + (t.completions?.length || 0), 0) / drivers.length) * 100)
+      : 0;
+
+    const complianceRate = policies.length > 0
+      ? Math.round((policies.reduce((sum, p) => sum + (p.acknowledgements || 0) / Math.max(p.totalRequired || drivers.length || 1, 1), 0) / policies.length) * 100)
+      : 0;
+
+    const incidentScore = incidents.length === 0 ? 100 : Math.max(0, 100 - incidents.length * 5);
+    const inspectionScore = inspections.length === 0
+      ? 100
+      : Math.round((inspections.filter((i) => String(i.status || '').toLowerCase() === 'completed' || String(i.status || '').toLowerCase() === 'passed').length / inspections.length) * 100);
+
+    const equipmentScore = incidents.filter((i) => String(i.type || '').toLowerCase().includes('equipment')).length === 0 ? 100 : 70;
+    const documentationScore = policies.length > 0 ? complianceRate : 0;
+
     return [
-      { category: 'Training', score: 85, fullMark: 100 },
-      { category: 'Compliance', score: 92, fullMark: 100 },
-      { category: 'Incidents', score: 75, fullMark: 100 },
-      { category: 'Inspections', score: 88, fullMark: 100 },
-      { category: 'Equipment', score: 90, fullMark: 100 },
-      { category: 'Documentation', score: 95, fullMark: 100 }
+      { category: 'Training', score: trainingCompletion, fullMark: 100 },
+      { category: 'Compliance', score: complianceRate, fullMark: 100 },
+      { category: 'Incidents', score: incidentScore, fullMark: 100 },
+      { category: 'Inspections', score: inspectionScore, fullMark: 100 },
+      { category: 'Equipment', score: equipmentScore, fullMark: 100 },
+      { category: 'Documentation', score: documentationScore, fullMark: 100 }
     ];
   };
 
