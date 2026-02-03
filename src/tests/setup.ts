@@ -60,8 +60,17 @@ beforeAll(() => {
   // Mock scrollTo
   window.scrollTo = vi.fn();
 
-  // Mock fetch
-  global.fetch = vi.fn();
+  // NOTE: Do not globally mock fetch. Many tests (and app code paths) expect a real fetch
+  // implementation. Individual tests should stub fetch explicitly as needed.
+
+  // Prevent jsdom from throwing "Not implemented: navigation" when tests click <a href="...">.
+  // Default navigation is irrelevant to unit tests and can create noisy stderr and dangling timers.
+  if (typeof HTMLAnchorElement !== 'undefined') {
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+      this.dispatchEvent(event);
+    });
+  }
 
   // Suppress console errors in tests (optional - remove if you want to see errors)
   // console.error = vi.fn();

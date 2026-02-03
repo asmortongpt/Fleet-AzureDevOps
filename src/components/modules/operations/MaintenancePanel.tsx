@@ -5,7 +5,7 @@ import {
     Clock,
     CalendarCheck
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
@@ -18,6 +18,7 @@ import {
 } from "../../ui/sheet";
 
 import { useFleetData } from "@/hooks/use-fleet-data";
+import { useMaintenanceData } from "@/hooks/use-maintenance-data";
 
 interface MaintenancePanelProps {
     open: boolean;
@@ -26,25 +27,25 @@ interface MaintenancePanelProps {
 
 export const MaintenancePanel: React.FC<MaintenancePanelProps> = ({ open, onOpenChange }) => {
     const { vehicles = [] } = useFleetData();
+    const { maintenanceRecords } = useMaintenanceData(vehicles);
     const [filter, setFilter] = useState<'all' | 'overdue' | 'due-soon'>('all');
 
-    // Mock maintenance logic based on vehicles
-    const maintenanceTasks = vehicles.map(v => {
-        // Simulate some logic
-        const isOverdue = Math.random() > 0.8;
-        const isDueSoon = Math.random() > 0.6;
-        return {
-            id: v.id,
-            vehicleName: v.name,
-            status: isOverdue ? 'overdue' : (isDueSoon ? 'due-soon' : 'good'),
-            lastService: '2023-10-15',
-            nextService: isOverdue ? '2023-12-01' : '2024-02-15',
-            task: 'Regular Service B'
-        };
-    }).sort((a, b) => {
+    const maintenanceTasks = useMemo(() => {
+        const tasks = maintenanceRecords.map((record) => {
+            const status = record.status === 'overdue' ? 'overdue' : record.status === 'upcoming' ? 'due-soon' : 'good';
+            return {
+                id: record.id,
+                vehicleName: record.vehicleName || record.vehicleNumber || 'Vehicle',
+                status,
+                lastService: record.status === 'completed' ? record.date : record.date,
+                nextService: record.nextDue || record.date,
+                task: record.serviceType || 'Service'
+            };
+        });
+
         const score = (s: string) => s === 'overdue' ? 0 : s === 'due-soon' ? 1 : 2;
-        return score(a.status) - score(b.status);
-    });
+        return tasks.sort((a, b) => score(a.status) - score(b.status));
+    }, [maintenanceRecords]);
 
     const filteredTasks = maintenanceTasks.filter(t => {
         if (filter === 'all') return true;

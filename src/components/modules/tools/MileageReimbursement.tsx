@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { useAuth } from "@/hooks/useAuth"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { MileageReimbursement as MileageReimbursementType } from "@/lib/types"
 
@@ -30,6 +31,7 @@ interface MileageReimbursementProps {
 }
 
 export function MileageReimbursement() {
+  const { user } = useAuth()
   const data = useFleetData()
   const requests = (data.mileageReimbursements || []) as unknown as MileageReimbursementType[]
 
@@ -53,7 +55,7 @@ export function MileageReimbursement() {
 
     const newRequest: MileageReimbursementType = {
       id: `mr-${Date.now()}`,
-      employeeId: `EMP${Math.floor(Math.random() * 10000)}`,
+      employeeId: user?.id || "",
       employeeName,
       vehicleType,
       tripDate,

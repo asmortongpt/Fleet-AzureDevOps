@@ -66,7 +66,8 @@ interface AuthProviderProps {
 }
 
 // Development auth bypass flag
-const SKIP_AUTH = import.meta.env.VITE_SKIP_AUTH === 'true';
+// NOTE: This bypass is DEV-only. Production builds must never allow auth bypass.
+const SKIP_AUTH = import.meta.env.DEV && import.meta.env.VITE_SKIP_AUTH === 'true';
 
 const DEV_LOGIN_EMAIL = 'admin@fleet.local';
 

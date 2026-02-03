@@ -107,10 +107,6 @@ declare module '@/services/RealDataService' {
     export const realDataService: any;
 }
 
-declare module '@/services/EnhancedVehicleImageService' {
-    export const enhancedVehicleImageService: any;
-}
-
 declare module '@/services/ReferenceBasedVehicleGenerator' {
     export const referenceBasedVehicleGenerator: any;
 }
@@ -235,10 +231,6 @@ declare module '../vehicle/VehicleDetailView' {
 
 declare module './VehicleShowroomSelector' {
     export const VehicleShowroomSelector: React.ComponentType<any>;
-}
-
-declare module './services/EnhancedVehicleImageService' {
-    export const enhancedVehicleImageService: any;
 }
 
 // Radio dispatch modules

@@ -106,6 +106,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
   const [executiveReport, setExecutiveReport] = useState<ExecutiveReport | null>(null);
   const [selectedInsight, setSelectedInsight] = useState<PredictiveInsight | null>(null);
   const [realtimeKPIs, setRealtimeKPIs] = useState<any>(null);
+  const [costBreakdown, setCostBreakdown] = useState<{ name: string; value: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [dateRange, setDateRange] = useState({
@@ -124,7 +125,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
   const initializeData = async () => {
     try {
       setLoading(true);
-      const [metricsData, insightsData, trendsData, benchmarkData, optimizationData, reportData, realtimeData] = await Promise.all([
+      const [metricsData, insightsData, trendsData, benchmarkData, optimizationData, reportData, realtimeData, costBreakdownData] = await Promise.all([
         AdvancedAnalyticsService.getFleetMetrics(),
         AdvancedAnalyticsService.getPredictiveInsights(),
         AdvancedAnalyticsService.getKPITrends(),
@@ -134,7 +135,8 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
           start: dateRange.start,
           end: dateRange.end
         }),
-        AdvancedAnalyticsService.getRealtimeKPIs()
+        AdvancedAnalyticsService.getRealtimeKPIs(),
+        AdvancedAnalyticsService.getCostBreakdown()
       ]);
 
       setFleetMetrics(metricsData);
@@ -144,6 +146,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
       setOptimizations(optimizationData);
       setExecutiveReport(reportData);
       setRealtimeKPIs(realtimeData);
+      setCostBreakdown(costBreakdownData);
     } catch (error) {
       console.error('Error initializing analytics data:', error);
     } finally {
@@ -359,12 +362,18 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                     <Typography variant="h6" color="warning.main" gutterBottom>
                       Profit Margin
                     </Typography>
-                    <Typography variant="h4">{fleetMetrics.profitMargin}%</Typography>
+                    <Typography variant="h4">
+                      {fleetMetrics.profitMargin !== null && fleetMetrics.profitMargin !== undefined
+                        ? `${fleetMetrics.profitMargin}%`
+                        : 'N/A'}
+                    </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Revenue Efficiency
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>
-                      ${fleetMetrics.revenuePerVehicle}/vehicle
+                      {fleetMetrics.revenuePerVehicle !== null && fleetMetrics.revenuePerVehicle !== undefined
+                        ? `$${fleetMetrics.revenuePerVehicle}/vehicle`
+                        : 'N/A'}
                     </Typography>
                   </CardContent>
                 </Card>
@@ -399,13 +408,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                     <ResponsiveContainer width="100%" height={300}>
                       <PieChart>
                         <Pie
-                          data={[
-                            { name: 'Fuel', value: 285000 },
-                            { name: 'Maintenance', value: 145780 },
-                            { name: 'Insurance', value: 124600 },
-                            { name: 'Operations', value: 234500 },
-                            { name: 'Other', value: 102460 }
-                          ]}
+                          data={costBreakdown}
                           cx="50%"
                           cy="50%"
                           outerRadius={80}
@@ -413,15 +416,10 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                           dataKey="value"
                           label
                         >
-                          {[
-                            { name: 'Fuel', value: 285000 },
-                            { name: 'Maintenance', value: 145780 },
-                            { name: 'Insurance', value: 124600 },
-                            { name: 'Operations', value: 234500 },
-                            { name: 'Other', value: 102460 }
-                          ].map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={`#${Math.floor(Math.random()*16777215).toString(16)}`} />
-                          ))}
+                          {costBreakdown.map((entry, index) => {
+                            const palette = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#14b8a6'];
+                            return <Cell key={`cell-${index}`} fill={palette[index % palette.length]} />;
+                          })}
                         </Pie>
                         <RechartsTooltip />
                       </PieChart>
