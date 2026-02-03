@@ -4,7 +4,7 @@
  * Clean, professional login interface with SSO support
  */
 import { useMutation } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AlertCircle, Building2, Lock, Mail } from 'lucide-react'
 
@@ -17,10 +17,11 @@ import logger from '@/utils/logger'
 
 export function Login() {
   const navigate = useNavigate()
-  const { login, loginWithMicrosoft } = useAuth()
+  const { login, loginWithMicrosoft, isAuthenticated } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showEmailLogin, setShowEmailLogin] = useState(false)
+  const [devLoginLoading, setDevLoginLoading] = useState(false)
 
   // Handle errors from URL parameters
   const params = new URLSearchParams(window.location.search)
@@ -38,6 +39,35 @@ export function Login() {
   async function handleEmailLogin(e: React.FormEvent) {
     e.preventDefault()
     emailLoginMutation.mutate({ email, password })
+  }
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/')
+    }
+  }, [isAuthenticated, navigate])
+
+  async function handleDevLogin() {
+    try {
+      setDevLoginLoading(true)
+      const devLoginEmail = email || 'admin@fleet.local'
+      const response = await fetch('/api/auth/dev-login', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: devLoginEmail })
+      })
+
+      if (!response.ok) {
+        throw new Error('Dev login failed')
+      }
+
+      window.location.href = '/'
+    } catch (error) {
+      logger.error('Dev login failed', error)
+    } finally {
+      setDevLoginLoading(false)
+    }
   }
 
   return (
@@ -109,6 +139,17 @@ export function Login() {
                   <Mail className="w-4 h-4 mr-2" />
                   Sign in with Email
                 </Button>
+
+                {import.meta.env.DEV && (
+                  <Button
+                    onClick={handleDevLogin}
+                    variant="outline"
+                    className="w-full h-12 border-slate-300 hover:bg-slate-50"
+                    disabled={devLoginLoading}
+                  >
+                    {devLoginLoading ? 'Signing in...' : 'Dev Login (Local)'}
+                  </Button>
+                )}
               </div>
             ) : (
               <div className="space-y-4">

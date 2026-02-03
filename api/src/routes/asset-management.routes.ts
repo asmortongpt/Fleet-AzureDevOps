@@ -146,6 +146,61 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
 
 /**
  * @openapi
+ * /api/assets/analytics:
+ *   get:
+ *     summary: Get asset analytics with latest utilization metrics
+ *     tags: [Assets]
+ */
+router.get('/analytics', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
+  try {
+    const tenantId = req.user?.tenant_id
+
+    const result = await pool.query(
+      `SELECT
+        a.id,
+        a.asset_number as asset_tag,
+        a.name as asset_name,
+        a.type as asset_type,
+        a.status,
+        a.condition,
+        a.purchase_date,
+        a.purchase_price,
+        a.current_value,
+        a.assigned_facility_id,
+        f.name as facility_name,
+        f.latitude as facility_latitude,
+        f.longitude as facility_longitude,
+        aa.utilization_percentage,
+        aa.maintenance_cost,
+        aa.total_cost,
+        aa.period_start,
+        aa.period_end
+      FROM assets a
+      LEFT JOIN LATERAL (
+        SELECT utilization_percentage, maintenance_cost, total_cost, period_start, period_end
+        FROM asset_analytics
+        WHERE asset_id = a.id AND tenant_id = $1
+        ORDER BY period_end DESC
+        LIMIT 1
+      ) aa ON true
+      LEFT JOIN facilities f ON a.assigned_facility_id = f.id
+      WHERE a.tenant_id = $1
+      ORDER BY a.created_at DESC`,
+      [tenantId]
+    )
+
+    res.json({
+      data: result.rows,
+      total: result.rows.length
+    })
+  } catch (error) {
+    logger.error(`Error fetching asset analytics:`, error)
+    res.status(500).json({ error: 'Failed to fetch asset analytics' })
+  }
+})
+
+/**
+ * @openapi
  * /api/assets/{id}:
  *   get:
  *     summary: Get asset by ID

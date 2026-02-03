@@ -16,7 +16,7 @@
  * - Performance optimized
  */
 
-import { useState, Suspense, lazy, memo } from 'react'
+import { useState, Suspense, lazy, memo, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Shield,
@@ -48,6 +48,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { getCsrfToken } from '@/hooks/use-api'
 import toast from 'react-hot-toast'
 import logger from '@/utils/logger';
 import {
@@ -56,6 +57,7 @@ import {
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
+import useSWR from 'swr'
 
 // ============================================================================
 // ANIMATION VARIANTS
@@ -74,6 +76,11 @@ const staggerContainerVariant = {
   },
 }
 
+const fetcher = (url: string) =>
+  fetch(url, { credentials: 'include' })
+    .then((res) => res.json())
+    .then((data) => data?.data ?? data)
+
 // ============================================================================
 // TAB CONTENT COMPONENTS
 // ============================================================================
@@ -82,6 +89,83 @@ const staggerContainerVariant = {
  * Compliance Tab - Regulatory compliance and certifications
  */
 const ComplianceTabContent = memo(function ComplianceTabContent() {
+  const { data: complianceDashboard } = useSWR<any>(
+    '/api/compliance/dashboard',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: trainingStats } = useSWR<any>(
+    '/api/safety-training/compliance-stats',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: expiringTraining } = useSWR<any[]>(
+    '/api/safety-training/expiring?days=30',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: documents } = useSWR<any[]>(
+    '/api/documents?limit=200',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const complianceMetrics = Array.isArray(complianceDashboard?.metrics) ? complianceDashboard.metrics : []
+  const complianceRate = complianceMetrics.length > 0
+    ? Math.round(complianceMetrics.reduce((sum: number, metric: any) => sum + Number(metric.score || 0), 0) / complianceMetrics.length)
+    : 0
+
+  const expiringTrainingList = Array.isArray(expiringTraining) ? expiringTraining : []
+  const documentsList = Array.isArray(documents) ? documents : []
+
+  const expiringDocuments = useMemo(() => {
+    const now = new Date()
+    const threshold = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+    return documentsList.filter((doc: any) => {
+      const expiry = doc.expires_at || doc.expiry_date
+      if (!expiry) return false
+      const date = new Date(expiry)
+      return date >= now && date <= threshold
+    })
+  }, [documentsList])
+
+  const expiringSoonCount = Number(trainingStats?.expiring_soon || 0) + expiringDocuments.length
+  const activeCertifications = Number(trainingStats?.compliant_employees || 0)
+  const nonCompliantCount = Number(trainingStats?.expired_certifications || 0)
+
+  const renewals = useMemo(() => {
+    const now = new Date()
+    const items = [
+      ...expiringTrainingList.map((record: any) => {
+        const expiry = record.expiry_date ? new Date(record.expiry_date) : null
+        const daysLeft = expiry ? Math.max(0, Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) : 0
+        return {
+          item: `${record.employee_name || 'Driver'} - ${record.training_name || 'Training'}`,
+          daysLeft
+        }
+      }),
+      ...expiringDocuments.map((doc: any) => {
+        const expiry = doc.expires_at || doc.expiry_date
+        const expiryDate = expiry ? new Date(expiry) : null
+        const daysLeft = expiryDate ? Math.max(0, Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) : 0
+        return {
+          item: `${doc.file_name || doc.name || 'Document'} - Expiring`,
+          daysLeft
+        }
+      })
+    ]
+
+    return items.sort((a, b) => a.daysLeft - b.daysLeft).slice(0, 6)
+  }, [expiringDocuments, expiringTrainingList])
+
+  const categoryItems = useMemo(() => {
+    return complianceMetrics.map((metric: any) => ({
+      category: metric.category,
+      status: metric.status,
+      rate: Math.round(Number(metric.score || 0))
+    }))
+  }, [complianceMetrics])
+
   // Handler for scheduling renewals
   const handleScheduleRenewal = (itemName: string) => {
     toast.success(`Scheduling renewal for: ${itemName}`)
@@ -100,34 +184,26 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
       <motion.div variants={fadeInVariant} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Compliance Rate"
-          value="98.5%"
+          value={complianceRate > 0 ? `${complianceRate}%` : "—"}
           icon={CheckCircle}
-          change={2}
-          trend="up"
           description="Overall compliance"
         />
         <StatCard
           title="Active Certifications"
-          value={47}
+          value={activeCertifications || "—"}
           icon={Award}
-          change={5}
-          trend="up"
           description="Valid certificates"
         />
         <StatCard
           title="Expiring Soon"
-          value={8}
+          value={expiringSoonCount || "—"}
           icon={Clock}
-          change={3}
-          trend="down"
           description="Within 30 days"
         />
         <StatCard
           title="Non-Compliant"
-          value={3}
+          value={nonCompliantCount || "—"}
           icon={XCircle}
-          change={1}
-          trend="down"
           description="Needs attention"
         />
       </motion.div>
@@ -144,28 +220,26 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { category: 'Vehicle Inspections', status: 'compliant', rate: 100 },
-                { category: 'Driver Licensing', status: 'compliant', rate: 98 },
-                { category: 'Insurance Coverage', status: 'compliant', rate: 100 },
-                { category: 'DOT Regulations', status: 'warning', rate: 92 },
-                { category: 'Environmental', status: 'compliant', rate: 96 },
-              ].map((item) => (
-                <div key={item.category} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <CheckSquare className={`h-5 w-5 ${
-                      item.status === 'compliant' ? 'text-green-500' : 'text-yellow-500'
-                    }`} />
-                    <div>
-                      <p className="font-semibold">{item.category}</p>
-                      <p className="text-sm text-muted-foreground">{item.rate}% compliant</p>
+              {categoryItems.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No compliance metrics available.</div>
+              ) : (
+                categoryItems.map((item) => (
+                  <div key={item.category} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <CheckSquare className={`h-5 w-5 ${
+                        item.status === 'excellent' || item.status === 'good' ? 'text-green-500' : 'text-yellow-500'
+                      }`} />
+                      <div>
+                        <p className="font-semibold">{item.category}</p>
+                        <p className="text-sm text-muted-foreground">{item.rate}% compliant</p>
+                      </div>
                     </div>
+                    <Badge variant={item.status === 'excellent' || item.status === 'good' ? 'default' : 'secondary'}>
+                      {item.status === 'excellent' || item.status === 'good' ? 'Compliant' : 'Review Needed'}
+                    </Badge>
                   </div>
-                  <Badge variant={item.status === 'compliant' ? 'default' : 'secondary'}>
-                    {item.status === 'compliant' ? 'Compliant' : 'Review Needed'}
-                  </Badge>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -183,25 +257,24 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { item: 'Vehicle 1234 - Annual Inspection', daysLeft: 15 },
-                { item: 'Driver Smith - CDL Renewal', daysLeft: 22 },
-                { item: 'Fleet Insurance - Policy Renewal', daysLeft: 28 },
-                { item: 'DOT Safety Certification', daysLeft: 45 },
-              ].map((renewal, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <FileCheck className="h-5 w-5 text-blue-500" />
-                    <div>
-                      <p className="font-semibold">{renewal.item}</p>
-                      <p className="text-sm text-muted-foreground">Expires in {renewal.daysLeft} days</p>
+              {renewals.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No upcoming renewals.</div>
+              ) : (
+                renewals.map((renewal, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <FileCheck className="h-5 w-5 text-blue-500" />
+                      <div>
+                        <p className="font-semibold">{renewal.item}</p>
+                        <p className="text-sm text-muted-foreground">Expires in {renewal.daysLeft} days</p>
+                      </div>
                     </div>
+                    <Button size="sm" variant="outline" onClick={() => handleScheduleRenewal(renewal.item)}>
+                      Schedule
+                    </Button>
                   </div>
-                  <Button size="sm" variant="outline" onClick={() => handleScheduleRenewal(renewal.item)}>
-                    Schedule
-                  </Button>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -214,6 +287,102 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
  * Safety Tab - Safety metrics and incident management
  */
 const SafetyTabContent = memo(function SafetyTabContent() {
+  const { data: complianceDashboard } = useSWR<any>(
+    '/api/compliance/dashboard',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: safetyIncidents } = useSWR<any[]>(
+    '/api/safety-incidents?limit=200',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: trainingStats } = useSWR<any>(
+    '/api/safety-training/compliance-stats',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: trainingCourses } = useSWR<any[]>(
+    '/api/training/courses?limit=200',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: trainingProgress } = useSWR<any[]>(
+    '/api/training/progress',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const incidents = Array.isArray(safetyIncidents) ? safetyIncidents : []
+  const safetyMetric = Array.isArray(complianceDashboard?.metrics)
+    ? complianceDashboard.metrics.find((metric: any) => (metric.category || '').toLowerCase().includes('safety'))
+    : null
+
+  const safetyScore = safetyMetric ? Math.round(Number(safetyMetric.score || 0)) : 0
+  const latestIncidentDate = incidents
+    .map((incident: any) => incident.incident_date || incident.created_at)
+    .filter(Boolean)
+    .map((value: string) => new Date(value))
+    .sort((a: Date, b: Date) => b.getTime() - a.getTime())[0]
+
+  const daysSinceIncident = latestIncidentDate
+    ? Math.max(0, Math.floor((Date.now() - latestIncidentDate.getTime()) / (1000 * 60 * 60 * 24)))
+    : null
+
+  const openIncidents = incidents.filter((incident: any) => {
+    const status = (incident.status || '').toString().toLowerCase()
+    return status && !['resolved', 'closed', 'completed'].includes(status)
+  }).length
+
+  const trainingCompletion = Number(trainingStats?.compliance_rate || 0)
+
+  const incidentTrendData = useMemo(() => {
+    const now = new Date()
+    const months: { label: string; month: number; year: number }[] = []
+    for (let i = 5; i >= 0; i -= 1) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      months.push({ label: date.toLocaleString('default', { month: 'short' }), month: date.getMonth(), year: date.getFullYear() })
+    }
+    return months.map((item) => {
+      const count = incidents.filter((incident: any) => {
+        const date = incident.incident_date || incident.created_at
+        if (!date) return false
+        const incidentDate = new Date(date)
+        return incidentDate.getMonth() === item.month && incidentDate.getFullYear() === item.year
+      }).length
+      return { name: item.label, month: item.label, incidents: count }
+    })
+  }, [incidents])
+
+  const recentIncidents = incidents
+    .slice()
+    .sort((a: any, b: any) => new Date(b.incident_date || b.created_at).getTime() - new Date(a.incident_date || a.created_at).getTime())
+    .slice(0, 5)
+
+  const trainingProgressData = useMemo(() => {
+    const courses = Array.isArray(trainingCourses) ? trainingCourses : []
+    const progressRows = Array.isArray(trainingProgress) ? trainingProgress : []
+    const progressByCourse = progressRows.reduce((acc: Record<string, { completed: number; total: number }>, row: any) => {
+      const courseId = row.course_id
+      if (!courseId) return acc
+      if (!acc[courseId]) acc[courseId] = { completed: 0, total: 0 }
+      acc[courseId].total += 1
+      if (Number(row.progress) >= 100 || row.completed_modules?.length === row.total_modules?.length) {
+        acc[courseId].completed += 1
+      }
+      return acc
+    }, {})
+
+    return courses.map((course: any) => {
+      const stats = progressByCourse[course.id] || { completed: 0, total: 0 }
+      return {
+        course: course.title || 'Training Course',
+        completed: stats.completed,
+        total: stats.total || 0
+      }
+    }).filter((course: any) => course.total > 0)
+  }, [trainingCourses, trainingProgress])
+
   return (
     <motion.div
       variants={staggerContainerVariant}
@@ -225,34 +394,26 @@ const SafetyTabContent = memo(function SafetyTabContent() {
       <motion.div variants={fadeInVariant} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Safety Score"
-          value="95.2"
+          value={safetyScore > 0 ? `${safetyScore}` : "—"}
           icon={Shield}
-          change={3}
-          trend="up"
           description="Fleet average"
         />
         <StatCard
           title="Days Since Incident"
-          value={127}
+          value={daysSinceIncident !== null ? daysSinceIncident : "—"}
           icon={Award}
-          change={127}
-          trend="up"
           description="Accident-free streak"
         />
         <StatCard
           title="Open Incidents"
-          value={5}
+          value={openIncidents}
           icon={AlertTriangle}
-          change={2}
-          trend="down"
           description="Under investigation"
         />
         <StatCard
           title="Training Completion"
-          value="92%"
+          value={trainingCompletion > 0 ? `${trainingCompletion}%` : "—"}
           icon={BookOpen}
-          change={8}
-          trend="up"
           description="Safety training"
         />
       </motion.div>
@@ -270,14 +431,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
           <CardContent>
             <ResponsiveLineChart
               title="Incident Trends"
-              data={[
-                { name: 'Jan', month: 'Jan', incidents: 8 },
-                { name: 'Feb', month: 'Feb', incidents: 6 },
-                { name: 'Mar', month: 'Mar', incidents: 5 },
-                { name: 'Apr', month: 'Apr', incidents: 4 },
-                { name: 'May', month: 'May', incidents: 3 },
-                { name: 'Jun', month: 'Jun', incidents: 2 },
-              ]}
+              data={incidentTrendData}
               dataKeys={['incidents']}
               colors={['#ef4444']}
               height={300}
@@ -298,27 +452,33 @@ const SafetyTabContent = memo(function SafetyTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { id: 'INC-001', type: 'Minor Collision', vehicle: 'Vehicle 1234', status: 'Under Review', severity: 'low' },
-                { id: 'INC-002', type: 'Near Miss', vehicle: 'Vehicle 5678', status: 'Resolved', severity: 'low' },
-                { id: 'INC-003', type: 'Equipment Failure', vehicle: 'Vehicle 9012', status: 'Under Review', severity: 'medium' },
-              ].map((incident) => (
-                <div key={incident.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <AlertTriangle className={`h-5 w-5 ${
-                      incident.severity === 'low' ? 'text-yellow-500' :
-                      incident.severity === 'medium' ? 'text-orange-500' : 'text-red-500'
-                    }`} />
-                    <div>
-                      <p className="font-semibold">{incident.id} - {incident.type}</p>
-                      <p className="text-sm text-muted-foreground">{incident.vehicle}</p>
+              {recentIncidents.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No recent incidents.</div>
+              ) : (
+                recentIncidents.map((incident: any) => {
+                  const severity = (incident.severity || '').toString().toLowerCase()
+                  const status = incident.status || 'Open'
+                  return (
+                    <div key={incident.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <AlertTriangle className={`h-5 w-5 ${
+                          severity === 'minor' || severity === 'low' ? 'text-yellow-500' :
+                          severity === 'moderate' || severity === 'medium' ? 'text-orange-500' : 'text-red-500'
+                        }`} />
+                        <div>
+                          <p className="font-semibold">{incident.incident_type || 'Incident'}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {incident.vehicle_id ? `Vehicle ${incident.vehicle_id.slice(0, 8)}` : 'Vehicle'}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge variant={status === 'Resolved' || status === 'Closed' ? 'default' : 'secondary'}>
+                        {status}
+                      </Badge>
                     </div>
-                  </div>
-                  <Badge variant={incident.status === 'Resolved' ? 'default' : 'secondary'}>
-                    {incident.status}
-                  </Badge>
-                </div>
-              ))}
+                  )
+                })
+              )}
             </div>
           </CardContent>
         </Card>
@@ -336,27 +496,26 @@ const SafetyTabContent = memo(function SafetyTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { course: 'Defensive Driving', completed: 45, total: 50 },
-                { course: 'Hazmat Handling', completed: 38, total: 40 },
-                { course: 'Emergency Response', completed: 50, total: 50 },
-                { course: 'Vehicle Inspection', completed: 42, total: 50 },
-              ].map((training) => (
-                <div key={training.course} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium">{training.course}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {training.completed}/{training.total} ({Math.round((training.completed / training.total) * 100)}%)
-                    </p>
+              {trainingProgressData.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No training progress available.</div>
+              ) : (
+                trainingProgressData.map((training: any) => (
+                  <div key={training.course} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium">{training.course}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {training.completed}/{training.total} ({Math.round((training.completed / training.total) * 100)}%)
+                      </p>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div
+                        className="bg-primary rounded-full h-2 transition-all"
+                        style={{ width: `${training.total > 0 ? (training.completed / training.total) * 100 : 0}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full bg-secondary rounded-full h-2">
-                    <div
-                      className="bg-primary rounded-full h-2 transition-all"
-                      style={{ width: `${(training.completed / training.total) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -369,6 +528,48 @@ const SafetyTabContent = memo(function SafetyTabContent() {
  * Policies Tab - Policy management and enforcement
  */
 const PoliciesTabContent = memo(function PoliciesTabContent() {
+  const { data: policies } = useSWR<any[]>(
+    '/api/policies?limit=200',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: complianceDashboard } = useSWR<any>(
+    '/api/compliance/dashboard',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: securityEvents } = useSWR<any[]>(
+    '/api/security/events?limit=50',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const policyRows = Array.isArray(policies) ? policies : []
+  const activePolicies = policyRows.filter((policy: any) => policy.is_active)
+  const underReview = policyRows.filter((policy: any) => !policy.is_active)
+
+  const complianceScore = Array.isArray(complianceDashboard?.metrics)
+    ? Math.round(complianceDashboard.metrics.reduce((sum: number, metric: any) => sum + Number(metric.score || 0), 0) / complianceDashboard.metrics.length)
+    : 0
+
+  const policyViolations = (Array.isArray(securityEvents) ? securityEvents : []).filter((event: any) => {
+    const type = (event.event_type || '').toString().toLowerCase()
+    return type.includes('policy') || type.includes('violation')
+  })
+
+  const policyCategories = useMemo(() => {
+    const categoryMap = new Map<string, number>()
+    policyRows.forEach((policy: any) => {
+      const category = policy.category || 'General'
+      categoryMap.set(category, (categoryMap.get(category) || 0) + 1)
+    })
+    return Array.from(categoryMap.entries()).map(([category, count]) => ({
+      category,
+      policies: count,
+      adherence: complianceScore || 0
+    }))
+  }, [policyRows, complianceScore])
+
   // Handler for viewing policy categories
   const handleViewPolicy = (category: string) => {
     toast.success(`Opening policy details for: ${category}`)
@@ -387,34 +588,26 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
       <motion.div variants={fadeInVariant} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Active Policies"
-          value={32}
+          value={activePolicies.length}
           icon={FileText}
-          change={4}
-          trend="up"
           description="Currently enforced"
         />
         <StatCard
           title="Policy Adherence"
-          value="96%"
+          value={complianceScore > 0 ? `${complianceScore}%` : "—"}
           icon={CheckCircle}
-          change={2}
-          trend="up"
           description="Compliance rate"
         />
         <StatCard
           title="Under Review"
-          value={5}
+          value={underReview.length}
           icon={ScrollText}
-          change={1}
-          trend="down"
           description="Pending approval"
         />
         <StatCard
           title="Violations"
-          value={12}
+          value={policyViolations.length}
           icon={Gavel}
-          change={3}
-          trend="down"
           description="This month"
         />
       </motion.div>
@@ -431,28 +624,26 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { category: 'Vehicle Usage', policies: 8, adherence: 98 },
-                { category: 'Driver Conduct', policies: 12, adherence: 95 },
-                { category: 'Safety Procedures', policies: 6, adherence: 100 },
-                { category: 'Maintenance Standards', policies: 4, adherence: 92 },
-                { category: 'Environmental', policies: 2, adherence: 100 },
-              ].map((item) => (
-                <div key={item.category} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-blue-500" />
-                    <div>
-                      <p className="font-semibold">{item.category}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {item.policies} policies · {item.adherence}% adherence
-                      </p>
+              {policyCategories.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No policy categories available.</div>
+              ) : (
+                policyCategories.map((item) => (
+                  <div key={item.category} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <FileText className="h-5 w-5 text-blue-500" />
+                      <div>
+                        <p className="font-semibold">{item.category}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {item.policies} policies · {item.adherence}% adherence
+                        </p>
+                      </div>
                     </div>
+                    <Button size="sm" variant="outline" onClick={() => handleViewPolicy(item.category)}>
+                      View
+                    </Button>
                   </div>
-                  <Button size="sm" variant="outline" onClick={() => handleViewPolicy(item.category)}>
-                    View
-                  </Button>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -470,22 +661,22 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { id: 'VIO-001', policy: 'Speed Limit Policy', driver: 'Driver A', action: 'Warning Issued' },
-                { id: 'VIO-002', policy: 'Idle Time Policy', driver: 'Driver B', action: 'Training Required' },
-                { id: 'VIO-003', policy: 'Vehicle Inspection', driver: 'Driver C', action: 'Written Warning' },
-              ].map((violation) => (
-                <div key={violation.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <XCircle className="h-5 w-5 text-red-500" />
-                    <div>
-                      <p className="font-semibold">{violation.id} - {violation.policy}</p>
-                      <p className="text-sm text-muted-foreground">{violation.driver}</p>
+              {policyViolations.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No recent policy violations.</div>
+              ) : (
+                policyViolations.slice(0, 5).map((violation: any) => (
+                  <div key={violation.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <XCircle className="h-5 w-5 text-red-500" />
+                      <div>
+                        <p className="font-semibold">{violation.event_type || 'Policy Violation'}</p>
+                        <p className="text-sm text-muted-foreground">{violation.message || 'Violation recorded'}</p>
+                      </div>
                     </div>
+                    <Badge variant="destructive">Review</Badge>
                   </div>
-                  <Badge variant="destructive">{violation.action}</Badge>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -498,18 +689,72 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
  * Reporting Tab - Compliance and safety reporting
  */
 const ReportingTabContent = memo(function ReportingTabContent() {
+  const { data: reportTemplates } = useSWR<any[]>(
+    '/api/reports/templates',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: reportHistory } = useSWR<any[]>(
+    '/api/reports/history',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const templates = Array.isArray(reportTemplates) ? reportTemplates : []
+  const history = Array.isArray(reportHistory) ? reportHistory : []
+
+  const complianceTemplates = templates.filter((template: any) => {
+    const domain = (template.domain || template.category || '').toString().toLowerCase()
+    return domain.includes('compliance') || domain.includes('safety') || domain.includes('osha')
+  })
+
+  const lastGeneratedMap = useMemo(() => {
+    const map = new Map<string, any>()
+    history.forEach((item: any) => {
+      if (!item.templateId) return
+      if (!map.has(item.templateId)) {
+        map.set(item.templateId, item)
+      }
+    })
+    return map
+  }, [history])
+
   // Handler for viewing reports
-  const handleViewReport = (reportName: string) => {
+  const handleViewReport = (reportName: string, downloadUrl?: string) => {
+    if (!downloadUrl) {
+      toast.error('No download link available for this report')
+      return
+    }
+    window.open(downloadUrl, '_blank', 'noopener,noreferrer')
     toast.success(`Opening report: ${reportName}`)
-    // TODO: Open report viewer modal or download report
     logger.info('View report clicked:', reportName)
   }
 
   // Handler for generating reports
-  const handleGenerateReport = (reportName: string) => {
-    toast.success(`Generating report: ${reportName}`)
-    // TODO: Trigger report generation API call
-    logger.info('Generate report clicked:', reportName)
+  const handleGenerateReport = async (reportId: string, reportName: string) => {
+    try {
+      const csrfToken = await getCsrfToken()
+      const response = await fetch('/api/reports/execute', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {})
+        },
+        body: JSON.stringify({ reportId, filters: {} })
+      })
+
+      if (!response.ok) {
+        const errorPayload = await response.json().catch(() => ({}))
+        throw new Error(errorPayload.error || 'Failed to generate report')
+      }
+
+      toast.success(`Generated report: ${reportName}`)
+      logger.info('Generate report clicked:', reportName)
+    } catch (error) {
+      logger.error('Generate report failed:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to generate report')
+    }
   }
 
   return (
@@ -529,32 +774,40 @@ const ReportingTabContent = memo(function ReportingTabContent() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {[
-              { name: 'Monthly Safety Report', type: 'Safety', lastGenerated: '2026-01-01' },
-              { name: 'Quarterly Compliance Audit', type: 'Compliance', lastGenerated: '2026-01-15' },
-              { name: 'Incident Summary Report', type: 'Safety', lastGenerated: '2026-01-20' },
-              { name: 'Policy Adherence Report', type: 'Policy', lastGenerated: '2026-01-25' },
-            ].map((report) => (
-              <div key={report.name} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <FileText className="h-5 w-5 text-blue-500" />
-                  <div>
-                    <p className="font-semibold">{report.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {report.type} · Last generated: {report.lastGenerated}
-                    </p>
+            {complianceTemplates.length === 0 ? (
+              <div className="text-sm text-muted-foreground">No compliance report templates available.</div>
+            ) : (
+              complianceTemplates.map((report: any) => {
+                const lastGenerated = lastGeneratedMap.get(report.id)
+                return (
+                  <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <FileText className="h-5 w-5 text-blue-500" />
+                      <div>
+                        <p className="font-semibold">{report.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {report.category || report.domain || 'Compliance'} · Last generated:{' '}
+                          {lastGenerated?.generatedAt ? new Date(lastGenerated.generatedAt).toLocaleDateString() : '—'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleViewReport(report.title, lastGenerated?.downloadUrl)}
+                        disabled={!lastGenerated?.downloadUrl}
+                      >
+                        View
+                      </Button>
+                      <Button size="sm" onClick={() => handleGenerateReport(report.id, report.title)}>
+                        Generate
+                      </Button>
+                    </div>
                   </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => handleViewReport(report.name)}>
-                    View
-                  </Button>
-                  <Button size="sm" onClick={() => handleGenerateReport(report.name)}>
-                    Generate
-                  </Button>
-                </div>
-              </div>
-            ))}
+                )
+              })
+            )}
           </div>
         </CardContent>
       </Card>

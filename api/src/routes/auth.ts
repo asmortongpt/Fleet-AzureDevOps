@@ -19,12 +19,13 @@ import { FIPSJWTService } from '../services/fips-jwt.service'
 const router = express.Router()
 
 const setAuthCookie = (res: Response, token: string) => {
-  const isDevelopment = process.env.NODE_ENV === 'development'
+  const isProduction = process.env.NODE_ENV === 'production'
+  const cookieDomain = process.env.AUTH_COOKIE_DOMAIN
   res.cookie('auth_token', token, {
     httpOnly: true,
-    secure: !isDevelopment,
+    secure: isProduction,
     sameSite: 'lax',
-    domain: isDevelopment ? 'localhost' : undefined,
+    domain: cookieDomain || undefined,
     maxAge: 15 * 60 * 1000,
     path: '/',
   })
@@ -1059,30 +1060,83 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
  */
 router.post('/microsoft/exchange', async (req: Request, res: Response) => {
   try {
-    const { accessToken, tenantId: requestedTenantId } = req.body || {}
+    const { accessToken, idToken, tenantId: requestedTenantId } = req.body || {}
 
-    if (!accessToken || typeof accessToken !== 'string') {
-      return res.status(400).json({ error: 'Missing accessToken' })
+    // Prefer idToken for user info extraction (more reliable, no Graph API call needed)
+    if (!idToken && !accessToken) {
+      return res.status(400).json({ error: 'Missing idToken or accessToken' })
     }
 
-    const userInfoResponse = await axios.get('https://graph.microsoft.com/v1.0/me', {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    })
+    let microsoftUser: any = {}
+    let email = ''
 
-    const microsoftUser = userInfoResponse.data
-    const email = (microsoftUser.mail || microsoftUser.userPrincipalName || '').toLowerCase()
+    if (idToken) {
+      // Decode ID token to extract user claims (no external API call needed)
+      logger.info('[Auth Exchange] Using ID token for user info')
+      const decoded = jwt.decode(idToken) as any
+      if (!decoded) {
+        logger.error('[Auth Exchange] Failed to decode ID token')
+        return res.status(400).json({ error: 'Invalid idToken' })
+      }
+
+      logger.debug('[Auth Exchange] ID token decoded', {
+        oid: decoded.oid,
+        sub: decoded.sub,
+        email: decoded.email,
+        preferred_username: decoded.preferred_username,
+        upn: decoded.upn,
+        name: decoded.name
+      })
+
+      microsoftUser = {
+        id: decoded.oid || decoded.sub,
+        mail: decoded.email || decoded.preferred_username || decoded.upn,
+        userPrincipalName: decoded.preferred_username || decoded.upn,
+        givenName: decoded.given_name || decoded.name?.split(' ')[0] || 'User',
+        surname: decoded.family_name || decoded.name?.split(' ').slice(1).join(' ') || ''
+      }
+      email = (microsoftUser.mail || microsoftUser.userPrincipalName || '').toLowerCase()
+
+      logger.debug('[Auth Exchange] Extracted user info', {
+        id: microsoftUser.id,
+        email,
+        givenName: microsoftUser.givenName,
+        surname: microsoftUser.surname
+      })
+    } else if (accessToken) {
+      // Fallback to Graph API if only accessToken provided (legacy support)
+      logger.info('[Auth Exchange] Falling back to Graph API for user info')
+      const userInfoResponse = await axios.get('https://graph.microsoft.com/v1.0/me', {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      })
+      microsoftUser = userInfoResponse.data
+      email = (microsoftUser.mail || microsoftUser.userPrincipalName || '').toLowerCase()
+    }
 
     if (!email) {
       return res.status(400).json({ error: 'Unable to resolve Microsoft user email' })
     }
 
-    // SECURITY: Restrict SSO to @capitaltechalliance.com domain
-    if (!email.endsWith('@capitaltechalliance.com')) {
-      logger.warn(`[AUTH] SSO exchange attempt from unauthorized domain: ${email}`)
-      return res.status(403).json({
-        error: 'Access Denied',
-        message: 'Only users with @capitaltechalliance.com email addresses can log in'
-      })
+    const isProduction = process.env.NODE_ENV === 'production'
+    const configuredDomains = (process.env.SSO_ALLOWED_DOMAINS || '')
+      .split(',')
+      .map(domain => domain.trim().toLowerCase())
+      .filter(Boolean)
+    const defaultDomains = ['capitaltechalliance.com']
+    const allowedDomains = configuredDomains.length > 0
+      ? configuredDomains
+      : (isProduction ? defaultDomains : [])
+
+    if (allowedDomains.length > 0) {
+      const emailDomain = email.split('@')[1] || ''
+      const isAllowed = allowedDomains.some(domain => emailDomain === domain)
+      if (!isAllowed) {
+        logger.warn(`[AUTH] SSO exchange attempt from unauthorized domain: ${email}`)
+        return res.status(403).json({
+          error: 'Access Denied',
+          message: `Only users with ${allowedDomains.map(d => `@${d}`).join(', ')} email addresses can log in`
+        })
+      }
     }
 
     // Resolve tenant - allow explicit tenantId if valid, else default
@@ -1155,34 +1209,335 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
       }
     })
   } catch (error: any) {
-    logger.error('Microsoft SSO exchange error:', error.message)
+    logger.error('Microsoft SSO exchange error:', {
+      message: error.message,
+      stack: error.stack,
+      error: error
+    })
     return res.status(500).json({ error: 'Microsoft SSO exchange failed', details: error.message })
   }
 })
 
-// JWT verification endpoint
+/**
+ * @openapi
+ * /api/auth/verify:
+ *   get:
+ *     summary: Verify JWT token
+ *     description: Verify and decode a JWT token (local Fleet or Azure AD)
+ *     tags:
+ *       - Authentication
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Token is valid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 authenticated:
+ *                   type: boolean
+ *                   example: true
+ *                 tokenType:
+ *                   type: string
+ *                   enum: [local, azureAD]
+ *                   example: local
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     role:
+ *                       type: string
+ *                     tenant_id:
+ *                       type: string
+ *       401:
+ *         description: Token is invalid or expired
+ */
 router.get('/verify', async (req: Request, res: Response) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const authHeader = req.headers.authorization
+    const cookieToken = req.cookies?.auth_token
+
+    if (!authHeader && !cookieToken) {
       return res.status(401).json({
         authenticated: false,
-        error: 'No token provided'
-      });
+        error: 'No token provided',
+        errorCode: 'NO_TOKEN'
+      })
     }
 
-    const token = authHeader.substring(7);
-    const decoded = await FIPSJWTService.verify(token);
+    const token = authHeader?.startsWith('Bearer ')
+      ? authHeader.substring(7)
+      : cookieToken
+
+    if (!token) {
+      return res.status(401).json({
+        authenticated: false,
+        error: 'Invalid token format',
+        errorCode: 'INVALID_FORMAT'
+      })
+    }
+
+    logger.info('[AUTH /verify] Verifying token...')
+
+    // Decode token to determine type
+    const decoded = FIPSJWTService.decode(token)
+    const isAzureADToken = decoded && decoded.tid && !decoded.type
+    const isLocalToken = decoded && decoded.type === 'access'
+
+    let tokenType: 'local' | 'azureAD' = 'local'
+    let validatedUser: any = null
+
+    if (isAzureADToken) {
+      // Validate Azure AD token
+      logger.info('[AUTH /verify] Detected Azure AD token')
+      const { default: AzureADTokenValidator } = await import('../services/azure-ad-token-validator')
+      const { default: jwtConfig } = await import('../config/jwt-config')
+
+      const validationResult = await AzureADTokenValidator.validateToken(token, {
+        tenantId: jwtConfig.azureAD.tenantId,
+        audience: jwtConfig.azureAD.clientId
+      })
+
+      if (!validationResult.valid) {
+        logger.error('[AUTH /verify] Azure AD validation failed:', validationResult.error)
+        return res.status(401).json({
+          authenticated: false,
+          error: validationResult.error,
+          errorCode: validationResult.errorCode
+        })
+      }
+
+      tokenType = 'azureAD'
+      validatedUser = AzureADTokenValidator.extractUserInfo(validationResult.payload!)
+    } else if (isLocalToken) {
+      // Validate local Fleet token
+      logger.info('[AUTH /verify] Detected local Fleet token')
+      validatedUser = FIPSJWTService.verifyAccessToken(token)
+      tokenType = 'local'
+    } else {
+      logger.error('[AUTH /verify] Unknown token format')
+      return res.status(401).json({
+        authenticated: false,
+        error: 'Unknown token format',
+        errorCode: 'INVALID_TOKEN_FORMAT'
+      })
+    }
+
+    logger.info('[AUTH /verify] Token validated successfully', {
+      tokenType,
+      userId: validatedUser.id,
+      email: validatedUser.email
+    })
 
     res.json({
       authenticated: true,
-      user: decoded
-    });
-  } catch (error) {
+      tokenType,
+      user: {
+        id: validatedUser.id,
+        email: validatedUser.email,
+        role: validatedUser.role,
+        tenant_id: validatedUser.tenant_id || validatedUser.tenantId,
+        name: validatedUser.name
+      }
+    })
+  } catch (error: any) {
+    logger.error('[AUTH /verify] Token verification error:', {
+      message: error.message,
+      name: error.name
+    })
+
+    let errorCode = 'VALIDATION_FAILED'
+    if (error.name === 'TokenExpiredError') {
+      errorCode = 'TOKEN_EXPIRED'
+    } else if (error.name === 'JsonWebTokenError') {
+      errorCode = 'INVALID_TOKEN'
+    }
+
     res.status(401).json({
       authenticated: false,
-      error: 'Invalid token'
-    });
+      error: error.message,
+      errorCode
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/auth/userinfo:
+ *   get:
+ *     summary: Get user information from token
+ *     description: Extract detailed user information from JWT token
+ *     tags:
+ *       - Authentication
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User information retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     firstName:
+ *                       type: string
+ *                     lastName:
+ *                       type: string
+ *                     role:
+ *                       type: string
+ *                     tenant_id:
+ *                       type: string
+ *                 tokenInfo:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       enum: [local, azureAD]
+ *                     issuer:
+ *                       type: string
+ *                     issuedAt:
+ *                       type: string
+ *                       format: date-time
+ *                     expiresAt:
+ *                       type: string
+ *                       format: date-time
+ *       401:
+ *         description: Token is invalid or missing
+ */
+router.get('/userinfo', async (req: Request, res: Response) => {
+  try {
+    const authHeader = req.headers.authorization
+    const cookieToken = req.cookies?.auth_token
+
+    if (!authHeader && !cookieToken) {
+      return res.status(401).json({
+        error: 'No token provided',
+        errorCode: 'NO_TOKEN'
+      })
+    }
+
+    const token = authHeader?.startsWith('Bearer ')
+      ? authHeader.substring(7)
+      : cookieToken
+
+    if (!token) {
+      return res.status(401).json({
+        error: 'Invalid token format',
+        errorCode: 'INVALID_FORMAT'
+      })
+    }
+
+    logger.info('[AUTH /userinfo] Extracting user info from token...')
+
+    // Decode token to determine type
+    const decoded = FIPSJWTService.decode(token)
+    const isAzureADToken = decoded && decoded.tid && !decoded.type
+    const isLocalToken = decoded && decoded.type === 'access'
+
+    let tokenType: 'local' | 'azureAD' = 'local'
+    let userInfo: any = {}
+    let tokenInfo: any = {}
+
+    if (isAzureADToken) {
+      // Validate and extract Azure AD token info
+      logger.info('[AUTH /userinfo] Processing Azure AD token')
+      const { default: AzureADTokenValidator } = await import('../services/azure-ad-token-validator')
+      const { default: jwtConfig } = await import('../config/jwt-config')
+
+      const validationResult = await AzureADTokenValidator.validateToken(token, {
+        tenantId: jwtConfig.azureAD.tenantId,
+        audience: jwtConfig.azureAD.clientId
+      })
+
+      if (!validationResult.valid) {
+        logger.error('[AUTH /userinfo] Azure AD validation failed:', validationResult.error)
+        return res.status(401).json({
+          error: validationResult.error,
+          errorCode: validationResult.errorCode
+        })
+      }
+
+      tokenType = 'azureAD'
+      userInfo = AzureADTokenValidator.extractUserInfo(validationResult.payload!)
+
+      const payload = validationResult.payload!
+      tokenInfo = {
+        type: 'azureAD',
+        issuer: payload.iss,
+        issuedAt: payload.iat ? new Date(payload.iat * 1000).toISOString() : null,
+        expiresAt: payload.exp ? new Date(payload.exp * 1000).toISOString() : null,
+        audience: payload.aud,
+        tenantId: payload.tid
+      }
+    } else if (isLocalToken) {
+      // Validate and extract local Fleet token info
+      logger.info('[AUTH /userinfo] Processing local Fleet token')
+      const validatedPayload = FIPSJWTService.verifyAccessToken(token)
+
+      tokenType = 'local'
+      userInfo = {
+        id: validatedPayload.id,
+        email: validatedPayload.email,
+        role: validatedPayload.role,
+        tenantId: validatedPayload.tenant_id
+      }
+
+      tokenInfo = {
+        type: 'local',
+        issuer: validatedPayload.iss,
+        issuedAt: validatedPayload.iat ? new Date(validatedPayload.iat * 1000).toISOString() : null,
+        expiresAt: validatedPayload.exp ? new Date(validatedPayload.exp * 1000).toISOString() : null,
+        audience: validatedPayload.aud
+      }
+    } else {
+      logger.error('[AUTH /userinfo] Unknown token format')
+      return res.status(401).json({
+        error: 'Unknown token format',
+        errorCode: 'INVALID_TOKEN_FORMAT'
+      })
+    }
+
+    logger.info('[AUTH /userinfo] User info extracted successfully', {
+      tokenType,
+      userId: userInfo.id,
+      email: userInfo.email
+    })
+
+    res.json({
+      user: userInfo,
+      tokenInfo
+    })
+  } catch (error: any) {
+    logger.error('[AUTH /userinfo] Error extracting user info:', {
+      message: error.message,
+      name: error.name
+    })
+
+    let errorCode = 'EXTRACTION_FAILED'
+    if (error.name === 'TokenExpiredError') {
+      errorCode = 'TOKEN_EXPIRED'
+    } else if (error.name === 'JsonWebTokenError') {
+      errorCode = 'INVALID_TOKEN'
+    }
+
+    res.status(401).json({
+      error: error.message,
+      errorCode
+    })
   }
 });
 

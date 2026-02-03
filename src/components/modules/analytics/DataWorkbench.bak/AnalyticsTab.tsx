@@ -1,6 +1,5 @@
 import {
   CheckCircle,
-  ChartLine,
   TrendUp,
   TrendDown
 } from "@phosphor-icons/react"
@@ -17,8 +16,8 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
+import { ResponsiveBarChart, ResponsiveLineChart } from "@/components/visualizations"
 import { Vehicle } from "@/lib/types"
-
 
 interface AnalyticsTabProps {
   vehicles: Vehicle[]
@@ -85,6 +84,107 @@ export function AnalyticsTab({
     }
   }, [vehicles, fuelRecords, maintenanceRecords, timeRange])
 
+  const utilizationByDepartment = useMemo(() => {
+    const grouped = new Map<string, { total: number; active: number }>()
+    vehicles.forEach((vehicle) => {
+      const dept = vehicle.department || "Unassigned"
+      if (!grouped.has(dept)) grouped.set(dept, { total: 0, active: 0 })
+      const entry = grouped.get(dept)!
+      entry.total += 1
+      if (vehicle.status === "active") entry.active += 1
+    })
+
+    return Array.from(grouped.entries()).map(([name, entry]) => ({
+      name,
+      utilization: entry.total > 0 ? Math.round((entry.active / entry.total) * 100) : 0,
+      count: entry.total
+    }))
+  }, [vehicles])
+
+  const costTrendData = useMemo(() => {
+    const daysAgo = parseInt(timeRange)
+    const cutoffDate = new Date()
+    cutoffDate.setDate(cutoffDate.getDate() - daysAgo)
+
+    const buckets = new Map<string, { name: string; fuel: number; maintenance: number }>()
+
+    fuelRecords.forEach((record) => {
+      const recordDate = new Date(record.date)
+      if (recordDate < cutoffDate) return
+      const key = recordDate.toISOString().split("T")[0]
+      const label = recordDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+      const existing = buckets.get(key) || { name: label, fuel: 0, maintenance: 0 }
+      existing.fuel += record.cost
+      buckets.set(key, existing)
+    })
+
+    maintenanceRecords
+      .filter((record) => new Date(record.date) >= cutoffDate)
+      .forEach((record) => {
+        const recordDate = new Date(record.date)
+        const key = recordDate.toISOString().split("T")[0]
+        const label = recordDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+        const existing = buckets.get(key) || { name: label, fuel: 0, maintenance: 0 }
+        existing.maintenance += record.cost
+        buckets.set(key, existing)
+      })
+
+    return Array.from(buckets.entries())
+      .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
+      .map(([, value]) => ({
+        name: value.name,
+        fuel: Number(value.fuel.toFixed(2)),
+        maintenance: Number(value.maintenance.toFixed(2)),
+        total: Number((value.fuel + value.maintenance).toFixed(2))
+      }))
+  }, [fuelRecords, maintenanceRecords, timeRange])
+
+  const topPerformers = useMemo(() => {
+    const efficiency = analyticsMetrics.mostEfficient
+
+    const costsByVehicle = new Map<string, { cost: number; miles: number }>()
+    fuelRecords.forEach((record) => {
+      const entry = costsByVehicle.get(record.vehicleNumber) || { cost: 0, miles: 0 }
+      entry.cost += record.cost
+      entry.miles += record.mpg * record.gallons
+      costsByVehicle.set(record.vehicleNumber, entry)
+    })
+
+    let lowestCost = { vehicle: "N/A", costPerMile: 0 }
+    costsByVehicle.forEach((entry, vehicleNumber) => {
+      const costPerMile = entry.miles > 0 ? entry.cost / entry.miles : 0
+      if (costPerMile > 0 && (lowestCost.costPerMile === 0 || costPerMile < lowestCost.costPerMile)) {
+        const vehicle = vehicles.find(v => v.number === vehicleNumber)
+        lowestCost = {
+          vehicle: vehicle ? `${vehicle.number} (${vehicle.make} ${vehicle.model})` : vehicleNumber,
+          costPerMile
+        }
+      }
+    })
+
+    const maintenanceCounts = new Map<string, number>()
+    maintenanceRecords.forEach((record) => {
+      maintenanceCounts.set(record.vehicleNumber, (maintenanceCounts.get(record.vehicleNumber) || 0) + 1)
+    })
+
+    let mostReliable = { vehicle: "N/A", count: 0 }
+    maintenanceCounts.forEach((count, vehicleNumber) => {
+      if (mostReliable.vehicle === "N/A" || count < mostReliable.count) {
+        const vehicle = vehicles.find(v => v.number === vehicleNumber)
+        mostReliable = {
+          vehicle: vehicle ? `${vehicle.number} (${vehicle.make} ${vehicle.model})` : vehicleNumber,
+          count
+        }
+      }
+    })
+
+    return { efficiency, lowestCost, mostReliable }
+  }, [analyticsMetrics, fuelRecords, maintenanceRecords, vehicles])
+
+  const totalCostValue = Number(analyticsMetrics.totalCost)
+  const fuelCostValue = Number(analyticsMetrics.fuelCost)
+  const maintenanceCostValue = Number(analyticsMetrics.maintenanceCost)
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between mb-2">
@@ -111,7 +211,9 @@ export function AnalyticsTab({
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold">
-              {((analyticsMetrics.activeVehicles / analyticsMetrics.totalVehicles) * 100).toFixed(1)}%
+              {analyticsMetrics.totalVehicles > 0
+                ? ((analyticsMetrics.activeVehicles / analyticsMetrics.totalVehicles) * 100).toFixed(1)
+                : "0.0"}%
             </div>
             <p className="text-sm text-muted-foreground mt-1">
               {analyticsMetrics.activeVehicles} of {analyticsMetrics.totalVehicles} vehicles active
@@ -181,7 +283,7 @@ export function AnalyticsTab({
                     <div
                       className="h-full bg-blue-500"
                       style={{
-                        width: `${(parseFloat(analyticsMetrics.fuelCost) / parseFloat(analyticsMetrics.totalCost)) * 100}%`
+                        width: `${totalCostValue > 0 ? (fuelCostValue / totalCostValue) * 100 : 0}%`
                       }}
                     />
                   </div>
@@ -195,7 +297,7 @@ export function AnalyticsTab({
                     <div
                       className="h-full bg-orange-500"
                       style={{
-                        width: `${(parseFloat(analyticsMetrics.maintenanceCost) / parseFloat(analyticsMetrics.totalCost)) * 100}%`
+                        width: `${totalCostValue > 0 ? (maintenanceCostValue / totalCostValue) * 100 : 0}%`
                       }}
                     />
                   </div>
@@ -205,20 +307,27 @@ export function AnalyticsTab({
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Vehicle Utilization</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64 flex items-center justify-center border-2 border-dashed border-muted rounded-lg">
-              <div className="text-center text-muted-foreground">
-                <ChartLine className="w-12 h-9 mx-auto mb-2 opacity-50" />
-                <p>Chart visualization placeholder</p>
-                <p className="text-sm">Bar chart showing vehicle utilization by department</p>
+        {utilizationByDepartment.length === 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Vehicle Utilization</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm text-muted-foreground">
+                No utilization data available for the selected range.
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ) : (
+          <ResponsiveBarChart
+            title="Vehicle Utilization"
+            description="Active rate by department"
+            data={utilizationByDepartment}
+            dataKeys={["utilization"]}
+            colors={["#3b82f6"]}
+            height={260}
+          />
+        )}
       </div>
 
       <Card>
@@ -240,48 +349,45 @@ export function AnalyticsTab({
                 <tr className="border-b hover:bg-muted/50 transition-colors">
                   <td className="p-2 font-medium">Most Efficient</td>
                   <td className="p-2">
-                    <p className="font-medium">{vehicles[0]?.number || "N/A"}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {vehicles[0] ? `${vehicles[0].year} ${vehicles[0].make} ${vehicles[0].model}` : ""}
-                    </p>
+                    <p className="font-medium">{topPerformers.efficiency.vehicle}</p>
                   </td>
                   <td className="p-2">Fuel Economy</td>
                   <td className="p-2">
                     <Badge variant="outline" className="bg-success/10 text-success border-success/20">
                       <TrendUp className="w-3 h-3 mr-1" />
-                      28.5 MPG
+                      {topPerformers.efficiency.mpg > 0
+                        ? `${topPerformers.efficiency.mpg.toFixed(1)} MPG`
+                        : "N/A"}
                     </Badge>
                   </td>
                 </tr>
                 <tr className="border-b hover:bg-muted/50 transition-colors">
                   <td className="p-2 font-medium">Most Reliable</td>
                   <td className="p-2">
-                    <p className="font-medium">{vehicles[2]?.number || "N/A"}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {vehicles[2] ? `${vehicles[2].year} ${vehicles[2].make} ${vehicles[2].model}` : ""}
-                    </p>
+                    <p className="font-medium">{topPerformers.mostReliable.vehicle}</p>
                   </td>
-                  <td className="p-2">Uptime</td>
+                  <td className="p-2">Maintenance Events</td>
                   <td className="p-2">
                     <Badge variant="outline" className="bg-success/10 text-success border-success/20">
                       <CheckCircle className="w-3 h-3 mr-1" />
-                      99.2%
+                      {topPerformers.mostReliable.vehicle === "N/A"
+                        ? "N/A"
+                        : `${topPerformers.mostReliable.count} events`}
                     </Badge>
                   </td>
                 </tr>
                 <tr className="border-b hover:bg-muted/50 transition-colors">
                   <td className="p-2 font-medium">Lowest Cost</td>
                   <td className="p-2">
-                    <p className="font-medium">{vehicles[4]?.number || "N/A"}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {vehicles[4] ? `${vehicles[4].year} ${vehicles[4].make} ${vehicles[4].model}` : ""}
-                    </p>
+                    <p className="font-medium">{topPerformers.lowestCost.vehicle}</p>
                   </td>
                   <td className="p-2">Operating Cost</td>
                   <td className="p-2">
                     <Badge variant="outline" className="bg-success/10 text-success border-success/20">
                       <TrendDown className="w-3 h-3 mr-1" />
-                      $0.42/mi
+                      {topPerformers.lowestCost.costPerMile > 0
+                        ? `$${topPerformers.lowestCost.costPerMile.toFixed(2)}/mi`
+                        : "N/A"}
                     </Badge>
                   </td>
                 </tr>
@@ -291,20 +397,28 @@ export function AnalyticsTab({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Cost Trends</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-64 flex items-center justify-center border-2 border-dashed border-muted rounded-lg">
-            <div className="text-center text-muted-foreground">
-              <ChartLine className="w-12 h-9 mx-auto mb-2 opacity-50" />
-              <p>Chart visualization placeholder</p>
-              <p className="text-sm">Line chart showing cost trends over time</p>
+      {costTrendData.length === 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Cost Trends</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-muted-foreground">
+              No cost trend data available for the selected range.
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : (
+        <ResponsiveLineChart
+          title="Cost Trends"
+          description={`Last ${timeRange} days`}
+          data={costTrendData}
+          dataKeys={["fuel", "maintenance", "total"]}
+          height={260}
+          showArea
+          showTrend
+        />
+      )}
     </div>
   )
 }

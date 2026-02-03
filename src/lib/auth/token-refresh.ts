@@ -2,9 +2,19 @@
  * Token Refresh Mechanism
  * SECURITY (CRIT-F-001): Implements automatic token refresh with 30-minute idle timeout
  * Tokens are stored in httpOnly cookies managed by backend
+ *
+ * Features:
+ * - Automatic token refresh before expiration
+ * - MSAL integration for Azure AD tokens
+ * - Idle timeout detection
+ * - Cross-tab synchronization
+ * - Secure token storage
  */
 
+import { PublicClientApplication } from '@azure/msal-browser';
 import logger from '@/utils/logger';
+import { getTokenStorage, getTokenExpiration, parseJWT } from '@/services/token-storage';
+import { loginRequest } from '@/lib/msal-config';
 
 export interface TokenRefreshConfig {
   /** Token refresh interval in milliseconds (default: 25 minutes) */
@@ -15,17 +25,22 @@ export interface TokenRefreshConfig {
   gracePeriod: number;
   /** API endpoint for token refresh */
   refreshEndpoint: string;
+  /** MSAL instance for Azure AD token refresh */
+  msalInstance?: PublicClientApplication;
   /** Callback when token is refreshed */
   onRefresh?: (success: boolean) => void;
   /** Callback when session expires */
   onExpire?: () => void;
+  /** Enable persistent storage (localStorage vs sessionStorage) */
+  persistent?: boolean;
 }
 
 const DEFAULT_CONFIG: TokenRefreshConfig = {
   refreshInterval: 25 * 60 * 1000, // 25 minutes (refresh before 30min expiry)
   idleTimeout: 30 * 60 * 1000, // 30 minutes
   gracePeriod: 5 * 60 * 1000, // 5 minutes
-  refreshEndpoint: '/api/v1/auth/refresh',
+  refreshEndpoint: '/api/auth/refresh',
+  persistent: false,
 };
 
 export class TokenRefreshManager {
@@ -35,10 +50,14 @@ export class TokenRefreshManager {
   private lastActivity: number = Date.now();
   private isRefreshing = false;
   private listeners: Set<EventListener> = new Set();
+  private tokenStorage = getTokenStorage(false);
+  private storageCleanup: (() => void) | null = null;
 
   constructor(config?: Partial<TokenRefreshConfig>) {
     this.config = { ...DEFAULT_CONFIG, ...config };
+    this.tokenStorage = getTokenStorage(config?.persistent || false);
     this.setupActivityListeners();
+    this.setupCrossTabSync();
   }
 
   /**
@@ -48,6 +67,7 @@ export class TokenRefreshManager {
     logger.info('[TokenRefresh] Starting token refresh mechanism', {
       refreshInterval: this.config.refreshInterval / 60000 + ' min',
       idleTimeout: this.config.idleTimeout / 60000 + ' min',
+      persistent: this.config.persistent,
     });
 
     this.scheduleRefresh();
@@ -71,10 +91,16 @@ export class TokenRefreshManager {
     }
 
     this.removeActivityListeners();
+
+    if (this.storageCleanup) {
+      this.storageCleanup();
+      this.storageCleanup = null;
+    }
   }
 
   /**
    * Manually trigger token refresh
+   * Supports both MSAL (Azure AD) and backend refresh token flows
    */
   public async refresh(): Promise<boolean> {
     if (this.isRefreshing) {
@@ -87,6 +113,18 @@ export class TokenRefreshManager {
     try {
       logger.info('[TokenRefresh] Refreshing token...');
 
+      // Try MSAL silent refresh first if available
+      if (this.config.msalInstance) {
+        const success = await this.refreshWithMSAL();
+        if (success) {
+          this.lastActivity = Date.now();
+          this.config.onRefresh?.(true);
+          this.scheduleRefresh();
+          return true;
+        }
+      }
+
+      // Fall back to backend refresh token flow
       const response = await fetch(this.config.refreshEndpoint, {
         method: 'POST',
         credentials: 'include', // Send httpOnly cookie
@@ -104,6 +142,13 @@ export class TokenRefreshManager {
       logger.info('[TokenRefresh] Token refreshed successfully', {
         expiresIn: data.expiresIn,
       });
+
+      // Store new token if provided
+      if (data.token || data.accessToken) {
+        const token = data.token || data.accessToken;
+        const expiresAt = getTokenExpiration(token) || Date.now() + 30 * 60 * 1000;
+        await this.tokenStorage.updateAccessToken(token, expiresAt);
+      }
 
       // Update last activity time
       this.lastActivity = Date.now();
@@ -127,6 +172,60 @@ export class TokenRefreshManager {
       return false;
     } finally {
       this.isRefreshing = false;
+    }
+  }
+
+  /**
+   * Refresh token using MSAL (Azure AD)
+   */
+  private async refreshWithMSAL(): Promise<boolean> {
+    if (!this.config.msalInstance) return false;
+
+    try {
+      const accounts = this.config.msalInstance.getAllAccounts();
+
+      if (accounts.length === 0) {
+        logger.warn('[TokenRefresh] No MSAL accounts found');
+        return false;
+      }
+
+      const account = accounts[0];
+
+      logger.debug('[TokenRefresh] Attempting MSAL silent token acquisition');
+
+      const tokenResult = await this.config.msalInstance.acquireTokenSilent({
+        ...loginRequest,
+        account,
+      });
+
+      logger.info('[TokenRefresh] MSAL token refreshed successfully');
+
+      // Exchange MSAL token with backend
+      const exchangeResponse = await fetch('/api/auth/microsoft/exchange', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accessToken: tokenResult.accessToken }),
+      });
+
+      if (!exchangeResponse.ok) {
+        logger.warn('[TokenRefresh] MSAL token exchange failed');
+        return false;
+      }
+
+      const data = await exchangeResponse.json();
+
+      // Store exchanged token
+      if (data.token || data.accessToken) {
+        const token = data.token || data.accessToken;
+        const expiresAt = getTokenExpiration(token) || Date.now() + 30 * 60 * 1000;
+        await this.tokenStorage.updateAccessToken(token, expiresAt);
+      }
+
+      return true;
+    } catch (error) {
+      logger.error('[TokenRefresh] MSAL refresh failed:', { error });
+      return false;
     }
   }
 
@@ -230,6 +329,26 @@ export class TokenRefreshManager {
     });
 
     logger.debug('[TokenRefresh] Activity listeners removed');
+  }
+
+  /**
+   * Setup cross-tab synchronization
+   * Listen for token changes in other tabs
+   */
+  private setupCrossTabSync(): void {
+    this.storageCleanup = this.tokenStorage.onTokenChange((tokens) => {
+      if (tokens === null) {
+        // Token cleared in another tab - logout
+        logger.warn('[TokenRefresh] Token cleared in another tab');
+        this.handleSessionExpiry();
+      } else {
+        // Token updated in another tab - update activity
+        logger.debug('[TokenRefresh] Token updated in another tab');
+        this.lastActivity = Date.now();
+      }
+    });
+
+    logger.debug('[TokenRefresh] Cross-tab sync enabled');
   }
 
   /**

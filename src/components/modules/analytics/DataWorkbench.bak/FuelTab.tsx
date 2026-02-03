@@ -1,4 +1,4 @@
-import { GasPump, TrendUp, ChartLine } from "@phosphor-icons/react"
+import { GasPump, TrendUp } from "@phosphor-icons/react"
 import { useState, useMemo } from "react"
 
 import { SortIcon } from "./SortIcon"
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ResponsiveLineChart } from "@/components/visualizations"
 import { Vehicle } from "@/lib/types"
 
 
@@ -98,6 +99,33 @@ export function FuelTab({ fuelRecords, vehicles }: FuelTabProps) {
     })
   }, [fuelRecords, vehicleFilter, dateRange, sortField, sortDirection])
 
+  const trendData = useMemo(() => {
+    const daysAgo = parseInt(dateRange)
+    const cutoffDate = new Date()
+    cutoffDate.setDate(cutoffDate.getDate() - daysAgo)
+
+    const buckets = new Map<string, { name: string; gallons: number; cost: number }>()
+
+    fuelRecords.forEach((record) => {
+      const recordDate = new Date(record.date)
+      if (recordDate < cutoffDate) return
+      const key = recordDate.toISOString().split("T")[0]
+      const label = recordDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+      const existing = buckets.get(key) || { name: label, gallons: 0, cost: 0 }
+      existing.gallons += record.gallons
+      existing.cost += record.cost
+      buckets.set(key, existing)
+    })
+
+    return Array.from(buckets.entries())
+      .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
+      .map(([, value]) => ({
+        name: value.name,
+        gallons: Number(value.gallons.toFixed(1)),
+        cost: Number(value.cost.toFixed(2))
+      }))
+  }, [fuelRecords, dateRange])
+
   return (
     <div className="space-y-2">
       {/* Metrics */}
@@ -166,21 +194,28 @@ export function FuelTab({ fuelRecords, vehicles }: FuelTabProps) {
         </div>
       </div>
 
-      {/* Chart Placeholder */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Fuel Consumption Trend</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-48 flex items-center justify-center border-2 border-dashed border-muted rounded-lg">
-            <div className="text-center text-muted-foreground">
-              <ChartLine className="w-12 h-9 mx-auto mb-2 opacity-50" aria-hidden="true" />
-              <p>Chart visualization placeholder</p>
-              <p className="text-sm">Line chart showing fuel consumption over last {dateRange} days</p>
+      {trendData.length === 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Fuel Consumption Trend</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-muted-foreground">
+              No fuel transactions found for the selected time range.
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : (
+        <ResponsiveLineChart
+          title="Fuel Consumption Trend"
+          description={`Last ${dateRange} days`}
+          data={trendData}
+          dataKeys={["gallons", "cost"]}
+          height={240}
+          showArea
+          showTrend
+        />
+      )}
 
       {/* Fuel Records Table */}
       <Card>

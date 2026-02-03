@@ -65,12 +65,8 @@ export function StatCard({
     return '#64748b'
   }
 
-  // Generate default sparkline data if not provided
-  const defaultSparklineData = Array.from({ length: 7 }, (_, i) => ({
-    value: Math.random() * 100 + (trend === 'up' ? i * 5 : trend === 'down' ? -i * 5 : 0)
-  }))
-
-  const sparkline = sparklineData || defaultSparklineData
+  const hasSparkline = showSparkline && Array.isArray(sparklineData) && sparklineData.length > 0
+  const sparkline = sparklineData || []
 
   return (
     <motion.div
@@ -145,7 +141,7 @@ export function StatCard({
                   {description}
                 </motion.p>
               )}
-              {showSparkline && sparkline && sparkline.length > 0 && (
+              {hasSparkline && (
                 <motion.div
                   className="mt-3 -mb-2"
                   initial={{ opacity: 0, y: 10 }}

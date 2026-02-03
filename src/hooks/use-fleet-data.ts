@@ -25,6 +25,14 @@ import { Vehicle, Driver, WorkOrder, GISFacility } from '@/lib/types'
 import logger from '@/utils/logger'
 
 export function useFleetData() {
+  const unwrapArray = <T>(payload: unknown): T[] => {
+    if (Array.isArray(payload)) return payload as T[]
+    if (payload && typeof payload === 'object' && Array.isArray((payload as any).data)) {
+      return (payload as any).data as T[]
+    }
+    return []
+  }
+
   // Fetch data from API using SWR hooks
   const { data: vehiclesData, isLoading: vehiclesLoading, error: vehiclesError } = useVehicles()
   const { data: driversData, isLoading: driversLoading, error: driversError } = useDrivers()
@@ -45,43 +53,37 @@ export function useFleetData() {
 
   // Extract data arrays from API responses
   const vehicles = useMemo((): Vehicle[] => {
-    const rawVehicles = vehiclesData || []
-    return Array.isArray(rawVehicles) ? rawVehicles.map((v): Vehicle => ({
+    const rawVehicles = unwrapArray<Vehicle>(vehiclesData)
+    return rawVehicles.map((v): Vehicle => ({
       ...(v as Partial<Vehicle>),
       id: v.id || '',
       tenant_id: v.tenant_id || '',
       alerts: Array.isArray((v as any).alerts) ? (v as any).alerts : []
-    } as Vehicle)) : []
+    } as Vehicle))
   }, [vehiclesData]);
 
   const drivers = useMemo((): Driver[] => {
-    const rawDrivers = driversData || []
-    return Array.isArray(rawDrivers) ? (rawDrivers as unknown as Driver[]) : []
+    return unwrapArray<Driver>(driversData) as unknown as Driver[]
   }, [driversData]);
 
   const workOrders = useMemo((): WorkOrder[] => {
-    const rawWorkOrders = workOrdersData || []
-    return Array.isArray(rawWorkOrders) ? (rawWorkOrders as unknown as WorkOrder[]) : []
+    return unwrapArray<WorkOrder>(workOrdersData) as unknown as WorkOrder[]
   }, [workOrdersData]);
 
   const fuelTransactions = useMemo(() => {
-    const rawFuelTransactions = fuelTransactionsData || []
-    return Array.isArray(rawFuelTransactions) ? rawFuelTransactions : []
+    return unwrapArray<any>(fuelTransactionsData)
   }, [fuelTransactionsData]);
 
   const facilities = useMemo((): GISFacility[] => {
-    const rawFacilities = facilitiesData || []
-    return Array.isArray(rawFacilities) ? (rawFacilities as unknown as GISFacility[]) : []
+    return unwrapArray<GISFacility>(facilitiesData) as unknown as GISFacility[]
   }, [facilitiesData]);
 
   const maintenanceSchedules = useMemo(() => {
-    const rawMaintenanceSchedules = maintenanceData || []
-    return Array.isArray(rawMaintenanceSchedules) ? rawMaintenanceSchedules : []
+    return unwrapArray<any>(maintenanceData)
   }, [maintenanceData]);
 
   const routes = useMemo(() => {
-    const rawRoutes = routesData || []
-    return Array.isArray(rawRoutes) ? rawRoutes : []
+    return unwrapArray<any>(routesData)
   }, [routesData]);
 
   // Legacy compatibility

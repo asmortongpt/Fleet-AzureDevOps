@@ -21,6 +21,7 @@ interface OverviewTabProps {
   utilization: number
   avgMileage: number
   downtime: number
+  utilizationChange?: number
   monthlyFleetData: MonthlyFleetData[]
 }
 
@@ -29,8 +30,13 @@ export function OverviewTab({
   utilization,
   avgMileage,
   downtime,
+  utilizationChange,
   monthlyFleetData
 }: OverviewTabProps) {
+  const hasTrend = utilizationChange !== undefined
+  const trendDirection = utilizationChange && utilizationChange < 0 ? "down" : "up"
+  const utilizationLabel = hasTrend ? "vs last period" : "current utilization"
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
@@ -44,9 +50,9 @@ export function OverviewTab({
         <MetricCard
           title="Fleet Utilization"
           value={`${utilization}%`}
-          trend="up"
-          change={3.2}
-          subtitle="vs last period"
+          trend={hasTrend ? trendDirection : "neutral"}
+          change={hasTrend ? Number(Math.abs(utilizationChange).toFixed(1)) : undefined}
+          subtitle={utilizationLabel}
           icon={<TrendUp className="w-3 h-3" />}
           status="success"
         />
@@ -69,7 +75,7 @@ export function OverviewTab({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
         <ChartCard
           title="Fleet Status Over Time"
-          subtitle="Monthly vehicle status breakdown"
+          subtitle={monthlyFleetData.length > 1 ? "Monthly vehicle status breakdown" : "Current fleet status snapshot"}
           type="area"
           data={monthlyFleetData}
           dataKey="active"
@@ -77,7 +83,7 @@ export function OverviewTab({
         />
         <ChartCard
           title="Fleet Utilization Rate"
-          subtitle="Percentage of fleet in active use"
+          subtitle={monthlyFleetData.length > 1 ? "Percentage of fleet in active use" : "Current utilization rate"}
           type="line"
           data={monthlyFleetData}
           dataKey="utilization"

@@ -70,41 +70,105 @@ const SKIP_AUTH = import.meta.env.VITE_SKIP_AUTH === 'true';
 
 const DEV_LOGIN_EMAIL = 'admin@fleet.local';
 
+// Mock user for development when SKIP_AUTH is enabled
+const MOCK_DEV_USER: User = {
+  id: 'dev-user-001',
+  email: DEV_LOGIN_EMAIL,
+  firstName: 'Dev',
+  lastName: 'Admin',
+  role: 'SuperAdmin',
+  permissions: ['*'],
+  tenantId: 'dev-tenant-001',
+  tenantName: 'Development'
+};
+
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUserState] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [authRefreshNonce, setAuthRefreshNonce] = useState(0);
 
   // MSAL hooks for Azure AD authentication
   const { instance, accounts, inProgress } = useMsal();
+
+  // Allow external triggers (e.g., SSO callback) to force a session refresh
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handler = () => setAuthRefreshNonce((prev) => prev + 1);
+    window.addEventListener('fleet-auth-refresh', handler);
+    return () => window.removeEventListener('fleet-auth-refresh', handler);
+  }, []);
 
   // SECURITY (CRIT-F-001): Initialize auth state from MSAL or httpOnly cookies
   useEffect(() => {
     let cancelled = false;
 
     const syncServerSessionFromMsal = async (): Promise<boolean> => {
-      if (accounts.length === 0) return false;
+      if (accounts.length === 0) {
+        logger.debug('[Auth] No MSAL accounts found, skipping sync');
+        return false;
+      }
+
       try {
         const account = accounts[0];
+        logger.info('[Auth] Syncing server session from MSAL', {
+          accountId: account.homeAccountId,
+          username: account.username,
+        });
+
+        // Acquire token silently (no user interaction)
         const tokenResult = await instance.acquireTokenSilent({
           ...loginRequest,
           account,
+          forceRefresh: false,
         });
 
+        logger.debug('[Auth] Token acquired successfully', {
+          expiresOn: tokenResult.expiresOn,
+          scopes: tokenResult.scopes,
+        });
+
+        // Exchange Azure AD token for app session
         const exchangeResponse = await fetch('/api/auth/microsoft/exchange', {
           method: 'POST',
           credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ accessToken: tokenResult.accessToken }),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({
+            accessToken: tokenResult.accessToken,
+            idToken: tokenResult.idToken,
+            account: {
+              username: account.username,
+              name: account.name,
+              localAccountId: account.localAccountId,
+            },
+          }),
         });
 
         if (!exchangeResponse.ok) {
-          logger.warn('[Auth] Microsoft exchange failed', { status: exchangeResponse.status });
+          const errorText = await exchangeResponse.text();
+          logger.warn('[Auth] Microsoft token exchange failed', {
+            status: exchangeResponse.status,
+            statusText: exchangeResponse.statusText,
+            error: errorText,
+          });
           return false;
         }
 
+        const exchangeData = await exchangeResponse.json();
+        logger.info('[Auth] Token exchange successful', {
+          userId: exchangeData.user?.id,
+          role: exchangeData.user?.role,
+        });
+
         return true;
-      } catch (error) {
-        logger.error('[Auth] Failed to sync server session from MSAL:', { error });
+      } catch (error: any) {
+        logger.error('[Auth] Failed to sync server session from MSAL:', {
+          error: error.message,
+          errorCode: error.errorCode,
+          name: error.name,
+        });
         return false;
       }
     };
@@ -144,32 +208,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         if (cancelled) return;
 
-        // DEV: Create a real server session when SKIP_AUTH=true
+        // DEV: Use mock user directly when SKIP_AUTH=true (no backend required)
         if (SKIP_AUTH) {
-          logger.info('[Auth] SKIP_AUTH enabled - creating dev session');
-          try {
-            const devLoginResponse = await fetch('/api/auth/dev-login', {
-              method: 'POST',
-              credentials: 'include',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: DEV_LOGIN_EMAIL })
-            });
-
-            if (!devLoginResponse.ok) {
-              logger.warn('[Auth] Dev login failed', { status: devLoginResponse.status });
-            }
-
-            const devUser = await fetchSessionUser();
-            if (devUser) {
-              setUserState(devUser);
-              setIsLoading(false);
-              return;
-            }
-          } catch (error) {
-            logger.error('[Auth] Dev login error:', { error });
-          }
-
-          setUserState(null);
+          logger.info('[Auth] SKIP_AUTH enabled - using mock dev user');
+          setUserState(MOCK_DEV_USER);
           setIsLoading(false);
           return;
         }
@@ -230,7 +272,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => {
       cancelled = true;
     };
-  }, [accounts, inProgress, instance]);
+  }, [accounts, inProgress, instance, authRefreshNonce]);
 
   // SECURITY (CRIT-F-001): Login function using httpOnly cookies only
   const login = useCallback(async (email: string, password: string) => {
@@ -306,11 +348,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Microsoft OAuth login using MSAL
   const loginWithMicrosoft = useCallback(async () => {
     try {
-      logger.info('[Auth] Initiating MSAL login redirect');
-      await instance.loginRedirect(loginRequest);
-    } catch (error) {
-      logger.error('[Auth] MSAL login failed:', { error });
+      logger.info('[Auth] Initiating MSAL login redirect', {
+        authority: loginRequest,
+        redirectUri: typeof window !== 'undefined' ? window.location.origin + '/auth/callback' : 'unknown'
+      });
+
+      // Use loginRedirect for better UX on mobile and compliance
+      await instance.loginRedirect({
+        ...loginRequest,
+        redirectStartPage: window.location.href,
+      });
+    } catch (error: any) {
+      logger.error('[Auth] MSAL login failed:', {
+        error: error.message,
+        errorCode: error.errorCode,
+        errorMessage: error.errorMessage,
+      });
+
       // Fallback to old OAuth flow if MSAL fails
+      logger.warn('[Auth] Falling back to legacy OAuth flow');
       window.location.href = getMicrosoftLoginUrl();
     }
   }, [instance]);
@@ -318,35 +374,85 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // SECURITY (CRIT-F-001): Logout function
   const logout = useCallback(async () => {
     try {
+      logger.info('[Auth] Starting logout process');
+
       // Stop token refresh
       stopTokenRefresh();
+
+      // Clear local token storage
+      const { getTokenStorage } = await import('@/services/token-storage');
+      const persistentStorage = getTokenStorage(true);
+      const sessionStorage_ = getTokenStorage(false);
+
+      await Promise.all([
+        persistentStorage.clearTokens(),
+        sessionStorage_.clearTokens()
+      ]);
+
+      logger.debug('[Auth] Local tokens cleared');
 
       // If MSAL account exists, logout from MSAL
       if (accounts.length > 0) {
         logger.info('[Auth] Logging out from MSAL');
+
+        // Clear backend session first
+        try {
+          await fetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'include',
+          });
+        } catch (error) {
+          logger.warn('[Auth] Backend logout failed (continuing with MSAL):', { error });
+        }
+
+        // Clear CSRF token
+        clearCsrfToken();
+
+        // Clear MSAL cache and redirect
         await instance.logoutRedirect({
           account: accounts[0]
         });
+
         return; // MSAL will handle the redirect
       }
 
       // Call backend to clear httpOnly cookie
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          credentials: 'include',
+        });
+        logger.debug('[Auth] Backend session cleared');
+      } catch (error) {
+        logger.warn('[Auth] Backend logout failed:', { error });
+      }
 
       // Clear CSRF token
       clearCsrfToken();
 
+      // Clear local storage items
+      localStorage.removeItem('demo_mode');
+      localStorage.removeItem('demo_role');
+      localStorage.removeItem('fleet_auth_state');
+
+      // Clear session storage items
+      sessionStorage.removeItem('fleet_enc_key');
+      sessionStorage.removeItem('msal.account.keys');
+      sessionStorage.removeItem('msal.token.keys.access_token');
+      sessionStorage.removeItem('msal.token.keys.refresh_token');
+
       logger.info('[Auth] Logout successful');
     } catch (error) {
       logger.error('[Auth] Logout error:', { error });
-    }
+    } finally {
+      // Always clear user state
+      setUserState(null);
 
-    setUserState(null);
-    localStorage.removeItem('demo_mode');
-    localStorage.removeItem('demo_role');
+      // Redirect to login if not already there
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login?reason=logged_out';
+      }
+    }
   }, [instance, accounts]);
 
   // Set user (for demo mode)
