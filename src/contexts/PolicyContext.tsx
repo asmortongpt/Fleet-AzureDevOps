@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { toast } from 'sonner';
 
-import { Policy, PolicyType } from '@/lib/policy-engine/types';
+import { secureFetch } from '@/hooks/use-api';
+import { Policy, PolicyMode, PolicyStatus, PolicyType } from '@/lib/policy-engine/types';
 import logger from '@/utils/logger';
 
 export interface PolicyContextType {
@@ -71,6 +72,128 @@ interface PolicyProviderProps {
   children: ReactNode;
 }
 
+const POLICY_TYPES: PolicyType[] = [
+  "safety",
+  "dispatch",
+  "privacy",
+  "ev-charging",
+  "payments",
+  "maintenance",
+  "osha",
+  "environmental",
+  "data-retention",
+  "security",
+  "vehicle-use",
+  "driver-behavior",
+  "driver-qualification",
+  "preventive-maintenance",
+  "fuel-fraud-prevention",
+  "maintenance-authorization",
+  "telematics",
+  "asset-tracking",
+  "accident-response",
+  "vehicle-replacement"
+];
+
+const POLICY_STATUSES: PolicyStatus[] = [
+  "draft",
+  "testing",
+  "approved",
+  "active",
+  "deprecated",
+  "archived"
+];
+
+const parsePolicyContent = (content: any) => {
+  if (!content) return {};
+  if (typeof content === 'string') {
+    try {
+      return JSON.parse(content);
+    } catch {
+      return {};
+    }
+  }
+  if (typeof content === 'object') return content;
+  return {};
+};
+
+const normalizePolicyType = (value: any): PolicyType => {
+  if (!value) return 'safety';
+  const normalized = String(value).trim().toLowerCase().replace(/\s+/g, '-');
+  return (POLICY_TYPES.includes(normalized as PolicyType) ? normalized : 'safety') as PolicyType;
+};
+
+const normalizePolicyStatus = (value: any): PolicyStatus => {
+  if (!value) return 'draft';
+  const normalized = String(value).trim().toLowerCase();
+  return (POLICY_STATUSES.includes(normalized as PolicyStatus) ? normalized : 'draft') as PolicyStatus;
+};
+
+const mapPolicyFromApi = (row: any): Policy => {
+  const content = parsePolicyContent(row?.content);
+  const status = normalizePolicyStatus(content.status ?? (row?.is_active ? 'active' : row?.status));
+  const type = normalizePolicyType(content.type ?? row?.category ?? row?.type);
+  const confidenceScore = Number(content.confidenceScore ?? row?.confidence_score ?? 0);
+
+  return {
+    id: String(row?.id ?? ''),
+    tenantId: row?.tenant_id ?? content.tenantId ?? 'global',
+    name: row?.name ?? content.name ?? 'Untitled Policy',
+    description: row?.description ?? content.description ?? '',
+    type,
+    version: row?.version ?? content.version ?? '1.0.0',
+    status,
+    mode: (content.mode ?? row?.mode ?? 'monitor') as PolicyMode,
+    conditions: Array.isArray(content.conditions) ? content.conditions : [],
+    actions: Array.isArray(content.actions) ? content.actions : [],
+    scope: content.scope ?? {},
+    confidenceScore: Number.isFinite(confidenceScore) ? confidenceScore : 0,
+    requiresDualControl: Boolean(content.requiresDualControl ?? row?.requires_dual_control ?? false),
+    requiresMFAForExecution: Boolean(content.requiresMFAForExecution ?? row?.requires_mfa_for_execution ?? false),
+    createdBy: row?.created_by ?? content.createdBy ?? '',
+    createdAt: row?.created_at ?? content.createdAt ?? '',
+    tags: Array.isArray(content.tags) ? content.tags : [],
+    executionCount: Number(content.executionCount ?? row?.execution_count ?? 0) || 0,
+    violationCount: Number(content.violationCount ?? row?.violation_count ?? 0) || 0,
+    category: row?.category ?? content.category,
+    relatedPolicies: Array.isArray(content.relatedPolicies) ? content.relatedPolicies : [],
+    lastModifiedBy: row?.updated_by ?? content.lastModifiedBy,
+    lastModifiedAt: row?.updated_at ?? content.lastModifiedAt,
+  };
+};
+
+const buildPolicyPayload = (policy: Partial<Policy>) => {
+  const content = {
+    type: policy.type,
+    mode: policy.mode,
+    status: policy.status,
+    conditions: policy.conditions ?? [],
+    actions: policy.actions ?? [],
+    scope: policy.scope ?? {},
+    confidenceScore: policy.confidenceScore ?? 0,
+    requiresDualControl: policy.requiresDualControl ?? false,
+    requiresMFAForExecution: policy.requiresMFAForExecution ?? false,
+    tags: policy.tags ?? [],
+    relatedPolicies: policy.relatedPolicies ?? [],
+    executionCount: policy.executionCount ?? 0,
+    violationCount: policy.violationCount ?? 0,
+    category: policy.category ?? policy.type,
+    createdBy: policy.createdBy,
+    createdAt: policy.createdAt,
+    lastModifiedBy: policy.lastModifiedBy,
+    lastModifiedAt: policy.lastModifiedAt,
+  };
+
+  return {
+    name: policy.name,
+    description: policy.description,
+    category: policy.category ?? policy.type,
+    version: policy.version ?? '1.0.0',
+    is_active: policy.status === 'active',
+    content,
+  };
+};
+
 export const PolicyProvider: React.FC<PolicyProviderProps> = ({ children }) => {
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -82,21 +205,17 @@ export const PolicyProvider: React.FC<PolicyProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      const token = localStorage.getItem('token') || '';
-      const response = await fetch('/api/policy-templates', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await secureFetch('/api/policies');
 
       if (!response.ok) {
         throw new Error('Failed to fetch policies');
       }
 
       const data = await response.json();
-      setPolicies(data.data || []);
-      logger.info('Policies fetched successfully', { count: data.data?.length });
+      const rows = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : [];
+      const mapped = rows.map(mapPolicyFromApi);
+      setPolicies(mapped);
+      logger.info('Policies fetched successfully', { count: mapped.length });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(errorMessage);
@@ -110,21 +229,17 @@ export const PolicyProvider: React.FC<PolicyProviderProps> = ({ children }) => {
   // Create new policy
   const createPolicy = useCallback(async (policyData: Omit<Policy, 'id' | 'createdAt' | 'executionCount' | 'violationCount'>) => {
     try {
-      const token = localStorage.getItem('token') || '';
-      const response = await fetch('/api/policy-templates', {
+      const response = await secureFetch('/api/policies', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(policyData)
+        body: JSON.stringify(buildPolicyPayload(policyData))
       });
 
       if (!response.ok) {
         throw new Error('Failed to create policy');
       }
 
-      const newPolicy = await response.json();
+      const newPolicyRaw = await response.json();
+      const newPolicy = mapPolicyFromApi(newPolicyRaw);
       setPolicies(prev => [...prev, newPolicy]);
       toast.success('Policy created successfully');
       logger.info('Policy created', { policyId: newPolicy.id });
@@ -141,21 +256,17 @@ export const PolicyProvider: React.FC<PolicyProviderProps> = ({ children }) => {
   // Update existing policy
   const updatePolicy = useCallback(async (id: string, updates: Partial<Policy>) => {
     try {
-      const token = localStorage.getItem('token') || '';
-      const response = await fetch(`/api/policy-templates/${id}`, {
+      const response = await secureFetch(`/api/policies/${id}`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updates)
+        body: JSON.stringify(buildPolicyPayload(updates))
       });
 
       if (!response.ok) {
         throw new Error('Failed to update policy');
       }
 
-      const updatedPolicy = await response.json();
+      const updatedPolicyRaw = await response.json();
+      const updatedPolicy = mapPolicyFromApi(updatedPolicyRaw);
       setPolicies(prev => prev.map(p => p.id === id ? updatedPolicy : p));
       toast.success('Policy updated successfully');
       logger.info('Policy updated', { policyId: id });
@@ -172,13 +283,8 @@ export const PolicyProvider: React.FC<PolicyProviderProps> = ({ children }) => {
   // Delete policy
   const deletePolicy = useCallback(async (id: string) => {
     try {
-      const token = localStorage.getItem('token') || '';
-      const response = await fetch(`/api/policy-templates/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const response = await secureFetch(`/api/policies/${id}`, {
+        method: 'DELETE'
       });
 
       if (!response.ok) {
@@ -225,36 +331,32 @@ export const PolicyProvider: React.FC<PolicyProviderProps> = ({ children }) => {
 
   // Evaluate single policy
   const evaluatePolicy = useCallback(async (policyId: string, context: any): Promise<{ allowed: boolean; reason?: string }> => {
-    const policy = getPolicyById(policyId);
+    try {
+      const response = await secureFetch(`/api/policies/${policyId}/execute`, {
+        method: 'POST',
+        body: JSON.stringify({ context })
+      });
 
-    if (!policy) {
-      return { allowed: true, reason: 'Policy not found' };
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Policy evaluation failed');
+      }
+
+      const data = await response.json();
+      const evaluation = data?.evaluation;
+      if (!evaluation) {
+        return { allowed: true };
+      }
+
+      return {
+        allowed: Boolean(evaluation.compliant),
+        reason: evaluation.violations?.[0]?.message || evaluation.checks?.find((c: any) => !c.passed)?.message
+      };
+    } catch (error: any) {
+      logger.error('Policy evaluation failed', { policyId, error: error?.message });
+      return { allowed: false, reason: error?.message || 'Policy evaluation failed' };
     }
-
-    if (policy.status !== 'active') {
-      return { allowed: true, reason: 'Policy not active' };
-    }
-
-    // TODO: Implement actual policy evaluation logic
-    // For now, return allowed for monitor mode, check conditions for autonomous mode
-    if (policy.mode === 'monitor') {
-      logger.info('Policy evaluation (monitor mode)', { policyId, context });
-      return { allowed: true, reason: 'Monitor mode - logging only' };
-    }
-
-    // Basic condition evaluation (this should be expanded based on your policy schema)
-    const conditionsMet = policy.conditions.every(condition => {
-      // Implement condition checking logic here
-      return true; // Placeholder
-    });
-
-    if (!conditionsMet) {
-      logger.warn('Policy violation detected', { policyId, context });
-      return { allowed: false, reason: 'Policy conditions not met' };
-    }
-
-    return { allowed: true };
-  }, [getPolicyById]);
+  }, []);
 
   // Check all policies of a type
   const checkPolicies = useCallback(async (type: PolicyType, context: any): Promise<{ allowed: boolean; violations: string[] }> => {
@@ -275,10 +377,8 @@ export const PolicyProvider: React.FC<PolicyProviderProps> = ({ children }) => {
     };
   }, [getActivePolicies, evaluatePolicy]);
 
-  // Load policies on mount (disabled - endpoint not yet implemented)
   useEffect(() => {
-    // TODO: Enable when /api/policy-templates endpoint is implemented
-    // fetchPolicies();
+    fetchPolicies();
   }, [fetchPolicies]);
 
   const value: PolicyContextValue = {

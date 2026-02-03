@@ -122,6 +122,72 @@ router.get(
 )
 
 /**
+ * POST /api/reports/scheduled
+ * Create a report schedule
+ */
+router.post(
+  '/scheduled',
+  // @ts-expect-error - Build compatibility fix
+  authenticateJWT,
+  reportRateLimiter,
+  [
+    body('templateId').isString().trim().notEmpty(),
+    body('schedule').isString().trim().notEmpty(),
+    body('recipients').isArray({ min: 1 }),
+    body('format').isString().isIn(['csv', 'xlsx', 'pdf'])
+  ],
+  async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+      const tenantId = (req as any).user?.tenant_id;
+      const { templateId, schedule, recipients, format } = req.body;
+
+      const now = new Date();
+      const normalized = String(schedule).toLowerCase();
+      let nextRun = new Date(now);
+
+      if (normalized.includes('daily')) {
+        nextRun.setDate(nextRun.getDate() + 1);
+      } else if (normalized.includes('weekly')) {
+        nextRun.setDate(nextRun.getDate() + 7);
+      } else if (normalized.includes('monthly')) {
+        nextRun.setMonth(nextRun.getMonth() + 1);
+      } else {
+        nextRun.setDate(nextRun.getDate() + 7);
+      }
+
+      const result = await pool.query(
+        `INSERT INTO report_schedules (tenant_id, template_id, schedule, recipients, format, status, next_run)
+         VALUES ($1, $2, $3, $4, $5, 'active', $6)
+         RETURNING id, template_id, schedule, recipients, format, status, next_run, last_run`,
+        [tenantId, templateId, schedule, recipients, format, nextRun]
+      );
+
+      const row = result.rows[0];
+      res.status(201).json({
+        data: {
+          id: row.id,
+          templateId: row.template_id,
+          schedule: row.schedule,
+          recipients: row.recipients,
+          format: row.format,
+          status: row.status,
+          nextRun: row.next_run,
+          lastRun: row.last_run
+        }
+      });
+    } catch (error) {
+      console.error('Create report schedule error:', error);
+      res.status(500).json({ error: 'Failed to create report schedule' });
+    }
+  }
+)
+
+/**
  * GET /api/reports/history
  * Returns generated report history
  */

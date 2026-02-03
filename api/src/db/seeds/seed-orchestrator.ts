@@ -33,6 +33,7 @@ export class SeedOrchestrator {
   private routeFactory: RouteFactory;
   private incidentFactory: IncidentFactory;
   private complianceFactory: ComplianceRecordFactory;
+  private oshaFactory: OSHARecordFactory;
 
   constructor(pool: Pool, config: Partial<SeedConfig> = {}, seed: string = 'fleet-test-2026') {
     this.pool = pool;
@@ -63,6 +64,7 @@ export class SeedOrchestrator {
     this.routeFactory = new RouteFactory(seed);
     this.incidentFactory = new IncidentFactory(seed);
     this.complianceFactory = new ComplianceRecordFactory(seed);
+    this.oshaFactory = new OSHARecordFactory(seed);
   }
 
   /**
@@ -83,6 +85,8 @@ export class SeedOrchestrator {
       await this.seedDrivers(client);
       await this.seedVehicles(client);
       await this.seedWorkOrders(client);
+      await this.seedComplianceRecords(client);
+      await this.seedOSHARecords(client);
       // await this.seedMaintenanceSchedules(client);
       // await this.seedFuelTransactions(client);
       // await this.seedRoutes(client);
@@ -706,6 +710,51 @@ export class SeedOrchestrator {
     }
 
     console.log(`   ✓ Created ${totalRecords} compliance records`);
+  }
+
+  /**
+   * Seed OSHA 300 log records
+   */
+  private async seedOSHARecords(client: PoolClient): Promise<void> {
+    console.log('🩺 Seeding OSHA 300 log records...');
+    const tenantIds = await this.getTenantIds(client);
+
+    let total = 0;
+    for (const tenantId of tenantIds) {
+      const records = this.oshaFactory.buildList(tenantId, 5);
+      for (const record of records) {
+        await client.query(
+          `INSERT INTO osha_logs (
+            tenant_id, case_number, incident_date, incident_description,
+            employee_name, job_title, body_part_affected, injury_type,
+            is_recordable, is_lost_time, days_away_from_work, days_restricted_duty,
+            location, status, metadata, reported_date, created_at, updated_at
+          ) VALUES (
+            $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,NOW(),NOW()
+          )`,
+          [
+            record.tenant_id,
+            record.case_number,
+            record.incident_date,
+            record.incident_description,
+            record.employee_name,
+            record.job_title,
+            record.body_part_affected,
+            record.injury_type,
+            record.is_recordable,
+            record.is_lost_time,
+            record.days_away_from_work,
+            record.days_restricted_duty,
+            record.location,
+            record.status,
+            JSON.stringify(record.metadata || {}),
+            record.reported_date || record.incident_date,
+          ]
+        );
+        total++;
+      }
+    }
+    console.log(`   ✓ Created ${total} OSHA log entries`);
   }
 
   // Helper methods to query database

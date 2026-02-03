@@ -16,6 +16,23 @@ import { Request, Response, NextFunction } from 'express'
 
 import { securityLogger } from '../config/logger'
 
+const safeLog = (
+  level: 'warn' | 'incident' | 'info',
+  message: string,
+  meta: Record<string, unknown>
+) => {
+  const logger: any = securityLogger as any
+  const logFn =
+    (logger && (logger[level] as any)) ||
+    (logger && (logger.incident as any)) ||
+    (logger && (logger.warn as any)) ||
+    null
+
+  if (typeof logFn === 'function') {
+    logFn.call(logger, message, meta)
+  }
+}
+
 /**
  * Dangerous patterns that should be sanitized
  */
@@ -165,6 +182,14 @@ function sanitizeString(value: string, config: SanitizationConfig, fieldName?: s
   if (modes.pathTraversal) {
     const originalLength = sanitized.length
 
+    // Attempt to decode URI-encoded traversal before stripping patterns
+    try {
+      const decoded = decodeURIComponent(sanitized)
+      sanitized = decoded
+    } catch {
+      // ignore decode errors
+    }
+
     // Remove path traversal sequences
     sanitized = sanitized.replace(DANGEROUS_PATTERNS.pathTraversal, '')
 
@@ -210,7 +235,7 @@ function sanitizeString(value: string, config: SanitizationConfig, fieldName?: s
 
   // Log if modified
   if (modified && config.logSanitization) {
-    securityLogger.warn('xss_attempt', {
+    safeLog('warn', 'xss_attempt', {
       details: {
         field: fieldName,
         original: value.substring(0, 100),
@@ -304,7 +329,7 @@ export function sanitizeRequest(config: SanitizationConfig = {}) {
 
       next()
     } catch (error) {
-      securityLogger.warn('suspicious_activity', {
+      safeLog('warn', 'suspicious_activity', {
         ip: req.ip,
         userAgent: req.get('user-agent'),
         details: {

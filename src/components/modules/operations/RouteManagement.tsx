@@ -242,13 +242,13 @@ export function RouteManagement() {
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label>Driver</Label>
-                  <Select value={driver} onValueChange={setDriver}>
+                  <Select value={selectedDriverId} onValueChange={setSelectedDriverId}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select driver" />
                     </SelectTrigger>
                     <SelectContent>
                       {drivers.map(d => (
-                        <SelectItem key={d.id} value={d.name}>
+                        <SelectItem key={d.id} value={String(d.id)}>
                           {d.name}
                         </SelectItem>
                       ))}

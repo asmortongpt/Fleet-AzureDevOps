@@ -128,13 +128,45 @@ export function AuthCallback() {
           userId: exchangeData.user?.id
         })
 
-        // Step 5: Notify the AuthProvider to refresh the session
+        // Step 5: Verify the session cookie is actually usable before redirecting.
+        // If this fails, the user will get stuck in a login loop (SSO succeeds, but the app can't see the session).
+        try {
+          const meResponse = await fetch('/api/auth/me', {
+            method: 'GET',
+            credentials: 'include',
+            headers: { 'Accept': 'application/json' }
+          })
+          if (!meResponse.ok) {
+            const body = await meResponse.text()
+            logger.error('[Auth Callback] Session verification failed after exchange', {
+              status: meResponse.status,
+              body: body.slice(0, 500)
+            })
+            setErrorMessage('Session could not be verified after login (cookie not established).')
+            setTimeout(() => {
+              if (!mounted) return
+              navigate('/login?error=session_not_established', { replace: true })
+            }, 2000)
+            return
+          }
+          logger.info('[Auth Callback] Session verified via /api/auth/me')
+        } catch (verifyError) {
+          logger.error('[Auth Callback] Session verification request failed', { error: verifyError })
+          setErrorMessage('Session verification failed after login.')
+          setTimeout(() => {
+            if (!mounted) return
+            navigate('/login?error=session_verification_failed', { replace: true })
+          }, 2000)
+          return
+        }
+
+        // Step 6: Notify the AuthProvider to refresh the session
         if (typeof window !== 'undefined') {
           logger.debug('[Auth Callback] Dispatching auth refresh event')
           window.dispatchEvent(new Event('fleet-auth-refresh'))
         }
 
-        // Step 6: Redirect to home after a brief delay
+        // Step 7: Redirect to home after a brief delay
         setTimeout(() => {
           if (!mounted) return
           logger.info('[Auth Callback] Authentication complete, redirecting to home')

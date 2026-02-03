@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 
 import { BaseRepository } from './base/BaseRepository';
+import { pool as sharedPool } from '../db';
 
 
 /**
@@ -19,7 +20,7 @@ export interface ZoneEntity {
  * Zones Repository Class
  */
 export class ZonesRepository extends BaseRepository<any> {
-  constructor(pool: Pool) {
+  constructor(pool: Pool = sharedPool) {
     super(pool, 'zones');
   }
 
@@ -89,7 +90,7 @@ export class ZonesRepository extends BaseRepository<any> {
         RETURNING *
       `;
       const result = await this.pool.query(query, [data.name, id, tenantId]);
-      return result.rows[0];
+      return result.rows[0] ?? null;
     } catch (error) {
       console.error('Error in update:', error);
       throw new Error('Failed to update record');
@@ -112,5 +113,16 @@ export class ZonesRepository extends BaseRepository<any> {
       console.error('Error in softDelete:', error);
       throw new Error('Failed to delete record');
     }
+  }
+
+  /**
+   * Hard delete (primarily used by legacy tests)
+   */
+  async delete(id: number, tenantId: number): Promise<boolean> {
+    const result = await this.pool.query(
+      `DELETE FROM zones WHERE id = $1 AND tenant_id = $2`,
+      [id, tenantId]
+    )
+    return (result.rowCount ?? 0) > 0
   }
 }

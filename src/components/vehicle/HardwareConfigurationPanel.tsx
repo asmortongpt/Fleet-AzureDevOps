@@ -448,7 +448,7 @@ const AddProviderDialog: React.FC<AddProviderDialogProps> = ({
                     <p>1. Download the OBD2 Fleet app from your app store</p>
                     <p>2. Plug the OBD2 adapter into the vehicle's diagnostic port</p>
                     <p>3. Open the app and follow the pairing wizard</p>
-                    <p>4. Enter this vehicle ID when prompted: <code className="bg-muted px-1 py-0.5 rounded">VEH-{Math.random().toString(36).substring(7).toUpperCase()}</code></p>
+                    <p>4. Enter this vehicle ID when prompted: <code className="bg-muted px-1 py-0.5 rounded">VEH-{String(vehicleId).toUpperCase()}</code></p>
                   </div>
                 </div>
               </div>

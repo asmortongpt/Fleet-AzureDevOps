@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 
 import { BaseRepository } from './base/BaseRepository';
+import { pool as sharedPool } from '../db';
 
 
 export interface ExportJobEntity {
@@ -13,7 +14,7 @@ export interface ExportJobEntity {
 }
 
 export class ExportJobsRepository extends BaseRepository<any> {
-  constructor(pool: Pool) {
+  constructor(pool: Pool = sharedPool) {
     super(pool, 'export_jobs');
   }
 
@@ -74,7 +75,7 @@ export class ExportJobsRepository extends BaseRepository<any> {
   /**
    * Update a record
    */
-  async update(id: number, data: Partial<ExportJobEntity>, tenantId: number): Promise<ExportJobEntity> {
+  async update(id: number, data: Partial<ExportJobEntity>, tenantId: number): Promise<ExportJobEntity | null> {
     try {
       const query = `
         UPDATE export_jobs
@@ -83,7 +84,7 @@ export class ExportJobsRepository extends BaseRepository<any> {
         RETURNING *
       `;
       const result = await this.pool.query(query, [data.name, id, tenantId]);
-      return result.rows[0];
+      return result.rows[0] ?? null;
     } catch (error) {
       console.error('Error in update:', error);
       throw new Error('Failed to update record');
@@ -106,6 +107,14 @@ export class ExportJobsRepository extends BaseRepository<any> {
       console.error('Error in softDelete:', error);
       throw new Error('Failed to delete record');
     }
+  }
+
+  async delete(id: number, tenantId: number): Promise<boolean> {
+    const result = await this.pool.query(
+      `DELETE FROM export_jobs WHERE id = $1 AND tenant_id = $2`,
+      [id, tenantId]
+    );
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Example centralized filtering

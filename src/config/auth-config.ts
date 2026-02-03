@@ -16,13 +16,13 @@
  */
 export const AZURE_AD_CONFIG = {
   // Application (client) ID from Azure AD App Registration
-  clientId: import.meta.env.VITE_AZURE_AD_CLIENT_ID || 'baae0851-0c24-4214-8587-e3fabc46bd4a',
+  clientId: import.meta.env.VITE_AZURE_AD_CLIENT_ID || import.meta.env.VITE_AZURE_CLIENT_ID || '',
 
   // Directory (tenant) ID from Azure AD
-  tenantId: import.meta.env.VITE_AZURE_AD_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347',
+  tenantId: import.meta.env.VITE_AZURE_AD_TENANT_ID || import.meta.env.VITE_AZURE_TENANT_ID || '',
 
   // Authority URL (Azure AD endpoint for this tenant)
-  authority: `https://login.microsoftonline.com/${import.meta.env.VITE_AZURE_AD_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347'}`,
+  authority: `https://login.microsoftonline.com/${(import.meta.env.VITE_AZURE_AD_TENANT_ID || import.meta.env.VITE_AZURE_TENANT_ID || 'common')}`,
 
   // Known authorities (for multi-tenant support)
   knownAuthorities: [`login.microsoftonline.com`],
@@ -58,10 +58,10 @@ export const AUTH_SCOPES = {
  * Azure Portal > App Registrations > Your App > Authentication > Platform configurations > Web
  */
 export const REDIRECT_URIS = {
-  // Development (localhost)
+  // Development (localhost) - Note: Vite usually uses 5173, but may use 5174 if 5173 is busy
   dev: [
+    'http://localhost:5174/auth/callback', // Primary (current port)
     'http://localhost:5173/auth/callback',
-    'http://localhost:5174/auth/callback',
     'http://localhost:5175/auth/callback',
   ],
 
@@ -88,8 +88,8 @@ export function getRedirectUri(): string {
     return `${origin}/auth/callback`;
   }
 
-  // Fallback to localhost for development
-  return 'http://localhost:5173/auth/callback';
+  // Fallback to localhost for development (use 5174 as that's our current port)
+  return 'http://localhost:5174/auth/callback';
 }
 
 /**
@@ -99,7 +99,7 @@ export function getPostLogoutRedirectUri(): string {
   if (typeof window !== 'undefined') {
     return window.location.origin;
   }
-  return 'http://localhost:5173';
+  return 'http://localhost:5174';
 }
 
 /**
@@ -298,7 +298,7 @@ export const ENV_CONFIG = {
   isTest: import.meta.env.MODE === 'test',
 
   // Skip authentication (development only)
-  skipAuth: import.meta.env.VITE_SKIP_AUTH === 'true',
+  skipAuth: import.meta.env.DEV && import.meta.env.VITE_SKIP_AUTH === 'true',
 } as const;
 
 /**
@@ -307,6 +307,14 @@ export const ENV_CONFIG = {
  * This is the final configuration passed to MSAL PublicClientApplication
  */
 export function getMsalConfig() {
+  if (import.meta.env.PROD) {
+    if (!AZURE_AD_CONFIG.clientId || !AZURE_AD_CONFIG.tenantId) {
+      throw new Error(
+        'Azure AD SSO is not configured. Set VITE_AZURE_AD_CLIENT_ID and VITE_AZURE_AD_TENANT_ID for production.'
+      );
+    }
+  }
+
   return {
     auth: {
       clientId: AZURE_AD_CONFIG.clientId,
