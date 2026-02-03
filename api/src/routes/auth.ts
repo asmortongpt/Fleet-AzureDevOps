@@ -2,6 +2,7 @@ import axios from 'axios'
 import express, { Request, Response } from 'express'
 import { z } from 'zod'
 import crypto from 'crypto'
+import jwt from 'jsonwebtoken'
 
 import pool from '../config/database' // SECURITY: Import database pool
 import logger from '../config/logger'; // Wave 16: Add Winston logger
@@ -20,15 +21,24 @@ const router = express.Router()
 
 const setAuthCookie = (res: Response, token: string) => {
   const isProduction = process.env.NODE_ENV === 'production'
-  const cookieDomain = process.env.AUTH_COOKIE_DOMAIN
+  const cookieDomain = process.env.AUTH_COOKIE_DOMAIN || undefined
+
+  const sameSiteEnv = (process.env.AUTH_COOKIE_SAMESITE || '').toLowerCase()
+  const sameSite: 'lax' | 'none' = sameSiteEnv === 'none' ? 'none' : 'lax'
+
+  const secureEnv = process.env.AUTH_COOKIE_SECURE === 'true'
+  const secure = secureEnv || (isProduction && sameSite === 'none')
+
   res.cookie('auth_token', token, {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: 'lax',
-    domain: cookieDomain || undefined,
+    secure,
+    sameSite,
+    domain: cookieDomain,
     maxAge: 15 * 60 * 1000,
     path: '/',
   })
+
+  logger.info('[Auth Cookie] Issued auth_token', { secure, sameSite, domain: cookieDomain || 'host', isProduction })
 }
 
 const issueRefreshToken = async (userId: string, tenantId: string) => {
@@ -987,8 +997,8 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     if (userResult.rows.length === 0) {
       // Create new user
       const insertResult = await pool.query(
-        `INSERT INTO users (tenant_id, email, first_name, last_name, role, is_active, password_hash, sso_provider, sso_provider_id)
-         VALUES ($1, $2, $3, $4, 'viewer', true, 'SSO', 'microsoft', $5)
+        `INSERT INTO users (tenant_id, email, first_name, last_name, role, is_active, password_hash, provider, provider_user_id)
+         VALUES ($1, $2, $3, $4, 'Viewer', true, 'SSO', 'microsoft', $5)
          RETURNING id, email, first_name, last_name, role, tenant_id`,
         [tenantId, email, microsoftUser.givenName || 'User', microsoftUser.surname || '', microsoftUser.id]
       )
@@ -1060,62 +1070,70 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
  */
 router.post('/microsoft/exchange', async (req: Request, res: Response) => {
   try {
-    const { accessToken, idToken, tenantId: requestedTenantId } = req.body || {}
+    const { idToken, tenantId: requestedTenantId } = req.body || {}
 
-    // Prefer idToken for user info extraction (more reliable, no Graph API call needed)
-    if (!idToken && !accessToken) {
-      return res.status(400).json({ error: 'Missing idToken or accessToken' })
+    // ID token is REQUIRED - it contains user information and is signed by Azure AD
+    if (!idToken || typeof idToken !== 'string') {
+      logger.warn('[Auth Exchange] Missing or invalid idToken', {
+        origin: req.headers.origin,
+        referer: req.headers.referer,
+        contentLength: req.headers['content-length']
+      })
+      return res.status(400).json({ error: 'Missing idToken - ID token is required for authentication' })
     }
 
-    let microsoftUser: any = {}
-    let email = ''
-
-    if (idToken) {
-      // Decode ID token to extract user claims (no external API call needed)
-      logger.info('[Auth Exchange] Using ID token for user info')
-      const decoded = jwt.decode(idToken) as any
-      if (!decoded) {
-        logger.error('[Auth Exchange] Failed to decode ID token')
-        return res.status(400).json({ error: 'Invalid idToken' })
-      }
-
-      logger.debug('[Auth Exchange] ID token decoded', {
-        oid: decoded.oid,
-        sub: decoded.sub,
-        email: decoded.email,
-        preferred_username: decoded.preferred_username,
-        upn: decoded.upn,
-        name: decoded.name
-      })
-
-      microsoftUser = {
-        id: decoded.oid || decoded.sub,
-        mail: decoded.email || decoded.preferred_username || decoded.upn,
-        userPrincipalName: decoded.preferred_username || decoded.upn,
-        givenName: decoded.given_name || decoded.name?.split(' ')[0] || 'User',
-        surname: decoded.family_name || decoded.name?.split(' ').slice(1).join(' ') || ''
-      }
-      email = (microsoftUser.mail || microsoftUser.userPrincipalName || '').toLowerCase()
-
-      logger.debug('[Auth Exchange] Extracted user info', {
-        id: microsoftUser.id,
-        email,
-        givenName: microsoftUser.givenName,
-        surname: microsoftUser.surname
-      })
-    } else if (accessToken) {
-      // Fallback to Graph API if only accessToken provided (legacy support)
-      logger.info('[Auth Exchange] Falling back to Graph API for user info')
-      const userInfoResponse = await axios.get('https://graph.microsoft.com/v1.0/me', {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      })
-      microsoftUser = userInfoResponse.data
-      email = (microsoftUser.mail || microsoftUser.userPrincipalName || '').toLowerCase()
+    // Decode ID token WITHOUT verification first to get tenant ID
+    logger.info('[Auth Exchange] Decoding ID token', {
+      origin: req.headers.origin,
+      referer: req.headers.referer,
+      hasCookie: Boolean(req.headers.cookie),
+      authCookiePresent: Boolean(req.cookies?.auth_token)
+    })
+    const decodedUnverified = jwt.decode(idToken, { complete: true }) as any
+    if (!decodedUnverified || !decodedUnverified.payload) {
+      logger.error('[Auth Exchange] Failed to decode ID token')
+      return res.status(400).json({ error: 'Invalid ID token format' })
     }
+
+    const payload = decodedUnverified.payload
+    const azureTenantId = payload.tid || process.env.VITE_AZURE_AD_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347'
+
+    logger.debug('[Auth Exchange] ID token payload', {
+      oid: payload.oid,
+      sub: payload.sub,
+      email: payload.email,
+      preferred_username: payload.preferred_username,
+      upn: payload.upn,
+      name: payload.name,
+      azureTenantId: azureTenantId,
+      tid: payload.tid,
+      iss: payload.iss,
+      aud: payload.aud
+    })
+
+    // Extract user info from ID token claims
+    const microsoftUser = {
+      id: payload.oid || payload.sub,
+      mail: payload.email || payload.preferred_username || payload.upn,
+      userPrincipalName: payload.preferred_username || payload.upn,
+      givenName: payload.given_name || payload.name?.split(' ')[0] || 'User',
+      surname: payload.family_name || payload.name?.split(' ').slice(1).join(' ') || ''
+    }
+
+    const email = (microsoftUser.mail || microsoftUser.userPrincipalName || '').toLowerCase()
 
     if (!email) {
-      return res.status(400).json({ error: 'Unable to resolve Microsoft user email' })
+      logger.error('[Auth Exchange] Unable to extract email from ID token')
+      return res.status(400).json({ error: 'Unable to resolve user email from ID token' })
     }
+
+    logger.info('[Auth Exchange] Extracted user info from ID token', {
+      id: microsoftUser.id,
+      email,
+      givenName: microsoftUser.givenName,
+      surname: microsoftUser.surname,
+      domain: email.split('@')[1]
+    })
 
     const isProduction = process.env.NODE_ENV === 'production'
     const configuredDomains = (process.env.SSO_ALLOWED_DOMAINS || '')
@@ -1164,8 +1182,8 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
     let user
     if (userResult.rows.length === 0) {
       const insertResult = await pool.query(
-        `INSERT INTO users (tenant_id, email, first_name, last_name, role, is_active, password_hash, sso_provider, sso_provider_id)
-         VALUES ($1, $2, $3, $4, 'viewer', true, 'SSO', 'microsoft', $5)
+        `INSERT INTO users (tenant_id, email, first_name, last_name, role, is_active, password_hash, provider, provider_user_id)
+         VALUES ($1, $2, $3, $4, 'Viewer', true, 'SSO', 'microsoft', $5)
          RETURNING id, email, first_name, last_name, role, tenant_id`,
         [tenantId, email, microsoftUser.givenName || 'User', microsoftUser.surname || '', microsoftUser.id]
       )
@@ -1195,6 +1213,16 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
     )
 
     setAuthCookie(res, token)
+
+    logger.info('[Auth Exchange] Session issued', {
+      userId: user.id,
+      tenantId: user.tenant_id,
+      authCookieSet: true,
+      origin: req.headers.origin,
+      referer: req.headers.referer,
+      cookieDomain: process.env.AUTH_COOKIE_DOMAIN || 'host',
+      sameSite: (process.env.AUTH_COOKIE_SAMESITE || 'lax').toLowerCase()
+    })
 
     return res.json({
       token,

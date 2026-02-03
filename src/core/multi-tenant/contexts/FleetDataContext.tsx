@@ -12,10 +12,10 @@ export interface Vehicle {
   driver?: string;
   driverId?: string;
   location: {
-    lat: number;
-    lng: number;
+    lat: number | null;
+    lng: number | null;
     address: string;
-    lastUpdate: Date;
+    lastUpdate: Date | null;
   }
   fuel: {
     level: number;
@@ -23,9 +23,9 @@ export interface Vehicle {
     efficiency: number
   }
   mileage: number;
-  nextMaintenance: Date;
+  nextMaintenance: Date | null;
   department: string;
-  ownership: 'owned' | 'leased';
+  ownership: 'owned' | 'leased' | null;
   batteryLevel?: number;
   features: string[]
 }
@@ -124,31 +124,41 @@ export const FleetDataProvider: React.FC<FleetDataProviderProps> = ({ children }
       const vehicleRows = Array.isArray(vehiclesData) ? vehiclesData : vehiclesData.data || [];
 
       // Transform API data to match our interface
-      const transformedVehicles: Vehicle[] = vehicleRows.map((vehicle: any) => ({
-        id: vehicle.id || `VEH-${Math.random().toString(36).substr(2, 9)}`,
+      const transformedVehicles: Vehicle[] = vehicleRows
+        .filter((vehicle: any) => Boolean(vehicle?.id))
+        .map((vehicle: any) => ({
+        id: vehicle.id,
         plateNumber: vehicle.license_plate || vehicle.plate_number || '',
         make: vehicle.make || '',
         model: vehicle.model || '',
-        year: vehicle.year || new Date().getFullYear(),
+        year: Number(vehicle.year) || 0,
         vin: vehicle.vin || '',
         status: vehicle.status || 'active',
         driver: vehicle.assigned_driver || vehicle.driver_name,
         driverId: vehicle.driver_id,
         location: {
-          lat: vehicle.coordinates?.lat || vehicle.location?.lat || 30.4518,
-          lng: vehicle.coordinates?.lng || vehicle.location?.lng || -84.27277,
-          address: vehicle.current_location || vehicle.location || 'Tallahassee, FL',
-          lastUpdate: new Date(vehicle.last_updated || Date.now())
+          lat: Number.isFinite(vehicle.coordinates?.lat)
+            ? Number(vehicle.coordinates.lat)
+            : Number.isFinite(vehicle.location?.lat)
+              ? Number(vehicle.location.lat)
+              : null,
+          lng: Number.isFinite(vehicle.coordinates?.lng)
+            ? Number(vehicle.coordinates.lng)
+            : Number.isFinite(vehicle.location?.lng)
+              ? Number(vehicle.location.lng)
+              : null,
+          address: vehicle.current_location || vehicle.location || '',
+          lastUpdate: vehicle.last_updated ? new Date(vehicle.last_updated) : null
         },
         fuel: {
-          level: vehicle.fuel_level || 0,
-          capacity: vehicle.fuel_capacity || 100,
-          efficiency: vehicle.fuel_efficiency || 25
+          level: Number(vehicle.fuel_level) || 0,
+          capacity: Number(vehicle.fuel_capacity) || 0,
+          efficiency: Number(vehicle.fuel_efficiency) || 0
         },
         mileage: vehicle.odometer_reading || vehicle.mileage || 0,
-        nextMaintenance: new Date(vehicle.next_service_date || Date.now() + 30 * 24 * 60 * 60 * 1000),
-        department: vehicle.department || 'General Fleet',
-        ownership: vehicle.ownership || 'owned',
+        nextMaintenance: vehicle.next_service_date ? new Date(vehicle.next_service_date) : null,
+        department: vehicle.department || '',
+        ownership: vehicle.ownership || null,
         batteryLevel: vehicle.battery_level,
         features: vehicle.features || []
       }));

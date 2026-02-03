@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 
+import { pool as sharedPool } from '../db';
 import { BaseRepository } from './base/BaseRepository';
 
 
@@ -13,7 +14,7 @@ export interface IVehicleGroup {
 }
 
 export class VehicleGroupsRepository extends BaseRepository<any> {
-  constructor(pool: Pool) {
+  constructor(pool: Pool = sharedPool) {
     super(pool, 'vehicle_groups');
   }
 
@@ -26,7 +27,7 @@ export class VehicleGroupsRepository extends BaseRepository<any> {
   async findAll(tenantId: number, filters?: any): Promise<IVehicleGroup[]> {
     try {
       const query = `
-        SELECT id, created_at, updated_at FROM vehicle_groups
+        SELECT id, tenant_id, name, created_at, updated_at FROM vehicle_groups
         WHERE tenant_id = $1
         AND deleted_at IS NULL
         ORDER BY created_at DESC
@@ -47,7 +48,7 @@ export class VehicleGroupsRepository extends BaseRepository<any> {
    */
   async findById(id: number, tenantId: number): Promise<IVehicleGroup | null> {
     const query = `
-      SELECT id, created_at, updated_at FROM vehicle_groups
+      SELECT id, tenant_id, name, created_at, updated_at FROM vehicle_groups
       WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
     `;
     const result = await this.pool.query(query, [id, tenantId]);

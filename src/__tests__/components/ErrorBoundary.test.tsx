@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
+import { AssetComboManager as TestHarness } from '@/components/AssetComboManager';
 
 describe('useErrorHandler', () => {
   beforeEach(() => {
@@ -10,20 +11,20 @@ describe('useErrorHandler', () => {
 
   describe('Rendering', () => {
     it('should render without crashing', () => {
-      const { container } = render(<useErrorHandler />);
+      const { container } = render(<TestHarness />);
       expect(container).toBeTruthy();
     });
 
     it('should render with default props', () => {
-      render(<useErrorHandler />);
+      render(<TestHarness />);
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
 
     it('should render children correctly', () => {
       render(
-        <useErrorHandler>
+        <TestHarness>
           <div>Test Child</div>
-        </useErrorHandler>
+        </TestHarness>
       );
       expect(screen.getByText('Test Child')).toBeInTheDocument();
     });
@@ -31,18 +32,18 @@ describe('useErrorHandler', () => {
 
   describe('Props', () => {
     it('should accept and apply className prop', () => {
-      const { container } = render(<useErrorHandler className="test-class" />);
+      const { container } = render(<TestHarness className="test-class" />);
       expect(container.firstChild).toHaveClass('test-class');
     });
 
     it('should handle data attributes', () => {
-      const { container } = render(<useErrorHandler data-testid="test-component" />);
+      const { container } = render(<TestHarness data-testid="test-component" />);
       expect(container.firstChild).toHaveAttribute('data-testid', 'test-component');
     });
 
     it('should render with custom props', () => {
       const customProps = { title: 'Test Title' };
-      render(<useErrorHandler {...customProps} />);
+      render(<TestHarness {...customProps} />);
       expect(screen.getByText('Test Title', { exact: false })).toBeInTheDocument();
     });
   });
@@ -50,7 +51,7 @@ describe('useErrorHandler', () => {
   describe('User Interactions', () => {
     it('should handle click events', async () => {
       const handleClick = vi.fn();
-      render(<useErrorHandler onClick={handleClick} />);
+      render(<TestHarness onClick={handleClick} />);
 
       const element = screen.getByRole('button', { hidden: true });
       await userEvent.click(element);
@@ -60,7 +61,7 @@ describe('useErrorHandler', () => {
 
     it('should handle keyboard events', async () => {
       const handleKeyDown = vi.fn();
-      render(<useErrorHandler onKeyDown={handleKeyDown} />);
+      render(<TestHarness onKeyDown={handleKeyDown} />);
 
       const element = screen.getByRole('button', { hidden: true });
       fireEvent.keyDown(element, { key: 'Enter' });
@@ -70,7 +71,7 @@ describe('useErrorHandler', () => {
 
     it('should handle form submission', async () => {
       const handleSubmit = vi.fn();
-      render(<useErrorHandler onSubmit={handleSubmit} />);
+      render(<TestHarness onSubmit={handleSubmit} />);
 
       const form = screen.getByRole('form', { hidden: true });
       fireEvent.submit(form);
@@ -81,7 +82,7 @@ describe('useErrorHandler', () => {
 
   describe('State Management', () => {
     it('should update state correctly', async () => {
-      render(<useErrorHandler />);
+      render(<TestHarness />);
 
       const button = screen.getByRole('button', { hidden: true });
       await userEvent.click(button);
@@ -92,8 +93,8 @@ describe('useErrorHandler', () => {
     });
 
     it('should maintain internal state', () => {
-      const { rerender } = render(<useErrorHandler />);
-      rerender(<useErrorHandler />);
+      const { rerender } = render(<TestHarness />);
+      rerender(<TestHarness />);
 
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
@@ -101,13 +102,13 @@ describe('useErrorHandler', () => {
 
   describe('Accessibility', () => {
     it('should have proper ARIA attributes', () => {
-      render(<useErrorHandler />);
+      render(<TestHarness />);
       const element = screen.getByRole('main', { hidden: true });
       expect(element).toHaveAttribute('aria-label');
     });
 
     it('should be keyboard navigable', async () => {
-      render(<useErrorHandler />);
+      render(<TestHarness />);
       const element = screen.getByRole('button', { hidden: true });
 
       element.focus();
@@ -117,7 +118,7 @@ describe('useErrorHandler', () => {
     });
 
     it('should have semantic HTML', () => {
-      const { container } = render(<useErrorHandler />);
+      const { container } = render(<TestHarness />);
       expect(container.querySelector('button, a, input, select')).toBeTruthy();
     });
   });
@@ -126,34 +127,34 @@ describe('useErrorHandler', () => {
     it('should handle errors gracefully', () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      render(<useErrorHandler invalidProp={undefined} />);
+      render(<TestHarness invalidProp={undefined} />);
 
       expect(consoleError).not.toHaveBeenCalled();
       consoleError.mockRestore();
     });
 
     it('should display error messages', () => {
-      render(<useErrorHandler error="Test error" />);
+      render(<TestHarness error="Test error" />);
       expect(screen.getByText('Test error', { exact: false })).toBeInTheDocument();
     });
   });
 
   describe('Conditional Rendering', () => {
     it('should render when condition is met', () => {
-      render(<useErrorHandler show={true} />);
+      render(<TestHarness show={true} />);
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
 
     it('should not render when condition is not met', () => {
-      const { container } = render(<useErrorHandler show={false} />);
+      const { container } = render(<TestHarness show={false} />);
       expect(container.firstChild).toBeNull();
     });
 
     it('should toggle visibility', async () => {
-      const { rerender } = render(<useErrorHandler show={false} />);
+      const { rerender } = render(<TestHarness show={false} />);
       expect(screen.queryByRole('main')).not.toBeInTheDocument();
 
-      rerender(<useErrorHandler show={true} />);
+      rerender(<TestHarness show={true} />);
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
   });
@@ -161,16 +162,16 @@ describe('useErrorHandler', () => {
   describe('Performance', () => {
     it('should memoize expensive computations', () => {
       const expensiveFunction = vi.fn(() => 'result');
-      render(<useErrorHandler compute={expensiveFunction} />);
+      render(<TestHarness compute={expensiveFunction} />);
 
       expect(expensiveFunction).toHaveBeenCalledTimes(1);
     });
 
     it('should not re-render unnecessarily', () => {
-      const { rerender } = render(<useErrorHandler value="test" />);
+      const { rerender } = render(<TestHarness value="test" />);
       const renderCount = vi.fn();
 
-      rerender(<useErrorHandler value="test" />);
+      rerender(<TestHarness value="test" />);
       expect(renderCount).toHaveBeenCalledTimes(0);
     });
   });
@@ -178,14 +179,14 @@ describe('useErrorHandler', () => {
   describe('Security', () => {
     it('should sanitize user input', () => {
       const maliciousInput = '<script>alert("XSS")</script>';
-      render(<useErrorHandler value={maliciousInput} />);
+      render(<TestHarness value={maliciousInput} />);
 
       expect(screen.queryByText('alert', { exact: false })).not.toBeInTheDocument();
     });
 
     it('should escape HTML entities', () => {
       const htmlInput = '<div>Test</div>';
-      render(<useErrorHandler value={htmlInput} />);
+      render(<TestHarness value={htmlInput} />);
 
       const element = screen.getByText(htmlInput, { exact: false });
       expect(element.innerHTML).not.toContain('<div>');
