@@ -77,6 +77,10 @@ export default function VehicleShowroom3D() {
   const [environment, setEnvironment] = useState<'studio' | 'sunset' | 'city' | 'night'>('studio');
   const [autoRotate, setAutoRotate] = useState(false);
   const [showDamage, setShowDamage] = useState(false);
+  const [modelUrl, setModelUrl] = useState<string | null>(null);
+  const [usdzUrl, setUsdzUrl] = useState<string | null>(null);
+  const [modelLoading, setModelLoading] = useState(false);
+  const [modelError, setModelError] = useState<string | null>(null);
 
   // Fetch vehicles from API
   const { data: vehiclesData, isLoading: vehiclesLoading } = useVehicles({ tenant_id: tenantId || '' });
@@ -94,7 +98,7 @@ export default function VehicleShowroom3D() {
         model: v.model,
         year: v.year,
         vehicleType: typeMap[v.type] || 'sedan',
-        modelUrl: `/models/vehicles/${v.make.toLowerCase()}-${v.model.toLowerCase().replace(/\s+/g, '-')}.glb`,
+        modelUrl: '',
         exteriorColor: '#ffffff',
       };
     });
@@ -116,6 +120,50 @@ export default function VehicleShowroom3D() {
       setExteriorColor(showroomVehicles[0].exteriorColor || '#ffffff');
     }
   }, [vehicleIdParam, showroomVehicles]);
+
+  useEffect(() => {
+    if (!selectedVehicle?.id) return;
+    let active = true;
+
+    const fetchModel = async () => {
+      setModelLoading(true);
+      setModelError(null);
+      try {
+        const response = await fetch(`/api/vehicle-3d/${selectedVehicle.id}/3d-model`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error('3D model unavailable');
+        }
+
+        const data = await response.json();
+        if (!active) return;
+
+        const glbUrl = data.glb_model_url || data.glbModelUrl || data.model_url || data.modelUrl;
+        const arUrl = data.usdz_model_url || data.usdzModelUrl;
+
+        setModelUrl(glbUrl || null);
+        setUsdzUrl(arUrl || null);
+      } catch (error) {
+        if (!active) return;
+        setModelUrl(null);
+        setUsdzUrl(null);
+        setModelError('3D model unavailable');
+      } finally {
+        if (active) {
+          setModelLoading(false);
+        }
+      }
+    };
+
+    fetchModel();
+
+    return () => {
+      active = false;
+    };
+  }, [selectedVehicle?.id]);
 
   const handleVehicleSelect = useCallback((vehicle: Vehicle) => {
     setSelectedVehicle(vehicle);
@@ -277,20 +325,38 @@ export default function VehicleShowroom3D() {
           {/* Center - 3D Viewer */}
           <div className="lg:col-span-2">
             <Card className="overflow-hidden">
-              <VehicleViewer3D
-                vehicleId={selectedVehicle.id}
-                modelUrl={selectedVehicle.modelUrl}
-                usdzUrl={selectedVehicle.usdzUrl}
-                vehicleData={{
-                  ...selectedVehicle,
-                  exteriorColor,
-                  interiorColor,
-                }}
-                quality={quality}
-                autoRotate={autoRotate}
-                showControls={true}
-                className="w-full"
-              />
+              {modelLoading && (
+                <div className="flex items-center justify-center h-[520px]">
+                  <div className="text-center space-y-2">
+                    <Loader2 className="w-10 h-10 text-muted-foreground mx-auto animate-spin" />
+                    <p className="text-sm text-muted-foreground">Loading 3D model...</p>
+                  </div>
+                </div>
+              )}
+              {!modelLoading && modelUrl && (
+                <VehicleViewer3D
+                  vehicleId={selectedVehicle.id}
+                  modelUrl={modelUrl}
+                  usdzUrl={usdzUrl || undefined}
+                  vehicleData={{
+                    ...selectedVehicle,
+                    exteriorColor,
+                    interiorColor,
+                  }}
+                  quality={quality}
+                  autoRotate={autoRotate}
+                  showControls={true}
+                  className="w-full"
+                />
+              )}
+              {!modelLoading && !modelUrl && (
+                <div className="flex items-center justify-center h-[520px]">
+                  <div className="text-center space-y-2">
+                    <EyeOff className="w-8 h-8 text-muted-foreground mx-auto" />
+                    <p className="text-sm text-muted-foreground">{modelError || '3D model unavailable'}</p>
+                  </div>
+                </div>
+              )}
             </Card>
           </div>
 

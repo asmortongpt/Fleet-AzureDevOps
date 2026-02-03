@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Driver } from "@/lib/types"
+import { useDriverMutations } from "@/hooks/use-api"
 
 interface DriverControlPanelProps {
     isVisible: boolean
@@ -44,6 +45,7 @@ export function DriverControlPanel({
     const [searchQuery, setSearchQuery] = useState("")
     const [statusFilter, setStatusFilter] = useState<string>("all")
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+    const { createDriver } = useDriverMutations()
 
     // -- Derived Stats --
     const stats = useMemo(() => {
@@ -69,25 +71,69 @@ export function DriverControlPanel({
     }, [drivers, searchQuery, statusFilter])
 
     // -- Handlers --
-    const handleCreateDriver = (e: React.FormEvent) => {
+    const handleCreateDriver = async (e: React.FormEvent) => {
         e.preventDefault()
-        // Mock creation logic - in real app would call API
         const formData = new FormData(e.target as HTMLFormElement)
-        const newDriver: any = {
-            id: `d-${Date.now()}`,
-            name: formData.get('name') as string,
+        const name = (formData.get('name') as string || '').trim()
+        const [firstName, ...lastParts] = name.split(' ')
+        const lastName = lastParts.join(' ').trim()
+
+        const payload = {
+            name,
+            first_name: firstName || undefined,
+            last_name: lastName || undefined,
             email: formData.get('email') as string,
-            status: 'active',
-            safetyScore: 100,
-            licenseNumber: formData.get('license') as string,
-            department: formData.get('department') as string,
-            joinedDate: new Date().toISOString()
+            phone: formData.get('phone') as string,
+            license_number: formData.get('license') as string,
+            license_state: formData.get('license_state') as string,
+            license_expiry_date: formData.get('license_expiry_date') as string,
+            department: formData.get('department') as string
         }
 
-        if (onDriversChange) {
-            onDriversChange([...drivers, newDriver])
+        try {
+            const created: any = await createDriver.mutateAsync(payload as any)
+            if (onDriversChange) {
+                const metadata = created?.metadata && typeof created.metadata === 'object'
+                    ? created.metadata
+                    : created?.metadata
+                        ? (() => {
+                            try {
+                                return JSON.parse(created.metadata)
+                            } catch {
+                                return {}
+                            }
+                        })()
+                        : {}
+
+                const normalized: Driver = {
+                    id: created.id,
+                    tenantId: created.tenant_id,
+                    employeeId: created.employee_number || '',
+                    name: `${created.first_name || ''} ${created.last_name || ''}`.trim() || created.email,
+                    firstName: created.first_name,
+                    lastName: created.last_name,
+                    email: created.email,
+                    phone: created.phone,
+                    department: metadata.department || '',
+                    licenseType: created.cdl ? 'CDL' : 'Standard',
+                    licenseExpiry: created.license_expiry_date,
+                    safetyScore: created.performance_score ? Number(created.performance_score) : 100,
+                    certifications: [],
+                    status: created.status === 'inactive'
+                        ? 'off-duty'
+                        : created.status === 'on_leave'
+                            ? 'on-leave'
+                            : created.status === 'suspended'
+                                ? 'suspended'
+                                : 'active'
+                }
+
+                onDriversChange([...drivers, normalized])
+            }
+            setIsCreateDialogOpen(false)
+        } catch (error) {
+            // Mutation handles error reporting; keep dialog open for correction
         }
-        setIsCreateDialogOpen(false)
     }
 
     return (
@@ -168,17 +214,33 @@ export function DriverControlPanel({
                                             <Label htmlFor="email">Email</Label>
                                             <Input id="email" name="email" type="email" placeholder="john@example.com" required />
                                         </div>
+                                        <div className="grid w-full gap-1.5">
+                                            <Label htmlFor="phone">Phone</Label>
+                                            <Input id="phone" name="phone" placeholder="(555) 123-4567" required />
+                                        </div>
                                         <div className="grid grid-cols-2 gap-2">
                                             <div className="grid gap-1.5">
                                                 <Label htmlFor="license">License #</Label>
                                                 <Input id="license" name="license" placeholder="DL-12345" required />
                                             </div>
                                             <div className="grid gap-1.5">
+                                                <Label htmlFor="license_state">State</Label>
+                                                <Input id="license_state" name="license_state" placeholder="FL" />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div className="grid gap-1.5">
+                                                <Label htmlFor="license_expiry_date">License Expiry</Label>
+                                                <Input id="license_expiry_date" name="license_expiry_date" type="date" required />
+                                            </div>
+                                            <div className="grid gap-1.5">
                                                 <Label htmlFor="department">Department</Label>
                                                 <Input id="department" name="department" placeholder="Logistics" />
                                             </div>
                                         </div>
-                                        <Button type="submit" className="w-full">Create Driver</Button>
+                                        <Button type="submit" className="w-full" disabled={createDriver.isPending}>
+                                            {createDriver.isPending ? "Creating..." : "Create Driver"}
+                                        </Button>
                                     </form>
                                 </DialogContent>
                             </Dialog>

@@ -8,6 +8,7 @@ import {
   Target
 } from "lucide-react"
 import { useMemo, useState } from "react"
+import useSWR from "swr"
 
 import { ChartCard } from "@/components/ChartCard"
 import { MetricCard } from "@/components/MetricCard"
@@ -43,6 +44,39 @@ interface Driver {
   trend: 'up' | 'down';
 }
 
+interface LeaderboardEntry {
+  driverId: string
+  driverName: string
+  overallScore: number
+  safetyScore: number
+  efficiencyScore: number
+  complianceScore: number
+  trend: string
+  achievementCount: number
+}
+
+const fetcher = (url: string) =>
+  fetch(url, { credentials: "include" })
+    .then((res) => res.json())
+    .then((data) => data?.data ?? data)
+
+const parseMetadata = (value: any) => {
+  if (!value) return {}
+  if (typeof value === "object") return value
+  try {
+    return JSON.parse(value)
+  } catch {
+    return {}
+  }
+}
+
+const mapTrend = (trend?: string): 'up' | 'down' => {
+  if (!trend) return 'up'
+  const normalized = trend.toLowerCase()
+  if (normalized === 'declining' || normalized === 'down') return 'down'
+  return 'up'
+}
+
 export function DriverPerformance(_props: DriverPerformanceProps) {
   const data = useFleetData()
   const drivers = data.drivers || []
@@ -52,20 +86,48 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<string>("month")
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null)
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState<boolean>(false)
+  const { data: leaderboardRaw } = useSWR<any[]>(
+    "/api/driver-scorecard/leaderboard?limit=200",
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const leaderboard = useMemo(() => (Array.isArray(leaderboardRaw) ? leaderboardRaw : []), [leaderboardRaw])
+  const leaderboardById = useMemo(() => {
+    return leaderboard.reduce<Record<string, any>>((acc, entry) => {
+      acc[String(entry.driverId || entry.driver_id)] = entry
+      return acc
+    }, {})
+  }, [leaderboard])
 
   const enhancedDrivers: typeof drivers[number][] = useMemo(() => {
-    return drivers.map(driver => ({
-      ...driver,
-      trips: Math.floor(Math.random() * 200 + 50),
-      miles: Math.floor(Math.random() * 5000 + 1000),
-      fuelEfficiency: Math.floor(Math.random() * 10 + 20),
-      incidents: Math.floor(Math.random() * 5),
-      onTimeDelivery: Math.floor(Math.random() * 20 + 80),
-      violations: Math.floor(Math.random() * 3),
-      overallScore: Math.floor(Math.random() * 30 + 70),
-      trend: Math.random() > 0.5 ? "up" : "down"
-    }))
-  }, [drivers])
+    return drivers.map(driver => {
+      const metadata = parseMetadata((driver as any).metadata)
+      const leaderboardEntry = leaderboardById[String(driver.id)] || {}
+
+      const safetyScore = leaderboardEntry.safetyScore ?? (driver as any).performance_score ?? (driver as any).safetyScore ?? 0
+      const overallScore = leaderboardEntry.overallScore ?? safetyScore
+      const incidents = metadata.incidents ?? metadata.incident_count ?? 0
+      const violations = metadata.violations ?? metadata.violation_count ?? 0
+      const trips = metadata.trips ?? metadata.trip_count ?? 0
+      const miles = metadata.miles ?? metadata.mileage ?? 0
+      const fuelEfficiency = metadata.fuelEfficiency ?? metadata.fuel_efficiency ?? 0
+      const onTimeDelivery = metadata.onTimeDelivery ?? metadata.on_time_delivery ?? 0
+
+      return {
+        ...driver,
+        safetyScore,
+        trips,
+        miles,
+        fuelEfficiency,
+        incidents,
+        onTimeDelivery,
+        violations,
+        overallScore,
+        trend: mapTrend(leaderboardEntry.trend)
+      }
+    })
+  }, [drivers, leaderboardById])
 
   const topPerformers = useMemo(() => {
     return [...enhancedDrivers]
@@ -96,13 +158,15 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
   }, [drivers, enhancedDrivers])
 
   const performanceData = useMemo(() => {
-    return [
-      { name: "Week 1", score: 85 },
-      { name: "Week 2", score: 88 },
-      { name: "Week 3", score: 87 },
-      { name: "Week 4", score: 92 }
-    ]
-  }, [])
+    return topPerformers.map((driver) => {
+      const driverName =
+        (driver as any).name ||
+        `${(driver as any).first_name || ''} ${(driver as any).last_name || ''}`.trim() ||
+        (driver as any).email ||
+        String(driver.id)
+      return { name: driverName, score: (driver as any).safetyScore ?? 0 }
+    })
+  }, [topPerformers])
 
   const getScoreColor = (score: number): string => {
     if (score >= 90) return "text-success"
@@ -172,8 +236,8 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
         <div className="lg:col-span-2">
           <ChartCard
-            title="Safety Score Trend"
-            type="line"
+            title="Safety Score Leaders"
+            type="bar"
             data={performanceData}
             dataKey="score"
             color="hsl(var(--accent))"

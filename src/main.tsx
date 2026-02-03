@@ -53,7 +53,6 @@ import { TenantProvider } from "./contexts/TenantContext"
 import { initSentry } from "./lib/sentry"
 import { Login } from "./pages/Login"
 import { AuthCallback } from "./pages/AuthCallback"
-import MapDiagnostic from "./pages/MapDiagnostic"
 import { PublicClientApplication } from "@azure/msal-browser"
 import { MsalProvider } from "@azure/msal-react"
 import { msalConfig } from "./lib/msal-config"
@@ -231,8 +230,18 @@ async function validateStartupConfiguration(): Promise<void> {
 
 // P0-3: Run validation BEFORE rendering app
 // This ensures app only starts if all security requirements are met
-validateStartupConfiguration().then(() => {
+validateStartupConfiguration().then(async () => {
   console.log('[Fleet] Starting application...');
+
+  // Initialize MSAL before rendering - required for MSAL v2+
+  try {
+    await msalInstance.initialize();
+    // Handle any redirect promise from SSO callback
+    await msalInstance.handleRedirectPromise();
+    console.log('[Fleet] MSAL initialized successfully');
+  } catch (error) {
+    console.error('[Fleet] MSAL initialization failed:', error);
+  }
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
@@ -256,18 +265,6 @@ validateStartupConfiguration().then(() => {
 
                               {/* OAuth Callback Route - Public (no auth required) */}
                               <Route path="/auth/callback" element={<AuthCallback />} />
-
-                              {/* Map Diagnostic Route - Public (development only, no auth required) */}
-                              {import.meta.env.DEV && (
-                                <Route
-                                  path="/map-diagnostic"
-                                  element={
-                                    <SentryErrorBoundary level="section">
-                                      <MapDiagnostic />
-                                    </SentryErrorBoundary>
-                                  }
-                                />
-                              )}
 
                               {/* Protected Application Routes - Require SSO Authentication */}
                               <Route
