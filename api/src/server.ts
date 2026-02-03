@@ -119,6 +119,11 @@ import facilitiesRouter from './routes/facilities'
 import fleetDocumentsRouter from './routes/fleet-documents.routes'
 import fuelRouter from './routes/fuel-transactions'
 import fuelCardsRouter from './routes/fuel-cards'
+import tiresRouter from './routes/tires'
+import insuranceRouter from './routes/insurance'
+import accountsPayableRouter from './routes/accounts-payable'
+import vehicleContractsRouter from './routes/vehicle-contracts'
+import vendorManagementRouter from './routes/vendor-management'
 import geofencesRouter from './routes/geofences'
 import gpsRouter from './routes/gps'
 import healthDetailedRouter from './routes/health-detailed'
@@ -341,6 +346,11 @@ app.use('/api/drivers', driversRouter)
 app.use('/api/fuel-transactions', fuelRouter)
 app.use('/api/fuel-cards', fuelCardsRouter)
 app.use('/api/fuel-card-transactions', fuelCardsRouter) // Same router handles both paths
+app.use('/api/tires', tiresRouter)
+app.use('/api/insurance', insuranceRouter)
+app.use('/api/accounts-payable', accountsPayableRouter)
+app.use('/api/vehicle-contracts', vehicleContractsRouter)
+app.use('/api/vendor-management', vendorManagementRouter)
 app.use('/api/maintenance', maintenanceRouter)
 app.use('/api/incidents', incidentsRouter)
 app.use('/api/parts', partsRouter)
