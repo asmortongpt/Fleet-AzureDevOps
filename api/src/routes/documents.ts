@@ -69,7 +69,7 @@ router.get(
         SELECT d.*,
                uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
         FROM documents d
-        LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
+        LEFT JOIN users uploader ON d.uploaded_by = uploader.id
         WHERE uploader.tenant_id = $1 OR uploader.tenant_id IS NULL
       `
       const params: any[] = [req.user!.tenant_id]
@@ -101,9 +101,9 @@ router.get(
 
       if (search) {
         query += ` AND (
-          d.filename ILIKE $${paramIndex} OR
+          d.file_name ILIKE $${paramIndex} OR
           d.description ILIKE $${paramIndex} OR
-          d.extracted_text ILIKE $${paramIndex}
+          d.ocr_text ILIKE $${paramIndex}
         )`
         params.push(`%${search}%`)
         paramIndex++
@@ -117,7 +117,7 @@ router.get(
       const countQuery = `
         SELECT COUNT(*)
         FROM documents d
-        LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
+        LEFT JOIN users uploader ON d.uploaded_by = uploader.id
         WHERE uploader.tenant_id = $1 OR uploader.tenant_id IS NULL
       `
       const countResult = await pool.query(countQuery, [req.user!.tenant_id])

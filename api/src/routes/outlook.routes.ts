@@ -8,6 +8,7 @@ import express, { Response } from 'express'
 import { z } from 'zod'
 
 import logger from '../config/logger'
+import { pool } from '../config/database'
 import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
@@ -128,6 +129,51 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'outlook_messages' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      const useLocal = req.query.source === 'local' || !(
+        process.env.AZURE_AD_CLIENT_ID &&
+        process.env.AZURE_AD_CLIENT_SECRET &&
+        process.env.AZURE_AD_TENANT_ID
+      )
+
+      if (useLocal) {
+        const { top = '50', skip = '0' } = req.query
+        const limit = parseInt(top as string)
+        const offset = parseInt(skip as string)
+
+        const result = await pool.query(
+          `SELECT
+            id,
+            message_id,
+            subject,
+            from_email,
+            from_name,
+            to_emails,
+            body_preview,
+            sent_at,
+            received_at,
+            is_read,
+            is_flagged,
+            importance,
+            metadata
+           FROM outlook_messages
+           WHERE tenant_id = $1
+           ORDER BY received_at DESC NULLS LAST, created_at DESC
+           LIMIT $2 OFFSET $3`,
+          [req.user!.tenant_id, limit, offset]
+        )
+
+        return res.json({
+          success: true,
+          data: result.rows,
+          pagination: {
+            count: result.rows.length,
+            total: result.rows.length,
+            hasMore: false,
+            nextLink: null
+          }
+        })
+      }
+
       const {
         folderId,
         filter,

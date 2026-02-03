@@ -15,6 +15,7 @@ import {
   Plus
 } from "lucide-react"
 import { useState, useMemo } from "react"
+import useSWR from "swr"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -30,64 +31,84 @@ import {
 } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useVehicles, useDrivers, useWorkOrders } from "@/hooks/use-api"
+import { swrFetcher } from "@/lib/fetcher"
 import { cn } from "@/lib/utils"
 
 // Document Management Panel
-const DocumentManagement = ({ _documents }: { _documents?: unknown }) => {
+const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: any[] }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [documentType, setDocumentType] = useState('all')
   const [sortBy, setSortBy] = useState('date')
 
-  // Mock documents (in production, this would come from API)
-  const mockDocuments = [
-    {
-      id: '1',
-      name: 'Vehicle Registration - FL123',
-      type: 'registration',
-      status: 'valid',
-      expiryDate: '2025-06-15',
-      vehicle: 'FL-123',
-      uploadedBy: 'John Smith',
-      uploadedDate: '2024-01-10'
-    },
-    {
-      id: '2',
-      name: 'Insurance Policy - Fleet Coverage',
-      type: 'insurance',
-      status: 'expiring',
-      expiryDate: '2025-01-30',
-      uploadedBy: 'Sarah Johnson',
-      uploadedDate: '2024-01-01'
-    },
-    {
-      id: '3',
-      name: 'DOT Annual Inspection Report',
-      type: 'inspection',
-      status: 'valid',
-      expiryDate: '2025-08-20',
-      uploadedBy: 'Mike Davis',
-      uploadedDate: '2024-08-20'
-    },
-    {
-      id: '4',
-      name: 'Driver License - Driver001',
-      type: 'license',
-      status: 'expired',
-      expiryDate: '2024-12-01',
-      driver: 'Robert Brown',
-      uploadedBy: 'Admin',
-      uploadedDate: '2023-01-15'
-    }
-  ]
+  const { data: documentsResponse } = useSWR<{ data: any[] }>(
+    '/api/documents?limit=200',
+    swrFetcher
+  )
+
+  const documents = documentsResponse?.data || []
+
+  const vehicleMap = useMemo(() => {
+    return new Map(
+      (vehicles || []).map((vehicle: any) => [
+        vehicle.id,
+        vehicle.unit_number || vehicle.unitNumber || vehicle.number || vehicle.name || vehicle.vin || 'Unknown'
+      ])
+    )
+  }, [vehicles])
+
+  const driverMap = useMemo(() => {
+    return new Map(
+      (drivers || []).map((driver: any) => [
+        driver.id,
+        `${driver.first_name || driver.firstName || ''} ${driver.last_name || driver.lastName || ''}`.trim() || driver.name || 'Unknown'
+      ])
+    )
+  }, [drivers])
+
+  const normalizedDocuments = useMemo(() => {
+    return documents.map((doc: any) => {
+      const expiryDate = doc.expiry_date || doc.expires_at || doc.expiryDate
+      const expiry = expiryDate ? new Date(expiryDate) : null
+      const now = new Date()
+      let status = 'valid'
+      if (expiry) {
+        if (expiry < now) status = 'expired'
+        else if ((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <= 30) status = 'expiring'
+      }
+
+      return {
+        id: doc.id,
+        name: doc.file_name || doc.name || doc.title || 'Untitled Document',
+        type: doc.document_type || doc.type || doc.category || 'other',
+        status,
+        expiryDate: expiry ? expiry.toLocaleDateString() : 'N/A',
+        vehicle: doc.vehicle_id ? vehicleMap.get(doc.vehicle_id) : undefined,
+        driver: doc.driver_id ? driverMap.get(doc.driver_id) : undefined,
+        uploadedBy: doc.uploaded_by_name || 'System',
+        uploadedDate: doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString() : (doc.created_at ? new Date(doc.created_at).toLocaleDateString() : 'N/A')
+      }
+    })
+  }, [documents, vehicleMap, driverMap])
 
   const filteredDocuments = useMemo(() => {
-    return mockDocuments.filter(doc => {
+    return normalizedDocuments.filter(doc => {
       const matchesSearch = !searchQuery ||
         doc.name.toLowerCase().includes(searchQuery.toLowerCase())
       const matchesType = documentType === 'all' || doc.type === documentType
       return matchesSearch && matchesType
     })
-  }, [searchQuery, documentType])
+  }, [normalizedDocuments, searchQuery, documentType])
+
+  const sortedDocuments = useMemo(() => {
+    const docs = [...filteredDocuments]
+    if (sortBy === 'name') {
+      return docs.sort((a, b) => a.name.localeCompare(b.name))
+    }
+    if (sortBy === 'status') {
+      return docs.sort((a, b) => a.status.localeCompare(b.status))
+    }
+    return docs.sort((a, b) => new Date(b.uploadedDate).getTime() - new Date(a.uploadedDate).getTime())
+  }, [filteredDocuments, sortBy])
 
   const getStatusVariant = (status: string): "default" | "destructive" | "outline" | "secondary" => {
     switch (status) {
@@ -152,7 +173,7 @@ const DocumentManagement = ({ _documents }: { _documents?: unknown }) => {
 
         {/* Document List */}
         <div className="space-y-3">
-          {filteredDocuments.map(doc => (
+          {sortedDocuments.map(doc => (
             <Card key={doc.id} data-testid={`document-card-${doc.id}`}>
               <CardContent className="p-2">
                 <div className="flex items-start justify-between">
@@ -454,7 +475,7 @@ export function ComplianceWorkspace() {
         </Tabs>
       </div>
       <div className="flex-1 overflow-hidden">
-        {activeView === 'documents' && <DocumentManagement />}
+        {activeView === 'documents' && <DocumentManagement vehicles={vehicles} drivers={drivers} />}
         {activeView === 'safety' && <SafetyCompliance vehicles={vehicles} drivers={drivers} />}
       </div>
     </div>

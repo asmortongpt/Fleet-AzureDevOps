@@ -47,9 +47,28 @@ export function useReactiveAssetsData() {
   const { data: assets = [], isLoading: assetsLoading } = useQuery<Asset[]>({
     queryKey: ['assets', realTimeUpdate],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/assets`)
+      const response = await fetch(`${API_BASE}/assets`, { credentials: 'include' })
       if (!response.ok) throw new Error('Failed to fetch assets')
-      return response.json()
+      const payload = await response.json()
+      const rows = payload?.data ?? payload ?? []
+      return rows.map((row: any) => ({
+        id: row.id,
+        name: row.asset_name || row.name,
+        assetTag: row.asset_number || row.asset_tag || row.assetNumber || '',
+        type: row.asset_type || row.type || 'other',
+        status: row.status || 'active',
+        location: row.location || row.current_location || '',
+        purchaseDate: row.purchase_date || row.created_at || new Date().toISOString(),
+        purchasePrice: Number(row.purchase_price || 0),
+        currentValue: Number(row.current_value || 0),
+        condition: row.condition || 'good',
+        assignedTo: row.assigned_to_name || row.assigned_to,
+        lastServiceDate: row.last_maintenance || row.last_service_date,
+        nextServiceDate: row.next_maintenance || row.next_service_date,
+        depreciationRate: Number(row.metadata?.depreciation_rate || 0),
+        warrantyExpiry: row.warranty_expiration || row.warranty_expiry_date,
+        createdAt: row.created_at || new Date().toISOString()
+      }))
     },
     refetchInterval: 10000,
     staleTime: 5000,
@@ -59,9 +78,22 @@ export function useReactiveAssetsData() {
   const { data: inventory = [], isLoading: inventoryLoading } = useQuery<InventoryItem[]>({
     queryKey: ['inventory', realTimeUpdate],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/inventory`)
+      const response = await fetch(`${API_BASE}/inventory/items?limit=200`, { credentials: 'include' })
       if (!response.ok) throw new Error('Failed to fetch inventory')
-      return response.json()
+      const payload = await response.json()
+      const rows = payload?.data ?? payload ?? []
+      return rows.map((row: any) => ({
+        id: row.id,
+        sku: row.sku,
+        name: row.name,
+        category: row.category,
+        quantity: Number(row.quantity_on_hand || 0),
+        reorderPoint: Number(row.reorder_point || 0),
+        unitCost: Number(row.unit_cost || 0),
+        location: row.warehouse_location || row.bin_location || '',
+        supplier: row.primary_supplier_name || row.primary_supplier_id,
+        lastRestocked: row.last_restocked
+      }))
     },
     refetchInterval: 10000,
     staleTime: 5000,
@@ -115,15 +147,23 @@ export function useReactiveAssetsData() {
     poor: assets.filter((a) => a.condition === 'poor').length,
   }
 
-  // Asset value over time (mock data - would calculate from purchase dates and depreciation)
-  const assetValueTrendData = [
-    { name: 'Jan', value: 4800000, depreciation: 250000 },
-    { name: 'Feb', value: 4750000, depreciation: 260000 },
-    { name: 'Mar', value: 4700000, depreciation: 270000 },
-    { name: 'Apr', value: 4650000, depreciation: 280000 },
-    { name: 'May', value: 4600000, depreciation: 290000 },
-    { name: 'Jun', value: 4550000, depreciation: 300000 },
-  ]
+  // Asset value over time (derived from asset purchase dates)
+  const assetValueTrendData = (() => {
+    const now = new Date()
+    return Array.from({ length: 6 }, (_, idx) => {
+      const date = new Date(now)
+      date.setMonth(now.getMonth() - (5 - idx))
+      const cutoff = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+      const monthAssets = assets.filter((a) => new Date(a.createdAt) <= cutoff)
+      const value = monthAssets.reduce((sum, a) => sum + (a.currentValue || 0), 0)
+      const depreciation = monthAssets.reduce((sum, a) => sum + ((a.purchasePrice || 0) - (a.currentValue || 0)), 0)
+      return {
+        name: date.toLocaleDateString('en-US', { month: 'short' }),
+        value,
+        depreciation
+      }
+    })
+  })()
 
   // Depreciation by asset type
   const depreciationByTypeData = Object.entries(typeDistribution).map(([type, count]) => {

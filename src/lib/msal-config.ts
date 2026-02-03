@@ -45,5 +45,5 @@ export const loginRequest: PopupRequest = {
 };
 
 export const silentRequest = {
-  scopes: ['openai', 'profile', 'email', 'User.Read'],
+  scopes: ['openid', 'profile', 'email', 'User.Read'],
 };

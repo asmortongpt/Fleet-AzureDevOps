@@ -54,11 +54,22 @@ export function useReactiveConfigurationData() {
     queryKey: ['config-items', realTimeUpdate],
     queryFn: async () => {
       try {
-        const response = await fetch(`${API_BASE}/admin/config`)
+        const response = await fetch(`${API_BASE}/admin/config`, { credentials: 'include' })
         if (!response.ok) {
           return []
         }
-        return response.json()
+        const payload = await response.json()
+        const configs = payload?.data?.configs ?? []
+        return configs.map((config: any) => ({
+          id: config.id || config.key,
+          category: config.category || 'system',
+          key: config.key,
+          label: config.label || config.key,
+          value: config.value,
+          lastModified: config.updatedAt || config.lastModified || new Date().toISOString(),
+          modifiedBy: config.modifiedBy || 'System',
+          status: config.status || 'active'
+        }))
       } catch (error) {
         return []
       }
@@ -72,7 +83,7 @@ export function useReactiveConfigurationData() {
     queryKey: ['system-status', realTimeUpdate],
     queryFn: async () => {
       try {
-        const response = await fetch(`${API_BASE}/system/status`)
+        const response = await fetch(`${API_BASE}/system-health/metrics`, { credentials: 'include' })
         if (!response.ok) {
           return {
             uptime: 0,
@@ -83,7 +94,16 @@ export function useReactiveConfigurationData() {
             requestsPerMinute: 0,
           }
         }
-        return response.json()
+        const payload = await response.json()
+        const data = payload?.data || {}
+        return {
+          uptime: data.uptime || 0,
+          memory: data.memory?.percentage || 0,
+          cpu: data.cpu?.user || 0,
+          diskSpace: 0,
+          activeConnections: data.connections || 0,
+          requestsPerMinute: 0,
+        }
       } catch (error) {
         return {
           uptime: 0,
@@ -104,11 +124,20 @@ export function useReactiveConfigurationData() {
     queryKey: ['integrations-status', realTimeUpdate],
     queryFn: async () => {
       try {
-        const response = await fetch(`${API_BASE}/integrations/status`)
+        const response = await fetch(`${API_BASE}/integrations/health`, { credentials: 'include' })
         if (!response.ok) {
           return []
         }
-        return response.json()
+        const payload = await response.json()
+        const integrations = payload?.integrations || []
+        return integrations.map((integration: any) => ({
+          id: integration.name,
+          name: integration.name,
+          type: 'external',
+          status: integration.status === 'healthy' ? 'connected' : integration.status === 'down' ? 'error' : 'disconnected',
+          lastSync: integration.lastSuccess,
+          errorCount: integration.errorMessage ? 1 : 0
+        }))
       } catch (error) {
         return []
       }
@@ -122,17 +151,45 @@ export function useReactiveConfigurationData() {
     queryKey: ['security-events', realTimeUpdate],
     queryFn: async () => {
       try {
-        const response = await fetch(`${API_BASE}/security/events?limit=20`)
+        const response = await fetch(`${API_BASE}/security/events?limit=20`, { credentials: 'include' })
         if (!response.ok) {
           return []
         }
-        return response.json()
+        const payload = await response.json()
+        const rows = payload?.data ?? payload ?? []
+        return rows.map((row: any) => ({
+          id: row.id,
+          type: row.event_type || 'alert',
+          severity: row.severity || 'low',
+          message: row.message,
+          timestamp: row.created_at || new Date().toISOString(),
+          userId: row.metadata?.user_id
+        }))
       } catch (error) {
         return []
       }
     },
     refetchInterval: 15000, // 15 seconds
     staleTime: 7500,
+  })
+
+  // Fetch system performance trend (history)
+  const { data: systemTrend = [] } = useQuery<Array<{ time: string; cpu?: number; memory?: number; requests?: number }>>({
+    queryKey: ['system-metrics-history', realTimeUpdate],
+    queryFn: async () => {
+      try {
+        const response = await fetch(`${API_BASE}/system/metrics/history?hours=24`, { credentials: 'include' })
+        if (!response.ok) {
+          return []
+        }
+        const payload = await response.json()
+        return payload?.data ?? []
+      } catch (error) {
+        return []
+      }
+    },
+    refetchInterval: 30000,
+    staleTime: 15000
   })
 
   // Calculate metrics
@@ -163,15 +220,13 @@ export function useReactiveConfigurationData() {
     return acc
   }, {} as Record<string, number>)
 
-  // System performance trend (mock data for charts)
-  const systemPerformanceTrend = [
-    { name: '00:00', cpu: 45, memory: 62, requests: 120 },
-    { name: '04:00', cpu: 38, memory: 58, requests: 85 },
-    { name: '08:00', cpu: 65, memory: 72, requests: 340 },
-    { name: '12:00', cpu: 72, memory: 78, requests: 450 },
-    { name: '16:00', cpu: 58, memory: 68, requests: 380 },
-    { name: '20:00', cpu: 52, memory: 65, requests: 220 },
-  ]
+  // System performance trend (derived from metrics history)
+  const systemPerformanceTrend = systemTrend.map((row) => ({
+    name: new Date(row.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+    cpu: row.cpu || 0,
+    memory: row.memory || 0,
+    requests: row.requests || 0
+  }))
 
   // Integration status distribution
   const integrationStatusData = integrations.reduce((acc, integration) => {

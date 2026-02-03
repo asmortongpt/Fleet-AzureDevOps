@@ -238,14 +238,14 @@ SELECT
     po.*,
     v.name as vendor_name,
     v.contact_name as vendor_contact,
-    u.name as submitted_by_name,
+    COALESCE(NULLIF(TRIM(CONCAT(u.first_name, ' ', u.last_name)), ''), u.email) as submitted_by_name,
     EXTRACT(DAY FROM NOW() - po.submitted_for_approval_at) as days_pending
 FROM purchase_order_approvals poa
 JOIN purchase_orders po ON poa.purchase_order_id = po.id
 JOIN vendors v ON po.vendor_id = v.id
 LEFT JOIN users u ON po.submitted_by = u.id
 WHERE poa.status = 'pending'
-  AND po.status = 'pending_approval'
+  AND po.status = 'pending'
 ORDER BY po.submitted_for_approval_at;
 
 -- Receiving summary

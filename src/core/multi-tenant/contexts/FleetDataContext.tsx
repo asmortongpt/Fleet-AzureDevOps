@@ -108,7 +108,7 @@ export const FleetDataProvider: React.FC<FleetDataProviderProps> = ({ children }
   const [error, setError] = useState<string | null>(null);
 
   // API configuration
-  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5557/api';
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
   const fetchFleetData = async () => {
     setIsLoading(true);
@@ -116,14 +116,15 @@ export const FleetDataProvider: React.FC<FleetDataProviderProps> = ({ children }
 
     try {
       // Fetch vehicles
-      const vehiclesResponse = await fetch(`${API_BASE}/vehicles`);
+      const vehiclesResponse = await fetch(`${API_BASE}/vehicles?limit=200`, { credentials: 'include' });
       if (!vehiclesResponse.ok) {
         throw new Error(`Failed to fetch vehicles: ${vehiclesResponse.status}`);
     }
       const vehiclesData = await vehiclesResponse.json();
+      const vehicleRows = Array.isArray(vehiclesData) ? vehiclesData : vehiclesData.data || [];
 
       // Transform API data to match our interface
-      const transformedVehicles: Vehicle[] = vehiclesData.map((vehicle: any) => ({
+      const transformedVehicles: Vehicle[] = vehicleRows.map((vehicle: any) => ({
         id: vehicle.id || `VEH-${Math.random().toString(36).substr(2, 9)}`,
         plateNumber: vehicle.license_plate || vehicle.plate_number || '',
         make: vehicle.make || '',
@@ -154,10 +155,51 @@ export const FleetDataProvider: React.FC<FleetDataProviderProps> = ({ children }
 
       setVehicles(transformedVehicles);
 
-      // TODO: Fetch drivers and maintenance records from API
-      // For now, using mock data
-      setDrivers([]);
-      setMaintenanceRecords([]);
+      // Fetch drivers
+      const driversResponse = await fetch(`${API_BASE}/drivers?limit=200`, { credentials: 'include' });
+      if (!driversResponse.ok) {
+        throw new Error(`Failed to fetch drivers: ${driversResponse.status}`);
+      }
+      const driversPayload = await driversResponse.json();
+      const driverRows = Array.isArray(driversPayload) ? driversPayload : driversPayload.data || [];
+
+      const transformedDrivers: Driver[] = driverRows.map((driver: any) => ({
+        id: driver.id,
+        name: `${driver.first_name || ''} ${driver.last_name || ''}`.trim(),
+        licenseNumber: driver.license_number || '',
+        phone: driver.phone || '',
+        email: driver.email || '',
+        department: driver.metadata?.department || 'Operations',
+        vehicleId: driver.vehicle_id,
+        status: driver.status || 'active',
+        certifications: driver.metadata?.certifications || [],
+        emergencyContact: driver.metadata?.emergency_contact || { name: '', phone: '', relationship: '' }
+      }));
+
+      setDrivers(transformedDrivers);
+
+      // Fetch maintenance/work orders
+      const maintenanceResponse = await fetch(`${API_BASE}/work-orders?limit=200`, { credentials: 'include' });
+      if (!maintenanceResponse.ok) {
+        throw new Error(`Failed to fetch maintenance records: ${maintenanceResponse.status}`);
+      }
+      const maintenancePayload = await maintenanceResponse.json();
+      const maintenanceRows = Array.isArray(maintenancePayload) ? maintenancePayload : maintenancePayload.data || [];
+
+      const transformedMaintenance: MaintenanceRecord[] = maintenanceRows.map((record: any) => ({
+        id: record.id,
+        vehicleId: record.vehicle_id,
+        type: record.type || 'scheduled',
+        description: record.description || record.title || 'Maintenance activity',
+        cost: Number(record.actual_cost ?? record.estimated_cost ?? 0),
+        date: new Date(record.actual_end || record.created_at || Date.now()),
+        nextServiceDate: record.scheduled_end ? new Date(record.scheduled_end) : undefined,
+        mileage: Number(record.odometer_reading || 0),
+        vendor: record.metadata?.vendor || 'Internal Shop',
+        status: record.status === 'completed' ? 'completed' : record.status === 'overdue' ? 'overdue' : 'pending'
+      }));
+
+      setMaintenanceRecords(transformedMaintenance);
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch fleet data';
