@@ -5,7 +5,8 @@
 
 import { ShieldCheck, Key, Smartphone, RotateCcw, Monitor, LogOut, Shield } from 'lucide-react'
 import { useAtom } from 'jotai'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -22,54 +23,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { swrFetcher } from '@/lib/fetcher'
 import { securitySettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
 import logger from '@/utils/logger';
-
-
-// Mock active sessions data
-const mockActiveSessions = [
-  {
-    id: '1',
-    device: 'Monitor',
-    browser: 'Chrome 120.0',
-    lastActive: '2 minutes ago',
-    ip: '192.168.1.100',
-    current: true,
-  },
-  {
-    id: '2',
-    device: 'Mobile',
-    browser: 'Safari iOS 17',
-    lastActive: '1 hour ago',
-    ip: '192.168.1.105',
-    current: false,
-  },
-]
-
-// Mock login history
-const mockLoginHistory = [
-  {
-    id: '1',
-    timestamp: '2025-11-28 09:30 AM',
-    device: 'Monitor - Chrome',
-    location: 'New York, NY',
-    ip: '192.168.1.100',
-  },
-  {
-    id: '2',
-    timestamp: '2025-11-27 03:15 PM',
-    device: 'Mobile - Safari',
-    location: 'New York, NY',
-    ip: '192.168.1.105',
-  },
-  {
-    id: '3',
-    timestamp: '2025-11-26 11:20 AM',
-    device: 'Monitor - Chrome',
-    location: 'New York, NY',
-    ip: '192.168.1.100',
-  },
-]
 
 export function SecuritySettings() {
   const [settings, setSettings] = useAtom(securitySettingsAtom)
@@ -78,6 +34,71 @@ export function SecuritySettings() {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [passwordStrength, setPasswordStrength] = useState(0)
+  const { data: sessionsData, mutate: mutateSessions } = useSWR('/api/sessions', swrFetcher)
+  const { data: auditData } = useSWR('/api/audit-logs', swrFetcher)
+
+  const formatRelativeTime = (timestamp?: string) => {
+    if (!timestamp) return '—'
+    const date = new Date(timestamp)
+    if (Number.isNaN(date.getTime())) return '—'
+    const diffMs = Date.now() - date.getTime()
+    const minutes = Math.floor(diffMs / 60000)
+    if (minutes < 1) return 'just now'
+    if (minutes < 60) return `${minutes} minutes ago`
+    const hours = Math.floor(minutes / 60)
+    if (hours < 24) return `${hours} hours ago`
+    const days = Math.floor(hours / 24)
+    return `${days} days ago`
+  }
+
+  const parseDevice = (userAgent: string) => {
+    if (!userAgent) return 'Unknown'
+    if (/mobile|android|iphone|ipad/i.test(userAgent)) return 'Mobile'
+    return 'Desktop'
+  }
+
+  const parseBrowser = (userAgent: string) => {
+    if (!userAgent) return 'Unknown'
+    if (userAgent.includes('Edg/')) return 'Edge'
+    if (userAgent.includes('Chrome/')) return 'Chrome'
+    if (userAgent.includes('Firefox/')) return 'Firefox'
+    if (userAgent.includes('Safari/')) return 'Safari'
+    return 'Unknown'
+  }
+
+  const activeSessions = useMemo(() => {
+    const rows = sessionsData?.data ?? []
+    if (!Array.isArray(rows)) return []
+    const sorted = [...rows].sort((a, b) => {
+      const aTime = new Date(a.lastActivity || a.startTime || 0).getTime()
+      const bTime = new Date(b.lastActivity || b.startTime || 0).getTime()
+      return bTime - aTime
+    })
+    const currentId = sorted[0]?.id
+    return sorted.map((session: any) => ({
+      id: session.id,
+      device: parseDevice(session.userAgent || ''),
+      browser: parseBrowser(session.userAgent || ''),
+      lastActive: formatRelativeTime(session.lastActivity),
+      ip: session.ipAddress || '—',
+      current: session.id === currentId
+    }))
+  }, [sessionsData])
+
+  const loginHistory = useMemo(() => {
+    const rows = auditData?.data ?? []
+    if (!Array.isArray(rows)) return []
+    return rows
+      .filter((row: any) => row.action === 'LOGIN' || row.action === 'user_login')
+      .slice(0, 10)
+      .map((row: any) => ({
+        id: row.id,
+        timestamp: new Date(row.timestamp).toLocaleString(),
+        device: row.metadata?.userAgent ? `${parseDevice(row.metadata.userAgent)} - ${parseBrowser(row.metadata.userAgent)}` : 'Unknown',
+        location: row.metadata?.location || 'Unknown',
+        ip: row.ipAddress || row.metadata?.ipAddress || '—'
+      }))
+  }, [auditData])
 
   const updateSetting = <K extends keyof typeof settings>(
     key: K,
@@ -102,17 +123,46 @@ export function SecuritySettings() {
     setPasswordStrength(calculatePasswordStrength(password))
   }
 
-  const handleChangePassword = () => {
-    // In a real app, this would call an API
-    logger.debug('Changing password...')
-    setCurrentPassword('')
-    setNewPassword('')
-    setConfirmPassword('')
-    setPasswordStrength(0)
+  const handleChangePassword = async () => {
+    try {
+      if (!currentPassword || !newPassword || newPassword !== confirmPassword) {
+        logger.warn('Password validation failed')
+        return
+      }
+
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword })
+      })
+
+      if (!response.ok) {
+        throw new Error(`Password update failed (${response.status})`)
+      }
+
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+      setPasswordStrength(0)
+    } catch (error) {
+      logger.error('Failed to change password', error as Error)
+    }
   }
 
-  const handleTerminateSession = (sessionId: string) => {
-    logger.debug('Terminating session:', sessionId)
+  const handleTerminateSession = async (sessionId: string) => {
+    try {
+      const response = await fetch(`/api/sessions/${sessionId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+      if (!response.ok) {
+        throw new Error(`Failed to terminate session (${response.status})`)
+      }
+      await mutateSessions()
+    } catch (error) {
+      logger.error('Failed to terminate session', error as Error)
+    }
   }
 
   return (
@@ -259,7 +309,7 @@ export function SecuritySettings() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {mockActiveSessions.map((session) => (
+            {activeSessions.map((session) => (
               <div
                 key={session.id}
                 className="flex items-center justify-between p-3 border rounded-lg"
@@ -317,7 +367,7 @@ export function SecuritySettings() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockLoginHistory.map((login) => (
+              {loginHistory.map((login) => (
                 <TableRow key={login.id}>
                   <TableCell className="font-medium">{login.timestamp}</TableCell>
                   <TableCell>{login.device}</TableCell>

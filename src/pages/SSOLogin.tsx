@@ -17,21 +17,17 @@
  * - Gradient Bar: #F0A000 → #DD3903
  */
 
-import { useMutation } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { AlertCircle, Loader2 } from 'lucide-react'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useAuth } from '@/hooks/useAuth'
-import { setAuthToken } from '@/lib/microsoft-auth'
 import logger from '@/utils/logger'
 
 export function SSOLogin() {
-  const navigate = useNavigate()
-  const { login } = useAuth()
+  const { loginWithMicrosoft } = useAuth()
   const [isSigningIn, setIsSigningIn] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -75,9 +71,7 @@ export function SSOLogin() {
 
     try {
       logger.info('[SSO LOGIN] Initiating Microsoft sign-in')
-      // In production, this would redirect to Azure AD
-      // For demo, just navigate
-      navigate('/dashboard', { replace: true })
+      await loginWithMicrosoft()
     } catch (err) {
       logger.error('[SSO LOGIN] Sign-in failed:', err)
       setError(

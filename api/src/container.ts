@@ -37,6 +37,8 @@ import { AttachmentRepository } from "./repositories/attachments.repository";
 import { PushNotificationRepository } from './repositories/push-notification.repository';
 import { VehicleAssignmentsRepository } from "./repositories/vehicle-assignments.repository";
 import { FueltransactionService } from "./services/FuelTransactionService";
+import { FuelCardService } from "./services/FuelCardService";
+import { FuelCardReconciliationService } from "./services/fuel-card-reconciliation";
 import { AssignmentNotificationService } from "./services/assignment-notification.service";
 import { CacheService } from "./services/cache.service";
 import { TYPES } from "./types";
@@ -101,7 +103,11 @@ container.bind(TYPES.VehicleAssignmentsRepository).to(VehicleAssignmentsReposito
 
 // Assignment Notification Service
 container.bind(TYPES.AssignmentNotificationService).to(AssignmentNotificationService);
+
+// Fuel Services
 container.bind(TYPES.FuelTransactionService).to(FueltransactionService);
+container.bind(TYPES.FuelCardService).to(FuelCardService);
+container.bind(TYPES.FuelCardReconciliationService).to(FuelCardReconciliationService);
 
 // Cache Service
 container.bind(TYPES.CacheService).to(CacheService);

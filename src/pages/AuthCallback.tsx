@@ -8,43 +8,70 @@ import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Loader2, ShieldCheck, Zap } from 'lucide-react'
+import { useMsal } from '@azure/msal-react'
 
-import { handleAuthCallback, getMsalInstance } from '@/lib/auth/auth.service'
 import logger from '@/utils/logger'
+import { loginRequest } from '@/lib/msal-config'
 
 export function AuthCallback() {
   const navigate = useNavigate()
   const [hasProcessed, setHasProcessed] = React.useState(false)
+  const { instance, accounts } = useMsal()
 
   useEffect(() => {
     // Prevent multiple executions
     if (hasProcessed) return
+    let mounted = true
 
     async function processAuthCallback() {
       try {
         setHasProcessed(true)
         logger.info('[Auth Callback] Processing authentication callback')
 
-        const response = await handleAuthCallback()
+        const response = await instance.handleRedirectPromise()
+        const account = response?.account || accounts[0] || instance.getAllAccounts()[0]
 
-        if (response && response.account) {
+        if (account) {
           logger.info('[Auth Callback] Authentication successful', {
-            account: response.account.username
+            account: account.username
           })
+
+          let accessToken = response?.accessToken
+          if (!accessToken) {
+            const silentResult = await instance.acquireTokenSilent({
+              ...loginRequest,
+              account,
+            })
+            accessToken = silentResult.accessToken
+          }
+
+          const exchangeResponse = await fetch('/api/auth/microsoft/exchange', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ accessToken }),
+          })
+
+          if (!exchangeResponse.ok) {
+            const errorText = await exchangeResponse.text()
+            logger.error('[Auth Callback] Token exchange failed', {
+              status: exchangeResponse.status,
+              error: errorText
+            })
+            navigate('/login?error=sso_exchange_failed', { replace: true })
+            return
+          }
 
           // Wait a bit for the auth context to update
           setTimeout(() => {
+            if (!mounted) return
             logger.info('[Auth Callback] Redirecting to home page')
             navigate('/', { replace: true })
-          }, 1000)
+          }, 500)
         } else {
           logger.warn('[Auth Callback] No authentication response, checking for existing session')
 
-          // Check if we already have an account in MSAL
-          const msalInstance = getMsalInstance()
-          const accounts = msalInstance.getAllAccounts()
-
-          if (accounts.length > 0) {
+          if (instance.getAllAccounts().length > 0) {
             logger.info('[Auth Callback] Found existing MSAL account, redirecting to home')
             navigate('/', { replace: true })
           } else {
@@ -66,7 +93,11 @@ export function AuthCallback() {
     }
 
     processAuthCallback()
-  }, [navigate, hasProcessed])
+
+    return () => {
+      mounted = false
+    }
+  }, [instance, accounts, navigate, hasProcessed])
 
   return (
     <div className="min-h-screen w-full relative overflow-hidden flex flex-col items-center justify-center bg-[#0A0E27]">
