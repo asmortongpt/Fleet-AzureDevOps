@@ -6,6 +6,7 @@
 import express from 'express'
 
 import logger from '../config/logger'
+import { pool } from '../db/connection'
 import { auditLogEnhanced, getAuditLogsByNISTControl, getAuditComplianceSummary } from '../middleware/audit-enhanced'
 import { authenticateJWT } from '../middleware/auth'
 import { requirePermission as authorize } from '../middleware/rbac'
@@ -49,6 +50,304 @@ const router = express.Router()
 
 // Apply authentication to all routes
 router.use(authenticateJWT)
+
+const scoreStatus = (score: number) => {
+  if (score >= 95) return 'excellent'
+  if (score >= 85) return 'good'
+  if (score >= 75) return 'warning'
+  return 'critical'
+}
+
+const scoreTrend = (current: number, previous: number) => {
+  if (current > previous) return 'up'
+  if (current < previous) return 'down'
+  return 'stable'
+}
+
+/**
+ * Compliance dashboard data for UI hubs
+ * GET /api/compliance/dashboard
+ */
+router.get(
+  '/dashboard',
+  authenticateJWT,
+  authorize(['view_compliance']),
+  async (req, res) => {
+    try {
+      const tenantId = req.user?.tenant_id
+
+      const [
+        inspectionsDueResult,
+        inspectionsCompletedResult,
+        incidentsCriticalResult,
+        incidentsPreviousResult,
+        trainingExpiringResult,
+        trainingExpiredResult,
+        oshaRecordableResult,
+        oshaLostTimeResult,
+        docsExpiringResult,
+        recentInspections,
+        recentIncidents,
+        recentTraining,
+        recentOsha
+      ] = await Promise.all([
+        pool.query(
+          `SELECT COUNT(*)::int AS count
+           FROM inspections
+           WHERE tenant_id = $1 AND status IN ('pending', 'in_progress')`,
+          [tenantId]
+        ),
+        pool.query(
+          `SELECT COUNT(*)::int AS count
+           FROM inspections
+           WHERE tenant_id = $1 AND status = 'completed'`,
+          [tenantId]
+        ),
+        pool.query(
+          `SELECT COUNT(*)::int AS count
+           FROM incidents
+           WHERE tenant_id = $1 AND severity IN ('major','critical','fatal')`,
+          [tenantId]
+        ),
+        pool.query(
+          `SELECT COUNT(*)::int AS count
+           FROM incidents
+           WHERE tenant_id = $1
+             AND incident_date >= NOW() - INTERVAL '60 days'
+             AND incident_date < NOW() - INTERVAL '30 days'
+             AND severity IN ('major','critical','fatal')`,
+          [tenantId]
+        ),
+        pool.query(
+          `SELECT COUNT(*)::int AS count
+           FROM training_records
+           WHERE tenant_id = $1
+             AND expiry_date IS NOT NULL
+             AND expiry_date <= NOW() + INTERVAL '30 days'
+             AND expiry_date > NOW()`,
+          [tenantId]
+        ),
+        pool.query(
+          `SELECT COUNT(*)::int AS count
+           FROM training_records
+           WHERE tenant_id = $1
+             AND expiry_date IS NOT NULL
+             AND expiry_date <= NOW()`,
+          [tenantId]
+        ),
+        pool.query(
+          `SELECT COUNT(*)::int AS count
+           FROM osha_logs
+           WHERE tenant_id = $1 AND is_recordable = true`,
+          [tenantId]
+        ),
+        pool.query(
+          `SELECT COUNT(*)::int AS count
+           FROM osha_logs
+           WHERE tenant_id = $1 AND is_lost_time = true`,
+          [tenantId]
+        ),
+        pool.query(
+          `SELECT COUNT(*)::int AS count
+           FROM documents
+           WHERE tenant_id = $1
+             AND (expires_at IS NOT NULL OR expiry_date IS NOT NULL)
+             AND COALESCE(expires_at, expiry_date) <= NOW() + INTERVAL '30 days'
+             AND COALESCE(expires_at, expiry_date) > NOW()`,
+          [tenantId]
+        ),
+        pool.query(
+          `SELECT id, type, status, started_at as timestamp, vehicle_id
+           FROM inspections
+           WHERE tenant_id = $1
+           ORDER BY started_at DESC
+           LIMIT 5`,
+          [tenantId]
+        ),
+        pool.query(
+          `SELECT id, type, severity, status, incident_date as timestamp, vehicle_id
+           FROM incidents
+           WHERE tenant_id = $1
+           ORDER BY incident_date DESC
+           LIMIT 5`,
+          [tenantId]
+        ),
+        pool.query(
+          `SELECT id, training_name, status, completion_date as timestamp, driver_id
+           FROM training_records
+           WHERE tenant_id = $1
+           ORDER BY completion_date DESC NULLS LAST
+           LIMIT 5`,
+          [tenantId]
+        ),
+        pool.query(
+          `SELECT id, incident_description, status, incident_date as timestamp, vehicle_id
+           FROM osha_logs
+           WHERE tenant_id = $1
+           ORDER BY incident_date DESC
+           LIMIT 5`,
+          [tenantId]
+        )
+      ])
+
+      const inspectionsDue = inspectionsDueResult.rows[0]?.count || 0
+      const inspectionsCompleted = inspectionsCompletedResult.rows[0]?.count || 0
+      const incidentsCritical = incidentsCriticalResult.rows[0]?.count || 0
+      const incidentsPrevious = incidentsPreviousResult.rows[0]?.count || 0
+      const trainingExpiring = trainingExpiringResult.rows[0]?.count || 0
+      const trainingExpired = trainingExpiredResult.rows[0]?.count || 0
+      const oshaRecordable = oshaRecordableResult.rows[0]?.count || 0
+      const oshaLostTime = oshaLostTimeResult.rows[0]?.count || 0
+      const docsExpiring = docsExpiringResult.rows[0]?.count || 0
+
+      const vehicleScore = Math.max(0, 100 - (inspectionsDue * 2 + incidentsCritical * 4))
+      const driverScore = Math.max(0, 100 - (trainingExpired * 5 + trainingExpiring * 2))
+      const safetyScore = Math.max(0, 100 - (oshaRecordable * 3 + oshaLostTime * 5))
+      const regulatoryScore = Math.max(0, 100 - (docsExpiring * 2))
+
+      const metrics = [
+        {
+          id: 'vehicle-compliance',
+          category: 'Vehicle Compliance',
+          score: vehicleScore,
+          target: 95,
+          trend: scoreTrend(incidentsCritical, incidentsPrevious),
+          violations: incidentsCritical,
+          inspectionsDue,
+          status: scoreStatus(vehicleScore)
+        },
+        {
+          id: 'driver-compliance',
+          category: 'Driver Compliance',
+          score: driverScore,
+          target: 95,
+          trend: scoreTrend(trainingExpiring, trainingExpired),
+          violations: trainingExpired,
+          inspectionsDue: trainingExpiring,
+          status: scoreStatus(driverScore)
+        },
+        {
+          id: 'safety-compliance',
+          category: 'Safety Compliance',
+          score: safetyScore,
+          target: 95,
+          trend: scoreTrend(oshaRecordable, oshaLostTime),
+          violations: oshaRecordable,
+          inspectionsDue: oshaLostTime,
+          status: scoreStatus(safetyScore)
+        },
+        {
+          id: 'regulatory-compliance',
+          category: 'Regulatory Compliance',
+          score: regulatoryScore,
+          target: 95,
+          trend: docsExpiring > 0 ? 'down' : 'stable',
+          violations: docsExpiring,
+          inspectionsDue: docsExpiring,
+          status: scoreStatus(regulatoryScore)
+        }
+      ]
+
+      const alerts = []
+      if (inspectionsDue > 0) {
+        alerts.push({
+          id: `alert-inspections`,
+          type: 'warning',
+          severity: 'high',
+          title: 'Vehicle Inspections Due',
+          description: `${inspectionsDue} vehicle inspections are pending.`,
+          timestamp: new Date().toISOString(),
+          entityType: 'vehicle',
+          entityId: 'inspection',
+        })
+      }
+      if (trainingExpiring + trainingExpired > 0) {
+        alerts.push({
+          id: `alert-training`,
+          type: trainingExpired > 0 ? 'critical' : 'expiring',
+          severity: trainingExpired > 0 ? 'critical' : 'high',
+          title: 'Training Certifications',
+          description: `${trainingExpired} expired and ${trainingExpiring} expiring certifications.`,
+          timestamp: new Date().toISOString(),
+          entityType: 'driver',
+          entityId: 'training',
+        })
+      }
+      if (incidentsCritical > 0) {
+        alerts.push({
+          id: `alert-incidents`,
+          type: 'violation',
+          severity: 'critical',
+          title: 'Critical Incidents',
+          description: `${incidentsCritical} critical incidents require review.`,
+          timestamp: new Date().toISOString(),
+          entityType: 'vehicle',
+          entityId: 'incident',
+        })
+      }
+      if (docsExpiring > 0) {
+        alerts.push({
+          id: `alert-docs`,
+          type: 'expiring',
+          severity: 'medium',
+          title: 'Documents Expiring',
+          description: `${docsExpiring} compliance documents expire within 30 days.`,
+          timestamp: new Date().toISOString(),
+          entityType: 'document',
+          entityId: 'document',
+        })
+      }
+
+      const events = [
+        ...recentInspections.rows.map((row: any) => ({
+          id: `inspection-${row.id}`,
+          type: 'inspection',
+          title: `Inspection ${row.type}`,
+          description: `Inspection status: ${row.status}`,
+          timestamp: row.timestamp,
+          status: row.status === 'completed' ? 'completed' : 'pending',
+          entityType: 'vehicle',
+          entityId: row.vehicle_id,
+        })),
+        ...recentIncidents.rows.map((row: any) => ({
+          id: `incident-${row.id}`,
+          type: 'violation',
+          title: `Incident ${row.type}`,
+          description: `Severity: ${row.severity}`,
+          timestamp: row.timestamp,
+          status: row.status === 'completed' ? 'completed' : 'pending',
+          entityType: 'vehicle',
+          entityId: row.vehicle_id,
+        })),
+        ...recentTraining.rows.map((row: any) => ({
+          id: `training-${row.id}`,
+          type: 'training',
+          title: row.training_name,
+          description: `Training status: ${row.status}`,
+          timestamp: row.timestamp,
+          status: row.status === 'completed' ? 'completed' : 'pending',
+          entityType: 'driver',
+          entityId: row.driver_id,
+        })),
+        ...recentOsha.rows.map((row: any) => ({
+          id: `osha-${row.id}`,
+          type: 'audit',
+          title: 'OSHA Log',
+          description: row.incident_description,
+          timestamp: row.timestamp,
+          status: row.status === 'closed' ? 'completed' : 'pending',
+          entityType: 'facility',
+          entityId: row.vehicle_id,
+        }))
+      ]
+
+      res.json({ metrics, alerts, events, summary: { inspectionsDue, inspectionsCompleted } })
+    } catch (error) {
+      logger.error('Error building compliance dashboard:', error)
+      res.status(500).json({ error: 'Failed to build compliance dashboard' })
+    }
+  }
+)
 
 /**
  * Generate FedRAMP compliance report

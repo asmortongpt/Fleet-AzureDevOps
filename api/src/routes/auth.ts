@@ -7,6 +7,7 @@ import pool from '../config/database' // SECURITY: Import database pool
 import logger from '../config/logger'; // Wave 16: Add Winston logger
 import { NotFoundError } from '../errors/app-error'
 import { createAuditLog } from '../middleware/audit'
+import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 
 
@@ -16,6 +17,27 @@ import { FIPSCryptoService } from '../services/fips-crypto.service'
 import { FIPSJWTService } from '../services/fips-jwt.service'
 
 const router = express.Router()
+
+const setAuthCookie = (res: Response, token: string) => {
+  const isDevelopment = process.env.NODE_ENV === 'development'
+  res.cookie('auth_token', token, {
+    httpOnly: true,
+    secure: !isDevelopment,
+    sameSite: 'lax',
+    domain: isDevelopment ? 'localhost' : undefined,
+    maxAge: 15 * 60 * 1000,
+    path: '/',
+  })
+}
+
+const issueRefreshToken = async (userId: string, tenantId: string) => {
+  const refreshToken = FIPSJWTService.generateRefreshToken(userId, tenantId)
+  await pool.query(
+    'INSERT INTO refresh_tokens (user_id, tenant_id, token_hash, expires_at, created_at) VALUES ($1, $2, $3, NOW() + INTERVAL \'7 days\', NOW())',
+    [userId, tenantId, crypto.createHash('sha256').update(refreshToken).digest('hex')]
+  )
+  return refreshToken
+}
 
 // Validation schemas
 const loginSchema = z.object({
@@ -36,6 +58,16 @@ const registerSchema = z.object({
   phone: z.string().optional()
   // SECURITY: Role is NOT accepted in registration - always defaults to 'viewer'
   // This prevents privilege escalation attacks during self-registration
+})
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain uppercase letter')
+    .regex(/[a-z]/, 'Password must contain lowercase letter')
+    .regex(/[0-9]/, 'Password must contain number')
+    .regex(/[^A-Za-z0-9]/, 'Password must contain special character')
 })
 
 /**
@@ -115,6 +147,86 @@ const applyRateLimiting = process.env.RATE_LIMIT_DISABLED !== 'true'
 const loginMiddleware = applyRateLimiting
   ? [authLimiter, checkBruteForce('email')]
   : []
+
+// POST /api/auth/dev-login (development only)
+router.post('/dev-login', async (req: Request, res: Response) => {
+  try {
+    if (process.env.NODE_ENV !== 'development') {
+      return res.status(404).json({ error: 'Not available' })
+    }
+
+    const emailInput = typeof req.body?.email === 'string' ? req.body.email.toLowerCase() : null
+    let userResult = null
+
+    if (emailInput) {
+      userResult = await pool.query(
+        `SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at
+         FROM users WHERE email = $1`,
+        [emailInput]
+      )
+    }
+
+    if (!userResult || userResult.rows.length === 0) {
+      userResult = await pool.query(
+        `SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at
+         FROM users WHERE role = 'SuperAdmin' ORDER BY created_at ASC LIMIT 1`
+      )
+    }
+
+    if (!userResult || userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'No dev user found' })
+    }
+
+    const user = userResult.rows[0]
+
+    if (!user.is_active) {
+      return res.status(403).json({ error: 'User is inactive' })
+    }
+
+    const token = FIPSJWTService.generateAccessToken(
+      user.id,
+      user.email,
+      user.role,
+      user.tenant_id
+    )
+
+    const refreshToken = await issueRefreshToken(user.id, user.tenant_id)
+
+    await createAuditLog(
+      user.tenant_id,
+      user.id,
+      'LOGIN',
+      'users',
+      user.id,
+      { email: user.email, devLogin: true },
+      req.ip || null,
+      req.get('User-Agent') || null,
+      'success'
+    )
+
+    setAuthCookie(res, token)
+
+    res.json({
+      token,
+      refreshToken,
+      expiresIn: 900,
+      user: {
+        id: user.id,
+        tenant_id: user.tenant_id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        role: user.role,
+        phone: user.phone,
+        created_at: user.created_at,
+        updated_at: user.updated_at,
+      }
+    })
+  } catch (error) {
+    logger.error('Dev login error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
 
 router.post('/login', ...loginMiddleware, async (req: Request, res: Response) => {
   try {
@@ -559,6 +671,60 @@ router.post('/refresh', csrfProtection, async (req: Request, res: Response) => {
 })
 
 /**
+ * POST /api/auth/change-password
+ * Change password for authenticated user
+ */
+router.post('/change-password', authenticateJWT, csrfProtection, async (req: AuthRequest, res: Response) => {
+  try {
+    const { currentPassword, newPassword } = changePasswordSchema.parse(req.body)
+
+    if (!req.user?.id) {
+      return res.status(401).json({ error: 'Authentication required' })
+    }
+
+    const userResult = await pool.query(
+      `SELECT id, tenant_id, email, password_hash
+       FROM users
+       WHERE id = $1 AND tenant_id = $2 AND is_active = true`,
+      [req.user.id, req.user.tenant_id]
+    )
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+
+    const user = userResult.rows[0]
+    const validPassword = await FIPSCryptoService.verifyPassword(currentPassword, user.password_hash)
+    if (!validPassword) {
+      return res.status(401).json({ error: 'Current password is incorrect' })
+    }
+
+    const newHash = await FIPSCryptoService.hashPassword(newPassword)
+    await pool.query(
+      'UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2 AND tenant_id = $3',
+      [newHash, user.id, user.tenant_id]
+    )
+
+    await createAuditLog(
+      user.tenant_id,
+      user.id,
+      'PASSWORD_CHANGE',
+      'users',
+      user.id,
+      {},
+      req.ip || null,
+      req.get('User-Agent') || null,
+      'success'
+    )
+
+    res.json({ success: true })
+  } catch (error: any) {
+    logger.error('Change password error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+/**
  * @openapi
  * /api/auth/logout:
  *   post:
@@ -646,8 +812,21 @@ router.get('/me', async (req: Request, res: Response) => {
 
     // Get fresh user data from database
     const userResult = await pool.query(
-      `SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at
-       FROM users WHERE id = $1 AND tenant_id = $2 AND is_active = true`,
+      `SELECT u.id,
+              u.tenant_id,
+              u.email,
+              u.first_name,
+              u.last_name,
+              u.role,
+              u.is_active,
+              u.phone,
+              u.created_at,
+              u.updated_at,
+              t.name as tenant_name,
+              t.domain as tenant_domain
+       FROM users u
+       JOIN tenants t ON u.tenant_id = t.id
+       WHERE u.id = $1 AND u.tenant_id = $2 AND u.is_active = true`,
       [decoded.id, decoded.tenant_id]
     )
 
@@ -665,7 +844,11 @@ router.get('/me', async (req: Request, res: Response) => {
         first_name: user.first_name,
         last_name: user.last_name,
         role: user.role,
-        tenant_id: user.tenant_id
+        tenant_id: user.tenant_id,
+        tenant_name: user.tenant_name,
+        tenant_domain: user.tenant_domain,
+        created_at: user.created_at,
+        updated_at: user.updated_at
       },
       token // Return the token so frontend can store it for API calls
     })
@@ -820,6 +1003,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       user.role,
       user.tenant_id
     )
+    const refreshToken = await issueRefreshToken(user.id, user.tenant_id)
 
     await createAuditLog(
       user.tenant_id,
@@ -837,10 +1021,14 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     // Client-side fetch will have Accept: application/json header
     const acceptsJson = req.headers.accept?.includes('application/json')
 
+    // Set secure httpOnly cookie for session persistence
+    setAuthCookie(res, token)
+
     if (acceptsJson) {
       // Return JSON for client-side OAuth flow
       return res.json({
         token,
+        refreshToken,
         user: {
           id: user.id,
           email: user.email,
@@ -851,8 +1039,8 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
         }
       })
     } else {
-      // Redirect to dashboard with token (legacy server-side flow)
-      res.redirect(`/?token=${encodeURIComponent(token)}`)
+      // Redirect to dashboard without token in URL
+      res.redirect('/')
     }
   } catch (error: any) {
     logger.error('Microsoft SSO callback error:', error.message) // Wave 16: Winston logger
@@ -862,6 +1050,113 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     } else {
       res.redirect('/login?error=sso_failed')
     }
+  }
+})
+
+/**
+ * Exchange Microsoft access token for Fleet session cookie
+ * POST /api/auth/microsoft/exchange
+ */
+router.post('/microsoft/exchange', async (req: Request, res: Response) => {
+  try {
+    const { accessToken, tenantId: requestedTenantId } = req.body || {}
+
+    if (!accessToken || typeof accessToken !== 'string') {
+      return res.status(400).json({ error: 'Missing accessToken' })
+    }
+
+    const userInfoResponse = await axios.get('https://graph.microsoft.com/v1.0/me', {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    })
+
+    const microsoftUser = userInfoResponse.data
+    const email = (microsoftUser.mail || microsoftUser.userPrincipalName || '').toLowerCase()
+
+    if (!email) {
+      return res.status(400).json({ error: 'Unable to resolve Microsoft user email' })
+    }
+
+    // SECURITY: Restrict SSO to @capitaltechalliance.com domain
+    if (!email.endsWith('@capitaltechalliance.com')) {
+      logger.warn(`[AUTH] SSO exchange attempt from unauthorized domain: ${email}`)
+      return res.status(403).json({
+        error: 'Access Denied',
+        message: 'Only users with @capitaltechalliance.com email addresses can log in'
+      })
+    }
+
+    // Resolve tenant - allow explicit tenantId if valid, else default
+    let tenantId: string | null = null
+    if (requestedTenantId && typeof requestedTenantId === 'string') {
+      const tenantCheck = await pool.query('SELECT id FROM tenants WHERE id = $1', [requestedTenantId])
+      if (tenantCheck.rows.length > 0) {
+        tenantId = tenantCheck.rows[0].id
+      }
+    }
+
+    if (!tenantId) {
+      const tenantResult = await pool.query('SELECT id FROM tenants ORDER BY created_at LIMIT 1')
+      if (tenantResult.rows.length === 0) {
+        return res.status(500).json({ error: 'No tenant configured' })
+      }
+      tenantId = tenantResult.rows[0].id
+    }
+
+    const userResult = await pool.query(
+      'SELECT id, email, first_name, last_name, role, tenant_id FROM users WHERE email = $1',
+      [email]
+    )
+
+    let user
+    if (userResult.rows.length === 0) {
+      const insertResult = await pool.query(
+        `INSERT INTO users (tenant_id, email, first_name, last_name, role, is_active, password_hash, sso_provider, sso_provider_id)
+         VALUES ($1, $2, $3, $4, 'viewer', true, 'SSO', 'microsoft', $5)
+         RETURNING id, email, first_name, last_name, role, tenant_id`,
+        [tenantId, email, microsoftUser.givenName || 'User', microsoftUser.surname || '', microsoftUser.id]
+      )
+      user = insertResult.rows[0]
+    } else {
+      user = userResult.rows[0]
+    }
+
+    const token = FIPSJWTService.generateAccessToken(
+      user.id,
+      user.email,
+      user.role,
+      user.tenant_id
+    )
+    const refreshToken = await issueRefreshToken(user.id, user.tenant_id)
+
+    await createAuditLog(
+      user.tenant_id,
+      user.id,
+      'LOGIN',
+      'users',
+      user.id,
+      { provider: 'microsoft', email },
+      req.ip || null,
+      req.get('User-Agent') || null,
+      'success'
+    )
+
+    setAuthCookie(res, token)
+
+    return res.json({
+      token,
+      refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        role: user.role,
+        tenant_id: user.tenant_id
+      }
+    })
+  } catch (error: any) {
+    logger.error('Microsoft SSO exchange error:', error.message)
+    return res.status(500).json({ error: 'Microsoft SSO exchange failed', details: error.message })
   }
 })
 

@@ -90,145 +90,10 @@ interface DependencyTask {
   status: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
-
-// Demo data for fallback
-const demoTaskData: Record<string, TaskData> = {
-  'task-001': {
-    id: 'task-001',
-    number: 'TSK-1001',
-    title: 'Pre-trip vehicle inspection - V-1001',
-    description: 'Complete comprehensive pre-trip safety inspection for Ford F-150 #1001 before morning dispatch',
-    status: 'completed',
-    priority: 'high',
-    assignedToId: 'drv-001',
-    assignedToName: 'John Smith',
-    assignedToType: 'driver',
-    assignedToPhone: '(850) 555-0101',
-    assignedToEmail: 'john.smith@fleet.com',
-    vehicleId: 'veh-demo-1001',
-    vehicleName: 'Ford F-150 #1001',
-    driverId: 'drv-001',
-    driverName: 'John Smith',
-    createdDate: '2026-01-02T18:00:00',
-    dueDate: '2026-01-03T08:00:00',
-    startedDate: '2026-01-03T07:30:00',
-    completedDate: '2026-01-03T07:45:00',
-    estimatedDuration: 30,
-    actualDuration: 15,
-    completionPercent: 100,
-    checklistTotal: 12,
-    checklistCompleted: 12,
-    category: 'Safety',
-    tags: ['inspection', 'pre-trip', 'required'],
-    notes: 'All systems checked and operational. Minor windshield washer fluid refill needed.',
-    createdBy: 'Dispatch System',
-    updatedAt: '2026-01-03T07:45:00',
-    updatedBy: 'John Smith'
-  },
-  'task-002': {
-    id: 'task-002',
-    number: 'TSK-1002',
-    title: 'Load verification - Job #1002',
-    description: 'Verify cargo manifest and ensure proper loading for airport cargo pickup',
-    status: 'in-progress',
-    priority: 'high',
-    assignedToId: 'drv-002',
-    assignedToName: 'Sarah Johnson',
-    assignedToType: 'driver',
-    assignedToPhone: '(850) 555-0102',
-    assignedToEmail: 'sarah.johnson@fleet.com',
-    vehicleId: 'veh-demo-1002',
-    vehicleName: 'Chevrolet Silverado #1002',
-    driverId: 'drv-002',
-    driverName: 'Sarah Johnson',
-    jobId: 'job-002',
-    jobNumber: 'JOB-1002',
-    createdDate: '2026-01-03T09:00:00',
-    dueDate: '2026-01-03T10:00:00',
-    startedDate: '2026-01-03T09:45:00',
-    estimatedDuration: 20,
-    completionPercent: 60,
-    checklistTotal: 5,
-    checklistCompleted: 3,
-    category: 'Operations',
-    tags: ['cargo', 'verification', 'urgent'],
-    notes: 'Temperature-controlled cargo - verify cooling system before loading',
-    createdBy: 'Dispatch Supervisor',
-    updatedAt: '2026-01-03T10:15:00',
-    updatedBy: 'Sarah Johnson'
-  },
-  'task-003': {
-    id: 'task-003',
-    number: 'TSK-1003',
-    title: 'Refuel vehicle before next dispatch',
-    description: 'Vehicle fuel level at 25% - refuel to full capacity before afternoon route',
-    status: 'open',
-    priority: 'medium',
-    assignedToId: 'veh-demo-1003',
-    assignedToName: 'Mercedes Sprinter #1003',
-    assignedToType: 'vehicle',
-    vehicleId: 'veh-demo-1003',
-    vehicleName: 'Mercedes Sprinter #1003',
-    createdDate: '2026-01-03T10:30:00',
-    dueDate: '2026-01-03T16:00:00',
-    estimatedDuration: 15,
-    completionPercent: 0,
-    category: 'Maintenance',
-    tags: ['fuel', 'routine'],
-    notes: 'Preferred fuel station: Shell at 456 Main St (Fleet discount available)',
-    createdBy: 'Fuel Monitor System',
-    updatedAt: '2026-01-03T10:30:00'
-  },
-  'task-004': {
-    id: 'task-004',
-    number: 'TSK-1004',
-    title: 'Update route optimization settings',
-    description: 'Configure new traffic pattern algorithms for improved route efficiency',
-    status: 'blocked',
-    priority: 'low',
-    assignedToId: 'user-001',
-    assignedToName: 'Operations Manager',
-    assignedToType: 'user',
-    assignedToEmail: 'ops.manager@fleet.com',
-    createdDate: '2026-01-02T14:00:00',
-    dueDate: '2026-01-03T17:00:00',
-    estimatedDuration: 60,
-    completionPercent: 0,
-    blockedBy: 'Software update pending',
-    blockedReason: 'Waiting for v2.5.0 deployment scheduled for 2026-01-04',
-    dependencies: ['task-999'],
-    category: 'System',
-    tags: ['optimization', 'configuration'],
-    notes: 'Requires coordination with IT department',
-    createdBy: 'Fleet Manager',
-    updatedAt: '2026-01-03T09:00:00',
-    updatedBy: 'Operations Manager'
-  },
-  'task-005': {
-    id: 'task-005',
-    number: 'TSK-1005',
-    title: 'Review and approve delayed job reports',
-    description: 'Analyze delay causes for jobs JOB-1002, JOB-1015, and JOB-1023 and approve corrective actions',
-    status: 'open',
-    priority: 'high',
-    assignedToId: 'user-002',
-    assignedToName: 'Fleet Supervisor',
-    assignedToType: 'user',
-    assignedToEmail: 'supervisor@fleet.com',
-    createdDate: '2026-01-03T11:00:00',
-    dueDate: '2026-01-03T12:00:00',
-    estimatedDuration: 45,
-    completionPercent: 0,
-    dependentTasks: ['task-006', 'task-007'],
-    category: 'Management',
-    tags: ['review', 'analysis', 'urgent'],
-    attachments: 3,
-    notes: 'Priority review required - multiple delays affecting SLA compliance',
-    createdBy: 'Automated Alert System',
-    updatedAt: '2026-01-03T11:00:00'
-  }
-}
+const fetcher = (url: string) =>
+  fetch(url)
+    .then((r) => r.json())
+    .then((data) => data?.data ?? data)
 
 export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
   const { push } = useDrilldown()
@@ -237,7 +102,6 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
     `/api/tasks/${taskId}`,
     fetcher,
     {
-      fallbackData: demoTaskData[taskId],
       shouldRetryOnError: false
     }
   )
@@ -247,11 +111,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
     task?.dependencies ? `/api/tasks/dependencies?ids=${task.dependencies.join(',')}` : null,
     fetcher,
     {
-      fallbackData: task?.dependencies?.map(id => ({
-        id,
-        title: `Dependency Task ${id}`,
-        status: id === 'task-999' ? 'in-progress' : 'pending'
-      }))
+      shouldRetryOnError: false
     }
   )
 
