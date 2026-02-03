@@ -10,7 +10,6 @@
 
 import { Router, Request, Response } from 'express';
 import axios from 'axios';
-import { authenticateJWT } from '../middleware/auth.middleware';
 import { requireRBAC, Role } from '../middleware/rbac';
 import { asyncHandler } from '../middleware/async-handler';
 import logger from '../config/logger';

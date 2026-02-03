@@ -28,7 +28,10 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) =>
+  fetch(url)
+    .then((r) => r.json())
+    .then((data) => data?.data ?? data)
 
 // ============ TYPE DEFINITIONS ============
 
@@ -65,168 +68,6 @@ interface Certification {
   days_until_expiry?: number
 }
 
-// ============ DEMO DATA ============
-
-const demoTrainingRecords: TrainingRecord[] = [
-  {
-    id: 'train-001',
-    employee_id: 'emp-201',
-    employee_name: 'John Smith',
-    course_name: 'Defensive Driving Certification',
-    course_code: 'DDC-101',
-    category: 'safety',
-    instructor_name: 'Robert Martinez',
-    date_completed: '2025-11-15',
-    date_expires: '2028-11-15',
-    score: 95,
-    status: 'completed',
-    certification_number: 'DDC-2025-FL-1542',
-    hours: 8,
-    location: 'North Training Center',
-  },
-  {
-    id: 'train-002',
-    employee_id: 'emp-202',
-    employee_name: 'Sarah Johnson',
-    course_name: 'Hazmat Transportation Safety',
-    course_code: 'HAZMAT-201',
-    category: 'compliance',
-    instructor_name: 'Dr. Emily Chen',
-    date_completed: '2025-10-22',
-    date_expires: '2026-10-22',
-    score: 88,
-    status: 'completed',
-    certification_number: 'HAZMAT-2025-3821',
-    hours: 16,
-    location: 'South Training Facility',
-  },
-  {
-    id: 'train-003',
-    employee_id: 'emp-203',
-    employee_name: 'Michael Davis',
-    course_name: 'First Aid & CPR',
-    course_code: 'FA-CPR-101',
-    category: 'safety',
-    instructor_name: 'Jennifer Lopez, RN',
-    date_completed: '2024-06-10',
-    date_expires: '2026-06-10',
-    score: 100,
-    status: 'completed',
-    certification_number: 'CPR-2024-FL-9821',
-    hours: 4,
-    location: 'Medical Training Room',
-  },
-  {
-    id: 'train-004',
-    employee_id: 'emp-204',
-    employee_name: 'Lisa Chen',
-    course_name: 'Forklift Operation Certification',
-    course_code: 'FORK-101',
-    category: 'operational',
-    instructor_name: 'David Wilson',
-    date_completed: '2025-12-01',
-    date_expires: '2028-12-01',
-    score: 92,
-    status: 'completed',
-    certification_number: 'FORK-2025-5623',
-    hours: 8,
-    location: 'Warehouse Training Area',
-  },
-  {
-    id: 'train-005',
-    employee_id: 'emp-205',
-    employee_name: 'Tom Wilson',
-    course_name: 'DOT Hours of Service Compliance',
-    course_code: 'DOT-HOS-301',
-    category: 'compliance',
-    instructor_name: 'Robert Martinez',
-    date_completed: '2025-01-15',
-    date_expires: '2026-01-15',
-    score: 85,
-    status: 'completed',
-    certification_number: 'HOS-2025-1129',
-    hours: 4,
-    location: 'Online Virtual Classroom',
-  },
-]
-
-const demoCertifications: Certification[] = [
-  {
-    id: 'cert-001',
-    employee_id: 'emp-201',
-    employee_name: 'John Smith',
-    certification_name: 'Commercial Driver License - Class A',
-    certification_type: 'cdl',
-    issuing_authority: 'Florida DHSMV',
-    issue_date: '2023-03-15',
-    expiry_date: '2027-03-15',
-    certification_number: 'FL-CDL-A-8821455',
-    status: 'active',
-    renewal_required: false,
-    days_until_expiry: 456,
-  },
-  {
-    id: 'cert-002',
-    employee_id: 'emp-202',
-    employee_name: 'Sarah Johnson',
-    certification_name: 'Hazmat Endorsement',
-    certification_type: 'hazmat',
-    issuing_authority: 'TSA',
-    issue_date: '2024-08-10',
-    expiry_date: '2026-01-10',
-    certification_number: 'TSA-H-2024-FL-9923',
-    status: 'expiring-soon',
-    renewal_required: true,
-    renewal_cost: 450.00,
-    days_until_expiry: 37,
-  },
-  {
-    id: 'cert-003',
-    employee_id: 'emp-203',
-    employee_name: 'Michael Davis',
-    certification_name: 'American Red Cross CPR/First Aid',
-    certification_type: 'first-aid',
-    issuing_authority: 'American Red Cross',
-    issue_date: '2024-06-10',
-    expiry_date: '2026-06-10',
-    certification_number: 'ARC-CPR-2024-88214',
-    status: 'active',
-    renewal_required: false,
-    days_until_expiry: 188,
-  },
-  {
-    id: 'cert-004',
-    employee_id: 'emp-204',
-    employee_name: 'Lisa Chen',
-    certification_name: 'OSHA Forklift Operator',
-    certification_type: 'forklift',
-    issuing_authority: 'OSHA Training Institute',
-    issue_date: '2025-12-01',
-    expiry_date: '2028-12-01',
-    certification_number: 'OSHA-FORK-2025-3421',
-    status: 'active',
-    renewal_required: false,
-    days_until_expiry: 1095,
-  },
-  {
-    id: 'cert-005',
-    employee_id: 'emp-205',
-    employee_name: 'Tom Wilson',
-    certification_name: 'DOT Medical Examiner Certificate',
-    certification_type: 'safety',
-    issuing_authority: 'DOT Certified Medical Examiner',
-    issue_date: '2024-12-20',
-    expiry_date: '2025-12-20',
-    certification_number: 'DOT-MED-2024-FL-5521',
-    status: 'expiring-soon',
-    renewal_required: true,
-    renewal_cost: 125.00,
-    days_until_expiry: 16,
-  },
-]
-
-// ============ TRAINING RECORDS MATRIX ============
-
 export function TrainingRecordsMatrixView() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
@@ -236,7 +77,6 @@ export function TrainingRecordsMatrixView() {
     '/api/training/records',
     fetcher,
     {
-      fallbackData: demoTrainingRecords,
       shouldRetryOnError: false,
     }
   )
@@ -531,7 +371,6 @@ export function CertificationsMatrixView() {
     '/api/certifications',
     fetcher,
     {
-      fallbackData: demoCertifications,
       shouldRetryOnError: false,
     }
   )

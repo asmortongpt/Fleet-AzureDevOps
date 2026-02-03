@@ -21,7 +21,10 @@ import { Progress } from '@/components/ui/progress'
 
 // Note: Button component removed as it's not used in this file
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) =>
+  fetch(url)
+    .then((r) => r.json())
+    .then((data) => data?.data ?? data)
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -81,213 +84,11 @@ interface TaskData {
   blockedBy?: string
 }
 
-// ============================================================================
-// DEMO DATA
-// ============================================================================
-
-const demoJobs: JobData[] = [
-  {
-    id: 'job-001',
-    number: 'JOB-1001',
-    title: 'Downtown Delivery Route',
-    status: 'active',
-    priority: 'high',
-    vehicleId: 'veh-demo-1001',
-    vehicleName: 'Ford F-150 #1001',
-    driverId: 'drv-001',
-    driverName: 'John Smith',
-    origin: '123 Main St, Tallahassee, FL',
-    destination: '456 Oak Ave, Tallahassee, FL',
-    scheduledStart: '2026-01-03T08:00:00',
-    scheduledEnd: '2026-01-03T16:00:00',
-    actualStart: '2026-01-03T08:15:00',
-    completionPercent: 65
-  },
-  {
-    id: 'job-002',
-    number: 'JOB-1002',
-    title: 'Airport Cargo Pickup',
-    status: 'delayed',
-    priority: 'high',
-    vehicleId: 'veh-demo-1002',
-    vehicleName: 'Chevrolet Silverado #1002',
-    driverId: 'drv-002',
-    driverName: 'Sarah Johnson',
-    origin: 'Tallahassee Airport',
-    destination: 'Distribution Center',
-    scheduledStart: '2026-01-03T10:00:00',
-    scheduledEnd: '2026-01-03T12:00:00',
-    actualStart: '2026-01-03T10:25:00',
-    delayMinutes: 25,
-    completionPercent: 40
-  },
-  {
-    id: 'job-003',
-    number: 'JOB-1003',
-    title: 'North Campus Deliveries',
-    status: 'completed',
-    priority: 'medium',
-    vehicleId: 'veh-demo-1003',
-    vehicleName: 'Mercedes Sprinter #1003',
-    driverId: 'drv-003',
-    driverName: 'Mike Davis',
-    origin: 'Warehouse A',
-    destination: 'FSU North Campus',
-    scheduledStart: '2026-01-03T06:00:00',
-    scheduledEnd: '2026-01-03T10:00:00',
-    actualStart: '2026-01-03T06:00:00',
-    actualEnd: '2026-01-03T09:45:00',
-    completionPercent: 100
-  },
-  {
-    id: 'job-004',
-    number: 'JOB-1004',
-    title: 'Maintenance Parts Run',
-    status: 'pending',
-    priority: 'low',
-    origin: 'Parts Supplier',
-    destination: 'Maintenance Bay',
-    scheduledStart: '2026-01-03T14:00:00',
-    scheduledEnd: '2026-01-03T15:30:00',
-    completionPercent: 0
-  },
-  {
-    id: 'job-005',
-    number: 'JOB-1005',
-    title: 'Emergency Medical Supply Transport',
-    status: 'active',
-    priority: 'high',
-    vehicleId: 'veh-demo-1005',
-    vehicleName: 'Ford Transit #1005',
-    driverId: 'drv-004',
-    driverName: 'Lisa Chen',
-    origin: 'Medical Supply Depot',
-    destination: 'Tallahassee Memorial Hospital',
-    scheduledStart: '2026-01-03T11:00:00',
-    scheduledEnd: '2026-01-03T12:00:00',
-    actualStart: '2026-01-03T11:05:00',
-    completionPercent: 80
-  }
-]
-
-const demoRoutes: RouteData[] = [
-  {
-    id: 'route-001',
-    number: 'RT-1001',
-    name: 'Downtown Morning Circuit',
-    status: 'active',
-    vehicleId: 'veh-demo-1001',
-    vehicleName: 'Ford F-150 #1001',
-    driverId: 'drv-001',
-    driverName: 'John Smith',
-    stops: 12,
-    stopsCompleted: 7,
-    totalDistance: 45.5,
-    distanceCovered: 28.3,
-    estimatedTime: 240,
-    actualTime: 165,
-    optimized: true
-  },
-  {
-    id: 'route-002',
-    number: 'RT-1002',
-    name: 'Campus Delivery Loop',
-    status: 'active',
-    vehicleId: 'veh-demo-1003',
-    vehicleName: 'Mercedes Sprinter #1003',
-    driverId: 'drv-003',
-    driverName: 'Mike Davis',
-    stops: 8,
-    stopsCompleted: 8,
-    totalDistance: 32.0,
-    distanceCovered: 32.0,
-    estimatedTime: 180,
-    actualTime: 175,
-    optimized: true
-  },
-  {
-    id: 'route-003',
-    number: 'RT-1003',
-    name: 'Airport Shuttle Route',
-    status: 'planned',
-    stops: 5,
-    stopsCompleted: 0,
-    totalDistance: 28.0,
-    estimatedTime: 120,
-    optimized: false
-  }
-]
-
-const demoTasks: TaskData[] = [
-  {
-    id: 'task-001',
-    title: 'Pre-trip vehicle inspection - V-1001',
-    status: 'completed',
-    priority: 'high',
-    assignedToId: 'drv-001',
-    assignedToName: 'John Smith',
-    assignedToType: 'driver',
-    dueDate: '2026-01-03T08:00:00',
-    createdDate: '2026-01-02T18:00:00',
-    completedDate: '2026-01-03T07:45:00'
-  },
-  {
-    id: 'task-002',
-    title: 'Load verification - Job #1002',
-    status: 'in-progress',
-    priority: 'high',
-    assignedToId: 'drv-002',
-    assignedToName: 'Sarah Johnson',
-    assignedToType: 'driver',
-    dueDate: '2026-01-03T10:00:00',
-    createdDate: '2026-01-03T09:00:00'
-  },
-  {
-    id: 'task-003',
-    title: 'Refuel vehicle before next dispatch',
-    status: 'open',
-    priority: 'medium',
-    assignedToId: 'veh-demo-1003',
-    assignedToName: 'Mercedes Sprinter #1003',
-    assignedToType: 'vehicle',
-    dueDate: '2026-01-03T16:00:00',
-    createdDate: '2026-01-03T10:30:00'
-  },
-  {
-    id: 'task-004',
-    title: 'Update route optimization settings',
-    status: 'blocked',
-    priority: 'low',
-    assignedToId: 'user-001',
-    assignedToName: 'Operations Manager',
-    assignedToType: 'user',
-    dueDate: '2026-01-03T17:00:00',
-    createdDate: '2026-01-02T14:00:00',
-    blockedBy: 'Waiting for software update'
-  },
-  {
-    id: 'task-005',
-    title: 'Review and approve delayed job reports',
-    status: 'open',
-    priority: 'high',
-    assignedToId: 'user-002',
-    assignedToName: 'Fleet Supervisor',
-    assignedToType: 'user',
-    dueDate: '2026-01-03T12:00:00',
-    createdDate: '2026-01-03T11:00:00'
-  }
-]
-
-// ============================================================================
-// JOB LIST VIEW
-// ============================================================================
-
 export function JobListView({ filter }: { filter?: string }) {
   const { data: jobs } = useSWR<JobData[]>(
     filter ? `/api/jobs?filter=${filter}` : '/api/jobs',
     fetcher,
     {
-      fallbackData: demoJobs,
       shouldRetryOnError: false
     }
   )
@@ -467,7 +268,6 @@ export function RouteListView({ filter }: { filter?: string }) {
     filter ? `/api/routes?filter=${filter}` : '/api/routes',
     fetcher,
     {
-      fallbackData: demoRoutes,
       shouldRetryOnError: false
     }
   )
@@ -607,7 +407,6 @@ export function TaskListView({ filter }: { filter?: string }) {
     filter ? `/api/tasks?filter=${filter}` : '/api/tasks',
     fetcher,
     {
-      fallbackData: demoTasks,
       shouldRetryOnError: false
     }
   )

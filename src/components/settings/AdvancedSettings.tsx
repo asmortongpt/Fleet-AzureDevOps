@@ -5,6 +5,7 @@
 
 import { Code, Cpu, Flag, Bug, BarChart, AlertTriangle } from 'lucide-react'
 import { useAtom } from 'jotai'
+import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -19,17 +20,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { swrFetcher } from '@/lib/fetcher'
 import { advancedSettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
 
-// Mock performance metrics
-const mockPerformanceMetrics = {
-  pageLoadTime: '1.2s',
-  apiResponseTime: '150ms',
-  memoryUsage: '45MB',
-  activeConnections: 3,
-}
-
-// Mock feature flags
+// Available feature flags
 const availableFeatureFlags = [
   {
     key: 'newDashboard',
@@ -60,6 +54,16 @@ const availableFeatureFlags = [
 export function AdvancedSettings() {
   const [settings, setSettings] = useAtom(advancedSettingsAtom)
   const [, setHasUnsavedChanges] = useAtom(hasUnsavedChangesAtom)
+  const { data: metricsData } = useSWR(
+    settings.performanceMetrics ? '/api/system/metrics' : null,
+    swrFetcher
+  )
+  const metrics = metricsData?.data ?? metricsData ?? {}
+
+  const formatMetric = (value: number | null | undefined, unit?: string) => {
+    if (value === null || value === undefined) return '—'
+    return unit ? `${value} ${unit}` : String(value)
+  }
 
   const updateSetting = <K extends keyof typeof settings>(
     key: K,
@@ -259,19 +263,19 @@ export function AdvancedSettings() {
               <TableBody>
                 <TableRow>
                   <TableCell className="font-medium">Page Load Time</TableCell>
-                  <TableCell>{mockPerformanceMetrics.pageLoadTime}</TableCell>
+                  <TableCell>{formatMetric(metrics.pageLoadTime, 's')}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">API Response Time</TableCell>
-                  <TableCell>{mockPerformanceMetrics.apiResponseTime}</TableCell>
+                  <TableCell>{formatMetric(metrics.apiResponseTime, 'ms')}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">Memory Usage</TableCell>
-                  <TableCell>{mockPerformanceMetrics.memoryUsage}</TableCell>
+                  <TableCell>{formatMetric(metrics.memoryUsage, '%')}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">Active Connections</TableCell>
-                  <TableCell>{mockPerformanceMetrics.activeConnections}</TableCell>
+                  <TableCell>{formatMetric(metrics.activeConnections)}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>

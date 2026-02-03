@@ -22,20 +22,36 @@ router.use(authenticateJWT)
 router.get(
     '/',
     requirePermission('safety_training:view:global'),
-    applyFieldMasking('safety_training'),
-    auditLog({ action: 'READ', resourceType: 'safety_training' }),
+    applyFieldMasking('training_records'),
+    auditLog({ action: 'READ', resourceType: 'training_records' }),
     async (req: AuthRequest, res: Response) => {
         try {
             const { page = 1, limit = 50, status } = req.query
             const offset = (Number(page) - 1) * Number(limit)
 
-            let query = `SELECT id, tenant_id, employee_id, employee_name, training_type, completion_date, expiration_date,
-                status, certificate_number, instructor, score, created_at, updated_at
-                FROM safety_training WHERE tenant_id = $1`
+            let query = `
+                SELECT
+                  tr.id,
+                  tr.tenant_id,
+                  tr.driver_id,
+                  d.first_name || ' ' || d.last_name as employee_name,
+                  tr.training_name,
+                  tr.training_type,
+                  tr.completion_date,
+                  tr.expiry_date,
+                  tr.status,
+                  tr.certificate_number,
+                  tr.instructor_name,
+                  tr.score,
+                  tr.created_at,
+                  tr.updated_at
+                FROM training_records tr
+                JOIN drivers d ON tr.driver_id = d.id
+                WHERE tr.tenant_id = $1`
             const params: any[] = [req.user!.tenant_id]
 
             if (status) {
-                query += ` AND status = $${params.length + 1}`
+                query += ` AND tr.status = $${params.length + 1}`
                 params.push(status)
             }
 
@@ -45,7 +61,7 @@ router.get(
             const result = await pool.query(query, params)
 
             const countResult = await pool.query(
-                `SELECT COUNT(*) FROM safety_training WHERE tenant_id = $1`,
+                `SELECT COUNT(*) FROM training_records WHERE tenant_id = $1`,
                 [req.user!.tenant_id]
             )
 
@@ -69,21 +85,31 @@ router.get(
 router.get(
     '/expiring',
     requirePermission('safety_training:view:global'),
-    applyFieldMasking('safety_training'),
-    auditLog({ action: 'READ', resourceType: 'safety_training' }),
+    applyFieldMasking('training_records'),
+    auditLog({ action: 'READ', resourceType: 'training_records' }),
     async (req: AuthRequest, res: Response) => {
         try {
             const { days = 30 } = req.query
 
             const result = await pool.query(
-                `SELECT id, tenant_id, employee_id, employee_name, training_type, completion_date, expiration_date,
-                status, certificate_number
-                FROM safety_training
-                WHERE tenant_id = $1
-                AND expiration_date IS NOT NULL
-                AND expiration_date <= NOW() + INTERVAL '${Number(days)} days'
-                AND expiration_date > NOW()
-                ORDER BY expiration_date ASC`,
+                `SELECT
+                  tr.id,
+                  tr.tenant_id,
+                  tr.driver_id,
+                  d.first_name || ' ' || d.last_name as employee_name,
+                  tr.training_name,
+                  tr.training_type,
+                  tr.completion_date,
+                  tr.expiry_date,
+                  tr.status,
+                  tr.certificate_number
+                FROM training_records tr
+                JOIN drivers d ON tr.driver_id = d.id
+                WHERE tr.tenant_id = $1
+                AND tr.expiry_date IS NOT NULL
+                AND tr.expiry_date <= NOW() + INTERVAL '${Number(days)} days'
+                AND tr.expiry_date > NOW()
+                ORDER BY tr.expiry_date ASC`,
                 [req.user!.tenant_id]
             )
 
@@ -99,17 +125,17 @@ router.get(
 router.get(
     '/compliance-stats',
     requirePermission('safety_training:view:global'),
-    auditLog({ action: 'READ', resourceType: 'safety_training' }),
+    auditLog({ action: 'READ', resourceType: 'training_records' }),
     async (req: AuthRequest, res: Response) => {
         try {
             const statsResult = await pool.query(
                 `SELECT
                     COUNT(*) as total_records,
-                    COUNT(CASE WHEN status = 'current' THEN 1 END) as compliant,
-                    COUNT(CASE WHEN status = 'expiring_soon' THEN 1 END) as expiring_soon,
-                    COUNT(CASE WHEN status = 'expired' THEN 1 END) as expired,
-                    COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending
-                FROM safety_training
+                    COUNT(*) FILTER (WHERE status = 'completed' AND (expiry_date IS NULL OR expiry_date > NOW())) as compliant,
+                    COUNT(*) FILTER (WHERE expiry_date IS NOT NULL AND expiry_date > NOW() AND expiry_date <= NOW() + INTERVAL '30 days') as expiring_soon,
+                    COUNT(*) FILTER (WHERE expiry_date IS NOT NULL AND expiry_date <= NOW()) as expired,
+                    COUNT(*) FILTER (WHERE status IN ('pending', 'in_progress', 'on_hold')) as pending
+                FROM training_records
                 WHERE tenant_id = $1`,
                 [req.user!.tenant_id]
             )
@@ -139,7 +165,7 @@ router.post(
     '/',
     csrfProtection,
     requirePermission('safety_training:create:global'),
-    auditLog({ action: 'CREATE', resourceType: 'safety_training' }),
+    auditLog({ action: 'CREATE', resourceType: 'training_records' }),
     async (req: AuthRequest, res: Response) => {
         try {
             const data = req.body
@@ -148,7 +174,7 @@ router.post(
             let certificateNumber = null
             if (data.completion_date) {
                 const certResult = await pool.query(
-                    'SELECT COALESCE(MAX(CAST(SUBSTRING(certificate_number FROM \'[0-9]+\') AS INTEGER)), 0) + 1 as next_num FROM safety_training WHERE tenant_id = $1',
+                    'SELECT COALESCE(MAX(CAST(SUBSTRING(certificate_number FROM \'[0-9]+\') AS INTEGER)), 0) + 1 as next_num FROM training_records WHERE tenant_id = $1',
                     [req.user!.tenant_id]
                 )
                 certificateNumber = 'CERT-' + String(certResult.rows[0].next_num).padStart(6, '0')
@@ -161,7 +187,7 @@ router.post(
             )
 
             const result = await pool.query(
-                `INSERT INTO safety_training (${columnNames}) VALUES (${placeholders}) RETURNING *`,
+                `INSERT INTO training_records (${columnNames}) VALUES (${placeholders}) RETURNING *`,
                 [req.user!.tenant_id, ...values]
             )
 
@@ -178,15 +204,26 @@ router.put(
     '/:id',
     csrfProtection,
     requirePermission('safety_training:update:global'),
-    auditLog({ action: 'UPDATE', resourceType: 'safety_training' }),
+    auditLog({ action: 'UPDATE', resourceType: 'training_records' }),
     async (req: AuthRequest, res: Response) => {
         try {
             const { id } = req.params
             const data = req.body
 
             // Build SET clause dynamically
-            const allowedFields = ['employee_name', 'training_type', 'completion_date', 'expiration_date',
-                                   'status', 'instructor', 'score']
+            const allowedFields = [
+                'training_name',
+                'training_type',
+                'completion_date',
+                'expiry_date',
+                'status',
+                'instructor_name',
+                'score',
+                'certificate_number',
+                'hours_completed',
+                'provider',
+                'notes'
+            ]
             const updates: string[] = []
             const values: any[] = []
             let paramCount = 1
@@ -206,7 +243,7 @@ router.put(
             values.push(id, req.user!.tenant_id)
 
             const result = await pool.query(
-                `UPDATE safety_training SET ${updates.join(', ')}, updated_at = NOW()
+                `UPDATE training_records SET ${updates.join(', ')}, updated_at = NOW()
                  WHERE id = $${paramCount} AND tenant_id = $${paramCount + 1} RETURNING *`,
                 values
             )

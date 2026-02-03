@@ -68,101 +68,10 @@ interface ZoneEvent {
   metadata?: Record<string, any>
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
-
-// Demo data fallback
-const getDemoHazardZone = (id: string): HazardZoneData => ({
-  id,
-  name: "Construction Zone - I-10 East",
-  type: "physical",
-  severity: "high",
-  location: {
-    lat: 30.4500,
-    lng: -84.2700,
-    address: "I-10 East at Exit 192, Tallahassee, FL"
-  },
-  radius: 500,
-  restrictions: [
-    "Speed limit 35 mph",
-    "No lane changes within zone",
-    "Increased following distance required",
-    "Watch for construction equipment"
-  ],
-  activeFrom: "2025-12-01",
-  activeTo: "2026-03-31",
-  description: "Highway construction project with lane restrictions. Active Mon-Fri 7AM-6PM. Expect delays.",
-  createdBy: "Safety Manager",
-  createdDate: "2025-11-28",
-  lastUpdated: "2025-12-15"
-})
-
-const getDemoAffectedVehicles = (): AffectedVehicle[] => [
-  {
-    id: "1",
-    vehicle_id: "veh-demo-1001",
-    vehicle_name: "Ford F-150 #1001",
-    driver_id: "drv-001",
-    driver_name: "John Smith",
-    last_entry: "2025-12-15T14:30:00Z",
-    entry_count: 12,
-    total_time_in_zone: 45
-  },
-  {
-    id: "2",
-    vehicle_id: "veh-demo-1005",
-    vehicle_name: "Chevrolet Silverado #1005",
-    driver_id: "drv-005",
-    driver_name: "Sarah Johnson",
-    last_entry: "2025-12-15T09:15:00Z",
-    entry_count: 8,
-    total_time_in_zone: 32
-  },
-  {
-    id: "3",
-    vehicle_id: "veh-demo-1015",
-    vehicle_name: "Mercedes Sprinter #1015",
-    driver_id: "drv-010",
-    driver_name: "Mike Davis",
-    last_entry: "2025-12-14T16:45:00Z",
-    entry_count: 5,
-    total_time_in_zone: 20
-  }
-]
-
-const getDemoZoneEvents = (): ZoneEvent[] => [
-  {
-    id: "1",
-    event_type: "entry",
-    description: "Vehicle entered hazard zone",
-    timestamp: "2025-12-15T14:30:00Z",
-    vehicle_id: "veh-demo-1001",
-    vehicle_name: "Ford F-150 #1001"
-  },
-  {
-    id: "2",
-    event_type: "violation",
-    description: "Speed limit exceeded in zone (42 mph in 35 mph zone)",
-    timestamp: "2025-12-15T14:32:00Z",
-    vehicle_id: "veh-demo-1001",
-    vehicle_name: "Ford F-150 #1001",
-    metadata: { speed: 42, limit: 35 }
-  },
-  {
-    id: "3",
-    event_type: "exit",
-    description: "Vehicle exited hazard zone",
-    timestamp: "2025-12-15T14:35:00Z",
-    vehicle_id: "veh-demo-1001",
-    vehicle_name: "Ford F-150 #1001"
-  },
-  {
-    id: "4",
-    event_type: "update",
-    description: "Zone restrictions updated",
-    timestamp: "2025-12-15T08:00:00Z",
-    metadata: { updatedBy: "Safety Manager" }
-  }
-]
+const fetcher = (url: string) =>
+  fetch(url)
+    .then((r) => r.json())
+    .then((data) => data?.data ?? data)
 
 export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelProps) {
   const { push } = useDrilldown()
@@ -173,7 +82,6 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
     `/api/hazard-zones/${hazardZoneId}`,
     fetcher,
     {
-      fallbackData: getDemoHazardZone(hazardZoneId),
       shouldRetryOnError: false
     }
   )
@@ -183,7 +91,6 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
     hazardZoneId ? `/api/hazard-zones/${hazardZoneId}/affected-vehicles` : null,
     fetcher,
     {
-      fallbackData: getDemoAffectedVehicles(),
       shouldRetryOnError: false
     }
   )
@@ -193,7 +100,6 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
     hazardZoneId ? `/api/hazard-zones/${hazardZoneId}/events` : null,
     fetcher,
     {
-      fallbackData: getDemoZoneEvents(),
       shouldRetryOnError: false
     }
   )

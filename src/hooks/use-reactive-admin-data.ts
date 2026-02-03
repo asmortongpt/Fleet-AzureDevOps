@@ -49,19 +49,17 @@ const UserSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1).max(255),
   email: z.string().email(),
-  role: z.enum(['admin', 'manager', 'operator', 'viewer']),
-  status: z.enum(['active', 'inactive', 'suspended']),
-  lastLogin: z.string().datetime().optional(),
+  role: z.string().min(1),
+  status: z.enum(['active', 'inactive', 'suspended', 'pending']).default('active'),
+  lastLogin: z.string().datetime().optional().nullable(),
   createdAt: z.string().datetime(),
 })
 
 const SystemMetricsSchema = z.object({
-  cpuUsage: z.number().min(0).max(100),
-  memoryUsage: z.number().min(0).max(100),
-  storageUsed: z.number().min(0).max(100),
-  storageTotal: z.number().positive(),
-  apiCalls: z.number().nonnegative(),
-  uptime: z.number().min(0).max(100),
+  pageLoadTime: z.number().nullable(),
+  apiResponseTime: z.number().nullable(),
+  memoryUsage: z.number().nullable(),
+  activeConnections: z.number().nullable(),
 })
 
 const AuditLogSchema = z.object({
@@ -155,7 +153,8 @@ async function secureFetch<T>(
     throw new Error(errorMessage)
   }
 
-  const data = await response.json()
+  const payload = await response.json()
+  const data = payload?.data ?? payload
 
   // Validate response with Zod schema
   const validatedData = schema.parse(data)
@@ -168,19 +167,15 @@ async function secureFetch<T>(
 // ============================================================================
 
 function calculateSystemHealth(metrics: SystemMetrics): number {
-  // Weighted scoring system for accurate health assessment
-  const cpuScore = Math.max(0, 100 - metrics.cpuUsage)
-  const memoryScore = Math.max(0, 100 - metrics.memoryUsage)
-  const storageScore = Math.max(0, 100 - (metrics.storageUsed / metrics.storageTotal * 100))
-  const uptimeScore = metrics.uptime
+  const memoryUsage = metrics.memoryUsage ?? 0
+  const apiResponseTime = metrics.apiResponseTime ?? 0
+  const pageLoadTime = metrics.pageLoadTime ?? 0
 
-  // Weighted average: CPU (30%), Memory (30%), Storage (20%), Uptime (20%)
-  return Math.round(
-    cpuScore * 0.3 +
-    memoryScore * 0.3 +
-    storageScore * 0.2 +
-    uptimeScore * 0.2
-  )
+  const memoryScore = Math.max(0, 100 - memoryUsage)
+  const apiScore = Math.max(0, 100 - (apiResponseTime / 5)) // 500ms -> 0
+  const pageScore = Math.max(0, 100 - (pageLoadTime * 20)) // 5s -> 0
+
+  return Math.round((memoryScore * 0.4) + (apiScore * 0.4) + (pageScore * 0.2))
 }
 
 // ============================================================================
@@ -255,15 +250,28 @@ export function useReactiveAdminData() {
     queryKey: ['admin-users'],
     queryFn: async ({ signal }) => {
       try {
-        return await secureFetch(
-          `${API_BASE}/users`,
-          z.array(UserSchema),
-          signal
-        )
+        const response = await fetch(`${API_BASE}/users?limit=200`, {
+          signal,
+          credentials: 'include'
+        })
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status}`)
+        }
+        const payload = await response.json()
+        const rows = payload?.data ?? payload ?? []
+        const mapped = rows.map((row: any) => ({
+          id: row.id,
+          name: row.name || `${row.first_name || ''} ${row.last_name || ''}`.trim(),
+          email: row.email,
+          role: row.role,
+          status: row.status || (row.is_active ? 'active' : 'inactive'),
+          lastLogin: row.last_login_at || row.lastLogin || null,
+          createdAt: row.created_at || row.createdAt
+        }))
+        return z.array(UserSchema).parse(mapped)
       } catch (error) {
-        // Graceful fallback to mock data if API fails
-        logger.warn('Users API unavailable, using mock data:', { error })
-        return [] // Return empty array, let components handle empty state
+        logger.warn('Users API unavailable, returning empty array:', { error })
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.USERS,
@@ -283,13 +291,11 @@ export function useReactiveAdminData() {
   } = useQuery<SystemMetrics>({
     queryKey: ['system-metrics'],
     queryFn: async ({ signal }) => {
-      const response = await secureFetch(
-        `${API_BASE}/health`,
+      return await secureFetch(
+        `${API_BASE}/system/metrics`,
         SystemMetricsSchema,
-        signal,
-        false // Health endpoint may not require auth
+        signal
       )
-      return response
     },
     refetchInterval: REFETCH_INTERVALS.METRICS,
     staleTime: STALE_TIMES.METRICS,
@@ -309,11 +315,26 @@ export function useReactiveAdminData() {
     queryKey: ['audit-logs'],
     queryFn: async ({ signal }) => {
       try {
-        return await secureFetch(
-          `${API_BASE}/audit-logs?limit=100`,
-          z.array(AuditLogSchema),
-          signal
-        )
+        const response = await fetch(`${API_BASE}/audit-logs?limit=100`, {
+          signal,
+          credentials: 'include'
+        })
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status}`)
+        }
+        const payload = await response.json()
+        const rows = payload?.data ?? payload ?? []
+        const mapped = rows.map((row: any) => ({
+          id: row.id,
+          userId: row.userId,
+          userName: row.userName,
+          action: row.action,
+          resource: row.resource,
+          timestamp: row.timestamp,
+          status: row.status,
+          ipAddress: row.ipAddress
+        }))
+        return z.array(AuditLogSchema).parse(mapped)
       } catch (error) {
         logger.warn('Audit logs API unavailable, returning empty array:', { error })
         return []
@@ -337,11 +358,26 @@ export function useReactiveAdminData() {
     queryKey: ['active-sessions'],
     queryFn: async ({ signal }) => {
       try {
-        return await secureFetch(
-          `${API_BASE}/sessions`,
-          z.array(SessionSchema),
-          signal
-        )
+        const response = await fetch(`${API_BASE}/sessions?limit=200`, {
+          signal,
+          credentials: 'include'
+        })
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status}`)
+        }
+        const payload = await response.json()
+        const rows = payload?.data ?? payload ?? []
+        const mapped = rows.map((row: any) => ({
+          id: row.id,
+          userId: row.userId,
+          userName: row.userName,
+          startTime: row.startTime,
+          lastActivity: row.lastActivity,
+          ipAddress: row.ipAddress,
+          userAgent: row.userAgent,
+          status: row.status
+        }))
+        return z.array(SessionSchema).parse(mapped)
       } catch (error) {
         logger.warn('Sessions API unavailable, returning empty array:', { error })
         return []

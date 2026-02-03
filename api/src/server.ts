@@ -59,6 +59,7 @@ import communicationLogsRouter from './routes/communication-logs'
 // Document Management Routes
 
 // Financial & Cost Management Routes
+import accountsPayableRouter from './routes/accounts-payable'
 import costAnalysisRouter from './routes/cost-analysis.routes'
 import costBenefitAnalysisRouter from './routes/cost-benefit-analysis.routes'
 // import costsRouter from './routes/costs'
@@ -67,7 +68,6 @@ import costBenefitAnalysisRouter from './routes/cost-benefit-analysis.routes'
 
 // AI & Automation Routes
 import aiChatRouter from './routes/ai-chat'
-import aiRouter from './routes/ai.routes'
 import aiDamageDetectionRouter from './routes/ai-damage-detection.routes'
 import aiSearchRouter from './routes/ai-search'
 import aiTaskAssetRouter from './routes/ai-task-asset.routes'
@@ -78,9 +78,9 @@ import analyticsRouter from './routes/analytics'
 import arcgisLayersRouter from './routes/arcgis-layers'
 import assetAnalyticsRouter from './routes/asset-analytics.routes'
 import assetManagementRouter from './routes/asset-management.routes'
-import assetRelationshipsRouter from './routes/asset-relationships.routes'
 import assetsMobileRouter from './routes/assets-mobile.routes'
 import assignmentReportingRouter from './routes/assignment-reporting.routes'
+import auditLogsRouter from './routes/audit-logs'
 import authRouter from './routes/auth'
 
 // Task & Schedule Management Routes
@@ -118,6 +118,7 @@ import emulatorRouter from './routes/emulator.routes'
 import facilitiesRouter from './routes/facilities'
 import fleetDocumentsRouter from './routes/fleet-documents.routes'
 import fuelRouter from './routes/fuel-transactions'
+import fuelCardsRouter from './routes/fuel-cards'
 import geofencesRouter from './routes/geofences'
 import gpsRouter from './routes/gps'
 import healthDetailedRouter from './routes/health-detailed'
@@ -126,7 +127,9 @@ import healthRouter from './routes/health.routes' // Microsoft integration healt
 import heavyEquipmentRouter from './routes/heavy-equipment.routes'
 import incidentsRouter from './routes/incidents'
 import inspectionsRouter from './routes/inspections'
+import hazardZonesRouter from './routes/hazard-zones'
 import invoicesRouter from './routes/invoices'
+import integrationsHealthRouter from './routes/integrations-health'
 import lidarRouter from './routes/lidar.routes'
 import maintenanceRouter from './modules/maintenance/routes/maintenance.routes'
 import maintenanceDrilldownsRouter from './routes/maintenance-drilldowns'
@@ -139,13 +142,17 @@ import mobileIntegrationRouter from './routes/mobile-integration.routes'
 import mobileMessagingRouter from './routes/mobile-messaging.routes'
 import mobilePhotosRouter from './routes/mobile-photos.routes'
 import mobileTripsRouter from './routes/mobile-trips.routes'
-import mobileOcrRouter from './routes/mobile-ocr.routes'
 import monitoringRouter from './routes/monitoring'
 import obd2EmulatorRouter from './routes/obd2-emulator.routes'
 import onCallManagementRouter from './routes/on-call-management.routes'
 import oshaComplianceRouter from './routes/osha-compliance'
 import outlookRouter from './routes/outlook.routes'
 import partsRouter from './routes/parts'
+import flairExpensesRouter from './routes/flair-expenses'
+import warrantyRecallsRouter from './routes/warranty-recalls'
+import trainingRouter from './routes/training.routes'
+import securityEventsRouter from './routes/security-events'
+import certificationsRouter from './routes/certifications'
 // REMOVED: import performanceRouter from './routes/performance.routes'
 import permissionsRouter from './routes/permissions'
 import chargesRouter from './routes/personal-use-charges'
@@ -163,24 +170,29 @@ import policyTemplatesRouter from './routes/policy-templates'
 import presenceRouter from './routes/presence.routes'
 import purchaseOrdersRouter from './routes/purchase-orders'
 import pushNotificationsRouter from './routes/push-notifications.routes'
+import notificationsRouter from './routes/notifications'
 import qualityGatesRouter from './routes/quality-gates'
 // import routeEmulatorRouter from './routes/route-emulator.routes'
 import routesRouter from './routes/routes'
 import safetyIncidentsRouter from './routes/safety-incidents'
 import tripsRouter from './routes/trips'
-import tripMarkingRouter from './routes/trip-marking'
 import safetyAlertsRouter from './routes/safety-alerts'
 import schedulingRouter from './routes/scheduling.routes'
 import searchRouter from './routes/search'
 import sessionRevocationRouter from './routes/session-revocation'
+import sessionsRouter from './routes/sessions'
 import smartcarRouter from './routes/smartcar.routes'
 import storageAdminRouter from './routes/storage-admin'
 import syncRouter from './routes/sync.routes'
 import tasksRouter from './routes/tasks'
 import teamsRouter from './routes/teams.routes'
+import tenantsRouter from './routes/tenants'
+import systemMetricsRouter from './routes/system-metrics'
 import telematicsRouter from './routes/telematics.routes'
 import trafficCamerasRouter from './routes/traffic-cameras'
 import tripUsageRouter from './routes/trip-usage'
+import predictiveMaintenanceRouter from './routes/predictive-maintenance'
+import usersRouter from './routes/users'
 import vehicle3dRouter from './routes/vehicle-3d.routes'
 import vehicleAssignmentsRouter from './routes/vehicle-assignments.routes'
 import vehicleHistoryRouter from './routes/vehicle-history.routes'
@@ -190,7 +202,6 @@ import vendorsRouter from './routes/vendors'
 import videoEventsRouter from './routes/video-events'
 import videoTelematicsRouter from './routes/video-telematics.routes'
 import workOrdersRouter from './routes/work-orders'
-import adaptiveCardsRouter from './routes/adaptive-cards.routes'
 
 // E2E Testing Routes (DEVELOPMENT ONLY - NO AUTH)
 import e2eTestRouter from './routes/e2e-test.routes'
@@ -328,6 +339,8 @@ app.use('/api/alerts', alertsRouter)
 app.use('/api/vehicles', vehiclesRouter)
 app.use('/api/drivers', driversRouter)
 app.use('/api/fuel-transactions', fuelRouter)
+app.use('/api/fuel-cards', fuelCardsRouter)
+app.use('/api/fuel-card-transactions', fuelCardsRouter) // Same router handles both paths
 app.use('/api/maintenance', maintenanceRouter)
 app.use('/api/incidents', incidentsRouter)
 app.use('/api/parts', partsRouter)
@@ -343,13 +356,18 @@ app.use('/api/reservations', reservationsRouter)
 app.use('/api/analytics', analyticsRouter)
 app.use('/api/assets', assetManagementRouter)
 app.use('/api/asset-analytics', assetAnalyticsRouter)
-app.use('/api/asset-relationships', assetRelationshipsRouter)
 app.use('/api/assets-mobile', assetsMobileRouter)
 app.use('/api/heavy-equipment', heavyEquipmentRouter)
 
 // Dispatch & Communication Routes
 app.use('/api/communication-logs', communicationLogsRouter)
 app.use('/api/teams', teamsRouter)
+app.use('/api/tenants', tenantsRouter)
+app.use('/api/notifications', notificationsRouter)
+app.use('/api/users', usersRouter)
+app.use('/api/audit-logs', auditLogsRouter)
+app.use('/api/sessions', sessionsRouter)
+app.use('/api/system', systemMetricsRouter)
 
 // GPS & Tracking Routes
 app.use('/api/gps', gpsRouter)
@@ -368,6 +386,7 @@ app.use('/api/work-orders', workOrdersRouter)
 app.use('/api/ev-management', evManagementRouter)
 app.use('/api/charging-sessions', chargingSessionsRouter)
 app.use('/api/charging-stations', chargingStationsRouter)
+app.use('/api/predictive-maintenance', predictiveMaintenanceRouter)
 
 // Document Management Routes
 app.use('/api/documents', documentsRouter)
@@ -375,12 +394,14 @@ app.use('/api/fleet-documents', fleetDocumentsRouter)
 
 // Financial & Cost Management Routes
 // app.use('/api/costs', costsRouter)
+app.use('/api/accounts-payable', accountsPayableRouter)
 app.use('/api/cost-analysis', costAnalysisRouter)
 app.use('/api/cost-benefit-analysis', costBenefitAnalysisRouter)
 app.use('/api/billing-reports', billingReportsRouter)
 app.use('/api/mileage-reimbursement', mileageReimbursementRouter)
 app.use('/api/personal-use-charges', chargesRouter)
 app.use('/api/personal-use-policies', personalUsePoliciesRouter)
+app.use('/api/flair', flairExpensesRouter)
 
 // Reporting & Analytics Routes
 app.use('/api/executive-dashboard', executiveDashboardRouter)
@@ -389,7 +410,6 @@ app.use('/api/driver-scorecard', driverScorecardRouter)
 
 // AI & Automation Routes
 app.use('/api/ai/chat', aiChatRouter) // AI Chat interface for document Q&A
-app.use('/api/ai', aiRouter)
 app.use('/api/ai-search', aiSearchRouter)
 app.use('/api/ai-task-asset', aiTaskAssetRouter)
 app.use('/api/ai-tasks', aiTaskPrioritizationRouter)
@@ -406,7 +426,6 @@ app.use('/api/mobile-integration', mobileIntegrationRouter)
 app.use('/api/mobile-messaging', mobileMessagingRouter)
 app.use('/api/mobile-photos', mobilePhotosRouter)
 app.use('/api/mobile-trips', mobileTripsRouter)
-app.use('/api/mobile', mobileOcrRouter)
 app.use('/api/push-notifications', pushNotificationsRouter)
 
 // Vehicle Management Routes
@@ -421,16 +440,18 @@ app.use('/api/lidar', lidarRouter)
 // Trip & Route Management Routes
 app.use('/api/routes', routesRouter)
 app.use('/api/trips', tripsRouter)
-app.use('/api/trips', tripMarkingRouter)
 // app.use('/api/route-emulator', routeEmulatorRouter)
 app.use('/api/trip-usage', tripUsageRouter)
 
 // Safety & Compliance Routes
 app.use('/api/safety-incidents', safetyIncidentsRouter)
+app.use('/api/hazard-zones', hazardZonesRouter)
 app.use('/api/safety-alerts', safetyAlertsRouter)
 app.use('/api/osha-compliance', oshaComplianceRouter)
 app.use('/api/compliance', complianceRouter)
 app.use('/api/annual-reauthorization', annualReauthorizationRouter)
+app.use('/api/training', trainingRouter)
+app.use('/api/certifications', certificationsRouter)
 
 // Policy & Permission Routes
 app.use('/api/policies', policiesRouter)
@@ -454,17 +475,15 @@ app.use('/api/arcgis-layers', arcgisLayersRouter)
 app.use('/api/outlook', outlookRouter)
 app.use('/api/video-events', videoEventsRouter)
 app.use('/api/video-telematics', videoTelematicsRouter)
-app.use('/api/adaptive-cards', adaptiveCardsRouter)
-app.use('/api/cards', adaptiveCardsRouter)
+app.use('/api/warranty', warrantyRecallsRouter)
+app.use('/api/integrations', integrationsHealthRouter)
 
 // Dashboard API Routes (Role-Based Dashboards)
 app.use('/api/dashboard', dashboardRouter)
 
 // Emulator & Testing Routes
 // app.use('/api/emulator', emulatorRouter)
-if (process.env.ENABLE_OBD2_EMULATOR === 'true') {
-  app.use('/api/obd2-emulator', obd2EmulatorRouter)
-}
+// app.use('/api/obd2-emulator', obd2EmulatorRouter)
 // app.use('/api/demo', demoRouter) // REMOVED: demo routes deleted during mock data cleanup
 
 // System Management Routes
@@ -475,6 +494,7 @@ app.use('/api/health/microsoft', healthRouter) // Microsoft integration health
 app.use('/api/health-detailed', healthDetailedRouter)
 // REMOVED: app.use('/api/performance', performanceRouter)
 app.use('/api/telemetry', telemetryRouter)
+app.use('/api/security', securityEventsRouter)
 app.use('/api/queue', queueRouter)
 app.use('/api/deployments', deploymentsRouter)
 app.use('/api/facilities', facilitiesRouter)

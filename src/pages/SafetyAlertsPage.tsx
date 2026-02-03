@@ -613,21 +613,21 @@ export default function SafetyAlertsPage() {
                   <div className="flex items-center justify-between p-2 bg-slate-900/50 rounded-lg">
                     <div>
                       <p className="text-sm text-slate-700">Total Recordable Incident Rate (TRIR)</p>
-                      <p className="text-sm font-bold text-white">{oshaMetrics.incidentRate}</p>
+                      <p className="text-sm font-bold text-white">{metrics.incidentRate}</p>
                     </div>
                     <TrendingDown className="w-4 h-4 text-green-400" />
                   </div>
                   <div className="flex items-center justify-between p-2 bg-slate-900/50 rounded-lg">
                     <div>
                       <p className="text-sm text-slate-700">Days Away/Restricted Case Rate (DART)</p>
-                      <p className="text-sm font-bold text-white">{oshaMetrics.daysAwayFromWorkCaseRate}</p>
+                      <p className="text-sm font-bold text-white">{metrics.daysAwayFromWorkCaseRate}</p>
                     </div>
                     <TrendingUp className="w-4 h-4 text-red-400" />
                   </div>
                   <div className="flex items-center justify-between p-2 bg-slate-900/50 rounded-lg">
                     <div>
                       <p className="text-sm text-slate-700">Lost Workday Rate</p>
-                      <p className="text-sm font-bold text-white">{oshaMetrics.lostWorkdayRate}</p>
+                      <p className="text-sm font-bold text-white">{metrics.lostWorkdayRate}</p>
                     </div>
                     <TrendingDown className="w-4 h-4 text-green-400" />
                   </div>
@@ -637,30 +637,30 @@ export default function SafetyAlertsPage() {
               <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader>
                   <CardTitle className="text-white">Year-to-Date Statistics</CardTitle>
-                  <CardDescription>Total hours worked: {oshaMetrics.totalHoursWorked.toLocaleString()}</CardDescription>
+                  <CardDescription>Total hours worked: {metrics.totalHoursWorked.toLocaleString()}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="p-2 bg-slate-900/50 rounded-lg">
                     <p className="text-sm text-slate-700 mb-2">Total Recordable Cases</p>
-                    <p className="text-base font-bold text-white">{oshaMetrics.totalRecordableIncidents}</p>
+                    <p className="text-base font-bold text-white">{metrics.totalRecordableIncidents}</p>
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     <div className="p-2 bg-slate-900/50 rounded-lg">
                       <p className="text-xs text-slate-700 mb-1">Injuries</p>
-                      <p className="text-base font-bold text-white">{oshaMetrics.yearToDate.injuries}</p>
+                      <p className="text-base font-bold text-white">{metrics.yearToDate.injuries}</p>
                     </div>
                     <div className="p-2 bg-slate-900/50 rounded-lg">
                       <p className="text-xs text-slate-700 mb-1">Illnesses</p>
-                      <p className="text-base font-bold text-white">{oshaMetrics.yearToDate.illnesses}</p>
+                      <p className="text-base font-bold text-white">{metrics.yearToDate.illnesses}</p>
                     </div>
                     <div className="p-2 bg-slate-900/50 rounded-lg">
                       <p className="text-xs text-slate-700 mb-1">Fatalities</p>
-                      <p className="text-base font-bold text-white">{oshaMetrics.yearToDate.fatalities}</p>
+                      <p className="text-base font-bold text-white">{metrics.yearToDate.fatalities}</p>
                     </div>
                   </div>
                   <div className="p-2 bg-slate-900/50 rounded-lg">
                     <p className="text-sm text-slate-700 mb-2">Days Away/Restricted/Transfer</p>
-                    <p className="text-sm font-bold text-white">{oshaMetrics.daysAwayRestrictedTransfer}</p>
+                    <p className="text-sm font-bold text-white">{metrics.daysAwayRestrictedTransfer}</p>
                   </div>
                 </CardContent>
               </Card>

@@ -25,6 +25,8 @@ export interface User {
   permissions: string[];
   tenantId: string;
   tenantName?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type UserRole = 'SuperAdmin' | 'Admin' | 'Manager' | 'User' | 'ReadOnly';
@@ -63,6 +65,11 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// Development auth bypass flag
+const SKIP_AUTH = import.meta.env.VITE_SKIP_AUTH === 'true';
+
+const DEV_LOGIN_EMAIL = 'admin@fleet.local';
+
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUserState] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -72,60 +79,111 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // SECURITY (CRIT-F-001): Initialize auth state from MSAL or httpOnly cookies
   useEffect(() => {
+    let cancelled = false;
+
+    const syncServerSessionFromMsal = async (): Promise<boolean> => {
+      if (accounts.length === 0) return false;
+      try {
+        const account = accounts[0];
+        const tokenResult = await instance.acquireTokenSilent({
+          ...loginRequest,
+          account,
+        });
+
+        const exchangeResponse = await fetch('/api/auth/microsoft/exchange', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessToken: tokenResult.accessToken }),
+        });
+
+        if (!exchangeResponse.ok) {
+          logger.warn('[Auth] Microsoft exchange failed', { status: exchangeResponse.status });
+          return false;
+        }
+
+        return true;
+      } catch (error) {
+        logger.error('[Auth] Failed to sync server session from MSAL:', { error });
+        return false;
+      }
+    };
+
+    const fetchSessionUser = async (): Promise<User | null> => {
+      const response = await fetch('/api/auth/me', {
+        method: 'GET',
+        credentials: 'include', // Send httpOnly cookie
+      });
+
+      if (!response.ok) return null;
+
+      const responseData = await response.json();
+      const payload = responseData.data || responseData;
+      const userInfo = payload.user;
+      if (!userInfo) {
+        logger.warn('[Auth] /api/auth/me returned ok but no user data');
+        return null;
+      }
+
+      return {
+        id: userInfo.id,
+        email: userInfo.email,
+        firstName: userInfo.first_name,
+        lastName: userInfo.last_name,
+        role: userInfo.role,
+        avatar: userInfo.avatar,
+        permissions: userInfo.permissions || [],
+        tenantId: userInfo.tenant_id,
+        tenantName: userInfo.tenant_name,
+        createdAt: userInfo.created_at,
+        updatedAt: userInfo.updated_at,
+      };
+    };
+
     const initAuth = async () => {
       try {
-        // Check for MSAL authentication
-        if (accounts.length > 0 && inProgress === InteractionStatus.None) {
-          const account = accounts[0];
-          logger.info('[Auth] MSAL account found', { email: account.username });
+        if (cancelled) return;
 
-          // Create user from MSAL account
-          const msalUser: User = {
-            id: account.localAccountId,
-            email: account.username,
-            firstName: account.name?.split(' ')[0] || '',
-            lastName: account.name?.split(' ').slice(1).join(' ') || '',
-            role: 'User', // Default role, should be fetched from backend
-            permissions: [],
-            tenantId: account.tenantId,
-            tenantName: account.tenantId
-          };
-          setUserState(msalUser);
+        // DEV: Create a real server session when SKIP_AUTH=true
+        if (SKIP_AUTH) {
+          logger.info('[Auth] SKIP_AUTH enabled - creating dev session');
+          try {
+            const devLoginResponse = await fetch('/api/auth/dev-login', {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: DEV_LOGIN_EMAIL })
+            });
+
+            if (!devLoginResponse.ok) {
+              logger.warn('[Auth] Dev login failed', { status: devLoginResponse.status });
+            }
+
+            const devUser = await fetchSessionUser();
+            if (devUser) {
+              setUserState(devUser);
+              setIsLoading(false);
+              return;
+            }
+          } catch (error) {
+            logger.error('[Auth] Dev login error:', { error });
+          }
+
+          setUserState(null);
           setIsLoading(false);
-          logger.info('[Auth] MSAL authentication successful');
           return;
         }
 
-        // Check if we have a valid session via httpOnly cookie
-        const response = await fetch('/api/auth/me', {
-          method: 'GET',
-          credentials: 'include', // Send httpOnly cookie
-        });
+        // Wait until MSAL finishes any redirect/popup processing
+        if (inProgress !== InteractionStatus.None) {
+          setIsLoading(true);
+          return;
+        }
 
-        if (response.ok) {
-          const responseData = await response.json();
-          // Handle both wrapped ({ success, data: { user } }) and unwrapped ({ user }) response formats
-          const payload = responseData.data || responseData;
-          const userInfo = payload.user;
-          if (!userInfo) {
-            logger.warn('[Auth] /api/auth/me returned ok but no user data');
-            setIsLoading(false);
-            return;
-          }
-          const userData: User = {
-            id: userInfo.id,
-            email: userInfo.email,
-            firstName: userInfo.first_name,
-            lastName: userInfo.last_name,
-            role: userInfo.role,
-            avatar: userInfo.avatar,
-            permissions: userInfo.permissions || [],
-            tenantId: userInfo.tenant_id,
-            tenantName: userInfo.tenant_name
-          };
-          setUserState(userData);
-
-          // Initialize token refresh mechanism
+        // Prefer server session (httpOnly cookie) when available
+        const sessionUser = await fetchSessionUser();
+        if (sessionUser) {
+          setUserState(sessionUser);
           initializeTokenRefresh({
             onRefresh: (success) => {
               if (!success) {
@@ -138,16 +196,41 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               logout();
             }
           });
+          setIsLoading(false);
+          return;
         }
+
+        // No server session, try to establish one from MSAL if accounts exist
+        if (accounts.length > 0) {
+          const exchanged = await syncServerSessionFromMsal();
+          if (exchanged) {
+            const refreshedUser = await fetchSessionUser();
+            if (refreshedUser) {
+              setUserState(refreshedUser);
+              setIsLoading(false);
+              return;
+            }
+          }
+        }
+
+        // No authenticated session available
+        setUserState(null);
       } catch (error) {
         logger.error('Failed to initialize auth:', { error });
+        setUserState(null);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     };
 
     initAuth();
-  }, [accounts, inProgress]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [accounts, inProgress, instance]);
 
   // SECURITY (CRIT-F-001): Login function using httpOnly cookies only
   const login = useCallback(async (email: string, password: string) => {
@@ -184,7 +267,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         avatar: loginUser.avatar,
         permissions: loginUser.permissions || [],
         tenantId: loginUser.tenant_id,
-        tenantName: loginUser.tenant_name
+        tenantName: loginUser.tenant_name,
+        createdAt: loginUser.created_at,
+        updatedAt: loginUser.updated_at
       };
 
       setUserState(userData);

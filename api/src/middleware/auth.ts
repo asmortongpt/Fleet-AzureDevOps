@@ -84,6 +84,10 @@ export const authorize = (...roles: string[]) => {
       return res.status(401).json({ error: 'Authentication required' })
     }
 
+    if (req.user.role === 'SuperAdmin') {
+      return next()
+    }
+
     // SECURITY FIX: Enforce RBAC for ALL HTTP methods (CWE-862)
     // Previously, GET requests bypassed authorization checks, allowing any authenticated
     // user to read sensitive data regardless of their role/permissions.

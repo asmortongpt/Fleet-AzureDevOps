@@ -22,6 +22,9 @@ import {
 } from "@/lib/auth/index"
 import logger from '@/utils/logger'
 
+// Development auth bypass flag
+const SKIP_AUTH = import.meta.env.VITE_SKIP_AUTH === 'true';
+
 interface ProtectedRouteProps {
   children: ReactNode
   requiredRole?: string | string[]
@@ -45,6 +48,14 @@ export const ProtectedRoute = ({
 
     const checkAuth = async () => {
       try {
+        // DEV: Skip authentication if VITE_SKIP_AUTH=true
+        if (SKIP_AUTH) {
+          logger.info('[ProtectedRoute] SKIP_AUTH enabled - auto-authorizing');
+          setIsAuthorized(true);
+          setIsCheckingAuth(false);
+          return;
+        }
+
         // Check 1: AuthContext user (email/password login sessions via httpOnly cookies)
         if (user) {
           if (requiredRole || requiredPermission) {

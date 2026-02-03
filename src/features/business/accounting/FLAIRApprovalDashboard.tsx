@@ -45,20 +45,6 @@ interface ApprovalRecord {
   comments?: string;
 }
 
-// Mock FLAIR integration service until the actual service is implemented
-const flairIntegrationService = {
-  approveExpense: async (_entryId: string, _approval: {
-    approverEmployeeId: string;
-    approverName: string;
-    approverTitle: string;
-    approvalLevel: string;
-    comments?: string;
-  }): Promise<boolean> => {
-    // Mock implementation
-    return Promise.resolve(true);
-  }
-};
-
 // Component props
 interface FLAIRApprovalDashboardProps {
   onApprovalComplete?: (entryId: string, approved: boolean) => void;
@@ -113,9 +99,9 @@ const ExpenseEntryCard: React.FC<{
   };
 
   const canApprove = () => {
-    if (userRole === 'admin') return true;
-    if (userRole === 'manager' && entry.approvalStatus === 'pending') return true;
-    if (userRole === 'finance_manager' && entry.approvalStatus === 'supervisor_approved') return true;
+    const role = userRole?.toLowerCase?.() || '';
+    if (role === 'superadmin' || role === 'admin') return true;
+    if (role === 'manager' && entry.approvalStatus === 'pending') return true;
     return false;
   };
 
@@ -412,12 +398,44 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
   const loadExpenseEntries = async () => {
     try {
       setIsLoading(true);
-      // In production, this would fetch from the backend
-      // For now, generate mock data
-      const mockEntries = generateMockEntries();
-      setEntries(mockEntries);
+
+      const response = await fetch('/api/flair/expenses', {
+        credentials: 'include',
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to load expenses (${response.status})`);
+      }
+
+      const payload = await response.json();
+      const rows = payload.data ?? payload;
+
+      const mapped: FLAIRExpenseEntry[] = (rows || []).map((item: any) => ({
+        id: item.id,
+        employeeId: item.employee_id,
+        employeeName: item.employee_name,
+        department: item.department,
+        expenseType: item.expense_type,
+        amount: Number(item.amount) || 0,
+        transactionDate: item.transaction_date,
+        description: item.description,
+        accountCodes: item.account_codes || {
+          fundCode: '',
+          appUnitCode: '',
+          objectCode: '',
+          locationCode: ''
+        },
+        supportingDocuments: Array.isArray(item.supporting_documents) ? item.supporting_documents : [],
+        travelDetails: item.travel_details || undefined,
+        approvalStatus: item.approval_status,
+        approvalHistory: Array.isArray(item.approval_history) ? item.approval_history : []
+      }));
+
+      setEntries(mapped);
     } catch (error) {
       console.error('Error loading expense entries:', error);
+      setEntries([]);
     } finally {
       setIsLoading(false);
     }
@@ -484,20 +502,40 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
 
   const handleApproval = async (entryId: string, comments?: string) => {
     try {
-      const approvalLevel = user?.role === 'Admin' || user?.role === 'SuperAdmin' ? 'finance_manager' : 'supervisor';
+      const entry = entries.find((e) => e.id === entryId);
+      const approverName = user ? `${user.firstName} ${user.lastName}`.trim() : 'Approver';
+      const approvalLevel = user?.role === 'Admin' || user?.role === 'SuperAdmin'
+        ? 'finance_manager'
+        : 'supervisor';
 
-      const success = await flairIntegrationService.approveExpense(entryId, {
+      const approvalRecord: ApprovalRecord = {
         approverEmployeeId: user?.id || '',
-        approverName: user ? `${user.firstName} ${user.lastName}`.trim() : '',
+        approverName,
         approverTitle: user?.role || '',
         approvalLevel,
+        approvedAt: new Date().toISOString(),
         comments
+      };
+
+      const updatedHistory = [...(entry?.approvalHistory || []), approvalRecord];
+      const nextStatus = approvalLevel === 'finance_manager' ? 'finance_approved' : 'supervisor_approved';
+
+      const response = await fetch(`/api/flair/expenses/${entryId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          approval_status: nextStatus,
+          approval_history: updatedHistory
+        })
       });
 
-      if (success) {
-        await loadExpenseEntries();
-        onApprovalComplete?.(entryId, true);
+      if (!response.ok) {
+        throw new Error(`Failed to approve expense (${response.status})`);
       }
+
+      await loadExpenseEntries();
+      onApprovalComplete?.(entryId, true);
     } catch (error) {
       console.error('Error approving expense:', error);
     }
@@ -505,8 +543,34 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
 
   const handleRejection = async (entryId: string, reason: string) => {
     try {
-      // In production, this would call a rejection API
-      console.log('Rejecting expense:', entryId, reason);
+      const entry = entries.find((e) => e.id === entryId);
+      const approverName = user ? `${user.firstName} ${user.lastName}`.trim() : 'Approver';
+
+      const rejectionRecord: ApprovalRecord = {
+        approverEmployeeId: user?.id || '',
+        approverName,
+        approverTitle: user?.role || '',
+        approvalLevel: 'rejection',
+        approvedAt: new Date().toISOString(),
+        comments: reason
+      };
+
+      const updatedHistory = [...(entry?.approvalHistory || []), rejectionRecord];
+
+      const response = await fetch(`/api/flair/expenses/${entryId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          approval_status: 'rejected',
+          approval_history: updatedHistory
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to reject expense (${response.status})`);
+      }
+
       await loadExpenseEntries();
       onApprovalComplete?.(entryId, false);
     } catch (error) {
@@ -515,70 +579,7 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
   };
 
   const handleViewDetails = (entryId: string) => {
-    // In production, this would open a detailed view modal
     console.log('Viewing details for expense:', entryId);
-  };
-
-  const generateMockEntries = (): FLAIRExpenseEntry[] => {
-    // Generate mock expense entries for demonstration
-    const mockEntries: FLAIRExpenseEntry[] = [
-      {
-        id: 'EXP_001',
-        employeeId: 'DCF123456',
-        employeeName: 'John Smith',
-        department: 'Children and Families Services',
-        expenseType: 'travel_mileage',
-        amount: 45.6,
-        transactionDate: '2025-01-20',
-        description: 'Travel to client visit in Orlando',
-        accountCodes: {
-          fundCode: '1000',
-          appUnitCode: '60900200',
-          objectCode: '100777',
-          locationCode: '001'
-        },
-        supportingDocuments: [],
-        travelDetails: {
-          originAddress: '1317 Winewood Blvd, Tallahassee, FL',
-          destinationAddress: '12345 Orange Ave, Orlando, FL',
-          mileage: 68,
-          mileageRate: 0.67,
-          purposeCode: 'CLIENT_VISIT'
-        },
-        approvalStatus: 'pending',
-        approvalHistory: []
-      },
-      {
-        id: 'EXP_002',
-        employeeId: 'DCF789012',
-        employeeName: 'Sarah Johnson',
-        department: 'Administrative Services',
-        expenseType: 'fuel',
-        amount: 85.5,
-        transactionDate: '2025-01-19',
-        description: 'Fuel purchase for vehicle DCF-123',
-        accountCodes: {
-          fundCode: '1000',
-          appUnitCode: '60900100',
-          objectCode: '100779',
-          locationCode: '001'
-        },
-        supportingDocuments: [],
-        approvalStatus: 'supervisor_approved',
-        approvalHistory: [
-          {
-            approverEmployeeId: 'DCF456789',
-            approverName: 'Mike Davis',
-            approverTitle: 'Fleet Supervisor',
-            approvalLevel: 'supervisor',
-            approvedAt: '2025-01-20T10:30:00Z',
-            comments: 'Approved - regular fuel purchase'
-          }
-        ]
-      }
-    ];
-
-    return mockEntries;
   };
 
   if (isLoading) {

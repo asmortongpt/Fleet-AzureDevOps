@@ -4,7 +4,8 @@
  */
 
 import { Bell, AlertTriangle, Info, CheckCircle, X, Eye, Clock, Siren } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useMemo, useRef, useState, useEffect } from 'react'
+import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -31,117 +32,66 @@ interface SafetyNotification {
     priority: 'high' | 'medium' | 'low'
 }
 
-const DEMO_NOTIFICATIONS: SafetyNotification[] = [
-    {
-        id: '1',
-        type: 'critical',
-        title: 'Critical Safety Incident Reported',
-        message: 'Forklift collision in Warehouse B. Emergency response activated. Immediate management review required.',
-        timestamp: new Date(Date.now() - 15 * 60000).toISOString(),
-        read: false,
-        actionable: true,
-        action_url: '/safety/incidents/2024-045',
-        category: 'incident',
-        priority: 'high'
-    },
-    {
-        id: '2',
-        type: 'warning',
-        title: 'OSHA Certification Expiring Soon',
-        message: 'Forklift operator certification for Sarah Williams expires in 7 days. Schedule renewal training.',
-        timestamp: new Date(Date.now() - 2 * 3600000).toISOString(),
-        read: false,
-        actionable: true,
-        action_url: '/safety/training',
-        category: 'training',
-        priority: 'high'
-    },
-    {
-        id: '3',
-        type: 'info',
-        title: 'Monthly Safety Inspection Due',
-        message: 'Vehicle fleet safety inspection for December 2024 is due by end of week.',
-        timestamp: new Date(Date.now() - 6 * 3600000).toISOString(),
-        read: false,
-        actionable: true,
-        action_url: '/safety/inspections',
-        category: 'inspection',
-        priority: 'medium'
-    },
-    {
-        id: '4',
-        type: 'warning',
-        title: 'Near Miss Report Submitted',
-        message: 'Employee reported near miss in loading dock area. Investigation required within 24 hours.',
-        timestamp: new Date(Date.now() - 8 * 3600000).toISOString(),
-        read: true,
-        actionable: true,
-        action_url: '/safety/incidents/2024-044',
-        category: 'incident',
-        priority: 'medium'
-    },
-    {
-        id: '5',
-        type: 'success',
-        title: 'Safety Training Completed',
-        message: 'John Smith completed OSHA Hazard Communication training with 95% score.',
-        timestamp: new Date(Date.now() - 24 * 3600000).toISOString(),
-        read: true,
-        actionable: false,
-        category: 'training',
-        priority: 'low'
-    },
-    {
-        id: '6',
-        type: 'info',
-        title: 'Safety Alert: Weather Conditions',
-        message: 'Severe weather alert for region. All drivers advised to exercise extreme caution.',
-        timestamp: new Date(Date.now() - 3 * 24 * 3600000).toISOString(),
-        read: true,
-        actionable: false,
-        category: 'alert',
-        priority: 'medium'
-    }
-]
+const fetcher = (url: string) =>
+    fetch(url)
+        .then((r) => r.json())
+        .then((data) => data?.data ?? data)
 
 export function SafetyNotificationSystem() {
-    const [notifications, setNotifications] = useState<SafetyNotification[]>(DEMO_NOTIFICATIONS)
     const [filter, setFilter] = useState<'all' | 'unread'>('all')
     const [categoryFilter, setCategoryFilter] = useState<string>('all')
     const [soundEnabled, setSoundEnabled] = useState(true)
+    const lastUnreadCount = useRef(0)
+
+    const query = useMemo(() => {
+        const params = new URLSearchParams()
+        if (filter === 'unread') params.set('unread_only', 'true')
+        if (categoryFilter !== 'all') params.set('category', categoryFilter)
+        params.set('limit', '100')
+        return `/api/notifications?${params.toString()}`
+    }, [filter, categoryFilter])
+
+    const { data: rawNotifications, mutate } = useSWR<any[]>(query, fetcher, {
+        refreshInterval: 30000,
+        shouldRetryOnError: false
+    })
+
+    const notifications = useMemo<SafetyNotification[]>(() => {
+        return (rawNotifications || []).map((n) => {
+            const typeMap: Record<string, SafetyNotification['type']> = {
+                info: 'info',
+                warning: 'warning',
+                success: 'success',
+                error: 'critical',
+                alert: 'critical',
+                reminder: 'info'
+            }
+            const category = n.metadata?.category || n.related_entity_type || 'alert'
+            return {
+                id: n.id,
+                type: typeMap[n.type] || 'info',
+                title: n.title,
+                message: n.message,
+                timestamp: n.sent_at || n.created_at,
+                read: n.is_read,
+                actionable: Boolean(n.action_url),
+                action_url: n.action_url || undefined,
+                category,
+                priority: n.priority || 'medium'
+            }
+        })
+    }, [rawNotifications])
 
     useEffect(() => {
-        // Simulate real-time notifications
-        const interval = setInterval(() => {
-            // In production, this would be replaced with WebSocket connection
-            // For demo, randomly add a new notification every 30 seconds
-            if (Math.random() > 0.7) {
-                const newNotification: SafetyNotification = {
-                    id: `${Date.now()}`,
-                    type: ['critical', 'warning', 'info'][Math.floor(Math.random() * 3)] as any,
-                    title: 'New Safety Alert',
-                    message: 'This is a simulated real-time notification',
-                    timestamp: new Date().toISOString(),
-                    read: false,
-                    actionable: true,
-                    category: ['incident', 'compliance', 'training'][Math.floor(Math.random() * 3)] as any,
-                    priority: 'medium'
-                }
-
-                setNotifications(prev => [newNotification, ...prev])
-
-                if (soundEnabled) {
-                    // Play notification sound
-                    const audio = new Audio('/notification-sound.mp3')
-                    audio.play().catch(() => {
-                        // Handle autoplay restrictions
-                    })
-                }
-            }
-        }, 30000)
-
-        return () => clearInterval(interval)
-    }, [soundEnabled])
+        const unreadCount = notifications.filter(n => !n.read).length
+        if (soundEnabled && unreadCount > lastUnreadCount.current) {
+            const audio = new Audio('/notification-sound.mp3')
+            audio.play().catch(() => {
+                // Autoplay restrictions
+            })
+        }
+        lastUnreadCount.current = unreadCount
+    }, [notifications, soundEnabled])
 
     const filteredNotifications = notifications.filter(n => {
         if (filter === 'unread' && n.read) return false
@@ -151,18 +101,30 @@ export function SafetyNotificationSystem() {
 
     const unreadCount = notifications.filter(n => !n.read).length
 
-    const markAsRead = (id: string) => {
-        setNotifications(prev =>
-            prev.map(n => n.id === id ? { ...n, read: true } : n)
-        )
+    const markAsRead = async (id: string) => {
+        await fetch(`/api/notifications/${id}/read`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        mutate()
     }
 
-    const markAllAsRead = () => {
-        setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+    const markAllAsRead = async () => {
+        await fetch('/api/notifications/mark-all-read', {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        mutate()
     }
 
-    const dismissNotification = (id: string) => {
-        setNotifications(prev => prev.filter(n => n.id !== id))
+    const dismissNotification = async (id: string) => {
+        await fetch(`/api/notifications/${id}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        })
+        mutate()
     }
 
     const getNotificationIcon = (type: SafetyNotification['type']) => {
