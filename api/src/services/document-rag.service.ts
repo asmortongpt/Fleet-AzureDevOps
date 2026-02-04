@@ -57,7 +57,8 @@ export class DocumentRAGService {
         apiKey: process.env.OPENAI_API_KEY
       })
     } else {
-      this.logger.warn('OpenAI API key not found. RAG features will use mock data.')
+      // Hard-disable AI features when not configured; do not fall back to mock responses in production.
+      this.logger.warn('OpenAI API key not found. Document RAG features are disabled until OPENAI_API_KEY is configured.')
     }
   }
 

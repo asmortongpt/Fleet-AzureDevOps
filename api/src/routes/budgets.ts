@@ -8,7 +8,7 @@
 
 import { Router, Request, Response } from 'express';
 import { Pool } from 'pg';
-import { authenticateJWT } from '../middleware/auth.middleware';
+import { authenticateJWT } from '../middleware/auth';
 import { asyncHandler } from '../middleware/async-handler';
 import { validate } from '../middleware/validate';
 import {

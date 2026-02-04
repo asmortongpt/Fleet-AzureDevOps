@@ -5,10 +5,11 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "dotenv -e .env -- tsx watch --tsconfig tsconfig.json src/server.ts",
+    "dev:nowatch": "dotenv -e .env -- tsx --tsconfig tsconfig.json src/server.ts",
     "dev:full": "dotenv -e .env -- tsx watch --tsconfig tsconfig.json src/server.ts",
     "build": "tsc --project tsconfig.build.json",
     "build:strict": "tsc",
-    "start": "node dist/server-simple.js",
+    "start": "node dist/server.js",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
