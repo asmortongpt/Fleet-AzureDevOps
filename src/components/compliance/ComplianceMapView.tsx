@@ -11,6 +11,7 @@ import {
   Layers
 } from 'lucide-react'
 import React, { useState, useMemo, useCallback } from 'react'
+import useSWR from 'swr'
 
 import { UnifiedFleetMap } from '@/components/Maps/UnifiedFleetMap'
 import { Badge } from '@/components/ui/badge'
@@ -29,6 +30,9 @@ import { useVehicles, useFacilities } from '@/hooks/use-api'
 import type { Vehicle, GISFacility } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import logger from '@/utils/logger';
+
+const fetcher = (url: string) =>
+  fetch(url, { credentials: 'include' }).then((res) => res.json())
 
 /**
  * Compliance Map View - Map-First Architecture
@@ -56,60 +60,6 @@ interface ComplianceZone {
   jurisdiction?: string
 }
 
-// Mock compliance zones
-const mockComplianceZones: ComplianceZone[] = [
-  {
-    id: 'zone-1',
-    name: 'Annual Inspection Zone A',
-    type: 'inspection',
-    status: 'warning',
-    severity: 'medium',
-    location: { lat: 28.5421, lng: -81.3790 },
-    radius: 5000,
-    vehicles: ['veh-1', 'veh-2', 'veh-3'],
-    dueDate: '2025-01-15',
-    description: '3 vehicles due for annual inspection',
-    jurisdiction: 'Orange County'
-  },
-  {
-    id: 'zone-2',
-    name: 'Emissions Testing Required',
-    type: 'certification',
-    status: 'expired',
-    severity: 'high',
-    location: { lat: 28.5383, lng: -81.3792 },
-    radius: 3000,
-    vehicles: ['veh-4'],
-    dueDate: '2024-12-01',
-    description: '1 vehicle with expired emissions certificate',
-    jurisdiction: 'Orange County'
-  },
-  {
-    id: 'zone-3',
-    name: 'DOT Compliance Zone',
-    type: 'regulatory',
-    status: 'compliant',
-    severity: 'low',
-    location: { lat: 28.5450, lng: -81.3750 },
-    radius: 8000,
-    vehicles: ['veh-5', 'veh-6'],
-    description: 'All DOT requirements current',
-    jurisdiction: 'Federal DOT'
-  },
-  {
-    id: 'zone-4',
-    name: 'Speed Violation Hotspot',
-    type: 'violation',
-    status: 'violation',
-    severity: 'critical',
-    location: { lat: 28.5400, lng: -81.3850 },
-    radius: 2000,
-    vehicles: ['veh-7'],
-    dueDate: '2024-12-20',
-    description: 'Active violation - immediate attention required',
-    jurisdiction: 'Orange County'
-  }
-]
 
 // Compliance Details Panel Component
 const ComplianceDetailsPanel: React.FC<{
@@ -277,30 +227,54 @@ export function ComplianceMapView() {
   // API hooks
   const { data: vehicles = [] } = useVehicles()
   const { data: facilities = [] } = useFacilities()
+  const { data: zonesResponse } = useSWR('/api/geofences', fetcher)
+
+  const complianceZones: ComplianceZone[] = useMemo(() => {
+    const zones = zonesResponse?.data || []
+    return zones.map((zone: any) => {
+      const meta = zone.metadata || {}
+      return {
+        id: zone.id,
+        name: zone.name,
+        type: zone.type as ComplianceZone['type'],
+        status: (meta.status || 'compliant') as ComplianceZone['status'],
+        severity: (meta.severity || 'low') as ComplianceZone['severity'],
+        location: {
+          lat: Number(zone.centerLat) || Number(zone.center_lat) || 0,
+          lng: Number(zone.centerLng) || Number(zone.center_lng) || 0
+        },
+        radius: Number(zone.radius) || undefined,
+        vehicles: meta.vehicles || [],
+        dueDate: meta.dueDate,
+        description: zone.description || 'Compliance zone',
+        jurisdiction: meta.jurisdiction
+      }
+    })
+  }, [zonesResponse])
 
   // Filter compliance zones
   const filteredZones = useMemo(() => {
-    return mockComplianceZones.filter(zone => {
+    return complianceZones.filter(zone => {
       const matchesType = filterType === 'all' || zone.type === filterType
       const matchesStatus = filterStatus === 'all' || zone.status === filterStatus
       return matchesType && matchesStatus
     })
-  }, [filterType, filterStatus])
+  }, [filterType, filterStatus, complianceZones])
 
   // Calculate zone statistics
   const zoneStats = useMemo(() => {
     return {
-      total: mockComplianceZones.length,
-      compliant: mockComplianceZones.filter(z => z.status === 'compliant').length,
-      warning: mockComplianceZones.filter(z => z.status === 'warning').length,
-      violation: mockComplianceZones.filter(z => z.status === 'violation' || z.status === 'expired').length,
+      total: complianceZones.length,
+      compliant: complianceZones.filter(z => z.status === 'compliant').length,
+      warning: complianceZones.filter(z => z.status === 'warning').length,
+      violation: complianceZones.filter(z => z.status === 'violation' || z.status === 'expired').length,
     }
-  }, [])
+  }, [complianceZones])
 
   const handleZoneSelect = useCallback((zoneId: string) => {
-    const zone = mockComplianceZones.find(z => z.id === zoneId)
+    const zone = complianceZones.find(z => z.id === zoneId)
     setSelectedZone(zone || null)
-  }, [])
+  }, [complianceZones])
 
   const handleViewDetails = useCallback((zoneId: string) => {
     logger.info('View details for zone:', zoneId)

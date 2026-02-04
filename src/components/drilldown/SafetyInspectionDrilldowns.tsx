@@ -34,7 +34,10 @@ import {
 } from '@/components/ui/select'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) =>
+  fetch(url)
+    .then((r) => r.json())
+    .then((data) => data?.data ?? data)
 
 // ============ TYPE DEFINITIONS ============
 
@@ -77,175 +80,6 @@ interface InspectionViolation {
   cost_to_fix?: number
 }
 
-// ============ DEMO DATA ============
-
-const demoInspections: InspectionData[] = [
-  {
-    id: 'insp-001',
-    inspection_number: 'SI-2025-001',
-    date: '2025-12-14',
-    time: '09:30 AM',
-    vehicle_id: 'veh-demo-1001',
-    vehicle_name: 'Ford F-150 #1001',
-    inspector_id: 'emp-101',
-    inspector_name: 'Sarah Johnson',
-    inspector_phone: '(850) 555-0101',
-    inspector_email: 'sjohnson@ctafleet.com',
-    result: 'passed',
-    score: 98,
-    violations: 0,
-    critical_items: 0,
-    status: 'Complete',
-    next_due: '2026-01-14',
-    type: 'safety',
-    location: 'North Service Center',
-    certification_number: 'CERT-2025-001-FL',
-    notes: 'All safety systems operational. Excellent condition.',
-  },
-  {
-    id: 'insp-002',
-    inspection_number: 'SI-2025-002',
-    date: '2025-12-13',
-    time: '02:15 PM',
-    vehicle_id: 'veh-demo-1002',
-    vehicle_name: 'Chevrolet Silverado #1002',
-    inspector_id: 'emp-101',
-    inspector_name: 'Sarah Johnson',
-    inspector_phone: '(850) 555-0101',
-    inspector_email: 'sjohnson@ctafleet.com',
-    result: 'failed',
-    score: 72,
-    violations: 3,
-    critical_items: 2,
-    status: 'Action Required',
-    next_due: '2025-12-20',
-    type: 'annual',
-    location: 'North Service Center',
-    notes: 'Multiple safety violations found. Immediate repair required.',
-  },
-  {
-    id: 'insp-003',
-    inspection_number: 'SI-2025-003',
-    date: '2025-12-12',
-    time: '11:00 AM',
-    vehicle_id: 'veh-demo-1015',
-    vehicle_name: 'Mercedes Sprinter #1015',
-    inspector_id: 'emp-102',
-    inspector_name: 'Michael Davis',
-    inspector_phone: '(850) 555-0102',
-    inspector_email: 'mdavis@ctafleet.com',
-    result: 'conditional',
-    score: 85,
-    violations: 1,
-    critical_items: 0,
-    status: 'Conditional',
-    next_due: '2025-12-26',
-    type: 'pre-trip',
-    location: 'South Depot',
-    notes: 'Minor wiper blade wear. Can operate with restriction.',
-  },
-  {
-    id: 'insp-004',
-    inspection_number: 'SI-2025-004',
-    date: '2025-12-11',
-    time: '08:45 AM',
-    vehicle_id: 'veh-demo-1008',
-    vehicle_name: 'Ford Transit #1008',
-    inspector_id: 'emp-102',
-    inspector_name: 'Michael Davis',
-    inspector_phone: '(850) 555-0102',
-    inspector_email: 'mdavis@ctafleet.com',
-    result: 'passed',
-    score: 95,
-    violations: 0,
-    critical_items: 0,
-    status: 'Complete',
-    next_due: '2026-06-11',
-    type: 'roadside',
-    location: 'I-10 East Mile Marker 192',
-    certification_number: 'DOT-RS-2025-FL-0441',
-    notes: 'DOT roadside inspection - passed all checks.',
-  },
-  {
-    id: 'insp-005',
-    inspection_number: 'SI-2025-005',
-    date: '2025-12-10',
-    time: '03:30 PM',
-    vehicle_id: 'veh-demo-1003',
-    vehicle_name: 'Ram 1500 #1003',
-    inspector_id: 'emp-103',
-    inspector_name: 'Lisa Chen',
-    inspector_phone: '(850) 555-0103',
-    inspector_email: 'lchen@ctafleet.com',
-    result: 'passed',
-    score: 92,
-    violations: 0,
-    critical_items: 0,
-    status: 'Complete',
-    next_due: '2026-01-10',
-    type: 'periodic',
-    location: 'East Facility',
-    notes: '30-day periodic inspection completed successfully.',
-  },
-]
-
-const demoViolations: InspectionViolation[] = [
-  {
-    id: 'viol-001',
-    inspection_id: 'insp-002',
-    category: 'Brake System',
-    severity: 'critical',
-    description: 'Front brake pads worn below minimum thickness (2mm measured, 3mm required)',
-    regulation_reference: 'FMCSA 393.47',
-    corrective_action_required: true,
-    corrective_action: 'Replace front brake pads and rotors',
-    due_date: '2025-12-15',
-    resolved: false,
-    cost_to_fix: 450.00,
-  },
-  {
-    id: 'viol-002',
-    inspection_id: 'insp-002',
-    category: 'Lighting',
-    severity: 'critical',
-    description: 'Left tail light inoperative - brake signal not functioning',
-    regulation_reference: 'FMCSA 393.25',
-    corrective_action_required: true,
-    corrective_action: 'Replace tail light assembly and check wiring harness',
-    due_date: '2025-12-15',
-    resolved: false,
-    cost_to_fix: 125.00,
-  },
-  {
-    id: 'viol-003',
-    inspection_id: 'insp-002',
-    category: 'Windshield',
-    severity: 'minor',
-    description: 'Windshield wiper blade streaking on driver side',
-    regulation_reference: 'FMCSA 393.78',
-    corrective_action_required: false,
-    corrective_action: 'Replace wiper blade',
-    due_date: '2025-12-20',
-    resolved: false,
-    cost_to_fix: 25.00,
-  },
-  {
-    id: 'viol-004',
-    inspection_id: 'insp-003',
-    category: 'Windshield',
-    severity: 'minor',
-    description: 'Wiper blades showing minor wear but still functional',
-    regulation_reference: 'FMCSA 393.78',
-    corrective_action_required: false,
-    corrective_action: 'Replace during next scheduled maintenance',
-    due_date: '2025-12-26',
-    resolved: false,
-    cost_to_fix: 30.00,
-  },
-]
-
-// ============ EXCEL-STYLE INSPECTION MATRIX ============
-
 export function InspectionsMatrixView() {
   const [resultFilter, setResultFilter] = useState<string>('all')
   const [typeFilter, setTypeFilter] = useState<string>('all')
@@ -255,7 +89,6 @@ export function InspectionsMatrixView() {
     '/api/inspections',
     fetcher,
     {
-      fallbackData: demoInspections,
       shouldRetryOnError: false,
     }
   )
@@ -575,7 +408,6 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
     `/api/inspections/${inspectionId}`,
     fetcher,
     {
-      fallbackData: demoInspections.find((i) => i.id === inspectionId),
       shouldRetryOnError: false,
     }
   )
@@ -584,7 +416,6 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
     inspectionId ? `/api/inspections/${inspectionId}/violations` : null,
     fetcher,
     {
-      fallbackData: demoViolations.filter((v) => v.inspection_id === inspectionId),
       shouldRetryOnError: false,
     }
   )

@@ -7,7 +7,8 @@ import {
   CheckCircle,
   Leaf
 } from "lucide-react"
-import { useState } from "react"
+import { useMemo, useState } from "react"
+import useSWR from "swr"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
@@ -94,10 +95,28 @@ interface ChargingSession {
   carbonOffset: number // kg CO2
 }
 
+const fetcher = (url: string) =>
+  fetch(url)
+    .then((r) => r.json())
+    .then((data) => data?.data ?? data)
+
 export function EVChargingManagement() {
   const { policies } = usePolicies()
-  const [stations, setStations] = useState<ChargingStation[]>([])
-  const [sessions, setSessions] = useState<ChargingSession[]>([])
+  const { data: rawStations, mutate: mutateStations } = useSWR<any[]>(
+    "/api/charging-stations?limit=200",
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: rawSessions, mutate: mutateSessions } = useSWR<any[]>(
+    "/api/charging-sessions?limit=200",
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: vehicles = [] } = useSWR<any[]>(
+    "/api/vehicles?limit=200",
+    fetcher,
+    { shouldRetryOnError: false }
+  )
   const [searchTerm, setSearchTerm] = useState("")
   const [filterStatus, setFilterStatus] = useState<string>("all")
   const [isAddStationOpen, setIsAddStationOpen] = useState(false)
@@ -107,6 +126,7 @@ export function EVChargingManagement() {
   const [newStation, setNewStation] = useState<Partial<ChargingStation>>({
     name: "",
     stationType: "depot",
+    location: { address: "", lat: 0, lng: 0 },
     chargerType: "level-2",
     powerOutput: 7.2,
     connectorType: ["J1772"],
@@ -114,6 +134,70 @@ export function EVChargingManagement() {
     occupied: false,
     status: "online"
   })
+
+  const sessions = useMemo<ChargingSession[]>(() => {
+    return (rawSessions || []).map((session: any) => {
+      const metadata = session.metadata || {}
+      const status = session.status === "in_progress" ? "active" : session.status
+      return {
+        id: session.id,
+        tenantId: session.tenant_id,
+        vehicleId: session.vehicle_id,
+        vehicleNumber: session.vehicle_number || `${session.make || ''} ${session.model || ''}`.trim() || session.vehicle_id,
+        driverId: session.driver_id,
+        driverName: session.first_name ? `${session.first_name} ${session.last_name || ''}`.trim() : undefined,
+        stationId: session.station_id,
+        stationName: session.station_name || "Charging Station",
+        startTime: session.start_time,
+        endTime: session.end_time || undefined,
+        duration: session.duration_minutes ?? undefined,
+        energyDelivered: Number(session.energy_delivered_kwh || 0),
+        cost: Number(session.cost || 0),
+        startSOC: Number(session.start_soc_percent || 0),
+        endSOC: session.end_soc_percent != null ? Number(session.end_soc_percent) : undefined,
+        status: status || "active",
+        smartCharging: Boolean(metadata.smart_charging),
+        tariffType: metadata.tariff_type || "flat",
+        peakDemandCharge: Number(metadata.peak_demand_charge || 0),
+        carbonOffset: Number(metadata.carbon_offset || (session.energy_delivered_kwh || 0) * 0.45)
+      } as ChargingSession
+    })
+  }, [rawSessions])
+
+  const stations = useMemo<ChargingStation[]>(() => {
+    return (rawStations || []).map((station: any) => {
+      const metadata = station.metadata || {}
+      const numberOfPorts = Number(station.number_of_ports || 0)
+      const availablePorts = Number(station.available_ports ?? station.number_of_ports ?? 0)
+      const stationSessions = sessions.filter(s => s.stationId === station.id)
+      const totalEnergyDelivered = stationSessions.reduce((sum, s) => sum + s.energyDelivered, 0)
+      const chargerType =
+        metadata.charger_type ||
+        (station.max_power_kw >= 50 ? "dc-fast" : station.max_power_kw >= 7 ? "level-2" : "level-1")
+
+      return {
+        id: station.id,
+        tenantId: station.tenant_id,
+        name: station.name,
+        location: {
+          address: station.address || "",
+          lat: Number(station.latitude),
+          lng: Number(station.longitude)
+        },
+        stationType: station.type || "depot",
+        networkProvider: metadata.network_provider,
+        chargerType,
+        powerOutput: Number(station.max_power_kw || 0),
+        connectorType: metadata.connector_type || ["J1772"],
+        available: availablePorts > 0,
+        occupied: numberOfPorts > 0 ? availablePorts < numberOfPorts : false,
+        currentSession: stationSessions.find(s => s.status === "active")?.id,
+        totalSessions: stationSessions.length,
+        totalEnergyDelivered,
+        status: station.status === "active" ? "online" : station.status || "online"
+      } as ChargingStation
+    })
+  }, [rawStations, sessions])
 
   const filteredSessions = (sessions || []).filter(session => {
     const matchesSearch =
@@ -125,39 +209,56 @@ export function EVChargingManagement() {
     return matchesSearch && matchesStatus
   })
 
-  const handleSaveStation = () => {
-    if (!newStation.name || !newStation.location?.address) {
+  const handleSaveStation = async () => {
+    const hasCoords =
+      Number.isFinite(newStation.location?.lat) &&
+      Number.isFinite(newStation.location?.lng)
+
+    if (!newStation.name || !newStation.location?.address || !hasCoords) {
       toast.error("Please fill in required fields")
       return
     }
 
-    const station: ChargingStation = {
-      id: selectedStation?.id || `station-${Date.now()}`,
-      tenantId: "tenant-demo",
+    const payload = {
       name: newStation.name,
-      location: newStation.location as ChargingStation["location"],
-      stationType: newStation.stationType as ChargingStation["stationType"],
-      networkProvider: newStation.networkProvider,
-      chargerType: newStation.chargerType as ChargingStation["chargerType"],
-      powerOutput: newStation.powerOutput || 7.2,
-      connectorType: newStation.connectorType || ["J1772"],
-      available: newStation.available !== false,
-      occupied: newStation.occupied || false,
-      totalSessions: selectedStation?.totalSessions || 0,
-      totalEnergyDelivered: selectedStation?.totalEnergyDelivered || 0,
-      status: newStation.status as ChargingStation["status"]
+      type: newStation.stationType,
+      latitude: newStation.location?.lat,
+      longitude: newStation.location?.lng,
+      address: newStation.location?.address,
+      number_of_ports: newStation.occupied ? 0 : 1,
+      available_ports: newStation.available === false ? 0 : 1,
+      max_power_kw: newStation.powerOutput || 7.2,
+      is_public: newStation.stationType === "public",
+      status: newStation.status || "online",
+      metadata: {
+        charger_type: newStation.chargerType,
+        connector_type: newStation.connectorType,
+        network_provider: newStation.networkProvider
+      }
     }
 
-    if (selectedStation) {
-      setStations(current => (current || []).map(s => (s.id === station.id ? station : s)))
-      toast.success("Station updated successfully")
-    } else {
-      setStations(current => [...(current || []), station])
-      toast.success("Station added successfully")
-    }
+    try {
+      const response = await fetch(
+        selectedStation ? `/api/charging-stations/${selectedStation.id}` : "/api/charging-stations",
+        {
+          method: selectedStation ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload)
+        }
+      )
 
-    setIsAddStationOpen(false)
-    resetForm()
+      if (!response.ok) {
+        throw new Error("Failed to save station")
+      }
+
+      toast.success(selectedStation ? "Station updated successfully" : "Station added successfully")
+      setIsAddStationOpen(false)
+      resetForm()
+      mutateStations()
+    } catch {
+      toast.error("Failed to save station")
+    }
   }
 
   // Handler for starting charging sessions with policy enforcement
@@ -165,10 +266,18 @@ export function EVChargingManagement() {
     setIsStartingSession(true)
 
     try {
-      // Sample charging data - in real implementation, this would come from a form
+      const vehicle =
+        vehicles.find((v: any) => v.fuelType === "electric" || v.fuel_type === "electric") || vehicles[0]
+
+      if (!vehicle) {
+        toast.error("No vehicles available to start a session")
+        setIsStartingSession(false)
+        return
+      }
+
       const chargingData = {
-        vehicleId: "veh-ev1",
-        batteryLevel: 25,
+        vehicleId: vehicle.id,
+        batteryLevel: Number(vehicle.fuelLevel ?? vehicle.fuel_level ?? 50),
         chargingStationId: stationId,
         requestedPower: 50
       }
@@ -201,7 +310,26 @@ export function EVChargingManagement() {
             ? "Session submitted for approval"
             : "Charging session started successfully"
         })
-        // Proceed with charging session creation
+        await fetch("/api/charging-sessions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            vehicle_id: vehicle.id,
+            driver_id: vehicle.assignedDriverId || null,
+            station_id: stationId,
+            start_time: new Date().toISOString(),
+            start_soc_percent: chargingData.batteryLevel,
+            energy_delivered_kwh: 0,
+            cost: 0,
+            status: "in_progress",
+            metadata: {
+              smart_charging: true,
+              tariff_type: "flat"
+            }
+          })
+        })
+        mutateSessions()
       }
     } catch (error) {
       toast.error("Error", {
@@ -212,21 +340,29 @@ export function EVChargingManagement() {
     }
   }
 
-  const handleEndSession = (sessionId: string) => {
-    setSessions(current =>
-      (current || []).map(s =>
-        s.id === sessionId
-          ? {
-              ...s,
-              status: "completed" as const,
-              endTime: new Date().toISOString(),
-              endSOC: s.startSOC + 50,
-              duration: 45
-            }
-          : s
-      )
-    )
-    toast.success("Charging session completed")
+  const handleEndSession = async (sessionId: string) => {
+    try {
+      const session = sessions.find(s => s.id === sessionId)
+      if (!session) return
+
+      await fetch(`/api/charging-sessions/${sessionId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          end_time: new Date().toISOString(),
+          duration_minutes: session.duration || 60,
+          end_soc_percent: Math.min(100, (session.startSOC || 0) + 70),
+          status: "completed",
+          energy_delivered_kwh: session.energyDelivered || 0,
+          cost: session.cost || 0
+        })
+      })
+      toast.success("Charging session completed")
+      mutateSessions()
+    } catch {
+      toast.error("Failed to complete session")
+    }
   }
 
   const resetForm = () => {
@@ -234,6 +370,7 @@ export function EVChargingManagement() {
     setNewStation({
       name: "",
       stationType: "depot",
+      location: { address: "", lat: 0, lng: 0 },
       chargerType: "level-2",
       powerOutput: 7.2,
       connectorType: ["J1772"],
@@ -279,102 +416,6 @@ export function EVChargingManagement() {
   const totalCarbon = (sessions || []).filter(s => s.status === "completed").reduce((sum, s) => sum + s.carbonOffset, 0)
 
   // Mock sample data
-  const mockStations: ChargingStation[] = [
-    {
-      id: "st-1",
-      tenantId: "tenant-demo",
-      name: "Main Depot - Station 1",
-      location: {
-        address: "123 Fleet St, Tampa, FL",
-        lat: 27.9506,
-        lng: -82.4572
-      },
-      stationType: "depot",
-      networkProvider: "ChargePoint",
-      chargerType: "level-2",
-      powerOutput: 7.2,
-      connectorType: ["J1772", "CCS"],
-      available: true,
-      occupied: false,
-      totalSessions: 145,
-      totalEnergyDelivered: 2340,
-      status: "online"
-    },
-    {
-      id: "st-2",
-      tenantId: "tenant-demo",
-      name: "Main Depot - Station 2",
-      location: {
-        address: "123 Fleet St, Tampa, FL",
-        lat: 27.9506,
-        lng: -82.4572
-      },
-      stationType: "depot",
-      networkProvider: "ChargePoint",
-      chargerType: "dc-fast",
-      powerOutput: 50,
-      connectorType: ["CCS", "CHAdeMO"],
-      available: true,
-      occupied: true,
-      currentSession: "ses-1",
-      totalSessions: 89,
-      totalEnergyDelivered: 1890,
-      status: "online"
-    }
-  ]
-
-  const mockSessions: ChargingSession[] = [
-    {
-      id: "ses-1",
-      tenantId: "tenant-demo",
-      vehicleId: "veh-ev1",
-      vehicleNumber: "EV-1001",
-      driverId: "drv-1",
-      driverName: "John Smith",
-      stationId: "st-2",
-      stationName: "Main Depot - Station 2",
-      startTime: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-      energyDelivered: 25.5,
-      cost: 8.92,
-      startSOC: 15,
-      status: "active",
-      smartCharging: true,
-      tariffType: "tou",
-      peakDemandCharge: 2.50,
-      carbonOffset: 12.5
-    },
-    {
-      id: "ses-2",
-      tenantId: "tenant-demo",
-      vehicleId: "veh-ev2",
-      vehicleNumber: "EV-1002",
-      driverId: "drv-2",
-      driverName: "Sarah Johnson",
-      stationId: "st-1",
-      stationName: "Main Depot - Station 1",
-      startTime: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-      endTime: new Date(Date.now() - 22 * 60 * 60 * 1000).toISOString(),
-      duration: 120,
-      energyDelivered: 45.3,
-      cost: 12.85,
-      startSOC: 10,
-      endSOC: 95,
-      status: "completed",
-      smartCharging: true,
-      tariffType: "tou",
-      peakDemandCharge: 0,
-      carbonOffset: 22.3
-    }
-  ]
-
-  // Initialize with mock data if empty
-  if ((stations || []).length === 0 && mockStations.length > 0) {
-    setStations(mockStations)
-  }
-  if ((sessions || []).length === 0 && mockSessions.length > 0) {
-    setSessions(mockSessions)
-  }
-
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -442,6 +483,45 @@ export function EVChargingManagement() {
                   }
                   placeholder="123 Fleet St, Tampa, FL"
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-2">
+                  <Label htmlFor="latitude">Latitude *</Label>
+                  <Input
+                    id="latitude"
+                    type="number"
+                    step="0.0001"
+                    value={newStation.location?.lat}
+                    onChange={e =>
+                      setNewStation({
+                        ...newStation,
+                        location: {
+                          ...newStation.location!,
+                          lat: parseFloat(e.target.value)
+                        }
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="longitude">Longitude *</Label>
+                  <Input
+                    id="longitude"
+                    type="number"
+                    step="0.0001"
+                    value={newStation.location?.lng}
+                    onChange={e =>
+                      setNewStation({
+                        ...newStation,
+                        location: {
+                          ...newStation.location!,
+                          lng: parseFloat(e.target.value)
+                        }
+                      })
+                    }
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-3 gap-2">

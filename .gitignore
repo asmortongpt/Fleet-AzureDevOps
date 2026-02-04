@@ -166,3 +166,4 @@ logs/verification-*.log
 MERGE_EXECUTION_SUMMARY.md
 .env.bak*
 *.bak*
+.worktrees/

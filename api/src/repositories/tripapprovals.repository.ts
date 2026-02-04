@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 
+import { pool as sharedPool } from '../db';
 import { BaseRepository } from './base/BaseRepository';
 
 
@@ -13,8 +14,8 @@ export interface Entity {
 }
 
 export class TripApprovalsRepository extends BaseRepository<any> {
-  constructor(pool: Pool) {
-    super(pool, 'the');
+  constructor(pool: Pool = sharedPool) {
+    super(pool, 'trip_approvals');
   }
 
   /**
@@ -26,7 +27,7 @@ export class TripApprovalsRepository extends BaseRepository<any> {
   async findAll(tenantId: number, filters?: any): Promise<Entity[]> {
     try {
       const query = `
-        SELECT id, tenant_id, created_at, updated_at FROM table_name
+        SELECT id, tenant_id, created_at, updated_at FROM trip_approvals
         WHERE tenant_id = $1
         AND deleted_at IS NULL
         ORDER BY created_at DESC
@@ -47,7 +48,7 @@ export class TripApprovalsRepository extends BaseRepository<any> {
    */
   async findById(id: number, tenantId: number): Promise<Entity | null> {
     const query = `
-      SELECT id, tenant_id, created_at, updated_at FROM table_name
+      SELECT id, tenant_id, created_at, updated_at FROM trip_approvals
       WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
     `;
     const result = await this.pool.query(query, [id, tenantId]);
@@ -62,7 +63,7 @@ export class TripApprovalsRepository extends BaseRepository<any> {
    */
   async create(data: Partial<Entity>, tenantId: number): Promise<Entity> {
     const query = `
-      INSERT INTO table_name (tenant_id, name, created_at, updated_at)
+      INSERT INTO trip_approvals (tenant_id, name, created_at, updated_at)
       VALUES ($1, $2, NOW(), NOW())
       RETURNING *
     `;
@@ -79,13 +80,13 @@ export class TripApprovalsRepository extends BaseRepository<any> {
    */
   async update(id: number, data: Partial<Entity>, tenantId: number): Promise<Entity> {
     const query = `
-      UPDATE table_name
+      UPDATE trip_approvals
       SET name = $1, updated_at = NOW()
       WHERE id = $2 AND tenant_id = $3 AND deleted_at IS NULL
       RETURNING *
     `;
     const result = await this.pool.query(query, [data.name, id, tenantId]);
-    return result.rows[0];
+    return result.rows[0] || null;
   }
 
   /**
@@ -96,9 +97,21 @@ export class TripApprovalsRepository extends BaseRepository<any> {
    */
   async softDelete(id: number, tenantId: number): Promise<boolean> {
     const query = `
-      UPDATE table_name
+      UPDATE trip_approvals
       SET deleted_at = NOW()
       WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
+    `;
+    const result = await this.pool.query(query, [id, tenantId]);
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  /**
+   * Hard delete (used by tests to verify tenant isolation)
+   */
+  async delete(id: number, tenantId: number): Promise<boolean> {
+    const query = `
+      DELETE FROM trip_approvals
+      WHERE id = $1 AND tenant_id = $2
     `;
     const result = await this.pool.query(query, [id, tenantId]);
     return (result.rowCount ?? 0) > 0;

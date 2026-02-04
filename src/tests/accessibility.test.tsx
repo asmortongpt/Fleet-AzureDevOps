@@ -409,7 +409,7 @@ describe('WCAG 2.1 AA Accessibility Tests', () => {
     it('should have accessible navigation lists', async () => {
       const { container } = render(
         createTestComponent(
-          <nav aria-label="Main navigation">
+          <nav aria-label="Section navigation">
             <ul>
               <li>
                 <a href="/dashboard">Dashboard</a>
@@ -538,11 +538,12 @@ describe('WCAG 2.1 AA Accessibility Tests', () => {
       const languages = ['en-US', 'es-ES', 'fr-FR', 'de-DE', 'ar-SA', 'he-IL'];
 
       for (const lang of languages) {
-        const { container } = render(
+        const { container, unmount } = render(
           createTestComponent(<div>Content in {lang}</div>, lang)
         );
         const results = await axe(container, axeConfig);
         expect(results).toHaveNoViolations();
+        unmount();
       }
     });
   });
@@ -595,13 +596,21 @@ describe('ARIA Attributes Tests', () => {
   it('should have required ARIA attributes for roles', async () => {
     const { container } = render(
       createTestComponent(
-        <div role="tablist">
-          <button type="button" role="tab" aria-selected="true" aria-controls="panel-1">
-            Tab 1
-          </button>
-          <button type="button" role="tab" aria-selected="false" aria-controls="panel-2">
-            Tab 2
-          </button>
+        <div>
+          <div role="tablist" aria-label="Example tabs">
+            <button type="button" id="tab-1" role="tab" aria-selected="true" aria-controls="panel-1">
+              Tab 1
+            </button>
+            <button type="button" id="tab-2" role="tab" aria-selected="false" aria-controls="panel-2">
+              Tab 2
+            </button>
+          </div>
+          <div id="panel-1" role="tabpanel" aria-labelledby="tab-1">
+            Panel 1
+          </div>
+          <div id="panel-2" role="tabpanel" aria-labelledby="tab-2" hidden>
+            Panel 2
+          </div>
         </div>
       )
     );

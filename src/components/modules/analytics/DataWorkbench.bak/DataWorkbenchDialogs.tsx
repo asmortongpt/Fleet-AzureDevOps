@@ -33,7 +33,12 @@ interface DataWorkbenchDialogsProps {
   onScheduleServiceClose: () => void
   onAdvancedSearchClose: () => void
   onAddVehicle: (vehicle: any) => void
-  onScheduleService: () => void
+  onScheduleService: (schedule: {
+    vehicleId: string
+    serviceType: string
+    scheduledDate: string
+    notes?: string
+  }) => void
   onAdvancedSearch: (criteria: AdvancedSearchCriteria) => void
 }
 
@@ -76,6 +81,13 @@ export function DataWorkbenchDialogs({
     mileageMax: ""
   })
 
+  const [serviceForm, setServiceForm] = useState({
+    vehicleId: "",
+    serviceType: "",
+    scheduledDate: "",
+    notes: ""
+  })
+
   const handleSaveVehicle = () => {
     onAddVehicle(newVehicle)
     setNewVehicle({
@@ -90,6 +102,16 @@ export function DataWorkbenchDialogs({
 
   const handleAdvancedSearch = () => {
     onAdvancedSearch(advancedSearchCriteria)
+  }
+
+  const handleScheduleService = () => {
+    onScheduleService(serviceForm)
+    setServiceForm({
+      vehicleId: "",
+      serviceType: "",
+      scheduledDate: "",
+      notes: ""
+    })
   }
 
   return (
@@ -390,7 +412,10 @@ export function DataWorkbenchDialogs({
           <div className="space-y-2 py-2">
             <div className="space-y-2">
               <Label htmlFor="service-vehicle">Vehicle *</Label>
-              <Select>
+              <Select
+                value={serviceForm.vehicleId}
+                onValueChange={(value) => setServiceForm((prev) => ({ ...prev, vehicleId: value }))}
+              >
                 <SelectTrigger id="service-vehicle">
                   <SelectValue placeholder="Select vehicle" />
                 </SelectTrigger>
@@ -405,7 +430,10 @@ export function DataWorkbenchDialogs({
             </div>
             <div className="space-y-2">
               <Label htmlFor="service-type">Service Type *</Label>
-              <Select>
+              <Select
+                value={serviceForm.serviceType}
+                onValueChange={(value) => setServiceForm((prev) => ({ ...prev, serviceType: value }))}
+              >
                 <SelectTrigger id="service-type">
                   <SelectValue placeholder="Select service type" />
                 </SelectTrigger>
@@ -427,6 +455,8 @@ export function DataWorkbenchDialogs({
                 id="service-date"
                 type="date"
                 min={new Date().toISOString().split('T')[0]}
+                value={serviceForm.scheduledDate}
+                onChange={(e) => setServiceForm((prev) => ({ ...prev, scheduledDate: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
@@ -434,6 +464,8 @@ export function DataWorkbenchDialogs({
               <Input
                 id="service-notes"
                 placeholder="Additional notes or instructions"
+                value={serviceForm.notes}
+                onChange={(e) => setServiceForm((prev) => ({ ...prev, notes: e.target.value }))}
               />
             </div>
           </div>
@@ -441,7 +473,7 @@ export function DataWorkbenchDialogs({
             <Button variant="outline" onClick={onScheduleServiceClose}>
               Cancel
             </Button>
-            <Button onClick={onScheduleService}>
+            <Button onClick={handleScheduleService}>
               Schedule Service
             </Button>
           </DialogFooter>

@@ -1,0 +1,9 @@
+Vehicle Inspection Checklist
+
+- Tires: pressure, tread, visible damage
+- Brakes: response and wear indicators
+- Lights: headlights, brake lights, turn signals
+- Fluids: oil, coolant, brake fluid
+- Safety equipment: triangles, first aid kit
+
+Revision: 2026-01-15

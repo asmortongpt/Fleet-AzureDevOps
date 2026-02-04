@@ -1,6 +1,7 @@
 import { AlertCircle, Truck, Wrench, MapPin, Gauge, Fuel, Video, Users } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import useSWR from 'swr';
 
 import { MapFirstLayout } from '../layout/MapFirstLayout';
 import { ProfessionalFleetMap } from '../map/ProfessionalFleetMap';
@@ -33,6 +34,61 @@ interface LiveFleetDashboardProps {
 
 // ... existing imports
 
+const geofenceFetcher = (url: string) =>
+  fetch(url, { credentials: 'include' }).then((res) => res.json());
+
+const normalizeGeofence = (row: any): Geofence => {
+  const metadata = row?.metadata && typeof row.metadata === 'object'
+    ? row.metadata
+    : row?.metadata
+      ? (() => {
+          try {
+            return JSON.parse(row.metadata);
+          } catch {
+            return {};
+          }
+        })()
+      : {};
+
+  const centerLat = row.centerLat ?? row.center_lat ?? row.center_latitude;
+  const centerLng = row.centerLng ?? row.center_lng ?? row.center_longitude;
+  const polygon = row.polygon ?? row.polygon_coordinates ?? metadata?.polygon;
+
+  const triggers = metadata.triggers || {
+    onEnter: row.notifyOnEntry ?? row.notify_on_entry ?? false,
+    onExit: row.notifyOnExit ?? row.notify_on_exit ?? false,
+    onDwell: metadata?.onDwell ?? false,
+    dwellTimeMinutes: metadata?.dwellTimeMinutes
+  };
+
+  return {
+    id: row.id,
+    tenantId: row.tenant_id,
+    name: row.name,
+    description: row.description || '',
+    type: row.type || row.geofence_type || 'circle',
+    center: centerLat != null && centerLng != null
+      ? { lat: Number(centerLat), lng: Number(centerLng) }
+      : undefined,
+    radius: row.radius != null ? Number(row.radius) : row.radius_meters != null ? Number(row.radius_meters) : undefined,
+    coordinates: Array.isArray(polygon) ? polygon : polygon?.coordinates,
+    color: row.color || '#3B82F6',
+    active: row.isActive ?? row.is_active ?? true,
+    triggers: {
+      onEnter: !!triggers.onEnter,
+      onExit: !!triggers.onExit,
+      onDwell: !!triggers.onDwell,
+      dwellTimeMinutes: triggers.dwellTimeMinutes
+    },
+    notifyUsers: metadata.notifyUsers || [],
+    notifyRoles: metadata.notifyRoles || [],
+    alertPriority: metadata.alertPriority || 'medium',
+    createdBy: metadata.createdBy || 'system',
+    createdAt: row.createdAt || row.created_at || new Date().toISOString(),
+    lastModified: row.updatedAt || row.updated_at || new Date().toISOString()
+  };
+};
+
 export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initialLayer }: LiveFleetDashboardProps = {}) {
 
   const { data: vehiclesData, isLoading: apiLoading, error: apiError } = useVehicles();
@@ -49,7 +105,44 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
       const driversArray = Array.isArray(driversData)
         ? driversData
         : ((driversData as any)?.data || []);
-      setDrivers(driversArray as unknown as Driver[]);
+      const normalized = driversArray.map((row: any) => {
+        const metadata = row?.metadata && typeof row.metadata === 'object'
+          ? row.metadata
+          : row?.metadata
+            ? (() => {
+                try {
+                  return JSON.parse(row.metadata);
+                } catch {
+                  return {};
+                }
+              })()
+            : {};
+        const status =
+          row.status === 'inactive'
+            ? 'off-duty'
+            : row.status === 'on_leave'
+              ? 'on-leave'
+              : row.status === 'suspended'
+                ? 'suspended'
+                : 'active';
+        return {
+          id: row.id,
+          tenantId: row.tenant_id,
+          employeeId: row.employee_number || '',
+          name: row.name || `${row.first_name || ''} ${row.last_name || ''}`.trim() || row.email,
+          firstName: row.first_name,
+          lastName: row.last_name,
+          email: row.email,
+          phone: row.phone,
+          department: metadata.department || '',
+          licenseType: row.cdl ? 'CDL' : 'Standard',
+          licenseExpiry: row.license_expiry_date,
+          safetyScore: row.performance_score ? Number(row.performance_score) : 100,
+          certifications: metadata.certifications || [],
+          status
+        } as Driver;
+      });
+      setDrivers(normalized);
     }
   }, [driversData]);
 
@@ -62,31 +155,25 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
     source: "all"
   });
   const [selectedCameraId, setSelectedCameraId] = useState<string>();
+  const { data: trafficCamerasResponse } = useSWR(showTrafficCameras ? '/api/traffic-cameras' : null, geofenceFetcher);
+  const trafficCameraRows = Array.isArray(trafficCamerasResponse)
+    ? trafficCamerasResponse
+    : (trafficCamerasResponse?.data || []);
+  const trafficCameraCount = trafficCameraRows.length;
 
   // -- Geofence State --
   const [showGeofences, setShowGeofences] = useState(false);
   const [selectedGeofenceForIntelligence, setSelectedGeofenceForIntelligence] = useState<Geofence | null>(null);
-  const [geofences, setGeofences] = useState<Geofence[]>([
-    // Pre-seed with a demo geofence so users see something immediately
-    {
-      id: 'demo-1',
-      tenantId: 'demo',
-      name: 'Main HQ',
-      description: 'Headquarters geofence',
-      type: 'circle',
-      active: true,
-      color: '#3B82F6',
-      center: { lat: 30.4383, lng: -84.2807 }, // Tallahassee
-      radius: 1000,
-      triggers: { onEnter: true, onExit: true, onDwell: false },
-      notifyUsers: [],
-      notifyRoles: [],
-      alertPriority: 'medium',
-      createdBy: 'system',
-      createdAt: new Date().toISOString(),
-      lastModified: new Date().toISOString()
-    }
-  ]);
+  const [geofences, setGeofences] = useState<Geofence[]>([]);
+  const { data: geofencesResponse } = useSWR(showGeofences ? '/api/geofences' : null, geofenceFetcher);
+
+  useEffect(() => {
+    if (!geofencesResponse) return;
+    const rows = Array.isArray(geofencesResponse)
+      ? geofencesResponse
+      : (geofencesResponse?.data || []);
+    setGeofences(rows.map(normalizeGeofence));
+  }, [geofencesResponse]);
 
   // -- Driver State --
   const [showDrivers, setShowDrivers] = useState(false);
@@ -486,7 +573,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             label: 'Traffic Cameras',
             icon: <Video className="w-4 h-4" />,
             active: showTrafficCameras,
-            count: 12, // Demo count
+            count: trafficCameraCount,
             onToggle: setShowTrafficCameras
           },
           {
