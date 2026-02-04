@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
 
@@ -19,11 +20,29 @@ router.use(rateLimit({
   max: 100, // limit each IP to 100 requests per windowMs
 }))
 
-// SECURITY: Using csrf-csrf (double-submit cookie) instead of vulnerable csurf
-// Enhanced with CSRF protection on mutations
-router.post('/', doubleCsrfProtection)
-router.put('/:id', doubleCsrfProtection)
-router.delete('/:id', doubleCsrfProtection)
+const createDriverSchema = z.object({
+  name: z.string().optional(),
+  first_name: z.string().optional(),
+  last_name: z.string().optional(),
+  email: z.string().email(),
+  phone: z.string().min(7),
+  employee_number: z.string().optional(),
+  license_number: z.string().min(1),
+  license_state: z.string().length(2).optional(),
+  license_expiry_date: z.string(),
+  status: z.enum(['active', 'inactive', 'suspended', 'terminated', 'on_leave', 'training']).optional(),
+  department: z.string().optional()
+})
+
+const updateDriverSchema = createDriverSchema.partial()
+
+const splitDriverName = (name?: string) => {
+  if (!name) return { firstName: '', lastName: '' }
+  const parts = name.trim().split(/\s+/)
+  const firstName = parts.shift() || ''
+  const lastName = parts.join(' ')
+  return { firstName, lastName }
+}
 
 // GET /drivers
 router.get(
@@ -39,7 +58,27 @@ router.get(
       // Simplified: Return all drivers for the tenant
       // TODO: Implement role-based filtering when user role/permission system is expanded
       const result = await tenantSafeQuery(
-        'SELECT id, tenant_id, email, first_name, last_name, phone, license_number, cdl, status, metadata, created_at, updated_at FROM drivers WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+        `SELECT
+          id,
+          tenant_id,
+          email,
+          first_name,
+          last_name,
+          phone,
+          employee_number,
+          license_number,
+          license_state,
+          license_expiry_date,
+          performance_score,
+          cdl,
+          status,
+          metadata,
+          created_at,
+          updated_at
+        FROM drivers
+        WHERE tenant_id = $1
+        ORDER BY created_at DESC
+        LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id!, limit, offset],
         req.user!.tenant_id!
       )
@@ -84,7 +123,11 @@ router.get(
           d.first_name,
           d.last_name,
           d.phone,
+          d.employee_number,
           d.license_number,
+          d.license_state,
+          d.license_expiry_date,
+          d.performance_score,
           d.cdl,
           d.status,
           d.metadata,
@@ -180,7 +223,25 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await tenantSafeQuery(
-        'SELECT id, tenant_id, email, first_name, last_name, phone, license_number, cdl, status, metadata, created_at, updated_at FROM drivers WHERE id = $1 AND tenant_id = $2',
+        `SELECT
+          id,
+          tenant_id,
+          email,
+          first_name,
+          last_name,
+          phone,
+          employee_number,
+          license_number,
+          license_state,
+          license_expiry_date,
+          performance_score,
+          cdl,
+          status,
+          metadata,
+          created_at,
+          updated_at
+        FROM drivers
+        WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id!],
         req.user!.tenant_id!
       )
@@ -376,6 +437,240 @@ router.get(
     } catch (error) {
       console.error(`Get driver trips error:`, error)
       res.status(500).json({ error: `Internal server error` })
+    }
+  }
+)
+
+// POST /drivers
+router.post(
+  '/',
+  doubleCsrfProtection,
+  requirePermission('driver:create:global'),
+  auditLog({ action: 'CREATE', resourceType: 'drivers' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const payload = createDriverSchema.parse(req.body)
+      const nameParts = splitDriverName(payload.name)
+      const firstName = payload.first_name || nameParts.firstName
+      const lastName = payload.last_name || nameParts.lastName
+
+      if (!firstName || !lastName) {
+        return res.status(400).json({ error: 'first_name and last_name are required' })
+      }
+
+      const licenseExpiry = new Date(payload.license_expiry_date)
+      if (Number.isNaN(licenseExpiry.getTime())) {
+        return res.status(400).json({ error: 'license_expiry_date must be a valid date' })
+      }
+
+      const metadata: Record<string, any> = {}
+      if (payload.department) {
+        metadata.department = payload.department
+      }
+
+      const result = await tenantSafeQuery(
+        `INSERT INTO drivers (
+          tenant_id,
+          first_name,
+          last_name,
+          email,
+          phone,
+          employee_number,
+          license_number,
+          license_state,
+          license_expiry_date,
+          status,
+          metadata
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+        RETURNING
+          id,
+          tenant_id,
+          email,
+          first_name,
+          last_name,
+          phone,
+          employee_number,
+          license_number,
+          license_state,
+          license_expiry_date,
+          performance_score,
+          cdl,
+          status,
+          metadata,
+          created_at,
+          updated_at`,
+        [
+          req.user!.tenant_id!,
+          firstName,
+          lastName,
+          payload.email.toLowerCase(),
+          payload.phone,
+          payload.employee_number || null,
+          payload.license_number,
+          payload.license_state || null,
+          licenseExpiry.toISOString(),
+          payload.status || 'active',
+          metadata
+        ],
+        req.user!.tenant_id!
+      )
+
+      res.status(201).json(result.rows[0])
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid driver data', details: error.issues })
+      }
+      console.error('Create driver error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// PUT /drivers/:id
+router.put(
+  '/:id',
+  doubleCsrfProtection,
+  requirePermission('driver:update:global'),
+  auditLog({ action: 'UPDATE', resourceType: 'drivers' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const payload = updateDriverSchema.parse(req.body)
+      const nameParts = splitDriverName(payload.name)
+      const firstName = payload.first_name || nameParts.firstName
+      const lastName = payload.last_name || nameParts.lastName
+
+      const fields: string[] = []
+      const values: any[] = []
+      let index = 1
+
+      if (payload.email) {
+        fields.push(`email = $${index++}`)
+        values.push(payload.email.toLowerCase())
+      }
+
+      if (firstName) {
+        fields.push(`first_name = $${index++}`)
+        values.push(firstName)
+      }
+
+      if (lastName) {
+        fields.push(`last_name = $${index++}`)
+        values.push(lastName)
+      }
+
+      if (payload.phone) {
+        fields.push(`phone = $${index++}`)
+        values.push(payload.phone)
+      }
+
+      if (payload.employee_number !== undefined) {
+        fields.push(`employee_number = $${index++}`)
+        values.push(payload.employee_number)
+      }
+
+      if (payload.license_number) {
+        fields.push(`license_number = $${index++}`)
+        values.push(payload.license_number)
+      }
+
+      if (payload.license_state !== undefined) {
+        fields.push(`license_state = $${index++}`)
+        values.push(payload.license_state)
+      }
+
+      if (payload.license_expiry_date) {
+        const licenseExpiry = new Date(payload.license_expiry_date)
+        if (Number.isNaN(licenseExpiry.getTime())) {
+          return res.status(400).json({ error: 'license_expiry_date must be a valid date' })
+        }
+        fields.push(`license_expiry_date = $${index++}`)
+        values.push(licenseExpiry.toISOString())
+      }
+
+      if (payload.status) {
+        fields.push(`status = $${index++}`)
+        values.push(payload.status)
+      }
+
+      const metadataPatch: Record<string, any> = {}
+      if (payload.department !== undefined) {
+        metadataPatch.department = payload.department
+      }
+      if (Object.keys(metadataPatch).length > 0) {
+        fields.push(`metadata = COALESCE(metadata, '{}'::jsonb) || $${index++}::jsonb`)
+        values.push(JSON.stringify(metadataPatch))
+      }
+
+      if (fields.length === 0) {
+        return res.status(400).json({ error: 'No valid fields provided for update' })
+      }
+
+      const whereIdIndex = index++
+      const whereTenantIndex = index++
+      values.push(req.params.id, req.user!.tenant_id!)
+
+      const result = await tenantSafeQuery(
+        `UPDATE drivers
+         SET ${fields.join(', ')}, updated_at = NOW()
+         WHERE id = $${whereIdIndex} AND tenant_id = $${whereTenantIndex}
+         RETURNING
+          id,
+          tenant_id,
+          email,
+          first_name,
+          last_name,
+          phone,
+          employee_number,
+          license_number,
+          license_state,
+          license_expiry_date,
+          performance_score,
+          cdl,
+          status,
+          metadata,
+          created_at,
+          updated_at`,
+        values,
+        req.user!.tenant_id!
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Driver not found' })
+      }
+
+      res.json(result.rows[0])
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid driver data', details: error.issues })
+      }
+      console.error('Update driver error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// DELETE /drivers/:id
+router.delete(
+  '/:id',
+  doubleCsrfProtection,
+  requirePermission('driver:delete:global'),
+  auditLog({ action: 'DELETE', resourceType: 'drivers' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await tenantSafeQuery(
+        `DELETE FROM drivers WHERE id = $1 AND tenant_id = $2 RETURNING id`,
+        [req.params.id, req.user!.tenant_id!],
+        req.user!.tenant_id!
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Driver not found' })
+      }
+
+      res.json({ message: 'Driver deleted successfully' })
+    } catch (error) {
+      console.error('Delete driver error:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )

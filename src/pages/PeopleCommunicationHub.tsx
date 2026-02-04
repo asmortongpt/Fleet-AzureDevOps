@@ -15,7 +15,7 @@
  * - Performance optimized
  */
 
-import { useState, Suspense, lazy, memo } from 'react'
+import { useState, Suspense, lazy, memo, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Users,
@@ -52,7 +52,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { useAuth } from '@/contexts'
 import toast from 'react-hot-toast'
 import logger from '@/utils/logger';
 import {
@@ -61,6 +60,7 @@ import {
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
+import useSWR from 'swr'
 
 // ============================================================================
 // ANIMATION VARIANTS
@@ -79,6 +79,15 @@ const staggerContainerVariant = {
   },
 }
 
+const fetcher = (url: string) =>
+  fetch(url, { credentials: 'include' })
+    .then((res) => res.json())
+    .then((data) => data?.data ?? data)
+
+const rawFetcher = (url: string) =>
+  fetch(url, { credentials: 'include' })
+    .then((res) => res.json())
+
 // ============================================================================
 // TAB CONTENT COMPONENTS
 // ============================================================================
@@ -87,6 +96,84 @@ const staggerContainerVariant = {
  * People Tab - HR and team management
  */
 const PeopleTabContent = memo(function PeopleTabContent() {
+  const { data: users } = useSWR<any[]>(
+    '/api/users?limit=200',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: teams } = useSWR<any[]>(
+    '/api/internal-teams',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: trainingCourses } = useSWR<any[]>(
+    '/api/training/courses?limit=200',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: trainingProgress } = useSWR<any[]>(
+    '/api/training/progress',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const userRows = Array.isArray(users) ? users : []
+  const teamRows = Array.isArray(teams) ? teams : []
+
+  const activeUsers = userRows.filter((user: any) => user.status === 'active')
+  const inactiveUsers = userRows.filter((user: any) => user.status !== 'active')
+
+  const avgTenureYears = useMemo(() => {
+    const tenureYears = userRows
+      .map((user: any) => user.created_at)
+      .filter(Boolean)
+      .map((date: string) => {
+        const created = new Date(date)
+        if (Number.isNaN(created.getTime())) return 0
+        return (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24 * 365)
+      })
+      .filter((years: number) => years > 0)
+    if (tenureYears.length === 0) return 0
+    return tenureYears.reduce((sum, years) => sum + years, 0) / tenureYears.length
+  }, [userRows])
+
+  const recentActivity = useMemo(() => {
+    return userRows
+      .slice()
+      .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+      .slice(0, 4)
+      .map((user: any) => ({
+        type: 'New Hire',
+        name: user.name || `${user.first_name} ${user.last_name}`.trim(),
+        department: user.role || 'Team Member',
+        date: user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'
+      }))
+  }, [userRows])
+
+  const trainingProgressData = useMemo(() => {
+    const courses = Array.isArray(trainingCourses) ? trainingCourses : []
+    const progressRows = Array.isArray(trainingProgress) ? trainingProgress : []
+    const progressByCourse = progressRows.reduce((acc: Record<string, { completed: number; total: number }>, row: any) => {
+      const courseId = row.course_id
+      if (!courseId) return acc
+      if (!acc[courseId]) acc[courseId] = { completed: 0, total: 0 }
+      acc[courseId].total += 1
+      if (Number(row.progress) >= 100 || row.completed_modules?.length === row.total_modules?.length) {
+        acc[courseId].completed += 1
+      }
+      return acc
+    }, {})
+
+    return courses.map((course: any) => {
+      const stats = progressByCourse[course.id] || { completed: 0, total: 0 }
+      return {
+        program: course.title || 'Training Program',
+        enrolled: stats.total,
+        completed: stats.completed
+      }
+    }).filter((course: any) => course.enrolled > 0)
+  }, [trainingCourses, trainingProgress])
+
   return (
     <motion.div
       variants={staggerContainerVariant}
@@ -98,31 +185,26 @@ const PeopleTabContent = memo(function PeopleTabContent() {
       <motion.div variants={fadeInVariant} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Employees"
-          value={127}
+          value={userRows.length}
           icon={Users}
-          change={8}
-  trend="up"
           description="Active team members"
         />
         <StatCard
           title="On Duty"
-          value={94}
+          value={activeUsers.length}
           icon={UserCheck}
-          change={5}
-  trend="up"
           description="Currently working"
         />
         <StatCard
           title="On Leave"
-          value={12}
+          value={inactiveUsers.length}
           icon={UserX}
           description="PTO/vacation"
         />
         <StatCard
           title="Avg Tenure"
-          value="3.2 yrs"
+          value={avgTenureYears > 0 ? `${avgTenureYears.toFixed(1)} yrs` : "—"}
           icon={Award}
-          trend="up"
           description="Employee retention"
         />
       </motion.div>
@@ -139,29 +221,26 @@ const PeopleTabContent = memo(function PeopleTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { department: 'Operations', headcount: 45, manager: 'John Smith', status: 'full' },
-                { department: 'Maintenance', headcount: 32, manager: 'Jane Doe', status: 'full' },
-                { department: 'Safety & Compliance', headcount: 18, manager: 'Bob Johnson', status: 'hiring' },
-                { department: 'Administration', headcount: 15, manager: 'Alice Williams', status: 'full' },
-                { department: 'Finance', headcount: 12, manager: 'Charlie Brown', status: 'full' },
-                { department: 'IT & Analytics', headcount: 5, manager: 'David Lee', status: 'hiring' },
-              ].map((dept) => (
-                <div key={dept.department} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Users className="h-5 w-5 text-blue-500" />
-                    <div>
-                      <p className="font-semibold">{dept.department}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Manager: {dept.manager} · {dept.headcount} employees
-                      </p>
+              {teamRows.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No teams configured.</div>
+              ) : (
+                teamRows.map((dept: any) => (
+                  <div key={dept.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Users className="h-5 w-5 text-blue-500" />
+                      <div>
+                        <p className="font-semibold">{dept.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Lead: {dept.team_lead_name || 'Unassigned'} · {dept.member_count || 0} members
+                        </p>
+                      </div>
                     </div>
+                    <Badge variant={dept.is_active ? 'default' : 'secondary'}>
+                      {dept.is_active ? 'Active' : 'Inactive'}
+                    </Badge>
                   </div>
-                  <Badge variant={dept.status === 'full' ? 'default' : 'secondary'}>
-                    {dept.status === 'full' ? 'Fully Staffed' : 'Hiring'}
-                  </Badge>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -179,23 +258,22 @@ const PeopleTabContent = memo(function PeopleTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { type: 'New Hire', name: 'Sarah Connor', department: 'Operations', date: '2026-01-28' },
-                { type: 'Promotion', name: 'Mike Ross', department: 'Maintenance', date: '2026-01-25' },
-                { type: 'Training Complete', name: 'Emily Davis', department: 'Safety', date: '2026-01-22' },
-                { type: 'Anniversary', name: 'Tom Hardy', department: '5 years', date: '2026-01-20' },
-              ].map((activity, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 border rounded-lg">
-                  <UserPlus className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="font-medium">{activity.type}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {activity.name} · {activity.department}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{activity.date}</p>
+              {recentActivity.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No recent activity.</div>
+              ) : (
+                recentActivity.map((activity, index) => (
+                  <div key={index} className="flex items-start gap-3 p-3 border rounded-lg">
+                    <UserPlus className="h-5 w-5 text-green-500 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-medium">{activity.type}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {activity.name} · {activity.department}
+                      </p>
+                      <p className="text-xs text-muted-foreground">{activity.date}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -210,27 +288,26 @@ const PeopleTabContent = memo(function PeopleTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { program: 'Safety Certification', enrolled: 45, completed: 38 },
-                { program: 'Leadership Development', enrolled: 12, completed: 8 },
-                { program: 'Technical Skills', enrolled: 28, completed: 22 },
-                { program: 'Customer Service', enrolled: 35, completed: 35 },
-              ].map((training) => (
-                <div key={training.program} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium">{training.program}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {training.completed}/{training.enrolled} ({Math.round((training.completed / training.enrolled) * 100)}%)
-                    </p>
+              {trainingProgressData.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No training data available.</div>
+              ) : (
+                trainingProgressData.map((training) => (
+                  <div key={training.program} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium">{training.program}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {training.completed}/{training.enrolled} ({Math.round((training.completed / training.enrolled) * 100)}%)
+                      </p>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div
+                        className="bg-primary rounded-full h-2 transition-all"
+                        style={{ width: `${training.enrolled > 0 ? (training.completed / training.enrolled) * 100 : 0}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full bg-secondary rounded-full h-2">
-                    <div
-                      className="bg-primary rounded-full h-2 transition-all"
-                      style={{ width: `${(training.completed / training.enrolled) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -243,6 +320,32 @@ const PeopleTabContent = memo(function PeopleTabContent() {
  * Communication Tab - Messaging and announcements
  */
 const CommunicationTabContent = memo(function CommunicationTabContent() {
+  const { data: communicationLogs } = useSWR<any[]>(
+    '/api/communication-logs?limit=50',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: announcements } = useSWR<any[]>(
+    '/api/announcements?limit=20',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: notifications } = useSWR<any>(
+    '/api/notifications?limit=50',
+    rawFetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: teams } = useSWR<any[]>(
+    '/api/internal-teams',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const messages = Array.isArray(communicationLogs) ? communicationLogs : []
+  const announcementRows = Array.isArray(announcements) ? announcements : []
+  const channelRows = Array.isArray(teams) ? teams : []
+  const unreadCount = typeof notifications?.unread_count === 'number' ? notifications.unread_count : 0
+
   return (
     <motion.div
       variants={staggerContainerVariant}
@@ -254,30 +357,26 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
       <motion.div variants={fadeInVariant} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Unread Messages"
-          value={24}
+          value={unreadCount}
           icon={Inbox}
           description="Team inbox"
         />
         <StatCard
           title="Active Channels"
-          value={12}
+          value={channelRows.length}
           icon={Hash}
-          change={2}
-  trend="up"
           description="Communication channels"
         />
         <StatCard
           title="Announcements"
-          value={3}
+          value={announcementRows.length}
           icon={Megaphone}
           description="This week"
         />
         <StatCard
           title="Response Time"
-          value="<2 hrs"
+          value="—"
           icon={Clock}
-          change={15}
-  trend="up"
           description="Avg response"
         />
       </motion.div>
@@ -294,24 +393,25 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { from: 'John Smith', message: 'Vehicle 1234 maintenance scheduled for tomorrow', time: '10 min ago', unread: true },
-                { from: 'Jane Doe', message: 'Weekly safety meeting rescheduled to 2pm', time: '1 hour ago', unread: true },
-                { from: 'Bob Johnson', message: 'New compliance training materials available', time: '3 hours ago', unread: false },
-                { from: 'Alice Williams', message: 'Fuel report for January is ready for review', time: 'Yesterday', unread: false },
-              ].map((msg, index) => (
-                <div key={index} className={`flex items-start gap-3 p-3 border rounded-lg ${msg.unread ? 'bg-blue-50 dark:bg-blue-950' : ''}`}>
-                  <User className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium">{msg.from}</p>
-                      {msg.unread && <Badge variant="default">New</Badge>}
+              {messages.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No recent messages.</div>
+              ) : (
+                messages.slice(0, 5).map((msg: any) => (
+                  <div key={msg.id} className={`flex items-start gap-3 p-3 border rounded-lg ${msg.is_read ? '' : 'bg-blue-50 dark:bg-blue-950'}`}>
+                    <User className="h-5 w-5 text-muted-foreground mt-0.5" />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium">{msg.from_address || 'System'}</p>
+                        {!msg.is_read && <Badge variant="default">New</Badge>}
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">{msg.subject || msg.message_body || 'Message'}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {msg.sent_at ? new Date(msg.sent_at).toLocaleString() : '—'}
+                      </p>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">{msg.message}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{msg.time}</p>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -326,19 +426,21 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { title: 'Safety Week: January 27-31', type: 'Event', date: '2026-01-27' },
-                { title: 'New Compliance Policy Effective Feb 1', type: 'Policy', date: '2026-01-25' },
-                { title: 'Q4 Performance Bonuses Announced', type: 'HR', date: '2026-01-20' },
-              ].map((announcement, index) => (
-                <div key={index} className="p-4 border rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant="secondary">{announcement.type}</Badge>
-                    <p className="text-xs text-muted-foreground">{announcement.date}</p>
+              {announcementRows.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No announcements available.</div>
+              ) : (
+                announcementRows.slice(0, 5).map((announcement: any) => (
+                  <div key={announcement.id} className="p-4 border rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <Badge variant="secondary">{announcement.type || 'Announcement'}</Badge>
+                      <p className="text-xs text-muted-foreground">
+                        {announcement.published_at ? new Date(announcement.published_at).toLocaleDateString() : '—'}
+                      </p>
+                    </div>
+                    <p className="font-medium">{announcement.title}</p>
                   </div>
-                  <p className="font-medium">{announcement.title}</p>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -356,27 +458,21 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-3 md:grid-cols-2">
-              {[
-                { name: 'general', members: 127, unread: 5 },
-                { name: 'operations', members: 45, unread: 2 },
-                { name: 'maintenance', members: 32, unread: 0 },
-                { name: 'safety-alerts', members: 127, unread: 1 },
-                { name: 'dispatch', members: 28, unread: 8 },
-                { name: 'management', members: 12, unread: 0 },
-              ].map((channel) => (
-                <div key={channel.name} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Hash className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">#{channel.name}</p>
-                      <p className="text-sm text-muted-foreground">{channel.members} members</p>
+              {channelRows.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No communication channels available.</div>
+              ) : (
+                channelRows.map((channel: any) => (
+                  <div key={channel.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Hash className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">#{channel.name}</p>
+                        <p className="text-sm text-muted-foreground">{channel.member_count || 0} members</p>
+                      </div>
                     </div>
                   </div>
-                  {channel.unread > 0 && (
-                    <Badge variant="destructive">{channel.unread}</Badge>
-                  )}
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -389,6 +485,49 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
  * Work Tab - Tasks, schedules, and collaboration
  */
 const WorkTabContent = memo(function WorkTabContent() {
+  const { data: tasks } = useSWR<any[]>(
+    '/api/tasks?limit=200',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const taskRows = Array.isArray(tasks) ? tasks : []
+  const now = new Date()
+
+  const activeTasks = taskRows.filter((task: any) => (task.status || '').toLowerCase() !== 'completed')
+  const completedThisWeek = taskRows.filter((task: any) => {
+    if ((task.status || '').toLowerCase() !== 'completed') return false
+    const completedAt = task.completedAt ? new Date(task.completedAt) : null
+    if (!completedAt) return false
+    return completedAt.getTime() >= now.getTime() - 7 * 24 * 60 * 60 * 1000
+  })
+  const upcomingDeadlines = taskRows.filter((task: any) => {
+    if (!task.dueDate) return false
+    const due = new Date(task.dueDate)
+    return due.getTime() >= now.getTime() && due.getTime() <= now.getTime() + 7 * 24 * 60 * 60 * 1000
+  })
+
+  const productivity = taskRows.length > 0
+    ? Math.round((completedThisWeek.length / taskRows.length) * 100)
+    : 0
+
+  const taskColumns = useMemo(() => {
+    const columns = [
+      { status: 'To Do', key: 'pending' },
+      { status: 'In Progress', key: 'in_progress' },
+      { status: 'Completed', key: 'completed' },
+    ]
+
+    return columns.map((column) => {
+      const tasksForColumn = taskRows.filter((task: any) => (task.status || '').toLowerCase() === column.key)
+      return {
+        ...column,
+        count: tasksForColumn.length,
+        tasks: tasksForColumn.slice(0, 3)
+      }
+    })
+  }, [taskRows])
+
   // Handler for joining meetings
   const handleJoinMeeting = (eventName: string) => {
     toast.success(`Joining meeting: ${eventName}`)
@@ -407,32 +546,26 @@ const WorkTabContent = memo(function WorkTabContent() {
       <motion.div variants={fadeInVariant} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Active Tasks"
-          value={48}
+          value={activeTasks.length}
           icon={CheckSquare}
-          change={6}
-  trend="down"
           description="Assigned to team"
         />
         <StatCard
           title="Completed This Week"
-          value={32}
+          value={completedThisWeek.length}
           icon={Target}
-          change={12}
-  trend="up"
           description="Task completion"
         />
         <StatCard
           title="Upcoming Deadlines"
-          value={15}
+          value={upcomingDeadlines.length}
           icon={Calendar}
           description="Next 7 days"
         />
         <StatCard
           title="Team Productivity"
-          value="92%"
+          value={productivity > 0 ? `${productivity}%` : "—"}
           icon={TrendingUp}
-          change={5}
-  trend="up"
           description="Task completion rate"
         />
       </motion.div>
@@ -449,55 +582,31 @@ const WorkTabContent = memo(function WorkTabContent() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-3">
-              {[
-                {
-                  status: 'To Do',
-                  count: 18,
-                  tasks: [
-                    { title: 'Schedule vehicle inspections', assignee: 'John Smith', priority: 'high' },
-                    { title: 'Update driver schedules', assignee: 'Jane Doe', priority: 'medium' },
-                    { title: 'Review maintenance reports', assignee: 'Bob Johnson', priority: 'low' },
-                  ]
-                },
-                {
-                  status: 'In Progress',
-                  count: 15,
-                  tasks: [
-                    { title: 'Fuel cost analysis Q1', assignee: 'Alice Williams', priority: 'high' },
-                    { title: 'Safety training preparation', assignee: 'Charlie Brown', priority: 'medium' },
-                    { title: 'Vehicle assignment updates', assignee: 'David Lee', priority: 'low' },
-                  ]
-                },
-                {
-                  status: 'Completed',
-                  count: 32,
-                  tasks: [
-                    { title: 'Monthly compliance audit', assignee: 'John Smith', priority: 'high' },
-                    { title: 'Driver performance reviews', assignee: 'Jane Doe', priority: 'medium' },
-                    { title: 'Inventory reconciliation', assignee: 'Bob Johnson', priority: 'low' },
-                  ]
-                },
-              ].map((column) => (
+              {taskColumns.map((column) => (
                 <div key={column.status} className="space-y-3">
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold">{column.status}</h3>
                     <Badge variant="outline">{column.count}</Badge>
                   </div>
                   <div className="space-y-2">
-                    {column.tasks.map((task, index) => (
-                      <div key={index} className="p-3 border rounded-lg bg-card">
-                        <p className="font-medium text-sm">{task.title}</p>
-                        <div className="flex items-center justify-between mt-2">
-                          <p className="text-xs text-muted-foreground">{task.assignee}</p>
-                          <Badge variant={
-                            task.priority === 'high' ? 'destructive' :
-                            task.priority === 'medium' ? 'secondary' : 'outline'
-                          } className="text-xs">
-                            {task.priority}
-                          </Badge>
+                    {column.tasks.length === 0 ? (
+                      <div className="text-xs text-muted-foreground">No tasks</div>
+                    ) : (
+                      column.tasks.map((task: any) => (
+                        <div key={task.id} className="p-3 border rounded-lg bg-card">
+                          <p className="font-medium text-sm">{task.title}</p>
+                          <div className="flex items-center justify-between mt-2">
+                            <p className="text-xs text-muted-foreground">{task.assignedToId || 'Unassigned'}</p>
+                            <Badge variant={
+                              task.priority === 'high' ? 'destructive' :
+                              task.priority === 'medium' ? 'secondary' : 'outline'
+                            } className="text-xs">
+                              {task.priority || 'low'}
+                            </Badge>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </div>
               ))}
@@ -518,26 +627,24 @@ const WorkTabContent = memo(function WorkTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { event: 'Safety Committee Meeting', date: 'Monday, Jan 27', time: '10:00 AM', attendees: 12 },
-                { event: 'Maintenance Planning Session', date: 'Tuesday, Jan 28', time: '2:00 PM', attendees: 8 },
-                { event: 'Weekly Operations Review', date: 'Wednesday, Jan 29', time: '9:00 AM', attendees: 15 },
-                { event: 'Budget Review Meeting', date: 'Thursday, Jan 30', time: '1:00 PM', attendees: 6 },
-                { event: 'All Hands Town Hall', date: 'Friday, Jan 31', time: '3:00 PM', attendees: 127 },
-              ].map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="h-5 w-5 text-blue-500" />
-                    <div>
-                      <p className="font-semibold">{item.event}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {item.date} · {item.time} · {item.attendees} attendees
-                      </p>
+              {upcomingDeadlines.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No upcoming deadlines.</div>
+              ) : (
+                upcomingDeadlines.slice(0, 5).map((item: any) => (
+                  <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Calendar className="h-5 w-5 text-blue-500" />
+                      <div>
+                        <p className="font-semibold">{item.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Due {item.dueDate ? new Date(item.dueDate).toLocaleString() : '—'}
+                        </p>
+                      </div>
                     </div>
+                    <Button variant="outline" size="sm" onClick={() => handleJoinMeeting(item.title)}>View</Button>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => handleJoinMeeting(item.event)}>Join</Button>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -552,7 +659,6 @@ const WorkTabContent = memo(function WorkTabContent() {
 
 export default function PeopleCommunicationHub() {
   const [activeTab, setActiveTab] = useState('people')
-  const { user } = useAuth()
 
   return (
     <HubPage

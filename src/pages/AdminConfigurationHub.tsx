@@ -18,7 +18,7 @@
  * - Performance optimized
  */
 
-import { useState, Suspense, lazy, memo } from 'react'
+import { useState, Suspense, lazy, memo, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Settings,
@@ -62,7 +62,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { useAuth } from '@/contexts'
+import { useTenant } from '@/contexts'
 import toast from 'react-hot-toast'
 import logger from '@/utils/logger';
 import {
@@ -71,6 +71,7 @@ import {
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
+import useSWR from 'swr'
 
 // ============================================================================
 // ANIMATION VARIANTS
@@ -89,6 +90,14 @@ const staggerContainerVariant = {
   },
 }
 
+const fetcher = (url: string) =>
+  fetch(url, { credentials: 'include' })
+    .then((res) => res.json())
+    .then((data) => data?.data ?? data)
+
+const rawFetcher = (url: string) =>
+  fetch(url, { credentials: 'include' }).then((res) => res.json())
+
 // ============================================================================
 // TAB CONTENT COMPONENTS
 // ============================================================================
@@ -97,6 +106,75 @@ const staggerContainerVariant = {
  * Admin Tab - System administration and user management
  */
 const AdminTabContent = memo(function AdminTabContent() {
+  const { data: users } = useSWR<any[]>(
+    '/api/users?limit=200',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: sessions } = useSWR<any[]>(
+    '/api/sessions?limit=200',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: systemMetrics } = useSWR<any>(
+    '/api/system/metrics',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: health } = useSWR<any>(
+    '/api/health',
+    rawFetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: storageStats } = useSWR<any>(
+    '/api/storage/stats',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: auditLogs } = useSWR<any[]>(
+    '/api/audit-logs?limit=20',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const userRows = Array.isArray(users) ? users : []
+  const sessionRows = Array.isArray(sessions) ? sessions : []
+  const activeSessionCount = sessionRows.filter((session: any) => session.status === 'active').length
+
+  const systemHealthPercent = useMemo(() => {
+    const status = health?.status
+    if (status === 'healthy') return 100
+    if (status === 'degraded') return 75
+    if (status === 'unhealthy') return 40
+    return 0
+  }, [health])
+
+  const storageUsedPercent = Number(storageStats?.quotaUsedPercent || 0)
+
+  const userGroups = useMemo(() => {
+    const roleCounts = new Map<string, number>()
+    userRows.forEach((user: any) => {
+      const role = user.role || 'user'
+      roleCounts.set(role, (roleCounts.get(role) || 0) + 1)
+    })
+    return Array.from(roleCounts.entries()).map(([role, count]) => ({
+      role,
+      count,
+      permissions: role
+    }))
+  }, [userRows])
+
+  const systemStatusItems = useMemo(() => {
+    const checks = health?.checks || {}
+    return Object.entries(checks).map(([service, details]: any) => ({
+      service,
+      status: details.status || 'unknown',
+      uptime: details.latency || details.message || '—'
+    }))
+  }, [health])
+
+  const auditRows = Array.isArray(auditLogs) ? auditLogs : []
+
   // Handler for managing user groups
   const handleManageUsers = (role: string) => {
     toast.success(`Managing users: ${role}`)
@@ -115,29 +193,25 @@ const AdminTabContent = memo(function AdminTabContent() {
       <motion.div variants={fadeInVariant} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Users"
-          value={127}
+          value={userRows.length}
           icon={Users}
-          change={8}
-  trend="up"
           description="Active accounts"
         />
         <StatCard
           title="System Health"
-          value="98%"
+          value={systemHealthPercent > 0 ? `${systemHealthPercent}%` : "—"}
           icon={Activity}
-          change={1}
-  trend="up"
           description="Uptime this month"
         />
         <StatCard
           title="Active Sessions"
-          value={42}
+          value={activeSessionCount}
           icon={Server}
           description="Current users"
         />
         <StatCard
           title="Storage Used"
-          value="68%"
+          value={storageUsedPercent > 0 ? `${storageUsedPercent.toFixed(1)}%` : "—"}
           icon={HardDrive}
           description="Of allocated space"
         />
@@ -155,29 +229,26 @@ const AdminTabContent = memo(function AdminTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { role: 'Fleet Manager', count: 5, permissions: 'Full Access' },
-                { role: 'Operations Manager', count: 12, permissions: 'Operations + Fleet' },
-                { role: 'Dispatcher', count: 18, permissions: 'Operations Only' },
-                { role: 'Driver', count: 75, permissions: 'Mobile App Only' },
-                { role: 'Maintenance Tech', count: 15, permissions: 'Maintenance Module' },
-                { role: 'Administrator', count: 2, permissions: 'System Admin' },
-              ].map((userGroup) => (
-                <div key={userGroup.role} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Users className="h-5 w-5 text-blue-500" />
-                    <div>
-                      <p className="font-semibold">{userGroup.role}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {userGroup.count} users · {userGroup.permissions}
-                      </p>
+              {userGroups.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No user roles available.</div>
+              ) : (
+                userGroups.map((userGroup) => (
+                  <div key={userGroup.role} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Users className="h-5 w-5 text-blue-500" />
+                      <div>
+                        <p className="font-semibold">{userGroup.role}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {userGroup.count} users · {userGroup.permissions}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handleManageUsers(userGroup.role)}>Manage</Button>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleManageUsers(userGroup.role)}>Manage</Button>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -195,20 +266,21 @@ const AdminTabContent = memo(function AdminTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { service: 'API Server', status: 'Healthy', uptime: '99.8%' },
-                { service: 'Database', status: 'Healthy', uptime: '100%' },
-                { service: 'Redis Cache', status: 'Healthy', uptime: '99.9%' },
-                { service: 'Background Jobs', status: 'Healthy', uptime: '98.5%' },
-              ].map((service) => (
-                <div key={service.service} className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">{service.service}</p>
-                    <p className="text-sm text-muted-foreground">Uptime: {service.uptime}</p>
+              {systemStatusItems.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No system status available.</div>
+              ) : (
+                systemStatusItems.map((service) => (
+                  <div key={service.service} className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">{service.service}</p>
+                      <p className="text-sm text-muted-foreground">Details: {service.uptime}</p>
+                    </div>
+                    <Badge variant={service.status === 'healthy' ? 'default' : service.status === 'warning' ? 'secondary' : 'destructive'}>
+                      {service.status}
+                    </Badge>
                   </div>
-                  <Badge variant="default">{service.status}</Badge>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -223,22 +295,21 @@ const AdminTabContent = memo(function AdminTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { action: 'User created: Sarah Connor', user: 'Admin', time: '10 min ago' },
-                { action: 'Permission updated: Operations Team', user: 'John Smith', time: '1 hour ago' },
-                { action: 'System backup completed', user: 'System', time: '3 hours ago' },
-                { action: 'Configuration changed: API Settings', user: 'Admin', time: 'Yesterday' },
-              ].map((log, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 border rounded-lg">
-                  <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{log.action}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {log.user} · {log.time}
-                    </p>
+              {auditRows.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No recent audit activity.</div>
+              ) : (
+                auditRows.slice(0, 6).map((log: any) => (
+                  <div key={log.id} className="flex items-start gap-3 p-3 border rounded-lg">
+                    <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{log.action} · {log.resource}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {log.userName} · {log.timestamp ? new Date(log.timestamp).toLocaleString() : '—'}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -251,6 +322,26 @@ const AdminTabContent = memo(function AdminTabContent() {
  * Configuration Tab - Application settings and preferences
  */
 const ConfigurationTabContent = memo(function ConfigurationTabContent() {
+  const { tenantName, settings } = useTenant()
+
+  const featureFlags = useMemo(() => {
+    const features = settings?.features || {}
+    return Object.entries(features).map(([feature, enabled]) => ({
+      feature,
+      enabled: Boolean(enabled),
+      description: `Tenant feature flag: ${feature}`
+    }))
+  }, [settings])
+
+  const configCategories = useMemo(() => {
+    return [
+      { category: 'Branding', settings: settings?.branding ? 3 : 0, icon: Palette },
+      { category: 'Regional', settings: settings ? 2 : 0, icon: Languages },
+      { category: 'Features', settings: featureFlags.length, icon: ToggleLeft },
+      { category: 'Tenant', settings: tenantName ? 1 : 0, icon: Settings },
+    ]
+  }, [featureFlags.length, settings, tenantName])
+
   // Handler for configuring settings
   const handleConfigureSettings = (category: string) => {
     toast.success(`Configuring settings: ${category}`)
@@ -284,28 +375,25 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { category: 'General', settings: 8, icon: Settings },
-                { category: 'Security', settings: 12, icon: Shield },
-                { category: 'Notifications', settings: 6, icon: Bell },
-                { category: 'Email', settings: 4, icon: Mail },
-                { category: 'Appearance', settings: 5, icon: Palette },
-                { category: 'Regional', settings: 3, icon: Languages },
-              ].map((item) => {
-                const Icon = item.icon
-                return (
-                  <div key={item.category} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <Icon className="h-5 w-5 text-blue-500" />
-                      <div>
-                        <p className="font-semibold">{item.category}</p>
-                        <p className="text-sm text-muted-foreground">{item.settings} settings available</p>
+              {configCategories.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No configuration categories available.</div>
+              ) : (
+                configCategories.map((item) => {
+                  const Icon = item.icon
+                  return (
+                    <div key={item.category} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <Icon className="h-5 w-5 text-blue-500" />
+                        <div>
+                          <p className="font-semibold">{item.category}</p>
+                          <p className="text-sm text-muted-foreground">{item.settings} settings available</p>
+                        </div>
                       </div>
+                      <Button variant="outline" size="sm" onClick={() => handleConfigureSettings(item.category)}>Configure</Button>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => handleConfigureSettings(item.category)}>Configure</Button>
-                  </div>
-                )
-              })}
+                  )
+                })
+              )}
             </div>
           </CardContent>
         </Card>
@@ -323,26 +411,24 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { feature: 'Real-time GPS Tracking', enabled: true, description: 'Live vehicle location updates' },
-                { feature: 'AI-Powered Route Optimization', enabled: true, description: 'Smart route planning' },
-                { feature: 'Predictive Maintenance', enabled: false, description: 'ML-based maintenance predictions' },
-                { feature: '3D Vehicle Showroom', enabled: true, description: 'Virtual garage with 3D models' },
-                { feature: 'Video Telematics', enabled: false, description: 'In-cab camera integration' },
-              ].map((flag) => (
-                <div key={flag.feature} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold">{flag.feature}</p>
-                      <Badge variant={flag.enabled ? 'default' : 'secondary'}>
-                        {flag.enabled ? 'Enabled' : 'Disabled'}
-                      </Badge>
+              {featureFlags.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No feature flags configured.</div>
+              ) : (
+                featureFlags.map((flag) => (
+                  <div key={flag.feature} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold">{flag.feature}</p>
+                        <Badge variant={flag.enabled ? 'default' : 'secondary'}>
+                          {flag.enabled ? 'Enabled' : 'Disabled'}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">{flag.description}</p>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">{flag.description}</p>
+                    <Button variant="outline" size="sm" onClick={() => handleToggleFeature(flag.feature)}>Toggle</Button>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => handleToggleFeature(flag.feature)}>Toggle</Button>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -355,6 +441,42 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
  * Data Governance Tab - Data management and compliance
  */
 const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
+  const { data: databaseHealth } = useSWR<any>(
+    '/api/database/health',
+    rawFetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: storageStats } = useSWR<any>(
+    '/api/storage/stats',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: auditLogs } = useSWR<any[]>(
+    '/api/audit-logs?limit=10',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: complianceDashboard } = useSWR<any>(
+    '/api/compliance/dashboard',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const dataQuality = useMemo(() => {
+    const status = databaseHealth?.status
+    if (status === 'healthy') return 96
+    if (status === 'degraded') return 85
+    if (status === 'unhealthy') return 60
+    return 0
+  }, [databaseHealth])
+
+  const complianceScore = Array.isArray(complianceDashboard?.metrics)
+    ? Math.round(complianceDashboard.metrics.reduce((sum: number, metric: any) => sum + Number(metric.score || 0), 0) / complianceDashboard.metrics.length)
+    : 0
+
+  const databaseStats = databaseHealth?.database?.statistics || {}
+  const auditRows = Array.isArray(auditLogs) ? auditLogs : []
+
   // Handler for running backups
   const handleRunBackup = (backupType: string) => {
     toast.success(`Running backup: ${backupType}`)
@@ -373,29 +495,27 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
       <motion.div variants={fadeInVariant} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Data Quality"
-          value="96%"
+          value={dataQuality > 0 ? `${dataQuality}%` : "—"}
           icon={Database}
-          change={2}
-  trend="up"
           description="Validated records"
         />
         <StatCard
           title="Storage Used"
-          value="2.4 TB"
+          value={storageStats?.totalSize ? `${(storageStats.totalSize / 1_000_000_000_000).toFixed(2)} TB` : "—"}
           icon={HardDrive}
-          description="Of 5 TB capacity"
+          description={storageStats?.quotaUsedPercent ? `${storageStats.quotaUsedPercent.toFixed(1)}% of quota` : "Of allocated capacity"}
         />
         <StatCard
           title="Backup Status"
-          value="Current"
+          value={auditRows.length > 0 ? "Available" : "Unknown"}
           icon={Archive}
-          description="Last backup: 2 hrs ago"
+          description={auditRows[0]?.timestamp ? `Last activity: ${new Date(auditRows[0].timestamp).toLocaleString()}` : "No backup data"}
         />
         <StatCard
           title="Compliance Score"
-          value="100%"
+          value={complianceScore > 0 ? `${complianceScore}%` : "—"}
           icon={Shield}
-          description="GDPR/SOC2 compliant"
+          description="Compliance dashboard average"
         />
       </motion.div>
 
@@ -411,24 +531,28 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { source: 'Vehicle Telemetry', records: '1.2M', quality: 98, lastUpdated: '2 min ago' },
-                { source: 'Driver Performance', records: '450K', quality: 96, lastUpdated: '5 min ago' },
-                { source: 'Maintenance Records', records: '85K', quality: 94, lastUpdated: '1 hour ago' },
-                { source: 'Fuel Transactions', records: '320K', quality: 99, lastUpdated: '15 min ago' },
-              ].map((source) => (
-                <div key={source.source} className="p-4 border rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="font-semibold">{source.source}</p>
-                    <Badge variant={source.quality >= 95 ? 'default' : 'secondary'}>
-                      {source.quality}% Quality
-                    </Badge>
+              {databaseStats ? (
+                [
+                  { source: 'Vehicles', records: databaseStats.vehicles, quality: dataQuality, lastUpdated: databaseHealth?.timestamp },
+                  { source: 'Drivers', records: databaseStats.drivers, quality: dataQuality, lastUpdated: databaseHealth?.timestamp },
+                  { source: 'Maintenance Records', records: databaseStats.maintenanceRecords, quality: dataQuality, lastUpdated: databaseHealth?.timestamp },
+                  { source: 'Database Size', records: databaseStats.databaseSize, quality: dataQuality, lastUpdated: databaseHealth?.timestamp },
+                ].map((source) => (
+                  <div key={source.source} className="p-4 border rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="font-semibold">{source.source}</p>
+                      <Badge variant={source.quality >= 95 ? 'default' : 'secondary'}>
+                        {source.quality}% Quality
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {source.records ?? '—'} records · Last updated: {source.lastUpdated ? new Date(source.lastUpdated).toLocaleString() : '—'}
+                    </p>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {source.records} records · Last updated: {source.lastUpdated}
-                  </p>
-                </div>
-              ))}
+                ))
+              ) : (
+                <div className="text-sm text-muted-foreground">No data source metrics available.</div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -446,22 +570,21 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { type: 'Full Backup', schedule: 'Daily @ 2:00 AM', retention: '30 days', lastRun: '2026-01-29 02:00' },
-                { type: 'Incremental Backup', schedule: 'Every 6 hours', retention: '7 days', lastRun: '2026-01-29 08:00' },
-                { type: 'Transaction Logs', schedule: 'Continuous', retention: '14 days', lastRun: 'Real-time' },
-              ].map((backup, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <p className="font-semibold">{backup.type}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {backup.schedule} · Retention: {backup.retention}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">Last run: {backup.lastRun}</p>
+              {auditRows.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No backup activity recorded.</div>
+              ) : (
+                auditRows.slice(0, 5).map((backup: any) => (
+                  <div key={backup.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <p className="font-semibold">{backup.action}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {backup.resource} · {backup.timestamp ? new Date(backup.timestamp).toLocaleString() : '—'}
+                      </p>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={() => handleRunBackup(backup.action)}>Run Now</Button>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => handleRunBackup(backup.type)}>Run Now</Button>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -474,6 +597,41 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
  * Integrations Tab - Third-party integrations and APIs
  */
 const IntegrationsTabContent = memo(function IntegrationsTabContent() {
+  const { data: integrationsHealth } = useSWR<any>(
+    '/api/integrations/health',
+    rawFetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: metricsHistory } = useSWR<any[]>(
+    '/api/system/metrics/history?hours=168',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const integrations = Array.isArray(integrationsHealth?.integrations) ? integrationsHealth.integrations : []
+  const healthyIntegrations = integrations.filter((integration: any) => integration.status === 'healthy')
+  const integrationHealthPercent = integrations.length > 0
+    ? Math.round((healthyIntegrations.length / integrations.length) * 100)
+    : 0
+
+  const apiUsageData = useMemo(() => {
+    const rows = Array.isArray(metricsHistory) ? metricsHistory : []
+    return rows.slice(-7).map((row: any) => ({
+      name: new Date(row.time).toLocaleDateString(undefined, { weekday: 'short' }),
+      day: new Date(row.time).toLocaleDateString(undefined, { weekday: 'short' }),
+      calls: Number(row.requests || 0)
+    }))
+  }, [metricsHistory])
+
+  const apiCallsToday = useMemo(() => {
+    const rows = Array.isArray(metricsHistory) ? metricsHistory : []
+    const cutoff = Date.now() - 24 * 60 * 60 * 1000
+    const total = rows
+      .filter((row: any) => new Date(row.time).getTime() >= cutoff)
+      .reduce((sum: number, row: any) => sum + Number(row.requests || 0), 0)
+    return total > 0 ? Math.round(total) : 0
+  }, [metricsHistory])
+
   // Handler for configuring integrations
   const handleConfigureIntegration = (integrationName: string) => {
     toast.success(`Configuring integration: ${integrationName}`)
@@ -492,32 +650,26 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
       <motion.div variants={fadeInVariant} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Active Integrations"
-          value={12}
+          value={integrations.length}
           icon={Plug}
-          change={2}
-  trend="up"
           description="Connected services"
         />
         <StatCard
           title="API Calls Today"
-          value="147K"
+          value={apiCallsToday > 0 ? apiCallsToday.toLocaleString() : "—"}
           icon={CloudCog}
-          change={8}
-  trend="up"
           description="Across all endpoints"
         />
         <StatCard
           title="Webhook Events"
-          value="2.4K"
+          value="—"
           icon={Webhook}
           description="Last 24 hours"
         />
         <StatCard
           title="Integration Health"
-          value="98%"
+          value={integrationHealthPercent > 0 ? `${integrationHealthPercent}%` : "—"}
           icon={Activity}
-          change={1}
-  trend="up"
           description="All systems operational"
         />
       </motion.div>
@@ -534,32 +686,29 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { name: 'SmartCar API', type: 'Telematics', status: 'Connected', calls: '45K/day' },
-                { name: 'Google Maps Platform', type: 'Mapping', status: 'Connected', calls: '38K/day' },
-                { name: 'Azure OpenAI', type: 'AI Services', status: 'Connected', calls: '12K/day' },
-                { name: 'Microsoft Graph', type: 'Email/Calendar', status: 'Connected', calls: '8K/day' },
-                { name: 'Sentry', type: 'Error Tracking', status: 'Connected', calls: '2K/day' },
-                { name: 'Stripe', type: 'Payments', status: 'Configured', calls: '0.5K/day' },
-              ].map((integration) => (
-                <div key={integration.name} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Plug className="h-5 w-5 text-green-500" />
-                    <div>
-                      <p className="font-semibold">{integration.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {integration.type} · {integration.calls}
-                      </p>
+              {integrations.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No integrations found.</div>
+              ) : (
+                integrations.map((integration: any) => (
+                  <div key={integration.name} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Plug className="h-5 w-5 text-green-500" />
+                      <div>
+                        <p className="font-semibold">{integration.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {integration.capabilities?.join(', ') || 'Integration'} · {integration.responseTime ? `${integration.responseTime}ms` : '—'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={integration.status === 'healthy' ? 'default' : integration.status === 'degraded' ? 'secondary' : 'destructive'}>
+                        {integration.status}
+                      </Badge>
+                      <Button variant="outline" size="sm" onClick={() => handleConfigureIntegration(integration.name)}>Configure</Button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={integration.status === 'Connected' ? 'default' : 'secondary'}>
-                      {integration.status}
-                    </Badge>
-                    <Button variant="outline" size="sm" onClick={() => handleConfigureIntegration(integration.name)}>Configure</Button>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -578,15 +727,7 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
           <CardContent>
             <ResponsiveLineChart
               title="API Usage Trends"
-              data={[
-                { name: 'Mon', day: 'Mon', calls: 125000 },
-                { name: 'Tue', day: 'Tue', calls: 138000 },
-                { name: 'Wed', day: 'Wed', calls: 142000 },
-                { name: 'Thu', day: 'Thu', calls: 135000 },
-                { name: 'Fri', day: 'Fri', calls: 147000 },
-                { name: 'Sat', day: 'Sat', calls: 98000 },
-                { name: 'Sun', day: 'Sun', calls: 85000 },
-              ]}
+              data={apiUsageData}
               dataKeys={['calls']}
               colors={['#3b82f6']}
               height={250}
@@ -602,6 +743,38 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
  * Documents Tab - Document management and templates
  */
 const DocumentsTabContent = memo(function DocumentsTabContent() {
+  const { data: documents } = useSWR<any[]>(
+    '/api/documents?limit=100',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const documentRows = Array.isArray(documents) ? documents : []
+  const recentUploads = documentRows.filter((doc: any) => {
+    const uploadedAt = doc.uploaded_at || doc.created_at
+    if (!uploadedAt) return false
+    return new Date(uploadedAt).getTime() >= Date.now() - 7 * 24 * 60 * 60 * 1000
+  })
+  const templateDocs = documentRows.filter((doc: any) => {
+    const type = (doc.document_type || doc.type || '').toString().toLowerCase()
+    return type.includes('template')
+  })
+  const totalSize = documentRows.reduce((sum: number, doc: any) => sum + Number(doc.file_size || 0), 0)
+  const documentCategories = useMemo(() => {
+    const categories = new Map<string, number>()
+    documentRows.forEach((doc: any) => {
+      const category = doc.category || 'Uncategorized'
+      categories.set(category, (categories.get(category) || 0) + 1)
+    })
+    return Array.from(categories.entries()).map(([category, count]) => ({ category, count }))
+  }, [documentRows])
+  const recentDocuments = useMemo(() => {
+    return documentRows
+      .slice()
+      .sort((a: any, b: any) => new Date(b.uploaded_at || b.created_at).getTime() - new Date(a.uploaded_at || a.created_at).getTime())
+      .slice(0, 5)
+  }, [documentRows])
+
   // Handler for browsing document categories
   const handleBrowseDocuments = (category: string) => {
     toast.success(`Browsing documents: ${category}`)
@@ -610,10 +783,14 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
   }
 
   // Handler for downloading documents
-  const handleDownloadDocument = (documentName: string) => {
+  const handleDownloadDocument = (documentName: string, url?: string) => {
+    if (!url) {
+      toast.error('No download link available for this document')
+      return
+    }
+    window.open(url, '_blank', 'noopener,noreferrer')
     toast.success(`Downloading document: ${documentName}`)
     logger.info('Download document clicked:', documentName)
-    // TODO: Add real API call to download document
   }
 
   return (
@@ -627,29 +804,25 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
       <motion.div variants={fadeInVariant} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Documents"
-          value={1248}
+          value={documentRows.length}
           icon={FileText}
-          change={45}
-  trend="up"
           description="In repository"
         />
         <StatCard
           title="Templates"
-          value={32}
+          value={templateDocs.length}
           icon={FileCheck}
           description="Ready to use"
         />
         <StatCard
           title="Shared This Week"
-          value={87}
+          value={recentUploads.length}
           icon={Upload}
-          change={12}
-  trend="up"
           description="Uploaded documents"
         />
         <StatCard
           title="Storage Used"
-          value="4.2 GB"
+          value={totalSize > 0 ? `${(totalSize / 1_000_000_000).toFixed(2)} GB` : "—"}
           icon={HardDrive}
           description="Document storage"
         />
@@ -667,18 +840,13 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { category: 'Policies & Procedures', count: 248, icon: FileText },
-                { category: 'Compliance Documents', count: 184, icon: Shield },
-                { category: 'Training Materials', count: 326, icon: Bookmark },
-                { category: 'Maintenance Records', count: 412, icon: Tag },
-                { category: 'Financial Reports', count: 78, icon: Download },
-              ].map((cat) => {
-                const Icon = cat.icon
-                return (
+              {documentCategories.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No document categories available.</div>
+              ) : (
+                documentCategories.map((cat) => (
                   <div key={cat.category} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center gap-3">
-                      <Icon className="h-5 w-5 text-blue-500" />
+                      <FolderOpen className="h-5 w-5 text-blue-500" />
                       <div>
                         <p className="font-semibold">{cat.category}</p>
                         <p className="text-sm text-muted-foreground">{cat.count} documents</p>
@@ -686,8 +854,8 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
                     </div>
                     <Button variant="outline" size="sm" onClick={() => handleBrowseDocuments(cat.category)}>Browse</Button>
                   </div>
-                )
-              })}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -705,26 +873,33 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { name: 'Fleet Safety Policy 2026.pdf', uploadedBy: 'John Smith', date: '2026-01-29', size: '2.4 MB' },
-                { name: 'Monthly Maintenance Report - Jan.xlsx', uploadedBy: 'Jane Doe', date: '2026-01-28', size: '1.2 MB' },
-                { name: 'Driver Training Manual v2.pdf', uploadedBy: 'Bob Johnson', date: '2026-01-27', size: '5.8 MB' },
-              ].map((doc, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-blue-500" />
-                    <div>
-                      <p className="font-semibold">{doc.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Uploaded by {doc.uploadedBy} · {doc.date} · {doc.size}
-                      </p>
+              {recentDocuments.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No documents uploaded yet.</div>
+              ) : (
+                recentDocuments.map((doc: any) => (
+                  <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <FileText className="h-5 w-5 text-blue-500" />
+                      <div>
+                        <p className="font-semibold">{doc.file_name || doc.name || doc.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Uploaded by {doc.uploaded_by_name || 'System'} ·{' '}
+                          {doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString() : '—'} ·{' '}
+                          {doc.file_size ? `${(doc.file_size / 1_000_000).toFixed(2)} MB` : '—'}
+                        </p>
+                      </div>
                     </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDownloadDocument(doc.file_name || doc.name || 'Document', doc.file_url)}
+                      disabled={!doc.file_url}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => handleDownloadDocument(doc.name)}>
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -739,7 +914,6 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
 
 export default function AdminConfigurationHub() {
   const [activeTab, setActiveTab] = useState('admin')
-  const { user } = useAuth()
 
   return (
     <HubPage

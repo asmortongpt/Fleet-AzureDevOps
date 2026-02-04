@@ -283,12 +283,12 @@ router.post(
       }
 
       const estimatedDuration = optimizedStops.length * 30
-      const trafficDelayMinutes = considerTraffic ? Math.floor(Math.random() * 20) : 0
+      const trafficDelayMinutes = considerTraffic ? Math.min(20, Math.round(estimatedDuration * 0.1)) : 0
 
       res.json({
         data: {
           stops: optimizedStops,
-          optimizationScore: 85 + Math.floor(Math.random() * 15),
+          optimizationScore: calculateOptimizationScore({ waypoints: optimizedStops }),
           estimatedDuration: estimatedDuration + trafficDelayMinutes,
           trafficDelayMinutes: considerTraffic ? trafficDelayMinutes : undefined
         }

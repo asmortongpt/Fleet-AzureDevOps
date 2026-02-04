@@ -16,7 +16,7 @@
  * - Performance optimized
  */
 
-import { useState, Suspense, lazy, memo } from 'react'
+import { useState, Suspense, lazy, memo, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   DollarSign,
@@ -52,6 +52,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useAuth } from '@/contexts'
+import { getCsrfToken } from '@/hooks/use-api'
 import toast from 'react-hot-toast'
 import logger from '@/utils/logger';
 import {
@@ -60,6 +61,7 @@ import {
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
+import useSWR from 'swr'
 
 // ============================================================================
 // ANIMATION VARIANTS
@@ -78,6 +80,11 @@ const staggerContainerVariant = {
   },
 }
 
+const fetcher = (url: string) =>
+  fetch(url, { credentials: 'include' })
+    .then((res) => res.json())
+    .then((data) => data?.data ?? data)
+
 // ============================================================================
 // TAB CONTENT COMPONENTS
 // ============================================================================
@@ -86,6 +93,86 @@ const staggerContainerVariant = {
  * Financial Tab - Budget tracking and cost analysis
  */
 const FinancialTabContent = memo(function FinancialTabContent() {
+  const dateRange = useMemo(() => {
+    const end = new Date()
+    const start = new Date()
+    start.setMonth(end.getMonth() - 5)
+    start.setDate(1)
+    return { start, end }
+  }, [])
+
+  const dateParams = useMemo(() => {
+    return `startDate=${encodeURIComponent(dateRange.start.toISOString())}&endDate=${encodeURIComponent(dateRange.end.toISOString())}`
+  }, [dateRange])
+
+  const { data: summary } = useSWR<any>(
+    `/api/cost-analysis/summary?${dateParams}`,
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const { data: trends } = useSWR<any[]>(
+    "/api/cost-analysis/trends?months=6",
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const { data: budgets } = useSWR<any[]>(
+    "/api/cost-analysis/budget-status",
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const { data: invoices } = useSWR<any>(
+    "/api/invoices?limit=5",
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const budgetTotal = useMemo(() => {
+    if (!Array.isArray(budgets)) return 0
+    return budgets.reduce((sum, b) => sum + Number(b.allocated || b.allocated_amount || 0), 0)
+  }, [budgets])
+
+  const spentTotal = Number(summary?.totalCost || summary?.total_cost || 0)
+
+  const costTrendData = useMemo(() => {
+    if (!Array.isArray(trends)) return []
+    return trends.map((row: any) => ({
+      name: row.month,
+      month: row.month,
+      actual: Number(row.amount || 0)
+    }))
+  }, [trends])
+
+  const breakdownData = useMemo(() => {
+    const breakdown = summary?.categoryBreakdown || summary?.category_breakdown
+    if (!Array.isArray(breakdown)) return []
+    return breakdown.map((row: any) => ({
+      name: row.category || row.name || "Uncategorized",
+      value: Number(row.amount || row.value || 0)
+    }))
+  }, [summary])
+
+  const recentTransactions = useMemo(() => {
+    const expenses = summary?.topExpenses || summary?.top_expenses
+    if (Array.isArray(expenses) && expenses.length > 0) {
+      return expenses.map((row: any) => ({
+        description: row.description || "Expense",
+        amount: Number(row.amount || 0),
+        category: row.category || "General",
+        date: row.date || row.transactionDate || row.transaction_date
+      }))
+    }
+    const invoiceRows = Array.isArray(invoices?.data) ? invoices.data : Array.isArray(invoices) ? invoices : []
+    return invoiceRows.map((row: any) => ({
+      description: row.number ? `Invoice ${row.number}` : "Invoice",
+      amount: Number(row.totalAmount || row.total_amount || 0),
+      category: row.type || "Invoice",
+      date: row.invoiceDate || row.invoice_date || row.createdAt || row.created_at
+    }))
+  }, [summary, invoices])
+
   return (
     <motion.div
       variants={staggerContainerVariant}
@@ -97,61 +184,46 @@ const FinancialTabContent = memo(function FinancialTabContent() {
       <motion.div variants={fadeInVariant} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Monthly Budget"
-          value="$125,000"
+          value={budgetTotal > 0 ? `$${budgetTotal.toLocaleString()}` : "—"}
           icon={Wallet}
-          change={8}
-          trend="up"
-          description="Current month"
+          description="Current fiscal quarter"
         />
         <StatCard
           title="Actual Spend"
-          value="$98,500"
+          value={spentTotal > 0 ? `$${spentTotal.toLocaleString()}` : "—"}
           icon={DollarSign}
-          change={12}
-          trend="down"
-          description="79% of budget"
+          description="Last 6 months"
         />
         <StatCard
           title="Cost Per Mile"
-          value="$0.42"
+          value="—"
           icon={TrendingDown}
-          change={5}
-          trend="up"
-          description="Fleet average"
+          description="Insufficient data"
         />
         <StatCard
           title="Savings YTD"
-          value="$47,200"
+          value="—"
           icon={Target}
-          change={15}
-          trend="up"
-          description="vs last year"
+          description="Insufficient data"
         />
       </motion.div>
 
-      {/* Budget vs Actual */}
+      {/* Cost Trend */}
       <motion.div variants={fadeInVariant}>
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart className="h-5 w-5" />
-              Budget vs Actual Spending
+              Cost Trend
             </CardTitle>
-            <CardDescription>Monthly comparison of budgeted vs actual costs</CardDescription>
+            <CardDescription>Monthly actual costs</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveBarChart
-              title="Budget vs Actual Costs"
-              data={[
-                { name: 'Jan', month: 'Jan', budget: 125000, actual: 118000 },
-                { name: 'Feb', month: 'Feb', budget: 125000, actual: 122000 },
-                { name: 'Mar', month: 'Mar', budget: 125000, actual: 115000 },
-                { name: 'Apr', month: 'Apr', budget: 125000, actual: 128000 },
-                { name: 'May', month: 'May', budget: 125000, actual: 121000 },
-                { name: 'Jun', month: 'Jun', budget: 125000, actual: 98500 },
-              ]}
-              dataKeys={['budget', 'actual']}
-              colors={['#3b82f6', '#10b981']}
+              title="Actual Costs"
+              data={costTrendData}
+              dataKeys={['actual']}
+              colors={['#10b981']}
               height={300}
             />
           </CardContent>
@@ -171,13 +243,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
           <CardContent>
             <ResponsivePieChart
               title="Cost Breakdown by Category"
-              data={[
-                { name: 'Fuel', value: 35000, fill: '#3b82f6' },
-                { name: 'Maintenance', value: 25000, fill: '#10b981' },
-                { name: 'Insurance', value: 15000, fill: '#f59e0b' },
-                { name: 'Personnel', value: 18500, fill: '#ef4444' },
-                { name: 'Other', value: 5000, fill: '#8b5cf6' },
-              ]}
+              data={breakdownData}
               height={300}
             />
           </CardContent>
@@ -193,22 +259,21 @@ const FinancialTabContent = memo(function FinancialTabContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { description: 'Fuel Purchase - Station A', amount: 450.25, category: 'Fuel', date: '2026-01-29' },
-                { description: 'Tire Replacement - Vehicle 1234', amount: 800.00, category: 'Maintenance', date: '2026-01-28' },
-                { description: 'Monthly Insurance Premium', amount: 2500.00, category: 'Insurance', date: '2026-01-27' },
-                { description: 'Oil Change - Vehicle 5678', amount: 75.00, category: 'Maintenance', date: '2026-01-26' },
-              ].map((transaction, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <p className="font-medium">{transaction.description}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {transaction.category} · {transaction.date}
-                    </p>
+              {recentTransactions.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No recent transactions available.</div>
+              ) : (
+                recentTransactions.map((transaction, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <p className="font-medium">{transaction.description}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {transaction.category} · {transaction.date ? new Date(transaction.date).toLocaleDateString() : "—"}
+                      </p>
+                    </div>
+                    <p className="font-semibold">${transaction.amount.toFixed(2)}</p>
                   </div>
-                  <p className="font-semibold">${transaction.amount.toFixed(2)}</p>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -496,18 +561,85 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
  * Reports Tab - Report generation and dashboards
  */
 const ReportsTabContent = memo(function ReportsTabContent() {
+  const { data: reportTemplates } = useSWR<any[]>(
+    '/api/reports/templates',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const { data: scheduledReports } = useSWR<any[]>(
+    '/api/reports/scheduled',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const { data: reportHistory } = useSWR<any[]>(
+    '/api/reports/history',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const { data: customReports } = useSWR<any[]>(
+    '/api/custom-reports',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const templates = Array.isArray(reportTemplates) ? reportTemplates : []
+  const history = Array.isArray(reportHistory) ? reportHistory : []
+  const schedules = Array.isArray(scheduledReports) ? scheduledReports : []
+  const custom = Array.isArray(customReports) ? customReports : []
+
+  const generatedThisMonth = useMemo(() => {
+    const now = new Date()
+    const month = now.getMonth()
+    const year = now.getFullYear()
+    return history.filter((item) => {
+      const date = item.generatedAt ? new Date(item.generatedAt) : null
+      if (!date || Number.isNaN(date.getTime())) return false
+      return date.getMonth() === month && date.getFullYear() === year
+    }).length
+  }, [history])
+
   // Handler for generating reports
-  const handleGenerateReport = (reportName: string) => {
-    toast.success(`Generating report: ${reportName}`)
-    logger.info('Generate report:', reportName)
-    // TODO: Add real API call to generate report
+  const handleGenerateReport = async (reportId: string, reportName: string) => {
+    try {
+      const csrfToken = await getCsrfToken()
+      const response = await fetch('/api/reports/execute', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {})
+        },
+        body: JSON.stringify({
+          reportId,
+          filters: {}
+        })
+      })
+
+      if (!response.ok) {
+        const errorPayload = await response.json().catch(() => ({}))
+        throw new Error(errorPayload.error || 'Failed to generate report')
+      }
+
+      toast.success(`Report generated: ${reportName}`)
+      logger.info('Report generated:', reportName)
+    } catch (error) {
+      logger.error('Generate report failed:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to generate report')
+    }
   }
 
   // Handler for downloading reports
-  const handleDownloadReport = (reportName: string) => {
+  const handleDownloadReport = (reportName: string, downloadUrl?: string) => {
+    if (!downloadUrl) {
+      toast.error('Download link not available for this report')
+      return
+    }
+    window.open(downloadUrl, '_blank', 'noopener,noreferrer')
     toast.success(`Downloading report: ${reportName}`)
     logger.info('Download report:', reportName)
-    // TODO: Add real API call to download report
   }
 
   return (
@@ -521,27 +653,25 @@ const ReportsTabContent = memo(function ReportsTabContent() {
       <motion.div variants={fadeInVariant} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Available Reports"
-          value={36}
+          value={templates.length}
           icon={FileText}
           description="Report templates"
         />
         <StatCard
           title="Generated This Month"
-          value={142}
+          value={generatedThisMonth}
           icon={Download}
-          change={12}
-          trend="up"
           description="Report instances"
         />
         <StatCard
           title="Scheduled Reports"
-          value={8}
+          value={schedules.length}
           icon={Calendar}
           description="Auto-generated"
         />
         <StatCard
           title="Custom Dashboards"
-          value={5}
+          value={custom.length}
           icon={BarChart}
           description="User created"
         />
@@ -558,33 +688,35 @@ const ReportsTabContent = memo(function ReportsTabContent() {
             <CardDescription>Available reports and templates</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {[
-                { name: 'Monthly Financial Summary', category: 'Financial', schedule: 'Monthly', format: 'PDF' },
-                { name: 'Fleet Utilization Report', category: 'Analytics', schedule: 'Weekly', format: 'Excel' },
-                { name: 'Vendor Performance Review', category: 'Procurement', schedule: 'Quarterly', format: 'PDF' },
-                { name: 'Cost Analysis Dashboard', category: 'Financial', schedule: 'On Demand', format: 'Interactive' },
-                { name: 'Executive Summary', category: 'Management', schedule: 'Monthly', format: 'PowerPoint' },
-              ].map((report) => (
-                <div key={report.name} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-blue-500" />
-                    <div>
-                      <p className="font-semibold">{report.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {report.category} · {report.schedule} · {report.format}
-                      </p>
+            {templates.length === 0 ? (
+              <div className="text-sm text-muted-foreground">No report templates available.</div>
+            ) : (
+              <div className="space-y-3">
+                {templates.map((report: any) => (
+                  <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <FileText className="h-5 w-5 text-blue-500" />
+                      <div>
+                        <p className="font-semibold">{report.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {report.category || report.domain || 'General'} · {report.isCore ? 'Core' : 'Custom'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleGenerateReport(report.id, report.title)}
+                      >
+                        <Download className="h-4 w-4 mr-1" />
+                        Generate
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleGenerateReport(report.name)}>
-                      <Download className="h-4 w-4 mr-1" />
-                      Generate
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>
@@ -600,25 +732,30 @@ const ReportsTabContent = memo(function ReportsTabContent() {
             <CardDescription>Latest report outputs</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {[
-                { name: 'Monthly Financial Summary - January 2026', generatedBy: 'System', date: '2026-01-29' },
-                { name: 'Fleet Utilization Report - Week 4', generatedBy: 'John Smith', date: '2026-01-28' },
-                { name: 'Cost Analysis Dashboard - Q4 2025', generatedBy: 'Jane Doe', date: '2026-01-25' },
-              ].map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <p className="font-semibold">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Generated by {item.generatedBy} · {item.date}
-                    </p>
+            {history.length === 0 ? (
+              <div className="text-sm text-muted-foreground">No report history yet.</div>
+            ) : (
+              <div className="space-y-3">
+                {history.map((item: any) => (
+                  <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <p className="font-semibold">{item.title}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Generated by {item.generatedBy || 'System'} · {item.generatedAt ? new Date(item.generatedAt).toLocaleDateString() : '—'}
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDownloadReport(item.title, item.downloadUrl)}
+                      disabled={!item.downloadUrl}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => handleDownloadReport(item.name)}>
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>

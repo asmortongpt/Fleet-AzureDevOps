@@ -7,92 +7,85 @@ import {
   AlertTriangle,
   CheckCircle
 } from "lucide-react"
-import { useState, Dispatch, SetStateAction } from "react"
+import { useMemo, useState } from "react"
 import { toast } from "sonner"
 
-// import { AnalyticsTab } from "./DataWorkbench.bak/AnalyticsTab"
-// import { DataWorkbenchDialogs } from "./DataWorkbench.bak/DataWorkbenchDialogs"
-// import { FuelTab } from "./DataWorkbench.bak/FuelTab"
-// import { MaintenanceTab } from "./DataWorkbench.bak/MaintenanceTab"
-// import { OverviewTab } from "./DataWorkbench.bak/OverviewTab"
+import {
+  OverviewTab,
+  MaintenanceTab,
+  FuelTab,
+  AnalyticsTab,
+  DataWorkbenchDialogs,
+  type AdvancedSearchCriteria
+} from "./DataWorkbench.bak"
 
 import { MetricCard } from "@/components/MetricCard"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { useFuelData } from "@/hooks/use-fuel-data"
 import { useMaintenanceData } from "@/hooks/use-maintenance-data"
 
-// Placeholder components until .bak files are restored
-const OverviewTab = ({ vehicles, onAdvancedSearch }: any) => <Card className="p-4"><p>Overview tab - {vehicles.length} vehicles</p><Button onClick={onAdvancedSearch}>Advanced Search</Button></Card>
-const MaintenanceTab = ({ maintenanceRecords, onScheduleService }: any) => <Card className="p-4"><p>Maintenance tab - {maintenanceRecords.length} records</p><Button onClick={onScheduleService}>Schedule Service</Button></Card>
-const FuelTab = ({ fuelRecords }: any) => <Card className="p-4"><p>Fuel tab - {fuelRecords.length} records</p></Card>
-const AnalyticsTab = ({ vehicles }: any) => <Card className="p-4"><p>Analytics tab - {vehicles.length} vehicles</p></Card>
-const DataWorkbenchDialogs = (props: any) => null
-
-interface Vehicle {
-  status: string;
-  fuelLevel?: number;
-  alerts?: unknown[];
-}
-
-interface MaintenanceRecord {
-  id?: string;
-  vehicleId?: string;
-  date?: string;
-  type?: string;
-  cost?: number;
-  status?: string;
-}
-
-interface FuelRecord {
-  id?: string;
-  vehicleId?: string;
-  date?: string;
-  amount?: number;
-  cost?: number;
-}
-
-interface MaintenanceTabProps {
-  vehicles: Vehicle[];
-  maintenanceRecords: MaintenanceRecord[];
-  maintenanceMetrics: {
-    totalCost: number;
-    overdue: number;
-    upcoming: number;
-  };
-  onScheduleService: () => void;
-}
-
-interface AnalyticsTabProps {
-  vehicles: Vehicle[];
-  fuelRecords: FuelRecord[];
-  maintenanceRecords: MaintenanceRecord[];
-  timeRange?: string;
-  onTimeRangeChange?: (range: string) => void;
-}
-
-interface DataWorkbenchDialogsProps {
-  isAddVehicleDialogOpen: boolean;
-  setIsAddVehicleDialogOpen: Dispatch<SetStateAction<boolean>>;
-  isScheduleServiceDialogOpen: boolean;
-  setIsScheduleServiceDialogOpen: Dispatch<SetStateAction<boolean>>;
-  isAdvancedSearchOpen: boolean;
-  setIsAdvancedSearchOpen: Dispatch<SetStateAction<boolean>>;
-  vehicles: Vehicle[];
+interface ScheduleForm {
+  vehicleId: string
+  serviceType: string
+  scheduledDate: string
+  notes?: string
 }
 
 export function DataWorkbench() {
   const data = useFleetData()
   const vehicles = data.vehicles || []
   const [activeTab, setActiveTab] = useState<string>("overview")
+  const [timeRange, setTimeRange] = useState<string>("30")
   const [isAddVehicleDialogOpen, setIsAddVehicleDialogOpen] = useState(false)
   const [isScheduleServiceDialogOpen, setIsScheduleServiceDialogOpen] = useState(false)
   const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false)
+  const [advancedCriteria, setAdvancedCriteria] = useState<AdvancedSearchCriteria | null>(null)
 
-  const { maintenanceRecords, maintenanceMetrics } = useMaintenanceData(vehicles)
+  const { maintenanceRecords } = useMaintenanceData(vehicles)
   const { fuelRecords } = useFuelData(vehicles)
+
+  const filteredVehicles = useMemo(() => {
+    if (!advancedCriteria) return vehicles
+    return vehicles.filter((vehicle) => {
+      const matchesString = (value: string | undefined, criteria: string) =>
+        !criteria || (value || "").toLowerCase().includes(criteria.toLowerCase())
+
+      const matchesNumberRange = (value: number | undefined, min: string, max: string) => {
+        const numberValue = value ?? 0
+        if (min && numberValue < Number(min)) return false
+        if (max && numberValue > Number(max)) return false
+        return true
+      }
+
+      if (!matchesString(vehicle.number, advancedCriteria.vehicleNumber)) return false
+      if (!matchesString(vehicle.make, advancedCriteria.make)) return false
+      if (!matchesString(vehicle.model, advancedCriteria.model)) return false
+      if (!matchesString(vehicle.vin, advancedCriteria.vin)) return false
+      if (!matchesString(vehicle.licensePlate, advancedCriteria.licensePlate)) return false
+      if (!matchesString(vehicle.department, advancedCriteria.department)) return false
+      if (!matchesString(vehicle.region, advancedCriteria.region)) return false
+      if (!matchesString(vehicle.assignedDriver, advancedCriteria.assignedDriver)) return false
+
+      if (advancedCriteria.status && advancedCriteria.status !== "all") {
+        if (String(vehicle.status) !== advancedCriteria.status) return false
+      }
+
+      if (advancedCriteria.yearFrom && vehicle.year < Number(advancedCriteria.yearFrom)) return false
+      if (advancedCriteria.yearTo && vehicle.year > Number(advancedCriteria.yearTo)) return false
+
+      if (!matchesNumberRange(vehicle.fuelLevel, advancedCriteria.fuelLevelMin, advancedCriteria.fuelLevelMax)) {
+        return false
+      }
+
+      if (!matchesNumberRange(vehicle.mileage, advancedCriteria.mileageMin, advancedCriteria.mileageMax)) {
+        return false
+      }
+
+      return true
+    })
+  }, [vehicles, advancedCriteria])
 
   const handleImport = () => {
     const input = document.createElement("input")
@@ -127,6 +120,55 @@ export function DataWorkbench() {
     setTimeout(() => {
       window.location.reload()
     }, 500)
+  }
+
+  const handleAddVehicle = async (vehicle: any) => {
+    try {
+      await data.addVehicle({
+        vehicleNumber: vehicle.number,
+        make: vehicle.make,
+        model: vehicle.model,
+        year: Number(vehicle.year),
+        vin: vehicle.vin,
+        licensePlate: vehicle.licensePlate,
+        fuelType: "gasoline",
+        status: "active",
+        mileage: 0
+      })
+      toast.success("Vehicle added successfully")
+      setIsAddVehicleDialogOpen(false)
+    } catch (error) {
+      toast.error("Failed to add vehicle")
+    }
+  }
+
+  const handleScheduleService = async (schedule: ScheduleForm) => {
+    if (!schedule.vehicleId || !schedule.serviceType || !schedule.scheduledDate) {
+      toast.error("Please complete all required fields")
+      return
+    }
+
+    try {
+      await data.addMaintenanceRequest({
+        vehicle_id: schedule.vehicleId,
+        name: schedule.serviceType,
+        type: schedule.serviceType,
+        next_service_date: schedule.scheduledDate,
+        description: schedule.notes || "",
+        estimated_cost: 0,
+        is_active: true
+      })
+      toast.success("Service scheduled successfully")
+      setIsScheduleServiceDialogOpen(false)
+    } catch (error) {
+      toast.error("Failed to schedule service")
+    }
+  }
+
+  const handleAdvancedSearch = (criteria: AdvancedSearchCriteria) => {
+    setAdvancedCriteria(criteria)
+    setIsAdvancedSearchOpen(false)
+    setActiveTab("overview")
   }
 
   const metrics = {
@@ -218,36 +260,32 @@ export function DataWorkbench() {
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-2">
-          <OverviewTab
-            vehicles={vehicles}
-            onAdvancedSearch={() => setIsAdvancedSearchOpen(true)}
-          />
+        <TabsContent value="overview" className="space-y-2 mt-3">
+          <OverviewTab vehicles={filteredVehicles} onAdvancedSearch={() => setIsAdvancedSearchOpen(true)} />
         </TabsContent>
 
-        <TabsContent value="maintenance" className="space-y-2">
+        <TabsContent value="maintenance" className="space-y-2 mt-3">
           <MaintenanceTab
             maintenanceRecords={maintenanceRecords}
             onScheduleService={() => setIsScheduleServiceDialogOpen(true)}
           />
         </TabsContent>
 
-        <TabsContent value="fuel" className="space-y-2">
-          <FuelTab vehicles={vehicles} fuelRecords={fuelRecords} />
+        <TabsContent value="fuel" className="space-y-2 mt-3">
+          <FuelTab fuelRecords={fuelRecords} vehicles={vehicles} />
         </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-2">
+        <TabsContent value="analytics" className="space-y-2 mt-3">
           <AnalyticsTab
             vehicles={vehicles}
             fuelRecords={fuelRecords}
             maintenanceRecords={maintenanceRecords}
-            timeRange="default"
-            onTimeRangeChange={() => {}}
+            timeRange={timeRange}
+            onTimeRangeChange={setTimeRange}
           />
         </TabsContent>
       </Tabs>
 
-      {/* Dialogs */}
       <DataWorkbenchDialogs
         vehicles={vehicles}
         isAddVehicleOpen={isAddVehicleDialogOpen}
@@ -256,12 +294,10 @@ export function DataWorkbench() {
         onAddVehicleClose={() => setIsAddVehicleDialogOpen(false)}
         onScheduleServiceClose={() => setIsScheduleServiceDialogOpen(false)}
         onAdvancedSearchClose={() => setIsAdvancedSearchOpen(false)}
-        onAddVehicle={() => {}}
-        onScheduleService={() => {}}
-        onAdvancedSearch={() => {}}
+        onAddVehicle={handleAddVehicle}
+        onScheduleService={handleScheduleService}
+        onAdvancedSearch={handleAdvancedSearch}
       />
     </div>
   )
 }
-
-export default DataWorkbench
