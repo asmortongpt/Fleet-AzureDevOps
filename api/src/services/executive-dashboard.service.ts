@@ -507,8 +507,8 @@ class ExecutiveDashboardService {
         const severityOrder = { critical: 0, warning: 1, recommendation: 2, insight: 3 }
         const severityDiff = severityOrder[a.type] - severityOrder[b.type]
         if (severityDiff !== 0) {
-return severityDiff
-}
+          return severityDiff
+        }
         return b.confidence - a.confidence
       })
 
@@ -584,7 +584,76 @@ return severityDiff
     // Safety score (based on incidents and driver scores)
     const safetyScore = Math.min(100, kpis.avgDriverSafetyScore - (kpis.incidentRatePer100kMiles * 2))
 
-    // Compliance score (based on overdue maintenance)
+    // Compliance score: prefer executive compliance signals when tables exist; fallback to overdue maintenance.
+    let complianceScore: number | null = null
+    try {
+      const [
+        hosOpen,
+        oshaOpen,
+        trainingExpired,
+        docsExpired,
+        inspectionsOverdue,
+        maintenanceOverdue
+      ] = await Promise.all([
+        this.db.query(
+          `SELECT COUNT(*)::int AS count
+           FROM hos_violations
+           WHERE tenant_id = $1 AND status IN ('open','acknowledged','disputed')`,
+          [tenantId]
+        ),
+        this.db.query(
+          `SELECT COUNT(*)::int AS count
+           FROM osha_logs
+           WHERE tenant_id = $1 AND status NOT IN ('closed','resolved')`,
+          [tenantId]
+        ),
+        this.db.query(
+          `SELECT COUNT(*)::int AS count
+           FROM training_records
+           WHERE tenant_id = $1 AND expiry_date IS NOT NULL AND expiry_date <= NOW()`,
+          [tenantId]
+        ),
+        this.db.query(
+          `SELECT COUNT(*)::int AS count
+           FROM documents
+           WHERE tenant_id = $1
+             AND is_archived = false
+             AND COALESCE(expires_at, expiry_date) IS NOT NULL
+             AND COALESCE(expires_at, expiry_date) <= NOW()`,
+          [tenantId]
+        ),
+        this.db.query(
+          `SELECT COUNT(*)::int AS count
+           FROM inspections
+           WHERE tenant_id = $1
+             AND status IN ('pending','in_progress')
+             AND started_at < NOW() - INTERVAL '14 days'`,
+          [tenantId]
+        ),
+        this.db.query(
+          `SELECT COUNT(*)::int AS count
+           FROM maintenance_schedules
+           WHERE tenant_id = $1
+             AND is_active = true
+             AND next_service_due_date < CURRENT_DATE`,
+          [tenantId]
+        )
+      ])
+
+      const compliancePenalty =
+        (Number(hosOpen.rows[0]?.count || 0) * 3) +
+        (Number(oshaOpen.rows[0]?.count || 0) * 2) +
+        (Number(trainingExpired.rows[0]?.count || 0) * 4) +
+        (Number(docsExpired.rows[0]?.count || 0) * 2) +
+        (Number(inspectionsOverdue.rows[0]?.count || 0) * 2) +
+        (Number(maintenanceOverdue.rows[0]?.count || 0) * 1)
+
+      complianceScore = Math.max(0, 100 - Math.min(100, compliancePenalty))
+    } catch {
+      complianceScore = null
+    }
+
+    // Compliance score fallback (based on overdue maintenance only)
     const complianceData = await this.db.query(`
       SELECT COUNT(*) as overdue_count
       FROM maintenance_schedules
@@ -593,7 +662,8 @@ return severityDiff
         AND next_service_due_date < CURRENT_DATE
     `, [tenantId])
     const overdueCount = parseInt(complianceData.rows[0]?.overdue_count || '0')
-    const complianceScore = Math.max(0, 100 - (overdueCount * 5))
+    const fallbackComplianceScore = Math.max(0, 100 - (overdueCount * 5))
+    const complianceScoreFinal = complianceScore ?? fallbackComplianceScore
 
     // Efficiency score (based on utilization and fuel efficiency)
     const efficiencyScore = (kpis.fleetUtilizationRate + kpis.assetUtilizationPercentage) / 2
@@ -602,7 +672,7 @@ return severityDiff
     const breakdown = [
       { category: 'Mechanical', score: mechanicalScore, weight: 0.30 },
       { category: 'Safety', score: safetyScore, weight: 0.35 },
-      { category: 'Compliance', score: complianceScore, weight: 0.20 },
+      { category: 'Compliance', score: complianceScoreFinal, weight: 0.20 },
       { category: 'Efficiency', score: efficiencyScore, weight: 0.15 }
     ]
 
@@ -612,7 +682,7 @@ return severityDiff
       overall: parseFloat(overall.toFixed(2)),
       mechanical: parseFloat(mechanicalScore.toFixed(2)),
       safety: parseFloat(safetyScore.toFixed(2)),
-      compliance: parseFloat(complianceScore.toFixed(2)),
+      compliance: parseFloat(complianceScoreFinal.toFixed(2)),
       efficiency: parseFloat(efficiencyScore.toFixed(2)),
       breakdown
     }
