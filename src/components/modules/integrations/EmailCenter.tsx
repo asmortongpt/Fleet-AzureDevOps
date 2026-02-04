@@ -1,5 +1,6 @@
 import { Mail, Send, Paperclip, Star, ArrowLeft } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import useSWR from "swr"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
@@ -21,73 +22,57 @@ import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import { msOfficeService } from "@/lib/msOfficeIntegration"
 import { MSOutlookEmail } from "@/lib/types"
+import { swrFetcher } from "@/lib/fetcher"
+
+type OutlookMessageRow = {
+  id: string
+  subject?: string | null
+  from_email?: string | null
+  to_emails?: string[] | null
+  body_preview?: string | null
+  received_at?: string | null
+  sent_at?: string | null
+  is_read?: boolean | null
+  metadata?: any
+}
+
+type OutlookMessagesPayload = {
+  success?: boolean
+  data?: OutlookMessageRow[]
+}
 
 
 
 export function EmailCenter() {
-  // Demo email data for inbox functionality
-  const DEMO_EMAILS: MSOutlookEmail[] = [
-    {
-      id: '1',
-      from: 'maintenance@fleetvendor.com',
-      to: ['fleet-manager@company.com'],
-      subject: 'Scheduled Maintenance Reminder - Vehicle #FLT-2024-001',
-      body: 'This is a reminder that Vehicle #FLT-2024-001 (Ford F-150) is due for scheduled maintenance on January 5, 2025. Please confirm the appointment or reschedule if needed.\n\nServices due:\n- Oil change\n- Tire rotation\n- Brake inspection\n- Battery check\n\nPlease reply to confirm.',
-      date: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 min ago
-      isRead: false,
-      hasReceipt: false,
-    },
-    {
-      id: '2',
-      from: 'billing@fuelcard.com',
-      to: ['fleet-manager@company.com'],
-      subject: 'Fuel Purchase Receipt - Transaction #89234',
-      body: 'Transaction Details:\n\nStation: Shell Station #4521\nDate: December 30, 2024\nTime: 2:34 PM\n\nDriver: John Smith\nVehicle: FLT-2024-003\n\nFuel Type: Regular Unleaded\nGallons: 18.5\nPrice/Gallon: $3.25\nTotal: $60.13\n\nThank you for your business.',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
-      isRead: false,
-      hasReceipt: true,
-      relatedVendorId: 'vendor-fuel-001',
-    },
-    {
-      id: '3',
-      from: 'support@gpsvendor.com',
-      to: ['fleet-manager@company.com'],
-      subject: 'GPS Tracking Update - New Features Available',
-      body: 'Dear Fleet Manager,\n\nWe are excited to announce new features for your GPS tracking system:\n\n1. Enhanced real-time tracking accuracy\n2. Improved geofence notifications\n3. New driver behavior scoring metrics\n4. Battery backup status monitoring\n\nLog in to your dashboard to explore these features.\n\nBest regards,\nGPS Vendor Support Team',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
-      isRead: true,
-      hasReceipt: false,
-      relatedVendorId: 'vendor-gps-001',
-    },
-    {
-      id: '4',
-      from: 'insurance@fleetinsure.com',
-      to: ['fleet-manager@company.com'],
-      cc: ['accounting@company.com'],
-      subject: 'Policy Renewal Notice - Due January 15, 2025',
-      body: 'Important Notice:\n\nYour fleet insurance policy is due for renewal on January 15, 2025.\n\nCurrent Coverage:\n- Vehicles covered: 47\n- Liability limit: $1,000,000\n- Collision deductible: $500\n\nPlease review the attached renewal documents and contact us with any questions.\n\nThank you for choosing Fleet Insure.',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), // 2 days ago
-      isRead: true,
-      hasReceipt: false,
-      attachments: [
-        { id: 'att1', name: 'Renewal_Quote_2025.pdf', size: 245760, type: 'application/pdf' },
-        { id: 'att2', name: 'Policy_Summary.pdf', size: 128000, type: 'application/pdf' },
-      ],
-    },
-    {
-      id: '5',
-      from: 'parts@autopartsplus.com',
-      to: ['fleet-manager@company.com'],
-      subject: 'Order Confirmation - Brake Pads and Filters',
-      body: 'Order Confirmation #ORD-78234\n\nItems Ordered:\n2x Brake Pad Set (Premium) - $89.99 each\n4x Oil Filter (OEM) - $12.50 each\n4x Air Filter - $18.00 each\n\nSubtotal: $301.98\nShipping: Free\nTotal: $301.98\n\nEstimated Delivery: January 3, 2025\n\nTrack your order: www.autopartsplus.com/track/78234',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(), // 3 days ago
-      isRead: true,
-      hasReceipt: true,
-      relatedVendorId: 'vendor-parts-001',
-    },
-  ];
+  const { data: messagesPayload, isLoading: isLoadingInbox } = useSWR<OutlookMessagesPayload>(
+    '/api/outlook/messages?source=local&top=100',
+    swrFetcher,
+    { revalidateOnFocus: false }
+  )
 
-  const [emails, setEmails] = useState<MSOutlookEmail[]>(DEMO_EMAILS)
+  const inboxEmails = useMemo<MSOutlookEmail[]>(() => {
+    const rows = messagesPayload?.data ?? []
+    return rows.map((row) => {
+      const meta = row.metadata || {}
+      return {
+        id: row.id,
+        subject: row.subject || '(No subject)',
+        from: row.from_email || 'unknown@unknown',
+        to: row.to_emails || [],
+        date: row.received_at || row.sent_at || new Date().toISOString(),
+        body: meta.body || row.body_preview || '',
+        isRead: Boolean(row.is_read),
+        hasReceipt: Boolean(meta.has_receipt || meta.hasReceipt),
+        relatedVendorId: meta.related_vendor_id || meta.relatedVendorId,
+      }
+    })
+  }, [messagesPayload?.data])
+
+  const [emails, setEmails] = useState<MSOutlookEmail[]>([])
+
+  useEffect(() => {
+    setEmails(inboxEmails)
+  }, [inboxEmails])
 
   const [selectedEmail, setSelectedEmail] = useState<MSOutlookEmail | null>(null)
   const [isComposeOpen, setIsComposeOpen] = useState(false)
@@ -229,6 +214,12 @@ export function EmailCenter() {
             </Dialog>
           </CardHeader>
           <CardContent className="space-y-1 p-3">
+            {isLoadingInbox && (
+              <p className="text-xs text-slate-700 px-1">Loading inbox…</p>
+            )}
+            {!isLoadingInbox && emails.length === 0 && (
+              <p className="text-xs text-slate-700 px-1">No messages available.</p>
+            )}
             {categories.map(category => (
               <Button
                 key={category.id}

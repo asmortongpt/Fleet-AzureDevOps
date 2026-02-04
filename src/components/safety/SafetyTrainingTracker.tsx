@@ -4,7 +4,8 @@
  */
 
 import { GraduationCap, Award, Calendar, CheckCircle, AlertTriangle, Clock, TrendingUp, Download, Award as Certificate } from 'lucide-react'
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
+import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -25,6 +26,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
+import { swrFetcher } from '@/lib/fetcher'
 
 interface TrainingRecord {
     id: string
@@ -61,56 +63,74 @@ const OSHA_REQUIRED_TRAINING = [
     'Powered Industrial Trucks'
 ]
 
-const DEMO_TRAINING_DATA: TrainingRecord[] = [
-    {
-        id: '1',
-        employee_id: 'EMP-001',
-        employee_name: 'John Smith',
-        training_type: 'Forklift Operation (29 CFR 1910.178)',
-        completion_date: '2024-01-15',
-        expiration_date: '2027-01-15',
-        status: 'current',
-        certificate_number: 'CERT-2024-001',
-        instructor: 'Mike Johnson',
-        score: 95
-    },
-    {
-        id: '2',
-        employee_id: 'EMP-002',
-        employee_name: 'Sarah Williams',
-        training_type: 'Hazard Communication (29 CFR 1910.1200)',
-        completion_date: '2024-11-01',
-        expiration_date: '2025-02-15',
-        status: 'expiring_soon',
-        certificate_number: 'CERT-2024-045',
-        score: 88
-    },
-    {
-        id: '3',
-        employee_id: 'EMP-003',
-        employee_name: 'Mike Davis',
-        training_type: 'Lockout/Tagout (29 CFR 1910.147)',
-        completion_date: '2023-06-20',
-        expiration_date: '2024-11-20',
-        status: 'expired',
-        certificate_number: 'CERT-2023-089'
-    },
-    {
-        id: '4',
-        employee_id: 'EMP-004',
-        employee_name: 'Emily Brown',
-        training_type: 'Personal Protective Equipment (29 CFR 1910.132)',
-        completion_date: '',
-        expiration_date: '',
-        status: 'pending'
-    }
-]
+type SafetyTrainingApiRecord = {
+    id: string
+    driver_id: string
+    employee_name: string
+    training_type: string
+    completion_date: string | null
+    expiry_date: string | null
+    certificate_number?: string | null
+    instructor_name?: string | null
+    score?: number | null
+}
+
+type SafetyTrainingListPayload = {
+    data: SafetyTrainingApiRecord[]
+}
 
 export function SafetyTrainingTracker() {
     const [selectedFilter, setSelectedFilter] = useState<string>('all')
-    const [trainingData] = useState<TrainingRecord[]>(DEMO_TRAINING_DATA)
+
+    const { data: statsPayload } = useSWR<TrainingStats>('/api/safety-training/compliance-stats', swrFetcher, {
+        revalidateOnFocus: false
+    })
+
+    const { data: listPayload, isLoading: isLoadingList } = useSWR<SafetyTrainingListPayload>(
+        '/api/safety-training?limit=500',
+        swrFetcher,
+        { revalidateOnFocus: false }
+    )
+
+    const trainingData = useMemo<TrainingRecord[]>(() => {
+        const rows = listPayload?.data ?? []
+        const now = Date.now()
+        const soonCutoff = now + 30 * 24 * 60 * 60 * 1000
+
+        return rows.map((row) => {
+            const completion = row.completion_date || ''
+            const expiry = row.expiry_date || ''
+
+            let status: TrainingRecord['status'] = 'pending'
+            if (completion) {
+                if (expiry) {
+                    const expiryMs = new Date(expiry).getTime()
+                    if (Number.isFinite(expiryMs) && expiryMs <= now) status = 'expired'
+                    else if (Number.isFinite(expiryMs) && expiryMs <= soonCutoff) status = 'expiring_soon'
+                    else status = 'current'
+                } else {
+                    status = 'current'
+                }
+            }
+
+            return {
+                id: row.id,
+                employee_id: row.driver_id,
+                employee_name: row.employee_name,
+                training_type: row.training_type,
+                completion_date: completion,
+                expiration_date: expiry,
+                status,
+                certificate_number: row.certificate_number || undefined,
+                instructor: row.instructor_name || undefined,
+                score: row.score ?? undefined,
+            }
+        })
+    }, [listPayload?.data])
 
     const stats = useMemo<TrainingStats>(() => {
+        if (statsPayload) return statsPayload
+
         const total = trainingData.length
         const compliant = trainingData.filter(t => t.status === 'current').length
         const pending = trainingData.filter(t => t.status === 'pending').length
@@ -123,9 +143,9 @@ export function SafetyTrainingTracker() {
             pending_training: pending,
             expired_certifications: expired,
             expiring_soon: expiring,
-            compliance_rate: Math.round((compliant / total) * 100)
+            compliance_rate: total > 0 ? Math.round((compliant / total) * 100) : 0
         }
-    }, [trainingData])
+    }, [statsPayload, trainingData])
 
     const filteredData = useMemo(() => {
         if (selectedFilter === 'all') return trainingData
@@ -201,6 +221,7 @@ export function SafetyTrainingTracker() {
                             <span className="text-base font-bold text-white">{stats.compliant_employees}</span>
                             <span className="text-slate-700">/ {stats.total_employees}</span>
                         </div>
+                        {isLoadingList && <p className="text-xs text-slate-700 mt-1">Loading…</p>}
                     </CardContent>
                 </Card>
 

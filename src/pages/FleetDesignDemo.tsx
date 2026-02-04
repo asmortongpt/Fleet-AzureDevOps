@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import useSWR from 'swr'
 
 import { EntityAvatar } from '@/shared/design-system/EntityAvatar'
 import { RowExpandPanel } from '@/shared/design-system/RowExpandPanel'
 import { StatusChip } from '@/shared/design-system/StatusChip'
 import type { VehicleRow } from '@/shared/design-system/types'
+import { swrFetcher } from '@/lib/fetcher'
 
 /**
  * STANDALONE FLEET DESIGN SYSTEM DEMO
@@ -13,45 +15,45 @@ import type { VehicleRow } from '@/shared/design-system/types'
 export default function FleetDesignDemo() {
     const [expandedRow, setExpandedRow] = useState<string | null>(null)
 
-    // Sample vehicle data showcasing the design system
-    const vehicles: VehicleRow[] = [
-        {
-            entityType: 'vehicle',
-            id: 'VEH-001',
-            displayName: 'Truck 42',
-            status: 'good',
-            kind: 'Semi Truck',
-            odometer: 142500,
-            fuelPct: 72,
-            healthScore: 94,
-            alerts: 0,
-            updatedAgo: '2m ago'
-        },
-        {
-            entityType: 'vehicle',
-            id: 'VEH-002',
-            displayName: 'Van 18',
-            status: 'warn',
-            kind: 'Cargo Van',
-            odometer: 89200,
-            fuelPct: 45,
-            healthScore: 78,
-            alerts: 2,
-            updatedAgo: '8m ago'
-        },
-        {
-            entityType: 'vehicle',
-            id: 'VEH-003',
-            displayName: 'Truck 07',
-            status: 'bad',
-            kind: 'Box Truck',
-            odometer: 201000,
-            fuelPct: 15,
-            healthScore: 62,
-            alerts: 5,
-            updatedAgo: '12m ago'
-        },
-    ]
+    const { data: vehiclesPayload } = useSWR<any>('/api/vehicles?limit=25', swrFetcher, {
+        revalidateOnFocus: false
+    })
+
+    const vehicles = useMemo<VehicleRow[]>(() => {
+        const raw =
+            (Array.isArray(vehiclesPayload?.data) && vehiclesPayload.data) ||
+            (Array.isArray(vehiclesPayload?.data?.data) && vehiclesPayload.data.data) ||
+            []
+
+        const now = Date.now()
+
+        return raw.map((v: any) => {
+            const updatedAtMs = v.updated_at ? new Date(v.updated_at).getTime() : now
+            const diffMinutes = Math.max(0, Math.round((now - updatedAtMs) / 60000))
+            const updatedAgo = diffMinutes < 60 ? `${diffMinutes}m ago` : `${Math.round(diffMinutes / 60)}h ago`
+
+            const fuelPct = Math.max(0, Math.min(100, Math.round(Number(v.fuel_level || 0))))
+            const alerts = Number(v.metadata?.open_alerts || v.metadata?.alerts || 0) || 0
+            const status: VehicleRow['status'] =
+                v.status === 'active' ? 'good' : v.status === 'maintenance' ? 'warn' : v.status === 'retired' ? 'bad' : 'info'
+
+            // NOTE: healthScore is a derived proxy until a dedicated health-scoring model exists.
+            const healthScore = Math.max(0, Math.min(100, Math.round(fuelPct)))
+
+            return {
+                entityType: 'vehicle',
+                id: String(v.id),
+                displayName: String(v.name || v.number || v.unit_number || v.vehicle_number || v.id),
+                status,
+                kind: String(v.type || 'Vehicle'),
+                odometer: Number(v.odometer || 0),
+                fuelPct,
+                healthScore,
+                alerts,
+                updatedAgo
+            }
+        })
+    }, [vehiclesPayload])
 
     const toggleRow = (id: string) => {
         setExpandedRow(expandedRow === id ? null : id)

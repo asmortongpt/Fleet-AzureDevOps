@@ -1,66 +1,61 @@
 import { MapPin, RefreshCw } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo } from 'react';
+import useSWR from 'swr';
 
 import { FleetMap } from '@/components/FleetMap';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { swrFetcher } from '@/lib/fetcher';
 
 /**
  * Demo page showing FleetMap component with sample data
  * This demonstrates the Google Maps integration with real vehicle locations
  */
 export function FleetMapDemo() {
-  // Sample vehicle data - Tallahassee area coordinates
-  const [vehicles] = useState([
-    {
-      id: '1',
-      name: 'Truck-001',
-      vehicleNumber: 'FL-1234',
-      latitude: 30.4383,
-      longitude: -84.2807,
-      status: 'active',
-      location: 'Downtown Tallahassee',
-    },
-    {
-      id: '2',
-      name: 'Van-045',
-      vehicleNumber: 'FL-5678',
-      latitude: 30.4519,
-      longitude: -84.2727,
-      status: 'in_use',
-      location: 'FSU Campus',
-    },
-    {
-      id: '3',
-      name: 'Sedan-123',
-      vehicleNumber: 'FL-9012',
-      latitude: 30.4238,
-      longitude: -84.2932,
-      status: 'maintenance',
-      location: 'Service Center',
-    },
-    {
-      id: '4',
-      name: 'SUV-789',
-      vehicleNumber: 'FL-3456',
-      latitude: 30.4612,
-      longitude: -84.2521,
-      status: 'available',
-      location: 'North Side',
-    },
-    {
-      id: '5',
-      name: 'Truck-002',
-      vehicleNumber: 'FL-7890',
-      latitude: 30.4165,
-      longitude: -84.3088,
-      status: 'out_of_service',
-      location: 'West Tallahassee',
-    },
-  ]);
+  const { data: vehiclesPayload, isLoading: isLoadingVehicles } = useSWR<any>(
+    '/api/vehicles?limit=200',
+    swrFetcher,
+    { revalidateOnFocus: false }
+  )
 
-  const vehiclesByStatus = vehicles.reduce(
+  type MapVehicle = {
+    id: string
+    name: string
+    vehicleNumber: string
+    latitude: number
+    longitude: number
+    status: string
+    location: string
+  }
+
+  const vehicles = useMemo<MapVehicle[]>(() => {
+    const raw =
+      (Array.isArray(vehiclesPayload?.data) && vehiclesPayload.data) ||
+      (Array.isArray(vehiclesPayload?.data?.data) && vehiclesPayload.data.data) ||
+      []
+
+    return raw
+      .map((v: any) => ({
+        id: String(v.id),
+        name: String(
+          v.name ||
+            (v.make ? `${v.year || ''} ${v.make || ''} ${v.model || ''}`.trim() : '') ||
+            v.number ||
+            v.unit_number ||
+            v.vehicle_number ||
+            v.id
+        ),
+        vehicleNumber: String(v.number || v.vehicle_number || v.unit_number || ''),
+        latitude: Number(v.latitude),
+        longitude: Number(v.longitude),
+        status: String(v.status || 'unknown'),
+        location: String(v.location_address || v.location || ''),
+      }))
+      .filter((v: any) => Number.isFinite(v.latitude) && Number.isFinite(v.longitude))
+  }, [vehiclesPayload])
+
+  const vehiclesByStatus = vehicles.reduce<Record<string, number>>(
     (acc, vehicle) => {
       acc[vehicle.status] = (acc[vehicle.status] || 0) + 1;
       return acc;
@@ -85,6 +80,9 @@ export function FleetMapDemo() {
           Reload Map
         </Button>
       </div>
+      {isLoadingVehicles && (
+        <p className="text-xs text-slate-700">Loading vehicle locations…</p>
+      )}
 
       {/* Stats Cards */}
       <div className="grid gap-2 md:grid-cols-5">
