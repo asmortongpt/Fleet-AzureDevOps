@@ -15,6 +15,11 @@ export default defineConfig({
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
+      // This repo contains a full backend under `api/` with its own vitest config.
+      // Running backend tests in the frontend runner is slow and can fail due to differing timeouts/env.
+      'api/**',
+      // Local MCP tooling shouldn't be picked up by the app unit test runner.
+      'mcp-server/**',
       'api/src/__tests__/services/**',
       'api/src/routes/__tests__/**',
       'api/tests/**',

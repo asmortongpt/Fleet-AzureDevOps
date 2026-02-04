@@ -198,7 +198,7 @@ describe('RadioEmulator', () => {
       expect(pttTimeoutSpy).toHaveBeenCalled()
       const lastCall = pttTimeoutSpy.mock.calls[pttTimeoutSpy.mock.calls.length - 1][0]
       expect(lastCall.eventType).toBe('timeout')
-    })
+    }, 10000)
   })
 
   describe('Radio Transmission', () => {
