@@ -8,9 +8,9 @@
 import OpenAI from 'openai'
 import { Pool } from 'pg'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null
 
 interface DashboardKPIs {
   totalVehicles: number
