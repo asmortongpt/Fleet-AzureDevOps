@@ -80,7 +80,7 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
  *     summary: Get equipment by ID
  *     tags: [Heavy Equipment]
  */
-router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
+router.get('/:id([0-9a-fA-F-]{36})', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const tenantId = req.user?.tenant_id
@@ -134,7 +134,7 @@ router.post('/', authenticateJWT, csrfProtection, requirePermission('vehicle:cre
  *     summary: Update heavy equipment
  *     tags: [Heavy Equipment]
  */
-router.put('/:id', authenticateJWT, csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
+router.put('/:id([0-9a-fA-F-]{36})', authenticateJWT, csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const tenantId = req.user?.tenant_id
@@ -163,7 +163,7 @@ router.put('/:id', authenticateJWT, csrfProtection, requirePermission('vehicle:u
  *     summary: Record hour meter reading
  *     tags: [Heavy Equipment]
  */
-router.post('/:id/hour-meter', authenticateJWT, csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
+router.post('/:id([0-9a-fA-F-]{36})/hour-meter', authenticateJWT, csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const userId = req.user?.id
@@ -193,7 +193,7 @@ router.post('/:id/hour-meter', authenticateJWT, csrfProtection, requirePermissio
  *     summary: Get hour meter readings
  *     tags: [Heavy Equipment]
  */
-router.get('/:id/hour-meter', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
+router.get('/:id([0-9a-fA-F-]{36})/hour-meter', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const limit = parseInt(req.query.limit as string) || 50
@@ -387,7 +387,7 @@ router.patch('/attachments/:id/status', authenticateJWT, csrfProtection, require
  *     summary: Complete inspection checklist
  *     tags: [Heavy Equipment]
  */
-router.post('/:id/inspection', authenticateJWT, csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
+router.post('/:id([0-9a-fA-F-]{36})/inspection', authenticateJWT, csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const userId = req.user?.id
@@ -417,7 +417,7 @@ router.post('/:id/inspection', authenticateJWT, csrfProtection, requirePermissio
  *     summary: Get inspection checklists
  *     tags: [Heavy Equipment]
  */
-router.get('/:id/inspection', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
+router.get('/:id([0-9a-fA-F-]{36})/inspection', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const limit = parseInt(req.query.limit as string) || 20
@@ -441,7 +441,7 @@ router.get('/:id/inspection', requirePermission('vehicle:view:fleet'), async (re
  *     summary: Get equipment utilization
  *     tags: [Heavy Equipment]
  */
-router.get('/:id/utilization', requirePermission('report:view:global'), async (req: AuthRequest, res) => {
+router.get('/:id([0-9a-fA-F-]{36})/utilization', requirePermission('report:view:global'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const startDate = req.query.start_date as string || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
@@ -463,7 +463,7 @@ router.get('/:id/utilization', requirePermission('report:view:global'), async (r
  *     summary: Get equipment cost analysis
  *     tags: [Heavy Equipment]
  */
-router.get('/:id/cost-analysis', requirePermission('report:view:global'), async (req: AuthRequest, res) => {
+router.get('/:id([0-9a-fA-F-]{36})/cost-analysis', requirePermission('report:view:global'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const startDate = req.query.start_date as string || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
@@ -509,29 +509,12 @@ router.get('/maintenance/schedules', requirePermission('maintenance:view:fleet')
  *     summary: Get real-time telematics data
  *     tags: [Heavy Equipment]
  */
-router.get('/:id/telemetrics', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
+router.get('/:id([0-9a-fA-F-]{36})/telemetrics', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
+    const tenantId = req.user?.tenant_id
 
-    // In production, this would fetch real telematics data from IoT devices
-    // For now, return simulated data
-    const telemetrics = {
-      equipment_id: id,
-      timestamp: new Date().toISOString(),
-      engine_hours: 1245.5 + Math.random() * 10,
-      engine_rpm: 1500 + Math.random() * 500,
-      engine_temp_celsius: 85 + Math.random() * 15,
-      fuel_level_percent: 60 + Math.random() * 30,
-      fuel_consumption_rate: 5.2 + Math.random() * 2,
-      latitude: 38.9072 + (Math.random() - 0.5) * 0.1,
-      longitude: -77.0369 + (Math.random() - 0.5) * 0.1,
-      speed_mph: Math.random() * 15,
-      altitude_feet: 150 + Math.random() * 50,
-      hydraulic_pressure_psi: 2500 + Math.random() * 500,
-      battery_voltage: 12.5 + Math.random() * 0.5,
-      diagnostic_codes: [],
-      alerts: []
-    }
+    const telemetrics = await heavyEquipmentService.getLatestTelemetrics(tenantId, id)
 
     res.json({ telemetrics })
   } catch (error) {

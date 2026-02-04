@@ -1,0 +1,15 @@
+{
+  "startedAt": "2026-02-04T17:03:08.524Z",
+  "baseUrl": "http://[::1]:5173",
+  "ok": [
+    {
+      "categoryId": "admin",
+      "moduleId": "notifications",
+      "moduleLabel": "Notifications"
+    }
+  ],
+  "failed": [],
+  "warnings": [],
+  "httpErrors": [],
+  "finishedAt": "2026-02-04T17:03:13.115Z"
+}

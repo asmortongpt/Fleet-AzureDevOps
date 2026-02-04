@@ -1,0 +1,16 @@
+{
+  "startedAt": "2026-02-04T08:38:06.656Z",
+  "baseUrl": null,
+  "ok": [],
+  "failed": [
+    {
+      "categoryId": "global",
+      "moduleId": "bootstrap",
+      "moduleLabel": "bootstrap",
+      "error": "Unable to reach frontend on known ports (5173/5174)."
+    }
+  ],
+  "warnings": [],
+  "httpErrors": [],
+  "finishedAt": "2026-02-04T08:38:06.736Z"
+}

@@ -1,0 +1,49 @@
+{
+  "startedAt": "2026-02-04T05:25:43.836Z",
+  "baseUrl": "http://localhost:5174",
+  "ok": [
+    {
+      "categoryId": "fleet",
+      "moduleId": "live-fleet-dashboard",
+      "moduleLabel": "Live Fleet Dashboard"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "fleet",
+      "moduleLabel": "Fleet Operations Hub"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "comprehensive",
+      "moduleLabel": "Fleet Analytics"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "vehicle-telemetry",
+      "moduleLabel": "Vehicle Telemetry"
+    }
+  ],
+  "failed": [
+    {
+      "categoryId": "global",
+      "moduleId": "bootstrap",
+      "moduleLabel": "bootstrap",
+      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByTestId('nav-cat-fleet')\n"
+    }
+  ],
+  "warnings": [
+    {
+      "moduleId": "vehicle-telemetry",
+      "moduleLabel": "Vehicle Telemetry",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n TypeError: fuelLevel.toFixed is not a function\n    at VehicleTelemetry (http://localhost:5174/src/components/modules/fleet/VehicleTelemetry.tsx?t=1770181037376:299:122)\n    at Object.react_stack_bottom_frame (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:18509:20)\n    at renderWithHooks (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:5654:24)\n    at updateFunctionComponent (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:7475:21)\n    at beginWork (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:8525:20)\n    at runWithFiberInDEV (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:997:72)\n    at performUnitOfWork (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:12561:98)\n    at workLoopSync (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:12424:43)\n    at renderRootSync (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:12408:13)\n    at performWorkOnRoot (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:11827:37) The above error occurred in the <VehicleTelemetry> component. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "vehicle-telemetry",
+      "moduleLabel": "Vehicle Telemetry",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: TypeError: fuelLevel.toFixed is not a function\n    at VehicleTelemetry (http://localhost:5174/src/components/modules/fleet/VehicleTelemetry.tsx?t=1770181037376:299:122)\n    at Object.react_stack_bottom_frame (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:18509:20)\n    at renderWithHooks (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:5654:24)\n    at updateFunctionComponent (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:7475:21)\n    at beginWork (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:8525:20)\n    at runWithFiberInDEV (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:997:72)\n    at performUnitOfWork (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:12561:98)\n    at workLoopSync (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:12424:43)\n    at renderRootSync (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:12408:13)\n    at performWorkOnRoot (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:11827:37) {componentStack: \n    at VehicleTelemetry (http://localhost:5174/sr…/deps/@tanstack_react-query.js?v=5edbfc0e:3090:3)}"
+    }
+  ],
+  "finishedAt": "2026-02-04T05:26:25.166Z"
+}
