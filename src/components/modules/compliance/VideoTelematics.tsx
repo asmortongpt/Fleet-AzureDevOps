@@ -9,8 +9,9 @@ import {
   ShieldCheck,
   Clock
 } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
+import useSWR from "swr"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -42,6 +43,7 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
+import { getCsrfToken } from "@/hooks/use-api"
 
 
 interface VideoEvent {
@@ -93,6 +95,44 @@ interface PrivacySettings {
   enableVideoEncryption: boolean
 }
 
+const fetcher = (url: string) =>
+  fetch(url, { credentials: "include" })
+    .then((res) => res.json())
+    .then((data) => data?.data ?? data)
+
+const mapVideoEvent = (row: any): VideoEvent => ({
+  id: row.id,
+  tenantId: row.tenant_id,
+  vehicleId: row.vehicle_id,
+  vehicleNumber: row.vehicle_number || row.vehicle_name || row.vehicle_id,
+  driverId: row.driver_id,
+  driverName: row.driver_name,
+  eventType: row.event_type,
+  severity: row.severity,
+  timestamp: row.event_date || row.created_at,
+  location: {
+    lat: Number(row.latitude || 0),
+    lng: Number(row.longitude || 0),
+    address: row.address || ""
+  },
+  speed: Number(row.speed_mph || 0),
+  videoUrl: row.video_url,
+  thumbnailUrl: row.thumbnail_url,
+  duration: Number(row.duration || 0),
+  aiConfidence: Number(row.ai_confidence || 0),
+  reviewed: Boolean(row.reviewed),
+  reviewedBy: row.reviewed_by_name || row.reviewed_by,
+  reviewedAt: row.reviewed_at,
+  coaching: {
+    assigned: Boolean(row.coaching_assigned),
+    assignedTo: row.coaching_assigned_name || row.coaching_assigned_to,
+    status: row.coaching_status || "pending",
+    notes: row.coaching_notes
+  },
+  retained: Boolean(row.retained),
+  retentionDays: Number(row.retention_days || 0)
+})
+
 export function VideoTelematics() {
   const [events, setEvents] = useState<VideoEvent[]>([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -119,11 +159,24 @@ export function VideoTelematics() {
     enableVideoEncryption: true
   })
 
+  const { data: eventsRaw, mutate: refreshEvents } = useSWR<any[]>(
+    "/api/video-events?limit=200",
+    fetcher,
+    { refreshInterval: 60000, shouldRetryOnError: false }
+  )
+
+  useEffect(() => {
+    if (Array.isArray(eventsRaw)) {
+      setEvents(eventsRaw.map(mapVideoEvent))
+    }
+  }, [eventsRaw])
+
   const filteredEvents = (events || []).filter(event => {
+    const term = searchTerm.toLowerCase()
     const matchesSearch =
-      event.vehicleNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.driverName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.location?.address.toLowerCase().includes(searchTerm.toLowerCase())
+      event.vehicleNumber.toLowerCase().includes(term) ||
+      (event.driverName || "").toLowerCase().includes(term) ||
+      (event.location?.address || "").toLowerCase().includes(term)
     const matchesType = filterType === "all" || event.eventType === filterType
     const matchesSeverity = filterSeverity === "all" || event.severity === filterSeverity
     const matchesReviewed = 
@@ -134,34 +187,59 @@ export function VideoTelematics() {
     return matchesSearch && matchesType && matchesSeverity && matchesReviewed
   })
 
-  const handleReview = (eventId: string) => {
-    setEvents(current =>
-      (current || []).map(e =>
-        e.id === eventId
-          ? { ...e, reviewed: true, reviewedBy: "Current User", reviewedAt: new Date().toISOString() }
-          : e
-      )
-    )
-    toast.success("Event marked as reviewed")
+  const handleReview = async (eventId: string) => {
+    try {
+      const csrf = await getCsrfToken()
+      const response = await fetch(`/api/video-events/${eventId}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrf
+        },
+        body: JSON.stringify({
+          reviewed: true,
+          reviewed_at: new Date().toISOString()
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to mark reviewed")
+      }
+
+      toast.success("Event marked as reviewed")
+      refreshEvents()
+    } catch (error) {
+      toast.error("Unable to update event status")
+    }
   }
 
-  const handleAssignCoaching = (eventId: string) => {
-    setEvents(current =>
-      (current || []).map(e =>
-        e.id === eventId
-          ? {
-              ...e,
-              coaching: {
-                assigned: true,
-                assignedTo: "Safety Manager",
-                status: "pending" as const,
-                notes: "Driver coaching required"
-              }
-            }
-          : e
-      )
-    )
-    toast.success("Coaching assigned to driver")
+  const handleAssignCoaching = async (eventId: string) => {
+    try {
+      const csrf = await getCsrfToken()
+      const response = await fetch(`/api/video-events/${eventId}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrf
+        },
+        body: JSON.stringify({
+          coaching_assigned: true,
+          coaching_status: "pending",
+          coaching_notes: "Driver coaching required"
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to assign coaching")
+      }
+
+      toast.success("Coaching assigned to driver")
+      refreshEvents()
+    } catch (error) {
+      toast.error("Unable to assign coaching")
+    }
   }
 
   const handleViewEvent = (event: VideoEvent) => {
@@ -231,101 +309,6 @@ export function VideoTelematics() {
   const unreviewedEvents = (events || []).filter(e => !e.reviewed).length
   const coachingPending = (events || []).filter(e => e.coaching.assigned && e.coaching.status === "pending").length
   const criticalEvents = (events || []).filter(e => e.severity === "critical").length
-
-  // Mock sample data for demo
-  const mockEvents: VideoEvent[] = [
-    {
-      id: "evt-1",
-      tenantId: "tenant-demo",
-      vehicleId: "veh-1",
-      vehicleNumber: "FL-1001",
-      driverId: "drv-1",
-      driverName: "John Smith",
-      eventType: "phone-use",
-      severity: "high",
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      location: {
-        lat: 27.9506,
-        lng: -82.4572,
-        address: "Downtown Tampa, FL"
-      },
-      speed: 45,
-      duration: 12,
-      aiConfidence: 0.94,
-      reviewed: false,
-      coaching: {
-        assigned: false,
-        status: "pending"
-      },
-      retained: true,
-      retentionDays: 30
-    },
-    {
-      id: "evt-2",
-      tenantId: "tenant-demo",
-      vehicleId: "veh-2",
-      vehicleNumber: "FL-1002",
-      driverId: "drv-2",
-      driverName: "Sarah Johnson",
-      eventType: "harsh-braking",
-      severity: "medium",
-      timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-      location: {
-        lat: 27.9656,
-        lng: -82.4522,
-        address: "I-275 North, Tampa"
-      },
-      speed: 62,
-      duration: 8,
-      aiConfidence: 0.89,
-      reviewed: true,
-      reviewedBy: "Safety Manager",
-      reviewedAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-      coaching: {
-        assigned: true,
-        assignedTo: "Safety Manager",
-        status: "in-progress",
-        notes: "Follow up with driver about defensive driving"
-      },
-      retained: true,
-      retentionDays: 90
-    },
-    {
-      id: "evt-3",
-      tenantId: "tenant-demo",
-      vehicleId: "veh-3",
-      vehicleNumber: "FL-1003",
-      driverId: "drv-3",
-      driverName: "Mike Wilson",
-      eventType: "speeding",
-      severity: "medium",
-      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-      location: {
-        lat: 28.0656,
-        lng: -82.4122,
-        address: "Dale Mabry Hwy, Tampa"
-      },
-      speed: 78,
-      duration: 45,
-      aiConfidence: 0.98,
-      reviewed: true,
-      reviewedBy: "Fleet Manager",
-      reviewedAt: new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString(),
-      coaching: {
-        assigned: true,
-        assignedTo: "Fleet Manager",
-        status: "completed",
-        notes: "Driver acknowledged, completed training module"
-      },
-      retained: true,
-      retentionDays: 30
-    }
-  ]
-
-  // Initialize with mock data if empty
-  if ((events || []).length === 0 && mockEvents.length > 0) {
-    setEvents(mockEvents)
-  }
 
   return (
     <div className="space-y-2">

@@ -19,6 +19,8 @@ export const TYPES = {
   FacilityController: Symbol.for("FacilityController"),
   FacilityRepository: Symbol.for("FacilityRepository"),
   FacilityService: Symbol.for("FacilityService"),
+  FuelCardReconciliationService: Symbol.for("FuelCardReconciliationService"),
+  FuelCardService: Symbol.for("FuelCardService"),
   FuelTransactionService: Symbol.for("FuelTransactionService"),
   IncidentController: Symbol.for("IncidentController"),
   IncidentRepository: Symbol.for("IncidentRepository"),

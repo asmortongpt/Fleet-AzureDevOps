@@ -12,15 +12,14 @@
 
 import { ReactNode, useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
+import { InteractionStatus } from '@azure/msal-browser'
 
 import { useAuth } from '@/hooks/useAuth'
-import {
-  initializeMsal,
-  isAuthenticated,
-  getAccount,
-  getAccessToken
-} from "@/lib/auth/index"
+import { useMsalAuth } from '@/hooks/use-msal-auth'
 import logger from '@/utils/logger'
+
+// Development auth bypass flag
+const SKIP_AUTH = import.meta.env.VITE_SKIP_AUTH === 'true';
 
 interface ProtectedRouteProps {
   children: ReactNode
@@ -35,18 +34,48 @@ export const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const location = useLocation()
   const auth = useAuth()
-  const { user, isLoading: authLoading, hasRole, hasPermission, canAccess } = auth
+  const msalAuth = useMsalAuth()
+  const { user, isLoading: authLoading, canAccess } = auth
+  const { isAuthenticated: msalAuthenticated, isLoading: msalLoading, account } = msalAuth
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [isAuthorized, setIsAuthorized] = useState(false)
 
   useEffect(() => {
-    // Wait for AuthContext to finish initializing (session restoration from cookies)
-    if (authLoading) return
+    // Wait for both auth systems to finish loading
+    if (authLoading || msalLoading) {
+      logger.debug('[ProtectedRoute] Waiting for auth to initialize', {
+        authLoading,
+        msalLoading
+      })
+      return
+    }
 
     const checkAuth = async () => {
       try {
-        // Check 1: AuthContext user (email/password login sessions via httpOnly cookies)
+        logger.debug('[ProtectedRoute] Checking authentication', {
+          hasUser: !!user,
+          hasMsalAccount: !!account,
+          msalAuthenticated,
+          requiredRole,
+          requiredPermission
+        })
+
+        // DEV: Skip authentication if VITE_SKIP_AUTH=true
+        if (SKIP_AUTH) {
+          logger.info('[ProtectedRoute] SKIP_AUTH enabled - auto-authorizing');
+          setIsAuthorized(true);
+          setIsCheckingAuth(false);
+          return;
+        }
+
+        // Check 1: AuthContext user (email/password login or MSAL-synced session via httpOnly cookies)
         if (user) {
+          logger.debug('[ProtectedRoute] User found in AuthContext', {
+            userId: user.id,
+            role: user.role,
+            email: user.email
+          })
+
           if (requiredRole || requiredPermission) {
             const normalizedRole = requiredRole && (typeof requiredRole === 'string' || Array.isArray(requiredRole))
               ? requiredRole
@@ -58,78 +87,71 @@ export const ProtectedRoute = ({
             setIsAuthorized(authorized)
 
             if (!authorized) {
-              logger.warn('User not authorized for this route', {
+              logger.warn('[ProtectedRoute] User not authorized for this route', {
                 requiredRole,
                 requiredPermission,
                 userRole: user?.role,
                 userPermissions: user?.permissions
               })
+            } else {
+              logger.debug('[ProtectedRoute] User authorized for this route')
             }
           } else {
             setIsAuthorized(true)
+            logger.debug('[ProtectedRoute] No role/permission requirements - user authorized')
           }
           setIsCheckingAuth(false)
           return
         }
 
-        // Check 2: MSAL authentication (Microsoft SSO)
-        await initializeMsal()
-        const authenticated = isAuthenticated()
+        // Check 2: MSAL authentication only (no backend session yet)
+        if (msalAuthenticated && account) {
+          logger.info('[ProtectedRoute] MSAL authenticated but no backend session', {
+            account: account.username
+          })
 
-        if (!authenticated) {
-          logger.warn('[ProtectedRoute] User not authenticated, redirecting to login')
-          setIsCheckingAuth(false)
-          return
-        }
-
-        const account = getAccount()
-        if (!account) {
-          logger.warn('[ProtectedRoute] No MSAL account found, redirecting to login')
-          setIsCheckingAuth(false)
-          return
-        }
-
-        try {
-          await getAccessToken()
-        } catch (error) {
-          logger.error('[ProtectedRoute] Failed to get access token:', { error })
-          setIsCheckingAuth(false)
-          return
-        }
-
-        // Check role and permission authorization for MSAL users
-        if (requiredRole || requiredPermission) {
-          const normalizedRole = requiredRole && (typeof requiredRole === 'string' || Array.isArray(requiredRole))
-            ? requiredRole
-            : undefined
-          const normalizedPermission = requiredPermission && (typeof requiredPermission === 'string' || Array.isArray(requiredPermission))
-            ? requiredPermission
-            : undefined
-          const authorized = canAccess(normalizedRole as any, normalizedPermission as any)
-          setIsAuthorized(authorized)
-
-          if (!authorized) {
-            logger.warn('User not authorized for this route (MSAL)', {
-              requiredRole,
-              requiredPermission,
-            })
-          }
-        } else {
+          // Allow access for MSAL-authenticated users
+          // The AuthContext will sync the session in the background
           setIsAuthorized(true)
+          setIsCheckingAuth(false)
+          return
         }
-      } catch (error) {
-        logger.error('Authentication check failed:', { error })
+
+        // No authentication found
+        logger.warn('[ProtectedRoute] User not authenticated', {
+          hasUser: !!user,
+          msalAuthenticated,
+          path: location.pathname
+        })
         setIsAuthorized(false)
-      } finally {
+        setIsCheckingAuth(false)
+      } catch (error) {
+        logger.error('[ProtectedRoute] Authentication check failed:', { error })
+        setIsAuthorized(false)
         setIsCheckingAuth(false)
       }
     }
 
     checkAuth()
-  }, [authLoading, requiredRole, requiredPermission, user, hasRole, hasPermission, canAccess])
+  }, [
+    authLoading,
+    msalLoading,
+    requiredRole,
+    requiredPermission,
+    user,
+    canAccess,
+    msalAuthenticated,
+    account,
+    location.pathname
+  ])
 
   // Show loading spinner while checking authentication
-  if (isCheckingAuth || authLoading) {
+  if (isCheckingAuth || authLoading || msalLoading) {
+    logger.debug('[ProtectedRoute] Showing loading spinner', {
+      isCheckingAuth,
+      authLoading,
+      msalLoading
+    })
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -141,8 +163,8 @@ export const ProtectedRoute = ({
   }
 
   // Redirect to login if not authenticated (check both AuthContext and MSAL)
-  if (!user && !isAuthenticated()) {
-    logger.info('Redirecting to login', { from: location.pathname })
+  if (!user && !msalAuthenticated) {
+    logger.info('[ProtectedRoute] Redirecting to login', { from: location.pathname })
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 

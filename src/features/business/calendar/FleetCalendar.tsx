@@ -1,5 +1,5 @@
 import moment from 'moment';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Calendar, momentLocalizer, View, Event } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import {
@@ -15,15 +15,15 @@ import {
   Clock,
   ChevronLeft,
   ChevronRight,
-  X,
-  LogOut
+  X
 } from 'lucide-react';
 
 import { outlookCalendarService, CalendarEvent } from '../../services/outlookCalendarService';
 
-import { format, addMinutes } from 'date-fns';
+import { format } from 'date-fns';
 
 import EventCreateModal from './EventCreateModal';
+import { useAuth } from '@/contexts/AuthContext';
 
 const localizer = momentLocalizer(moment);
 
@@ -44,14 +44,13 @@ interface FleetEvent extends Event {
 }
 
 const FleetCalendar: React.FC = () => {
+  const { user, isAuthenticated } = useAuth();
   const [events, setEvents] = useState<FleetEvent[]>([]);
   const [view, setView] = useState<View>('month');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState<FleetEvent | null>(null);
   const [showEventModal, setShowEventModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const [userProfile, setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
     maintenance: true,
@@ -61,56 +60,11 @@ const FleetCalendar: React.FC = () => {
     other: true
   });
 
-  // Check authentication status on mount
-  useEffect(() => {
-    checkAuthStatus();
-    loadLocalEvents();
-  }, []);
-
-  const checkAuthStatus = async () => {
-    const signedIn = outlookCalendarService.isSignedIn();
-    setIsSignedIn(signedIn);
-    if (signedIn) {
-      try {
-        const profile = await outlookCalendarService.getUserProfile();
-        setUserProfile(profile);
-        await syncWithOutlook();
-      } catch (error) {
-        console.error('Failed to get user profile:', error);
-      }
+  const syncWithOutlook = useCallback(async () => {
+    if (!isAuthenticated || !user?.email) {
+      setEvents([]);
+      return;
     }
-  };
-
-  const handleSignIn = async () => {
-    setLoading(true);
-    try {
-      const success = await outlookCalendarService.signIn();
-      if (success) {
-        setIsSignedIn(true);
-        const profile = await outlookCalendarService.getUserProfile();
-        setUserProfile(profile);
-        await syncWithOutlook();
-      }
-    } catch (error) {
-      console.error('Sign in failed:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await outlookCalendarService.signOut();
-      setIsSignedIn(false);
-      setUserProfile(null);
-      loadLocalEvents(); // Revert to local events
-    } catch (error) {
-      console.error('Sign out failed:', error);
-    }
-  };
-
-  const syncWithOutlook = async () => {
-    if (!isSignedIn) return;
 
     setLoading(true);
     try {
@@ -141,7 +95,11 @@ const FleetCalendar: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAuthenticated, selectedDate, user?.email]);
+
+  useEffect(() => {
+    syncWithOutlook();
+  }, [syncWithOutlook]);
 
   const determineEventType = (event: CalendarEvent): NonNullable<FleetEvent['resource']>['type'] => {
     if (event.categories?.includes('Maintenance') || event.subject?.toLowerCase().includes('maintenance')) {
@@ -157,53 +115,6 @@ const FleetCalendar: React.FC = () => {
       return 'meeting';
     }
     return 'other';
-  };
-
-  const loadLocalEvents = () => {
-    // Sample local events
-    const sampleEvents: FleetEvent[] = [
-      {
-        id: '1',
-        title: 'Vehicle FL-001 Maintenance',
-        start: addMinutes(new Date(), 60),
-        end: addMinutes(new Date(), 180),
-        resource: {
-          type: 'maintenance',
-          vehicleId: 'FL-001',
-          priority: 'normal',
-          status: 'scheduled',
-          description: 'Routine maintenance check'
-        }
-      },
-      {
-        id: '2',
-        title: 'Fleet Inspection - Tallahassee',
-        start: addMinutes(new Date(), 1440),
-        end: addMinutes(new Date(), 1560),
-        resource: {
-          type: 'inspection',
-          location: 'Tallahassee Fleet Center',
-          priority: 'high',
-          status: 'scheduled',
-          description: 'Quarterly fleet inspection'
-        }
-      },
-      {
-        id: '3',
-        title: 'Vehicle Reservation - FL-045',
-        start: addMinutes(new Date(), 2880),
-        end: addMinutes(new Date(), 3060),
-        resource: {
-          type: 'reservation',
-          vehicleId: 'FL-045',
-          driverId: 'D-12345',
-          location: 'Miami Office',
-          priority: 'normal',
-          status: 'scheduled'
-        }
-      }
-    ];
-    setEvents(sampleEvents);
   };
 
   const handleSelectEvent = (event: FleetEvent) => {
@@ -225,44 +136,37 @@ const FleetCalendar: React.FC = () => {
     setShowCreateModal(true);
   };
 
-  const handleSaveEvent = (eventData: any) => {
-    // Generate a unique ID for the new event
-    const newEvent: FleetEvent = {
-      id: Math.random().toString(36).substr(2, 9),
-      ...eventData
-    };
+  const handleSaveEvent = async (eventData: any) => {
+    if (!user?.email) return;
 
-    // Add the new event to the events list
-    setEvents(prevEvents => [...prevEvents, newEvent]);
+    try {
+      await outlookCalendarService.createEvent({
+        userId: user.email,
+        subject: eventData.title,
+        start: {
+          dateTime: eventData.start.toISOString(),
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        },
+        end: {
+          dateTime: eventData.end.toISOString(),
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        },
+        body: eventData.resource?.description ? {
+          contentType: 'Text' as const,
+          content: eventData.resource.description
+        } : undefined,
+        location: eventData.resource?.location ? {
+          displayName: eventData.resource.location
+        } : undefined,
+        categories: [`Fleet Management`, eventData.resource?.type || 'other'],
+        importance: eventData.resource?.priority === 'urgent' || eventData.resource?.priority === 'high' ? 'high' : 'normal',
+        vehicleId: eventData.resource?.vehicleId,
+        driverId: eventData.resource?.driverId
+      });
 
-    // If connected to Outlook, try to create the event there too
-    if (isSignedIn) {
-      try {
-        outlookCalendarService.createEvent({
-          subject: eventData.title,
-          start: {
-            dateTime: eventData.start.toISOString(),
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-          },
-          end: {
-            dateTime: eventData.end.toISOString(),
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-          },
-          body: eventData.resource?.description ? {
-            contentType: 'Text' as const,
-            content: eventData.resource.description
-          } : undefined,
-          location: eventData.resource?.location ? {
-            displayName: eventData.resource.location
-          } : undefined,
-          categories: [`Fleet Management`, eventData.resource?.type || 'other'],
-          importance: eventData.resource?.priority === 'urgent' || eventData.resource?.priority === 'high' ? 'high' : 'normal',
-          vehicleId: eventData.resource?.vehicleId,
-          driverId: eventData.resource?.driverId
-        });
-      } catch (error) {
-        console.error('Failed to create event in Outlook:', error);
-      }
+      await syncWithOutlook();
+    } catch (error) {
+      console.error('Failed to create event in Outlook:', error);
     }
   };
 
@@ -379,34 +283,21 @@ const FleetCalendar: React.FC = () => {
           <div className="flex items-center space-x-3">
             {/* Outlook Integration Status */}
             <div className="flex items-center space-x-2 px-2 py-2 bg-white rounded-lg shadow-sm">
-              {isSignedIn ? (
+              {isAuthenticated ? (
                 <>
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-sm text-slate-700">Connected to Outlook</span>
-                  <span className="text-sm font-medium">{userProfile?.displayName}</span>
-                  <button
-                    onClick={handleSignOut}
-                    className="ml-2 p-1 hover:bg-gray-100 rounded"
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </button>
+                  <span className="text-sm text-slate-700">Calendar connected</span>
+                  <span className="text-sm font-medium">{user?.email}</span>
                 </>
               ) : (
                 <>
                   <div className="w-2 h-2 bg-gray-400 rounded-full" />
-                  <span className="text-sm text-slate-700">Not connected</span>
-                  <button
-                    onClick={handleSignIn}
-                    disabled={loading}
-                    className="ml-2 px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
-                  >
-                    {loading ? 'Connecting...' : 'Connect to Outlook'}
-                  </button>
+                  <span className="text-sm text-slate-700">Sign in to load calendar events</span>
                 </>
               )}
             </div>
 
-            {isSignedIn && (
+            {isAuthenticated && (
               <button
                 onClick={syncWithOutlook}
                 disabled={loading}

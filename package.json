@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "orchestrator": "node scripts/dev-orchestrator.mjs",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",

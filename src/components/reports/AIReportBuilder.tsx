@@ -4,6 +4,7 @@ import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import apiClient from '@/lib/api-client';
 import logger from '@/utils/logger';
 
 interface AIReportBuilderProps {
@@ -47,46 +48,21 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
     setError(null);
 
     try {
-      // Call AI report generation API
-      const response = await fetch('/api/reports/ai/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt,
-          model: 'gpt-4-turbo' // Primary LLM
-        })
+      const { reportDefinition, reportId } = await apiClient.post<{
+        reportDefinition: unknown;
+        reportId: string;
+      }>('/api/reports/ai/generate', {
+        prompt,
+        model: 'gpt-4-turbo'
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate report');
-      }
-
-      const { reportDefinition, reportId } = await response.json();
       setGeneratedReport(reportDefinition);
       setShowPreview(true);
+      if (reportId) {
+        onReportCreated(reportId);
+      }
     } catch (err) {
       logger.error('Generation error:', err);
       setError(err instanceof Error ? err.message : 'Failed to generate report');
-
-      // Mock report for demo
-      setGeneratedReport({
-        id: 'custom-' + Date.now(),
-        title: 'AI Generated Report',
-        domain: 'custom',
-        description: `Report generated from: "${prompt}"`,
-        visuals: [
-          {
-            id: 'kpi-1',
-            type: 'kpiTiles',
-            title: 'Key Metrics',
-            measures: [
-              { id: 'total', label: 'Total Value', format: 'currency' },
-              { id: 'count', label: 'Count', format: 'integer' }
-            ]
-          }
-        ]
-      });
-      setShowPreview(true);
     } finally {
       setGenerating(false);
     }
@@ -97,20 +73,10 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
     if (!generatedReport) return;
 
     try {
-      const response = await fetch('/api/reports/custom', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          definition: generatedReport,
-          name: generatedReport.title
-        })
+      const { reportId } = await apiClient.post<{ reportId: string }>('/api/reports/custom', {
+        definition: generatedReport,
+        name: generatedReport.title
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to save report');
-      }
-
-      const { reportId } = await response.json();
       onReportCreated(reportId);
     } catch (err) {
       logger.error('Save error:', err);

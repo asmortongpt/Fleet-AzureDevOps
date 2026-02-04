@@ -72,7 +72,7 @@ export function VirtualGarage() {
             <Wrench className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{vehicles.filter(v => v.status === "service").length}</div>
+            <div className="text-2xl font-bold">{vehicles.filter(v => v.status === "maintenance" || v.status === "service").length}</div>
           </CardContent>
         </Card>
 
@@ -82,7 +82,7 @@ export function VirtualGarage() {
             <AlertTriangle className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{vehicles.filter(v => v.status === "service" || v.status === "offline").length}</div>
+            <div className="text-2xl font-bold">{vehicles.filter(v => v.status === "maintenance" || v.status === "service" || v.status === "offline").length}</div>
           </CardContent>
         </Card>
       </div>
@@ -115,7 +115,7 @@ export function VirtualGarage() {
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       vehicle.status === "active"
                         ? "bg-green-100 text-green-700"
-                        : vehicle.status === "service"
+                        : vehicle.status === "service" || vehicle.status === "maintenance"
                         ? "bg-yellow-100 text-yellow-700"
                         : "bg-gray-100 text-gray-700"
                     }`}>

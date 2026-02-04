@@ -2,28 +2,29 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
+import { UseSentryErrorHandler } from '@/components/errors/UseSentryErrorHandler';
 
-describe('useSentryErrorHandler', () => {
+describe('UseSentryErrorHandler', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   describe('Rendering', () => {
     it('should render without crashing', () => {
-      const { container } = render(<useSentryErrorHandler />);
+      const { container } = render(<UseSentryErrorHandler />);
       expect(container).toBeTruthy();
     });
 
     it('should render with default props', () => {
-      render(<useSentryErrorHandler />);
+      render(<UseSentryErrorHandler />);
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
 
     it('should render children correctly', () => {
       render(
-        <useSentryErrorHandler>
+        <UseSentryErrorHandler>
           <div>Test Child</div>
-        </useSentryErrorHandler>
+        </UseSentryErrorHandler>
       );
       expect(screen.getByText('Test Child')).toBeInTheDocument();
     });
@@ -31,18 +32,18 @@ describe('useSentryErrorHandler', () => {
 
   describe('Props', () => {
     it('should accept and apply className prop', () => {
-      const { container } = render(<useSentryErrorHandler className="test-class" />);
+      const { container } = render(<UseSentryErrorHandler className="test-class" />);
       expect(container.firstChild).toHaveClass('test-class');
     });
 
     it('should handle data attributes', () => {
-      const { container } = render(<useSentryErrorHandler data-testid="test-component" />);
+      const { container } = render(<UseSentryErrorHandler data-testid="test-component" />);
       expect(container.firstChild).toHaveAttribute('data-testid', 'test-component');
     });
 
     it('should render with custom props', () => {
       const customProps = { title: 'Test Title' };
-      render(<useSentryErrorHandler {...customProps} />);
+      render(<UseSentryErrorHandler {...customProps} />);
       expect(screen.getByText('Test Title', { exact: false })).toBeInTheDocument();
     });
   });
@@ -50,7 +51,7 @@ describe('useSentryErrorHandler', () => {
   describe('User Interactions', () => {
     it('should handle click events', async () => {
       const handleClick = vi.fn();
-      render(<useSentryErrorHandler onClick={handleClick} />);
+      render(<UseSentryErrorHandler onClick={handleClick} />);
 
       const element = screen.getByRole('button', { hidden: true });
       await userEvent.click(element);
@@ -60,7 +61,7 @@ describe('useSentryErrorHandler', () => {
 
     it('should handle keyboard events', async () => {
       const handleKeyDown = vi.fn();
-      render(<useSentryErrorHandler onKeyDown={handleKeyDown} />);
+      render(<UseSentryErrorHandler onKeyDown={handleKeyDown} />);
 
       const element = screen.getByRole('button', { hidden: true });
       fireEvent.keyDown(element, { key: 'Enter' });
@@ -70,7 +71,7 @@ describe('useSentryErrorHandler', () => {
 
     it('should handle form submission', async () => {
       const handleSubmit = vi.fn();
-      render(<useSentryErrorHandler onSubmit={handleSubmit} />);
+      render(<UseSentryErrorHandler onSubmit={handleSubmit} />);
 
       const form = screen.getByRole('form', { hidden: true });
       fireEvent.submit(form);
@@ -81,7 +82,7 @@ describe('useSentryErrorHandler', () => {
 
   describe('State Management', () => {
     it('should update state correctly', async () => {
-      render(<useSentryErrorHandler />);
+      render(<UseSentryErrorHandler />);
 
       const button = screen.getByRole('button', { hidden: true });
       await userEvent.click(button);
@@ -92,8 +93,8 @@ describe('useSentryErrorHandler', () => {
     });
 
     it('should maintain internal state', () => {
-      const { rerender } = render(<useSentryErrorHandler />);
-      rerender(<useSentryErrorHandler />);
+      const { rerender } = render(<UseSentryErrorHandler />);
+      rerender(<UseSentryErrorHandler />);
 
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
@@ -101,13 +102,13 @@ describe('useSentryErrorHandler', () => {
 
   describe('Accessibility', () => {
     it('should have proper ARIA attributes', () => {
-      render(<useSentryErrorHandler />);
+      render(<UseSentryErrorHandler />);
       const element = screen.getByRole('main', { hidden: true });
       expect(element).toHaveAttribute('aria-label');
     });
 
     it('should be keyboard navigable', async () => {
-      render(<useSentryErrorHandler />);
+      render(<UseSentryErrorHandler />);
       const element = screen.getByRole('button', { hidden: true });
 
       element.focus();
@@ -117,7 +118,7 @@ describe('useSentryErrorHandler', () => {
     });
 
     it('should have semantic HTML', () => {
-      const { container } = render(<useSentryErrorHandler />);
+      const { container } = render(<UseSentryErrorHandler />);
       expect(container.querySelector('button, a, input, select')).toBeTruthy();
     });
   });
@@ -126,34 +127,34 @@ describe('useSentryErrorHandler', () => {
     it('should handle errors gracefully', () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      render(<useSentryErrorHandler invalidProp={undefined} />);
+      render(<UseSentryErrorHandler invalidProp={undefined} />);
 
       expect(consoleError).not.toHaveBeenCalled();
       consoleError.mockRestore();
     });
 
     it('should display error messages', () => {
-      render(<useSentryErrorHandler error="Test error" />);
+      render(<UseSentryErrorHandler error="Test error" />);
       expect(screen.getByText('Test error', { exact: false })).toBeInTheDocument();
     });
   });
 
   describe('Conditional Rendering', () => {
     it('should render when condition is met', () => {
-      render(<useSentryErrorHandler show={true} />);
+      render(<UseSentryErrorHandler show={true} />);
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
 
     it('should not render when condition is not met', () => {
-      const { container } = render(<useSentryErrorHandler show={false} />);
+      const { container } = render(<UseSentryErrorHandler show={false} />);
       expect(container.firstChild).toBeNull();
     });
 
     it('should toggle visibility', async () => {
-      const { rerender } = render(<useSentryErrorHandler show={false} />);
+      const { rerender } = render(<UseSentryErrorHandler show={false} />);
       expect(screen.queryByRole('main')).not.toBeInTheDocument();
 
-      rerender(<useSentryErrorHandler show={true} />);
+      rerender(<UseSentryErrorHandler show={true} />);
       expect(screen.getByRole('main', { hidden: true })).toBeInTheDocument();
     });
   });
@@ -161,16 +162,16 @@ describe('useSentryErrorHandler', () => {
   describe('Performance', () => {
     it('should memoize expensive computations', () => {
       const expensiveFunction = vi.fn(() => 'result');
-      render(<useSentryErrorHandler compute={expensiveFunction} />);
+      render(<UseSentryErrorHandler compute={expensiveFunction} />);
 
       expect(expensiveFunction).toHaveBeenCalledTimes(1);
     });
 
     it('should not re-render unnecessarily', () => {
-      const { rerender } = render(<useSentryErrorHandler value="test" />);
+      const { rerender } = render(<UseSentryErrorHandler value="test" />);
       const renderCount = vi.fn();
 
-      rerender(<useSentryErrorHandler value="test" />);
+      rerender(<UseSentryErrorHandler value="test" />);
       expect(renderCount).toHaveBeenCalledTimes(0);
     });
   });
@@ -178,14 +179,14 @@ describe('useSentryErrorHandler', () => {
   describe('Security', () => {
     it('should sanitize user input', () => {
       const maliciousInput = '<script>alert("XSS")</script>';
-      render(<useSentryErrorHandler value={maliciousInput} />);
+      render(<UseSentryErrorHandler value={maliciousInput} />);
 
       expect(screen.queryByText('alert', { exact: false })).not.toBeInTheDocument();
     });
 
     it('should escape HTML entities', () => {
       const htmlInput = '<div>Test</div>';
-      render(<useSentryErrorHandler value={htmlInput} />);
+      render(<UseSentryErrorHandler value={htmlInput} />);
 
       const element = screen.getByText(htmlInput, { exact: false });
       expect(element.innerHTML).not.toContain('<div>');

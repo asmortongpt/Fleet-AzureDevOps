@@ -21,32 +21,40 @@ interface FinancialTabProps {
   totalMaintenanceCost: number
   costPerVehicle: number
   costAnalysis: CostAnalysisData[]
+  fuelChange?: number
+  maintenanceChange?: number
 }
 
 export function FinancialTab({
   totalFuelCost,
   totalMaintenanceCost,
   costPerVehicle,
-  costAnalysis
+  costAnalysis,
+  fuelChange,
+  maintenanceChange
 }: FinancialTabProps) {
+  const totalOperating = totalFuelCost + totalMaintenanceCost
+  const fuelTrend = fuelChange !== undefined ? (fuelChange < 0 ? "down" : "up") : "neutral"
+  const maintenanceTrend = maintenanceChange !== undefined ? (maintenanceChange < 0 ? "down" : "up") : "neutral"
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         <MetricCard
           title="Total Fuel Cost"
           value={`$${totalFuelCost.toLocaleString()}`}
-          trend="up"
-          change={8.5}
-          subtitle="vs last period"
+          trend={fuelTrend}
+          change={fuelChange !== undefined ? Number(Math.abs(fuelChange).toFixed(1)) : undefined}
+          subtitle={fuelChange !== undefined ? "vs last period" : "current period"}
           icon={<GasPump className="w-3 h-3" />}
           status="warning"
         />
         <MetricCard
           title="Maintenance Cost"
           value={`$${totalMaintenanceCost.toLocaleString()}`}
-          trend="down"
-          change={2.3}
-          subtitle="vs last period"
+          trend={maintenanceTrend}
+          change={maintenanceChange !== undefined ? Number(Math.abs(maintenanceChange).toFixed(1)) : undefined}
+          subtitle={maintenanceChange !== undefined ? "vs last period" : "current period"}
           icon={<Wrench className="w-3 h-3" />}
           status="success"
         />
@@ -83,7 +91,7 @@ export function FinancialTab({
                   <div
                     className="h-full bg-primary"
                     style={{
-                      width: `${(totalFuelCost / (totalFuelCost + totalMaintenanceCost)) * 100}%`
+                      width: `${totalOperating > 0 ? (totalFuelCost / totalOperating) * 100 : 0}%`
                     }}
                   />
                 </div>
@@ -97,7 +105,7 @@ export function FinancialTab({
                   <div
                     className="h-full bg-accent"
                     style={{
-                      width: `${(totalMaintenanceCost / (totalFuelCost + totalMaintenanceCost)) * 100}%`
+                      width: `${totalOperating > 0 ? (totalMaintenanceCost / totalOperating) * 100 : 0}%`
                     }}
                   />
                 </div>
