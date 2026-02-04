@@ -99,251 +99,145 @@ interface UserProgress {
 const FleetTrainingAcademy: React.FC = () => {
   const [courses, setCourses] = useState<TrainingCourse[]>([]);
   const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
+  const [stats, setStats] = useState({
+    activeLearners: 0,
+    certificationsAvailable: 0,
+    coursesCompleted: 0,
+    certificationsEarned: 0,
+    averageRating: 0,
+    learningHours: 0
+  });
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCourse, setSelectedCourse] = useState<TrainingCourse | null>(null);
   const [showCourseDetails, setShowCourseDetails] = useState(false);
 
-  // Mock data - in real app, this would come from the existing services
+  // Load training data from API
   useEffect(() => {
     loadTrainingData();
   }, []);
 
-  const loadTrainingData = () => {
-    // Mock training courses leveraging existing system capabilities
-    const mockCourses: TrainingCourse[] = [
-      {
-        id: 'safety-001',
-        title: 'Fleet Safety Fundamentals',
-        description:
-          'Comprehensive safety training covering defensive driving, vehicle inspection, and emergency procedures for government fleet operators.',
-        category: 'safety',
-        level: 'beginner',
-        duration: 120,
-        modules: [
-          {
-            id: 'mod-001',
-            title: 'Defensive Driving Techniques',
-            type: 'video',
-            duration: 30,
-            content: 'Interactive video training with real-world scenarios',
-            resources: [
-              {
-                id: 'res-001',
-                name: 'Safety Checklist',
-                type: 'pdf',
-                url: '/resources/safety-checklist.pdf',
-                size: '2.1 MB'
-              }
-            ],
-            completed: false
-          },
-          {
-            id: 'mod-002',
-            title: 'Pre-Trip Vehicle Inspection',
-            type: 'interactive',
-            duration: 45,
-            content: 'Virtual vehicle inspection simulator',
-            resources: [],
-            completed: false
-          },
-          {
-            id: 'mod-003',
-            title: 'Emergency Response Procedures',
-            type: 'video',
-            duration: 25,
-            content: 'Step-by-step emergency protocols',
-            resources: [],
-            completed: false
-          },
-          {
-            id: 'mod-004',
-            title: 'Safety Assessment Quiz',
-            type: 'quiz',
-            duration: 20,
-            content: 'Comprehensive safety knowledge assessment',
-            resources: [],
-            completed: false
-          }
-        ],
-        prerequisites: [],
-        certification: {
-          name: 'Fleet Safety Operator Certification',
-          validityPeriod: 24,
-          renewalRequired: true,
-          accreditingBody: 'Department of Transportation'
-        },
-        enrolledUsers: 1247,
-        rating: 4.8,
-        instructor: {
-          id: 'inst-001',
-          name: 'Sarah Martinez',
-          title: 'Fleet Safety Specialist',
-          avatar: '/images/instructors/sarah-martinez.jpg',
-          bio: '15+ years in fleet safety and training',
-          rating: 4.9,
-          coursesCount: 12
-        },
-        tags: ['safety', 'defensive-driving', 'inspection', 'emergency'],
-        isRequired: true,
-        completionRate: 87,
-        lastUpdated: '2024-12-15'
-      },
-      {
-        id: 'maint-001',
-        title: 'Predictive Maintenance & AI Systems',
-        description:
-          'Advanced training on leveraging AI-powered predictive maintenance systems, OBD2 diagnostics, and telematics data interpretation.',
-        category: 'maintenance',
-        level: 'advanced',
-        duration: 180,
-        modules: [
-          {
-            id: 'mod-005',
-            title: 'AI Predictive Analytics Overview',
-            type: 'video',
-            duration: 40,
-            content: 'Understanding machine learning in fleet maintenance',
-            resources: [],
-            completed: false
-          },
-          {
-            id: 'mod-006',
-            title: 'OBD2 Diagnostic Interpretation',
-            type: 'interactive',
-            duration: 60,
-            content: 'Hands-on OBD2 data analysis simulator',
-            resources: [],
-            completed: false
-          },
-          {
-            id: 'mod-007',
-            title: 'Telematics Data Analysis',
-            type: 'document',
-            duration: 45,
-            content: 'Advanced telematics interpretation guide',
-            resources: [],
-            completed: false
-          },
-          {
-            id: 'mod-008',
-            title: 'Maintenance Optimization Strategies',
-            type: 'simulation',
-            duration: 35,
-            content: 'AI-powered maintenance scheduling simulation',
-            resources: [],
-            completed: false
-          }
-        ],
-        prerequisites: ['safety-001'],
-        certification: {
-          name: 'Advanced Fleet Maintenance Technician',
-          validityPeriod: 36,
-          renewalRequired: true,
-          accreditingBody: 'National Fleet Management Association'
-        },
-        enrolledUsers: 456,
-        rating: 4.6,
-        instructor: {
-          id: 'inst-002',
-          name: 'Michael Chen',
-          title: 'AI Systems Engineer',
-          avatar: '/images/instructors/michael-chen.jpg',
-          bio: 'Expert in AI applications for fleet management',
-          rating: 4.7,
-          coursesCount: 8
-        },
-        tags: ['AI', 'predictive-maintenance', 'OBD2', 'telematics', 'advanced'],
-        isRequired: false,
-        completionRate: 73,
-        lastUpdated: '2024-12-10'
-      },
-      {
-        id: 'comp-001',
-        title: 'Government Fleet Compliance',
-        description:
-          'Essential compliance training covering federal regulations, environmental standards, and audit preparation for government fleet operations.',
-        category: 'compliance',
-        level: 'intermediate',
-        duration: 90,
-        modules: [
-          {
-            id: 'mod-009',
-            title: 'Federal Fleet Regulations',
-            type: 'document',
-            duration: 30,
-            content: 'Comprehensive regulation overview',
-            resources: [],
-            completed: false
-          },
-          {
-            id: 'mod-010',
-            title: 'Environmental Compliance',
-            type: 'video',
-            duration: 25,
-            content: 'Sustainability and environmental requirements',
-            resources: [],
-            completed: false
-          },
-          {
-            id: 'mod-011',
-            title: 'Audit Preparation Workshop',
-            type: 'interactive',
-            duration: 35,
-            content: 'Interactive audit simulation',
-            resources: [],
-            completed: false
-          }
-        ],
-        prerequisites: [],
-        certification: {
-          name: 'Government Fleet Compliance Officer',
-          validityPeriod: 12,
-          renewalRequired: true,
-          accreditingBody: 'General Services Administration'
-        },
-        enrolledUsers: 890,
-        rating: 4.5,
-        instructor: {
-          id: 'inst-003',
-          name: 'Jennifer Rodriguez',
-          title: 'Compliance Specialist',
-          avatar: '/images/instructors/jennifer-rodriguez.jpg',
-          bio: 'Government compliance expert with 20+ years experience',
-          rating: 4.8,
-          coursesCount: 15
-        },
-        tags: ['compliance', 'regulations', 'audit', 'government'],
-        isRequired: true,
-        completionRate: 91,
-        lastUpdated: '2024-12-01'
+  const loadTrainingData = async () => {
+    try {
+      setIsLoading(true);
+      const [coursesRes, progressRes] = await Promise.all([
+        fetch('/api/training/courses', { credentials: 'include' }),
+        fetch('/api/training/progress', { credentials: 'include' })
+      ]);
+
+      if (!coursesRes.ok) {
+        throw new Error(`Failed to load courses (${coursesRes.status})`);
       }
-    ];
-
-    setCourses(mockCourses);
-
-    // Mock user progress
-    const mockProgress: UserProgress[] = [
-      {
-        userId: 'user-001',
-        courseId: 'safety-001',
-        progress: 75,
-        completedModules: ['mod-001', 'mod-002', 'mod-003'],
-        lastAccessed: '2024-12-20',
-        timeSpent: 90,
-        score: 88
-      },
-      {
-        userId: 'user-001',
-        courseId: 'comp-001',
-        progress: 45,
-        completedModules: ['mod-009', 'mod-010'],
-        lastAccessed: '2024-12-18',
-        timeSpent: 55
+      if (!progressRes.ok) {
+        throw new Error(`Failed to load progress (${progressRes.status})`);
       }
-    ];
 
-    setUserProgress(mockProgress);
+      const coursesPayload = await coursesRes.json();
+      const progressPayload = await progressRes.json();
+
+      const progressRows = (progressPayload.data ?? []).map((row: any): UserProgress => ({
+        userId: row.driver_id,
+        courseId: row.course_id,
+        progress: Number(row.progress) || 0,
+        completedModules: Array.isArray(row.completed_modules) ? row.completed_modules : [],
+        lastAccessed: row.last_accessed || '',
+        timeSpent: Number(row.time_spent_minutes) || 0,
+        score: row.score ?? undefined
+      }));
+
+      const progressByCourse = new Map<string, UserProgress[]>();
+      progressRows.forEach((p) => {
+        if (!progressByCourse.has(p.courseId)) {
+          progressByCourse.set(p.courseId, []);
+        }
+        progressByCourse.get(p.courseId)!.push(p);
+      });
+
+      const coursesRows = coursesPayload.data ?? [];
+      const mappedCourses: TrainingCourse[] = coursesRows.map((course: any) => {
+        const courseProgress = progressByCourse.get(course.id) || [];
+        const completedCount = courseProgress.filter((p) => p.progress >= 100).length;
+        const completionRate = courseProgress.length > 0
+          ? Math.round((completedCount / courseProgress.length) * 100)
+          : 0;
+
+        const modules = Array.isArray(course.modules) ? course.modules : [];
+        const mappedModules = modules.map((module: any) => {
+          const moduleId = module.id || module.module_id || `${course.id}-${module.title || 'module'}`;
+          const isCompleted = courseProgress.some((p) => p.completedModules?.includes?.(moduleId));
+          return {
+            id: moduleId,
+            title: module.title || 'Module',
+            type: module.type || 'document',
+            duration: Number(module.duration) || 0,
+            content: module.content || '',
+            resources: Array.isArray(module.resources) ? module.resources : [],
+            completed: isCompleted
+          } as TrainingModule;
+        });
+
+        const instructor = course.instructor || {};
+
+        return {
+          id: course.id,
+          title: course.title,
+          description: course.description,
+          category: course.category,
+          level: course.level,
+          duration: Number(course.duration_minutes) || 0,
+          modules: mappedModules,
+          prerequisites: Array.isArray(course.prerequisites) ? course.prerequisites : [],
+          certification: course.certification || undefined,
+          enrolledUsers: courseProgress.length,
+          rating: Number(course.rating) || 0,
+          instructor: {
+            id: instructor.id || course.id,
+            name: instructor.name || 'Instructor',
+            title: instructor.title || 'Trainer',
+            avatar: instructor.avatar || '',
+            bio: instructor.bio || '',
+            rating: Number(instructor.rating) || 0,
+            coursesCount: Number(instructor.coursesCount) || 0
+          },
+          tags: Array.isArray(course.tags) ? course.tags : [],
+          isRequired: Boolean(course.is_required) || false,
+          completionRate,
+          lastUpdated: course.updated_at || course.created_at
+        };
+      });
+
+      const uniqueLearners = new Set(progressRows.map((p) => p.userId)).size;
+      const certificationsAvailable = mappedCourses.filter((c) => Boolean(c.certification)).length;
+      const coursesCompleted = progressRows.filter((p) => p.progress >= 100).length;
+      const certificationsEarned = progressRows.filter((p) => {
+        const course = mappedCourses.find((c) => c.id === p.courseId);
+        return p.progress >= 100 && Boolean(course?.certification);
+      }).length;
+      const averageRating = mappedCourses.length > 0
+        ? Number((mappedCourses.reduce((sum, course) => sum + (course.rating || 0), 0) / mappedCourses.length).toFixed(1))
+        : 0;
+      const learningHours = Math.round(
+        progressRows.reduce((sum, p) => sum + (p.timeSpent || 0), 0) / 60
+      );
+
+      setCourses(mappedCourses);
+      setUserProgress(progressRows);
+      setStats({
+        activeLearners: uniqueLearners,
+        certificationsAvailable,
+        coursesCompleted,
+        certificationsEarned,
+        averageRating,
+        learningHours
+      });
+    } catch (error) {
+      logger.error('Failed to load training data', error as Error);
+      setCourses([]);
+      setUserProgress([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const filteredCourses = courses.filter((course) => {
@@ -442,6 +336,17 @@ const FleetTrainingAcademy: React.FC = () => {
     logger.info('Viewing certification for:', course.id);
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <p className="text-slate-700">Loading training catalog...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-3">
       <div className="max-w-7xl mx-auto">
@@ -460,11 +365,11 @@ const FleetTrainingAcademy: React.FC = () => {
             <div className="flex items-center space-x-2">
               <Badge variant="outline" className="px-3 py-1">
                 <Users className="w-4 h-4 mr-1" />
-                2,593 Active Learners
+                {stats.activeLearners.toLocaleString()} Active Learners
               </Badge>
               <Badge variant="outline" className="px-3 py-1">
                 <Award className="w-4 h-4 mr-1" />
-                45 Certifications Available
+                {stats.certificationsAvailable.toLocaleString()} Certifications Available
               </Badge>
             </div>
           </div>
@@ -476,7 +381,7 @@ const FleetTrainingAcademy: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-blue-100">Courses Completed</p>
-                    <p className="text-sm font-bold">1,247</p>
+                    <p className="text-sm font-bold">{stats.coursesCompleted.toLocaleString()}</p>
                   </div>
                   <CheckCircle2 className="w-4 h-4 text-blue-200" />
                 </div>
@@ -488,7 +393,7 @@ const FleetTrainingAcademy: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-green-100">Certifications Earned</p>
-                    <p className="text-sm font-bold">892</p>
+                    <p className="text-sm font-bold">{stats.certificationsEarned.toLocaleString()}</p>
                   </div>
                   <Award className="w-4 h-4 text-green-200" />
                 </div>
@@ -500,7 +405,7 @@ const FleetTrainingAcademy: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-orange-100">Average Rating</p>
-                    <p className="text-sm font-bold">4.7</p>
+                    <p className="text-sm font-bold">{stats.averageRating.toFixed(1)}</p>
                   </div>
                   <Star className="w-4 h-4 text-orange-200" />
                 </div>
@@ -512,7 +417,7 @@ const FleetTrainingAcademy: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-purple-100">Learning Hours</p>
-                    <p className="text-sm font-bold">15,420</p>
+                    <p className="text-sm font-bold">{stats.learningHours.toLocaleString()}</p>
                   </div>
                   <Clock className="w-4 h-4 text-purple-200" />
                 </div>

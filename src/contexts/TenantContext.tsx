@@ -50,29 +50,31 @@ export const TenantProvider = ({ children }: TenantProviderProps) => {
 
             setIsLoading(true);
             try {
-                // In a real app, this would fetch from an API
-                // const response = await fetch(\`/api/v1/tenants/\${user.tenantId}/settings\`);
-                // const data = await response.json();
+                const response = await fetch(`/api/tenants/${user.tenantId}`, {
+                    credentials: 'include'
+                });
 
-                // Simulating API call for now
-                await new Promise(resolve => setTimeout(resolve, 500));
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch tenant settings: ${response.status}`);
+                }
 
-                // Mock data
+                const payload = await response.json();
+                const tenantPayload = payload?.data?.data || payload?.data || payload;
+                const settingsData = tenantPayload?.settings || {};
+
                 setSettings({
                     branding: {
-                        primaryColor: '#0f172a',
-                        logoUrl: '/logos/logo-horizontal.svg',
-                        companyName: user.tenantName || 'My Organization',
+                        primaryColor: settingsData.branding?.primaryColor || '#0f172a',
+                        logoUrl: settingsData.branding?.logoUrl || '/logos/logo-horizontal.svg',
+                        companyName: settingsData.branding?.companyName || tenantPayload?.name || user.tenantName || 'Organization',
                     },
-                    features: {
-                        'beta-features': false,
-                        'advanced-analytics': true,
-                    },
-                    region: 'US-East',
-                    dateFormat: 'MM/DD/YYYY',
+                    features: settingsData.features || {},
+                    region: settingsData.region || 'US-East',
+                    dateFormat: settingsData.dateFormat || 'MM/DD/YYYY',
                 });
             } catch (error) {
                 logger.error('[TenantContext] Failed to fetch settings', { error });
+                setSettings(null);
             } finally {
                 setIsLoading(false);
             }

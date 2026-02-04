@@ -10,6 +10,7 @@ import {
   DollarSign
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
+import useSWR from "swr"
 import { toast } from "sonner"
 
 import { ProfessionalFleetMap, GISFacility } from "@/components/Maps/ProfessionalFleetMap"
@@ -29,28 +30,8 @@ import {
 } from "@/lib/policy-engine/policy-enforcement"
 import { cn } from "@/lib/utils"
 
-// Mock procurement data
-const mockSuppliers = [
-  { id: "s1", name: "AutoParts Direct", location: { lat: 38.9072, lng: -77.0369 }, category: "Parts", orderCount: 24, totalSpend: 45800, rating: 4.8, status: "active" },
-  { id: "s2", name: "Fleet Services Inc", location: { lat: 38.9369, lng: -77.0899 }, category: "Maintenance", orderCount: 18, totalSpend: 67200, rating: 4.6, status: "active" },
-  { id: "s3", name: "Tire Warehouse USA", location: { lat: 38.8816, lng: -77.0910 }, category: "Tires", orderCount: 12, totalSpend: 28900, rating: 4.9, status: "active" },
-  { id: "s4", name: "Fuel Depot Central", location: { lat: 38.9216, lng: -77.0147 }, category: "Fuel", orderCount: 45, totalSpend: 125400, rating: 4.5, status: "active" },
-  { id: "s5", name: "Industrial Supplies Co", location: { lat: 38.8951, lng: -77.0364 }, category: "Equipment", orderCount: 8, totalSpend: 34100, rating: 4.7, status: "pending" }
-]
-
-const mockPurchaseOrders = [
-  { id: "po-1001", supplier: "AutoParts Direct", items: 12, value: 4280, status: "in_transit", eta: "2 days", trackingId: "TRK-88392", delivery: { lat: 38.9072, lng: -77.0369 } },
-  { id: "po-1002", supplier: "Fleet Services Inc", items: 5, value: 8950, status: "processing", eta: "4 days", trackingId: "TRK-88401", delivery: { lat: 38.9369, lng: -77.0899 } },
-  { id: "po-1003", supplier: "Tire Warehouse USA", items: 16, value: 2400, status: "delivered", eta: "Delivered", trackingId: "TRK-88315", delivery: { lat: 38.8816, lng: -77.0910 } },
-  { id: "po-1004", supplier: "Fuel Depot Central", items: 1, value: 12500, status: "in_transit", eta: "1 day", trackingId: "TRK-88445", delivery: { lat: 38.9216, lng: -77.0147 } }
-]
-
-const mockInventory = [
-  { id: "inv-1", name: "Brake Pads", quantity: 45, location: "Warehouse A", minStock: 20, value: 12.50, trend: "stable" },
-  { id: "inv-2", name: "Oil Filters", quantity: 12, location: "Warehouse B", minStock: 30, value: 8.75, trend: "low" },
-  { id: "inv-3", name: "Air Filters", quantity: 67, location: "Warehouse A", minStock: 25, value: 15.20, trend: "high" },
-  { id: "inv-4", name: "Windshield Wipers", quantity: 8, location: "Warehouse C", minStock: 15, value: 18.00, trend: "critical" }
-]
+const fetcher = (url: string) =>
+  fetch(url, { credentials: "include" }).then((res) => res.json())
 
 // Supplier Panel Component
 const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO }: { supplier: any; _onClose: () => void; onCreatePO: (supplier: any) => void; isCreatingPO: boolean }) => {
@@ -217,10 +198,10 @@ const InventoryPanel = ({ inventory }: { inventory: any[] }) => {
 }
 
 // Dashboard Panel
-const DashboardPanel = () => {
-  const totalSpend = mockSuppliers.reduce((sum, s) => sum + s.totalSpend, 0)
-  const activeOrders = mockPurchaseOrders.filter(po => po.status !== 'delivered').length
-  const criticalItems = mockInventory.filter(item => item.quantity < item.minStock).length
+const DashboardPanel = ({ suppliers, orders, inventory }: { suppliers: any[]; orders: any[]; inventory: any[] }) => {
+  const totalSpend = suppliers.reduce((sum, s) => sum + s.totalSpend, 0)
+  const activeOrders = orders.filter(po => po.status !== 'delivered').length
+  const criticalItems = inventory.filter(item => item.quantity < item.minStock).length
 
   return (
     <ScrollArea className="h-full">
@@ -241,7 +222,7 @@ const DashboardPanel = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Active Suppliers</p>
-              <p className="text-sm font-bold">{mockSuppliers.filter(s => s.status === 'active').length}</p>
+              <p className="text-sm font-bold">{suppliers.filter(s => s.status === 'active').length}</p>
             </div>
             <Building2 className="h-8 w-8 text-muted-foreground" />
           </div>
@@ -273,7 +254,7 @@ const DashboardPanel = () => {
           </CardHeader>
           <CardContent className="p-0 space-y-2">
             {Object.entries(
-              mockSuppliers.reduce((acc, s) => {
+              suppliers.reduce((acc, s) => {
                 acc[s.category] = (acc[s.category] || 0) + s.totalSpend
                 return acc
               }, {} as Record<string, number>)
@@ -299,9 +280,87 @@ export function ProcurementHub() {
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [isCreatingPO, setIsCreatingPO] = useState(false)
 
+  const { data: vendorsResponse } = useSWR('/api/vendors', fetcher)
+  const { data: ordersResponse } = useSWR('/api/purchase-orders', fetcher)
+  const { data: partsResponse } = useSWR('/api/parts', fetcher)
+
+  const vendors = vendorsResponse?.data || []
+  const purchaseOrdersRaw = ordersResponse?.data || []
+  const parts = partsResponse?.data || []
+
+  const suppliers = useMemo(() => {
+    return vendors.map((vendor: any) => {
+      const vendorOrders = purchaseOrdersRaw.filter((po: any) => po.vendorId === vendor.id)
+      const totalSpend = vendorOrders.reduce((sum: number, po: any) => sum + (Number(po.totalAmount) || 0), 0)
+      const locationMeta = vendor.metadata || {}
+      return {
+        id: vendor.id,
+        name: vendor.name,
+        location: {
+          lat: locationMeta.lat || 30.44,
+          lng: locationMeta.lng || -84.28
+        },
+        category: vendor.type || 'General',
+        orderCount: vendorOrders.length,
+        totalSpend,
+        rating: Number(vendor.rating) || 4.5,
+        status: vendor.isActive ? 'active' : 'pending'
+      }
+    })
+  }, [vendors, purchaseOrdersRaw])
+
+  const purchaseOrders = useMemo(() => {
+    return purchaseOrdersRaw.map((po: any) => {
+      const vendor = vendors.find((v: any) => v.id === po.vendorId)
+      const vendorMeta = vendor?.metadata || {}
+      const items = Array.isArray(po.lineItems) ? po.lineItems.length : 0
+      const statusMap: Record<string, string> = {
+        pending: 'processing',
+        in_progress: 'in_transit',
+        completed: 'delivered',
+        cancelled: 'delivered',
+        on_hold: 'processing',
+        failed: 'processing'
+      }
+      const status = statusMap[po.status] || 'processing'
+      const eta = po.expectedDeliveryDate ? new Date(po.expectedDeliveryDate).toLocaleDateString() : 'TBD'
+      return {
+        id: po.number || po.id,
+        supplier: po.vendorName || vendor?.name || 'Vendor',
+        items,
+        value: Number(po.totalAmount) || 0,
+        status,
+        eta,
+        trackingId: po.number || po.id,
+        delivery: {
+          lat: vendorMeta.lat || 30.44,
+          lng: vendorMeta.lng || -84.28
+        }
+      }
+    })
+  }, [purchaseOrdersRaw, vendors])
+
+  const inventory = useMemo(() => {
+    return parts.map((part: any) => {
+      const qty = Number(part.quantityOnHand) || 0
+      const minStock = Number(part.reorderPoint) || 0
+      const trend =
+        qty < minStock ? 'critical' : qty < minStock * 1.5 ? 'low' : qty > minStock * 2 ? 'high' : 'stable'
+      return {
+        id: part.id,
+        name: part.name,
+        quantity: qty,
+        location: part.locationInWarehouse || 'Warehouse',
+        minStock,
+        value: Number(part.unitCost) || 0,
+        trend
+      }
+    })
+  }, [parts])
+
   // Convert suppliers to map markers
   const supplierMarkers = useMemo(() => {
-    return mockSuppliers
+    return suppliers
       .filter(s => {
         const matchesSearch = !searchQuery || s.name.toLowerCase().includes(searchQuery.toLowerCase())
         const matchesCategory = categoryFilter === 'all' || s.category === categoryFilter
@@ -317,11 +376,11 @@ export function ProcurementHub() {
         location: supplier.location,
         fuelLevel: supplier.rating * 20 // Convert 5-star to percentage for display
       }))
-  }, [searchQuery, categoryFilter])
+  }, [searchQuery, categoryFilter, suppliers])
 
   // Convert POs to delivery markers
   const deliveryMarkers = useMemo(() => {
-    return mockPurchaseOrders
+    return purchaseOrders
       .filter(po => po.status === 'in_transit')
       .map(po => ({
         id: po.id,
@@ -329,15 +388,15 @@ export function ProcurementHub() {
         location: po.delivery,
         type: 'delivery'
       })) as unknown as GISFacility[]
-  }, [])
+  }, [purchaseOrders])
 
   const handleSupplierSelect = useCallback((supplierId: string) => {
-    const supplier = mockSuppliers.find(s => s.id === supplierId)
+    const supplier = suppliers.find(s => s.id === supplierId)
     if (supplier) {
       setSelectedEntity({ type: 'supplier', data: supplier })
       setActivePanel('supplier')
     }
-  }, [])
+  }, [suppliers])
 
   // Handler for creating purchase orders with policy enforcement
   const handleCreatePurchaseOrder = async (supplier: any) => {
@@ -392,8 +451,8 @@ export function ProcurementHub() {
   }
 
   const categories = useMemo(() => {
-    return Array.from(new Set(mockSuppliers.map(s => s.category)))
-  }, [])
+    return Array.from(new Set(suppliers.map(s => s.category)))
+  }, [suppliers])
 
   return (
     <div className="h-screen grid grid-cols-[1fr_400px]" data-testid="procurement-hub">
@@ -444,7 +503,7 @@ export function ProcurementHub() {
             <TabsTrigger value="inventory">Inventory</TabsTrigger>
           </TabsList>
           <TabsContent value="dashboard" className="h-[calc(100vh-48px)] mt-0">
-            <DashboardPanel />
+            <DashboardPanel suppliers={suppliers} orders={purchaseOrders} inventory={inventory} />
           </TabsContent>
           <TabsContent value="supplier" className="h-[calc(100vh-48px)] mt-0">
             <SupplierPanel
@@ -455,10 +514,10 @@ export function ProcurementHub() {
             />
           </TabsContent>
           <TabsContent value="orders" className="h-[calc(100vh-48px)] mt-0">
-            <PurchaseOrdersPanel orders={mockPurchaseOrders} onOrderSelect={(order) => setSelectedEntity({ type: 'order', data: order })} />
+            <PurchaseOrdersPanel orders={purchaseOrders} onOrderSelect={(order) => setSelectedEntity({ type: 'order', data: order })} />
           </TabsContent>
           <TabsContent value="inventory" className="h-[calc(100vh-48px)] mt-0">
-            <InventoryPanel inventory={mockInventory} />
+            <InventoryPanel inventory={inventory} />
           </TabsContent>
         </Tabs>
       </div>

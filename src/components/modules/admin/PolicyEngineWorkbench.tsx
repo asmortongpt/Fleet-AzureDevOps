@@ -53,15 +53,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { usePolicies } from "@/contexts/PolicyContext"
+import { useAuth } from "@/hooks/useAuth"
 import type { Policy, PolicyType, PolicyMode, PolicyStatus } from "@/lib/policy-engine/types"
 import logger from '@/utils/logger';
-
-// Check if demo mode is enabled (default: true)
-const isDemoMode = () => {
-  if (typeof window === 'undefined') return true
-  const demoMode = localStorage.getItem('demo_mode')
-  return demoMode !== 'false' // Default to demo mode unless explicitly disabled
-}
 
 export function PolicyEngineWorkbench() {
   // Use PolicyContext for backend integration
@@ -74,8 +68,10 @@ export function PolicyEngineWorkbench() {
     deletePolicy,
     activatePolicy,
     deactivatePolicy,
-    fetchPolicies
+    fetchPolicies,
+    evaluatePolicy
   } = usePolicies()
+  const { user } = useAuth()
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState<string>("all")
   const [filterStatus, setFilterStatus] = useState<string>("all")
@@ -116,8 +112,13 @@ export function PolicyEngineWorkbench() {
     }
 
     try {
+      if (!user?.tenantId) {
+        toast.error("No tenant context available. Please re-authenticate.")
+        return
+      }
+
       const policyData = {
-        tenantId: "tenant-demo",
+        tenantId: user.tenantId,
         name: newPolicy.name,
         description: newPolicy.description,
         type: newPolicy.type as PolicyType,
@@ -130,11 +131,11 @@ export function PolicyEngineWorkbench() {
         confidenceScore: newPolicy.confidenceScore || 0.85,
         requiresDualControl: newPolicy.requiresDualControl || false,
         requiresMFAForExecution: newPolicy.requiresMFAForExecution || false,
-        createdBy: "Current User",
+        createdBy: user.email || user.id,
         tags: newPolicy.tags || [],
         category: newPolicy.category || "general",
         relatedPolicies: newPolicy.relatedPolicies || [],
-        lastModifiedBy: "Current User",
+        lastModifiedBy: user.email || user.id,
         lastModifiedAt: new Date().toISOString()
       }
 
@@ -168,17 +169,23 @@ export function PolicyEngineWorkbench() {
   }
 
   const handleTest = async (policyId: string) => {
-    toast("Starting policy simulation in sandbox environment...")
-    // Simulate testing
-    setTimeout(async () => {
-      try {
-        await updatePolicy(policyId, { status: "testing" as PolicyStatus })
-        toast.success("Policy test completed successfully")
-      } catch (error) {
-        logger.error('Error testing policy:', error)
-        toast.error("Policy test failed")
+    try {
+      toast("Running policy evaluation...")
+      const result = await evaluatePolicy(policyId, {
+        employee_id: user?.id,
+        employee_role: user?.role,
+        tenant_id: user?.tenantId
+      })
+
+      if (result.allowed) {
+        toast.success("Policy evaluation completed: compliant")
+      } else {
+        toast.error(result.reason || "Policy evaluation failed")
       }
-    }, 2000)
+    } catch (error) {
+      logger.error('Error testing policy:', error)
+      toast.error("Policy test failed")
+    }
   }
 
   const handleEdit = (policy: Policy) => {

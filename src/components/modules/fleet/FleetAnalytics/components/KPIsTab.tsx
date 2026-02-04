@@ -13,9 +13,57 @@ interface KPIsTabProps {
   fuelEfficiency: string
   downtimeRate: string
   utilization: number
+  utilizationChange?: number
+  fuelCostChange?: number
+  maintenanceCostChange?: number
 }
 
-export function KPIsTab({ costPerMile, fuelEfficiency, downtimeRate, utilization }: KPIsTabProps) {
+export function KPIsTab({
+  costPerMile,
+  fuelEfficiency,
+  downtimeRate,
+  utilization,
+  utilizationChange,
+  fuelCostChange,
+  maintenanceCostChange
+}: KPIsTabProps) {
+  const insights: Array<{
+    title: string
+    description: string
+    tone: "success" | "warning" | "info"
+    icon: JSX.Element
+  }> = []
+
+  if (utilizationChange !== undefined) {
+    const improving = utilizationChange >= 0
+    insights.push({
+      title: improving ? "Fleet Utilization Improving" : "Fleet Utilization Declining",
+      description: `Utilization ${improving ? "increased" : "decreased"} by ${Math.abs(utilizationChange).toFixed(1)}% compared to the prior period.`,
+      tone: improving ? "success" : "warning",
+      icon: <TrendUp className="w-3 h-3" />
+    })
+  }
+
+  if (fuelCostChange !== undefined) {
+    const rising = fuelCostChange >= 0
+    insights.push({
+      title: rising ? "Fuel Costs Rising" : "Fuel Costs Improving",
+      description: `Fuel expenses ${rising ? "increased" : "decreased"} by ${Math.abs(fuelCostChange).toFixed(1)}% over the prior period.`,
+      tone: rising ? "warning" : "success",
+      icon: <GasPump className="w-3 h-3" />
+    })
+  }
+
+  if (maintenanceCostChange !== undefined) {
+    const rising = maintenanceCostChange >= 0
+    insights.push({
+      title: rising ? "Maintenance Costs Increasing" : "Maintenance Costs Decreasing",
+      description: `Maintenance spend ${rising ? "increased" : "decreased"} by ${Math.abs(maintenanceCostChange).toFixed(1)}% over the prior period.`,
+      tone: rising ? "warning" : "success",
+      icon: <Wrench className="w-3 h-3" />
+    })
+  }
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
@@ -77,43 +125,33 @@ export function KPIsTab({ costPerMile, fuelEfficiency, downtimeRate, utilization
           <CardTitle>Performance Insights</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            <div className="flex items-start gap-2 p-2 border rounded-lg">
-              <div className="p-2 rounded-lg bg-success/10 text-success">
-                <TrendUp className="w-3 h-3" />
-              </div>
-              <div className="flex-1">
-                <h4 className="font-semibold mb-1">Fleet Utilization Improving</h4>
-                <p className="text-sm text-muted-foreground">
-                  Fleet utilization has increased by 3.2% compared to last period, indicating better resource allocation.
-                </p>
-              </div>
+          {insights.length === 0 ? (
+            <div className="text-sm text-muted-foreground">
+              Trend insights will appear once historical data is available.
             </div>
-
-            <div className="flex items-start gap-2 p-2 border rounded-lg">
-              <div className="p-2 rounded-lg bg-warning/10 text-warning">
-                <GasPump className="w-3 h-3" />
-              </div>
-              <div className="flex-1">
-                <h4 className="font-semibold mb-1">Fuel Costs Rising</h4>
-                <p className="text-sm text-muted-foreground">
-                  Fuel expenses have increased by 8.5%. Consider fuel efficiency training or route optimization.
-                </p>
-              </div>
+          ) : (
+            <div className="space-y-2">
+              {insights.map((insight) => (
+                <div key={insight.title} className="flex items-start gap-2 p-2 border rounded-lg">
+                  <div
+                    className={`p-2 rounded-lg ${
+                      insight.tone === "success"
+                        ? "bg-success/10 text-success"
+                        : insight.tone === "warning"
+                          ? "bg-warning/10 text-warning"
+                          : "bg-accent/10 text-accent"
+                    }`}
+                  >
+                    {insight.icon}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold mb-1">{insight.title}</h4>
+                    <p className="text-sm text-muted-foreground">{insight.description}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-
-            <div className="flex items-start gap-2 p-2 border rounded-lg">
-              <div className="p-2 rounded-lg bg-success/10 text-success">
-                <Wrench className="w-3 h-3" />
-              </div>
-              <div className="flex-1">
-                <h4 className="font-semibold mb-1">Maintenance Costs Decreasing</h4>
-                <p className="text-sm text-muted-foreground">
-                  Maintenance expenses down by 2.3%, suggesting effective preventive maintenance practices.
-                </p>
-              </div>
-            </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </>

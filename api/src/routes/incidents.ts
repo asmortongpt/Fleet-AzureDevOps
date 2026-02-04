@@ -1,169 +1,214 @@
-import { Router } from "express";
-import { z } from 'zod';
+import express, { Response } from 'express'
 
-import { container } from '../container';
-import { authenticateJWT } from '../middleware/auth';
+import logger from '../config/logger'
+import { pool } from '../db/connection'
+import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
-;
-import { asyncHandler } from '../middleware/errorHandler';
-import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
-import { validateBody, validateParams } from '../middleware/validate'
-import { IncidentController } from '../modules/incidents/controllers/incident.controller';
-import { TYPES } from '../types';
+import { requirePermission } from '../middleware/permissions'
+import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
-const router = Router();
-const incidentController = container.get<IncidentController>(TYPES.IncidentController);
+const router = express.Router()
+router.use(authenticateJWT)
 
-// Validation schemas
-const idSchema = z.object({
-  id: z.string().regex(/^\d+$/).transform(Number)
-});
+// GET /incidents
+router.get(
+  '/',
+  requirePermission('incident:view:global'),
+  auditLog({ action: 'READ', resourceType: 'incidents' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { page = 1, limit = 50, status, severity, type, date_from, date_to } = req.query
+      const offset = (Number(page) - 1) * Number(limit)
 
-const createIncidentSchema = z.object({
-  incident_number: z.string(),
-  vehicle_id: z.string().uuid().optional(),
-  driver_id: z.string().uuid().optional(),
-  facility_id: z.string().uuid().optional(),
-  incident_type: z.enum(['accident', 'damage', 'theft', 'breakdown', 'safety', 'other']),
-  severity: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
-  status: z.enum(['reported', 'investigating', 'resolved', 'closed']).default('reported'),
-  incident_date: z.string(),
-  location: z.string().optional(),
-  description: z.string().min(1),
-  injuries_reported: z.boolean().optional(),
-  police_report_filed: z.boolean().optional(),
-  police_report_number: z.string().optional(),
-  estimated_cost: z.number().optional(),
-  actual_cost: z.number().optional(),
-  insurance_claim_number: z.string().optional(),
-  photos: z.array(z.string()).optional(),
-  witness_statements: z.string().optional(),
-  notes: z.string().optional(),
-  reported_by: z.string()
-});
+      let query = `
+        SELECT i.*,
+               v.unit_number as vehicle_unit,
+               d.first_name || ' ' || d.last_name as driver_name,
+               u.first_name || ' ' || u.last_name as reported_by_name
+        FROM incidents i
+        LEFT JOIN vehicles v ON i.vehicle_id = v.id
+        LEFT JOIN drivers d ON i.driver_id = d.id
+        LEFT JOIN users u ON i.reported_by_id = u.id
+        WHERE i.tenant_id = $1
+      `
+      const params: any[] = [req.user!.tenant_id]
+      let paramIndex = 2
 
-const updateIncidentSchema = createIncidentSchema.partial();
+      if (status) {
+        query += ` AND i.status = $${paramIndex}`
+        params.push(status)
+        paramIndex++
+      }
+      if (severity) {
+        query += ` AND i.severity = $${paramIndex}`
+        params.push(severity)
+        paramIndex++
+      }
+      if (type) {
+        query += ` AND i.type = $${paramIndex}`
+        params.push(type)
+        paramIndex++
+      }
+      if (date_from) {
+        query += ` AND i.incident_date >= $${paramIndex}`
+        params.push(date_from)
+        paramIndex++
+      }
+      if (date_to) {
+        query += ` AND i.incident_date <= $${paramIndex}`
+        params.push(date_to)
+        paramIndex++
+      }
 
-// SECURITY: All routes require authentication
-router.use(authenticateJWT);
+      query += ` ORDER BY i.incident_date DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+      params.push(limit, offset)
 
-// GET all incidents
-router.get("/",
-  requireRBAC({
-    roles: [Role.ADMIN, Role.MANAGER, Role.USER],
-    permissions: [PERMISSIONS.INCIDENT_READ],
-    enforceTenantIsolation: true,
-    resourceType: 'incident'
-  }),
-  asyncHandler((req, res, next) => incidentController.getAll(req, res, next))
-);
+      const result = await pool.query(query, params)
 
-// GET incident by ID
-router.get("/:id",
-  requireRBAC({
-    roles: [Role.ADMIN, Role.MANAGER, Role.USER],
-    permissions: [PERMISSIONS.INCIDENT_READ],
-    enforceTenantIsolation: true,
-    resourceType: 'incident'
-  }),
-  validateParams(idSchema),
-  asyncHandler((req, res, next) => incidentController.getById(req, res, next))
-);
+      const countResult = await pool.query(
+        `SELECT COUNT(*) FROM incidents WHERE tenant_id = $1`,
+        [req.user!.tenant_id]
+      )
 
-// POST create incident
-router.post("/",
- csrfProtection, requireRBAC({
-    roles: [Role.ADMIN, Role.MANAGER, Role.USER],
-    permissions: [PERMISSIONS.INCIDENT_CREATE],
-    enforceTenantIsolation: true,
-    resourceType: 'incident'
-  }),
-  validateBody(createIncidentSchema),
-  asyncHandler((req, res, next) => incidentController.create(req, res, next))
-);
+      res.json({
+        data: result.rows,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total: parseInt(countResult.rows[0].count, 10),
+          pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / Number(limit)),
+        },
+      })
+    } catch (error) {
+      logger.error('Get incidents error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
 
-// PUT update incident
-router.put("/:id",
- csrfProtection, requireRBAC({
-    roles: [Role.ADMIN, Role.MANAGER],
-    permissions: [PERMISSIONS.INCIDENT_UPDATE],
-    enforceTenantIsolation: true,
-    resourceType: 'incident'
-  }),
-  validateParams(idSchema),
-  validateBody(updateIncidentSchema),
-  asyncHandler((req, res, next) => incidentController.update(req, res, next))
-);
+// GET /incidents/:id
+router.get(
+  '/:id',
+  requirePermission('incident:view:global'),
+  auditLog({ action: 'READ', resourceType: 'incidents' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        `SELECT i.*,
+                v.unit_number as vehicle_unit,
+                d.first_name || ' ' || d.last_name as driver_name,
+                u.first_name || ' ' || u.last_name as reported_by_name
+         FROM incidents i
+         LEFT JOIN vehicles v ON i.vehicle_id = v.id
+         LEFT JOIN drivers d ON i.driver_id = d.id
+         LEFT JOIN users u ON i.reported_by_id = u.id
+         WHERE i.id = $1 AND i.tenant_id = $2`,
+        [req.params.id, req.user!.tenant_id]
+      )
 
-// PATCH update incident (alias for PUT to support frontend PATCH requests)
-router.patch("/:id",
- csrfProtection, requireRBAC({
-    roles: [Role.ADMIN, Role.MANAGER],
-    permissions: [PERMISSIONS.INCIDENT_UPDATE],
-    enforceTenantIsolation: true,
-    resourceType: 'incident'
-  }),
-  validateParams(idSchema),
-  validateBody(updateIncidentSchema),
-  asyncHandler((req, res, next) => incidentController.update(req, res, next))
-);
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Incident not found' })
+      }
 
-// DELETE incident
-router.delete("/:id",
- csrfProtection, requireRBAC({
-    roles: [Role.ADMIN, Role.MANAGER],
-    permissions: [PERMISSIONS.INCIDENT_DELETE],
-    enforceTenantIsolation: true,
-    resourceType: 'incident'
-  }),
-  validateParams(idSchema),
-  asyncHandler((req, res, next) => incidentController.delete(req, res, next))
-);
+      res.json(result.rows[0])
+    } catch (error) {
+      logger.error('Get incident error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
 
-// GET investigations for an incident
-router.get("/:id/investigations",
-  requireRBAC({
-    roles: [Role.ADMIN, Role.MANAGER, Role.USER],
-    permissions: [PERMISSIONS.INCIDENT_READ],
-    enforceTenantIsolation: true,
-    resourceType: 'incident'
-  }),
-  validateParams(idSchema),
-  asyncHandler((req, res, next) => incidentController.getInvestigations(req, res, next))
-);
+// POST /incidents
+router.post(
+  '/',
+  csrfProtection,
+  requirePermission('incident:create:global'),
+  auditLog({ action: 'CREATE', resourceType: 'incidents' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const data = req.body
 
-// POST create investigation
-router.post("/:id/investigations",
- csrfProtection, requireRBAC({
-    roles: [Role.ADMIN, Role.MANAGER],
-    permissions: [PERMISSIONS.INCIDENT_UPDATE],
-    enforceTenantIsolation: true,
-    resourceType: 'incident'
-  }),
-  validateParams(idSchema),
-  asyncHandler((req, res, next) => incidentController.createInvestigation(req, res, next))
-);
+      let number = data.number
+      if (!number) {
+        const numberResult = await pool.query(
+          `SELECT COALESCE(MAX(CAST(SUBSTRING(number FROM '[0-9]+') AS INTEGER)), 0) + 1 as next_num
+           FROM incidents WHERE tenant_id = $1`,
+          [req.user!.tenant_id]
+        )
+        number = `INC-${String(numberResult.rows[0].next_num).padStart(4, '0')}`
+      }
 
-// GET safety metrics (must be before /:id to avoid route conflict)
-router.get("/metrics",
-  requireRBAC({
-    roles: [Role.ADMIN, Role.MANAGER, Role.USER],
-    permissions: [PERMISSIONS.INCIDENT_READ],
-    enforceTenantIsolation: true,
-    resourceType: 'incident'
-  }),
-  asyncHandler((req, res, next) => incidentController.getSafetyMetrics(req, res, next))
-);
+      const { columnNames, placeholders, values } = buildInsertClause(
+        { ...data, number },
+        ['tenant_id', 'reported_by_id'],
+        1
+      )
 
-// PATCH update investigation
-router.patch("/investigations/:investigationId",
- csrfProtection, requireRBAC({
-    roles: [Role.ADMIN, Role.MANAGER],
-    permissions: [PERMISSIONS.INCIDENT_UPDATE],
-    enforceTenantIsolation: true,
-    resourceType: 'incident'
-  }),
-  asyncHandler((req, res, next) => incidentController.updateInvestigation(req, res, next))
-);
+      const result = await pool.query(
+        `INSERT INTO incidents (${columnNames}) VALUES (${placeholders}) RETURNING *`,
+        [req.user!.tenant_id, req.user!.id, ...values]
+      )
 
-export default router;
+      res.status(201).json(result.rows[0])
+    } catch (error) {
+      logger.error('Create incident error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// PUT /incidents/:id
+router.put(
+  '/:id',
+  csrfProtection,
+  requirePermission('incident:update:global'),
+  auditLog({ action: 'UPDATE', resourceType: 'incidents' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { fields, values } = buildUpdateClause(req.body, 3)
+
+      const result = await pool.query(
+        `UPDATE incidents SET ${fields}, updated_at = NOW()
+         WHERE id = $1 AND tenant_id = $2 RETURNING *`,
+        [req.params.id, req.user!.tenant_id, ...values]
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Incident not found' })
+      }
+
+      res.json(result.rows[0])
+    } catch (error) {
+      logger.error('Update incident error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// DELETE /incidents/:id
+router.delete(
+  '/:id',
+  csrfProtection,
+  requirePermission('incident:delete:global'),
+  auditLog({ action: 'DELETE', resourceType: 'incidents' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        `DELETE FROM incidents WHERE id = $1 AND tenant_id = $2 RETURNING id`,
+        [req.params.id, req.user!.tenant_id]
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Incident not found' })
+      }
+
+      res.json({ message: 'Incident deleted successfully' })
+    } catch (error) {
+      logger.error('Delete incident error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+export default router

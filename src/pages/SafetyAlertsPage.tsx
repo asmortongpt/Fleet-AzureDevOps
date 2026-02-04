@@ -24,8 +24,9 @@ import {
   LineChart,
   Filter
 } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { toast } from "sonner"
+import useSWR from "swr"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -56,6 +57,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
+import { getCsrfToken } from "@/hooks/use-api"
 
 interface SafetyAlert {
   id: string
@@ -101,165 +103,81 @@ interface OSHAMetrics {
   }
 }
 
+const fetcher = (url: string) =>
+  fetch(url, { credentials: "include" })
+    .then((res) => res.json())
+    .then((data) => data?.data ?? data)
+
 export default function SafetyAlertsPage() {
   const { push } = useDrilldown()
-  const [alerts, setAlerts] = useState<SafetyAlert[]>([])
-  const [filteredAlerts, setFilteredAlerts] = useState<SafetyAlert[]>([])
   const [filterSeverity, setFilterSeverity] = useState<string>("all")
   const [filterStatus, setFilterStatus] = useState<string>("all")
   const [filterType, setFilterType] = useState<string>("all")
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedAlert, setSelectedAlert] = useState<SafetyAlert | null>(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
-  const [oshaMetrics] = useState<OSHAMetrics>({
-    totalRecordableIncidents: 12,
-    daysAwayRestrictedTransfer: 8,
-    totalCases: 12,
-    incidentRate: 2.4,
-    daysAwayFromWorkCaseRate: 1.6,
-    lostWorkdayRate: 45,
-    totalHoursWorked: 500000,
-    yearToDate: {
-      injuries: 8,
-      illnesses: 4,
-      fatalities: 0
-    }
+  const currentYear = new Date().getFullYear()
+
+  const {
+    data: alertsResponse,
+    error: alertsError,
+    isLoading: alertsLoading,
+    mutate: refreshAlerts
+  } = useSWR<SafetyAlert[]>('/api/safety-alerts?limit=200', fetcher, {
+    refreshInterval: 30000,
+    shouldRetryOnError: false
   })
 
-  // Real-time alert simulation
-  useEffect(() => {
-    // Initialize with sample data
-    const sampleAlerts: SafetyAlert[] = [
-      {
-        id: "alert-001",
-        alertNumber: "SA-2025-001",
-        type: "injury",
-        severity: "critical",
-        title: "Driver Injury - Forklift Operation",
-        description: "Driver sustained hand injury while operating forklift at Warehouse B",
-        location: "Warehouse B, Loading Bay 3",
-        facilityId: "facility-002",
-        vehicleId: "vehicle-fl-001",
-        driverId: "driver-042",
-        reportedBy: "Supervisor Jane Smith",
-        reportedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        status: "investigating",
-        oshaRecordable: true,
-        oshaFormRequired: "301",
-        daysAwayFromWork: 3,
-        requiresImmediateAction: true,
-        assignedTo: "Safety Officer Mike Johnson",
-        witnesses: ["John Doe", "Sarah Williams"]
-      },
-      {
-        id: "alert-002",
-        alertNumber: "SA-2025-002",
-        type: "near-miss",
-        severity: "high",
-        title: "Near Miss - Pedestrian in Loading Zone",
-        description: "Pedestrian almost struck by reversing truck in loading zone",
-        location: "Main Distribution Center, Dock 7",
-        facilityId: "facility-001",
-        vehicleId: "vehicle-truck-045",
-        reportedBy: "Guard Tom Anderson",
-        reportedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-        status: "acknowledged",
-        oshaRecordable: false,
-        requiresImmediateAction: true,
-        preventiveMeasures: ["Install additional mirrors", "Enhanced signage"]
-      },
-      {
-        id: "alert-003",
-        alertNumber: "SA-2025-003",
-        type: "hazard",
-        severity: "medium",
-        title: "Spill Hazard - Hydraulic Fluid Leak",
-        description: "Hydraulic fluid leak detected on vehicle FL-023",
-        location: "Maintenance Bay 2",
-        vehicleId: "vehicle-fl-023",
-        reportedBy: "Mechanic Carlos Rodriguez",
-        reportedAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-        status: "resolved",
-        oshaRecordable: false,
-        requiresImmediateAction: false,
-        correctiveActions: ["Replaced hydraulic line", "Cleaned spill area"]
-      },
-      {
-        id: "alert-004",
-        alertNumber: "SA-2025-004",
-        type: "osha-violation",
-        severity: "high",
-        title: "Missing Safety Guard on Equipment",
-        description: "Safety guard missing on conveyor belt system",
-        location: "Processing Area C",
-        facilityId: "facility-003",
-        reportedBy: "Inspector Lisa Chen",
-        reportedAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-        status: "active",
-        oshaRecordable: false,
-        requiresImmediateAction: true,
-        estimatedResolutionTime: "24 hours"
-      },
-      {
-        id: "alert-005",
-        alertNumber: "SA-2025-005",
-        type: "equipment-failure",
-        severity: "medium",
-        title: "Backup Alarm Malfunction",
-        description: "Backup alarm not functioning on forklift FL-018",
-        location: "Warehouse A",
-        vehicleId: "vehicle-fl-018",
-        reportedBy: "Operator Mark Thompson",
-        reportedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-        status: "resolved",
-        oshaRecordable: false,
-        requiresImmediateAction: true,
-        actualResolutionTime: "2 hours",
-        correctiveActions: ["Replaced backup alarm unit", "Tested all alarms"]
-      },
-      {
-        id: "alert-006",
-        alertNumber: "SA-2025-006",
-        type: "environmental",
-        severity: "low",
-        title: "Minor Chemical Spill",
-        description: "Small cleaning solution spill in break room",
-        location: "Building A, Break Room",
-        facilityId: "facility-001",
-        reportedBy: "Janitor Maria Garcia",
-        reportedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        status: "closed",
-        oshaRecordable: false,
-        requiresImmediateAction: false,
-        correctiveActions: ["Cleaned spill", "Reviewed storage procedures"]
+  const { data: oshaResponse } = useSWR<{ data?: OSHAMetrics }>(
+    `/api/safety-alerts/metrics/osha?year=${currentYear}`,
+    fetcher,
+    { refreshInterval: 60000, shouldRetryOnError: false }
+  )
+
+  const alerts = useMemo(() => {
+    const raw = Array.isArray(alertsResponse) ? alertsResponse : []
+    return raw.map((alert) => ({
+      ...alert,
+      alertNumber: alert.alertNumber || (alert as any).alert_number || alert.id,
+      reportedAt: alert.reportedAt || (alert as any).reported_at || (alert as any).created_at || new Date().toISOString(),
+      reportedBy: alert.reportedBy || (alert as any).reported_by || 'System'
+    }))
+  }, [alertsResponse])
+
+  const oshaMetrics = useMemo<OSHAMetrics>(() => {
+    const apiMetrics = (oshaResponse as any)?.data as OSHAMetrics | undefined
+    if (apiMetrics) return apiMetrics
+
+    const totalRecordableIncidents = alerts.filter(a => a.oshaRecordable).length
+    const totalCases = alerts.length
+    const daysAwayRestrictedTransfer = alerts.reduce(
+      (sum, a) => sum + (a.daysAwayFromWork || 0) + (a.daysRestricted || 0),
+      0
+    )
+    const daysAwayFromWork = alerts.reduce((sum, a) => sum + (a.daysAwayFromWork || 0), 0)
+    const totalHoursWorked = 0
+
+    const incidentRate = 0
+    const daysAwayFromWorkCaseRate = 0
+    const lostWorkdayRate = 0
+
+    return {
+      totalRecordableIncidents,
+      daysAwayRestrictedTransfer,
+      totalCases,
+      incidentRate,
+      daysAwayFromWorkCaseRate,
+      lostWorkdayRate,
+      totalHoursWorked,
+      yearToDate: {
+        injuries: alerts.filter(a => a.type === 'injury').length,
+        illnesses: alerts.filter(a => a.type === 'environmental').length,
+        fatalities: 0
       }
-    ]
-    setAlerts(sampleAlerts)
-    setFilteredAlerts(sampleAlerts)
+    }
+  }, [alerts, oshaResponse])
 
-    // Simulate real-time updates
-    const interval = setInterval(() => {
-      // Randomly update alert statuses
-      setAlerts(prev => {
-        const updated = [...prev]
-        const randomIndex = Math.floor(Math.random() * updated.length)
-        const statuses: SafetyAlert["status"][] = ["active", "acknowledged", "investigating", "resolved", "closed"]
-        const currentStatusIndex = statuses.indexOf(updated[randomIndex].status)
-        if (currentStatusIndex < statuses.length - 1) {
-          updated[randomIndex] = {
-            ...updated[randomIndex],
-            status: statuses[currentStatusIndex + 1]
-          }
-        }
-        return updated
-      })
-    }, 30000) // Update every 30 seconds
-
-    return () => clearInterval(interval)
-  }, [])
-
-  // Apply filters
-  useEffect(() => {
+  const filteredAlerts = useMemo(() => {
     let filtered = alerts
 
     if (filterSeverity !== "all") {
@@ -284,7 +202,7 @@ export default function SafetyAlertsPage() {
       )
     }
 
-    setFilteredAlerts(filtered)
+    return filtered
   }, [alerts, filterSeverity, filterStatus, filterType, searchTerm])
 
   const handleViewDetails = (alert: SafetyAlert) => {
@@ -298,23 +216,51 @@ export default function SafetyAlertsPage() {
     })
   }
 
-  const handleAcknowledge = (alertId: string) => {
-    setAlerts(prev => prev.map(a =>
-      a.id === alertId && a.status === "active"
-        ? { ...a, status: "acknowledged" }
-        : a
-    ))
-    toast.success("Alert acknowledged")
-  }
+  const handleAcknowledge = useCallback(async (alertId: string) => {
+    try {
+      const csrf = await getCsrfToken()
+      const response = await fetch(`/api/safety-alerts/${alertId}/acknowledge`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrf
+        }
+      })
 
-  const handleResolve = (alertId: string) => {
-    setAlerts(prev => prev.map(a =>
-      a.id === alertId
-        ? { ...a, status: "resolved", actualResolutionTime: new Date().toISOString() }
-        : a
-    ))
-    toast.success("Alert marked as resolved")
-  }
+      if (!response.ok) {
+        throw new Error('Failed to acknowledge alert')
+      }
+
+      toast.success("Alert acknowledged")
+      refreshAlerts()
+    } catch (error) {
+      toast.error("Unable to acknowledge alert")
+    }
+  }, [refreshAlerts])
+
+  const handleResolve = useCallback(async (alertId: string) => {
+    try {
+      const csrf = await getCsrfToken()
+      const response = await fetch(`/api/safety-alerts/${alertId}/resolve`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrf
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to resolve alert')
+      }
+
+      toast.success("Alert marked as resolved")
+      refreshAlerts()
+    } catch (error) {
+      toast.error("Unable to resolve alert")
+    }
+  }, [refreshAlerts])
 
   const getSeverityBadge = (severity: SafetyAlert["severity"]) => {
     const colors = {
@@ -359,7 +305,21 @@ export default function SafetyAlertsPage() {
   const activeAlerts = alerts.filter(a => a.status === "active").length
   const criticalAlerts = alerts.filter(a => a.severity === "critical").length
   const oshaRecordable = alerts.filter(a => a.oshaRecordable).length
-  const avgResolutionTime = "4.2 hours" // Calculate from actual data
+  const avgResolutionTime = useMemo(() => {
+    const resolved = alerts.filter(a => a.actualResolutionTime && a.reportedAt)
+    if (resolved.length === 0) return "—"
+    const totalMs = resolved.reduce((sum, alert) => {
+      const start = new Date(alert.reportedAt).getTime()
+      const end = new Date(alert.actualResolutionTime as string).getTime()
+      if (Number.isNaN(start) || Number.isNaN(end) || end <= start) return sum
+      return sum + (end - start)
+    }, 0)
+    if (totalMs <= 0) return "—"
+    const avgHours = totalMs / resolved.length / 36e5
+    return `${avgHours.toFixed(1)} hours`
+  }, [alerts])
+
+  const metrics = oshaMetrics
 
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
@@ -508,7 +468,16 @@ export default function SafetyAlertsPage() {
                       <SelectItem value="environmental">Environmental</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button variant="outline" className="gap-2">
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => {
+                      setFilterSeverity("all")
+                      setFilterStatus("all")
+                      setFilterType("all")
+                      setSearchTerm("")
+                    }}
+                  >
                     <Filter className="w-4 h-4" />
                     Clear Filters
                   </Button>
@@ -538,7 +507,28 @@ export default function SafetyAlertsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredAlerts.map(alert => (
+                    {alertsLoading && (
+                      <TableRow className="border-slate-700">
+                        <TableCell colSpan={9} className="text-slate-300">
+                          Loading alerts...
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {alertsError && !alertsLoading && (
+                      <TableRow className="border-slate-700">
+                        <TableCell colSpan={9} className="text-red-400">
+                          Failed to load alerts. Please check your session and try again.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {!alertsLoading && !alertsError && filteredAlerts.length === 0 && (
+                      <TableRow className="border-slate-700">
+                        <TableCell colSpan={9} className="text-slate-300">
+                          No alerts match the selected filters.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {!alertsLoading && !alertsError && filteredAlerts.map(alert => (
                       <TableRow
                         key={alert.id}
                         className="border-slate-700 hover:bg-slate-800/50 cursor-pointer"
@@ -613,21 +603,21 @@ export default function SafetyAlertsPage() {
                   <div className="flex items-center justify-between p-2 bg-slate-900/50 rounded-lg">
                     <div>
                       <p className="text-sm text-slate-700">Total Recordable Incident Rate (TRIR)</p>
-                      <p className="text-sm font-bold text-white">{oshaMetrics.incidentRate}</p>
+                      <p className="text-sm font-bold text-white">{metrics.incidentRate}</p>
                     </div>
                     <TrendingDown className="w-4 h-4 text-green-400" />
                   </div>
                   <div className="flex items-center justify-between p-2 bg-slate-900/50 rounded-lg">
                     <div>
                       <p className="text-sm text-slate-700">Days Away/Restricted Case Rate (DART)</p>
-                      <p className="text-sm font-bold text-white">{oshaMetrics.daysAwayFromWorkCaseRate}</p>
+                      <p className="text-sm font-bold text-white">{metrics.daysAwayFromWorkCaseRate}</p>
                     </div>
                     <TrendingUp className="w-4 h-4 text-red-400" />
                   </div>
                   <div className="flex items-center justify-between p-2 bg-slate-900/50 rounded-lg">
                     <div>
                       <p className="text-sm text-slate-700">Lost Workday Rate</p>
-                      <p className="text-sm font-bold text-white">{oshaMetrics.lostWorkdayRate}</p>
+                      <p className="text-sm font-bold text-white">{metrics.lostWorkdayRate}</p>
                     </div>
                     <TrendingDown className="w-4 h-4 text-green-400" />
                   </div>
@@ -637,30 +627,30 @@ export default function SafetyAlertsPage() {
               <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader>
                   <CardTitle className="text-white">Year-to-Date Statistics</CardTitle>
-                  <CardDescription>Total hours worked: {oshaMetrics.totalHoursWorked.toLocaleString()}</CardDescription>
+                  <CardDescription>Total hours worked: {metrics.totalHoursWorked.toLocaleString()}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="p-2 bg-slate-900/50 rounded-lg">
                     <p className="text-sm text-slate-700 mb-2">Total Recordable Cases</p>
-                    <p className="text-base font-bold text-white">{oshaMetrics.totalRecordableIncidents}</p>
+                    <p className="text-base font-bold text-white">{metrics.totalRecordableIncidents}</p>
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     <div className="p-2 bg-slate-900/50 rounded-lg">
                       <p className="text-xs text-slate-700 mb-1">Injuries</p>
-                      <p className="text-base font-bold text-white">{oshaMetrics.yearToDate.injuries}</p>
+                      <p className="text-base font-bold text-white">{metrics.yearToDate.injuries}</p>
                     </div>
                     <div className="p-2 bg-slate-900/50 rounded-lg">
                       <p className="text-xs text-slate-700 mb-1">Illnesses</p>
-                      <p className="text-base font-bold text-white">{oshaMetrics.yearToDate.illnesses}</p>
+                      <p className="text-base font-bold text-white">{metrics.yearToDate.illnesses}</p>
                     </div>
                     <div className="p-2 bg-slate-900/50 rounded-lg">
                       <p className="text-xs text-slate-700 mb-1">Fatalities</p>
-                      <p className="text-base font-bold text-white">{oshaMetrics.yearToDate.fatalities}</p>
+                      <p className="text-base font-bold text-white">{metrics.yearToDate.fatalities}</p>
                     </div>
                   </div>
                   <div className="p-2 bg-slate-900/50 rounded-lg">
                     <p className="text-sm text-slate-700 mb-2">Days Away/Restricted/Transfer</p>
-                    <p className="text-sm font-bold text-white">{oshaMetrics.daysAwayRestrictedTransfer}</p>
+                    <p className="text-sm font-bold text-white">{metrics.daysAwayRestrictedTransfer}</p>
                   </div>
                 </CardContent>
               </Card>

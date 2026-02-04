@@ -30,7 +30,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   loadVehicleModel,
-  createPlaceholderModel,
   analyzeVehicleModel,
   type VehicleModelMetadata,
 } from '@/lib/3d/model-loader';
@@ -205,9 +204,7 @@ function VehicleModel({
         logger.error('Failed to load vehicle model:', err);
         if (mounted) {
           setError(err instanceof Error ? err.message : 'Failed to load model');
-          // Use placeholder
-          const placeholder = createPlaceholderModel();
-          setModel(placeholder);
+          setModel(null);
           setLoading(false);
         }
       }

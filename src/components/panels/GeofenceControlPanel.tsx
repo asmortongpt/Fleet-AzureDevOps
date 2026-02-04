@@ -34,6 +34,7 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { Geofence } from "@/lib/types"
+import { getCsrfToken } from "@/hooks/use-api"
 
 interface GeofenceControlPanelProps {
     isVisible: boolean;
@@ -52,6 +53,7 @@ export function GeofenceControlPanel({
     const [filterType, setFilterType] = useState<string>("all")
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
     const [selectedGeofence, setSelectedGeofence] = useState<Geofence | null>(null)
+    const [isSaving, setIsSaving] = useState(false)
 
     const [newGeofence, setNewGeofence] = useState<Partial<Geofence>>({
         name: "",
@@ -69,6 +71,46 @@ export function GeofenceControlPanel({
         alertPriority: "medium"
     })
 
+    const normalizeGeofence = (row: any): Geofence => {
+        const metadata = row?.metadata && typeof row.metadata === 'object'
+            ? row.metadata
+            : row?.metadata
+                ? (() => {
+                    try {
+                        return JSON.parse(row.metadata)
+                    } catch {
+                        return {}
+                    }
+                })()
+                : {}
+
+        return {
+            id: row.id,
+            tenantId: row.tenant_id,
+            name: row.name,
+            description: row.description || '',
+            type: row.type || row.geofence_type || 'circle',
+            center: row.center_lat != null && row.center_lng != null
+                ? { lat: Number(row.center_lat), lng: Number(row.center_lng) }
+                : row.center,
+            radius: row.radius != null ? Number(row.radius) : undefined,
+            coordinates: row.polygon || row.coordinates || [],
+            color: row.color || '#3B82F6',
+            active: row.is_active ?? row.active ?? true,
+            triggers: metadata.triggers || {
+                onEnter: row.notify_on_entry ?? false,
+                onExit: row.notify_on_exit ?? false,
+                onDwell: false
+            },
+            notifyUsers: metadata.notifyUsers || [],
+            notifyRoles: metadata.notifyRoles || [],
+            alertPriority: metadata.alertPriority || 'medium',
+            createdBy: metadata.createdBy || 'system',
+            createdAt: row.created_at || row.createdAt || new Date().toISOString(),
+            lastModified: row.updated_at || row.updatedAt || new Date().toISOString()
+        }
+    }
+
     const filteredGeofences = geofences.filter(geofence => {
         const matchesSearch =
             geofence.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -78,7 +120,38 @@ export function GeofenceControlPanel({
         return matchesSearch && matchesType
     })
 
-    const handleSaveGeofence = () => {
+    const buildPayload = (geofence: Partial<Geofence>) => {
+        const metadata: Record<string, any> = {}
+        if (geofence.triggers) metadata.triggers = geofence.triggers
+        if (geofence.notifyUsers && geofence.notifyUsers.length > 0) metadata.notifyUsers = geofence.notifyUsers
+        if (geofence.notifyRoles && geofence.notifyRoles.length > 0) metadata.notifyRoles = geofence.notifyRoles
+        if (geofence.alertPriority) metadata.alertPriority = geofence.alertPriority
+
+        const payload: Record<string, any> = {
+            name: geofence.name,
+            description: geofence.description,
+            type: geofence.type,
+            center_lat: geofence.center?.lat ?? geofence.latitude,
+            center_lng: geofence.center?.lng ?? geofence.longitude,
+            radius: geofence.radius,
+            polygon: geofence.coordinates,
+            color: geofence.color,
+            is_active: geofence.active,
+            notify_on_entry: geofence.triggers?.onEnter,
+            notify_on_exit: geofence.triggers?.onExit,
+            metadata: Object.keys(metadata).length > 0 ? metadata : undefined
+        }
+
+        Object.keys(payload).forEach((key) => {
+            if (payload[key] === undefined) {
+                delete payload[key]
+            }
+        })
+
+        return payload
+    }
+
+    const handleSaveGeofence = async () => {
         if (!newGeofence.name) {
             toast.error("Please enter a geofence name")
             return
@@ -89,40 +162,49 @@ export function GeofenceControlPanel({
             return
         }
 
-        const geofence: Geofence = {
-            id: selectedGeofence?.id || `geofence-${Date.now()}`,
-            tenantId: "tenant-demo",
-            name: newGeofence.name!,
-            description: newGeofence.description || "",
-            type: newGeofence.type as Geofence["type"],
-            center: newGeofence.center,
-            radius: newGeofence.radius || 500,
-            coordinates: newGeofence.coordinates || [],
-            color: newGeofence.color || "#3B82F6",
-            active: newGeofence.active !== false,
-            triggers: newGeofence.triggers || {
-                onEnter: true,
-                onExit: true,
-                onDwell: false
-            },
-            notifyUsers: newGeofence.notifyUsers || [],
-            notifyRoles: newGeofence.notifyRoles || [],
-            alertPriority: newGeofence.alertPriority || "medium",
-            createdBy: "Current User",
-            createdAt: selectedGeofence?.createdAt || new Date().toISOString(),
-            lastModified: new Date().toISOString()
-        }
+        try {
+            setIsSaving(true)
+            const csrfToken = await getCsrfToken()
+            const payload = buildPayload({
+                ...newGeofence,
+                type: newGeofence.type as Geofence["type"],
+                active: newGeofence.active !== false
+            })
 
-        if (selectedGeofence) {
-            onGeofencesChange(geofences.map(g => g.id === geofence.id ? geofence : g))
-            toast.success("Geofence updated successfully")
-        } else {
-            onGeofencesChange([...geofences, geofence])
-            toast.success("Geofence created successfully")
-        }
+            const response = await fetch(
+                selectedGeofence ? `/api/geofences/${selectedGeofence.id}` : `/api/geofences`,
+                {
+                    method: selectedGeofence ? 'PUT' : 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify(payload)
+                }
+            )
 
-        setIsAddDialogOpen(false)
-        resetForm()
+            if (!response.ok) {
+                throw new Error('Failed to save geofence')
+            }
+
+            const saved = await response.json()
+            const normalized = normalizeGeofence(saved)
+            if (selectedGeofence) {
+                onGeofencesChange(geofences.map(g => g.id === normalized.id ? normalized : g))
+                toast.success("Geofence updated successfully")
+            } else {
+                onGeofencesChange([...geofences, normalized])
+                toast.success("Geofence created successfully")
+            }
+
+            setIsAddDialogOpen(false)
+            resetForm()
+        } catch (error) {
+            toast.error("Failed to save geofence")
+        } finally {
+            setIsSaving(false)
+        }
     }
 
     const handleEdit = (geofence: Geofence) => {
@@ -131,29 +213,82 @@ export function GeofenceControlPanel({
         setIsAddDialogOpen(true)
     }
 
-    const handleDelete = (geofenceId: string) => {
-        onGeofencesChange(geofences.filter(g => g.id !== geofenceId))
-        toast.success("Geofence deleted")
-    }
-
-    const handleDuplicate = (geofence: Geofence) => {
-        const duplicate: Geofence = {
-            ...geofence,
-            id: `geofence-${Date.now()}`,
-            name: `${geofence.name} (Copy)`,
-            createdAt: new Date().toISOString(),
-            lastModified: new Date().toISOString()
+    const handleDelete = async (geofenceId: string) => {
+        try {
+            const csrfToken = await getCsrfToken()
+            const response = await fetch(`/api/geofences/${geofenceId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+                headers: {
+                    'X-CSRF-Token': csrfToken
+                }
+            })
+            if (!response.ok) {
+                throw new Error('Failed to delete geofence')
+            }
+            onGeofencesChange(geofences.filter(g => g.id !== geofenceId))
+            toast.success("Geofence deleted")
+        } catch (error) {
+            toast.error("Failed to delete geofence")
         }
-        onGeofencesChange([...geofences, duplicate])
-        toast.success("Geofence duplicated")
     }
 
-    const handleToggleActive = (geofenceId: string) => {
-        onGeofencesChange(
-            geofences.map(g =>
-                g.id === geofenceId ? { ...g, active: !g.active } : g
+    const handleDuplicate = async (geofence: Geofence) => {
+        try {
+            const csrfToken = await getCsrfToken()
+            const payload = buildPayload({
+                ...geofence,
+                name: `${geofence.name} (Copy)`
+            })
+
+            const response = await fetch(`/api/geofences`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: JSON.stringify(payload)
+            })
+            if (!response.ok) {
+                throw new Error('Failed to duplicate geofence')
+            }
+            const saved = await response.json()
+            onGeofencesChange([...geofences, normalizeGeofence(saved)])
+            toast.success("Geofence duplicated")
+        } catch (error) {
+            toast.error("Failed to duplicate geofence")
+        }
+    }
+
+    const handleToggleActive = async (geofenceId: string) => {
+        const target = geofences.find(g => g.id === geofenceId)
+        if (!target) return
+        try {
+            const csrfToken = await getCsrfToken()
+            const payload = buildPayload({ active: !target.active })
+            const response = await fetch(`/api/geofences/${geofenceId}`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: JSON.stringify(payload)
+            })
+            if (!response.ok) {
+                throw new Error('Failed to update geofence')
+            }
+            const saved = await response.json()
+            const normalized = normalizeGeofence(saved)
+            onGeofencesChange(
+                geofences.map(g =>
+                    g.id === geofenceId ? normalized : g
+                )
             )
-        )
+        } catch (error) {
+            toast.error("Failed to update geofence")
+        }
     }
 
     const resetForm = () => {
@@ -468,8 +603,8 @@ export function GeofenceControlPanel({
                         <Button variant="outline" onClick={() => { setIsAddDialogOpen(false); resetForm(); }}>
                             Cancel
                         </Button>
-                        <Button onClick={handleSaveGeofence}>
-                            {selectedGeofence ? "Update" : "Create"}
+                        <Button onClick={handleSaveGeofence} disabled={isSaving}>
+                            {isSaving ? "Saving..." : selectedGeofence ? "Update" : "Create"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

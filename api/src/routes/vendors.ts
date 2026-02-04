@@ -25,7 +25,7 @@ router.get("/", asyncHandler(async (req: AuthRequest, res: Response) => {
     `SELECT id, name, code, type, is_active as "isActive", 
             contact_name as "contactName", contact_email as "contactEmail",
             contact_phone as "contactPhone", address, city, state,
-            zip_code as "zipCode", country, website, rating, 
+            zip_code as "zipCode", country, website, rating, metadata,
             created_at as "createdAt", updated_at as "updatedAt"
      FROM vendors 
      WHERE tenant_id = $1 
@@ -50,7 +50,7 @@ router.get("/:id", asyncHandler(async (req: AuthRequest, res: Response) => {
             contact_phone as "contactPhone", address, city, state,
             zip_code as "zipCode", country, website, tax_id as "taxId",
             payment_terms as "paymentTerms", preferred_vendor as "preferredVendor",
-            rating, notes, created_at as "createdAt", updated_at as "updatedAt"
+            rating, notes, metadata, created_at as "createdAt", updated_at as "updatedAt"
      FROM vendors 
      WHERE id = $1 AND tenant_id = $2`,
     [req.params.id, tenantId]

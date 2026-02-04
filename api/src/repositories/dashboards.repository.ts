@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 
+import { pool as sharedPool } from '../db';
 import { BaseRepository } from './base/BaseRepository';
 
 
@@ -13,7 +14,7 @@ export interface DashboardEntity {
 }
 
 export class DashboardsRepository extends BaseRepository<any> {
-  constructor(pool: Pool) {
+  constructor(pool: Pool = sharedPool) {
     super(pool, 'dashboards');
   }
 
@@ -26,7 +27,7 @@ export class DashboardsRepository extends BaseRepository<any> {
   async findAll(tenantId: number, filters?: any): Promise<DashboardEntity[]> {
     try {
       const query = `
-        SELECT id, created_at, updated_at FROM dashboards
+        SELECT id, tenant_id, name, created_at, updated_at FROM dashboards
         WHERE tenant_id = $1
         AND deleted_at IS NULL
         ORDER BY created_at DESC
@@ -47,7 +48,7 @@ export class DashboardsRepository extends BaseRepository<any> {
    */
   async findById(id: number, tenantId: number): Promise<DashboardEntity | null> {
     const query = `
-      SELECT id, created_at, updated_at FROM dashboards
+      SELECT id, tenant_id, name, created_at, updated_at FROM dashboards
       WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
     `;
     const result = await this.pool.query(query, [id, tenantId]);
@@ -85,7 +86,7 @@ export class DashboardsRepository extends BaseRepository<any> {
       RETURNING *
     `;
     const result = await this.pool.query(query, [data.name, id, tenantId]);
-    return result.rows[0];
+    return result.rows[0] || null;
   }
 
   /**
@@ -99,6 +100,18 @@ export class DashboardsRepository extends BaseRepository<any> {
       UPDATE dashboards
       SET deleted_at = NOW()
       WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL
+    `;
+    const result = await this.pool.query(query, [id, tenantId]);
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  /**
+   * Hard delete (used by tests to verify tenant isolation)
+   */
+  async delete(id: number, tenantId: number): Promise<boolean> {
+    const query = `
+      DELETE FROM dashboards
+      WHERE id = $1 AND tenant_id = $2
     `;
     const result = await this.pool.query(query, [id, tenantId]);
     return (result.rowCount ?? 0) > 0;

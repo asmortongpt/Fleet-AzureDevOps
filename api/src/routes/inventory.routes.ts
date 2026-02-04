@@ -23,18 +23,15 @@ import { Pool } from 'pg';
 import { authenticateJWT } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
 import { asyncHandler } from '../middleware/errorHandler';
+import { pool as dbPool } from '../db/connection';
 
 const router = Router();
 
 // Apply authentication to all routes
 router.use(authenticateJWT)
 
-// Database pool (will be injected via dependency injection)
-let pool: Pool;
-
-export function setDatabasePool(dbPool: Pool) {
-  pool = dbPool;
-}
+// Database pool
+const pool: Pool = dbPool;
 
 // =============================================================================
 // VALIDATION MIDDLEWARE

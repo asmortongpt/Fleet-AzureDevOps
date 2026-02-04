@@ -1,72 +1,205 @@
 /**
  * AuthCallback - Identity Synchronization V3
  *
- * Cinematic transition screen for session establishment.
- * Aligned with ArchonY's ultra-premium design language.
+ * Handles MSAL redirect callback after Microsoft authentication
+ * Exchanges access token with backend and establishes session
  */
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Loader2, ShieldCheck, Zap } from 'lucide-react'
+import { useMsal } from '@azure/msal-react'
 
-import { handleAuthCallback, getMsalInstance } from '@/lib/auth/auth.service'
 import logger from '@/utils/logger'
+import { loginRequest } from '@/lib/msal-config'
 
 export function AuthCallback() {
   const navigate = useNavigate()
   const [hasProcessed, setHasProcessed] = React.useState(false)
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
+  const { instance, accounts } = useMsal()
 
   useEffect(() => {
     // Prevent multiple executions
     if (hasProcessed) return
+    let mounted = true
 
     async function processAuthCallback() {
       try {
         setHasProcessed(true)
-        logger.info('[Auth Callback] Processing authentication callback')
+        logger.info('[Auth Callback] Processing MSAL redirect callback', {
+          url: window.location.href,
+          accountsCount: accounts.length
+        })
 
-        const response = await handleAuthCallback()
+        // Step 1: Handle the redirect promise from MSAL
+        logger.debug('[Auth Callback] Calling handleRedirectPromise()...')
+        const redirectResponse = await instance.handleRedirectPromise()
 
-        if (response && response.account) {
-          logger.info('[Auth Callback] Authentication successful', {
-            account: response.account.username
-          })
+        logger.info('[Auth Callback] Redirect promise resolved', {
+          hasResponse: !!redirectResponse,
+          hasAccount: !!redirectResponse?.account,
+          account: redirectResponse?.account?.username,
+          scopes: redirectResponse?.scopes,
+          expiresOn: redirectResponse?.expiresOn
+        })
 
-          // Wait a bit for the auth context to update
+        // Step 2: Get the authenticated account
+        let account = redirectResponse?.account || accounts[0] || instance.getAllAccounts()[0]
+
+        if (!account) {
+          logger.error('[Auth Callback] No account found after redirect')
+          setErrorMessage('No account found. Please try logging in again.')
           setTimeout(() => {
-            logger.info('[Auth Callback] Redirecting to home page')
-            navigate('/', { replace: true })
-          }, 1000)
-        } else {
-          logger.warn('[Auth Callback] No authentication response, checking for existing session')
+            if (!mounted) return
+            navigate('/login?error=no_account', { replace: true })
+          }, 2000)
+          return
+        }
 
-          // Check if we already have an account in MSAL
-          const msalInstance = getMsalInstance()
-          const accounts = msalInstance.getAllAccounts()
+        logger.info('[Auth Callback] Account verified', {
+          username: account.username,
+          name: account.name,
+          tenantId: account.tenantId
+        })
 
-          if (accounts.length > 0) {
-            logger.info('[Auth Callback] Found existing MSAL account, redirecting to home')
-            navigate('/', { replace: true })
-          } else {
-            logger.warn('[Auth Callback] No MSAL account found, redirecting to login')
-            navigate('/login', { replace: true })
+        // Step 3: Get access token and ID token (from response or acquire silently)
+        let accessToken = redirectResponse?.accessToken
+        let idToken = redirectResponse?.idToken
+
+        if (!accessToken || !idToken) {
+          logger.debug('[Auth Callback] No tokens in redirect response, acquiring silently...')
+          try {
+            const tokenResult = await instance.acquireTokenSilent({
+              ...loginRequest,
+              account,
+            })
+            accessToken = tokenResult.accessToken
+            idToken = tokenResult.idToken
+            logger.info('[Auth Callback] Tokens acquired silently', {
+              scopes: tokenResult.scopes,
+              expiresOn: tokenResult.expiresOn,
+              hasIdToken: !!idToken
+            })
+          } catch (tokenError) {
+            logger.error('[Auth Callback] Failed to acquire token silently', { error: tokenError })
+            setErrorMessage('Failed to acquire access token')
+            setTimeout(() => {
+              if (!mounted) return
+              navigate('/login?error=token_acquisition_failed', { replace: true })
+            }, 2000)
+            return
           }
         }
-      } catch (error) {
-        logger.error('[Auth Callback] Authentication callback failed:', error)
-        setHasProcessed(false) // Allow retry on error
 
-        navigate(
-          `/login?error=callback_failed&error_description=${encodeURIComponent(
-            error instanceof Error ? error.message : 'Authentication failed'
-          )}`,
-          { replace: true }
-        )
+        // Step 4: Exchange token with backend (send ID token for user info)
+        logger.debug('[Auth Callback] Exchanging tokens with backend...', {
+          hasAccessToken: !!accessToken,
+          hasIdToken: !!idToken
+        })
+        const exchangeResponse = await fetch('/api/auth/microsoft/exchange', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            accessToken,
+            idToken // Send ID token for user info extraction
+          }),
+        })
+
+        if (!exchangeResponse.ok) {
+          const errorText = await exchangeResponse.text()
+          logger.error('[Auth Callback] Token exchange failed', {
+            status: exchangeResponse.status,
+            statusText: exchangeResponse.statusText,
+            error: errorText
+          })
+          setErrorMessage('Backend authentication failed')
+          setTimeout(() => {
+            if (!mounted) return
+            navigate('/login?error=sso_exchange_failed', { replace: true })
+          }, 2000)
+          return
+        }
+
+        const exchangeData = await exchangeResponse.json()
+        logger.info('[Auth Callback] Token exchange successful', {
+          hasUser: !!exchangeData.user,
+          userId: exchangeData.user?.id
+        })
+
+        // Step 5: Verify the session cookie is actually usable before redirecting.
+        // If this fails, the user will get stuck in a login loop (SSO succeeds, but the app can't see the session).
+        try {
+          const meResponse = await fetch('/api/auth/me', {
+            method: 'GET',
+            credentials: 'include',
+            headers: { 'Accept': 'application/json' }
+          })
+          if (!meResponse.ok) {
+            const body = await meResponse.text()
+            logger.error('[Auth Callback] Session verification failed after exchange', {
+              status: meResponse.status,
+              body: body.slice(0, 500)
+            })
+            setErrorMessage('Session could not be verified after login (cookie not established).')
+            setTimeout(() => {
+              if (!mounted) return
+              navigate('/login?error=session_not_established', { replace: true })
+            }, 2000)
+            return
+          }
+          logger.info('[Auth Callback] Session verified via /api/auth/me')
+        } catch (verifyError) {
+          logger.error('[Auth Callback] Session verification request failed', { error: verifyError })
+          setErrorMessage('Session verification failed after login.')
+          setTimeout(() => {
+            if (!mounted) return
+            navigate('/login?error=session_verification_failed', { replace: true })
+          }, 2000)
+          return
+        }
+
+        // Step 6: Notify the AuthProvider to refresh the session
+        if (typeof window !== 'undefined') {
+          logger.debug('[Auth Callback] Dispatching auth refresh event')
+          window.dispatchEvent(new Event('fleet-auth-refresh'))
+        }
+
+        // Step 7: Redirect to home after a brief delay
+        setTimeout(() => {
+          if (!mounted) return
+          logger.info('[Auth Callback] Authentication complete, redirecting to home')
+          navigate('/', { replace: true })
+        }, 500)
+
+      } catch (error) {
+        logger.error('[Auth Callback] Authentication callback failed:', {
+          error,
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined
+        })
+        setHasProcessed(false) // Allow retry on error
+        setErrorMessage(error instanceof Error ? error.message : 'Authentication failed')
+
+        setTimeout(() => {
+          if (!mounted) return
+          navigate(
+            `/login?error=callback_failed&error_description=${encodeURIComponent(
+              error instanceof Error ? error.message : 'Authentication failed'
+            )}`,
+            { replace: true }
+          )
+        }, 2000)
       }
     }
 
     processAuthCallback()
-  }, [navigate, hasProcessed])
+
+    return () => {
+      mounted = false
+    }
+  }, [instance, accounts, navigate, hasProcessed])
 
   return (
     <div className="min-h-screen w-full relative overflow-hidden flex flex-col items-center justify-center bg-[#0A0E27]">
@@ -116,8 +249,12 @@ export function AuthCallback() {
           </div>
 
           <div className="flex flex-col items-center gap-2">
-            <h3 className="text-sm font-black text-white uppercase tracking-widest text-shadow-premium">Establishing Protocol</h3>
-            <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.1em]">Verified by Microsoft Azure AD</p>
+            <h3 className="text-sm font-black text-white uppercase tracking-widest text-shadow-premium">
+              {errorMessage ? 'Authentication Error' : 'Establishing Protocol'}
+            </h3>
+            <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.1em]">
+              {errorMessage || 'Verified by Microsoft Azure AD'}
+            </p>
           </div>
 
           <div className="w-48 h-1 bg-white/5 rounded-full overflow-hidden relative">

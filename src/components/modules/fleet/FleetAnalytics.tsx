@@ -1,84 +1,109 @@
-import { BarChart3, TrendingUp, Truck, Activity } from "lucide-react"
+import { useMemo, useState } from "react"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  OverviewTab,
+  FinancialTab,
+  UtilizationTab,
+  KPIsTab
+} from "./FleetAnalytics/components"
+import { useChartData } from "./FleetAnalytics/hooks/useChartData"
+import { useFleetAnalyticsData } from "./FleetAnalytics/hooks/useFleetAnalyticsData"
+
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { useFleetData } from "@/hooks/use-fleet-data"
+
+const computeDelta = (series: Array<Record<string, any>>, key: string) => {
+  if (!Array.isArray(series) || series.length < 2) return undefined
+  const last = Number(series[series.length - 1]?.[key])
+  const prev = Number(series[series.length - 2]?.[key])
+  if (!Number.isFinite(last) || !Number.isFinite(prev) || prev === 0) return undefined
+  return ((last - prev) / Math.abs(prev)) * 100
+}
 
 export function FleetAnalytics() {
+  const [activeTab, setActiveTab] = useState<string>("overview")
+  const data = useFleetData()
+
+  const vehicles = data?.vehicles || []
+  const fuelTransactions = data?.fuelTransactions || []
+  const workOrders = data?.workOrders || []
+
+  const { metrics, kpis } = useFleetAnalyticsData(vehicles, fuelTransactions, workOrders)
+  const { monthlyFleetData, costAnalysis, utilizationByType } = useChartData(
+    vehicles,
+    fuelTransactions,
+    workOrders
+  )
+
+  const utilizationChange = useMemo(
+    () => computeDelta(monthlyFleetData, "utilization"),
+    [monthlyFleetData]
+  )
+  const fuelChange = useMemo(
+    () => computeDelta(costAnalysis, "fuel"),
+    [costAnalysis]
+  )
+  const maintenanceChange = useMemo(
+    () => computeDelta(costAnalysis, "maintenance"),
+    [costAnalysis]
+  )
+
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Fleet Analytics</h1>
-          <p className="text-muted-foreground">Comprehensive fleet performance insights</p>
+          <h1 className="text-base font-semibold tracking-tight">Fleet Analytics</h1>
+          <p className="text-muted-foreground mt-1">Comprehensive analytics and performance insights</p>
         </div>
+        <div className="text-xs text-muted-foreground">Last 6 months</div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Vehicles</CardTitle>
-            <Truck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">156</div>
-            <p className="text-xs text-muted-foreground">+12 from last month</p>
-          </CardContent>
-        </Card>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="financial">Financial</TabsTrigger>
+          <TabsTrigger value="utilization">Utilization</TabsTrigger>
+          <TabsTrigger value="kpis">Key Metrics</TabsTrigger>
+        </TabsList>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Active Now</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">89</div>
-            <p className="text-xs text-muted-foreground">57% utilization</p>
-          </CardContent>
-        </Card>
+        <TabsContent value="overview" className="space-y-2 mt-3">
+          <OverviewTab
+            totalFleet={metrics.totalFleet}
+            utilization={metrics.utilization}
+            avgMileage={metrics.avgMileage}
+            downtime={metrics.downtime}
+            utilizationChange={utilizationChange}
+            monthlyFleetData={monthlyFleetData}
+          />
+        </TabsContent>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Avg Efficiency</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">94.2%</div>
-            <p className="text-xs text-muted-foreground">+2.1% from last week</p>
-          </CardContent>
-        </Card>
+        <TabsContent value="financial" className="space-y-2 mt-3">
+          <FinancialTab
+            totalFuelCost={metrics.totalFuelCost}
+            totalMaintenanceCost={metrics.totalMaintenanceCost}
+            costPerVehicle={kpis.costPerVehicle}
+            costAnalysis={costAnalysis}
+            fuelChange={fuelChange}
+            maintenanceChange={maintenanceChange}
+          />
+        </TabsContent>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Cost per Mile</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$0.42</div>
-            <p className="text-xs text-muted-foreground">-$0.03 from last month</p>
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="utilization" className="space-y-2 mt-3">
+          <UtilizationTab utilizationByType={utilizationByType} />
+        </TabsContent>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Fleet Utilization</CardTitle>
-            <CardDescription>Vehicle usage over the past 30 days</CardDescription>
-          </CardHeader>
-          <CardContent className="h-[300px] flex items-center justify-center text-muted-foreground">
-            Chart placeholder - Fleet utilization data
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Fuel Consumption</CardTitle>
-            <CardDescription>Monthly fuel usage trends</CardDescription>
-          </CardHeader>
-          <CardContent className="h-[300px] flex items-center justify-center text-muted-foreground">
-            Chart placeholder - Fuel consumption data
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="kpis" className="space-y-2 mt-3">
+          <KPIsTab
+            costPerMile={kpis.costPerMile}
+            fuelEfficiency={kpis.fuelEfficiency}
+            downtimeRate={kpis.downtimeRate}
+            utilization={metrics.utilization}
+            utilizationChange={utilizationChange}
+            fuelCostChange={fuelChange}
+            maintenanceCostChange={maintenanceChange}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

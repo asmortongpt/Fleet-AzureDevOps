@@ -6,12 +6,14 @@
  */
 import { MessageCircle, Mail, Bot, Bell, Archive, Send, Clock, CheckCircle, AlertTriangle, Star, Paperclip, Eye, Flag, Calendar, TrendingUp, Hash, Users, Sparkles, ArrowRight } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { swrFetcher } from '@/lib/fetcher'
 
 // ============================================================================
 // TODO: Replace with real API calls
@@ -109,6 +111,30 @@ interface ConversationListItemProps {
     satisfaction: number | null
   }
   onClick: () => void
+}
+
+interface OutlookMessage {
+  id: string
+  subject?: string
+  from_email?: string
+  from_name?: string
+  to_emails?: string[]
+  received_at?: string
+  sent_at?: string
+  body_preview?: string
+  is_read?: boolean
+  metadata?: Record<string, any>
+}
+
+interface CommunicationLogRow {
+  id: string
+  subject?: string
+  message_body?: string
+  status?: string
+  sent_at?: string
+  created_at?: string
+  to_address?: string
+  metadata?: Record<string, any>
 }
 
 function ConversationListItem({ conversation, onClick }: ConversationListItemProps) {
@@ -425,8 +451,32 @@ export function EmailDrilldown() {
   const { push, currentLevel } = useDrilldown()
   const filterType = currentLevel?.data?.filter || 'all'
 
-  // TODO: Replace with real API call - useReactiveCommunicationData hook
-  const emails: EmailListItemProps['email'][] = []
+  const { data: emailsResponse } = useSWR<{ success: boolean; data: OutlookMessage[] }>(
+    `/api/outlook/messages?source=local&top=200`,
+    swrFetcher
+  )
+
+  const emails: EmailListItemProps['email'][] = (emailsResponse?.data || []).map((email) => ({
+    id: email.id,
+    subject: email.subject || 'Untitled',
+    from: email.from_email || 'unknown',
+    fromName: email.from_name || undefined,
+    to: email.to_emails || [],
+    date: email.received_at || email.sent_at || new Date().toISOString(),
+    body: email.body_preview || '',
+    isRead: !!email.is_read,
+    hasAttachments: !!email.metadata?.hasAttachments,
+    attachments: email.metadata?.attachments || [],
+    folder: email.metadata?.folder || 'inbox',
+    labels: email.metadata?.labels || [],
+    priority: email.metadata?.priority || 'normal',
+    hasReceipt: !!email.metadata?.hasReceipt,
+    relatedVehicleId: email.metadata?.relatedVehicleId,
+    relatedDriverId: email.metadata?.relatedDriverId,
+    relatedVendorId: email.metadata?.relatedVendorId,
+    relatedVendorName: email.metadata?.relatedVendorName,
+    relatedInvoiceId: email.metadata?.relatedInvoiceId
+  }))
 
   // Filter emails based on drilldown context
   const filteredEmails = filterType === 'sent'
@@ -436,11 +486,22 @@ export function EmailDrilldown() {
     : filterType === 'receipts'
     ? emails.filter(e => e.hasReceipt)
     : filterType === 'scheduled'
-    ? emails.slice(0, 3) // Mock scheduled emails
+    ? emails.filter(e => e.labels?.includes('scheduled'))
     : emails
 
-  // TODO: Replace with real API call
   const emailTemplates: Array<{ id: string; name: string; usageCount: number; lastUsed: string }> = []
+
+  const sentToday = emails.filter((email) => {
+    const date = new Date(email.date)
+    const today = new Date()
+    return date.toDateString() === today.toDateString()
+  }).length
+
+  const openRate = emails.length > 0
+    ? Math.round((emails.filter(e => e.isRead).length / emails.length) * 100)
+    : 0
+
+  const scheduledCount = emails.filter(e => e.labels?.includes('scheduled')).length
 
   return (
     <div className="space-y-2">
@@ -452,7 +513,7 @@ export function EmailDrilldown() {
         >
           <CardContent className="p-2 text-center">
             <Send className="w-4 h-4 text-blue-700 mx-auto mb-2" />
-            <div className="text-sm font-bold text-white">156</div>
+            <div className="text-sm font-bold text-white">{sentToday}</div>
             <div className="text-xs text-slate-700">Sent Today</div>
           </CardContent>
         </Card>
@@ -462,14 +523,14 @@ export function EmailDrilldown() {
         >
           <CardContent className="p-2 text-center">
             <Mail className="w-4 h-4 text-slate-700 mx-auto mb-2" />
-            <div className="text-sm font-bold text-slate-300">24</div>
+            <div className="text-sm font-bold text-slate-300">{emailTemplates.length}</div>
             <div className="text-xs text-slate-700">Templates</div>
           </CardContent>
         </Card>
         <Card className="bg-emerald-900/30 border-emerald-700/50">
           <CardContent className="p-2 text-center">
             <Eye className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
-            <div className="text-sm font-bold text-emerald-700">42%</div>
+            <div className="text-sm font-bold text-emerald-700">{openRate}%</div>
             <div className="text-xs text-slate-700">Open Rate</div>
           </CardContent>
         </Card>
@@ -479,7 +540,7 @@ export function EmailDrilldown() {
         >
           <CardContent className="p-2 text-center">
             <Calendar className="w-4 h-4 text-amber-400 mx-auto mb-2" />
-            <div className="text-sm font-bold text-amber-400">12</div>
+            <div className="text-sm font-bold text-amber-400">{scheduledCount}</div>
             <div className="text-xs text-slate-700">Scheduled</div>
           </CardContent>
         </Card>
@@ -615,7 +676,15 @@ export function HistoryDrilldown() {
   const { push, currentLevel } = useDrilldown()
   const filterType = currentLevel?.data?.filter || 'all'
 
-  // TODO: Replace with real API call - useReactiveCommunicationData hook
+  const { data: logsResponse } = useSWR<{ data: CommunicationLogRow[] }>(
+    '/api/communication-logs?limit=200',
+    swrFetcher
+  )
+  const { data: emailsResponse } = useSWR<{ success: boolean; data: OutlookMessage[] }>(
+    '/api/outlook/messages?source=local&top=200',
+    swrFetcher
+  )
+
   const history: Array<{
     id: string
     type: string
@@ -623,14 +692,38 @@ export function HistoryDrilldown() {
     recipients: number
     time: string
     status: string
-  }> = []
+  }> = [
+    ...(logsResponse?.data || []).map((log) => ({
+      id: log.id,
+      type: 'message',
+      subject: log.subject || 'Message',
+      recipients: log.to_address ? 1 : 0,
+      time: log.sent_at || log.created_at || new Date().toISOString(),
+      status: log.status || 'sent'
+    })),
+    ...(emailsResponse?.data || []).map((email) => ({
+      id: email.id,
+      type: 'email',
+      subject: email.subject || 'Email',
+      recipients: (email.to_emails || []).length,
+      time: email.received_at || email.sent_at || new Date().toISOString(),
+      status: email.is_read ? 'read' : 'unread'
+    }))
+  ]
 
   const flaggedMessages = history.filter(h => h.status === 'failed')
+  const archivedMessages = history.filter(h => h.status === 'archived')
+  const thisWeekCount = history.filter(h => {
+    const date = new Date(h.time)
+    const now = new Date()
+    const diffDays = (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
+    return diffDays <= 7
+  }).length
 
   const filteredHistory = filterType === 'flagged'
     ? flaggedMessages
     : filterType === 'archived'
-    ? history // Mock archived
+    ? archivedMessages
     : history
 
   return (
@@ -640,7 +733,7 @@ export function HistoryDrilldown() {
         <Card className="bg-emerald-900/30 border-emerald-700/50">
           <CardContent className="p-2 text-center">
             <CheckCircle className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
-            <div className="text-sm font-bold text-emerald-700">456</div>
+            <div className="text-sm font-bold text-emerald-700">{thisWeekCount}</div>
             <div className="text-xs text-slate-700">This Week</div>
           </CardContent>
         </Card>
@@ -660,7 +753,7 @@ export function HistoryDrilldown() {
         >
           <CardContent className="p-2 text-center">
             <Archive className="w-4 h-4 text-slate-700 mx-auto mb-2" />
-            <div className="text-sm font-bold text-slate-300">3.2K</div>
+            <div className="text-sm font-bold text-slate-300">{archivedMessages.length}</div>
             <div className="text-xs text-slate-700">Archived</div>
           </CardContent>
         </Card>

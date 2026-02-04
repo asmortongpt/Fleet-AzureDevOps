@@ -20,6 +20,7 @@ import { Router, Request, Response } from 'express';
 import { rateLimit } from 'express-rate-limit';
 import { body, validationResult } from 'express-validator';
 
+import { pool } from '../db/connection';
 import { authenticateJWT } from '../middleware/auth.middleware';
 import { multiLLMOrchestrator } from '../services/multi-llm-orchestrator.service';
 
@@ -37,6 +38,224 @@ const reportRateLimiter = rateLimit({
   max: 30, // 30 reports per minute
   message: 'Too many report requests, please try again later.'
 });
+
+// ============================================================================
+// REPORT TEMPLATES & HISTORY
+// ============================================================================
+
+/**
+ * GET /api/reports/templates
+ * Returns report templates stored in DB
+ */
+router.get(
+  '/templates',
+  // @ts-expect-error - Build compatibility fix
+  authenticateJWT,
+  async (req: Request, res: Response) => {
+    try {
+      const tenantId = (req as any).user?.tenant_id
+      const result = await pool.query(
+        `SELECT id, title, domain, category, description,
+                is_core, popularity, last_used_at, created_at
+         FROM report_templates
+         WHERE tenant_id = $1
+         ORDER BY is_core DESC, popularity DESC, created_at DESC`,
+        [tenantId]
+      )
+
+      res.json({
+        data: result.rows.map((row) => ({
+          id: row.id,
+          title: row.title,
+          domain: row.domain,
+          category: row.category,
+          description: row.description,
+          isCore: row.is_core,
+          popularity: row.popularity,
+          lastUsed: row.last_used_at,
+          createdAt: row.created_at
+        }))
+      })
+    } catch (error) {
+      console.error('Get report templates error:', error)
+      res.status(500).json({ error: 'Failed to load report templates' })
+    }
+  }
+)
+
+/**
+ * GET /api/reports/scheduled
+ * Returns scheduled reports
+ */
+router.get(
+  '/scheduled',
+  // @ts-expect-error - Build compatibility fix
+  authenticateJWT,
+  async (req: Request, res: Response) => {
+    try {
+      const tenantId = (req as any).user?.tenant_id
+      const result = await pool.query(
+        `SELECT id, template_id, schedule, recipients, format, status, next_run, last_run
+         FROM report_schedules
+         WHERE tenant_id = $1
+         ORDER BY next_run ASC`,
+        [tenantId]
+      )
+
+      res.json({
+        data: result.rows.map((row) => ({
+          id: row.id,
+          templateId: row.template_id,
+          schedule: row.schedule,
+          recipients: row.recipients,
+          format: row.format,
+          status: row.status,
+          nextRun: row.next_run,
+          lastRun: row.last_run
+        }))
+      })
+    } catch (error) {
+      console.error('Get scheduled reports error:', error)
+      res.status(500).json({ error: 'Failed to load scheduled reports' })
+    }
+  }
+)
+
+/**
+ * POST /api/reports/scheduled
+ * Create a report schedule
+ */
+router.post(
+  '/scheduled',
+  // @ts-expect-error - Build compatibility fix
+  authenticateJWT,
+  reportRateLimiter,
+  [
+    body('templateId').isString().trim().notEmpty(),
+    body('schedule').isString().trim().notEmpty(),
+    body('recipients').isArray({ min: 1 }),
+    body('format').isString().isIn(['csv', 'xlsx', 'pdf'])
+  ],
+  async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+      const tenantId = (req as any).user?.tenant_id;
+      const { templateId, schedule, recipients, format } = req.body;
+
+      const now = new Date();
+      const normalized = String(schedule).toLowerCase();
+      let nextRun = new Date(now);
+
+      if (normalized.includes('daily')) {
+        nextRun.setDate(nextRun.getDate() + 1);
+      } else if (normalized.includes('weekly')) {
+        nextRun.setDate(nextRun.getDate() + 7);
+      } else if (normalized.includes('monthly')) {
+        nextRun.setMonth(nextRun.getMonth() + 1);
+      } else {
+        nextRun.setDate(nextRun.getDate() + 7);
+      }
+
+      const result = await pool.query(
+        `INSERT INTO report_schedules (tenant_id, template_id, schedule, recipients, format, status, next_run)
+         VALUES ($1, $2, $3, $4, $5, 'active', $6)
+         RETURNING id, template_id, schedule, recipients, format, status, next_run, last_run`,
+        [tenantId, templateId, schedule, recipients, format, nextRun]
+      );
+
+      const row = result.rows[0];
+      res.status(201).json({
+        data: {
+          id: row.id,
+          templateId: row.template_id,
+          schedule: row.schedule,
+          recipients: row.recipients,
+          format: row.format,
+          status: row.status,
+          nextRun: row.next_run,
+          lastRun: row.last_run
+        }
+      });
+    } catch (error) {
+      console.error('Create report schedule error:', error);
+      res.status(500).json({ error: 'Failed to create report schedule' });
+    }
+  }
+)
+
+/**
+ * GET /api/reports/history
+ * Returns generated report history
+ */
+router.get(
+  '/history',
+  // @ts-expect-error - Build compatibility fix
+  authenticateJWT,
+  async (req: Request, res: Response) => {
+    try {
+      const tenantId = (req as any).user?.tenant_id
+      const result = await pool.query(
+        `SELECT id, template_id, title, generated_at, generated_by, format, size_bytes, status, download_url
+         FROM report_generations
+         WHERE tenant_id = $1
+         ORDER BY generated_at DESC
+         LIMIT 100`,
+        [tenantId]
+      )
+
+      res.json({
+        data: result.rows.map((row) => ({
+          id: row.id,
+          templateId: row.template_id,
+          title: row.title,
+          generatedAt: row.generated_at,
+          generatedBy: row.generated_by || 'System',
+          format: row.format,
+          size: row.size_bytes,
+          status: row.status,
+          downloadUrl: row.download_url
+        }))
+      })
+    } catch (error) {
+      console.error('Get report history error:', error)
+      res.status(500).json({ error: 'Failed to load report history' })
+    }
+  }
+)
+
+/**
+ * GET /api/reports/definitions/:id
+ * Returns full report definition JSON
+ */
+router.get(
+  '/definitions/:id',
+  // @ts-expect-error - Build compatibility fix
+  authenticateJWT,
+  async (req: Request, res: Response) => {
+    try {
+      const tenantId = (req as any).user?.tenant_id
+      const result = await pool.query(
+        `SELECT definition
+         FROM report_templates
+         WHERE id = $1 AND tenant_id = $2`,
+        [req.params.id, tenantId]
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Report definition not found' })
+      }
+
+      res.json(result.rows[0].definition)
+    } catch (error) {
+      console.error('Get report definition error:', error)
+      res.status(500).json({ error: 'Failed to load report definition' })
+    }
+  }
+)
 
 // ============================================================================
 // REPORT EXECUTION
@@ -367,14 +586,14 @@ router.get(
 // ============================================================================
 
 async function loadReportDefinition(reportId: string): Promise<any> {
-  // Load from file system or database
-  // For now, return a stub
-  return {
-    id: reportId,
-    title: 'Sample Report',
-    domain: 'exec',
-    datasource: { type: 'sqlView', view: 'vw_sample' }
-  };
+  const result = await pool.query(
+    `SELECT definition
+     FROM report_templates
+     WHERE id = $1`,
+    [reportId]
+  )
+
+  return result.rows[0]?.definition || null
 }
 
 function checkReportAccess(user: any, reportDefinition: any): boolean {
@@ -389,27 +608,229 @@ async function executeReport(
   drilldown: any,
   user: any
 ): Promise<Record<string, any>> {
-  // Execute SQL queries with parameterized statements
-  // Apply RBAC row-level security filters
-  // Return data for each visual
+  const tenantId = user?.tenant_id
+  const startDate = filters?.dateRange?.start ? new Date(filters.dateRange.start) : null
+  const endDate = filters?.dateRange?.end ? new Date(filters.dateRange.end) : null
 
-  // STUB - would query actual database with proper connection pooling
+  const dateClause = startDate && endDate ? 'AND created_at BETWEEN $2 AND $3' : ''
+  const dateParams = startDate && endDate ? [startDate, endDate] : []
+
+  const domain = reportDefinition?.domain || 'general'
+
+  if (domain === 'maintenance') {
+    const kpiResult = await pool.query(
+      `SELECT
+         COALESCE(SUM(actual_cost), 0) as total_cost,
+         COUNT(*) as work_order_count
+       FROM work_orders
+       WHERE tenant_id = $1 ${dateClause}`,
+      [tenantId, ...dateParams]
+    )
+
+    const vehicleResult = await pool.query(
+      `SELECT
+        COUNT(*) FILTER (WHERE status = 'active') as active_count,
+        COUNT(*) as total_count
+       FROM vehicles
+       WHERE tenant_id = $1`,
+      [tenantId]
+    )
+
+    const trendResult = await pool.query(
+      `SELECT
+        date_trunc('month', created_at) as month,
+        COALESCE(SUM(actual_cost), 0) as amount,
+        'maintenance' as category
+       FROM work_orders
+       WHERE tenant_id = $1 ${dateClause}
+       GROUP BY 1
+       ORDER BY 1`,
+      [tenantId, ...dateParams]
+    )
+
+    const detailResult = await pool.query(
+      `SELECT
+        id,
+        type as category,
+        COALESCE(actual_cost, estimated_cost, 0) as amount,
+        status,
+        title
+       FROM work_orders
+       WHERE tenant_id = $1 ${dateClause}
+       ORDER BY created_at DESC
+       LIMIT 200`,
+      [tenantId, ...dateParams]
+    )
+
+    const activeCount = Number(vehicleResult.rows[0]?.active_count || 0)
+    const totalCount = Number(vehicleResult.rows[0]?.total_count || 0)
+
+    return {
+      kpis: {
+        total_cost: Number(kpiResult.rows[0]?.total_cost || 0),
+        work_order_count: Number(kpiResult.rows[0]?.work_order_count || 0),
+        availability_pct: totalCount > 0 ? activeCount / totalCount : 0
+      },
+      trend: trendResult.rows.map((row) => ({
+        month: row.month,
+        amount: Number(row.amount || 0),
+        category: row.category
+      })),
+      detail: detailResult.rows
+    }
+  }
+
+  if (domain === 'fuel') {
+    const kpiResult = await pool.query(
+      `SELECT
+         COALESCE(SUM(total_cost), 0) as total_cost,
+         COUNT(*) as transaction_count
+       FROM fuel_transactions
+       WHERE tenant_id = $1 ${dateClause}`,
+      [tenantId, ...dateParams]
+    )
+
+    const trendResult = await pool.query(
+      `SELECT
+        date_trunc('month', transaction_date) as month,
+        COALESCE(SUM(total_cost), 0) as amount,
+        COALESCE(vendor_name, 'Unknown') as category
+       FROM fuel_transactions
+       WHERE tenant_id = $1 ${dateClause.replace('created_at', 'transaction_date')}
+       GROUP BY 1, 3
+       ORDER BY 1`,
+      [tenantId, ...dateParams]
+    )
+
+    const detailResult = await pool.query(
+      `SELECT
+        id,
+        COALESCE(vendor_name, 'Unknown') as category,
+        total_cost as amount,
+        gallons,
+        fuel_type as status,
+        location as title
+       FROM fuel_transactions
+       WHERE tenant_id = $1 ${dateClause.replace('created_at', 'transaction_date')}
+       ORDER BY transaction_date DESC
+       LIMIT 200`,
+      [tenantId, ...dateParams]
+    )
+
+    return {
+      kpis: {
+        total_cost: Number(kpiResult.rows[0]?.total_cost || 0),
+        work_order_count: Number(kpiResult.rows[0]?.transaction_count || 0),
+        availability_pct: 0
+      },
+      trend: trendResult.rows.map((row) => ({
+        month: row.month,
+        amount: Number(row.amount || 0),
+        category: row.category
+      })),
+      detail: detailResult.rows
+    }
+  }
+
+  if (domain === 'safety') {
+    const kpiResult = await pool.query(
+      `SELECT
+         COUNT(*) as incident_count
+       FROM incidents
+       WHERE tenant_id = $1 ${dateClause.replace('created_at', 'incident_date')}`,
+      [tenantId, ...dateParams]
+    )
+
+    const trendResult = await pool.query(
+      `SELECT
+        date_trunc('month', incident_date) as month,
+        COUNT(*) as amount,
+        severity as category
+       FROM incidents
+       WHERE tenant_id = $1 ${dateClause.replace('created_at', 'incident_date')}
+       GROUP BY 1, 3
+       ORDER BY 1`,
+      [tenantId, ...dateParams]
+    )
+
+    const detailResult = await pool.query(
+      `SELECT
+        id,
+        severity as category,
+        1 as amount,
+        status,
+        description as title
+       FROM incidents
+       WHERE tenant_id = $1 ${dateClause.replace('created_at', 'incident_date')}
+       ORDER BY incident_date DESC
+       LIMIT 200`,
+      [tenantId, ...dateParams]
+    )
+
+    return {
+      kpis: {
+        total_cost: 0,
+        work_order_count: Number(kpiResult.rows[0]?.incident_count || 0),
+        availability_pct: 0
+      },
+      trend: trendResult.rows.map((row) => ({
+        month: row.month,
+        amount: Number(row.amount || 0),
+        category: row.category
+      })),
+      detail: detailResult.rows
+    }
+  }
+
+  // Default: assets
+  const assetKpis = await pool.query(
+    `SELECT
+       COUNT(*) as asset_count,
+       COALESCE(SUM(current_value), 0) as total_value
+     FROM assets
+     WHERE tenant_id = $1`,
+    [tenantId]
+  )
+
+  const assetTrend = await pool.query(
+    `SELECT
+       date_trunc('month', created_at) as month,
+       COALESCE(SUM(current_value), 0) as amount,
+       asset_type as category
+     FROM assets
+     WHERE tenant_id = $1
+     GROUP BY 1, 3
+     ORDER BY 1`,
+    [tenantId]
+  )
+
+  const assetDetail = await pool.query(
+    `SELECT
+       id,
+       asset_type as category,
+       COALESCE(current_value, 0) as amount,
+       status,
+       asset_name as title
+     FROM assets
+     WHERE tenant_id = $1
+     ORDER BY created_at DESC
+     LIMIT 200`,
+    [tenantId]
+  )
+
   return {
     kpis: {
-      total_cost: 1234567,
-      work_order_count: 456,
-      availability_pct: 0.92
+      total_cost: Number(assetKpis.rows[0]?.total_value || 0),
+      work_order_count: Number(assetKpis.rows[0]?.asset_count || 0),
+      availability_pct: 0
     },
-    trend: Array.from({ length: 12 }, (_, i) => ({
-      month: new Date(2024, i, 1).toISOString(),
-      amount: Math.random() * 100000
+    trend: assetTrend.rows.map((row) => ({
+      month: row.month,
+      amount: Number(row.amount || 0),
+      category: row.category
     })),
-    detail: Array.from({ length: 100 }, (_, i) => ({
-      id: i,
-      category: `Category ${i % 5}`,
-      amount: Math.random() * 10000
-    }))
-  };
+    detail: assetDetail.rows
+  }
 }
 
 async function generateExport(
@@ -417,30 +838,61 @@ async function generateExport(
   data: any,
   format: string
 ): Promise<Buffer> {
-  // Use libraries like:
-  // - fast-csv for CSV
-  // - exceljs for XLSX
-  // - pdfkit or puppeteer for PDF
+  const rows = Array.isArray(data?.detail) ? data.detail : []
+  const headers = rows.length > 0 ? Object.keys(rows[0]) : []
 
-  // STUB - would generate actual file
-  return Buffer.from('Export placeholder');
+  const csv = [
+    headers.join(','),
+    ...rows.map((row: any) =>
+      headers.map((h) => JSON.stringify(row[h] ?? '')).join(',')
+    )
+  ].join('\n')
+
+  return Buffer.from(csv)
 }
 
 async function saveCustomReport(userId: string, name: string, definition: any): Promise<string> {
-  // Save to database with parameterized query
-  // Example SQL:
-  // INSERT INTO custom_reports (user_id, name, definition, created_at)
-  // VALUES ($1, $2, $3, NOW())
-  // RETURNING id
+  const userResult = await pool.query(
+    `SELECT tenant_id FROM users WHERE id = $1`,
+    [userId]
+  )
 
-  return `custom-${Date.now()}`;
+  const tenantId = userResult.rows[0]?.tenant_id
+
+  const result = await pool.query(
+    `INSERT INTO report_templates (tenant_id, title, domain, category, description, definition, is_core, popularity)
+     VALUES ($1, $2, $3, $4, $5, $6, false, 0)
+     RETURNING id`,
+    [
+      tenantId,
+      name,
+      definition?.domain || 'custom',
+      definition?.category || 'custom',
+      definition?.description || null,
+      definition
+    ]
+  )
+
+  return result.rows[0].id
 }
 
 async function getUserCustomReports(userId: string): Promise<any[]> {
-  // Query database with parameterized statement:
-  // SELECT * FROM custom_reports WHERE user_id = $1 ORDER BY created_at DESC
+  const userResult = await pool.query(
+    `SELECT tenant_id FROM users WHERE id = $1`,
+    [userId]
+  )
 
-  return []; // Stub
+  const tenantId = userResult.rows[0]?.tenant_id
+
+  const result = await pool.query(
+    `SELECT id, title, domain, category, description, created_at
+     FROM report_templates
+     WHERE tenant_id = $1 AND is_core = false
+     ORDER BY created_at DESC`,
+    [tenantId]
+  )
+
+  return result.rows
 }
 
 export default router;

@@ -10,9 +10,10 @@ import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/Dril
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
-
-// ============ DEMO DATA ============
+const fetcher = (url: string) =>
+  fetch(url)
+    .then((r) => r.json())
+    .then((data) => data?.data ?? data)
 
 interface IncidentData {
   id: string
@@ -29,77 +30,13 @@ interface IncidentData {
   workDaysLost: number
 }
 
-const demoIncidents: IncidentData[] = [
-  {
-    id: "inc-001",
-    type: "Vehicle Collision",
-    severity: "critical",
-    status: "investigating",
-    date: "2025-12-15",
-    location: "1500 S Adams St, Tallahassee, FL",
-    vehicleId: "veh-demo-1001",
-    vehicleName: "Ford F-150 #1001",
-    driverId: "drv-001",
-    driverName: "John Smith",
-    oshaRecordable: true,
-    workDaysLost: 5
-  },
-  {
-    id: "inc-002",
-    type: "Slip and Fall",
-    severity: "medium",
-    status: "resolved",
-    date: "2025-12-10",
-    location: "North Service Center, Tallahassee, FL",
-    vehicleId: "veh-demo-1002",
-    vehicleName: "Chevrolet Silverado #1002",
-    oshaRecordable: true,
-    workDaysLost: 2
-  },
-  {
-    id: "inc-003",
-    type: "Near Miss",
-    severity: "low",
-    status: "closed",
-    date: "2025-12-08",
-    location: "South Warehouse, Tallahassee, FL",
-    oshaRecordable: false,
-    workDaysLost: 0
-  },
-  {
-    id: "inc-004",
-    type: "Equipment Malfunction",
-    severity: "high",
-    status: "open",
-    date: "2025-12-14",
-    location: "East Depot, Tallahassee, FL",
-    vehicleId: "veh-demo-1015",
-    vehicleName: "Mercedes Sprinter #1015",
-    oshaRecordable: false,
-    workDaysLost: 0
-  },
-  {
-    id: "inc-005",
-    type: "Chemical Exposure",
-    severity: "medium",
-    status: "investigating",
-    date: "2025-12-12",
-    location: "West Facility, Tallahassee, FL",
-    oshaRecordable: true,
-    workDaysLost: 1
-  }
-]
-
 // ============ INCIDENT LIST VIEW ============
 
 export function IncidentListView({ filter }: { filter?: string }) {
   const { data: incidents } = useSWR<IncidentData[]>(
     filter ? `/api/incidents?filter=${filter}` : '/api/incidents',
     fetcher,
-    {
-      fallbackData: demoIncidents,
-      shouldRetryOnError: false
-    }
+    { shouldRetryOnError: false }
   )
 
   const filteredIncidents = useMemo(() => {
@@ -248,7 +185,6 @@ export function LostTimeIncidentsView() {
     '/api/incidents?filter=lost-time',
     fetcher,
     {
-      fallbackData: demoIncidents.filter(i => i.workDaysLost > 0),
       shouldRetryOnError: false
     }
   )

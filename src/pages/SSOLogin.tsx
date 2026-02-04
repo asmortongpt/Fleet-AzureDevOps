@@ -17,75 +17,70 @@
  * - Gradient Bar: #F0A000 → #DD3903
  */
 
-import { useMutation } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { AlertCircle, Loader2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { useAuth } from '@/hooks/useAuth'
-import { setAuthToken } from '@/lib/microsoft-auth'
+import { useMsalAuth } from '@/hooks/use-msal-auth'
 import logger from '@/utils/logger'
 
 export function SSOLogin() {
   const navigate = useNavigate()
-  const { login } = useAuth()
-  const [isSigningIn, setIsSigningIn] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { login, isAuthenticated, isLoading, error: msalError, clearError } = useMsalAuth()
+  const [localError, setLocalError] = useState<string | null>(null)
 
-  // AUTO-LOGIN in DEV mode - DISABLED to show login page
-  // Enable this for automatic authentication in development
-  // useEffect(() => {
-  //   if (import.meta.env.DEV) {
-  //     logger.debug('[SSO LOGIN] DEV mode detected - auto-logging in with demo user')
-  //     const demoToken = btoa(JSON.stringify({
-  //       header: { alg: 'HS256', typ: 'JWT' },
-  //       payload: {
-  //         id: '34c5e071-2d8c-44d0-8f1f-90b58672dceb',
-  //         email: 'toby.deckow@capitaltechalliance.com',
-  //         role: 'SuperAdmin',
-  //         tenant_id: 'ee1e7320-b232-402e-b4f8-288998b5bff7',
-  //         auth_provider: 'demo',
-  //         exp: Date.now() + 86400000
-  //       }
-  //     }))
-  //     setAuthToken(demoToken)
-  //     logger.debug('[SSO LOGIN] Demo token set, redirecting to dashboard')
-  //     navigate('/', { replace: true })
-  //   }
-  // }, [navigate])
+  // Redirect to home if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      logger.info('[SSO LOGIN] User already authenticated, redirecting to home')
+      navigate('/', { replace: true })
+    }
+  }, [isAuthenticated, navigate])
 
-  // Check for error in URL
+  // Check for error in URL parameters
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const errorParam = params.get('error')
     const errorDescription = params.get('error_description')
 
     if (errorParam) {
-      setError(errorDescription || 'Authentication failed. Please try again.')
-      logger.error('[SSO LOGIN] Auth error from URL:', { error: errorParam, description: errorDescription })
+      const errorMsg = errorDescription || 'Authentication failed. Please try again.'
+      setLocalError(errorMsg)
+      logger.error('[SSO LOGIN] Auth error from URL:', {
+        error: errorParam,
+        description: errorDescription
+      })
     }
   }, [])
 
-  const handleSignIn = async () => {
-    setIsSigningIn(true)
-    setError(null)
+  // Combine MSAL error and local error
+  const displayError = msalError || localError
 
+  const handleSignIn = async () => {
     try {
-      logger.info('[SSO LOGIN] Initiating Microsoft sign-in')
-      // In production, this would redirect to Azure AD
-      // For demo, just navigate
-      navigate('/dashboard', { replace: true })
+      // Clear any previous errors
+      setLocalError(null)
+      clearError()
+
+      logger.info('[SSO LOGIN] Initiating MSAL login redirect', {
+        redirectUri: window.location.origin + '/auth/callback'
+      })
+
+      // This will redirect the page to Microsoft login
+      await login()
+
+      // Note: Code below won't execute because login() redirects the page
+      logger.debug('[SSO LOGIN] Login redirect in progress...')
     } catch (err) {
-      logger.error('[SSO LOGIN] Sign-in failed:', err)
-      setError(
+      logger.error('[SSO LOGIN] Login initiation failed:', err)
+      setLocalError(
         err instanceof Error
           ? err.message
           : 'An unexpected error occurred. Please try again.'
       )
-      setIsSigningIn(false)
     }
   }
 
@@ -176,17 +171,17 @@ export function SSOLogin() {
             </div>
 
             {/* Error Alert */}
-            {error && (
+            {displayError && (
               <Alert variant="destructive" className="mb-4">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-sm">{error}</AlertDescription>
+                <AlertDescription className="text-sm">{displayError}</AlertDescription>
               </Alert>
             )}
 
             {/* Microsoft Sign-In Button - Official Gradient */}
             <Button
               onClick={handleSignIn}
-              disabled={isSigningIn}
+              disabled={isLoading}
               size="lg"
               style={{
                 background: 'linear-gradient(90deg, #F0A000 0%, #DD3903 100%)',
@@ -199,7 +194,7 @@ export function SSOLogin() {
                 style={{ background: 'linear-gradient(90deg, #DD3903 0%, #F0A000 100%)' }}
               />
               <span className="relative flex items-center justify-center gap-2.5">
-                {isSigningIn ? (
+                {isLoading ? (
                   <>
                     <Loader2 className="h-5 w-5 animate-spin" />
                     <span>Authenticating...</span>

@@ -11,6 +11,7 @@ import {
   Grid
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
+import useSWR from "swr"
 import { toast, ToastOptions } from "react-hot-toast"
 
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
@@ -24,6 +25,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useVehicles, useFacilities, useWorkOrders, useMaintenanceSchedules } from "@/hooks/use-api"
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
 import { Vehicle, Facility, WorkOrder } from "@/lib/types"
+import { swrFetcher } from "@/lib/fetcher"
 import { cn } from "@/lib/utils"
 
 // Facility Panel Component
@@ -282,23 +284,8 @@ interface Technician {
   completedToday: number
 }
 
-const mockParts: Part[] = [
-  { id: 'p1', name: 'Oil Filter', partNumber: 'OF-2024A', quantity: 45, reorderPoint: 20, status: 'in_stock', location: 'Shelf A-1' },
-  { id: 'p2', name: 'Brake Pads (Front)', partNumber: 'BP-F100', quantity: 8, reorderPoint: 15, status: 'low_stock', location: 'Shelf B-3' },
-  { id: 'p3', name: 'Air Filter', partNumber: 'AF-2024B', quantity: 32, reorderPoint: 10, status: 'in_stock', location: 'Shelf A-2' },
-  { id: 'p4', name: 'Spark Plug (4-pack)', partNumber: 'SP-4PK', quantity: 0, reorderPoint: 12, status: 'on_order', location: 'Shelf C-1' },
-  { id: 'p5', name: 'Transmission Fluid', partNumber: 'TF-ATF4', quantity: 24, reorderPoint: 8, status: 'in_stock', location: 'Shelf D-2' },
-]
-
-const mockTechnicians: Technician[] = [
-  { id: 't1', name: 'Mike Johnson', status: 'busy', currentTask: 'V-1042 Oil Change', completedToday: 3 },
-  { id: 't2', name: 'Sarah Chen', status: 'available', completedToday: 5 },
-  { id: 't3', name: 'James Wilson', status: 'busy', currentTask: 'V-1087 Brake Service', completedToday: 2 },
-  { id: 't4', name: 'Maria Garcia', status: 'break', completedToday: 4 },
-]
-
 // Parts Inventory Panel
-const PartsPanel = ({ _parts }: { _parts: unknown }) => {
+const PartsPanel = ({ parts, technicians }: { parts: Part[]; technicians: Technician[] }) => {
   const getStatusColor = (status: Part['status']) => {
     switch (status) {
       case 'in_stock': return 'bg-green-500'
@@ -326,22 +313,90 @@ const PartsPanel = ({ _parts }: { _parts: unknown }) => {
     }
   }
 
-  // Calculate stats
-  const openWorkOrders = 12
-  const avgCompletionTime = '2.4h'
-  const partsOnOrder = mockParts.filter(p => p.status === 'on_order').length
-  const lowStockItems = mockParts.filter(p => p.status === 'low_stock').length
+  const partsOnOrder = parts.filter(p => p.status === 'on_order').length
+  const lowStockItems = parts.filter(p => p.status === 'low_stock' || p.status === 'out_of_stock').length
+  const availableTechs = technicians.filter(t => t.status === 'available').length
+
+  const lowStockParts = parts
+    .filter(p => p.status === 'low_stock' || p.status === 'out_of_stock')
+    .slice(0, 6)
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-2">
+      <div className="p-2 space-y-2">
         <h3 className="font-semibold mb-3">Parts Inventory</h3>
-        <div className="text-center text-muted-foreground py-3">
-          <Package className="h-9 w-12 mx-auto mb-2 opacity-50" />
-          <p>Parts inventory management</p>
+
+        <div className="grid grid-cols-2 gap-2">
+          <Card>
+            <CardContent className="p-2">
+              <div className="text-xs text-muted-foreground">Low Stock</div>
+              <div className="text-lg font-semibold text-yellow-600">{lowStockItems}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-2">
+              <div className="text-xs text-muted-foreground">On Order</div>
+              <div className="text-lg font-semibold text-blue-600">{partsOnOrder}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-2">
+              <div className="text-xs text-muted-foreground">Total Parts</div>
+              <div className="text-lg font-semibold">{parts.length}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-2">
+              <div className="text-xs text-muted-foreground">Techs Available</div>
+              <div className="text-lg font-semibold text-emerald-700">{availableTechs}</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div>
+          <h4 className="text-sm font-medium mb-2">Low Stock Parts</h4>
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Maintenance schedules and work orders are displayed in the main workspace.</p>
-            <p className="text-sm text-muted-foreground">Use the tabs above to navigate between different views.</p>
+            {lowStockParts.length === 0 && (
+              <div className="text-xs text-muted-foreground">No low stock parts</div>
+            )}
+            {lowStockParts.map(part => (
+              <Card key={part.id}>
+                <CardContent className="p-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-medium text-sm">{part.name}</div>
+                      <div className="text-xs text-muted-foreground">{part.partNumber}</div>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {part.quantity} on hand
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h4 className="text-sm font-medium mb-2">Technicians</h4>
+          <div className="space-y-2">
+            {technicians.length === 0 && (
+              <div className="text-xs text-muted-foreground">No technicians found</div>
+            )}
+            {technicians.map(tech => (
+              <Card key={tech.id}>
+                <CardContent className="p-2 flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-medium">{tech.name}</div>
+                    <div className="text-xs text-muted-foreground">{tech.currentTask || 'No active task'}</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`h-2 w-2 rounded-full ${getTechStatusColor(tech.status)}`} />
+                    <span className="text-xs capitalize">{tech.status}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </div>
@@ -368,6 +423,8 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
   const { data: facilities = [] } = useFacilities()
   const { data: workOrders = [] } = useWorkOrders()
   const { data: _maintenanceSchedule = [] } = useMaintenanceSchedules()
+  const { data: partsResponse } = useSWR<{ data: any[] }>('/api/parts?limit=200', swrFetcher)
+  const { data: usersResponse } = useSWR<{ data: any[] }>('/api/users?limit=500', swrFetcher)
 
   // Real-time telemetry
   const {
@@ -380,6 +437,55 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
 
   // Use real-time vehicles if available, otherwise use static data
   const displayVehicles = realtimeVehicles.length > 0 ? realtimeVehicles : vehicles
+
+  const workOrderList = Array.isArray(workOrders) ? workOrders : ((workOrders as any)?.data || [])
+
+  const parts: Part[] = useMemo(() => {
+    return (partsResponse?.data || []).map((part: any) => {
+      const quantity = Number(part.quantity_on_hand ?? part.quantity ?? 0)
+      const reorderPoint = Number(part.reorder_point ?? part.reorderPoint ?? 0)
+      let status: Part['status'] = 'in_stock'
+      if (part.metadata?.on_order) status = 'on_order'
+      if (quantity <= 0) status = 'out_of_stock'
+      else if (quantity <= reorderPoint) status = 'low_stock'
+
+      return {
+        id: part.id,
+        name: part.name,
+        partNumber: part.part_number || part.partNumber || '',
+        quantity,
+        reorderPoint,
+        status,
+        location: part.location_in_warehouse || part.location || 'Warehouse',
+        lastUsed: part.updated_at || part.created_at
+      }
+    })
+  }, [partsResponse])
+
+  const technicians: Technician[] = useMemo(() => {
+    const users = usersResponse?.data || []
+    return users
+      .filter((user: any) => user.role === 'Mechanic')
+      .map((user: any) => {
+        const assigned = workOrderList.find((order: any) =>
+          order.assigned_to_id === user.id && order.status !== 'completed'
+        )
+        const completedToday = workOrderList.filter((order: any) => {
+          if (order.assigned_to_id !== user.id || !order.actual_end_date) return false
+          const endDate = new Date(order.actual_end_date)
+          const today = new Date()
+          return endDate.toDateString() === today.toDateString()
+        }).length
+
+        return {
+          id: user.id,
+          name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email,
+          status: assigned ? 'busy' : 'available',
+          currentTask: assigned?.title,
+          completedToday
+        }
+      })
+  }, [usersResponse, workOrderList])
 
   // Filter vehicles that need maintenance
   const maintenanceVehicles = useMemo(() => {
@@ -524,7 +630,7 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
             />
           </TabsContent>
           <TabsContent value="parts" className="h-[calc(100vh-48px)] mt-0">
-            <PartsPanel _parts={null} />
+            <PartsPanel parts={parts} technicians={technicians} />
           </TabsContent>
         </Tabs>
       </div>

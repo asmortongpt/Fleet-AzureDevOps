@@ -34,7 +34,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 router.get(
   '/300-log',
   requirePermission('osha:view:global'),
-  auditLog({ action: 'READ', resourceType: 'osha_300_log' }),
+  auditLog({ action: 'READ', resourceType: 'osha_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const { page = 1, limit = 50, year, status } = req.query
@@ -42,24 +42,24 @@ router.get(
 
       let query = `
         SELECT o.*,
-               d.first_name || ' ' || d.last_name as employee_full_name,
+               u.first_name || ' ' || u.last_name as employee_full_name,
                v.unit_number as vehicle_unit
-        FROM osha_300_log o
-        LEFT JOIN drivers d ON o.employee_id = d.id
+        FROM osha_logs o
+        LEFT JOIN users u ON o.employee_id = u.id
         LEFT JOIN vehicles v ON o.vehicle_id = v.id
-        WHERE d.tenant_id = $1
+        WHERE o.tenant_id = $1
       `
       const params: any[] = [req.user!.tenant_id]
       let paramIndex = 2
 
       if (year) {
-        query += ` AND EXTRACT(YEAR FROM o.date_of_injury) = $${paramIndex}`
+        query += ` AND EXTRACT(YEAR FROM o.incident_date) = $${paramIndex}`
         params.push(year)
         paramIndex++
       }
 
       if (status) {
-        query += ` AND o.case_status = $${paramIndex}`
+        query += ` AND o.status = $${paramIndex}`
         params.push(status)
         paramIndex++
       }
@@ -71,9 +71,8 @@ router.get(
 
       const countQuery = `
         SELECT COUNT(*)
-        FROM osha_300_log o
-        LEFT JOIN drivers d ON o.employee_id = d.id
-        WHERE d.tenant_id = $1
+        FROM osha_logs o
+        WHERE o.tenant_id = $1
       `
       const countResult = await pool.query(countQuery, [req.user!.tenant_id])
 
@@ -97,17 +96,17 @@ router.get(
 router.get(
   '/300-log/:id',
   requirePermission('osha:view:global'),
-  auditLog({ action: 'READ', resourceType: 'osha_300_log' }),
+  auditLog({ action: 'READ', resourceType: 'osha_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
         `SELECT o.*,
-                d.first_name || ' ' || d.last_name as employee_full_name,
+                u.first_name || ' ' || u.last_name as employee_full_name,
                 v.unit_number as vehicle_unit
-         FROM osha_300_log o
-         LEFT JOIN drivers d ON o.employee_id = d.id
+         FROM osha_logs o
+         LEFT JOIN users u ON o.employee_id = u.id
          LEFT JOIN vehicles v ON o.vehicle_id = v.id
-         WHERE o.id = $1 AND d.tenant_id = $2`,
+         WHERE o.id = $1 AND o.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -127,25 +126,25 @@ router.get(
 router.post(
   '/300-log',
   csrfProtection, csrfProtection, requirePermission('osha:submit:global'),
-  auditLog({ action: 'CREATE', resourceType: 'osha_300_log' }),
+  auditLog({ action: 'CREATE', resourceType: 'osha_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
-        [`created_by`],
+        [`tenant_id`, `reported_by`],
         1
       )
 
       const result = await pool.query(
-        `INSERT INTO osha_300_log (${columnNames}) VALUES (${placeholders}) RETURNING *`,
-        [req.user!.id, ...values]
+        `INSERT INTO osha_logs (${columnNames}) VALUES (${placeholders}) RETURNING *`,
+        [req.user!.tenant_id, req.user!.id, ...values]
       )
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create OSHA 300 log entry error:`, error)
+      console.error(`Create OSHA log entry error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -155,27 +154,27 @@ router.post(
 router.put(
   `/300-log/:id`,
   csrfProtection, requirePermission('osha:submit:global'),
-  auditLog({ action: 'UPDATE', resourceType: 'osha_300_log' }),
+  auditLog({ action: 'UPDATE', resourceType: 'osha_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
       const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
-        `UPDATE osha_300_log
-         SET ${fields}, updated_at = NOW(), updated_by = $2
-         WHERE id = $1
+        `UPDATE osha_logs
+         SET ${fields}, updated_at = NOW()
+         WHERE id = $1 AND tenant_id = $2
          RETURNING *`,
-        [req.params.id, req.user!.id, ...values]
+        [req.params.id, req.user!.tenant_id, ...values]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `OSHA 300 log entry not found` })
+        return res.status(404).json({ error: `OSHA log entry not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update OSHA 300 log entry error:`, error)
+      console.error(`Update OSHA log entry error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -189,52 +188,51 @@ router.put(
 router.get(
   '/safety-inspections',
   requirePermission('osha:view:global'),
-  auditLog({ action: 'READ', resourceType: 'vehicle_safety_inspections' }),
+  auditLog({ action: 'READ', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const { page = 1, limit = 50, vehicle_id, driver_id, status } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
       let query = `
-        SELECT vsi.*,
+        SELECT i.*,
                v.unit_number,
                d.first_name || ' ' || d.last_name as driver_name
-        FROM vehicle_safety_inspections vsi
-        JOIN vehicles v ON vsi.vehicle_id = v.id
-        JOIN drivers d ON vsi.driver_id = d.id
-        WHERE v.tenant_id = $1
+        FROM inspections i
+        LEFT JOIN vehicles v ON i.vehicle_id = v.id
+        LEFT JOIN drivers d ON i.driver_id = d.id
+        WHERE i.tenant_id = $1
       `
       const params: any[] = [req.user!.tenant_id]
       let paramIndex = 2
 
       if (vehicle_id) {
-        query += ` AND vsi.vehicle_id = $${paramIndex}`
+        query += ` AND i.vehicle_id = $${paramIndex}`
         params.push(vehicle_id)
         paramIndex++
       }
 
       if (driver_id) {
-        query += ` AND vsi.driver_id = $${paramIndex}`
+        query += ` AND i.driver_id = $${paramIndex}`
         params.push(driver_id)
         paramIndex++
       }
 
       if (status) {
-        query += ` AND vsi.overall_status = $${paramIndex}`
+        query += ` AND i.status = $${paramIndex}`
         params.push(status)
         paramIndex++
       }
 
-      query += ` ORDER BY vsi.inspection_date DESC, vsi.inspection_time DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+      query += ` ORDER BY i.started_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
       params.push(limit, offset)
 
       const result = await pool.query(query, params)
 
       const countQuery = `
         SELECT COUNT(*)
-        FROM vehicle_safety_inspections vsi
-        JOIN vehicles v ON vsi.vehicle_id = v.id
-        WHERE v.tenant_id = $1
+        FROM inspections i
+        WHERE i.tenant_id = $1
       `
       const countResult = await pool.query(countQuery, [req.user!.tenant_id])
 
@@ -258,16 +256,20 @@ router.get(
 router.post(
   '/safety-inspections',
   csrfProtection, csrfProtection, requirePermission('osha:submit:global'),
-  auditLog({ action: 'CREATE', resourceType: 'vehicle_safety_inspections' }),
+  auditLog({ action: 'CREATE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
 
-      const { columnNames, placeholders, values } = buildInsertClause(data, [], 1)
+      const { columnNames, placeholders, values } = buildInsertClause(
+        data,
+        ['tenant_id'],
+        1
+      )
 
       const result = await pool.query(
-        `INSERT INTO vehicle_safety_inspections (${columnNames}) VALUES (${placeholders}) RETURNING *`,
-        values
+        `INSERT INTO inspections (${columnNames}) VALUES (${placeholders}) RETURNING *`,
+        [req.user!.tenant_id, ...values]
       )
 
       res.status(201).json(result.rows[0])
@@ -286,44 +288,44 @@ router.post(
 router.get(
   `/training-records`,
   requirePermission('osha:view:global'),
-  auditLog({ action: 'READ', resourceType: 'safety_training_records' }),
+  auditLog({ action: 'READ', resourceType: 'training_records' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { page = 1, limit = 50, employee_id, training_type } = req.query
+      const { page = 1, limit = 50, employee_id, driver_id, training_type } = req.query
       const offset = (Number(page) - 1) * Number(limit)
+      const driverFilter = driver_id || employee_id
 
       let query = `
-        SELECT str.*,
+        SELECT tr.*,
                d.first_name || ' ' || d.last_name as employee_name
-        FROM safety_training_records str
-        JOIN drivers d ON str.employee_id = d.id
-        WHERE d.tenant_id = $1
+        FROM training_records tr
+        JOIN drivers d ON tr.driver_id = d.id
+        WHERE tr.tenant_id = $1
       `
       const params: any[] = [req.user!.tenant_id]
       let paramIndex = 2
 
-      if (employee_id) {
-        query += ` AND str.employee_id = $${paramIndex}`
-        params.push(employee_id)
+      if (driverFilter) {
+        query += ` AND tr.driver_id = $${paramIndex}`
+        params.push(driverFilter)
         paramIndex++
       }
 
       if (training_type) {
-        query += ` AND str.training_type = $${paramIndex}`
+        query += ` AND tr.training_type = $${paramIndex}`
         params.push(training_type)
         paramIndex++
       }
 
-      query += ` ORDER BY str.training_date DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+      query += ` ORDER BY tr.start_date DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
       params.push(limit, offset)
 
       const result = await pool.query(query, params)
 
       const countQuery = `
         SELECT COUNT(*)
-        FROM safety_training_records str
-        JOIN drivers d ON str.employee_id = d.id
-        WHERE d.tenant_id = $1
+        FROM training_records tr
+        WHERE tr.tenant_id = $1
       `
       const countResult = await pool.query(countQuery, [req.user!.tenant_id])
 
@@ -347,16 +349,20 @@ router.get(
 router.post(
   '/training-records',
   csrfProtection, csrfProtection, requirePermission('osha:submit:global'),
-  auditLog({ action: 'CREATE', resourceType: 'safety_training_records' }),
+  auditLog({ action: 'CREATE', resourceType: 'training_records' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
 
-      const { columnNames, placeholders, values } = buildInsertClause(data, [], 1)
+      const { columnNames, placeholders, values } = buildInsertClause(
+        data,
+        ['tenant_id'],
+        1
+      )
 
       const result = await pool.query(
-        `INSERT INTO safety_training_records (${columnNames}) VALUES (${placeholders}) RETURNING *`,
-        values
+        `INSERT INTO training_records (${columnNames}) VALUES (${placeholders}) RETURNING *`,
+        [req.user!.tenant_id, ...values]
       )
 
       res.status(201).json(result.rows[0])
@@ -375,40 +381,41 @@ router.post(
 router.get(
   `/accident-investigations`,
   requirePermission('osha:view:global'),
-  auditLog({ action: 'READ', resourceType: 'accident_investigations' }),
+  auditLog({ action: 'READ', resourceType: 'incidents' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const { page = 1, limit = 50, severity } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
       let query = `
-        SELECT ai.*,
+        SELECT i.*,
                v.unit_number,
                d.first_name || ' ' || d.last_name as driver_name
-        FROM accident_investigations ai
-        LEFT JOIN vehicles v ON ai.vehicle_id = v.id
-        LEFT JOIN drivers d ON ai.driver_id = d.id
-        WHERE v.tenant_id = $1
+        FROM incidents i
+        LEFT JOIN vehicles v ON i.vehicle_id = v.id
+        LEFT JOIN drivers d ON i.driver_id = d.id
+        WHERE i.tenant_id = $1
+          AND i.type = 'accident'
       `
       const params: any[] = [req.user!.tenant_id]
       let paramIndex = 2
 
       if (severity) {
-        query += ` AND ai.severity = $${paramIndex}`
+        query += ` AND i.severity = $${paramIndex}`
         params.push(severity)
         paramIndex++
       }
 
-      query += ` ORDER BY ai.accident_date DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+      query += ` ORDER BY i.incident_date DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
       params.push(limit, offset)
 
       const result = await pool.query(query, params)
 
       const countQuery = `
         SELECT COUNT(*)
-        FROM accident_investigations ai
-        LEFT JOIN vehicles v ON ai.vehicle_id = v.id
-        WHERE v.tenant_id = $1
+        FROM incidents i
+        WHERE i.tenant_id = $1
+          AND i.type = 'accident'
       `
       const countResult = await pool.query(countQuery, [req.user!.tenant_id])
 
@@ -432,16 +439,20 @@ router.get(
 router.post(
   '/accident-investigations',
   csrfProtection, csrfProtection, requirePermission('osha:submit:global'),
-  auditLog({ action: 'CREATE', resourceType: 'accident_investigations' }),
+  auditLog({ action: 'CREATE', resourceType: 'incidents' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const data = { ...req.body, type: req.body.type || 'accident' }
 
-      const { columnNames, placeholders, values } = buildInsertClause(data, [], 1)
+      const { columnNames, placeholders, values } = buildInsertClause(
+        data,
+        ['tenant_id'],
+        1
+      )
 
       const result = await pool.query(
-        `INSERT INTO accident_investigations (${columnNames}) VALUES (${placeholders}) RETURNING *`,
-        values
+        `INSERT INTO incidents (${columnNames}) VALUES (${placeholders}) RETURNING *`,
+        [req.user!.tenant_id, ...values]
       )
 
       res.status(201).json(result.rows[0])
@@ -466,44 +477,41 @@ router.get(
       // Total injuries this year
       const injuriesResult = await pool.query(
         `SELECT COUNT(*) as total_injuries,
-                COUNT(CASE WHEN death = TRUE THEN 1 END) as fatalities,
-                COUNT(CASE WHEN days_away_from_work > 0 THEN 1 END) as days_away_cases,
-                SUM(days_away_from_work) as total_days_away
-         FROM osha_300_log o
-         JOIN drivers d ON o.employee_id = d.id
-         WHERE d.tenant_id = $1
-         AND EXTRACT(YEAR FROM o.date_of_injury) = EXTRACT(YEAR FROM CURRENT_DATE)`,
+                COUNT(*) FILTER (WHERE (metadata->>'fatality')::boolean = true) as fatalities,
+                COUNT(*) FILTER (WHERE days_away_from_work > 0) as days_away_cases,
+                COALESCE(SUM(days_away_from_work), 0) as total_days_away
+         FROM osha_logs o
+         WHERE o.tenant_id = $1
+         AND EXTRACT(YEAR FROM o.incident_date) = EXTRACT(YEAR FROM CURRENT_DATE)`,
         [req.user!.tenant_id]
       )
 
       // Failed inspections
       const inspectionsResult = await pool.query(
         `SELECT COUNT(*) as failed_inspections
-         FROM vehicle_safety_inspections vsi
-         JOIN vehicles v ON vsi.vehicle_id = v.id
-         WHERE v.tenant_id = $1
-         AND vsi.overall_status = 'Fail'
-         AND vsi.inspection_date >= CURRENT_DATE - INTERVAL '30 days'`,
+         FROM inspections i
+         WHERE i.tenant_id = $1
+         AND i.passed_inspection = false
+         AND i.started_at >= CURRENT_DATE - INTERVAL '30 days'`,
         [req.user!.tenant_id]
       )
 
       // Expiring certifications
       const certificationsResult = await pool.query(
         `SELECT COUNT(*) as expiring_certifications
-         FROM safety_training_records str
-         JOIN drivers d ON str.employee_id = d.id
-         WHERE d.tenant_id = $1
-         AND str.certification_expiry_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '60 days'`,
+         FROM certifications c
+         WHERE c.tenant_id = $1
+         AND c.expiry_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '60 days'`,
         [req.user!.tenant_id]
       )
 
       // Recent accidents
       const accidentsResult = await pool.query(
         `SELECT severity, COUNT(*) as count
-         FROM accident_investigations ai
-         JOIN vehicles v ON ai.vehicle_id = v.id
-         WHERE v.tenant_id = $1
-         AND ai.accident_date >= CURRENT_DATE - INTERVAL '90 days'
+         FROM incidents i
+         WHERE i.tenant_id = $1
+         AND i.type = 'accident'
+         AND i.incident_date >= CURRENT_DATE - INTERVAL '90 days'
          GROUP BY severity`,
         [req.user!.tenant_id]
       )

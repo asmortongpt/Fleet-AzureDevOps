@@ -34,6 +34,7 @@ import { Input } from './ui/input'
 import { Label } from './ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
 
+import { getCsrfToken } from '@/hooks/use-api'
 import { useFleetData } from '@/hooks/use-fleet-data'
 import type { Vehicle, GISFacility } from '@/lib/types'
 
@@ -195,19 +196,32 @@ export function RouteOptimizer() {
 
     try {
       setGeocodingIndex(index)
+      const csrf = await getCsrfToken()
+      const response = await fetch('/api/documents/geo/geocode', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrf
+        },
+        body: JSON.stringify({ address: stop.address })
+      })
 
-      // Simulate geocoding - in production, use real API
-      // Example: Google Geocoding API, Mapbox Geocoding, etc.
-      await new Promise(resolve => setTimeout(resolve, 500))
+      if (!response.ok) {
+        throw new Error(`Geocoding failed: ${response.status}`)
+      }
 
-      // For demo: generate random coordinates near Tallahassee, FL
-      const baseLat = 30.4383
-      const baseLng = -84.2807
-      const randomLat = baseLat + (Math.random() - 0.5) * 0.1
-      const randomLng = baseLng + (Math.random() - 0.5) * 0.1
+      const payload = await response.json()
+      const result = payload?.result
+      if (!result) {
+        throw new Error('No geocoding result')
+      }
 
-      updateStop(index, 'latitude', randomLat)
-      updateStop(index, 'longitude', randomLng)
+      updateStop(index, 'latitude', Number(result.lat))
+      updateStop(index, 'longitude', Number(result.lng))
+      if (result.formatted_address) {
+        updateStop(index, 'address', result.formatted_address)
+      }
 
       toast.success('Address geocoded successfully')
     } catch (err) {
@@ -337,69 +351,54 @@ export function RouteOptimizer() {
       // Create abort controller
       abortControllerRef.current = new AbortController()
 
-      // Simulate AI optimization
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      const csrf = await getCsrfToken()
+      const response = await fetch('/api/route-optimization/optimize', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrf
+        },
+        body: JSON.stringify({
+          jobName,
+          stops: stops.map((stop) => ({
+            name: stop.name || stop.address,
+            address: stop.address,
+            latitude: stop.latitude,
+            longitude: stop.longitude,
+            serviceMinutes: stop.serviceMinutes,
+            priority: stop.priority
+          })),
+          goal: optimizationGoal,
+          considerTraffic: true,
+          considerTimeWindows: true,
+          considerCapacity: true,
+          maxStopsPerRoute: 50
+        }),
+        signal: abortControllerRef.current.signal
+      })
 
-      // Check if cancelled
-      if (abortControllerRef.current.signal.aborted) {
-        return
+      if (!response.ok) {
+        throw new Error(`Optimization failed: ${response.status}`)
       }
 
-      // Generate optimized routes
-      const vehicleCount = _selectedVehicles.length > 0 ? _selectedVehicles.length : Math.min(3, Math.ceil(stops.length / 10))
-      const routes: OptimizedRoute[] = []
-      const stopsPerRoute = Math.ceil(stops.length / vehicleCount)
-
-      for (let i = 0; i < vehicleCount; i++) {
-        const routeStops = stops.slice(i * stopsPerRoute, (i + 1) * stopsPerRoute)
-        if (routeStops.length === 0) continue
-
-        const totalDistance = routeStops.length * 8 + Math.random() * 20
-        const totalDuration = Math.floor(totalDistance / 30 * 60) + (routeStops.length * 15)
-        const totalCost = (totalDistance / 18) * 3.85 // Fuel cost estimate
-
-        const vehicle = allVehicles[i] || { id: `vehicle-${i}`, number: `V${i + 1}`, make: 'Fleet', model: 'Vehicle' }
-
-        routes.push({
-          routeNumber: i + 1,
-          vehicle: {
-            id: vehicle.id,
-            name: `${vehicle.number} - ${vehicle.make} ${vehicle.model}`
-          },
-          driver: {
-            id: `driver-${i + 1}`,
-            name: `Driver ${i + 1}`
-          },
-          stops: routeStops,
-          totalDistance,
-          totalDuration,
-          totalCost,
-          capacityUtilization: 70 + Math.floor(Math.random() * 25),
-          efficiency: 85 + Math.floor(Math.random() * 12)
-        })
-      }
-
-      // Calculate totals
-      const totalDistance = routes.reduce((sum, r) => sum + r.totalDistance, 0)
-      const totalDuration = routes.reduce((sum, r) => sum + r.totalDuration, 0)
-      const totalCost = routes.reduce((sum, r) => sum + r.totalCost, 0)
-      const estimatedSavings = totalCost * 0.18 // 18% savings vs unoptimized
+      const payload = await response.json()
 
       const optimizationResult: OptimizationResult = {
-        jobId: `job-${Date.now()}`,
+        jobId: String(payload.jobId || payload.job_id || ''),
         jobName,
-        routes,
-        totalDistance,
-        totalDuration,
-        totalCost,
-        estimatedSavings,
-        optimizationScore: 88 + Math.floor(Math.random() * 10),
-        solverTime: 1.2 + Math.random() * 2,
-        timestamp: new Date().toISOString()
+        routes: Array.isArray(payload.routes) ? payload.routes : [],
+        totalDistance: Number(payload.totalDistance || payload.total_distance || 0),
+        totalDuration: Number(payload.totalDuration || payload.total_duration || 0),
+        totalCost: Number(payload.totalCost || payload.total_cost || 0),
+        estimatedSavings: Number(payload.estimatedSavings || payload.estimated_savings || 0),
+        optimizationScore: Number(payload.optimizationScore || payload.optimization_score || 0),
+        solverTime: Number(payload.solverTime || payload.solver_time || 0),
+        timestamp: payload.timestamp || new Date().toISOString()
       }
 
       setResult(optimizationResult)
-      toast.success(`Successfully optimized ${routes.length} routes!`)
+      toast.success(`Successfully optimized ${optimizationResult.routes.length} routes!`)
     } catch (err: any) {
       const message = err instanceof Error ? err.message : 'Optimization failed'
       setError(message)

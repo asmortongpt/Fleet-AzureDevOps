@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
+import { secureFetch } from '@/hooks/use-api';
 import { RealDataService } from '../../services/RealDataService';
-import { EnhancedVehicleImageService } from '../../services/EnhancedVehicleImageService';
 
 interface PhotorealisticVehicleShowroomProps {
   currentTheme: any;
@@ -44,13 +44,46 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
   const loadVehiclesWithImages = async () => {
     setLoading(true);
     const realDataService = RealDataService.getInstance();
-    const imageService = EnhancedVehicleImageService.getInstance();
 
     try {
       const vehicleData = await realDataService.getVehicles();
 
+      const fetchModelData = async (vehicleId: string) => {
+        try {
+          const response = await secureFetch(`/api/vehicle-3d/${vehicleId}/3d-model`, { method: 'GET' });
+          if (!response.ok) return null;
+          return response.json();
+        } catch {
+          return null;
+        }
+      };
+
       const enhancedVehicles: VehicleWithImages[] = await Promise.all(
         vehicleData.map(async (vehicle: any): Promise<VehicleWithImages> => {
+          const modelData = await fetchModelData(String(vehicle.id));
+          const previewImages = Array.isArray(modelData?.metadata?.preview_images)
+            ? modelData.metadata.preview_images
+            : Array.isArray(modelData?.preview_images)
+              ? modelData.preview_images
+              : [];
+          const thumbnailUrl = modelData?.thumbnail_url || modelData?.thumbnailUrl || modelData?.render_url || '';
+          const primaryImage = thumbnailUrl || previewImages[0] || '';
+
+          const imageSet: Record<string, string> = {
+            front: previewImages[0] || primaryImage,
+            'front-angle': previewImages[1] || primaryImage,
+            side: previewImages[2] || primaryImage,
+            rear: previewImages[3] || primaryImage,
+            'rear-angle': previewImages[4] || primaryImage
+          };
+
+          const rawConfidence = typeof modelData?.metadata?.image_confidence === 'number'
+            ? modelData.metadata.image_confidence
+            : undefined;
+          const normalizedConfidence = typeof rawConfidence === 'number'
+            ? (rawConfidence > 1 ? rawConfidence / 100 : rawConfidence)
+            : undefined;
+
           const vehicleWithImages: VehicleWithImages = {
             id: String(vehicle.id),
             make: vehicle.make || 'Unknown',
@@ -61,40 +94,15 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
             mileage: vehicle.mileage || 0,
             status: vehicle.status || vehicle.vehicle_status || 'active',
             assigned_driver_id: vehicle.assigned_driver_id || '',
-            imageUrl: '',
-            imageSet: {},
-            model3DUrl: '',
-            isLoadingImages: true,
-            imageConfidence: 0,
-            imageSource: ''
-          };
-
-          // Get vehicle image using EnhancedVehicleImageService
-          const imageResult = imageService.getVehicleImage({
-            make: vehicleWithImages.make,
-            model: vehicleWithImages.model,
-            year: vehicleWithImages.year,
-            color: vehicleWithImages.color
-          });
-
-          // Use the same image for all angles
-          const imageSet: Record<string, string> = {
-            'front': imageResult.angles.front,
-            'front-angle': imageResult.primary,
-            'side': imageResult.angles.side,
-            'rear': imageResult.angles.rear,
-            'rear-angle': imageResult.primary
-          };
-
-          return {
-            ...vehicleWithImages,
-            imageUrl: imageResult.primary,
+            imageUrl: primaryImage,
             imageSet,
-            model3DUrl: '/models/generic/car.glb',
+            model3DUrl: modelData?.glb_model_url || modelData?.file_url || '',
             isLoadingImages: false,
-            imageConfidence: 85,
-            imageSource: 'EnhancedVehicleImageService'
+            imageConfidence: normalizedConfidence,
+            imageSource: modelData ? 'vehicle-3d' : undefined
           };
+
+          return vehicleWithImages;
         })
       );
 
@@ -106,108 +114,36 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
     }
   };
 
-  const generateReferenceBasedImages = async () => {
-    setLoading(true);
-    try {
-      const imageService = EnhancedVehicleImageService.getInstance();
-
-      // Update vehicles with new images
-      const realDataService = RealDataService.getInstance();
-      const vehicleData = await realDataService.getVehicles();
-
-      const updatedVehicles: VehicleWithImages[] = vehicleData.map((vehicle: any) => {
-        const imageResult = imageService.getVehicleImage({
-          make: vehicle.make || 'Unknown',
-          model: vehicle.model || 'Vehicle',
-          year: vehicle.year || 2023,
-          color: vehicle.color || 'silver'
-        });
-
-        const imageSet: Record<string, string> = {
-          'front': imageResult.angles.front,
-          'front-angle': imageResult.primary,
-          'side': imageResult.angles.side,
-          'rear': imageResult.angles.rear,
-          'rear-angle': imageResult.primary
-        };
-
-        return {
-          id: String(vehicle.id),
-          make: vehicle.make || 'Unknown',
-          model: vehicle.model || 'Vehicle',
-          year: vehicle.year || 2023,
-          vin: vehicle.vin || '',
-          color: vehicle.color || 'silver',
-          mileage: vehicle.mileage || 0,
-          status: vehicle.status || vehicle.vehicle_status || 'active',
-          assigned_driver_id: vehicle.assigned_driver_id || '',
-          imageUrl: imageResult.primary,
-          imageSet,
-          model3DUrl: '/models/generic/car.glb',
-          isLoadingImages: false,
-          imageConfidence: 90,
-          imageSource: 'EnhancedVehicleImageService - Generated'
-        };
-      });
-
-      // Save the generated images to localStorage for persistence
-      localStorage.setItem('fleet-generated-images', JSON.stringify({
-        generated: new Date().toISOString(),
-        totalVehicles: updatedVehicles.length,
-        vehicles: updatedVehicles.reduce((acc, v) => ({ ...acc, [v.id]: { url: v.imageUrl } }), {})
-      }));
-
-      console.log(`Generated ${updatedVehicles.length} images`);
-      setVehicles(updatedVehicles);
-
-    } catch (error) {
-      console.error('Image generation error:', error);
-      alert('Image generation failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleScanVIN = async (vehicleId: string) => {
     setScanningVIN(vehicleId);
+    try {
+      const response = await secureFetch(`/api/vehicles/${vehicleId}`, { method: 'GET' });
+      if (!response.ok) {
+        throw new Error('Failed to refresh vehicle data');
+      }
+      const payload = await response.json();
+      const vehicle = payload.data || payload;
 
-    // Simulate VIN scan with timeout
-    setTimeout(() => {
-      // Update with mock scanned data
       setVehicles(prev => prev.map(v => {
         if (v.id === vehicleId) {
           return {
             ...v,
-            vin: `1FTFW1ET5DFC${Math.random().toString().substr(2, 5)}`,
-            make: 'Ford',
-            model: 'F-150',
-            year: 2023
+            vin: vehicle.vin || v.vin,
+            make: vehicle.make || v.make,
+            model: vehicle.model || v.model,
+            year: vehicle.year || v.year,
+            color: vehicle.color || v.color,
+            mileage: vehicle.mileage || v.mileage,
+            status: vehicle.status || v.status
           };
         }
         return v;
       }));
-
+    } catch (error) {
+      console.error('VIN refresh failed:', error);
+    } finally {
       setScanningVIN(null);
-    }, 2000);
-  };
-
-  const getRandomColor = (): string => {
-    const colors = ['white', 'black', 'silver', 'gray', 'red', 'blue', 'green', 'gold'];
-    return colors[Math.floor(Math.random() * colors.length)];
-  };
-
-  const getHighQualityFallbackImage = (vehicle: any, angle: string): string => {
-    // High-quality stock images based on vehicle type
-    const stockImages: Record<string, string> = {
-      "Ford F-150": "https://build.ford.com/dig/Ford/F-150/2024/HD-TILE/Image%5B%7CFord%7CF-150%7C2024%7C1%7C1.%7C501AW1E.145.PQLSC88D.89B.53B.85P.59H.76R.91343.C57Q.763.66L.17C.55D.SRS.64M.862.61R.59567.T.92443.585.A.58X.~JBCACRET.13R.%5D/EXT/4/vehicle.png",
-      "Tesla Model 3": "https://tesla-cdn.thron.com/delivery/public/image/tesla/03e533bf-8b1d-463f-9813-9a597aafb280/bvlatuR/std/4096x2560/M3-Homepage-Desktop-LHD",
-      "Toyota Camry": "https://www.toyota.com/imgix/content/dam/toyota/jellies/max/2024/camry/xse/2548/2pt/36/5.png",
-      "Honda Accord": "https://di-uploads-pod14.dealerinspire.com/hondaofkirkland/uploads/2023/05/2023-Honda-Accord-Sport-Gray.png",
-      "Chevrolet Silverado": "https://www.chevrolet.com/content/dam/chevrolet/na/us/english/index/vehicles/2024/trucks/silverado-1500/mov/01-images/2024-silverado-1500-mov-masthead-01.jpg"
-    };
-
-    const vehicleKey = `${vehicle.make} ${vehicle.model}`;
-    return stockImages[vehicleKey] || `https://source.unsplash.com/800x600/?${vehicle.make}+${vehicle.model}+${vehicle.year}+car,automotive`;
+    }
   };
 
   const filteredVehicles = useMemo(() => {
@@ -306,9 +242,8 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
           </p>
         </div>
 
-        {/* Reference-Based Generation button */}
         <button
-          onClick={generateReferenceBasedImages}
+          onClick={loadVehiclesWithImages}
           disabled={loading}
           style={{
             padding: '12px 20px',
@@ -336,22 +271,16 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                 display: 'inline-block',
                 animation: 'spin 1s linear infinite',
                 fontSize: '18px'
-              }}>🎯</span>
+              }}>🔄</span>
               <span style={{ fontSize: '13px' }}>
-                Generating Reference-Based Images...
-                <div style={{ fontSize: '11px', opacity: 0.8, marginTop: '2px' }}>
-                  Using automotive references • 90% accuracy minimum
-                </div>
+                Refreshing Vehicle Images...
               </span>
             </>
           ) : (
             <>
-              <span style={{ fontSize: '18px' }}>🎯</span>
+              <span style={{ fontSize: '18px' }}>🔄</span>
               <span style={{ fontSize: '13px' }}>
-                Generate Accurate Images
-                <div style={{ fontSize: '11px', opacity: 0.9, marginTop: '2px' }}>
-                  Reference-Based DALL-E 3 + GPT-4 Vision
-                </div>
+                Refresh Images
               </span>
             </>
           )}
@@ -471,21 +400,33 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                       }} />
                     </div>
                   ) : (
-                    <img
-                      src={vehicle.imageUrl}
-                      alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
-                      style={{
-                        width: '100%',
+                    vehicle.imageUrl ? (
+                      <img
+                        src={vehicle.imageUrl}
+                        alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          objectPosition: 'center'
+                        }}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '';
+                        }}
+                      />
+                    ) : (
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                         height: '100%',
-                        objectFit: 'cover',
-                        objectPosition: 'center'
-                      }}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        // Final fallback to a professional automotive image
-                        target.src = 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&h=200&fit=crop&crop=center';
-                      }}
-                    />
+                        color: currentTheme.textMuted,
+                        fontSize: '12px'
+                      }}>
+                        No image available
+                      </div>
+                    )
                   )}
 
                   {/* Status badge */}
@@ -505,49 +446,60 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                   </div>
 
                   {/* VALIDATION & HONESTY LOOP BADGE */}
-                  <div style={{
-                    position: 'absolute',
-                    bottom: '8px',
-                    right: '8px',
-                    background: vehicle.imageConfidence && vehicle.imageConfidence >= 95 ? '#10b981' :
-                      vehicle.imageConfidence && vehicle.imageConfidence >= 80 ? '#f59e0b' : '#dc3545',
-                    color: 'white',
-                    padding: '4px 8px',
-                    borderRadius: '6px',
-                    fontSize: '11px',
-                    fontWeight: '600',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    maxWidth: '140px',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                  }}>
-                    <span style={{ fontSize: '12px' }}>
-                      {vehicle.imageConfidence && vehicle.imageConfidence >= 95 ? '✅' :
-                        vehicle.imageConfidence && vehicle.imageConfidence >= 80 ? '⚠️' : '🚨'}
-                    </span>
-                    <span style={{ fontSize: '10px', fontWeight: 'bold' }}>
-                      {vehicle.imageConfidence && vehicle.imageConfidence >= 95 ? 'VALIDATED' :
-                        vehicle.imageConfidence && vehicle.imageConfidence >= 80 ? 'UNVERIFIED' :
-                        'NO IMAGE'}
-                    </span>
-                  </div>
+                  {(() => {
+                    const confidence = vehicle.imageConfidence;
+                    const percent = confidence == null
+                      ? null
+                      : confidence <= 1 ? Math.round(confidence * 100) : Math.round(confidence);
+
+                    const badge = percent == null
+                      ? { label: 'NO SCORE', icon: '—', color: '#6b7280' }
+                      : percent >= 95
+                        ? { label: 'VALIDATED', icon: '✅', color: '#10b981' }
+                        : percent >= 80
+                          ? { label: 'UNVERIFIED', icon: '⚠️', color: '#f59e0b' }
+                          : { label: 'LOW CONFIDENCE', icon: '🚨', color: '#dc3545' };
+
+                    return (
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '8px',
+                        right: '8px',
+                        background: badge.color,
+                        color: 'white',
+                        padding: '4px 8px',
+                        borderRadius: '6px',
+                        fontSize: '11px',
+                        fontWeight: '600',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        maxWidth: '140px',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                      }}>
+                        <span style={{ fontSize: '12px' }}>{badge.icon}</span>
+                        <span style={{ fontSize: '10px', fontWeight: 'bold' }}>{badge.label}</span>
+                      </div>
+                    );
+                  })()}
 
                   {/* HONESTY DISCLOSURE TOOLTIP */}
-                  <div style={{
-                    position: 'absolute',
-                    bottom: '8px',
-                    left: '8px',
-                    background: 'rgba(0,0,0,0.8)',
-                    color: 'white',
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    fontSize: '9px',
-                    maxWidth: '200px',
-                    lineHeight: '1.2'
-                  }}>
-                    {vehicle.imageSource || 'Image validation active'}
-                  </div>
+                  {vehicle.imageSource && (
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '8px',
+                      left: '8px',
+                      background: 'rgba(0,0,0,0.8)',
+                      color: 'white',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      fontSize: '9px',
+                      maxWidth: '200px',
+                      lineHeight: '1.2'
+                    }}>
+                      {vehicle.imageSource}
+                    </div>
+                  )}
 
                   {/* VIN scan button */}
                   <button
@@ -595,7 +547,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                     fontSize: '14px',
                     color: currentTheme.textMuted
                   }}>
-                    <div>VIN: {vehicle.vin.substr(-6)}</div>
+                    <div>VIN: {vehicle.vin ? vehicle.vin.slice(-6) : '—'}</div>
                     <div>Color: {vehicle.color}</div>
                     <div>Mileage: {vehicle.mileage.toLocaleString()}</div>
                     <div>ID: {vehicle.id.substr(0, 8)}</div>
@@ -745,9 +697,11 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                     {(selectedVehicle.imageConfidence * 100).toFixed(0)}%
                   </span>
                 </div>
-                <div style={{ fontSize: '12px', color: currentTheme.textMuted }}>
-                  Source: {selectedVehicle.imageSource}
-                </div>
+                {selectedVehicle.imageSource && (
+                  <div style={{ fontSize: '12px', color: currentTheme.textMuted }}>
+                    Source: {selectedVehicle.imageSource}
+                  </div>
+                )}
                 <div style={{
                   fontSize: '11px',
                   color: currentTheme.textMuted,
@@ -768,23 +722,13 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                   }`
                 }}>
                   {selectedVehicle.imageConfidence >= 0.99 ?
-                    '🎯 PERFECT MATCH - 99%+ Verified accuracy' :
+                    '🎯 PERFECT MATCH - 99%+ confidence' :
                     selectedVehicle.imageConfidence >= 0.95 ?
-                    `✅ VERIFIED - ${Math.round(selectedVehicle.imageConfidence * 100)}% GPT-4 Vision confirmed` :
+                    `✅ VERIFIED - ${Math.round(selectedVehicle.imageConfidence * 100)}% confidence` :
                     selectedVehicle.imageConfidence >= 0.85 ?
-                    `⚠️ GOOD MATCH - ${Math.round(selectedVehicle.imageConfidence * 100)}% Similarity detected` :
-                    `❌ LOW CONFIDENCE - ${Math.round(selectedVehicle.imageConfidence * 100)}% Generic vehicle`}
+                    `⚠️ GOOD MATCH - ${Math.round(selectedVehicle.imageConfidence * 100)}% confidence` :
+                    `❌ LOW CONFIDENCE - ${Math.round(selectedVehicle.imageConfidence * 100)}% confidence`}
                 </div>
-                {selectedVehicle.imageSource?.includes('OpenAI') && (
-                  <div style={{
-                    marginTop: '4px',
-                    fontSize: '10px',
-                    opacity: 0.8,
-                    fontStyle: 'italic'
-                  }}>
-                    🤖 AI-Generated with multi-attempt verification
-                  </div>
-                )}
               </div>
             )}
 

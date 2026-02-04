@@ -47,104 +47,10 @@ interface JobMatrixData {
   delayMinutes?: number
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
-
-// Demo data for fallback
-const demoJobs: JobMatrixData[] = [
-  {
-    id: 'job-001',
-    number: 'JOB-1001',
-    customer: 'Acme Corporation',
-    address: '456 Oak Ave, Tallahassee, FL 32301',
-    priority: 'high',
-    status: 'active',
-    driverId: 'drv-001',
-    driverName: 'John Smith',
-    vehicleId: 'veh-demo-1001',
-    vehicleName: 'Ford F-150 #1001',
-    startTime: '2026-01-03T08:00:00',
-    eta: '2026-01-03T15:45:00',
-    duration: 480,
-    progress: 65
-  },
-  {
-    id: 'job-002',
-    number: 'JOB-1002',
-    customer: 'FastShip Logistics',
-    address: 'Tallahassee Airport, Cargo Terminal',
-    priority: 'high',
-    status: 'delayed',
-    driverId: 'drv-002',
-    driverName: 'Sarah Johnson',
-    vehicleId: 'veh-demo-1002',
-    vehicleName: 'Chevrolet Silverado #1002',
-    startTime: '2026-01-03T10:00:00',
-    eta: '2026-01-03T12:30:00',
-    duration: 120,
-    progress: 40,
-    delayMinutes: 25
-  },
-  {
-    id: 'job-003',
-    number: 'JOB-1003',
-    customer: 'State Building Services',
-    address: '890 Capitol Circle, Tallahassee, FL 32301',
-    priority: 'medium',
-    status: 'active',
-    driverId: 'drv-003',
-    driverName: 'Mike Davis',
-    vehicleId: 'veh-demo-1003',
-    vehicleName: 'Mercedes Sprinter #1003',
-    startTime: '2026-01-03T09:00:00',
-    eta: '2026-01-03T14:00:00',
-    duration: 300,
-    progress: 55
-  },
-  {
-    id: 'job-004',
-    number: 'JOB-1004',
-    customer: 'University Admin',
-    address: '321 College Ave, Tallahassee, FL 32306',
-    priority: 'low',
-    status: 'pending',
-    startTime: '2026-01-03T14:00:00',
-    eta: '2026-01-03T17:00:00',
-    duration: 180,
-    progress: 0
-  },
-  {
-    id: 'job-005',
-    number: 'JOB-1005',
-    customer: 'Medical Center',
-    address: '234 Health Dr, Tallahassee, FL 32301',
-    priority: 'high',
-    status: 'active',
-    driverId: 'drv-004',
-    driverName: 'Lisa Chen',
-    vehicleId: 'veh-demo-1005',
-    vehicleName: 'Ford Transit #1005',
-    startTime: '2026-01-03T11:00:00',
-    eta: '2026-01-03T12:00:00',
-    duration: 60,
-    progress: 85
-  },
-  {
-    id: 'job-006',
-    number: 'JOB-1006',
-    customer: 'Tech Solutions Inc',
-    address: '789 Commerce Blvd, Tallahassee, FL 32301',
-    priority: 'medium',
-    status: 'completed',
-    driverId: 'drv-001',
-    driverName: 'John Smith',
-    vehicleId: 'veh-demo-1001',
-    vehicleName: 'Ford F-150 #1001',
-    startTime: '2026-01-03T06:00:00',
-    eta: '2026-01-03T08:00:00',
-    duration: 120,
-    progress: 100
-  }
-]
+const fetcher = (url: string) =>
+  fetch(url)
+    .then((r) => r.json())
+    .then((data) => data?.data ?? data)
 
 export function JobDetailPanel({ jobId }: { jobId?: string }) {
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -155,7 +61,6 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
     '/api/jobs',
     fetcher,
     {
-      fallbackData: demoJobs,
       shouldRetryOnError: false,
       refreshInterval: 30000 // Real-time updates every 30 seconds
     }

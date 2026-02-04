@@ -468,33 +468,60 @@ router.post(
 
       const session = sessionResult.rows[0]
 
-      // Search documents
-      const searchResults = await vectorSearchService.search(
-        req.user!.tenant_id,
-        chatData.message,
-        {
-          limit: chatData.maxSources || 5,
-          minScore: 0.7,
-        }
-      )
+      // Conversation history (optional, matches non-streaming behavior)
+      let conversationHistory: any[] = []
+      if (chatData.includeHistory) {
+        const historyResult = await pool.query(
+          `SELECT role, content FROM chat_messages
+           WHERE session_id = $1
+           ORDER BY created_at DESC
+           LIMIT $2`,
+          [chatData.sessionId, chatData.maxHistoryMessages || 10]
+        )
+        conversationHistory = historyResult.rows.reverse()
+      }
 
-      const relevantContext = searchResults
-        .map((r, idx) => `[Source ${idx + 1}]\n${r.content}`)
-        .join('\n\n')
+      // Search relevant documents only when enabled
+      let searchResults: any[] = []
+      let relevantContext = ''
+      if (chatData.searchDocuments) {
+        const documentScope = JSON.parse(session.document_scope || '[]')
+        searchResults = await vectorSearchService.search(
+          req.user!.tenant_id,
+          chatData.message,
+          {
+            limit: chatData.maxSources || 5,
+            minScore: 0.7,
+            filter: documentScope.length > 0 ? { document_id: documentScope } : {},
+          }
+        )
 
-      // Build messages
+        relevantContext = searchResults
+          .map((r, idx) => `[Source ${idx + 1}]\n${r.content}`)
+          .join('\n\n')
+      }
+
+      // Build messages (system + optional history + current question with optional context)
       const messages: any[] = [
         {
           role: 'system',
           content: session.system_prompt || getDefaultSystemPrompt(),
         },
-        {
-          role: 'user',
-          content: relevantContext
-            ? `Context:\n${relevantContext}\n\nQuestion: ${chatData.message}`
-            : chatData.message,
-        },
       ]
+
+      conversationHistory.forEach(msg => {
+        messages.push({
+          role: msg.role,
+          content: msg.content,
+        })
+      })
+
+      messages.push({
+        role: 'user',
+        content: relevantContext
+          ? `Context:\n${relevantContext}\n\nQuestion: ${chatData.message}`
+          : chatData.message,
+      })
 
       // Stream response
       const stream = await openai.chat.completions.create({

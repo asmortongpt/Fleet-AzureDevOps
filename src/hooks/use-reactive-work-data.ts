@@ -4,8 +4,11 @@
  * Quality Score: 96%
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { z } from 'zod';
+
+import { secureFetch } from '@/hooks/use-api';
+import logger from '@/utils/logger';
 
 // Zod schemas for type safety
 const TeamMemberSchema = z.object({
@@ -114,10 +117,10 @@ type SortOption = 'priority' | 'dueDate' | 'created' | 'updated' | 'title' | 'pr
 
 export function useReactiveWorkData() {
   const [workItems, setWorkItems] = useState<WorkItem[]>([]);
-  const [teamMembers] = useState<TeamMember[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [projects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<WorkItem | null>(null);
   const [filters, setFilters] = useState<WorkFilters>({
     status: 'all',
@@ -130,6 +133,136 @@ export function useReactiveWorkData() {
   });
   const [sortBy, setSortBy] = useState<SortOption>('priority');
 
+  const loadWorkData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [tasksResponse, usersResponse] = await Promise.all([
+        secureFetch('/api/tasks'),
+        secureFetch('/api/users')
+      ]);
+
+      const tasksPayload = tasksResponse.ok ? await tasksResponse.json() : { data: [] };
+      const usersPayload = usersResponse.ok ? await usersResponse.json() : { data: [] };
+
+      const taskRows = Array.isArray(tasksPayload) ? tasksPayload : tasksPayload.data || [];
+      const userRows = Array.isArray(usersPayload) ? usersPayload : usersPayload.data || [];
+
+      const statusMap: Record<string, WorkItem['status']> = {
+        pending: 'todo',
+        todo: 'todo',
+        open: 'todo',
+        'in-progress': 'in-progress',
+        in_progress: 'in-progress',
+        review: 'review',
+        blocked: 'blocked',
+        completed: 'done',
+        done: 'done'
+      };
+
+      const priorityMap: Record<string, WorkItem['priority']> = {
+        low: 'low',
+        medium: 'medium',
+        high: 'high',
+        critical: 'critical'
+      };
+
+      const usersById = new Map<string, any>(
+        userRows.map((user: any) => [String(user.id), user])
+      );
+
+      const mappedTasks: WorkItem[] = taskRows.map((task: any) => {
+        const status = statusMap[String(task.status || '').toLowerCase()] || 'todo';
+        const priority = priorityMap[String(task.priority || '').toLowerCase()] || 'medium';
+        const assignee = task.assignedToId || task.assigned_to_id || task.assignee_id;
+        const assigneeUser = assignee ? usersById.get(String(assignee)) : undefined;
+
+        const createdAt = task.createdAt || task.created_at || new Date().toISOString();
+        const completedAt = task.completedAt || task.completed_at || null;
+
+        const progress = status === 'done'
+          ? 100
+          : status === 'review'
+            ? 80
+            : status === 'in-progress'
+              ? 50
+              : status === 'blocked'
+                ? 25
+                : 0;
+
+        return WorkItemSchema.parse({
+          id: String(task.id),
+          title: task.title,
+          description: task.description || task.notes,
+          status,
+          priority,
+          assigneeId: assignee ? String(assignee) : null,
+          assigneeName: assigneeUser ? assigneeUser.name || `${assigneeUser.first_name || ''} ${assigneeUser.last_name || ''}`.trim() : undefined,
+          assigneePhoto: assigneeUser?.avatar_url,
+          createdAt,
+          updatedAt: task.updatedAt || task.updated_at || createdAt,
+          dueDate: task.dueDate || task.due_date || null,
+          startDate: task.startDate || task.start_date || null,
+          completedAt,
+          estimatedHours: task.estimatedHours || task.estimated_hours || null,
+          actualHours: task.actualHours || task.actual_hours || null,
+          tags: Array.isArray(task.tags) ? task.tags : [],
+          dependencies: Array.isArray(task.dependencies) ? task.dependencies : [],
+          workOrderNumber: task.workOrderNumber || task.work_order_number,
+          vehicleId: task.vehicleId ? String(task.vehicleId) : (task.relatedEntityType === 'vehicle' ? String(task.relatedEntityId) : null),
+          projectId: task.projectId ? String(task.projectId) : null,
+          urgency: priority === 'critical' ? 5 : priority === 'high' ? 4 : priority === 'medium' ? 3 : 2,
+          importance: priority === 'critical' ? 5 : priority === 'high' ? 4 : priority === 'medium' ? 3 : 2,
+          progress,
+          attachments: Array.isArray(task.attachments) ? task.attachments : [],
+          comments: Array.isArray(task.comments) ? task.comments : [],
+          customFields: task.customFields || {}
+        });
+      });
+
+      const taskCounts = mappedTasks.reduce<Record<string, number>>((acc, task) => {
+        if (!task.assigneeId) return acc;
+        acc[task.assigneeId] = (acc[task.assigneeId] || 0) + 1;
+        return acc;
+      }, {});
+
+      const maxTasks = Math.max(1, ...Object.values(taskCounts), mappedTasks.length);
+
+      const mappedUsers: TeamMember[] = userRows.map((user: any) => {
+        const id = String(user.id);
+        const assignedCount = taskCounts[id] || 0;
+        const currentLoad = Math.round((assignedCount / maxTasks) * 100);
+        const status = user.status || (user.is_active === false ? 'offline' : 'available');
+        const availability: TeamMember['availability'] =
+          status === 'offline' ? 'offline' : currentLoad > 80 ? 'busy' : currentLoad > 0 ? 'available' : 'available';
+
+        return TeamMemberSchema.parse({
+          id,
+          name: user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim(),
+          role: user.role || 'member',
+          photo: user.avatar_url,
+          capacity: 100,
+          currentLoad,
+          skills: Array.isArray(user.skills) ? user.skills : [],
+          availability
+        });
+      });
+
+      setWorkItems(mappedTasks);
+      setTeamMembers(mappedUsers);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to load work data';
+      setError(message);
+      logger.error('Failed to load work data', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadWorkData();
+  }, [loadWorkData]);
+
   // Calculate metrics
   const metrics = useMemo<WorkMetrics>(() => {
     const completed = workItems.filter(i => i.status === 'done');
@@ -141,20 +274,26 @@ export function useReactiveWorkData() {
       return acc;
     }, { low: 0, medium: 0, high: 0, critical: 0 } as any);
 
-    // Calculate velocity trend (simulated)
     const velocityTrend = [];
     const today = new Date();
     for (let i = 29; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
+      const key = date.toISOString().split('T')[0];
+
+      const createdCount = workItems.filter((item) => item.createdAt?.startsWith(key)).length;
+      const completedCount = workItems.filter((item) => item.completedAt?.startsWith(key)).length;
+
       velocityTrend.push({
-        date: date.toISOString().split('T')[0],
-        completed: Math.floor(Math.random() * 5) + 1,
-        created: Math.floor(Math.random() * 6) + 1
+        date: key,
+        completed: completedCount,
+        created: createdCount
       });
     }
 
-    const teamUtilization = teamMembers.reduce((acc, m) => acc + (m.currentLoad / m.capacity) * 100, 0) / teamMembers.length;
+    const teamUtilization = teamMembers.length > 0
+      ? teamMembers.reduce((acc, m) => acc + (m.currentLoad / m.capacity) * 100, 0) / teamMembers.length
+      : 0;
 
     const upcomingDeadlines = workItems
       .filter(i => i.dueDate && i.status !== 'done')
@@ -166,12 +305,26 @@ export function useReactiveWorkData() {
       .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
       .slice(0, 5);
 
+    const completionDurations = completed
+      .map((item) => {
+        if (!item.completedAt) return null;
+        const start = new Date(item.createdAt).getTime();
+        const end = new Date(item.completedAt).getTime();
+        if (Number.isNaN(start) || Number.isNaN(end)) return null;
+        return (end - start) / (1000 * 60 * 60 * 24);
+      })
+      .filter((value): value is number => value !== null);
+
+    const averageCompletionTime = completionDurations.length
+      ? completionDurations.reduce((sum, value) => sum + value, 0) / completionDurations.length
+      : 0;
+
     return {
       totalTasks: workItems.length,
       completedTasks: completed.length,
       inProgressTasks: inProgress.length,
       blockedTasks: blocked.length,
-      averageCompletionTime: 3.5,
+      averageCompletionTime,
       velocityTrend,
       priorityDistribution: priorityDist,
       teamUtilization,

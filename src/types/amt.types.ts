@@ -120,32 +120,4 @@ export interface LicenseAllocation {
   deallocated_at?: Date;
 }
 
-// Mock logger class to replace external dependency
-class MockLogger {
-  error(message: string, error: unknown): void {
-    logger.error(message, error);
-  }
-}
-
-// Mock validation function to replace external dependency
-function mockValidateInput(input: unknown): boolean {
-  return !!input;
-}
-
-// Example function to demonstrate error handling and logging
-function _exampleFunction(input: unknown): void {
-  const logger = new MockLogger();
-
-  try {
-    // Validate input
-    if (!mockValidateInput(input)) {
-      throw new Error('Invalid input');
-    }
-
-    // Process input
-    // ...
-  } catch (error) {
-    logger?.error('Error in exampleFunction:', error);
-    // Handle error appropriately
-  }
-}
+// Types only: no runtime helpers in this file.
