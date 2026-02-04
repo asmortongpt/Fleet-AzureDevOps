@@ -54,7 +54,8 @@ export async function getCsrfToken(): Promise<string> {
 
       if (response.ok) {
         const data = await response.json();
-        csrfToken = (data.csrfToken || data.token || '') as string;
+        const payload = data.data || data;
+        csrfToken = (payload.csrfToken || payload.token || '') as string;
         // SECURITY FIX P3 LOW-SEC-001: Use logger instead of console.log
         logger.debug('[CSRF] Token fetched successfully');
         return csrfToken;

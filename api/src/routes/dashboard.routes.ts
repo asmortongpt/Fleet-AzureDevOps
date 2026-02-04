@@ -15,7 +15,7 @@ import { z } from 'zod';
 import logger from '../config/logger';
 import { pool } from '../db/connection';
 import { asyncHandler } from '../middleware/async-handler';
-import { authenticateJWT } from '../middleware/auth.middleware';
+import { authenticateJWT } from '../middleware/auth';
 import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 import { cache } from '../utils/cache';
 
@@ -214,7 +214,7 @@ router.get('/stats',
   }),
   asyncHandler(async (req: Request, res: Response) => {
     // FIX: tenant_id is UUID, not integer - use proper fallback
-    const tenantId = (req as any).user?.tenantId || '00000000-0000-0000-0000-000000000001';
+    const tenantId = (req as any).user?.tenant_id || (req as any).user?.tenantId || '00000000-0000-0000-0000-000000000001';
     const cacheKey = `dashboard:stats:tenant:${tenantId}`;
 
     logger.info(`Fetching dashboard stats for tenant ${tenantId}`);
@@ -262,7 +262,7 @@ router.get('/stats',
         // Work order stats - using index idx_work_orders_tenant_status
         pool.query(`
           SELECT
-            COUNT(*) FILTER (WHERE status IN ('open', 'pending'))::integer as open,
+            COUNT(*) FILTER (WHERE status IN ('open', 'pending', 'on_hold'))::integer as open,
             COUNT(*) FILTER (WHERE status = 'in_progress')::integer as in_progress
           FROM work_orders
           WHERE tenant_id = $1::uuid
@@ -412,7 +412,7 @@ router.get('/fleet/stats',
     enforceTenantIsolation: true
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenantId || '00000000-0000-0000-0000-000000000001';
+    const tenantId = (req as any).user?.tenant_id || (req as any).user?.tenantId || '00000000-0000-0000-0000-000000000001';
 
     logger.info(`Fetching fleet stats for tenant ${tenantId}`);
 
@@ -483,7 +483,7 @@ router.get('/costs/summary',
   // Note: Query validation is handled inline with Zod schema
   asyncHandler(async (req: Request, res: Response) => {
     const { period } = req.query as z.infer<typeof costsSummaryQuerySchema>;
-    const tenantId = (req as any).user?.tenantId || '00000000-0000-0000-0000-000000000001';
+    const tenantId = (req as any).user?.tenant_id || (req as any).user?.tenantId || '00000000-0000-0000-0000-000000000001';
 
     logger.info(`Fetching cost summary for period ${period}, tenant ${tenantId}`);
 

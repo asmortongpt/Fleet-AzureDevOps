@@ -3,6 +3,7 @@
  *
  * Displays 6 key intelligence indicators with high-fidelity micro-interactions.
  * Integrates directly with ArchonY's master design system tokens.
+ * Fetches live data from /api/dashboard/stats.
  */
 import {
   Truck,
@@ -12,7 +13,7 @@ import {
   Gauge,
   Users,
 } from 'lucide-react'
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePanel } from '@/contexts/PanelContext'
 import { cn } from '@/lib/utils'
@@ -26,59 +27,100 @@ interface KPIChip {
   glowColor: string
 }
 
-const defaultKPIs: KPIChip[] = [
-  {
-    label: 'Vehicles',
-    value: '847',
-    icon: <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
-    moduleId: 'fleet',
-    color: '#41B2E3',
-    glowColor: 'rgba(65,178,227,0.3)',
-  },
-  {
-    label: 'Online',
-    value: '623',
-    icon: <Activity className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
-    moduleId: 'live-fleet-dashboard',
-    color: '#10B981',
-    glowColor: 'rgba(16,185,129,0.3)',
-  },
-  {
-    label: 'In Service',
-    value: '47',
-    icon: <Wrench className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
-    moduleId: 'garage',
-    color: '#F0A000',
-    glowColor: 'rgba(240,160,0,0.3)',
-  },
-  {
-    label: 'Incidents',
-    value: '12',
-    icon: <AlertTriangle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
-    moduleId: 'safety-alerts',
-    color: '#DD3903',
-    glowColor: 'rgba(221,57,3,0.3)',
-  },
-  {
-    label: 'Capacity',
-    value: '87%',
-    icon: <Gauge className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
-    moduleId: 'fleet-optimizer',
-    color: '#A855F7',
-    glowColor: 'rgba(168,85,247,0.3)',
-  },
-  {
-    label: 'Personnel',
-    value: '412',
-    icon: <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
-    moduleId: 'driver-mgmt',
-    color: '#38BDF8',
-    glowColor: 'rgba(56,189,248,0.3)',
-  },
-]
+function buildKPIs(stats: {
+  total_vehicles?: number
+  active_vehicles?: number
+  maintenance_vehicles?: number
+  total_drivers?: number
+  open_work_orders?: number
+}): KPIChip[] {
+  const total = stats.total_vehicles ?? 0
+  const active = stats.active_vehicles ?? 0
+  const maint = stats.maintenance_vehicles ?? 0
+  const drivers = stats.total_drivers ?? 0
+  const alerts = stats.open_work_orders ?? 0
+  const capacity = total > 0 ? Math.round((active / total) * 100) : 0
+
+  return [
+    {
+      label: 'Vehicles',
+      value: total,
+      icon: <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
+      moduleId: 'fleet',
+      color: '#41B2E3',
+      glowColor: 'rgba(65,178,227,0.3)',
+    },
+    {
+      label: 'Online',
+      value: active,
+      icon: <Activity className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
+      moduleId: 'live-fleet-dashboard',
+      color: '#10B981',
+      glowColor: 'rgba(16,185,129,0.3)',
+    },
+    {
+      label: 'In Service',
+      value: maint,
+      icon: <Wrench className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
+      moduleId: 'garage',
+      color: '#F0A000',
+      glowColor: 'rgba(240,160,0,0.3)',
+    },
+    {
+      label: 'Work Orders',
+      value: alerts,
+      icon: <AlertTriangle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
+      moduleId: 'safety-alerts',
+      color: '#DD3903',
+      glowColor: 'rgba(221,57,3,0.3)',
+    },
+    {
+      label: 'Capacity',
+      value: `${capacity}%`,
+      icon: <Gauge className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
+      moduleId: 'fleet-optimizer',
+      color: '#A855F7',
+      glowColor: 'rgba(168,85,247,0.3)',
+    },
+    {
+      label: 'Personnel',
+      value: drivers,
+      icon: <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
+      moduleId: 'driver-mgmt',
+      color: '#38BDF8',
+      glowColor: 'rgba(56,189,248,0.3)',
+    },
+  ]
+}
 
 export function FloatingKPIStrip() {
   const { openPanel, isOpen } = usePanel()
+  const [kpis, setKpis] = useState<KPIChip[]>(() => buildKPIs({}))
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/dashboard/stats', { credentials: 'include' })
+        if (!res.ok) return
+        const json = await res.json()
+        const data = json.data ?? json
+        if (!cancelled) {
+          setKpis(buildKPIs(data))
+        }
+      } catch {
+        // keep defaults on error
+      }
+    }
+
+    fetchStats()
+    const interval = setInterval(fetchStats, 60_000)
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
+  }, [])
 
   const handleChipClick = useCallback(
     (kpi: KPIChip) => {
@@ -101,7 +143,7 @@ export function FloatingKPIStrip() {
     <div className="absolute top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 z-10 pointer-events-none">
       <div className="flex items-center gap-2 sm:gap-3 flex-nowrap sm:flex-wrap overflow-x-auto scrollbar-none pointer-events-auto">
         <AnimatePresence mode="popLayout">
-          {!isOpen && defaultKPIs.map((kpi, index) => (
+          {!isOpen && kpis.map((kpi, index) => (
             <motion.button
               key={kpi.label}
               initial={{ opacity: 0, scale: 0.9, y: -20 }}

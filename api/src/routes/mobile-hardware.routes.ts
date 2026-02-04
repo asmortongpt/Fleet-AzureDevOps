@@ -19,6 +19,7 @@ import { auditLog } from '../middleware/audit'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { setTenantContext } from '../middleware/tenant-context'
 import { getErrorMessage } from '../utils/error-handler'
 
 
@@ -26,6 +27,7 @@ const router = express.Router()
 
 // Apply authentication to all routes
 router.use(authenticateJWT)
+router.use(setTenantContext)
 
 /**
  * ============================================================================
@@ -68,30 +70,49 @@ const PartScanSchema = z.object({
 router.post('/parts/scan', requirePermission('inventory:view:global'), async (req: Request, res: Response) => {
   try {
     const validated = PartScanSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = (req as any).user?.tenant_id
+    const client = (req as any).dbClient
 
-    // Part lookup: Uses mock data - integrate with inventory DB in production
-    // This is a mock implementation
-    const part = {
-      partNumber: validated.barcode,
-      description: 'Sample Part Description',
-      manufacturer: 'OEM',
-      price: 49.99,
-      inStock: true,
-      quantity: 15,
-      location: 'Shelf A-12',
-      imageUrl: 'https://example.com/part-image.jpg'
+    if (!tenantId || !client) {
+      return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
     }
 
-    // Check if part exists (mock)
-    if (validated.barcode.includes('NOTFOUND')) {
-      return res.status(404).json({
-        error: 'Part not found',
-        barcode: validated.barcode
-      })
+    const result = await client.query(
+      `SELECT
+        id,
+        part_number,
+        name,
+        description,
+        manufacturer,
+        unit_cost,
+        quantity_on_hand,
+        location_in_warehouse,
+        metadata
+       FROM parts_inventory
+       WHERE tenant_id = $1 AND part_number = $2 AND is_active = true
+       LIMIT 1`,
+      [tenantId, validated.barcode]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Part not found', barcode: validated.barcode })
     }
 
-    res.json({ part })
+    const row = result.rows[0]
+    res.json({
+      part: {
+        id: row.id,
+        partNumber: row.part_number,
+        name: row.name,
+        description: row.description,
+        manufacturer: row.manufacturer,
+        price: row.unit_cost ? Number(row.unit_cost) : null,
+        inStock: Number(row.quantity_on_hand ?? 0) > 0,
+        quantity: Number(row.quantity_on_hand ?? 0),
+        location: row.location_in_warehouse,
+        imageUrl: row.metadata?.image_url ?? null,
+      }
+    })
   } catch (error: any) {
     logger.error('Error scanning part:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
@@ -131,31 +152,47 @@ router.get('/parts/search', requirePermission('inventory:view:global'), async (r
       throw new ValidationError("Search query required")
     }
 
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = (req as any).user?.tenant_id
+    const client = (req as any).dbClient
 
-    // Part search: Mock implementation - add full-text search in production
-    const parts = [
-      {
-        partNumber: 'BRK-12345',
-        description: 'Brake Pad Set - Front',
-        manufacturer: 'Bosch',
-        price: 89.99,
-        inStock: true,
-        quantity: 8,
-        location: 'Shelf B-4'
-      },
-      {
-        partNumber: 'FLT-98765',
-        description: 'Oil Filter',
-        manufacturer: 'Mann',
-        price: 12.99,
-        inStock: true,
-        quantity: 24,
-        location: 'Shelf C-1'
-      }
-    ]
+    if (!tenantId || !client) {
+      return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
+    }
 
-    res.json({ parts })
+    const q = `%${query}%`
+    const result = await client.query(
+      `SELECT
+        id,
+        part_number,
+        name,
+        description,
+        manufacturer,
+        unit_cost,
+        quantity_on_hand,
+        location_in_warehouse,
+        metadata
+       FROM parts_inventory
+       WHERE tenant_id = $1 AND is_active = true
+         AND (part_number ILIKE $2 OR name ILIKE $2 OR description ILIKE $2)
+       ORDER BY name ASC
+       LIMIT 25`,
+      [tenantId, q]
+    )
+
+    const parts = result.rows.map((row: any) => ({
+      id: row.id,
+      partNumber: row.part_number,
+      name: row.name,
+      description: row.description,
+      manufacturer: row.manufacturer,
+      price: row.unit_cost ? Number(row.unit_cost) : null,
+      inStock: Number(row.quantity_on_hand ?? 0) > 0,
+      quantity: Number(row.quantity_on_hand ?? 0),
+      location: row.location_in_warehouse,
+      imageUrl: row.metadata?.image_url ?? null,
+    }))
+
+    res.json({ parts, total: parts.length })
   } catch (error: any) {
     logger.error('Error searching parts:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
@@ -168,6 +205,7 @@ router.get('/parts/search', requirePermission('inventory:view:global'), async (r
 const PartOrderSchema = z.object({
   partNumber: z.string().min(1),
   quantity: z.number().int().positive(),
+  vendorId: z.string().optional(),
   workOrderId: z.string().optional(),
   vehicleId: z.string().optional(),
   notes: z.string().optional()
@@ -202,24 +240,79 @@ const PartOrderSchema = z.object({
  *       201:
  *         description: Part ordered successfully
  */
-router.post(`/parts/order`, requirePermission(`inventory:create:global`), auditLog, async (req: Request, res: Response) => {
+router.post(
+  `/parts/order`,
+  requirePermission(`inventory:create:global`),
+  csrfProtection,
+  auditLog({ action: 'CREATE', resourceType: 'purchase_orders' }),
+  async (req: Request, res: Response) => {
   try {
     const validated = PartOrderSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = (req as any).user?.tenant_id
+    const userId = (req as any).user?.id
+    const client = (req as any).dbClient
 
-    // Part ordering: Stub - integrate with procurement system
-    const order = {
-      orderId: `ORD-${Date.now()}`,
-      partNumber: validated.partNumber,
-      quantity: validated.quantity,
-      status: 'pending',
-      orderedBy: userId,
-      orderedAt: new Date().toISOString(),
-      estimatedDelivery: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
+    if (!tenantId || !userId || !client) {
+      return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
     }
 
-    res.status(201).json(order)
+    // Lookup part in inventory
+    const partResult = await client.query(
+      `SELECT id, part_number, name, unit_cost, metadata
+       FROM parts_inventory
+       WHERE tenant_id = $1 AND part_number = $2 AND is_active = true
+       LIMIT 1`,
+      [tenantId, validated.partNumber]
+    )
+
+    if (partResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Part not found', partNumber: validated.partNumber })
+    }
+
+    const part = partResult.rows[0]
+    const unitCost = part.unit_cost ? Number(part.unit_cost) : null
+    if (unitCost === null) {
+      return res.status(400).json({ error: 'Part unit cost is missing; cannot create purchase order.', partNumber: validated.partNumber })
+    }
+
+    const vendorId = validated.vendorId ?? part.metadata?.vendor_id ?? null
+    if (!vendorId) {
+      return res.status(400).json({
+        error: 'vendorId is required (or configure parts_inventory.metadata.vendor_id for this part)',
+        partNumber: validated.partNumber
+      })
+    }
+
+    const orderDate = new Date().toISOString().slice(0, 10)
+    const number = `PO-${Date.now()}`
+    const subtotal = unitCost * validated.quantity
+    const totalAmount = subtotal
+
+    const lineItems = [
+      {
+        partId: part.id,
+        partNumber: part.part_number,
+        name: part.name,
+        quantity: validated.quantity,
+        unitCost,
+        total: subtotal,
+        workOrderId: validated.workOrderId ?? null,
+        vehicleId: validated.vehicleId ?? null,
+        notes: validated.notes ?? null,
+      }
+    ]
+
+    const poResult = await client.query(
+      `INSERT INTO purchase_orders (
+        tenant_id, number, vendor_id, order_date,
+        subtotal, tax_amount, shipping_cost, total_amount,
+        notes, line_items, requested_by_id
+      ) VALUES ($1, $2, $3, $4, $5, 0, 0, $6, $7, $8, $9)
+      RETURNING id, number, status, total_amount as \"totalAmount\"`,
+      [tenantId, number, vendorId, orderDate, subtotal, totalAmount, validated.notes ?? null, JSON.stringify(lineItems), userId]
+    )
+
+    res.status(201).json({ data: poResult.rows[0] })
   } catch (error: any) {
     logger.error('Error ordering part:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
