@@ -3,7 +3,7 @@
  *
  * Simple, clean design focused on Microsoft SSO with optional email fallback
  */
-import { useMutation } from '@tantml:query'
+import { useMutation } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AlertCircle, Lock, Mail, ArrowRight } from 'lucide-react'
