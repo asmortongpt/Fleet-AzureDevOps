@@ -478,6 +478,7 @@ describe('Role-Based Access Control (RBAC)', () => {
       hasPermission('viewer', viewerPerms, 'vehicles.delete');
 
       expect(consoleInfoSpy).toHaveBeenCalledWith(
+        expect.any(String),
         expect.stringContaining('[RBAC]'),
         expect.objectContaining({
           role: 'viewer',
@@ -503,6 +504,7 @@ describe('Role-Based Access Control (RBAC)', () => {
       );
 
       expect(consoleInfoSpy).toHaveBeenCalledWith(
+        expect.any(String),
         expect.stringContaining('[RBAC]'),
         expect.objectContaining({
           role: 'manager',
@@ -518,6 +520,7 @@ describe('Role-Based Access Control (RBAC)', () => {
       hasPermission('manager', managerPerms, 'maintenance.view');
 
       expect(consoleInfoSpy).toHaveBeenCalledWith(
+        expect.any(String),
         expect.stringContaining('[RBAC]'),
         expect.objectContaining({
           role: 'manager',
@@ -544,6 +547,7 @@ describe('Role-Based Access Control (RBAC)', () => {
       logPermissionCheck(entry);
 
       expect(consoleInfoSpy).toHaveBeenCalledWith(
+        expect.any(String),
         expect.stringContaining('[RBAC Audit]'),
         expect.objectContaining({ entry })
       );

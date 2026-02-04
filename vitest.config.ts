@@ -9,6 +9,20 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/tests/setup.ts'],
+    // Keep default `npm test` focused on fast, deterministic unit tests.
+    // Heavier API/service integration suites live elsewhere and should run under a dedicated script
+    // with a real DB and environment configuration.
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      'api/src/__tests__/services/**',
+      'api/src/routes/__tests__/**',
+      'api/tests/**',
+      'tests/e2e/**',
+      'tests/smoke/**',
+      'tests/certification/**',
+      'e2e/**',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],

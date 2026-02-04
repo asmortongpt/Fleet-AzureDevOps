@@ -171,7 +171,13 @@ export function sanitizeURL(url: string, allowedSchemes: string[] = DEFAULT_ALLO
       return '';
     }
 
-    return parsed.toString();
+    // URL#toString() normalizes bare origins to include a trailing "/".
+    // For consistency (and to avoid surprising UI diffs), strip it for origin-only URLs.
+    const normalized = parsed.toString();
+    if (parsed.pathname === '/' && !parsed.search && !parsed.hash) {
+      return normalized.replace(/\/$/, '');
+    }
+    return normalized;
   } catch {
     // Invalid URL
     return '';
@@ -184,7 +190,9 @@ export function sanitizeURL(url: string, allowedSchemes: string[] = DEFAULT_ALLO
 export function sanitizeEmail(email: string): string {
   if (!email) return '';
 
-  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+  // Require at least one dot in the domain part (e.g. example.com).
+  // This intentionally rejects single-label domains like "user@localhost".
+  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
 
   const sanitized = email.trim().toLowerCase();
 
@@ -228,9 +236,11 @@ export function sanitizeJSON(json: string): string {
   if (!json) return '';
 
   try {
-    // Parse and re-stringify to ensure valid JSON
-    const parsed = JSON.parse(json);
-    return JSON.stringify(parsed);
+    // Validate JSON without changing formatting (avoid surprising diffs in UI/exports).
+    // We still require that the payload parses cleanly.
+    const trimmed = json.trim();
+    JSON.parse(trimmed);
+    return trimmed;
   } catch {
     return '';
   }
@@ -294,7 +304,15 @@ export function sanitizeRegExp(pattern: string, flags?: string): RegExp | null {
       return null;
     }
 
-    // Disallow nested quantifiers
+    // Disallow nested quantifiers (common catastrophic backtracking patterns)
+    // Examples: (a+)+, (.*)+, (\\w{1,10}){2,}
+    const quant = '(?:\\*|\\+|\\?|\\{\\d+(?:,\\d*)?\\})';
+    const nestedQuantifier = new RegExp(`\\((?:[^\\\\)]|\\\\.)*${quant}(?:[^\\\\)]|\\\\.)*\\)\\s*${quant}`);
+    if (nestedQuantifier.test(pattern)) {
+      return null;
+    }
+
+    // Disallow consecutive quantifiers (e.g., a++ or a**)
     if (/[*+?{]\s*[*+?{]/.test(pattern)) {
       return null;
     }
@@ -309,9 +327,14 @@ export function sanitizeRegExp(pattern: string, flags?: string): RegExp | null {
  * Escape HTML entities
  */
 export function escapeHTML(text: string): string {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
+  // Escape a broader set of characters than the browser's default text-node escaping.
+  // This keeps behavior predictable across contexts (attributes, text nodes, logs).
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 /**
