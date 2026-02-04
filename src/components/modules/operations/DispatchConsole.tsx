@@ -40,8 +40,17 @@ import { useAudioVisualization, useFrequencyBars } from '@/hooks/useAudioVisuali
 import { useAuth } from '@/hooks/useAuth';
 import { useDispatchSocket } from '@/hooks/useDispatchSocket';
 import { usePTT } from '@/hooks/usePTT';
-import type { RadioChannel } from '@/types/radio';
 import logger from '@/utils/logger';
+
+type DispatchChannel = {
+  id: string
+  name: string
+  description?: string | null
+  channel_type: string
+  is_active: boolean
+  priority_level: number
+  color_code?: string | null
+}
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -61,7 +70,7 @@ function TabPanel(props: TabPanelProps) {
 export default function DispatchConsole() {
   const { hasPermission } = useAuth();
   const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
-  const [channels, setChannels] = useState<RadioChannel[]>([]);
+  const [channels, setChannels] = useState<DispatchChannel[]>([]);
   const [isMuted, setIsMuted] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const [analyserNode, setAnalyserNode] = useState<AnalyserNode | null>(null);
@@ -110,13 +119,9 @@ export default function DispatchConsole() {
 
   // Load channels
   useEffect(() => {
-    const loadChannels = async () => {
+        const loadChannels = async () => {
       try {
-        const response = await fetch('/api/dispatch/channels', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        });
+        const response = await fetch('/api/dispatch/channels', { credentials: 'include' });
         const data = await response.json();
         if (data.success) {
           setChannels(data.channels);
@@ -238,7 +243,7 @@ export default function DispatchConsole() {
                     }}
                   >
                     <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: channel.status === 'ACTIVE' ? 'success.main' : 'grey.500' }}>
+                      <Avatar sx={{ bgcolor: channel.is_active ? 'success.main' : 'grey.500' }}>
                         <RadioIcon />
                       </Avatar>
                     </ListItemAvatar>
@@ -246,8 +251,7 @@ export default function DispatchConsole() {
                       primary={channel.name}
                       secondary={
                         <>
-                          {channel.frequency && <>{channel.frequency} • </>}
-                          {channel.status}
+                          {channel.channel_type}
                         </>
                       }
                     />

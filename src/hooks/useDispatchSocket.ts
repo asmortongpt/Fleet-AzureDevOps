@@ -68,12 +68,10 @@ export function useDispatchSocket(options: UseDispatchSocketOptions = {}) {
 
     const socket = io(SOCKET_URL, {
       transports: ['websocket', 'polling'],
+      withCredentials: true,
       reconnection: true,
       reconnectionDelay: 1000 * Math.pow(2, reconnectAttemptsRef.current),
       reconnectionAttempts: maxReconnectAttempts,
-      auth: {
-        token: localStorage.getItem('token')
-      }
     });
 
     socket.on('connect', () => {
