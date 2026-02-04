@@ -17,14 +17,16 @@ import { Pool } from 'pg';
 dotenv.config();
 
 // Database connection configuration
-const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  database: process.env.DB_NAME || 'fleet_management',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD,
-  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-});
+const pool = process.env.DATABASE_URL
+  ? new Pool({ connectionString: process.env.DATABASE_URL })
+  : new Pool({
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432'),
+    database: process.env.DB_NAME || 'fleet_management',
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD,
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  });
 
 interface MigrationRecord {
   id: number;
@@ -77,11 +79,31 @@ function getMigrationFiles(): string[] {
     process.exit(1);
   }
 
-  const files = fs.readdirSync(migrationsDir)
-    .filter(f => f.endsWith(`.sql`))
+  const includeSeeds = process.env.MIGRATIONS_INCLUDE_SEEDS === 'true';
+  const includeDemo = process.env.MIGRATIONS_INCLUDE_DEMO === 'true';
+  const includeUnversioned = process.env.MIGRATIONS_INCLUDE_UNVERSIONED === 'true';
+
+  const files = fs.readdirSync(migrationsDir, { withFileTypes: true })
+    .filter((ent) => ent.isFile())
+    .map((ent) => ent.name)
+    .filter((f) => f.endsWith('.sql'))
+    // By default we only run "versioned" migrations (filename starts with a digit).
+    // This prevents accidentally running ad-hoc scripts like `create_audit_tables.sql`
+    // or seed/demo scripts in production environments.
+    .filter((f) => includeUnversioned ? true : /^[0-9]/.test(f))
+    .filter((f) => includeSeeds ? true : !/seed/i.test(f))
+    .filter((f) => includeDemo ? true : !/demo/i.test(f))
+    .filter((f) => !/\.skip$/i.test(f))
     .sort(); // Sort alphabetically to run in order
 
   return files;
+}
+
+function getAllowlist(): Set<string> | null {
+  const raw = process.env.MIGRATIONS_ALLOWLIST;
+  if (!raw) return null;
+  const items = raw.split(',').map((s) => s.trim()).filter(Boolean);
+  return new Set(items);
 }
 
 /**
@@ -144,13 +166,27 @@ async function runMigrations(): Promise<void> {
     console.log(`📁 Found ${migrationFiles.length} total migration files\n`);
 
     // Filter to only pending migrations
-    const pendingMigrations = migrationFiles.filter(
-      file => !appliedMigrations.has(file)
-    );
+    const allowlist = getAllowlist();
+    const pendingMigrations = migrationFiles.filter((file) => {
+      if (appliedMigrations.has(file)) return false;
+      if (allowlist) return allowlist.has(file);
+      return true;
+    });
 
     if (pendingMigrations.length === 0) {
       console.log(`✅ No pending migrations. Database is up to date!\n`);
       return;
+    }
+
+    // Guardrail: this repo contains many SQL files, including bootstrap and data scripts.
+    // Refuse to apply a large backlog unless explicitly opted-in.
+    const bootstrapOk = process.env.MIGRATIONS_BOOTSTRAP === 'true';
+    if (!allowlist && pendingMigrations.length > 20 && !bootstrapOk) {
+      console.error(
+        `\n❌ Refusing to run ${pendingMigrations.length} pending migrations without explicit opt-in.\n` +
+        `Set MIGRATIONS_BOOTSTRAP=true to run the full backlog, or set MIGRATIONS_ALLOWLIST="file1.sql,file2.sql" to run specific migrations.\n`
+      );
+      process.exit(1);
     }
 
     console.log(`⏳ Running ${pendingMigrations.length} pending migrations...\n`);
