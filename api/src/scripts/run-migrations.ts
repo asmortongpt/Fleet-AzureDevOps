@@ -106,6 +106,13 @@ function getAllowlist(): Set<string> | null {
   return new Set(items);
 }
 
+function getSkiplist(): Set<string> | null {
+  const raw = process.env.MIGRATIONS_SKIP;
+  if (!raw) return null;
+  const items = raw.split(',').map((s) => s.trim()).filter(Boolean);
+  return new Set(items);
+}
+
 /**
  * Run a single migration file
  */
@@ -167,8 +174,10 @@ async function runMigrations(): Promise<void> {
 
     // Filter to only pending migrations
     const allowlist = getAllowlist();
+    const skiplist = getSkiplist();
     const pendingMigrations = migrationFiles.filter((file) => {
       if (appliedMigrations.has(file)) return false;
+      if (skiplist?.has(file)) return false;
       if (allowlist) return allowlist.has(file);
       return true;
     });
@@ -176,6 +185,10 @@ async function runMigrations(): Promise<void> {
     if (pendingMigrations.length === 0) {
       console.log(`✅ No pending migrations. Database is up to date!\n`);
       return;
+    }
+
+    if (skiplist && skiplist.size > 0) {
+      console.log(`⏭️  Skipping ${skiplist.size} migrations via MIGRATIONS_SKIP\n`);
     }
 
     // Guardrail: this repo contains many SQL files, including bootstrap and data scripts.

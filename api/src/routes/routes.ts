@@ -379,27 +379,92 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await req.dbClient!.query(
-        `SELECT
-          AVG(ARRAY_LENGTH(CAST(waypoints::text AS json)::json, 1)) as avg_stops,
-          AVG(total_distance) as avg_miles,
-          AVG(actual_duration / NULLIF(ARRAY_LENGTH(CAST(waypoints::text AS json)::json, 1), 0)) as avg_time_per_stop
-        FROM routes WHERE tenant_id = $1 AND status = 'completed'`,
-        [req.user!.tenant_id]
+      const client = req.dbClient!
+      const tenantId = req.user!.tenant_id
+
+      const result = await client.query(
+        `
+        WITH scoped AS (
+          SELECT
+            COALESCE(jsonb_array_length(COALESCE(waypoints, '[]'::jsonb)), 0) AS stops,
+            COALESCE(actual_distance, estimated_distance, 0) AS miles,
+            actual_duration AS duration,
+            status
+          FROM routes
+          WHERE tenant_id = $1
+            AND created_at >= NOW() - INTERVAL '30 days'
+        )
+        SELECT
+          AVG(stops)::numeric AS avg_stops,
+          AVG(miles)::numeric AS avg_miles,
+          AVG(duration::numeric / NULLIF(stops, 0)) AS avg_time_per_stop,
+          (COUNT(*) FILTER (WHERE status = 'completed')::numeric / NULLIF(COUNT(*)::numeric, 0)) * 100 AS utilization_rate
+        FROM scoped
+        `,
+        [tenantId]
       )
 
-      const row = result.rows[0]
+      const row = result.rows[0] || {}
 
       res.json({
         data: {
-          averageStopsPerRoute: parseFloat(row.avg_stops) || 0,
-          averageMilesPerRoute: parseFloat(row.avg_miles) || 0,
-          averageTimePerStop: parseFloat(row.avg_time_per_stop) || 0,
-          utilizationRate: 85 // Placeholder
+          averageStopsPerRoute: Number(row.avg_stops) || 0,
+          averageMilesPerRoute: Number(row.avg_miles) || 0,
+          averageTimePerStop: Number(row.avg_time_per_stop) || 0,
+          utilizationRate: Number(row.utilization_rate) || 0
         }
       })
     } catch (error) {
       logger.error('Efficiency analytics error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// GET /routes/efficiency (legacy alias; MUST be before /:id)
+router.get(
+  '/efficiency',
+  requirePermission('route:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'routes' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const client = req.dbClient!
+      const tenantId = req.user!.tenant_id
+
+      const result = await client.query(
+        `
+        WITH scoped AS (
+          SELECT
+            COALESCE(jsonb_array_length(COALESCE(waypoints, '[]'::jsonb)), 0) AS stops,
+            COALESCE(actual_distance, estimated_distance, 0) AS miles,
+            actual_duration AS duration,
+            status
+          FROM routes
+          WHERE tenant_id = $1
+            AND created_at >= NOW() - INTERVAL '30 days'
+        )
+        SELECT
+          AVG(stops)::numeric AS avg_stops,
+          AVG(miles)::numeric AS avg_miles,
+          AVG(duration::numeric / NULLIF(stops, 0)) AS avg_time_per_stop,
+          (COUNT(*) FILTER (WHERE status = 'completed')::numeric / NULLIF(COUNT(*)::numeric, 0)) * 100 AS utilization_rate
+        FROM scoped
+        `,
+        [tenantId]
+      )
+
+      const row = result.rows[0] || {}
+
+      res.json({
+        data: {
+          averageStopsPerRoute: Number(row.avg_stops) || 0,
+          averageMilesPerRoute: Number(row.avg_miles) || 0,
+          averageTimePerStop: Number(row.avg_time_per_stop) || 0,
+          utilizationRate: Number(row.utilization_rate) || 0
+        }
+      })
+    } catch (error) {
+      logger.error('Efficiency analytics error (alias):', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

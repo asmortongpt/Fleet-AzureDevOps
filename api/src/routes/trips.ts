@@ -8,11 +8,13 @@ import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { setTenantContext } from '../middleware/tenant-context'
 
 const router = express.Router()
 
 router.use(helmet())
 router.use(authenticateJWT)
+router.use(setTenantContext)
 router.use(rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 100, // limit each IP to 100 requests per windowMs
@@ -288,6 +290,64 @@ router.get(
     } catch (error) {
       logger.error('Get trips error:', error)
       res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// GET /trips/my-personal - Recent personal or mixed-use trips for the current user
+// MUST be before /:id
+router.get(
+  '/my-personal',
+  requirePermission('trip:view:own'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const limit = Math.min(Math.max(Number(req.query.limit || 10), 1), 100)
+      const tenantId = req.user!.tenant_id
+      const userId = req.user!.id
+      const client = (req as any).dbClient
+
+      if (!client) {
+        return res.status(500).json({ error: 'Tenant context not initialized' })
+      }
+
+      const policyRes = await client.query(
+        `SELECT personal_use_rate
+         FROM personal_use_policies
+         WHERE tenant_id = $1 AND is_active = true
+         ORDER BY effective_date DESC NULLS LAST, created_at DESC
+         LIMIT 1`,
+        [tenantId]
+      )
+      const rate = Number(policyRes.rows[0]?.personal_use_rate) || 0
+
+      const tripsRes = await client.query(
+        `
+        SELECT
+          t.id,
+          t.trip_date,
+          COALESCE(t.miles_personal, 0) AS miles_personal,
+          COALESCE(t.miles_total, 0) AS miles_total,
+          t.usage_type,
+          t.approval_status,
+          ROUND((COALESCE(t.miles_personal, 0) * $2)::numeric, 2) AS estimated_charge,
+          v.make,
+          v.model,
+          v.license_plate
+        FROM trip_usage_classification t
+        LEFT JOIN vehicles v ON t.vehicle_id = v.id
+        WHERE t.tenant_id = $1
+          AND t.driver_id = $3
+          AND t.usage_type IN ('personal', 'mixed')
+        ORDER BY t.trip_date DESC, t.created_at DESC
+        LIMIT $4
+        `,
+        [tenantId, rate, userId, limit]
+      )
+
+      return res.json(tripsRes.rows)
+    } catch (error) {
+      logger.error('Get my personal trips error:', error)
+      return res.status(500).json({ error: 'Internal server error' })
     }
   }
 )

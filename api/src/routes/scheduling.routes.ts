@@ -363,7 +363,8 @@ router.post('/reservations/:id/reject', csrfProtection, authenticateJWT, async (
  */
 router.get('/maintenance', async (req: Request, res: Response) => {
   try {
-    const { tenantId } = req.user as any
+    const userAny = req.user as any
+    const tenantId = userAny?.tenant_id || userAny?.tenantId
     const { vehicleId, technicianId, serviceBayId, status, startDate, endDate } = req.query
 
     let query = `
@@ -371,7 +372,7 @@ router.get('/maintenance', async (req: Request, res: Response) => {
              at.name as appointment_type, at.color,
              sb.bay_name, sb.bay_number,
              u.first_name || ' ' || u.last_name as technician_name,
-             wo.work_order_number
+             wo.number as work_order_number
       FROM service_bay_schedules sbs
       LEFT JOIN vehicles v ON sbs.vehicle_id = v.id
       LEFT JOIN appointment_types at ON sbs.appointment_type_id = at.id
@@ -609,11 +610,12 @@ router.post('/check-conflicts', csrfProtection, authenticateJWT, async (req: Req
  */
 router.get('/available-vehicles', async (req: Request, res: Response) => {
   try {
-    const { tenantId } = req.user as any
+    const userAny = req.user as any
+    const tenantId = userAny?.tenant_id || userAny?.tenantId
     const { startTime, endTime, vehicleType } = req.query
 
     if (!startTime || !endTime) {
-      throw new ValidationError("startTime and endTime are required")
+      return res.status(400).json({ error: 'startTime and endTime are required' })
     }
 
     const vehicles = await schedulingService.findAvailableVehicles(

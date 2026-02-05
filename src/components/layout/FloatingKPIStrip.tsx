@@ -35,7 +35,8 @@ function buildKPIs(stats: {
   const workOrders = stats.open_work_orders ?? 0
   // Kept for future "Incidents" chip expansion.
   const incidents = stats.open_incidents ?? 0
-  const capacity = total > 0 ? Math.round((active / total) * 100) : 0
+  const capacityPct = total > 0 ? Math.round((active / total) * 100) : 0
+  const capacityLabel = Number.isFinite(capacityPct) ? `${capacityPct}%` : '—'
 
   return [
     {
@@ -72,7 +73,7 @@ function buildKPIs(stats: {
     },
     {
       label: 'Capacity',
-      value: `${capacity}%`,
+      value: capacityLabel,
       icon: <Gauge className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
       moduleId: 'fleet-optimizer',
       color: '#A855F7',

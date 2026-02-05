@@ -25,6 +25,7 @@ import express, { Response } from 'express';
 import { Pool } from 'pg';
 import { z } from 'zod';
 
+import dbPool from '../config/database';
 import logger from '../config/logger';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
@@ -34,8 +35,8 @@ import { getErrorMessage } from '../utils/error-handler';
 const router = express.Router();
 
 // Database pool and service (will be set via setDatabasePool)
-let pool: Pool;
-let reservationsService: ReservationsService;
+let pool: Pool = dbPool as unknown as Pool;
+let reservationsService: ReservationsService | undefined;
 
 export function setDatabasePool(dbPool: Pool) {
   pool = dbPool;
@@ -113,38 +114,75 @@ function getUserContext(req: AuthRequest): UserContext {
  */
 router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
   try {
+    const tenantId = (req.user as any)?.tenant_id || (req.user as any)?.tenantId;
+    if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' });
+
     const {
-      page = '1',
       limit = '50',
       status,
       vehicle_id,
-      user_id,
+      driver_id,
       start_date,
       end_date,
-      purpose,
     } = req.query;
 
-    const userContext = getUserContext(req);
+    const lim = Math.min(Math.max(parseInt(limit as string, 10) || 50, 1), 500);
 
-    const filters = {
-      status: status as string | undefined,
-      vehicle_id: vehicle_id as string | undefined,
-      user_id: user_id as string | undefined,
-      start_date: start_date as string | undefined,
-      end_date: end_date as string | undefined,
-      purpose: purpose as string | undefined,
-    };
+    const where: string[] = ['r.tenant_id = $1'];
+    const params: any[] = [tenantId];
+    let p = 1;
 
-    const options = {
-      page: parseInt(page as string),
-      limit: parseInt(limit as string),
-    };
+    if (status) {
+      params.push(status);
+      where.push(`r.status = $${++p}`);
+    }
+    if (vehicle_id) {
+      params.push(vehicle_id);
+      where.push(`r.vehicle_id = $${++p}`);
+    }
+    if (driver_id) {
+      params.push(driver_id);
+      where.push(`r.driver_id = $${++p}`);
+    }
+    if (start_date) {
+      params.push(start_date);
+      where.push(`r.start_time >= $${++p}`);
+    }
+    if (end_date) {
+      params.push(end_date);
+      where.push(`r.end_time <= $${++p}`);
+    }
 
-    const result = await reservationsService.getReservations(userContext, filters, options);
+    params.push(lim);
+
+    const result = await pool.query(
+      `
+      SELECT
+        r.id,
+        r.vehicle_id,
+        r.driver_id,
+        r.start_time AS start_date,
+        r.end_time AS end_date,
+        r.purpose,
+        r.status,
+        r.created_at,
+        r.updated_at,
+        COALESCE(v.name, v.unit_number) AS vehicle_name,
+        NULLIF(TRIM(CONCAT(COALESCE(d.first_name, ''), ' ', COALESCE(d.last_name, ''))), '') AS driver_name,
+        d.email AS driver_email
+      FROM reservations r
+      LEFT JOIN vehicles v ON r.vehicle_id = v.id
+      LEFT JOIN drivers d ON r.driver_id = d.id
+      WHERE ${where.join(' AND ')}
+      ORDER BY r.start_time DESC NULLS LAST, r.created_at DESC
+      LIMIT $${++p}
+      `,
+      params
+    );
 
     res.json({
-      reservations: result.data,
-      pagination: result.pagination,
+      success: true,
+      reservations: result.rows,
     });
   } catch (error: any) {
     logger.error('Error fetching reservations:', error);

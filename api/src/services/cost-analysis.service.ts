@@ -565,20 +565,20 @@ export class CostAnalysisService {
       driver_name: string | null
       vendor_name: string | null
     }>(
-      `SELECT
-         uc.transaction_date,
-         uc.cost_category,
-         uc.cost_subcategory,
-         uc.amount::text AS amount,
-         uc.description,
-         uc.invoice_number,
-         COALESCE(v.number, v.name) AS vehicle_number,
-         d.name AS driver_name,
-         vn.name AS vendor_name
-       FROM unified_costs uc
-       LEFT JOIN vehicles v ON uc.vehicle_id = v.id
-       LEFT JOIN drivers d ON uc.driver_id = d.id
-       LEFT JOIN vendors vn ON uc.vendor_id = vn.id
+	      `SELECT
+	         uc.transaction_date,
+	         uc.cost_category,
+	         uc.cost_subcategory,
+	         uc.amount::text AS amount,
+	         uc.description,
+	         uc.invoice_number,
+	         COALESCE(v.number, v.name) AS vehicle_number,
+	         NULLIF(TRIM(CONCAT(COALESCE(d.first_name, ''), ' ', COALESCE(d.last_name, ''))), '') AS driver_name,
+	         vn.name AS vendor_name
+	       FROM unified_costs uc
+	       LEFT JOIN vehicles v ON uc.vehicle_id = v.id
+	       LEFT JOIN drivers d ON uc.driver_id = d.id
+	       LEFT JOIN vendors vn ON uc.vendor_id = vn.id
        WHERE uc.tenant_id = $1
        AND uc.transaction_date BETWEEN $2 AND $3
        ORDER BY uc.transaction_date DESC`,

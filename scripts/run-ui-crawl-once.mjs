@@ -88,11 +88,17 @@ async function main() {
   // Ensure DB schema is applied for a working demo (idempotent).
   {
     const migrateEnv = bootstrapDb
-      ? {}
+      ? {
+          MIGRATIONS_BOOTSTRAP: 'true',
+          // Some migrations are "nice to have" but currently not compatible with all DB snapshots.
+          // Skipping them allows bootstrapping the rest of the schema for a working demo.
+          MIGRATIONS_SKIP: '010_add_constraints.sql,011_add_partitioning.sql',
+        }
       : {
           // Fast path for UI crawl runs: apply only the minimum known-critical migration(s).
           // Set BOOTSTRAP_DB=true to apply the full migration backlog.
-          MIGRATIONS_ALLOWLIST: '20260205_costs_unified_view.sql',
+          MIGRATIONS_ALLOWLIST:
+            '20260205_costs_unified_view.sql,20260205_outlook_folders_local.sql,20260205_teams_local.sql,20260205_personal_use_trip_usage.sql',
         }
 
     const migrate = spawnLoggedCwd('migrate', 'npm', ['run', 'migrate'], 'api', migrateEnv)

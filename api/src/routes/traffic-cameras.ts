@@ -99,11 +99,52 @@ router.post('/sources/:id/sync', authenticateJWT, async (req: Request, res: Resp
 // Specific routes before parameterized routes
 router.get('/nearby', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { lat, lng, radius } = req.query;
+    const latRaw = req.query.lat;
+    const lngRaw = req.query.lng;
+    const radiusRaw = req.query.radius;
+
+    if (latRaw == null || lngRaw == null) {
+      return res.status(400).json({ error: 'lat and lng are required' });
+    }
+
+    const lat = Number(latRaw);
+    const lng = Number(lngRaw);
+    const radiusMeters = radiusRaw == null ? 5000 : Number(radiusRaw);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || !Number.isFinite(radiusMeters) || radiusMeters <= 0) {
+      return res.status(400).json({ error: 'lat, lng, and radius must be valid numbers' });
+    }
+
+    // DB snapshot doesn't include PostGIS; use a haversine distance calculation over lat/lng columns.
+    // Adds a bounding-box prefilter for performance.
+    const latDelta = radiusMeters / 111_320; // ~ meters per degree latitude
+    const lngDelta = radiusMeters / (111_320 * Math.cos((lat * Math.PI) / 180) || 1);
+
     const result = await pool.query(
-      'SELECT * FROM traffic_cameras WHERE ST_DWithin(geom::geography, ST_MakePoint($1, $2)::geography, $3)',
-      [lng, lat, radius]
+      `
+      SELECT
+        tc.*,
+        (
+          6371000 * acos(
+            cos(radians($2)) * cos(radians(tc.latitude)) * cos(radians(tc.longitude) - radians($1)) +
+            sin(radians($2)) * sin(radians(tc.latitude))
+          )
+        ) AS distance_meters
+      FROM traffic_cameras tc
+      WHERE tc.latitude BETWEEN ($2 - $4) AND ($2 + $4)
+        AND tc.longitude BETWEEN ($1 - $5) AND ($1 + $5)
+        AND (
+          6371000 * acos(
+            cos(radians($2)) * cos(radians(tc.latitude)) * cos(radians(tc.longitude) - radians($1)) +
+            sin(radians($2)) * sin(radians(tc.latitude))
+          )
+        ) <= $3
+      ORDER BY distance_meters ASC
+      LIMIT 200
+      `,
+      [lng, lat, radiusMeters, latDelta, lngDelta]
     );
+
     res.json(result.rows);
   } catch (err) {
     next(err);

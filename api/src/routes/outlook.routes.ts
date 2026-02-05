@@ -25,6 +25,13 @@ import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 
+function resolveOutlookSource(req: AuthRequest): 'local' | 'graph' {
+  const q = String(req.query.source || '').toLowerCase()
+  const env = String(process.env.OUTLOOK_SOURCE || '').toLowerCase()
+  const source = (q || env || 'local').trim()
+  return source === 'graph' ? 'graph' : 'local'
+}
+
 // ============================================================================
 // Status Endpoint (No Authentication Required)
 // ============================================================================
@@ -123,22 +130,18 @@ router.post(
 // List Emails
 // ============================================================================
 
-router.get(
-  '/messages',
-  authorize('admin', 'fleet_manager', 'dispatcher'),
-  auditLog({ action: 'READ', resourceType: 'outlook_messages' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const useLocal = req.query.source === 'local' || !(
-        process.env.AZURE_AD_CLIENT_ID &&
-        process.env.AZURE_AD_CLIENT_SECRET &&
-        process.env.AZURE_AD_TENANT_ID
-      )
+	router.get(
+	  '/messages',
+	  authorize('admin', 'fleet_manager', 'dispatcher'),
+	  auditLog({ action: 'READ', resourceType: 'outlook_messages' }),
+	  async (req: AuthRequest, res: Response) => {
+	    try {
+	      const useLocal = resolveOutlookSource(req) === 'local'
 
-      if (useLocal) {
-        const { top = '50', skip = '0' } = req.query
-        const limit = parseInt(top as string)
-        const offset = parseInt(skip as string)
+	      if (useLocal) {
+	        const { top = '50', skip = '0' } = req.query
+	        const limit = parseInt(top as string)
+	        const offset = parseInt(skip as string)
 
         const result = await pool.query(
           `SELECT
@@ -217,11 +220,22 @@ router.get(
       })
     }
   }
-)
+	)
 
 // ============================================================================
 // Get Single Email
 // ============================================================================
+
+// Legacy alias: ensure `/messages/search` is handled before the `/messages/:messageId` route.
+// (Otherwise Express treats "search" as a messageId.)
+router.get(
+  '/messages/search',
+  authorize('admin', 'fleet_manager', 'dispatcher'),
+  auditLog({ action: 'READ', resourceType: 'outlook_search' }),
+  async (req: AuthRequest, res: Response) => {
+    await handleSearch(req, res)
+  }
+)
 
 router.get(
   '/messages/:messageId',
@@ -503,17 +517,36 @@ router.post(
 // List Mail Folders
 // ============================================================================
 
-router.get(
-  '/folders',
-  authorize('admin', 'fleet_manager', 'dispatcher'),
-  auditLog({ action: 'READ', resourceType: 'outlook_folders' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const { userId, includeChildFolders } = req.query
+	router.get(
+	  '/folders',
+	  authorize('admin', 'fleet_manager', 'dispatcher'),
+	  auditLog({ action: 'READ', resourceType: 'outlook_folders' }),
+	  async (req: AuthRequest, res: Response) => {
+	    try {
+	      const useLocal = resolveOutlookSource(req) === 'local'
+	      if (useLocal) {
+	        const result = await pool.query(
+	          `SELECT
+	            id,
+	            folder_id,
+	            display_name,
+	            parent_folder_id,
+	            total_item_count,
+	            unread_item_count,
+	            metadata
+	           FROM outlook_folders
+	           WHERE tenant_id = $1
+	           ORDER BY display_name ASC`,
+	          [req.user!.tenant_id]
+	        )
+	        return res.json({ success: true, data: result.rows })
+	      }
 
-      const result = await outlookService.getFolders(
-        userId as string,
-        includeChildFolders === 'true'
+	      const { userId, includeChildFolders } = req.query
+
+	      const result = await outlookService.getFolders(
+	        userId as string,
+	        includeChildFolders === 'true'
       )
 
       res.json({
@@ -656,6 +689,40 @@ async function handleSearch(req: AuthRequest, res: Response) {
       return res.status(400).json({
         success: false,
         error: 'Query parameter is required'
+      })
+    }
+
+    const useLocal = resolveOutlookSource(req) === 'local'
+    if (useLocal) {
+      const limit = parseInt(top as string)
+      const offset = parseInt(skip as string)
+      const q = `%${String(query)}%`
+      const result = await pool.query(
+        `SELECT
+          id,
+          message_id,
+          subject,
+          from_email,
+          from_name,
+          to_emails,
+          body_preview,
+          sent_at,
+          received_at,
+          is_read,
+          is_flagged,
+          importance,
+          metadata
+         FROM outlook_messages
+         WHERE tenant_id = $1
+           AND (subject ILIKE $2 OR body_preview ILIKE $2 OR from_email ILIKE $2 OR from_name ILIKE $2)
+         ORDER BY received_at DESC NULLS LAST, created_at DESC
+         LIMIT $3 OFFSET $4`,
+        [req.user!.tenant_id, q, limit, offset]
+      )
+      return res.json({
+        success: true,
+        data: result.rows,
+        pagination: { count: result.rows.length, total: result.rows.length, hasMore: false, nextLink: null }
       })
     }
 

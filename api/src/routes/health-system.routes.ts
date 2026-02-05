@@ -292,9 +292,9 @@ router.get('/',
     health.status = 'degraded'
   }
 
-  // Set appropriate HTTP status code
-  const statusCode = health.status === 'healthy' ? 200 :
-    health.status === 'degraded' ? 200 : 503
+  // Keep this endpoint "reporting-only": always return 200 with a rich payload.
+  // Use `/ready` (readiness) and `/simple` (LB) for 503 semantics.
+  const statusCode = 200
 
   // Track health check in telemetry
   const duration = Date.now() - startTime

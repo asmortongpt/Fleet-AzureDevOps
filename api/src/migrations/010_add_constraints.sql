@@ -60,29 +60,54 @@ ADD CONSTRAINT chk_gps_tracks_longitude_valid
 CHECK (longitude >= -180 AND longitude <= 180);
 
 -- Telemetry Data table
-ALTER TABLE telemetry_data
-ADD CONSTRAINT chk_telemetry_rpm_valid
-CHECK (engine_rpm IS NULL OR engine_rpm >= 0);
+DO $do$
+BEGIN
+  -- This repo has multiple telemetry schemas across migrations; only add constraints when the
+  -- target table/columns exist (otherwise this migration blocks DB bootstrap).
+  IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'telemetry_data') THEN
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'telemetry_data' AND column_name = 'engine_rpm')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_telemetry_rpm_valid') THEN
+      ALTER TABLE telemetry_data
+        ADD CONSTRAINT chk_telemetry_rpm_valid
+        CHECK (engine_rpm IS NULL OR engine_rpm >= 0);
+    END IF;
 
-ALTER TABLE telemetry_data
-ADD CONSTRAINT chk_telemetry_temp_valid
-CHECK (engine_temperature IS NULL OR engine_temperature >= -50);
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'telemetry_data' AND column_name = 'engine_temperature')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_telemetry_temp_valid') THEN
+      ALTER TABLE telemetry_data
+        ADD CONSTRAINT chk_telemetry_temp_valid
+        CHECK (engine_temperature IS NULL OR engine_temperature >= -50);
+    END IF;
 
-ALTER TABLE telemetry_data
-ADD CONSTRAINT chk_telemetry_speed_valid
-CHECK (vehicle_speed IS NULL OR vehicle_speed >= 0);
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'telemetry_data' AND column_name = 'vehicle_speed')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_telemetry_speed_valid') THEN
+      ALTER TABLE telemetry_data
+        ADD CONSTRAINT chk_telemetry_speed_valid
+        CHECK (vehicle_speed IS NULL OR vehicle_speed >= 0);
+    END IF;
 
-ALTER TABLE telemetry_data
-ADD CONSTRAINT chk_telemetry_throttle_valid
-CHECK (throttle_position IS NULL OR (throttle_position >= 0 AND throttle_position <= 100));
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'telemetry_data' AND column_name = 'throttle_position')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_telemetry_throttle_valid') THEN
+      ALTER TABLE telemetry_data
+        ADD CONSTRAINT chk_telemetry_throttle_valid
+        CHECK (throttle_position IS NULL OR (throttle_position >= 0 AND throttle_position <= 100));
+    END IF;
 
-ALTER TABLE telemetry_data
-ADD CONSTRAINT chk_telemetry_fuel_valid
-CHECK (fuel_level IS NULL OR (fuel_level >= 0 AND fuel_level <= 100));
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'telemetry_data' AND column_name = 'fuel_level')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_telemetry_fuel_valid') THEN
+      ALTER TABLE telemetry_data
+        ADD CONSTRAINT chk_telemetry_fuel_valid
+        CHECK (fuel_level IS NULL OR (fuel_level >= 0 AND fuel_level <= 100));
+    END IF;
 
-ALTER TABLE telemetry_data
-ADD CONSTRAINT chk_telemetry_odometer_positive
-CHECK (odometer IS NULL OR odometer >= 0);
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'telemetry_data' AND column_name = 'odometer')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_telemetry_odometer_positive') THEN
+      ALTER TABLE telemetry_data
+        ADD CONSTRAINT chk_telemetry_odometer_positive
+        CHECK (odometer IS NULL OR odometer >= 0);
+    END IF;
+  END IF;
+END $do$;
 
 -- Assets table
 ALTER TABLE assets
@@ -105,9 +130,22 @@ ALTER TABLE incidents
 ADD CONSTRAINT chk_incident_date_not_future
 CHECK (incident_date <= NOW());
 
-ALTER TABLE inspections
-ADD CONSTRAINT chk_inspection_date_not_future
-CHECK (inspection_date <= NOW());
+DO $do$
+BEGIN
+  IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'inspections') THEN
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'inspections' AND column_name = 'inspection_date')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_inspection_date_not_future') THEN
+      ALTER TABLE inspections
+        ADD CONSTRAINT chk_inspection_date_not_future
+        CHECK (inspection_date <= NOW());
+    ELSIF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'inspections' AND column_name = 'started_at')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_inspection_date_not_future') THEN
+      ALTER TABLE inspections
+        ADD CONSTRAINT chk_inspection_date_not_future
+        CHECK (started_at <= NOW());
+    END IF;
+  END IF;
+END $do$;
 
 ALTER TABLE certifications
 ADD CONSTRAINT chk_certification_issued_not_future
@@ -189,13 +227,39 @@ ALTER TABLE certifications
 ADD CONSTRAINT chk_certification_dates
 CHECK (expiry_date >= issued_date);
 
-ALTER TABLE dispatches
-ADD CONSTRAINT chk_dispatch_times
-CHECK (actual_start_time IS NULL OR actual_start_time >= scheduled_start_time - INTERVAL '1 hour');
+DO $do$
+BEGIN
+  IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'dispatches') THEN
+    -- Prefer the schema in this repo's current DB (dispatched_at/completed_at). Fall back to
+    -- older scheduled/actual naming if present.
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'dispatches' AND column_name = 'actual_start_time')
+      AND EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'dispatches' AND column_name = 'scheduled_start_time')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_dispatch_times') THEN
+      ALTER TABLE dispatches
+        ADD CONSTRAINT chk_dispatch_times
+        CHECK (actual_start_time IS NULL OR actual_start_time >= scheduled_start_time - INTERVAL '1 hour');
+    ELSIF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'dispatches' AND column_name = 'dispatched_at')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_dispatch_times') THEN
+      ALTER TABLE dispatches
+        ADD CONSTRAINT chk_dispatch_times
+        CHECK (dispatched_at <= NOW() + INTERVAL '5 minutes');
+    END IF;
 
-ALTER TABLE dispatches
-ADD CONSTRAINT chk_dispatch_end_times
-CHECK (actual_end_time IS NULL OR actual_end_time >= actual_start_time);
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'dispatches' AND column_name = 'actual_end_time')
+      AND EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'dispatches' AND column_name = 'actual_start_time')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_dispatch_end_times') THEN
+      ALTER TABLE dispatches
+        ADD CONSTRAINT chk_dispatch_end_times
+        CHECK (actual_end_time IS NULL OR actual_end_time >= actual_start_time);
+    ELSIF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'dispatches' AND column_name = 'completed_at')
+      AND EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'dispatches' AND column_name = 'dispatched_at')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_dispatch_end_times') THEN
+      ALTER TABLE dispatches
+        ADD CONSTRAINT chk_dispatch_end_times
+        CHECK (completed_at IS NULL OR completed_at >= dispatched_at);
+    END IF;
+  END IF;
+END $do$;
 
 ALTER TABLE announcements
 ADD CONSTRAINT chk_announcement_dates
@@ -245,9 +309,21 @@ ALTER TABLE fuel_transactions
 ADD CONSTRAINT chk_fuel_total_cost_positive
 CHECK (total_cost > 0);
 
-ALTER TABLE fuel_transactions
-ADD CONSTRAINT chk_fuel_odometer_positive
-CHECK (odometer_reading IS NULL OR odometer_reading >= 0);
+DO $do$
+BEGIN
+  IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'fuel_transactions')
+    AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_fuel_odometer_positive') THEN
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'fuel_transactions' AND column_name = 'odometer_reading') THEN
+      ALTER TABLE fuel_transactions
+        ADD CONSTRAINT chk_fuel_odometer_positive
+        CHECK (odometer_reading IS NULL OR odometer_reading >= 0);
+    ELSIF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'fuel_transactions' AND column_name = 'odometer') THEN
+      ALTER TABLE fuel_transactions
+        ADD CONSTRAINT chk_fuel_odometer_positive
+        CHECK (odometer >= 0);
+    END IF;
+  END IF;
+END $do$;
 
 ALTER TABLE parts_inventory
 ADD CONSTRAINT chk_part_cost_positive
