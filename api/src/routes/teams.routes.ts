@@ -39,7 +39,12 @@ function resolveTeamsSource(req: AuthRequest): 'local' | 'graph' {
 }
 
 function getTenantId(req: AuthRequest): string | null {
-  return (req.user as any)?.tenant_id || (req.user as any)?.tenantId || null
+  const raw = (req.user as any)?.tenant_id || (req.user as any)?.tenantId
+  if (!raw) return null
+  const s = String(raw).trim()
+  if (!s) return null
+  if (!/^[0-9a-fA-F-]{36}$/.test(s)) return null
+  return s
 }
 
 // Apply authentication middleware to all routes
