@@ -1,8 +1,7 @@
 /**
  * UI/UX Pro Max Design System
  *
- * Global design tokens, utilities, and configurations based on
- * the ui-ux-pro-max-skill design principles
+ * Global design tokens, utilities, and configurations used by the Pro Max layout.
  */
 
 // ============================================================================
@@ -57,14 +56,15 @@ export const glassEffect = {
 // HELPER FUNCTIONS
 // ============================================================================
 
-export function glass(variant: 'light' | 'medium' | 'dark' | 'card' = 'card'): string {
+export function glass(variant: keyof typeof glassEffect = 'card'): string {
   return glassEffect[variant]
 }
 
-export function gradient(color: 'blue' | 'emerald' | 'violet' | 'orange' | 'rose'): string {
+export function gradient(color: keyof typeof colors.gradients): string {
   return `bg-gradient-to-r ${colors.gradients[color]}`
 }
 
 export function cn(...classes: (string | undefined | false)[]): string {
   return classes.filter(Boolean).join(' ')
 }
+

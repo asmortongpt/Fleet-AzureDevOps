@@ -96,8 +96,9 @@ export function DriverScorecard() {
   const fetchLeaderboard = async () => {
     setLoading(true)
     try {
-      const response = await apiClient.get<LeaderboardEntry[]>("/api/driver-scorecard/leaderboard")
-      setLeaderboard(response)
+      const payload: any = await apiClient.get("/api/driver-scorecard/leaderboard")
+      const rows = payload?.data?.data ?? payload?.data ?? payload
+      setLeaderboard(Array.isArray(rows) ? rows : [])
     } catch (error) {
       toast.error("Failed to load leaderboard")
     } finally {
@@ -111,16 +112,18 @@ export function DriverScorecard() {
       setActiveTab("driver-detail")
 
       // Fetch achievements
-      const achievementsResponse = await apiClient.get<Achievement[]>(
+      const achievementsPayload: any = await apiClient.get(
         `/api/driver-scorecard/driver/${driver.driverId}/achievements`
       )
-      setAchievements(achievementsResponse)
+      const achievementsRows = achievementsPayload?.data?.data ?? achievementsPayload?.data ?? achievementsPayload
+      setAchievements(Array.isArray(achievementsRows) ? achievementsRows : [])
 
       // Fetch score history
-      const historyResponse = await apiClient.get<ScoreHistory[]>(
+      const historyPayload: any = await apiClient.get(
         `/api/driver-scorecard/driver/${driver.driverId}/history`
       )
-      setScoreHistory(historyResponse)
+      const historyRows = historyPayload?.data?.data ?? historyPayload?.data ?? historyPayload
+      setScoreHistory(Array.isArray(historyRows) ? historyRows : [])
     } catch (error) {
       toast.error("Failed to load driver details")
     }

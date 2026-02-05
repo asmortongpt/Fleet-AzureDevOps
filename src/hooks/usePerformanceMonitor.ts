@@ -84,7 +84,6 @@ export function usePerformanceMonitor(
   renderStartRef.current = typeof performance !== 'undefined' && typeof performance.now === 'function'
     ? performance.now()
     : Date.now()
-
   // Start a metric timer
   const startMetric = useCallback((name: string): number => {
     if (!enabled) return Date.now();

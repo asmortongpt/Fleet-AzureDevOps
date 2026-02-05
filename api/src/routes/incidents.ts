@@ -107,7 +107,7 @@ router.get(
     try {
       const result = await pool.query(
         `SELECT i.*,
-                v.unit_number as vehicle_unit,
+                v.number as vehicle_unit,
                 d.first_name || ' ' || d.last_name as driver_name,
                 u.first_name || ' ' || u.last_name as reported_by_name
          FROM incidents i

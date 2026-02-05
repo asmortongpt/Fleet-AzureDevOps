@@ -20,9 +20,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { useDispatchSocket } from '@/hooks/useDispatchSocket'
-import { useOBD2Emulator } from '@/hooks/useOBD2Emulator'
-import { useRadioSocket } from '@/hooks/useRadioSocket'
 
 interface EndpointStatus {
   endpoint: string
@@ -53,10 +50,17 @@ export function EndpointMonitor() {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['core']))
 
-  // WebSocket connections
-  const obd2 = useOBD2Emulator(false)
-  const radio = useRadioSocket(null)
-  const dispatch = useDispatchSocket({ autoConnect: false })
+  // WebSocket connection (DB-backed emulator stream)
+  const [emulatorStream, setEmulatorStream] = useState<Pick<WebSocketStatus,
+    'isConnected' | 'lastConnected' | 'lastDisconnected' | 'reconnectAttempts' | 'messagesReceived' | 'latency'
+  >>({
+    isConnected: false,
+    lastConnected: null,
+    lastDisconnected: null,
+    reconnectAttempts: 0,
+    messagesReceived: 0,
+    latency: null,
+  })
 
   // Define all REST endpoints to monitor
   const endpointDefinitions: Omit<EndpointStatus, 'status' | 'latency' | 'lastChecked' | 'uptime' | 'errorCount'>[] = [
@@ -80,42 +84,83 @@ export function EndpointMonitor() {
     { endpoint: '/api/hazard-zones', name: 'Hazard Zones', category: 'analytics' },
   ]
 
+  // Keep a lightweight WS to the emulator stream so the UI reflects real demo connectivity.
+  useEffect(() => {
+    let ws: WebSocket | null = null
+    let cancelled = false
+    let attempts = 0
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const host = window.location.hostname || 'localhost'
+    const url = `${protocol}//${host}:3004/emulator/stream`
+
+    const connect = () => {
+      if (cancelled) return
+      attempts += 1
+      setEmulatorStream((s) => ({ ...s, reconnectAttempts: attempts - 1 }))
+
+      try {
+        ws = new WebSocket(url)
+      } catch {
+        ws = null
+        return
+      }
+
+      ws.onopen = () => {
+        if (cancelled) return
+        setEmulatorStream((s) => ({
+          ...s,
+          isConnected: true,
+          lastConnected: new Date(),
+          latency: 0,
+        }))
+      }
+
+      ws.onmessage = () => {
+        if (cancelled) return
+        setEmulatorStream((s) => ({ ...s, messagesReceived: s.messagesReceived + 1 }))
+      }
+
+      ws.onclose = () => {
+        if (cancelled) return
+        setEmulatorStream((s) => ({
+          ...s,
+          isConnected: false,
+          lastDisconnected: new Date(),
+        }))
+        // Retry with simple backoff.
+        window.setTimeout(connect, Math.min(10_000, 500 + attempts * 500))
+      }
+
+      ws.onerror = () => {
+        try {
+          ws?.close()
+        } catch {
+          // ignore
+        }
+      }
+    }
+
+    connect()
+    return () => {
+      cancelled = true
+      try {
+        ws?.close()
+      } catch {
+        // ignore
+      }
+    }
+  }, [])
+
   // WebSocket status
   const webSocketStatuses: WebSocketStatus[] = useMemo(() => [
     {
-      name: 'OBD2 Emulator',
-      url: 'ws://localhost:8081',
-      port: 8081,
-      isConnected: obd2.isConnected,
-      lastConnected: obd2.isConnected ? new Date() : null,
-      lastDisconnected: !obd2.isConnected ? new Date() : null,
-      reconnectAttempts: 0,
-      messagesReceived: obd2.dataHistory.length,
-      latency: obd2.data ? 50 : null
-    },
-    {
-      name: 'Radio Dispatch',
-      url: 'ws://localhost:8082',
-      port: 8082,
-      isConnected: radio.isConnected,
-      lastConnected: radio.isConnected ? new Date() : null,
-      lastDisconnected: !radio.isConnected ? new Date() : null,
-      reconnectAttempts: 0,
-      messagesReceived: radio.transmissions.length,
-      latency: radio.isConnected ? 40 : null
-    },
-    {
-      name: 'Dispatch Console',
-      url: 'ws://localhost:8083',
-      port: 8083,
-      isConnected: dispatch.isConnected,
-      lastConnected: dispatch.isConnected ? new Date() : null,
-      lastDisconnected: !dispatch.isConnected ? new Date() : null,
-      reconnectAttempts: 0,
-      messagesReceived: dispatch.recentTransmissions.length,
-      latency: dispatch.isConnected ? 45 : null
+      name: 'Emulator Stream',
+      url: `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.hostname || 'localhost'}:3004/emulator/stream`,
+      port: 3004,
+      ...emulatorStream,
     }
-  ], [obd2, radio, dispatch])
+  ], [emulatorStream])
 
   // Check endpoint health
   const checkEndpointHealth = useCallback(async (endpoint: string): Promise<Partial<EndpointStatus>> => {

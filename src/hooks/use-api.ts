@@ -354,9 +354,13 @@ export function useVehicles(filters: VehicleFilters = DEFAULT_VEHICLE_FILTERS) {
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/vehicles?${params}`, { method: 'GET' });
       if (!res.ok) throw new Error('Network response was not ok');
-      const json = await res.json();
-      // API returns {data: [...], total: number}, extract the data array
-      return json.data || json;
+      const payload = await res.json();
+      // Support both legacy shapes:
+      // - { data: [...] }
+      // - { data: { data: [...], total } }
+      // - { success, data: { data: [...], total }, meta }
+      const rows = payload?.data?.data ?? payload?.data ?? payload;
+      return Array.isArray(rows) ? rows : (rows?.data ?? []);
     },
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,

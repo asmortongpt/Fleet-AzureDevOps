@@ -108,7 +108,6 @@ const FleetMetricsResponseSchema = z
   })
   .passthrough()
   .transform((r) => r.data)
-
 // ============================================================================
 // TYPES (Inferred from Zod schemas for 100% consistency)
 // ============================================================================

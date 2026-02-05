@@ -117,6 +117,10 @@ import facilitiesRouter from './routes/facilities'
 import serviceBaysRouter from './routes/service-bays'
 import fleetDocumentsRouter from './routes/fleet-documents.routes'
 import fleetRouter from './routes/fleet'
+import demoRouter from './routes/demo.routes'
+import emulatorRouter from './routes/emulator.routes'
+import facilitiesRouter from './routes/facilities'
+import fleetDocumentsRouter from './routes/fleet-documents.routes'
 import fuelRouter from './routes/fuel-transactions'
 import fuelCardsRouter from './routes/fuel-cards'
 import tiresRouter from './routes/tires'
@@ -500,8 +504,8 @@ app.use('/api/integrations', integrationsHealthRouter)
 app.use('/api/dashboard', dashboardRouter)
 
 // Emulator & Testing Routes
-// app.use('/api/emulator', emulatorRouter)
-// app.use('/api/obd2-emulator', obd2EmulatorRouter)
+app.use('/api/emulator', emulatorRouter)
+app.use('/api/obd2-emulator', obd2EmulatorRouter)
 // app.use('/api/demo', demoRouter) // REMOVED: demo routes deleted during mock data cleanup
 
 // System Management Routes
@@ -525,8 +529,9 @@ app.use('/api/quality-gates', qualityGatesRouter)
 // TEMP DISABLED: app.use('/api/reservations', reservationsRouter) // TODO: Import reservationsRouter
 app.use('/api/admin/jobs', adminJobsRouter)
 
-// E2E Test Routes - DEVELOPMENT ONLY (no authentication required)
-if (process.env.NODE_ENV === 'development' || process.env.ENABLE_E2E_ROUTES === 'true') {
+// E2E Test Routes - explicit opt-in only (no authentication required)
+// Never enable by default (even in development) so demos don't accidentally expose these endpoints.
+if (process.env.ENABLE_E2E_ROUTES === 'true' && process.env.NODE_ENV !== 'production') {
   app.use('/api/e2e-test', e2eTestRouter)
   console.log('⚠️  E2E Test routes enabled at /api/e2e-test (NO AUTHENTICATION)')
 }
@@ -587,6 +592,27 @@ console.log('--- READY TO LISTEN ON PORT ' + PORT + ' ---');
 
 let server: any;
 
+async function listenWithRetry(port: number, maxRetries = 10): Promise<any> {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const s = await new Promise<any>((resolve, reject) => {
+        const srv = app.listen(port, () => resolve(srv))
+        srv.on('error', (err: any) => reject(err))
+      })
+      return s
+    } catch (err: any) {
+      if (err?.code === 'EADDRINUSE' && attempt < maxRetries) {
+        const delayMs = 250 + attempt * 250
+        console.warn(`Port ${port} in use; retrying listen in ${delayMs}ms (attempt ${attempt + 1}/${maxRetries})`)
+        await new Promise((r) => setTimeout(r, delayMs))
+        continue
+      }
+      throw err
+    }
+  }
+  throw new Error(`Failed to bind port ${port}`)
+}
+
 const startServer = async () => {
   try {
     // Initialize database connection manager FIRST
@@ -597,14 +623,25 @@ const startServer = async () => {
       console.error('Failed to initialize Connection Manager (Running in Degraded Mode):', error);
     }
 
-    server = app.listen(PORT, async () => {
+    server = await listenWithRetry(Number(PORT), 12)
+    server.on('listening', async () => {
       console.log(`Server running on http://localhost:${PORT}`)
       console.log(`Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
       console.log(`Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
 
-      // Startup health check is optional. Keep server startup resilient even if the
-      // module is not present in the build (or disabled in certain deployments).
+      try {
+        const { initializeStartupHealthCheck } = await import('./routes/health-startup.routes')
+        const healthReport = await initializeStartupHealthCheck()
+        if (healthReport) {
+          console.log(`\nStartup Health Check: ${healthReport.overallStatus.toUpperCase()}`)
+          console.log(`View full report: http://localhost:${PORT}/api/health/startup\n`)
+        }
+      } catch (error) {
+        // Startup health check is optional. Keep startup resilient when the module is
+        // absent from the build or disabled in certain deployments.
+        console.warn('Startup health check skipped:', error)
+      }
 
       // ARCHITECTURE FIX: Initialize process-level error handlers
       initializeProcessErrorHandlers(server)

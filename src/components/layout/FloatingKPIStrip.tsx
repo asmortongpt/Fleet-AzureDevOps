@@ -1,20 +1,13 @@
 /**
  * FloatingKPIStrip - Premium Cinematic Metrics Over Map
  *
- * Displays 6 key intelligence indicators with high-fidelity micro-interactions.
- * Integrates directly with ArchonY's master design system tokens.
- * Fetches live data from /api/dashboard/stats.
+ * Displays key intelligence indicators and opens modules on click.
+ * Fetches live data from `/api/dashboard/stats` (DB-backed via backend).
  */
-import {
-  Truck,
-  Activity,
-  Wrench,
-  AlertTriangle,
-  Gauge,
-  Users,
-} from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Truck, Activity, Wrench, AlertTriangle, Gauge, Users } from 'lucide-react'
+
 import { usePanel } from '@/contexts/PanelContext'
 import { cn } from '@/lib/utils'
 
@@ -33,12 +26,14 @@ function buildKPIs(stats: {
   maintenance_vehicles?: number
   total_drivers?: number
   open_work_orders?: number
+  open_incidents?: number
 }): KPIChip[] {
   const total = stats.total_vehicles ?? 0
   const active = stats.active_vehicles ?? 0
   const maint = stats.maintenance_vehicles ?? 0
   const drivers = stats.total_drivers ?? 0
-  const alerts = stats.open_work_orders ?? 0
+  const workOrders = stats.open_work_orders ?? 0
+  const incidents = stats.open_incidents ?? 0
   const capacity = total > 0 ? Math.round((active / total) * 100) : 0
 
   return [
@@ -68,9 +63,9 @@ function buildKPIs(stats: {
     },
     {
       label: 'Work Orders',
-      value: alerts,
+      value: workOrders,
       icon: <AlertTriangle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
-      moduleId: 'safety-alerts',
+      moduleId: 'garage',
       color: '#DD3903',
       glowColor: 'rgba(221,57,3,0.3)',
     },
@@ -90,6 +85,8 @@ function buildKPIs(stats: {
       color: '#38BDF8',
       glowColor: 'rgba(56,189,248,0.3)',
     },
+    // Incidents chip can be displayed in expanded UI later; keep computed for easy swap.
+    // { label: 'Incidents', value: incidents, ... }
   ]
 }
 
@@ -106,19 +103,17 @@ export function FloatingKPIStrip() {
         if (!res.ok) return
         const json = await res.json()
         const data = json.data ?? json
-        if (!cancelled) {
-          setKpis(buildKPIs(data))
-        }
+        if (!cancelled) setKpis(buildKPIs(data))
       } catch {
-        // keep defaults on error
+        // Keep defaults on error.
       }
     }
 
     fetchStats()
-    const interval = setInterval(fetchStats, 60_000)
+    const interval = window.setInterval(fetchStats, 60_000)
     return () => {
       cancelled = true
-      clearInterval(interval)
+      window.clearInterval(interval)
     }
   }, [])
 
@@ -143,58 +138,57 @@ export function FloatingKPIStrip() {
     <div className="absolute top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 z-10 pointer-events-none">
       <div className="flex items-center gap-2 sm:gap-3 flex-nowrap sm:flex-wrap overflow-x-auto scrollbar-none pointer-events-auto">
         <AnimatePresence mode="popLayout">
-          {!isOpen && kpis.map((kpi, index) => (
-            <motion.button
-              key={kpi.label}
-              initial={{ opacity: 0, scale: 0.9, y: -20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.8, y: -10 }}
-              transition={{
-                duration: 0.5,
-                delay: index * 0.05,
-                ease: [0.23, 1, 0.32, 1]
-              }}
-              onClick={() => handleChipClick(kpi)}
-              className={cn(
-                'group relative flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl',
-                'bg-[#0A0E27]/80 backdrop-blur-2xl',
-                'border border-white/10',
-                'hover:border-white/20 hover:bg-[#0A0E27]/90 transition-all duration-300 shadow-2xl',
-                'active:scale-95 shrink-0 sm:shrink'
-              )}
-            >
-              {/* Dynamic Aura Glow */}
-              <div
-                className="absolute inset-0 rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl"
-                style={{ backgroundColor: kpi.color }}
-              />
-
-              {/* Icon Container */}
-              <div
-                className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-white/[0.03] border border-white/[0.05] transition-transform group-hover:scale-110"
-                style={{ color: kpi.color }}
+          {!isOpen &&
+            kpis.map((kpi, index) => (
+              <motion.button
+                key={kpi.label}
+                initial={{ opacity: 0, scale: 0.9, y: -20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: -10 }}
+                transition={{
+                  duration: 0.5,
+                  delay: index * 0.05,
+                  ease: [0.23, 1, 0.32, 1],
+                }}
+                onClick={() => handleChipClick(kpi)}
+                className={cn(
+                  'group relative flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl',
+                  'bg-[#0A0E27]/80 backdrop-blur-2xl',
+                  'border border-white/10',
+                  'hover:border-white/20 hover:bg-[#0A0E27]/90 transition-all duration-300 shadow-2xl',
+                  'active:scale-95 shrink-0 sm:shrink'
+                )}
               >
-                {kpi.icon}
-              </div>
+                <div
+                  className="absolute inset-0 rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl"
+                  style={{ backgroundColor: kpi.color }}
+                />
 
-              <div className="flex flex-col items-start">
-                <span className="text-[8px] sm:text-[9px] font-black text-white/30 uppercase tracking-[0.15em] leading-none mb-0.5">
-                  {kpi.label}
-                </span>
-                <span className="text-xs sm:text-sm font-bold text-white tabular-nums leading-none">
-                  {kpi.value}
-                </span>
-              </div>
+                <div
+                  className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-white/[0.03] border border-white/[0.05] transition-transform group-hover:scale-110"
+                  style={{ color: kpi.color }}
+                >
+                  {kpi.icon}
+                </div>
 
-              {/* Active Underline */}
-              <div
-                className="absolute bottom-0 left-3 right-3 sm:left-4 sm:right-4 h-[1.5px] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-500"
-                style={{ backgroundColor: kpi.color, boxShadow: `0 2px 10px ${kpi.glowColor}` }}
-              />
-            </motion.button>
-          ))}
+                <div className="flex flex-col items-start">
+                  <span className="text-[8px] sm:text-[9px] font-black text-white/30 uppercase tracking-[0.15em] leading-none mb-0.5">
+                    {kpi.label}
+                  </span>
+                  <span className="text-xs sm:text-sm font-bold text-white tabular-nums leading-none">
+                    {kpi.value}
+                  </span>
+                </div>
+
+                <div
+                  className="absolute bottom-0 left-3 right-3 sm:left-4 sm:right-4 h-[1.5px] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-500"
+                  style={{ backgroundColor: kpi.color, boxShadow: `0 2px 10px ${kpi.glowColor}` }}
+                />
+              </motion.button>
+            ))}
         </AnimatePresence>
       </div>
     </div>
   )
 }
+

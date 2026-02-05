@@ -1,7 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const useWebServer = process.env.PW_WEBSERVER === 'true';
-
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,

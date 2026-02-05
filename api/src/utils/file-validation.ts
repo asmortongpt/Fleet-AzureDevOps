@@ -193,6 +193,63 @@ export function validateMimeType(mimeType: string, extension: string): {
 }
 
 /**
+ * Validate uploaded file content by inspecting the actual bytes.
+ *
+ * This is intentionally buffer-only (no filename) so callers can't bypass checks by lying
+ * about extensions/mime types. We return the detected mime + extension for downstream
+ * policy decisions (size limits, routing, etc).
+ */
+export async function validateFileContent(buffer: Buffer): Promise<{
+  valid: boolean;
+  mimeType?: string;
+  extension?: string;
+  error?: string;
+}> {
+  // 1) Reject dangerous magic bytes early
+  const signatureCheck = checkFileSignature(buffer);
+  if (!signatureCheck.safe) {
+    return { valid: false, error: signatureCheck.error || 'Dangerous file signature detected' };
+  }
+
+  // 2) Detect type from bytes (avoid trusting client-provided metadata)
+  let detected: { ext: string; mime: string } | undefined;
+  try {
+    // `file-type` is ESM-only; use dynamic import so CJS builds still work.
+    const mod = await import('file-type');
+    detected = await mod.fileTypeFromBuffer(buffer) ?? undefined;
+  } catch (error: any) {
+    logger.error('[FILE_VALIDATION] File type detection failed', { error: error?.message });
+    return { valid: false, error: 'Unable to validate file type' };
+  }
+
+  if (!detected) {
+    return { valid: false, error: 'Unable to determine file type from content' };
+  }
+
+  const extension = `.${detected.ext.toLowerCase()}`;
+  const mimeType = detected.mime;
+
+  // 3) Validate extension + MIME match our allowlist
+  const extValidation = validateFileExtension(`file${extension}`);
+  if (!extValidation.valid) {
+    return { valid: false, error: extValidation.error || 'File extension not allowed' };
+  }
+
+  const mimeValidation = validateMimeType(mimeType, extension);
+  if (!mimeValidation.valid) {
+    return { valid: false, error: mimeValidation.error || 'MIME type mismatch' };
+  }
+
+  // 4) Virus scan (ClamAV when available; heuristic fallback otherwise)
+  const virusScan = await scanForVirus(buffer, `upload${extension}`);
+  if (!virusScan.clean) {
+    return { valid: false, error: virusScan.threat || virusScan.error || 'File failed virus scan' };
+  }
+
+  return { valid: true, mimeType, extension };
+}
+
+/**
  * Production-ready virus scanning using ClamAV
  * Falls back to heuristics if ClamAV is not available
  */

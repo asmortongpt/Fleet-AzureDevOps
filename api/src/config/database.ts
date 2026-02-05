@@ -78,47 +78,21 @@ export const getPoolStats = () => connectionManager.getAllPoolStats()
 
 /**
  * Legacy pool export with lazy initialization for backward compatibility
- * Uses a Proxy to defer pool access until it's actually used
+ * Uses a Proxy to forward calls to the ConnectionManager write pool.
+ *
+ * IMPORTANT:
+ * - We MUST bind functions to the underlying `pg.Pool` instance.
+ *   Otherwise, calls like `pool.query(...)` execute with `this === proxy`,
+ *   which can lead to subtle runtime failures, connection leaks, and timeouts.
  *
  * DEPRECATED: Use getWritePool() for new code
  */
-let isInitializing = false
-let initializationPromise: Promise<void> | null = null
-
 const poolProxy = new Proxy({} as Pool, {
-  get(target, prop) {
-    // Lazy initialize on first access
-    if (!isInitializing && !(connectionManager as any).initialized) {
-      isInitializing = true
-      // Initialize synchronously by calling it without await
-      // The first actual pool.connect() will wait for initialization
-      initializationPromise = initializeConnectionManager().then(() => {
-        isInitializing = false
-      }).catch(err => {
-        console.error('Failed to initialize connection manager:', err)
-        isInitializing = false
-        throw err
-      })
-    }
-
-    try {
-      const pool = connectionManager.getWritePool()
-      return (pool as any)[prop]
-    } catch (error) {
-      // If pools not initialized yet, wait for initialization
-      if (initializationPromise) {
-        // Return a promise that waits for initialization then retries
-        if (prop === 'connect' || typeof (Pool.prototype as any)[prop] === 'function') {
-          return async (...args: any[]) => {
-            await initializationPromise
-            const pool = connectionManager.getWritePool()
-            return (pool as any)[prop](...args)
-          }
-        }
-      }
-      throw error
-    }
-  }
+  get(_target, prop) {
+    const pool = connectionManager.getWritePool()
+    const value = (pool as any)[prop]
+    return typeof value === 'function' ? value.bind(pool) : value
+  },
 })
 
 export const pool = poolProxy

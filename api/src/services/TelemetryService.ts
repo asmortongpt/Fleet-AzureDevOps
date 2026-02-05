@@ -17,6 +17,8 @@ import {
   Geofence
 } from '../emulators/types'
 
+import { pool } from '../db'
+
 // Database connection interface (works with actual DB or mock)
 interface DatabaseConnection {
   query: (sql: string, params?: any[]) => Promise<any[]>
@@ -25,8 +27,12 @@ interface DatabaseConnection {
 
 export interface TelemetryVehicle {
   id: string
-  vehicleId: number
+  // Canonical DB identifiers
+  dbId: string
+  tenantId: string
+  // Human / UI identifiers
   vehicleNumber: string
+  name: string
   make: string
   model: string
   year: number
@@ -86,6 +92,8 @@ export class TelemetryService extends EventEmitter {
   private channelCache: Map<string, RadioChannel> = new Map()
   private geofenceCache: Map<string, Geofence> = new Map()
   private isInitialized: boolean = false
+  private canPersistGps: boolean = false
+  private canPersistObd2: boolean = false
 
   // Batch write buffers
   private gpsBuffer: any[] = []
@@ -105,11 +113,17 @@ export class TelemetryService extends EventEmitter {
   public async initialize(dbConnection?: DatabaseConnection): Promise<void> {
     if (this.isInitialized) return
 
-    if (!dbConnection) {
-      throw new Error('TelemetryService requires a valid database connection')
-    }
+    const conn: DatabaseConnection =
+      dbConnection ??
+      ({
+        query: async (sql: string, params?: any[]) => (await pool.query(sql, params)).rows,
+        execute: async (sql: string, params?: any[]) => {
+          const res = await pool.query(sql, params)
+          return { rowCount: res.rowCount ?? 0 }
+        },
+      } as DatabaseConnection)
 
-    this.db = dbConnection
+    this.db = conn
 
     // Test the connection
     try {
@@ -117,6 +131,19 @@ export class TelemetryService extends EventEmitter {
       console.log('TelemetryService: Database connection established')
     } catch (error) {
       throw new Error(`TelemetryService: Database connection failed - ${error}`)
+    }
+
+    // Detect which persistence tables are available (avoid hammering missing tables).
+    try {
+      const [gpsTable] = await this.db.query(`SELECT to_regclass('public.gps_tracks') AS name`)
+      const [telemetryTable] = await this.db.query(`SELECT to_regclass('public.telemetry_data') AS name`)
+      this.canPersistGps = Boolean(gpsTable?.name)
+      this.canPersistObd2 = Boolean(telemetryTable?.name)
+    } catch (error) {
+      // If introspection fails, default to safe mode (no persistence).
+      this.canPersistGps = false
+      this.canPersistObd2 = false
+      console.warn('TelemetryService: table detection failed; telemetry persistence disabled', error)
     }
 
     // Load initial data
@@ -146,7 +173,9 @@ export class TelemetryService extends EventEmitter {
       const results = await this.db.query(`
         SELECT
           v.id,
-          v.vin as vehicle_number,
+          v.tenant_id,
+          v.number as vehicle_number,
+          v.name,
           v.make,
           v.model,
           v.year,
@@ -154,14 +183,19 @@ export class TelemetryService extends EventEmitter {
           v.license_plate,
           v.status,
           v.odometer as mileage,
-          v.fuel_type
+          v.fuel_type,
+          v.latitude,
+          v.longitude,
+          v.metadata
         FROM vehicles v
-        WHERE v.status = 'active'
-        ORDER BY v.id
+        WHERE v.is_active = true AND v.status = 'active'
+        ORDER BY v.created_at, v.id
       `)
 
+      let idx = 0
       for (const row of results) {
-        const vehicle = this.mapDatabaseVehicle(row)
+        idx += 1
+        const vehicle = this.mapDatabaseVehicle(row, idx)
         this.vehicleCache.set(vehicle.id, vehicle)
       }
 
@@ -175,14 +209,26 @@ export class TelemetryService extends EventEmitter {
   /**
    * Map database row to TelemetryVehicle
    */
-  private mapDatabaseVehicle(row: any): TelemetryVehicle {
-    const specs = row.specifications || {}
-    const coords = row.facility_coords || { lat: 30.4383, lng: -84.2807 }
+  private mapDatabaseVehicle(row: any, sequence: number): TelemetryVehicle {
+    const specs = row.metadata?.specifications || row.specifications || {}
+    const fallbackCoords = { lat: 30.4383, lng: -84.2807 }
+    const coords =
+      row.latitude != null && row.longitude != null
+        ? { lat: Number(row.latitude), lng: Number(row.longitude) }
+        : fallbackCoords
+    const driverBehavior =
+      row.metadata?.driverBehavior === 'aggressive' ||
+      row.metadata?.driverBehavior === 'cautious' ||
+      row.metadata?.driverBehavior === 'normal'
+        ? row.metadata.driverBehavior
+        : 'normal'
 
     return {
-      id: `VEH-${String(row.id).padStart(3, '0')}`,
-      vehicleId: row.id,
+      id: `VEH-${String(sequence).padStart(3, '0')}`,
+      dbId: String(row.id),
+      tenantId: String(row.tenant_id),
       vehicleNumber: row.vehicle_number,
+      name: row.name,
       make: row.make,
       model: row.model,
       year: row.year,
@@ -194,15 +240,15 @@ export class TelemetryService extends EventEmitter {
       batteryCapacity: specs.batteryCapacity,
       electricRange: specs.electricRange,
       startingLocation: {
-        lat: coords.lat + (Math.random() - 0.5) * 0.02,
-        lng: coords.lng + (Math.random() - 0.5) * 0.02
+        lat: coords.lat,
+        lng: coords.lng
       },
       homeBase: {
         lat: coords.lat,
         lng: coords.lng,
-        name: row.facility_name || 'Fleet Center'
+        name: row.metadata?.homeBaseName || 'Fleet Center'
       },
-      driverBehavior: this.randomDriverBehavior(),
+      driverBehavior,
       features: this.inferFeatures(row.make, row.model, row.fuel_type),
       mileage: row.mileage || 0,
       status: row.status
@@ -329,8 +375,11 @@ export class TelemetryService extends EventEmitter {
    * Save GPS telemetry data
    */
   public async saveGPSTelemetry(data: GPSTelemetry): Promise<void> {
+    const v = this.resolveVehicle(data.vehicleId)
+    if (!v) return
     this.gpsBuffer.push({
-      vehicleId: this.extractVehicleId(data.vehicleId),
+      tenantId: v.tenantId,
+      vehicleDbId: v.dbId,
       vehicleNumber: data.vehicleId,
       timestamp: data.timestamp,
       latitude: data.location.lat,
@@ -338,7 +387,8 @@ export class TelemetryService extends EventEmitter {
       altitude: data.location.altitude,
       speed: data.speed,
       heading: data.heading,
-      odometer: data.odometer,
+      // gps_tracks.odometer is an integer; emulator odometer is fractional miles.
+      odometer: Number.isFinite(data.odometer) ? Math.round(data.odometer) : null,
       accuracy: data.accuracy,
       satelliteCount: data.satelliteCount,
       isMoving: data.speed > 0
@@ -351,8 +401,11 @@ export class TelemetryService extends EventEmitter {
    * Save OBD2 telemetry data
    */
   public async saveOBD2Telemetry(data: OBD2Data): Promise<void> {
+    const v = this.resolveVehicle(data.vehicleId)
+    if (!v) return
     this.obd2Buffer.push({
-      vehicleId: this.extractVehicleId(data.vehicleId),
+      tenantId: v.tenantId,
+      vehicleDbId: v.dbId,
       vehicleNumber: data.vehicleId,
       timestamp: data.timestamp,
       rpm: data.rpm,
@@ -376,24 +429,8 @@ export class TelemetryService extends EventEmitter {
    * Save radio transmission data
    */
   public async saveRadioTransmission(data: RadioTransmission): Promise<void> {
-    this.radioBuffer.push({
-      transmissionId: data.id,
-      vehicleId: this.extractVehicleId(data.vehicleId),
-      vehicleNumber: data.vehicleId,
-      channelId: data.channelId,
-      timestamp: data.timestamp,
-      duration: data.duration,
-      signalStrength: data.signalStrength,
-      audioQuality: data.audioQuality,
-      interference: data.interference,
-      latitude: data.location.lat,
-      longitude: data.location.lng,
-      priority: data.priority,
-      transmissionType: data.transmissionType,
-      message: data.message,
-      isEmergency: data.isEmergency
-    })
-
+    // Current production schema does not include radio transmission tables.
+    // Keep the event stream for in-memory consumers but don't buffer/persist.
     this.emit('radio-saved', data)
   }
 
@@ -401,21 +438,8 @@ export class TelemetryService extends EventEmitter {
    * Save driver behavior event
    */
   public async saveDriverBehaviorEvent(data: DriverBehaviorEvent): Promise<void> {
-    this.driverBuffer.push({
-      vehicleId: this.extractVehicleId(data.vehicleId),
-      vehicleNumber: data.vehicleId,
-      timestamp: data.timestamp,
-      eventType: data.eventType,
-      severity: data.severity,
-      speed: data.speed,
-      speedLimit: data.speedLimit,
-      latitude: data.location.lat,
-      longitude: data.location.lng,
-      duration: data.duration,
-      scoreImpact: this.calculateScoreImpact(data),
-      driverScore: data.score
-    })
-
+    // Current production schema does not include driver behavior tables.
+    // Keep the event stream for in-memory consumers but don't buffer/persist.
     this.emit('driver-behavior-saved', data)
   }
 
@@ -423,29 +447,8 @@ export class TelemetryService extends EventEmitter {
    * Save IoT sensor data
    */
   public async saveIoTSensorData(data: IoTSensorData): Promise<void> {
-    this.iotBuffer.push({
-      vehicleId: this.extractVehicleId(data.vehicleId),
-      vehicleNumber: data.vehicleId,
-      timestamp: data.timestamp,
-      engineTemp: data.sensors.engineTemp,
-      cabinTemp: data.sensors.cabinTemp,
-      cargoTemp: data.sensors.cargoTemp,
-      tirePressureFrontLeft: data.sensors.tirePressure?.frontLeft,
-      tirePressureFrontRight: data.sensors.tirePressure?.frontRight,
-      tirePressureRearLeft: data.sensors.tirePressure?.rearLeft,
-      tirePressureRearRight: data.sensors.tirePressure?.rearRight,
-      cargoWeight: data.sensors.cargoWeight,
-      driverDoorOpen: data.sensors.doorStatus?.driver,
-      passengerDoorOpen: data.sensors.doorStatus?.passenger,
-      cargoDoorOpen: data.sensors.doorStatus?.cargo,
-      ignitionOn: data.sensors.ignitionStatus,
-      accelerometerX: data.sensors.accelerometer?.x,
-      accelerometerY: data.sensors.accelerometer?.y,
-      accelerometerZ: data.sensors.accelerometer?.z,
-      cellularSignalStrength: data.sensors.connectivity?.signalStrength,
-      cellularNetworkType: data.sensors.connectivity?.type
-    })
-
+    // Current production schema does not include IoT sensor tables.
+    // Keep the event stream for in-memory consumers but don't buffer/persist.
     this.emit('iot-saved', data)
   }
 
@@ -457,21 +460,13 @@ export class TelemetryService extends EventEmitter {
 
     const promises: Promise<void>[] = []
 
-    if (this.gpsBuffer.length > 0) {
+    if (this.canPersistGps && this.gpsBuffer.length > 0) {
       promises.push(this.flushGPSBuffer())
     }
-    if (this.obd2Buffer.length > 0) {
+    if (this.canPersistObd2 && this.obd2Buffer.length > 0) {
       promises.push(this.flushOBD2Buffer())
     }
-    if (this.radioBuffer.length > 0) {
-      promises.push(this.flushRadioBuffer())
-    }
-    if (this.driverBuffer.length > 0) {
-      promises.push(this.flushDriverBuffer())
-    }
-    if (this.iotBuffer.length > 0) {
-      promises.push(this.flushIoTBuffer())
-    }
+    // Radio/driver/IoT tables are not present in the current schema; do not attempt persistence.
 
     await Promise.all(promises)
   }
@@ -481,26 +476,49 @@ export class TelemetryService extends EventEmitter {
     if (items.length === 0 || !this.db) return
 
     try {
-      const values = items.map(item => `(
-        ${item.vehicleId},
-        '${item.vehicleNumber}',
-        '${item.timestamp.toISOString()}',
-        ${item.latitude},
-        ${item.longitude},
-        ${item.altitude || 'NULL'},
-        ${item.speed},
-        ${item.heading || 'NULL'},
-        ${item.odometer || 'NULL'},
-        ${item.accuracy || 'NULL'},
-        ${item.satelliteCount || 'NULL'},
-        ${item.isMoving}
-      )`).join(',')
+      const cols = [
+        'tenant_id',
+        'vehicle_id',
+        'timestamp',
+        'latitude',
+        'longitude',
+        'altitude',
+        'speed',
+        'heading',
+        'accuracy',
+        'odometer',
+        'metadata',
+      ]
+      const params: any[] = []
+      const valuesSql = items
+        .map((item, i) => {
+          const base = i * cols.length
+          params.push(
+            item.tenantId,
+            item.vehicleDbId,
+            item.timestamp,
+            item.latitude,
+            item.longitude,
+            item.altitude ?? null,
+            item.speed ?? null,
+            item.heading ?? null,
+            item.accuracy ?? null,
+            item.odometer ?? null,
+            {
+              vehicleNumber: item.vehicleNumber,
+              satelliteCount: item.satelliteCount ?? null,
+              isMoving: Boolean(item.isMoving),
+            }
+          )
+          const placeholders = cols.map((_, c) => `$${base + c + 1}`).join(',')
+          return `(${placeholders})`
+        })
+        .join(',')
 
-      await this.db.query(`
-        INSERT INTO gps_telemetry
-        (vehicle_id, vehicle_number, timestamp, latitude, longitude, altitude, speed, heading, odometer, accuracy, satellite_count, is_moving)
-        VALUES ${values}
-      `)
+      await this.db.query(
+        `INSERT INTO gps_tracks (${cols.join(',')}) VALUES ${valuesSql}`,
+        params
+      )
     } catch (error) {
       console.error('Failed to flush GPS buffer:', error)
       // Re-add items to buffer for retry
@@ -513,14 +531,49 @@ export class TelemetryService extends EventEmitter {
     if (items.length === 0 || !this.db) return
 
     try {
-      // Batch insert OBD2 data
-      for (const item of items) {
-        await this.db.query(`
-          INSERT INTO obd2_telemetry
-          (vehicle_id, vehicle_number, timestamp, rpm, speed, engine_load, throttle_position, coolant_temp, fuel_level, battery_voltage, maf, o2_sensor_bank1, dtc_codes, check_engine_light, mil)
-          VALUES (${item.vehicleId}, '${item.vehicleNumber}', '${item.timestamp.toISOString()}', ${item.rpm}, ${item.speed}, ${item.engineLoad}, ${item.throttlePosition}, ${item.coolantTemp}, ${item.fuelLevel}, ${item.batteryVoltage}, ${item.maf}, ${item.o2SensorBank1}, '${JSON.stringify(item.dtcCodes)}', ${item.checkEngineLight}, ${item.mil})
-        `)
-      }
+      const cols = [
+        'tenant_id',
+        'vehicle_id',
+        'timestamp',
+        'engine_rpm',
+        'engine_temperature',
+        'battery_voltage',
+        'diagnostic_codes',
+        'raw_data',
+      ]
+      const params: any[] = []
+      const valuesSql = items
+        .map((item, i) => {
+          const base = i * cols.length
+          params.push(
+            item.tenantId,
+            item.vehicleDbId,
+            item.timestamp,
+            item.rpm ?? null,
+            item.coolantTemp ?? null,
+            item.batteryVoltage ?? null,
+            item.dtcCodes ?? null,
+            {
+              vehicleNumber: item.vehicleNumber,
+              speed: item.speed ?? null,
+              engineLoad: item.engineLoad ?? null,
+              throttlePosition: item.throttlePosition ?? null,
+              fuelLevel: item.fuelLevel ?? null,
+              maf: item.maf ?? null,
+              o2Sensor: item.o2SensorBank1 ?? null,
+              checkEngineLight: Boolean(item.checkEngineLight),
+              mil: Boolean(item.mil),
+            }
+          )
+          const placeholders = cols.map((_, c) => `$${base + c + 1}`).join(',')
+          return `(${placeholders})`
+        })
+        .join(',')
+
+      await this.db.query(
+        `INSERT INTO telemetry_data (${cols.join(',')}) VALUES ${valuesSql}`,
+        params
+      )
     } catch (error) {
       console.error('Failed to flush OBD2 buffer:', error)
     }
@@ -634,18 +687,28 @@ export class TelemetryService extends EventEmitter {
     if (!this.db) return null
 
     try {
-      const numericId = this.extractVehicleId(vehicleId)
+      const v = this.resolveVehicle(vehicleId)
+      if (!v) return null
 
-      const [gpsResult, obd2Result, iotResult] = await Promise.all([
-        this.db.query(`SELECT * FROM gps_telemetry WHERE vehicle_id = ${numericId} ORDER BY timestamp DESC LIMIT 1`),
-        this.db.query(`SELECT * FROM obd2_telemetry WHERE vehicle_id = ${numericId} ORDER BY timestamp DESC LIMIT 1`),
-        this.db.query(`SELECT * FROM iot_sensor_readings WHERE vehicle_id = ${numericId} ORDER BY timestamp DESC LIMIT 1`)
+      const [gpsResult, obd2Result] = await Promise.all([
+        this.canPersistGps
+          ? this.db.query(
+              `SELECT * FROM gps_tracks WHERE tenant_id = $1 AND vehicle_id = $2 ORDER BY timestamp DESC LIMIT 1`,
+              [v.tenantId, v.dbId]
+            )
+          : Promise.resolve([]),
+        this.canPersistObd2
+          ? this.db.query(
+              `SELECT * FROM telemetry_data WHERE tenant_id = $1 AND vehicle_id = $2 ORDER BY timestamp DESC LIMIT 1`,
+              [v.tenantId, v.dbId]
+            )
+          : Promise.resolve([]),
       ])
 
       return {
-        gps: gpsResult[0] ? this.mapGPSRow(gpsResult[0]) : undefined,
-        obd2: obd2Result[0] ? this.mapOBD2Row(obd2Result[0]) : undefined,
-        iot: iotResult[0] ? this.mapIoTRow(iotResult[0]) : undefined
+        gps: gpsResult[0] ? this.mapGPSRow(gpsResult[0], v.id) : undefined,
+        obd2: obd2Result[0] ? this.mapOBD2Row(obd2Result[0], v.id) : undefined,
+        iot: undefined,
       }
     } catch (error) {
       console.error('Failed to get latest telemetry:', error)
@@ -665,26 +728,33 @@ export class TelemetryService extends EventEmitter {
   ): Promise<any[]> {
     if (!this.db) return []
 
-    const numericId = this.extractVehicleId(vehicleId)
-    const tables: Record<string, string> = {
-      gps: 'gps_telemetry',
-      obd2: 'obd2_telemetry',
-      iot: 'iot_sensor_readings',
-      radio: 'radio_transmissions',
-      driver: 'driver_behavior_events'
-    }
+    const v = this.resolveVehicle(vehicleId)
+    if (!v) return []
 
     try {
-      const results = await this.db.query(`
-        SELECT * FROM ${tables[type]}
-        WHERE vehicle_id = ${numericId}
-          AND timestamp >= '${startTime.toISOString()}'
-          AND timestamp <= '${endTime.toISOString()}'
-        ORDER BY timestamp DESC
-        LIMIT ${limit}
-      `)
+      if (type === 'gps' && this.canPersistGps) {
+        return await this.db.query(
+          `SELECT * FROM gps_tracks
+           WHERE tenant_id = $1 AND vehicle_id = $2
+             AND timestamp >= $3 AND timestamp <= $4
+           ORDER BY timestamp DESC
+           LIMIT $5`,
+          [v.tenantId, v.dbId, startTime, endTime, limit]
+        )
+      }
 
-      return results
+      if (type === 'obd2' && this.canPersistObd2) {
+        return await this.db.query(
+          `SELECT * FROM telemetry_data
+           WHERE tenant_id = $1 AND vehicle_id = $2
+             AND timestamp >= $3 AND timestamp <= $4
+           ORDER BY timestamp DESC
+           LIMIT $5`,
+          [v.tenantId, v.dbId, startTime, endTime, limit]
+        )
+      }
+
+      return []
     } catch (error) {
       console.error(`Failed to get ${type} telemetry history:`, error)
       return []
@@ -695,9 +765,14 @@ export class TelemetryService extends EventEmitter {
   // HELPER METHODS
   // ============================================================================
 
-  private extractVehicleId(vehicleId: string): number {
-    const match = vehicleId.match(/VEH-(\d+)/)
-    return match ? parseInt(match[1], 10) : parseInt(vehicleId, 10) || 1
+  private resolveVehicle(vehicleId: string): TelemetryVehicle | null {
+    const direct = this.vehicleCache.get(vehicleId)
+    if (direct) return direct
+    for (const v of this.vehicleCache.values()) {
+      if (v.dbId === vehicleId) return v
+      if (v.vehicleNumber === vehicleId) return v
+    }
+    return null
   }
 
   private inferVehicleType(make: string, model: string): string {
@@ -780,9 +855,9 @@ export class TelemetryService extends EventEmitter {
     return impacts[event.eventType]?.[event.severity] || 5
   }
 
-  private mapGPSRow(row: any): GPSTelemetry {
+  private mapGPSRow(row: any, vehicleId: string): GPSTelemetry {
     return {
-      vehicleId: row.vehicle_number,
+      vehicleId,
       timestamp: new Date(row.timestamp),
       location: {
         lat: parseFloat(row.latitude),
@@ -790,30 +865,31 @@ export class TelemetryService extends EventEmitter {
         altitude: row.altitude ? parseFloat(row.altitude) : undefined,
         accuracy: row.accuracy ? parseFloat(row.accuracy) : undefined
       },
-      speed: parseFloat(row.speed),
+      speed: row.speed != null ? parseFloat(row.speed) : 0,
       heading: row.heading ? parseFloat(row.heading) : 0,
       odometer: row.odometer ? parseFloat(row.odometer) : 0,
       accuracy: row.accuracy ? parseFloat(row.accuracy) : 0,
-      satelliteCount: row.satellite_count
+      satelliteCount: typeof row.metadata?.satelliteCount === 'number' ? row.metadata.satelliteCount : undefined
     }
   }
 
-  private mapOBD2Row(row: any): OBD2Data {
+  private mapOBD2Row(row: any, vehicleId: string): OBD2Data {
+    const raw = row.raw_data || {}
     return {
-      vehicleId: row.vehicle_number,
+      vehicleId,
       timestamp: new Date(row.timestamp),
-      rpm: row.rpm,
-      speed: row.speed,
-      coolantTemp: parseFloat(row.coolant_temp),
-      fuelLevel: parseFloat(row.fuel_level),
-      batteryVoltage: parseFloat(row.battery_voltage),
-      engineLoad: parseFloat(row.engine_load),
-      throttlePosition: parseFloat(row.throttle_position),
-      maf: parseFloat(row.maf),
-      o2Sensor: parseFloat(row.o2_sensor_bank1),
-      dtcCodes: row.dtc_codes || [],
-      checkEngineLight: row.check_engine_light,
-      mil: row.mil
+      rpm: row.engine_rpm != null ? Number(row.engine_rpm) : 0,
+      speed: raw.speed != null ? Number(raw.speed) : 0,
+      coolantTemp: row.engine_temperature != null ? Number(row.engine_temperature) : 0,
+      fuelLevel: raw.fuelLevel != null ? Number(raw.fuelLevel) : 0,
+      batteryVoltage: row.battery_voltage != null ? Number(row.battery_voltage) : 0,
+      engineLoad: raw.engineLoad != null ? Number(raw.engineLoad) : 0,
+      throttlePosition: raw.throttlePosition != null ? Number(raw.throttlePosition) : 0,
+      maf: raw.maf != null ? Number(raw.maf) : 0,
+      o2Sensor: raw.o2Sensor != null ? Number(raw.o2Sensor) : 0,
+      dtcCodes: Array.isArray(row.diagnostic_codes) ? row.diagnostic_codes : [],
+      checkEngineLight: Boolean(raw.checkEngineLight),
+      mil: Boolean(raw.mil)
     }
   }
 

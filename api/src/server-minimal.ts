@@ -6,7 +6,6 @@ if (process.env.NODE_ENV === 'production' && process.env.ENABLE_LEGACY_API !== '
   console.error('Legacy server-minimal entrypoint is disabled in production. Set ENABLE_LEGACY_API=true to override.')
   process.exit(1)
 }
-
 const app = express()
 const PORT = process.env.PORT || 3001
 

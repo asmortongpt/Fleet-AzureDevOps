@@ -57,7 +57,7 @@ run_verification() {
     fi
 
     # Run verification tests
-    # Note: use the repo-local Playwright CLI to avoid network calls via npx.
+    # Note: use the repo-local Playwright binary to avoid network calls via npx.
     ./node_modules/.bin/playwright test tests/e2e/production-verification-suite.spec.ts \
         --project=chromium \
         --reporter=json \

@@ -412,7 +412,10 @@ router.get('/fleet/stats',
     enforceTenantIsolation: true
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id || (req as any).user?.tenantId || '00000000-0000-0000-0000-000000000001';
+    const tenantId = (req as any).user?.tenant_id || (req as any).user?.tenantId;
+    if (!tenantId) {
+      return res.status(400).json({ error: 'Tenant ID is required' });
+    }
 
     logger.info(`Fetching fleet stats for tenant ${tenantId}`);
 
@@ -483,7 +486,10 @@ router.get('/costs/summary',
   // Note: Query validation is handled inline with Zod schema
   asyncHandler(async (req: Request, res: Response) => {
     const { period } = req.query as z.infer<typeof costsSummaryQuerySchema>;
-    const tenantId = (req as any).user?.tenant_id || (req as any).user?.tenantId || '00000000-0000-0000-0000-000000000001';
+    const tenantId = (req as any).user?.tenant_id || (req as any).user?.tenantId;
+    if (!tenantId) {
+      return res.status(400).json({ error: 'Tenant ID is required' });
+    }
 
     logger.info(`Fetching cost summary for period ${period}, tenant ${tenantId}`);
 
