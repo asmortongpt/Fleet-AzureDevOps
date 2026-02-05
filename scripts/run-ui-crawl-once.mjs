@@ -32,6 +32,18 @@ function spawnLogged(name, command, args, env = {}) {
   return child
 }
 
+function spawnLoggedCwd(name, command, args, cwd, env = {}) {
+  const child = spawn(command, args, {
+    stdio: 'pipe',
+    cwd,
+    env: { ...process.env, ...env },
+  })
+  child.stdout.on('data', (d) => process.stdout.write(`[${name}] ${d}`))
+  child.stderr.on('data', (d) => process.stderr.write(`[${name}] ${d}`))
+  child.on('exit', (code) => process.stderr.write(`[${name}] exited ${code}\n`))
+  return child
+}
+
 const children = []
 const killAll = () => {
   for (const c of children) {
@@ -47,7 +59,7 @@ process.on('SIGTERM', () => process.exit(143))
 async function main() {
   // Start API (loads env from api/.env via DOTENV_CONFIG_PATH).
   children.push(
-    spawnLogged('api', 'node', ['api/dist/server.js'], {
+    spawnLoggedCwd('api', 'npm', ['run', 'dev:nowatch'], 'api', {
       DOTENV_CONFIG_PATH: 'api/.env',
       PORT: process.env.API_PORT || '3001',
     })
