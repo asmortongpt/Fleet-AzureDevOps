@@ -130,9 +130,22 @@ ALTER TABLE incidents
 ADD CONSTRAINT chk_incident_date_not_future
 CHECK (incident_date <= NOW());
 
-ALTER TABLE inspections
-ADD CONSTRAINT chk_inspection_date_not_future
-CHECK (inspection_date <= NOW());
+DO $do$
+BEGIN
+  IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'inspections') THEN
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'inspections' AND column_name = 'inspection_date')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_inspection_date_not_future') THEN
+      ALTER TABLE inspections
+        ADD CONSTRAINT chk_inspection_date_not_future
+        CHECK (inspection_date <= NOW());
+    ELSIF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'inspections' AND column_name = 'started_at')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_inspection_date_not_future') THEN
+      ALTER TABLE inspections
+        ADD CONSTRAINT chk_inspection_date_not_future
+        CHECK (started_at <= NOW());
+    END IF;
+  END IF;
+END $do$;
 
 ALTER TABLE certifications
 ADD CONSTRAINT chk_certification_issued_not_future
