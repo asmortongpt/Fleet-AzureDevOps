@@ -54,8 +54,11 @@ async function devLogin() {
     body: JSON.stringify({}),
     redirect: 'manual',
   })
-  const setCookie = res.headers.get('set-cookie') || ''
-  const cookie = extractCookie(setCookie)
+  // Undici/Node exposes `getSetCookie()` which correctly handles commas in Expires.
+  const setCookies = typeof res.headers.getSetCookie === 'function'
+    ? res.headers.getSetCookie()
+    : [res.headers.get('set-cookie')].filter(Boolean)
+  const cookie = setCookies.map((c) => String(c).split(';')[0]?.trim()).filter(Boolean).join('; ')
   const json = await res.json().catch(() => null)
   return { ok: res.ok, status: res.status, cookie, json }
 }
