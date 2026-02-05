@@ -560,6 +560,15 @@ app.use(sentryErrorHandler())
  * Job Processing Infrastructure
  */
 const initializeEmulatorTracking = async () => {
+  // Dispatch WebSocket is a first-class feature (used by UI endpoint monitor and dispatch console).
+  try {
+    const dispatchService = new DispatchService(pool, logger)
+    dispatchService.initializeWebSocketServer(server)
+    logger.info('✅ Dispatch WebSocket enabled at /api/dispatch/ws')
+  } catch (err) {
+    logger.warn('Failed to initialize Dispatch WebSocket', { err })
+  }
+
   // For demos and development we support functional emulators (data still flows through the real API/DB).
   // Never enable in production unless explicitly requested.
   const enableEmulators =
@@ -575,14 +584,6 @@ const initializeEmulatorTracking = async () => {
     logger.info('✅ OBD2 emulator WebSocket enabled at /ws/obd2/:sessionId')
   } catch (err) {
     logger.warn('Failed to initialize OBD2 emulator WebSocket', { err })
-  }
-
-  try {
-    const dispatchService = new DispatchService(pool, logger)
-    dispatchService.initializeWebSocketServer(server)
-    logger.info('✅ Dispatch WebSocket enabled at /api/dispatch/ws')
-  } catch (err) {
-    logger.warn('Failed to initialize Dispatch WebSocket', { err })
   }
 }
 
