@@ -26,7 +26,7 @@ import { z } from 'zod'
 // CONFIGURATION
 // ============================================================================
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api'
+const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '')
 const MAX_RETRIES = 3
 const RETRY_DELAY = 1000 // ms
 const CIRCUIT_BREAKER_THRESHOLD = 5 // failures before circuit opens
@@ -48,48 +48,67 @@ const STALE_TIMES = {
 // ============================================================================
 
 /**
- * Vehicle Schema - Validates all vehicle data from API
- * Prevents XSS by validating string lengths and types
- * NOTE: API uses camelCase field names and string UUIDs for IDs
+ * Vehicle Schema - Validates vehicle data from the API and normalizes to a stable internal shape.
+ *
+ * The backend currently returns snake_case DB rows (`api/src/routes/vehicles.ts`),
+ * while some older UI code expected camelCase. Support both, but always normalize
+ * to the fields used by the reactive dashboards (snake_case + string UUID id).
  */
-const VehicleSchema = z.object({
-  id: z.string().uuid().or(z.number().int().positive().transform(String)), // API uses UUID strings
-  licensePlate: z.string().min(1).max(20).trim(),
-  vin: z.string().min(17).max(17).trim(),
-  make: z.string().min(1).max(50).trim(),
-  model: z.string().min(1).max(50).trim(),
-  year: z.number().int().min(1900).max(2100),
-  status: z.enum(['active', 'maintenance', 'inactive', 'retired']),
-  odometer: z.number().nonnegative().or(z.string().transform(Number)).optional(), // mileage in API
-  fuelType: z.string().min(1).max(50).trim(),
-  fuelLevel: z.string().transform(Number).or(z.number()).optional(), // API returns string "100.00"
-  latitude: z.number().min(-90).max(90).optional(),
-  longitude: z.number().min(-180).max(180).optional(),
-  driver: z.string().max(255).trim().optional(),
-  location: z.string().max(500).trim().optional(),
-  tenantId: z.string().uuid().optional(),
-  createdAt: z.string().datetime().optional(),
-  updatedAt: z.string().datetime().optional(),
-}).transform((data) => ({
-  // Transform to snake_case for internal consistency
-  id: typeof data.id === 'number' ? data.id : parseInt(data.id.split('-').pop() || '0', 16),
-  license_plate: data.licensePlate,
-  vin: data.vin,
-  make: data.make,
-  model: data.model,
-  year: data.year,
-  status: data.status,
-  mileage: data.odometer || 0,
-  fuel_type: data.fuelType,
-  fuel_level: typeof data.fuelLevel === 'string' ? parseFloat(data.fuelLevel) : data.fuelLevel,
-  current_latitude: data.latitude,
-  current_longitude: data.longitude,
-  driver: data.driver,
-  location: data.location,
-}))
+const VehicleSchema = z
+  .object({
+    id: z.string().uuid(),
+    make: z.string().min(1).max(50).trim(),
+    model: z.string().min(1).max(50).trim().optional().default(''),
+    year: z.coerce.number().int().min(1900).max(2100).optional().default(0),
+    vin: z.string().min(0).max(64).trim().optional().default(''),
+    status: z.string().min(1).max(50).trim().optional().default('active'),
+
+    // Common DB fields
+    tenant_id: z.string().uuid().optional(),
+    license_plate: z.string().min(0).max(20).trim().optional(),
+    fuel_type: z.string().min(0).max(50).trim().optional(),
+    fuel_level: z.coerce.number().min(0).max(100).optional(),
+    odometer: z.coerce.number().nonnegative().optional(),
+    latitude: z.coerce.number().min(-90).max(90).optional(),
+    longitude: z.coerce.number().min(-180).max(180).optional(),
+
+    // Back-compat camelCase variants
+    tenantId: z.string().uuid().optional(),
+    licensePlate: z.string().min(0).max(20).trim().optional(),
+    fuelType: z.string().min(0).max(50).trim().optional(),
+    fuelLevel: z.coerce.number().min(0).max(100).optional(),
+    current_latitude: z.coerce.number().min(-90).max(90).optional(),
+    current_longitude: z.coerce.number().min(-180).max(180).optional(),
+    mileage: z.coerce.number().nonnegative().optional(),
+    odometer_reading: z.coerce.number().nonnegative().optional(),
+  })
+  .passthrough()
+  .transform((v) => {
+    const fuelLevel = v.fuel_level ?? v.fuelLevel
+    const odometer = v.odometer ?? v.odometer_reading ?? v.mileage ?? 0
+    const lat = v.latitude ?? v.current_latitude
+    const lng = v.longitude ?? v.current_longitude
+
+    return {
+      id: v.id,
+      tenant_id: v.tenant_id ?? v.tenantId,
+      license_plate: v.license_plate ?? v.licensePlate,
+      vin: v.vin,
+      make: v.make,
+      model: v.model,
+      year: v.year,
+      status: v.status,
+      mileage: Number(odometer) || 0,
+      fuel_type: v.fuel_type ?? v.fuelType,
+      fuel_level: fuelLevel == null ? undefined : Number(fuelLevel),
+      current_latitude: lat == null ? undefined : Number(lat),
+      current_longitude: lng == null ? undefined : Number(lng),
+    }
+  })
 
 /**
  * Fleet Metrics Schema - Validates aggregated fleet data
+ * Backend returns this shape directly (see `api/src/routes/fleet.ts`).
  */
 const FleetMetricsSchema = z.object({
   totalVehicles: z.number().int().nonnegative(),
@@ -100,14 +119,34 @@ const FleetMetricsSchema = z.object({
   totalMileage: z.number().nonnegative(),
 })
 
-// Backend responses are wrapped by formatResponse middleware: { success, data, meta }.
-// Normalize to the inner payload for consumers.
-const FleetMetricsResponseSchema = z
-  .object({
-    data: FleetMetricsSchema,
-  })
-  .passthrough()
-  .transform((r) => r.data)
+// Backend typically wraps responses via `formatResponse`: { success, data, meta }.
+// Some endpoints may return raw payloads. Support both and normalize to the inner payload.
+const FleetMetricsResponseSchema = z.union([
+  z
+    .object({
+      data: FleetMetricsSchema,
+    })
+    .passthrough()
+    .transform((r) => r.data),
+  FleetMetricsSchema,
+])
+
+const VehiclesResponseSchema = z.union([
+  z
+    .object({
+      data: z.object({
+        data: z.array(VehicleSchema),
+        total: z.number().optional(),
+      }),
+    })
+    .passthrough()
+    .transform((r) => r.data),
+  z.object({
+    data: z.array(VehicleSchema),
+    total: z.number().optional(),
+  }),
+])
+
 // ============================================================================
 // TYPES (Inferred from Zod schemas for 100% consistency)
 // ============================================================================
@@ -345,14 +384,10 @@ export function useReactiveFleetData(): UseReactiveFleetDataReturn {
       }
 
       try {
-        // API returns {data: [...], total: number}, extract the data array
-        const response = (await secureFetch(
-          `${API_BASE}/vehicles`,
-          z.object({
-            data: z.array(VehicleSchema),
-            total: z.number().optional(),
-          }) as any  // Type assertion needed due to Zod transform() output type mismatch
-        )) as unknown as { data: any[]; total?: number }
+        const response = (await secureFetch(`${API_BASE}/vehicles`, VehiclesResponseSchema)) as {
+          data: Vehicle[]
+          total?: number
+        }
         vehiclesCircuitBreaker.recordSuccess()
         lastUpdateRef.current = new Date()
         return response.data
@@ -395,10 +430,7 @@ export function useReactiveFleetData(): UseReactiveFleetDataReturn {
       }
 
       try {
-        const data = await secureFetch(
-          `${API_BASE}/fleet/metrics`,
-          FleetMetricsResponseSchema
-        )
+        const data = await secureFetch(`${API_BASE}/fleet/metrics`, FleetMetricsResponseSchema)
         metricsCircuitBreaker.recordSuccess()
         return data
       } catch (error) {
