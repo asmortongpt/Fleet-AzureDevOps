@@ -61,30 +61,23 @@ export function EndpointMonitor() {
   // Define all REST endpoints to monitor
   const endpointDefinitions: Omit<EndpointStatus, 'status' | 'latency' | 'lastChecked' | 'uptime' | 'errorCount'>[] = [
     // Core endpoints
-    { endpoint: '/api/csrf', name: 'CSRF Token', category: 'core' },
-    { endpoint: '/api/auth/login', name: 'Authentication', category: 'core' },
-    { endpoint: '/api/vehicles', name: 'Vehicles API', category: 'core' },
-    { endpoint: '/api/drivers', name: 'Drivers API', category: 'core' },
-    { endpoint: '/api/telemetry', name: 'Telemetry API', category: 'core' },
+    { endpoint: '/api/dashboard/stats', name: 'Dashboard Stats', category: 'core' },
+    { endpoint: '/api/auth/me', name: 'Current Session', category: 'core' },
+    { endpoint: '/api/vehicles?limit=1', name: 'Vehicles API', category: 'core' },
+    { endpoint: '/api/drivers?limit=1', name: 'Drivers API', category: 'core' },
+    { endpoint: '/api/incidents?limit=1', name: 'Incidents API', category: 'core' },
 
     // Management endpoints
-    { endpoint: '/api/work-orders', name: 'Work Orders', category: 'management' },
-    { endpoint: '/api/maintenance-schedules', name: 'Maintenance', category: 'management' },
-    { endpoint: '/api/inspections', name: 'Inspections', category: 'management' },
-    { endpoint: '/api/fuel-transactions', name: 'Fuel Tracking', category: 'management' },
-    { endpoint: '/api/purchase-orders', name: 'Purchase Orders', category: 'management' },
+    { endpoint: '/api/work-orders?limit=1', name: 'Work Orders', category: 'management' },
+    { endpoint: '/api/maintenance-schedules?limit=1', name: 'Maintenance', category: 'management' },
+    { endpoint: '/api/inspections?limit=1', name: 'Inspections', category: 'management' },
+    { endpoint: '/api/fuel-transactions?limit=1', name: 'Fuel Tracking', category: 'management' },
+    { endpoint: '/api/service-bays', name: 'Service Bays', category: 'management' },
 
     // Analytics endpoints
-    { endpoint: '/api/routes', name: 'Routes', category: 'analytics' },
-    { endpoint: '/api/geofences', name: 'Geofences', category: 'analytics' },
-    { endpoint: '/api/safety-incidents', name: 'Safety Incidents', category: 'analytics' },
-    { endpoint: '/api/traffic-cameras', name: 'Traffic Cameras', category: 'analytics' },
-
-    // Integration endpoints
-    { endpoint: '/api/teams', name: 'MS Teams', category: 'integration' },
-    { endpoint: '/api/outlook/messages', name: 'Outlook', category: 'integration' },
-    { endpoint: '/api/calendar/events', name: 'Calendar', category: 'integration' },
-    { endpoint: '/api/arcgis-layers', name: 'ArcGIS Layers', category: 'integration' },
+    { endpoint: '/api/routes?limit=1', name: 'Routes', category: 'analytics' },
+    { endpoint: '/api/geofences?limit=1', name: 'Geofences', category: 'analytics' },
+    { endpoint: '/api/hazard-zones', name: 'Hazard Zones', category: 'analytics' },
   ]
 
   // WebSocket status
@@ -129,8 +122,10 @@ export function EndpointMonitor() {
     const startTime = performance.now()
     try {
       const response = await fetch(`${window.location.origin}${endpoint}`, {
-        method: 'HEAD',
+        method: 'GET',
         credentials: 'include',
+        cache: 'no-store',
+        headers: { Accept: 'application/json' },
       })
       const endTime = performance.now()
       const latency = Math.round(endTime - startTime)

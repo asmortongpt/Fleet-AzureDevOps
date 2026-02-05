@@ -141,6 +141,7 @@ import maintenanceDrilldownsRouter from './routes/maintenance-drilldowns'
 import maintenanceSchedulesRouter from './routes/maintenance-schedules'
 import microsoftAuthRouter from './routes/microsoft-auth'
 import mileageReimbursementRouter from './routes/mileage-reimbursement'
+import meRouter from './routes/me'
 import mobileAssignmentRouter from './routes/mobile-assignment.routes'
 import mobileHardwareRouter from './routes/mobile-hardware.routes'
 import mobileIntegrationRouter from './routes/mobile-integration.routes'
@@ -339,6 +340,9 @@ if (process.env.NODE_ENV === 'development') {
 // BATCH-001: Request batching endpoint (must be before other routes)
 app.use('/api/v1/batch', batchRouter)
 app.use('/api/batch', batchRouter)
+
+// Legacy compatibility: current-user endpoints
+app.use('/api/v1/me', meRouter)
 
 // Core Fleet Management Routes
 app.use('/api/alerts', alertsRouter)

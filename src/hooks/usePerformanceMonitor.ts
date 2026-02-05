@@ -73,10 +73,17 @@ export function usePerformanceMonitor(
   });
 
   // Refs for tracking
+  const renderStartRef = useRef<number>(0);
   const renderTimesRef = useRef<number[]>([]);
+  const lastPublishedRenderCountRef = useRef<number>(0);
   const customMetricsRef = useRef<Array<{ name: string; duration: number; timestamp: number }>>([]);
   const warningsRef = useRef<Array<{ message: string; severity: 'low' | 'medium' | 'high' }>>([]);
   const memoryUsageRef = useRef<number[]>([]);
+
+  // Capture render start time for this commit without causing re-renders.
+  renderStartRef.current = typeof performance !== 'undefined' && typeof performance.now === 'function'
+    ? performance.now()
+    : Date.now()
 
   // Start a metric timer
   const startMetric = useCallback((name: string): number => {
@@ -152,29 +159,50 @@ export function usePerformanceMonitor(
   useEffect(() => {
     if (!enabled) return;
 
-    const renderStart = performance.now();
+    const end = typeof performance !== 'undefined' && typeof performance.now === 'function'
+      ? performance.now()
+      : Date.now()
+    const renderTime = Math.max(0, end - renderStartRef.current)
 
-    return () => {
-      const renderTime = performance.now() - renderStart;
-      renderTimesRef.current.push(renderTime);
+    renderTimesRef.current.push(renderTime)
+    if (renderTimesRef.current.length > 100) {
+      renderTimesRef.current = renderTimesRef.current.slice(-100)
+    }
 
-      // Keep only last 100 render times
-      if (renderTimesRef.current.length > 100) {
-        renderTimesRef.current = renderTimesRef.current.slice(-100);
+    const renderCount = renderTimesRef.current.length
+    // Publishing render metrics every render causes an update loop (the state update
+    // triggers another render). Batch updates to every N commits.
+    const publishEvery = 10
+    if (renderCount - lastPublishedRenderCountRef.current < publishEvery) {
+      return
+    }
+    lastPublishedRenderCountRef.current = renderCount
+
+    const avgRenderTime = renderTimesRef.current.reduce((a, b) => a + b, 0) / Math.max(1, renderCount)
+    const maxRenderTime = Math.max(...renderTimesRef.current)
+
+    // Round to reduce noisy updates.
+    const roundedAvg = Math.round(avgRenderTime * 10) / 10
+    const roundedMax = Math.round(maxRenderTime * 10) / 10
+
+    setMetrics(prev => {
+      // Avoid update loops: only update if values meaningfully changed.
+      if (
+        prev.renderCount === renderCount &&
+        prev.avgRenderTime === roundedAvg &&
+        prev.maxRenderTime === roundedMax
+      ) {
+        return prev
       }
 
-      const renderCount = renderTimesRef.current.length;
-      const avgRenderTime = renderTimesRef.current.reduce((a, b) => a + b, 0) / renderCount;
-      const maxRenderTime = Math.max(...renderTimesRef.current);
-
-      setMetrics(prev => ({
+      return {
         ...prev,
         renderCount,
-        avgRenderTime,
-        maxRenderTime,
-      }));
-    };
-  });
+        avgRenderTime: roundedAvg,
+        maxRenderTime: roundedMax,
+      }
+    })
+  }, [enabled]);
 
   // Memory leak detection
   useEffect(() => {

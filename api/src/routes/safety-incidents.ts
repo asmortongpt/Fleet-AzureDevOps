@@ -26,12 +26,27 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
-        `SELECT id, tenant_id, vehicle_id, incident_type, severity, description, location, incident_date, reporter_id, created_at, updated_at FROM safety_incidents WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+        `SELECT
+           id,
+           tenant_id,
+           vehicle_id,
+           type as incident_type,
+           severity,
+           description,
+           location,
+           incident_date,
+           reported_by_id as reporter_id,
+           created_at,
+           updated_at
+         FROM incidents
+         WHERE tenant_id = $1
+         ORDER BY created_at DESC
+         LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )
 
       const countResult = await pool.query(
-        `SELECT COUNT(*) FROM safety_incidents WHERE tenant_id = $1`,
+        `SELECT COUNT(*) FROM incidents WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -60,7 +75,20 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT id, tenant_id, vehicle_id, incident_type, severity, description, location, incident_date, reporter_id, created_at, updated_at FROM safety_incidents WHERE id = $1 AND tenant_id = $2`,
+        `SELECT
+           id,
+           tenant_id,
+           vehicle_id,
+           type as incident_type,
+           severity,
+           description,
+           location,
+           incident_date,
+           reported_by_id as reporter_id,
+           created_at,
+           updated_at
+         FROM incidents
+         WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -85,22 +113,29 @@ router.post(
     try {
       const data = req.body
 
-      // Auto-generate incident_number
-      const incidentNumberResult = await pool.query(
-        'SELECT COALESCE(MAX(CAST(SUBSTRING(incident_number FROM \'[0-9]+\') AS INTEGER), 0) + 1 as next_num FROM safety_incidents WHERE tenant_id = $1',
+      // Auto-generate incident number (shared with incidents table)
+      const numberResult = await pool.query(
+        `SELECT COALESCE(MAX(CAST(SUBSTRING(number FROM '[0-9]+') AS INTEGER)), 0) + 1 as next_num
+         FROM incidents WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
-      const incidentNumber = 'INC-' + String(incidentNumberResult.rows[0].next_num).padStart(6, '0')
+      const number = `INC-${String(numberResult.rows[0].next_num).padStart(4, '0')}`
 
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
-        ['tenant_id', 'incident_number', 'reported_by'],
+        {
+          ...data,
+          number,
+          type: data.incident_type || data.type || 'other',
+          incident_date: data.incident_date || new Date().toISOString(),
+          reported_by_id: req.user!.id,
+        },
+        ['tenant_id'],
         1
       )
 
       const result = await pool.query(
-        `INSERT INTO safety_incidents (${columnNames}) VALUES (${placeholders}) RETURNING *`,
-        [req.user!.tenant_id, incidentNumber, ...values, req.user!.id]
+        `INSERT INTO incidents (${columnNames}) VALUES (${placeholders}) RETURNING *`,
+        [req.user!.tenant_id, ...values]
       )
 
       res.status(201).json(result.rows[0])

@@ -137,15 +137,32 @@ async function main() {
   page.setDefaultTimeout(30_000)
 
   const pageErrors = []
+  const networkErrors = []
   page.on('pageerror', (err) => pageErrors.push(String(err)))
   page.on('console', (msg) => {
     if (msg.type() === 'error') pageErrors.push(`[console.error] ${msg.text()}`)
+  })
+  page.on('response', (resp) => {
+    const status = resp.status()
+    if (status < 400) return
+    const url = resp.url()
+    // Ignore dev tooling noise.
+    if (url.includes('__vite') || url.includes('sockjs-node')) return
+    if (status === 401 || status === 404 || status >= 500) {
+      networkErrors.push(`[${status}] ${url}`)
+    }
   })
 
   async function dumpErrors(label) {
     if (!pageErrors.length) return
     const p = path.join(OUT_DIR, `page-errors-${label}.log`)
     fs.writeFileSync(p, pageErrors.join('\n') + '\n', 'utf8')
+  }
+
+  async function dumpNetwork(label) {
+    if (!networkErrors.length) return
+    const p = path.join(OUT_DIR, `network-errors-${label}.log`)
+    fs.writeFileSync(p, [...new Set(networkErrors)].join('\n') + '\n', 'utf8')
   }
 
   async function goto(pathname, shot) {
@@ -232,12 +249,14 @@ async function main() {
     if (!opened) {
       await screenshot(page, `${prefix}-not-opened.png`)
       await dumpErrors(prefix)
+      await dumpNetwork(prefix)
       continue
     }
     await page.waitForTimeout(1200)
     await screenshot(page, `${prefix}.png`)
     await tryDrilldownInPanel(page, prefix)
     await dumpErrors(prefix)
+    await dumpNetwork(prefix)
   }
 
   // Fail fast if the UI error boundary is visible.
@@ -262,6 +281,10 @@ async function main() {
   if (pageErrors.length) {
     const p = path.join(OUT_DIR, 'page-errors.log')
     fs.writeFileSync(p, pageErrors.join('\n') + '\n', 'utf8')
+  }
+  if (networkErrors.length) {
+    const p = path.join(OUT_DIR, 'network-errors.log')
+    fs.writeFileSync(p, [...new Set(networkErrors)].join('\n') + '\n', 'utf8')
   }
 
   // Emit a stable summary for CI/console.
