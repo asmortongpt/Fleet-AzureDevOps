@@ -219,7 +219,7 @@ SELECT
     fc.card_last4,
     fc.status,
     v.name as vehicle_name,
-    d.name as driver_name,
+    CONCAT_WS(' ', d.first_name, d.last_name) as driver_name,
     COUNT(fct.id) as transaction_count,
     SUM(fct.gallons) as total_gallons,
     SUM(fct.total_cost) as total_cost,
@@ -230,13 +230,13 @@ FROM fuel_cards fc
 LEFT JOIN fuel_card_transactions fct ON fc.id = fct.fuel_card_id
 LEFT JOIN vehicles v ON fc.vehicle_id = v.id
 LEFT JOIN drivers d ON fc.driver_id = d.id
-GROUP BY fc.id, fc.card_last4, fc.status, v.name, d.name
+GROUP BY fc.id, fc.card_last4, fc.status, v.name, d.first_name, d.last_name
 ORDER BY total_cost DESC NULLS LAST;
 
 -- Reconciliation status summary
 CREATE OR REPLACE VIEW fuel_reconciliation_summary AS
 SELECT
-    t.tenant_id,
+    t.id as tenant_id,
     COUNT(*) FILTER (WHERE fct.reconciliation_status = 'pending') as pending_count,
     COUNT(*) FILTER (WHERE fct.reconciliation_status = 'matched') as matched_count,
     COUNT(*) FILTER (WHERE fct.reconciliation_status = 'unmatched') as unmatched_count,
@@ -246,7 +246,7 @@ SELECT
     SUM(fct.total_cost) FILTER (WHERE fct.reconciliation_status = 'disputed') as disputed_amount
 FROM tenants t
 LEFT JOIN fuel_card_transactions fct ON t.id = fct.tenant_id
-GROUP BY t.tenant_id;
+GROUP BY t.id;
 
 -- ============================================================================
 -- Sample Data (Optional)

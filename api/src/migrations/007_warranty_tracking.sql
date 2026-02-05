@@ -109,6 +109,9 @@ CREATE TABLE IF NOT EXISTS warranty_claims (
     )
 );
 
+-- If the table already existed (from prior runs/unversioned scripts), ensure key columns exist.
+ALTER TABLE warranty_claims ADD COLUMN IF NOT EXISTS work_order_id UUID;
+
 -- ============================================================================
 -- 3. ALTER WORK_ORDERS TABLE (if exists)
 -- ============================================================================

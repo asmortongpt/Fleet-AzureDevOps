@@ -26,7 +26,8 @@ ON gps_tracks(vehicle_id, timestamp DESC);
 -- Partial index for recent data (30 days) - reduces index size by 90%
 CREATE INDEX IF NOT EXISTS idx_gps_tracks_timestamp_partial
 ON gps_tracks(timestamp DESC)
-WHERE timestamp > NOW() - INTERVAL '30 days';
+-- Index predicates must be IMMUTABLE; avoid NOW() here.
+WHERE timestamp IS NOT NULL;
 
 -- Tenant isolation index
 CREATE INDEX IF NOT EXISTS idx_gps_tracks_tenant_timestamp
@@ -43,9 +44,19 @@ ON gps_tracks(vehicle_id, speed DESC)
 WHERE speed > 0;
 
 -- Trip grouping queries
-CREATE INDEX IF NOT EXISTS idx_gps_tracks_trip_id
-ON gps_tracks(trip_id)
-WHERE trip_id IS NOT NULL;
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'gps_tracks'
+      AND column_name = 'trip_id'
+  ) THEN
+    EXECUTE 'CREATE INDEX IF NOT EXISTS idx_gps_tracks_trip_id ON gps_tracks(trip_id) WHERE trip_id IS NOT NULL';
+  END IF;
+END
+$$;
 
 COMMENT ON INDEX idx_gps_tracks_vehicle_timestamp IS 'Performance: Vehicle timeline queries - 60% faster';
 COMMENT ON INDEX idx_gps_tracks_timestamp_partial IS 'Performance: Recent data queries with 90% smaller index';
@@ -61,7 +72,8 @@ ON telemetry_data(vehicle_id, timestamp DESC);
 -- Partial index for recent telemetry (30 days)
 CREATE INDEX IF NOT EXISTS idx_telemetry_timestamp_partial
 ON telemetry_data(timestamp DESC)
-WHERE timestamp > NOW() - INTERVAL '30 days';
+-- Index predicates must be IMMUTABLE; avoid NOW() here.
+WHERE timestamp IS NOT NULL;
 
 -- Tenant isolation
 CREATE INDEX IF NOT EXISTS idx_telemetry_tenant_timestamp
@@ -277,7 +289,8 @@ ON drivers(tenant_id, status);
 -- License expiration monitoring (active licenses only)
 CREATE INDEX IF NOT EXISTS idx_drivers_license_expiry
 ON drivers(license_expiry_date ASC)
-WHERE license_expiry_date > NOW();
+-- Index predicates must be IMMUTABLE; avoid NOW() here.
+WHERE license_expiry_date IS NOT NULL;
 
 -- User account linkage
 CREATE INDEX IF NOT EXISTS idx_drivers_user_id
@@ -383,7 +396,8 @@ WHERE next_due_date IS NOT NULL;
 -- Upcoming maintenance (next 30 days)
 CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_upcoming
 ON maintenance_schedules(next_due_date ASC)
-WHERE next_due_date BETWEEN NOW() AND NOW() + INTERVAL '30 days';
+-- Index predicates must be IMMUTABLE; avoid NOW() here.
+WHERE next_due_date IS NOT NULL;
 
 -- Tenant maintenance planning
 CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_tenant

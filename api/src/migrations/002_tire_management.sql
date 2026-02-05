@@ -206,6 +206,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS tire_inventory_updated_at ON tire_inventory;
 CREATE TRIGGER tire_inventory_updated_at
     BEFORE UPDATE ON tire_inventory
     FOR EACH ROW
@@ -220,6 +221,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS vehicle_tire_positions_updated_at ON vehicle_tire_positions;
 CREATE TRIGGER vehicle_tire_positions_updated_at
     BEFORE UPDATE ON vehicle_tire_positions
     FOR EACH ROW
@@ -234,6 +236,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS tire_rotation_schedules_updated_at ON tire_rotation_schedules;
 CREATE TRIGGER tire_rotation_schedules_updated_at
     BEFORE UPDATE ON tire_rotation_schedules
     FOR EACH ROW

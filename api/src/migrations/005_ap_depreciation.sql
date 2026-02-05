@@ -507,10 +507,9 @@ GRANT SELECT ON v_budget_vs_actual TO fleet_user;
 -- MIGRATION COMPLETE
 -- ============================================================================
 
--- Add migration record
-INSERT INTO schema_migrations (version, description, applied_at)
-VALUES ('005', 'Accounts Payable and Depreciation', NOW())
-ON CONFLICT (version) DO NOTHING;
+-- NOTE: This repo uses a filename-based `schema_migrations` table managed by the
+-- migration runner (`api/src/scripts/run-migrations.ts`). Do not insert custom
+-- "version" rows here.
 
 -- Success message
 DO $$

@@ -155,7 +155,8 @@ CREATE INDEX IF NOT EXISTS idx_vendor_contracts_vendor_status
     ON vendor_contracts(vendor_id, status);
 CREATE INDEX IF NOT EXISTS idx_vendor_contracts_expiring
     ON vendor_contracts(tenant_id, end_date)
-    WHERE status = 'active' AND end_date > CURRENT_DATE;
+    -- Index predicates must be IMMUTABLE; avoid CURRENT_DATE here.
+    WHERE status = 'active' AND end_date IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_vendor_contracts_type
     ON vendor_contracts(tenant_id, contract_type);
 CREATE INDEX IF NOT EXISTS idx_vendor_contracts_auto_renew
@@ -410,7 +411,7 @@ SELECT
     COUNT(DISTINCT po.id) as total_purchase_orders,
     SUM(po.total_amount) as total_spend,
     MAX(po.order_date) as last_order_date,
-    AVG(EXTRACT(DAY FROM (po.delivered_date - po.order_date))) as avg_delivery_days,
+    AVG(EXTRACT(DAY FROM (po.actual_delivery_date - po.order_date))) as avg_delivery_days,
     COUNT(DISTINCT vc.id) as active_contracts
 FROM vendors v
 LEFT JOIN purchase_orders po ON v.id = po.vendor_id
@@ -432,8 +433,8 @@ DECLARE
     v_on_time_deliveries INTEGER;
 BEGIN
     SELECT
-        COUNT(*) FILTER (WHERE delivered_date IS NOT NULL),
-        COUNT(*) FILTER (WHERE delivered_date IS NOT NULL AND delivered_date <= expected_delivery_date)
+        COUNT(*) FILTER (WHERE actual_delivery_date IS NOT NULL),
+        COUNT(*) FILTER (WHERE actual_delivery_date IS NOT NULL AND actual_delivery_date <= expected_delivery_date)
     INTO v_total_orders, v_on_time_deliveries
     FROM purchase_orders
     WHERE vendor_id = p_vendor_id

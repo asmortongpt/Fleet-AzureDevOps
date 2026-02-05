@@ -56,18 +56,18 @@ CREATE TABLE IF NOT EXISTS budgets (
 );
 
 -- Create unique index instead of UNIQUE constraint (to support COALESCE)
-CREATE UNIQUE INDEX uq_budgets_unique_period ON budgets (
+CREATE UNIQUE INDEX IF NOT EXISTS uq_budgets_unique_period ON budgets (
     tenant_id, fiscal_year, period_start, budget_category,
     COALESCE(department, ''), COALESCE(cost_center, '')
 );
 
 -- Indexes for budgets table
-CREATE INDEX idx_budgets_tenant_id ON budgets(tenant_id);
-CREATE INDEX idx_budgets_tenant_fiscal_year ON budgets(tenant_id, fiscal_year);
-CREATE INDEX idx_budgets_department_period ON budgets(department, period_start, period_end) WHERE department IS NOT NULL;
-CREATE INDEX idx_budgets_status ON budgets(status) WHERE status = 'active';
-CREATE INDEX idx_budgets_category ON budgets(budget_category);
-CREATE INDEX idx_budgets_period_dates ON budgets(period_start, period_end);
+CREATE INDEX IF NOT EXISTS idx_budgets_tenant_id ON budgets(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_budgets_tenant_fiscal_year ON budgets(tenant_id, fiscal_year);
+CREATE INDEX IF NOT EXISTS idx_budgets_department_period ON budgets(department, period_start, period_end) WHERE department IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_budgets_status ON budgets(status) WHERE status = 'active';
+CREATE INDEX IF NOT EXISTS idx_budgets_category ON budgets(budget_category);
+CREATE INDEX IF NOT EXISTS idx_budgets_period_dates ON budgets(period_start, period_end);
 
 -- Comments for budgets table
 COMMENT ON TABLE budgets IS 'Budget tracking by department, period, and category with real-time variance analysis';
@@ -134,15 +134,15 @@ CREATE TABLE IF NOT EXISTS purchase_requisitions (
 );
 
 -- Indexes for purchase_requisitions table
-CREATE INDEX idx_purchase_requisitions_tenant_id ON purchase_requisitions(tenant_id);
-CREATE INDEX idx_purchase_requisitions_status ON purchase_requisitions(status);
-CREATE INDEX idx_purchase_requisitions_requested_by ON purchase_requisitions(requested_by);
-CREATE INDEX idx_purchase_requisitions_department ON purchase_requisitions(department) WHERE department IS NOT NULL;
-CREATE INDEX idx_purchase_requisitions_vendor_id ON purchase_requisitions(vendor_id) WHERE vendor_id IS NOT NULL;
-CREATE INDEX idx_purchase_requisitions_budget_id ON purchase_requisitions(budget_id) WHERE budget_id IS NOT NULL;
-CREATE INDEX idx_purchase_requisitions_date ON purchase_requisitions(requisition_date DESC);
-CREATE INDEX idx_purchase_requisitions_approved_by ON purchase_requisitions(approved_by) WHERE approved_by IS NOT NULL;
-CREATE INDEX idx_purchase_requisitions_po_id ON purchase_requisitions(purchase_order_id) WHERE purchase_order_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_purchase_requisitions_tenant_id ON purchase_requisitions(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_purchase_requisitions_status ON purchase_requisitions(status);
+CREATE INDEX IF NOT EXISTS idx_purchase_requisitions_requested_by ON purchase_requisitions(requested_by);
+CREATE INDEX IF NOT EXISTS idx_purchase_requisitions_department ON purchase_requisitions(department) WHERE department IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_purchase_requisitions_vendor_id ON purchase_requisitions(vendor_id) WHERE vendor_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_purchase_requisitions_budget_id ON purchase_requisitions(budget_id) WHERE budget_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_purchase_requisitions_date ON purchase_requisitions(requisition_date DESC);
+CREATE INDEX IF NOT EXISTS idx_purchase_requisitions_approved_by ON purchase_requisitions(approved_by) WHERE approved_by IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_purchase_requisitions_po_id ON purchase_requisitions(purchase_order_id) WHERE purchase_order_id IS NOT NULL;
 
 -- Comments for purchase_requisitions table
 COMMENT ON TABLE purchase_requisitions IS 'Purchase requisition approval workflow before PO creation';
@@ -177,11 +177,11 @@ CREATE TABLE IF NOT EXISTS budget_alerts (
 );
 
 -- Indexes for budget_alerts table
-CREATE INDEX idx_budget_alerts_tenant_id ON budget_alerts(tenant_id);
-CREATE INDEX idx_budget_alerts_budget_id ON budget_alerts(budget_id);
-CREATE INDEX idx_budget_alerts_type ON budget_alerts(alert_type);
-CREATE INDEX idx_budget_alerts_sent_at ON budget_alerts(sent_at DESC);
-CREATE INDEX idx_budget_alerts_unacknowledged ON budget_alerts(budget_id, acknowledged) WHERE acknowledged = false;
+CREATE INDEX IF NOT EXISTS idx_budget_alerts_tenant_id ON budget_alerts(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_budget_alerts_budget_id ON budget_alerts(budget_id);
+CREATE INDEX IF NOT EXISTS idx_budget_alerts_type ON budget_alerts(alert_type);
+CREATE INDEX IF NOT EXISTS idx_budget_alerts_sent_at ON budget_alerts(sent_at DESC);
+CREATE INDEX IF NOT EXISTS idx_budget_alerts_unacknowledged ON budget_alerts(budget_id, acknowledged) WHERE acknowledged = false;
 
 -- Comments for budget_alerts table
 COMMENT ON TABLE budget_alerts IS 'Budget consumption alerts at defined thresholds';
@@ -214,11 +214,11 @@ CREATE TABLE IF NOT EXISTS budget_transactions (
 );
 
 -- Indexes for budget_transactions table
-CREATE INDEX idx_budget_transactions_tenant_id ON budget_transactions(tenant_id);
-CREATE INDEX idx_budget_transactions_budget_id ON budget_transactions(budget_id);
-CREATE INDEX idx_budget_transactions_date ON budget_transactions(transaction_date DESC);
-CREATE INDEX idx_budget_transactions_type ON budget_transactions(transaction_type);
-CREATE INDEX idx_budget_transactions_reference ON budget_transactions(reference_type, reference_id)
+CREATE INDEX IF NOT EXISTS idx_budget_transactions_tenant_id ON budget_transactions(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_budget_transactions_budget_id ON budget_transactions(budget_id);
+CREATE INDEX IF NOT EXISTS idx_budget_transactions_date ON budget_transactions(transaction_date DESC);
+CREATE INDEX IF NOT EXISTS idx_budget_transactions_type ON budget_transactions(transaction_type);
+CREATE INDEX IF NOT EXISTS idx_budget_transactions_reference ON budget_transactions(reference_type, reference_id)
     WHERE reference_type IS NOT NULL AND reference_id IS NOT NULL;
 
 -- Comments for budget_transactions table
