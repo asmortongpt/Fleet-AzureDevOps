@@ -79,6 +79,19 @@ export function getRedirectUri(): string {
   // If explicitly set via environment variable, use that
   const envRedirectUri = import.meta.env.VITE_AZURE_AD_REDIRECT_URI;
   if (envRedirectUri) {
+    // Dev guard: avoid redirect loops when the env var points to the wrong local port.
+    // In development, prefer the current origin unless the configured redirect matches it.
+    if (import.meta.env.DEV && typeof window !== 'undefined') {
+      const origin = window.location.origin;
+      if (!envRedirectUri.startsWith(origin)) {
+        console.warn('[Auth] Ignoring VITE_AZURE_AD_REDIRECT_URI (wrong origin for this dev server)', {
+          envRedirectUri,
+          origin,
+        });
+        return `${origin}/auth/callback`;
+      }
+    }
+
     return envRedirectUri;
   }
 
