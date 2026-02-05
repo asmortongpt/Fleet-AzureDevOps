@@ -116,6 +116,7 @@ import dashboardRouter from './routes/dashboard.routes'
 import facilitiesRouter from './routes/facilities'
 import serviceBaysRouter from './routes/service-bays'
 import fleetDocumentsRouter from './routes/fleet-documents.routes'
+import fleetRouter from './routes/fleet'
 import fuelRouter from './routes/fuel-transactions'
 import fuelCardsRouter from './routes/fuel-cards'
 import tiresRouter from './routes/tires'
@@ -407,6 +408,7 @@ app.use('/api/predictive-maintenance', predictiveMaintenanceRouter)
 // Document Management Routes
 app.use('/api/documents', documentsRouter)
 app.use('/api/fleet-documents', fleetDocumentsRouter)
+app.use('/api/fleet', fleetRouter)
 
 // Financial & Cost Management Routes
 // app.use('/api/costs', costsRouter)

@@ -100,6 +100,15 @@ const FleetMetricsSchema = z.object({
   totalMileage: z.number().nonnegative(),
 })
 
+// Backend responses are wrapped by formatResponse middleware: { success, data, meta }.
+// Normalize to the inner payload for consumers.
+const FleetMetricsResponseSchema = z
+  .object({
+    data: FleetMetricsSchema,
+  })
+  .passthrough()
+  .transform((r) => r.data)
+
 // ============================================================================
 // TYPES (Inferred from Zod schemas for 100% consistency)
 // ============================================================================
@@ -389,7 +398,7 @@ export function useReactiveFleetData(): UseReactiveFleetDataReturn {
       try {
         const data = await secureFetch(
           `${API_BASE}/fleet/metrics`,
-          FleetMetricsSchema
+          FleetMetricsResponseSchema
         )
         metricsCircuitBreaker.recordSuccess()
         return data

@@ -9,6 +9,12 @@ function ensureDir(p) {
   fs.mkdirSync(p, { recursive: true })
 }
 
+function rmIfExists(p) {
+  try {
+    fs.rmSync(p, { force: true })
+  } catch {}
+}
+
 async function screenshot(page, name) {
   const p = path.join(OUT_DIR, name)
   await page.screenshot({ path: p, fullPage: true })
@@ -127,6 +133,9 @@ async function openModuleViaSearch(page, moduleLabel) {
 
 async function main() {
   ensureDir(OUT_DIR)
+  // Avoid confusing stale results from prior runs.
+  rmIfExists(path.join(OUT_DIR, 'page-errors.log'))
+  rmIfExists(path.join(OUT_DIR, 'network-errors.log'))
 
   const browser = await chromium.launch({
     headless: process.env.HEADED !== 'true',
@@ -137,20 +146,19 @@ async function main() {
   page.setDefaultTimeout(30_000)
 
   const pageErrors = []
-  const networkErrors = []
+  // Track the last observed status for each URL so transient 401/404s that
+  // later recover don't fail the run.
+  const networkStatusByUrl = new Map()
   page.on('pageerror', (err) => pageErrors.push(String(err)))
   page.on('console', (msg) => {
     if (msg.type() === 'error') pageErrors.push(`[console.error] ${msg.text()}`)
   })
   page.on('response', (resp) => {
     const status = resp.status()
-    if (status < 400) return
     const url = resp.url()
     // Ignore dev tooling noise.
     if (url.includes('__vite') || url.includes('sockjs-node')) return
-    if (status === 401 || status === 404 || status >= 500) {
-      networkErrors.push(`[${status}] ${url}`)
-    }
+    networkStatusByUrl.set(url, status)
   })
 
   async function dumpErrors(label) {
@@ -160,9 +168,12 @@ async function main() {
   }
 
   async function dumpNetwork(label) {
-    if (!networkErrors.length) return
+    const rows = [...networkStatusByUrl.entries()]
+      .filter(([, status]) => status === 401 || status === 404 || status >= 500)
+      .map(([url, status]) => `[${status}] ${url}`)
+    if (!rows.length) return
     const p = path.join(OUT_DIR, `network-errors-${label}.log`)
-    fs.writeFileSync(p, [...new Set(networkErrors)].join('\n') + '\n', 'utf8')
+    fs.writeFileSync(p, [...new Set(rows)].join('\n') + '\n', 'utf8')
   }
 
   async function goto(pathname, shot) {
@@ -174,21 +185,24 @@ async function main() {
 
   await goto('', '01-home.png')
 
-  // If we're on the login screen, do dev-login to establish an auth cookie.
-  const loginButton = page.getByRole('button', { name: /sign in with microsoft/i })
-  if (await loginButton.count()) {
-    const devLogin = await tryDevLogin(page)
-    if (!devLogin.ok) {
-      // Capture state for debugging instead of failing silently.
+  // Always attempt dev-login in local/dev (no-op in prod if endpoint is disabled).
+  const devLogin = await tryDevLogin(page).catch((e) => ({ ok: false, status: -1, json: { error: String(e) } }))
+  if (devLogin.ok) {
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await page.waitForTimeout(1500)
+  } else {
+    // Fall back to UI-driven login if dev-login is not available.
+    const loginButton = page.getByRole('button', { name: /sign in with microsoft/i })
+    if (await loginButton.count()) {
       await screenshot(page, '02-dev-login-failed.png')
       throw new Error(`dev-login failed: ${devLogin.status}`)
     }
-
-    await page.reload({ waitUntil: 'domcontentloaded' })
-    await page.waitForTimeout(1500)
   }
 
   await screenshot(page, '03-after-login.png')
+  // Drop pre-login noise (expected 401s, missing routes before redirects, etc).
+  networkStatusByUrl.clear()
+  pageErrors.length = 0
 
   // KPI sanity: no "undefined%" should appear.
   const undefinedCount = await page.locator('text=/undefined%/i').count()
@@ -282,9 +296,12 @@ async function main() {
     const p = path.join(OUT_DIR, 'page-errors.log')
     fs.writeFileSync(p, pageErrors.join('\n') + '\n', 'utf8')
   }
-  if (networkErrors.length) {
+  const finalNetworkErrors = [...networkStatusByUrl.entries()]
+    .filter(([, status]) => status === 401 || status === 404 || status >= 500)
+    .map(([url, status]) => `[${status}] ${url}`)
+  if (finalNetworkErrors.length) {
     const p = path.join(OUT_DIR, 'network-errors.log')
-    fs.writeFileSync(p, [...new Set(networkErrors)].join('\n') + '\n', 'utf8')
+    fs.writeFileSync(p, [...new Set(finalNetworkErrors)].join('\n') + '\n', 'utf8')
   }
 
   // Emit a stable summary for CI/console.
