@@ -124,6 +124,15 @@ BEGIN
         IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'warranty_claims' AND column_name = 'status') THEN
             ALTER TABLE warranty_claims ADD COLUMN status VARCHAR(50) DEFAULT 'submitted';
         END IF;
+        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'warranty_claims' AND column_name = 'parts_replaced') THEN
+            ALTER TABLE warranty_claims ADD COLUMN parts_replaced JSONB;
+        END IF;
+        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'warranty_claims' AND column_name = 'supporting_documents') THEN
+            ALTER TABLE warranty_claims ADD COLUMN supporting_documents JSONB;
+        END IF;
+        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'warranty_claims' AND column_name = 'timeline') THEN
+            ALTER TABLE warranty_claims ADD COLUMN timeline JSONB;
+        END IF;
         IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'warranty_claims' AND column_name = 'tenant_id') THEN
             ALTER TABLE warranty_claims ADD COLUMN tenant_id UUID;
         END IF;
