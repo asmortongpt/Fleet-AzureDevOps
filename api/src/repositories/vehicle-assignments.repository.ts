@@ -127,8 +127,9 @@ export class VehicleAssignmentsRepository {
       whereConditions.push(`va.assignment_type = $${paramIndex++}`);
       params.push(filters.assignment_type);
     }
+    // Legacy UI filter. Map lifecycle_state -> status for the current schema.
     if (filters.lifecycle_state) {
-      whereConditions.push(`va.lifecycle_state = $${paramIndex++}`);
+      whereConditions.push(`va.status = $${paramIndex++}`);
       params.push(filters.lifecycle_state);
     }
     if (filters.driver_id) {
@@ -139,36 +140,40 @@ export class VehicleAssignmentsRepository {
       whereConditions.push(`va.vehicle_id = $${paramIndex++}`);
       params.push(filters.vehicle_id);
     }
-    if (filters.department_id) {
-      whereConditions.push(`va.department_id = $${paramIndex++}`);
-      params.push(filters.department_id);
-    }
+    // department_id is not present in the current `vehicle_assignments` table; ignore safely.
 
     const whereClause = whereConditions.join(' AND ');
 
     const query = `
       SELECT
-        va.*,
-        v.unit_number, v.make, v.model, v.year, v.vin,
-        v.classification AS vehicle_classification,
-        dr.employee_number, dr.position_title, dr.home_county, dr.on_call_eligible,
-        u.first_name AS driver_first_name, u.last_name AS driver_last_name, u.email AS driver_email,
-        dept.name AS department_name, dept.code AS department_code,
-        sp.name AS secured_parking_name, sp.address AS secured_parking_address,
-        rec_user.first_name AS recommended_by_first_name, rec_user.last_name AS recommended_by_last_name,
-        app_user.first_name AS approved_by_first_name, app_user.last_name AS approved_by_last_name,
-        cba.id AS cost_benefit_id, cba.net_benefit
+        va.id,
+        va.tenant_id,
+        va.vehicle_id,
+        va.driver_id,
+        va.assigned_date AS start_date,
+        va.return_date AS end_date,
+        va.assignment_type,
+        va.status,
+        va.is_primary_assignment,
+        va.max_personal_miles,
+        va.max_commute_days,
+        va.agreement_signed,
+        va.agreement_date,
+        va.notes,
+        va.metadata,
+        va.created_by AS created_by_user_id,
+        va.created_at,
+        va.updated_at,
+        v.unit_number, v.number AS vehicle_number, v.name AS vehicle_name,
+        v.make, v.model, v.year, v.vin, v.license_plate,
+        dr.employee_number,
+        dr.first_name AS driver_first_name, dr.last_name AS driver_last_name,
+        dr.email AS driver_email, dr.phone AS driver_phone
       FROM vehicle_assignments va
       JOIN vehicles v ON va.vehicle_id = v.id
       JOIN drivers dr ON va.driver_id = dr.id
-      LEFT JOIN users u ON dr.user_id = u.id
-      LEFT JOIN departments dept ON va.department_id = dept.id
-      LEFT JOIN secured_parking_locations sp ON va.secured_parking_location_id = sp.id
-      LEFT JOIN users rec_user ON va.recommended_by_user_id = rec_user.id
-      LEFT JOIN users app_user ON va.approved_by_user_id = app_user.id
-      LEFT JOIN cost_benefit_analyses cba ON va.cost_benefit_analysis_id = cba.id
       WHERE ${whereClause}
-      ORDER BY va.created_at DESC
+      ORDER BY va.assigned_date DESC NULLS LAST, va.created_at DESC
       LIMIT $${paramIndex++} OFFSET $${paramIndex}
     `;
 
@@ -203,7 +208,7 @@ export class VehicleAssignmentsRepository {
       params.push(filters.assignment_type);
     }
     if (filters.lifecycle_state) {
-      whereConditions.push(`va.lifecycle_state = $${paramIndex++}`);
+      whereConditions.push(`va.status = $${paramIndex++}`);
       params.push(filters.lifecycle_state);
     }
     if (filters.driver_id) {
@@ -214,10 +219,7 @@ export class VehicleAssignmentsRepository {
       whereConditions.push(`va.vehicle_id = $${paramIndex++}`);
       params.push(filters.vehicle_id);
     }
-    if (filters.department_id) {
-      whereConditions.push(`va.department_id = $${paramIndex++}`);
-      params.push(filters.department_id);
-    }
+    // department_id not present in current schema; ignore.
 
     const whereClause = whereConditions.join(' AND ');
 
@@ -238,35 +240,38 @@ export class VehicleAssignmentsRepository {
    * Used in GET /vehicle-assignments/:id
    */
   async findById(id: string, tenantId: string): Promise<any | null> {
-    const query = `
-      SELECT
-        va.*,
-        v.unit_number, v.make, v.model, v.year, v.vin, v.license_plate,
-        v.classification AS vehicle_classification, v.ownership_type,
-        dr.employee_number, dr.position_title, dr.home_county, dr.home_city,
-        dr.home_state, dr.residence_region, dr.on_call_eligible,
-        u.first_name AS driver_first_name, u.last_name AS driver_last_name,
-        u.email AS driver_email, u.phone AS driver_phone,
-        dept.name AS department_name, dept.code AS department_code,
-        sp.name AS secured_parking_name, sp.address AS secured_parking_address,
-        sp.city AS secured_parking_city, sp.state AS secured_parking_state,
-        rec_user.first_name AS recommended_by_first_name, rec_user.last_name AS recommended_by_last_name,
-        app_user.first_name AS approved_by_first_name, app_user.last_name AS approved_by_last_name,
-        den_user.first_name AS denied_by_first_name, den_user.last_name AS denied_by_last_name,
-        cba.id AS cost_benefit_id, cba.net_benefit, cba.total_annual_costs,
-        cba.total_annual_benefits
-      FROM vehicle_assignments va
-      JOIN vehicles v ON va.vehicle_id = v.id
-      JOIN drivers dr ON va.driver_id = dr.id
-      LEFT JOIN users u ON dr.user_id = u.id
-      LEFT JOIN departments dept ON va.department_id = dept.id
-      LEFT JOIN secured_parking_locations sp ON va.secured_parking_location_id = sp.id
-      LEFT JOIN users rec_user ON va.recommended_by_user_id = rec_user.id
-      LEFT JOIN users app_user ON va.approved_by_user_id = app_user.id
-      LEFT JOIN users den_user ON va.denied_by_user_id = den_user.id
-      LEFT JOIN cost_benefit_analyses cba ON va.cost_benefit_analysis_id = cba.id
-      WHERE va.id = $1 AND va.tenant_id = $2
-    `;
+	    const query = `
+	      SELECT
+	        va.id,
+	        va.tenant_id,
+	        va.vehicle_id,
+	        va.driver_id,
+	        va.assigned_date AS start_date,
+	        va.return_date AS end_date,
+	        va.assignment_type,
+	        va.status,
+	        va.is_primary_assignment,
+	        va.max_personal_miles,
+	        va.max_commute_days,
+	        va.agreement_signed,
+	        va.agreement_date,
+	        va.notes,
+	        va.metadata,
+	        va.created_by AS created_by_user_id,
+	        va.created_at,
+	        va.updated_at,
+	        v.unit_number, v.number AS vehicle_number, v.name AS vehicle_name,
+	        v.make, v.model, v.year, v.vin, v.license_plate,
+	        dr.employee_number,
+	        dr.first_name AS driver_first_name, dr.last_name AS driver_last_name,
+	        dr.email AS driver_email, dr.phone AS driver_phone,
+	        cb.first_name AS created_by_first_name, cb.last_name AS created_by_last_name, cb.email AS created_by_email
+	      FROM vehicle_assignments va
+	      JOIN vehicles v ON va.vehicle_id = v.id
+	      JOIN drivers dr ON va.driver_id = dr.id
+	      LEFT JOIN users cb ON va.created_by = cb.id
+	      WHERE va.id = $1 AND va.tenant_id = $2
+	    `;
 
     logger.debug('VehicleAssignmentsRepository.findById', { id, tenantId });
     const result = await this.pool.query(query, [id, tenantId]);

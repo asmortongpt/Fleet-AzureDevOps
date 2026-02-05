@@ -94,7 +94,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     if (useLocal) {
       const tenantId = getTenantId(req)
       if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
-      const result = await pool.query(
+      const client = (req as any).dbClient || pool
+      const result = await client.query(
         `SELECT id, name AS "displayName", description
          FROM teams
          WHERE tenant_id = $1 AND is_active = true
@@ -197,9 +198,38 @@ router.get('/messages', async (req: AuthRequest, res: Response) => {
   }
 })
 
-router.get('/files', async (_req: AuthRequest, res: Response) => {
-  // Avoid throwing from route fall-through. File operations require Graph/SharePoint wiring.
-  return res.status(501).json({ success: false, error: 'Teams files not implemented for local demo mode' })
+router.get('/files', async (req: AuthRequest, res: Response) => {
+  try {
+    const tenantId = getTenantId(req)
+    if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
+
+    // Best-effort: surface recent documents for the tenant. This is DB-backed and avoids 5xx in demo mode.
+    const client = (req as any).dbClient || pool
+    const result = await client.query(
+      `SELECT
+         id,
+         COALESCE(title, name, file_name) AS name,
+         file_name,
+         file_url,
+         mime_type,
+         file_size,
+         created_at
+       FROM documents
+       WHERE tenant_id = $1
+         AND is_archived = false
+       ORDER BY created_at DESC
+       LIMIT 50`,
+      [tenantId]
+    )
+
+    return res.json({ success: true, files: result.rows })
+  } catch (error) {
+    logger.error('Error listing Teams files (demo-backed)', {
+      error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
+      userId: req.user?.id
+    })
+    return res.status(500).json({ success: false, error: 'Failed to list files' })
+  }
 })
 
 /**
@@ -232,7 +262,8 @@ router.get('/:teamId', async (req: AuthRequest, res: Response) => {
     if (useLocal) {
       const tenantId = getTenantId(req)
       if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
-      const result = await pool.query(
+      const client = (req as any).dbClient || pool
+      const result = await client.query(
         `SELECT id, name AS "displayName", description
          FROM teams
          WHERE tenant_id = $1 AND id = $2

@@ -330,9 +330,60 @@ router.get(
       })
     } catch (error: any) {
       logger.error(`Get trip usage error:`, error) // Wave 19: Winston logger
-      res.status(500).json({ error: `Failed to retrieve trip usage data` })
+  res.status(500).json({ error: `Failed to retrieve trip usage data` })
     }
   })
+
+/**
+ * GET /api/trip-usage/pending-approval
+ * Get trips pending approval (for managers)
+ *
+ * NOTE: Must be defined BEFORE `/:id` or it will be captured by the ID route.
+ */
+router.get(
+  '/pending-approval',
+  requirePermission('route:approve:fleet'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { limit = 50, offset = 0 } = req.query
+
+      const result = await pool.query(
+        `SELECT t.*,
+                NULLIF(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))), '') as driver_name,
+                u.email as driver_email,
+                COALESCE(v.number, v.name) as vehicle_number,
+                v.make, v.model, v.year
+         FROM trip_usage_classification t
+         JOIN users u ON t.driver_id = u.id
+         JOIN vehicles v ON t.vehicle_id = v.id
+         WHERE t.tenant_id = $1
+           AND t.approval_status = $2
+         ORDER BY t.trip_date DESC, t.created_at ASC
+         LIMIT $3 OFFSET $4`,
+        [req.user!.tenant_id, ApprovalStatus.PENDING, limit, offset]
+      )
+
+      const countResult = await pool.query(
+        `SELECT COUNT(*) FROM trip_usage_classification WHERE tenant_id = $1 AND approval_status = $2`,
+        [req.user!.tenant_id, ApprovalStatus.PENDING]
+      )
+
+      res.json({
+        success: true,
+        data: result.rows,
+        pagination: {
+          total: parseInt(countResult.rows[0].count),
+          limit: parseInt(limit as string),
+          offset: parseInt(offset as string),
+          has_more: parseInt(offset as string) + result.rows.length < parseInt(countResult.rows[0].count)
+        }
+      })
+    } catch (error: any) {
+      logger.error(`Get pending approvals error:`, error) // Wave 19: Winston logger
+      res.status(500).json({ error: 'Failed to retrieve pending approvals' })
+    }
+  }
+)
 
 /**
  * GET /api/trip-usage/:id
@@ -476,55 +527,6 @@ router.patch(
         return res.status(400).json({ error: 'Invalid request data', details: error.issues })
       }
       res.status(500).json({ error: 'Failed to update trip usage classification' })
-    }
-  }
-)
-
-/**
- * GET /api/trip-usage/pending-approval
- * Get trips pending approval (for managers)
- */
-router.get(
-  '/pending-approval',
-  requirePermission('route:approve:fleet'),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const { limit = 50, offset = 0 } = req.query
-
-	      const result = await pool.query(
-	        `SELECT t.*,
-	                NULLIF(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))), '') as driver_name,
-	                u.email as driver_email,
-	                COALESCE(v.number, v.name) as vehicle_number,
-	                v.make, v.model, v.year
-	         FROM trip_usage_classification t
-	         JOIN users u ON t.driver_id = u.id
-	         JOIN vehicles v ON t.vehicle_id = v.id
-	         WHERE t.tenant_id = $1
-           AND t.approval_status = $2
-         ORDER BY t.trip_date DESC, t.created_at ASC
-         LIMIT $3 OFFSET $4`,
-        [req.user!.tenant_id, ApprovalStatus.PENDING, limit, offset]
-      )
-
-      const countResult = await pool.query(
-        `SELECT COUNT(*) FROM trip_usage_classification WHERE tenant_id = $1 AND approval_status = $2`,
-        [req.user!.tenant_id, ApprovalStatus.PENDING]
-      )
-
-      res.json({
-        success: true,
-        data: result.rows,
-        pagination: {
-          total: parseInt(countResult.rows[0].count),
-          limit: parseInt(limit as string),
-          offset: parseInt(offset as string),
-          has_more: parseInt(offset as string) + result.rows.length < parseInt(countResult.rows[0].count)
-        }
-      })
-    } catch (error: any) {
-      logger.error(`Get pending approvals error:`, error) // Wave 19: Winston logger
-      res.status(500).json({ error: 'Failed to retrieve pending approvals' })
     }
   }
 )
