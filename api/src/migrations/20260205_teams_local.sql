@@ -78,7 +78,7 @@ SELECT
   'Maintenance System' AS sender_name,
   CONCAT(
     'Work Order ',
-    COALESCE(w.work_order_number, w.id::text),
+    COALESCE(w.number, w.id::text),
     ' (',
     w.status::text,
     ') for vehicle ',
