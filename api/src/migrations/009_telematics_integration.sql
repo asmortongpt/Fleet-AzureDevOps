@@ -347,15 +347,15 @@ BEGIN
     WHERE p.proname = 'update_updated_at_column'
       AND n.nspname = 'public'
   ) THEN
-    EXECUTE $fn$
+    EXECUTE $$
       CREATE FUNCTION update_updated_at_column()
-      RETURNS TRIGGER AS $$
+      RETURNS TRIGGER AS $body$
       BEGIN
         NEW.updated_at = NOW();
         RETURN NEW;
       END;
-      $$ LANGUAGE plpgsql;
-    $fn$;
+      $body$ LANGUAGE plpgsql;
+    $$;
   END IF;
 END $$;
 
