@@ -1,8 +1,10 @@
 import express from 'express';
 import pg from 'pg';
 
-if (process.env.NODE_ENV === 'production' && process.env.ENABLE_LEGACY_API !== 'true') {
-  console.error('Legacy API entrypoint is disabled in production. Set ENABLE_LEGACY_API=true to override.');
+// This file is a legacy/experimental entrypoint and is not part of the supported server runtime.
+// Prevent accidental deployment by requiring explicit opt-in in *all* environments.
+if (process.env.ENABLE_LEGACY_API !== 'true') {
+  console.error('Legacy API entrypoint disabled. Set ENABLE_LEGACY_API=true to run.');
   process.exit(1);
 }
 
