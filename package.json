@@ -27,7 +27,7 @@
     "@googlemaps/react-wrapper": "^1.2.0",
     "@hookform/resolvers": "^5.2.2",
     "@microsoft/applicationinsights-react-js": "^19.3.8",
-    "@microsoft/applicationinsights-web": "^3.3.10",
+    "@microsoft/applicationinsights-web": "^3.3.11",
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@phosphor-icons/react": "^2.1.10",
