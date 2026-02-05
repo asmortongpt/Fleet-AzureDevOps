@@ -7,6 +7,7 @@ import express from 'express'
 import { pool } from './db'
 import { TelemetryService } from './services/TelemetryService'
 import obd2EmulatorService from './services/obd2-emulator.service'
+import { DispatchService } from './services/dispatch.service'
 
 import { initializeConnectionManager } from './config/connection-manager' // Import connection manager initialization
 import { processEmailJob } from './jobs/processors/email.processor'
@@ -154,7 +155,8 @@ import mobileMessagingRouter from './routes/mobile-messaging.routes'
 import mobilePhotosRouter from './routes/mobile-photos.routes'
 import mobileTripsRouter from './routes/mobile-trips.routes'
 import monitoringRouter from './routes/monitoring'
-import obd2EmulatorRouter from './routes/obd2-emulator.routes'
+import obd2EmulatorRouter, { setupOBD2WebSocket } from './routes/obd2-emulator.routes'
+import dispatchRouter from './routes/dispatch.routes'
 import onCallManagementRouter from './routes/on-call-management.routes'
 import oshaComplianceRouter from './routes/osha-compliance'
 import outlookRouter from './routes/outlook.routes'
@@ -506,6 +508,7 @@ app.use('/api/dashboard', dashboardRouter)
 // Emulator & Testing Routes
 app.use('/api/emulator', emulatorRouter)
 app.use('/api/obd2-emulator', obd2EmulatorRouter)
+app.use('/api/dispatch', dispatchRouter)
 // app.use('/api/demo', demoRouter) // REMOVED: demo routes deleted during mock data cleanup
 
 // System Management Routes
@@ -557,8 +560,30 @@ app.use(sentryErrorHandler())
  * Job Processing Infrastructure
  */
 const initializeEmulatorTracking = async () => {
-  // REMOVED: OBD2 Emulator and Real Dial Generation logic
-  logger.info('OBD2 Emulators disabled as per user request to remove mock data.')
+  // For demos and development we support functional emulators (data still flows through the real API/DB).
+  // Never enable in production unless explicitly requested.
+  const enableEmulators =
+    process.env.NODE_ENV !== 'production' && process.env.ENABLE_EMULATORS !== 'false'
+
+  if (!enableEmulators) {
+    logger.info('Emulators disabled (set ENABLE_EMULATORS=true to enable in non-production).')
+    return
+  }
+
+  try {
+    setupOBD2WebSocket(server)
+    logger.info('✅ OBD2 emulator WebSocket enabled at /ws/obd2/:sessionId')
+  } catch (err) {
+    logger.warn('Failed to initialize OBD2 emulator WebSocket', { err })
+  }
+
+  try {
+    const dispatchService = new DispatchService(pool, logger)
+    dispatchService.initializeWebSocketServer(server)
+    logger.info('✅ Dispatch WebSocket enabled at /api/dispatch/ws')
+  } catch (err) {
+    logger.warn('Failed to initialize Dispatch WebSocket', { err })
+  }
 }
 
 /**
