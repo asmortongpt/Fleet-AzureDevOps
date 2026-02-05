@@ -79,15 +79,40 @@ app.use('/api/auth', authLimiter); // Apply stricter limit to auth routes
 app.use(limiter); // Apply to all other routes
 app.use(cookieParser());
 app.use(requestIdMiddleware);
+// CORS (credentials require an explicit allowlist; do not allow `*`.)
+const corsOriginsRaw = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+const defaultDevOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:4173',
+  'http://127.0.0.1:4173',
+];
+
+const isDevelopment = process.env.NODE_ENV !== 'production';
+const corsAllowlist = [...corsOriginsRaw, ...(isDevelopment ? defaultDevOrigins : [])];
+
+if (corsAllowlist.includes('*')) {
+  throw new Error('Invalid CORS_ORIGIN: `*` is not allowed when credentials are enabled.');
+}
+
+if (!isDevelopment && corsAllowlist.length === 0) {
+  throw new Error('CORS_ORIGIN must be set in production to at least one allowed origin.');
+}
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN?.split(',') || [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://localhost:5175',
-    'http://20.161.96.87',
-    'https://fleet.capitaltechalliance.com'
-  ],
+  origin: (origin, callback) => {
+    // Allow same-origin or non-browser requests with no Origin header.
+    if (!origin) return callback(null, true);
+    if (corsAllowlist.includes(origin)) return callback(null, true);
+    return callback(new Error(`CORS: Origin ${origin} not allowed`), false);
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID', 'X-CSRF-Token', 'X-CSRF'],
 }));
 app.use(express.json());
 app.use(formatResponse);

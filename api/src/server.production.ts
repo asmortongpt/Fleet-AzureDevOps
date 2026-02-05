@@ -66,13 +66,17 @@ app.use(requestIdMiddleware);
 // CORS CONFIGURATION
 // ============================================================================
 
-const allowedOrigins = process.env.CORS_ORIGIN?.split(',') || [
+const allowedOrigins = (process.env.CORS_ORIGIN?.split(',') || [
   'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:5175',
   'http://20.161.96.87',
   'https://fleet.capitaltechalliance.com',
-];
+]).map((o) => o.trim()).filter(Boolean);
+
+if (allowedOrigins.includes('*')) {
+  throw new Error('Invalid CORS_ORIGIN: `*` is not allowed when credentials are enabled.');
+}
 
 app.use(cors({
   origin: (origin, callback) => {
