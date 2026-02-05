@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const useWebServer = process.env.PW_WEBSERVER === 'true';
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
@@ -59,10 +61,9 @@ export default defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
-        // Enable Chrome DevTools Protocol for advanced debugging
-        launchOptions: {
-          args: ['--enable-logging', '--v=1'],
-        },
+        // Use system Chrome to avoid requiring Playwright browser downloads in locked-down environments.
+        channel: 'chrome',
+        launchOptions: { args: ['--enable-logging', '--v=1'] },
       },
     },
 
@@ -87,10 +88,14 @@ export default defineConfig({
     // },
   ],
 
-  webServer: {
-    command: 'echo "Dev server should already be running on port 5173"',
-    url: 'http://localhost:5173',
-    reuseExistingServer: true,
-    timeout: 5000,
-  },
+  ...(useWebServer
+    ? {
+        webServer: {
+          command: 'npm run dev',
+          url: 'http://localhost:5173',
+          reuseExistingServer: true,
+          timeout: 120000,
+        },
+      }
+    : {}),
 });
