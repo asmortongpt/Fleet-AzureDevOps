@@ -110,7 +110,7 @@ router.get(
           gb.updated_at,
           COUNT(wo.id) as active_work_orders
         FROM garage_bays gb
-        LEFT JOIN work_orders wo ON gb.id = wo.garage_bay_id AND wo.status IN ('open', 'in_progress')
+        LEFT JOIN work_orders wo ON gb.id = wo.garage_bay_id AND wo.status IN ('pending', 'in_progress', 'on_hold')
         ${whereClause}
         GROUP BY gb.id
         ORDER BY gb.bay_number ASC
@@ -228,7 +228,7 @@ router.get(
         LEFT JOIN vehicles v ON wo.vehicle_id = v.id
         LEFT JOIN users t ON wo.assigned_technician_id = t.id
         WHERE wo.garage_bay_id = $1
-          AND wo.status IN ('open', 'in_progress', 'on_hold')
+          AND wo.status IN ('pending', 'in_progress', 'on_hold')
         ORDER BY
           CASE wo.priority
             WHEN 'critical' THEN 1

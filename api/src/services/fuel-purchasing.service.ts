@@ -2,7 +2,7 @@
  * Fuel Purchasing Service
  *
  * Manages fuel pricing, station data, purchase orders, and contracts
- * Integrates with external price APIs (or uses realistic mock data)
+ * Integrates with external price APIs and/or persisted station pricing tables.
  */
 
 import { Pool } from 'pg'

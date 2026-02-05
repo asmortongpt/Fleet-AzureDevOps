@@ -35,8 +35,10 @@ async function ensureInitialized(): Promise<void> {
     isInitialized = true
     console.log('Emulator routes: TelemetryService initialized')
   } catch (error) {
-    console.warn('Emulator routes: TelemetryService initialization warning:', error)
-    isInitialized = true // Continue anyway with mock data
+    // Do not silently fall back to mock/synthetic data: emulator must be DB-backed.
+    console.error('Emulator routes: TelemetryService initialization failed:', error)
+    isInitialized = false
+    throw error
   }
 }
 
