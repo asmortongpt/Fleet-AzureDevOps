@@ -169,6 +169,7 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
       driver: [
         'vehicle:read',
         'vehicle:view:fleet',
+        'facility:read',
         'route:read',
         'route:view:fleet',
         // The SPA preloads several "read" datasets (drivers, work orders, incidents, etc).
@@ -179,6 +180,7 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
         'maintenance_schedule:view:fleet',
         'incident:view:global',
         'inspection:read',
+        'inspection:view:global',
         'document:read',
       ],
       viewer: [
