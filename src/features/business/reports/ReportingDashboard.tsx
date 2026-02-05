@@ -40,7 +40,9 @@ import {
 import React, { useState, useEffect } from 'react';
 import logger from '@/utils/logger';
 
-const API_URL = 'http://localhost:8081';
+// Prefer same-origin `/api` (Vite proxies this in dev). This feature module is not used by the
+// consolidated hubs, but keeping it functional avoids hardcoded environments.
+const API_URL = '';
 
 interface TabPanelProps {
   children?: React.ReactNode;

@@ -8,17 +8,28 @@ import { useQuery } from '@tanstack/react-query';
 import { GoogleMap } from '@/components/GoogleMap';
 import { VehicleGrid } from './VehicleGrid';
 import type { Vehicle } from '@/lib/types';
+import { secureFetch } from '@/hooks/use-api';
 
 export const FleetHub: React.FC = () => {
   // Fetch vehicles from API for map markers
   const { data: vehicles = [] } = useQuery<Vehicle[]>({
     queryKey: ['vehicles'],
     queryFn: async () => {
-      const response = await fetch('http://localhost:3000/api/vehicles');
+      const response = await secureFetch('/api/vehicles?limit=200');
       if (!response.ok) throw new Error('Failed to fetch vehicles');
-      return response.json();
+      const json = await response.json();
+      const payload = json?.data?.data ?? json?.data ?? json;
+      return Array.isArray(payload) ? payload : [];
     },
   });
+
+  const activeVehicles = vehicles.filter((v: any) => (v?.status || '').toLowerCase() === 'active').length;
+  const inMaintenance = vehicles.filter((v: any) => String(v?.status || '').toLowerCase().includes('maint')).length;
+  const totalMileage = vehicles.reduce((sum: number, v: any) => sum + (Number(v?.odometer_reading ?? v?.mileage ?? 0) || 0), 0);
+  const fuelEconValues = vehicles
+    .map((v: any) => Number(v?.fuel_efficiency ?? v?.fuel?.efficiency))
+    .filter((n: any) => Number.isFinite(n) && n > 0) as number[];
+  const avgFuelEconomy = fuelEconValues.length ? (fuelEconValues.reduce((a, b) => a + b, 0) / fuelEconValues.length) : 0;
 
   return (
     <div className="space-y-2 p-3">
@@ -41,7 +52,7 @@ export const FleetHub: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Active Vehicles</p>
-              <p className="text-sm font-bold">42</p>
+              <p className="text-sm font-bold">{activeVehicles}</p>
             </div>
             <CheckCircle className="w-4 h-4 text-green-500" />
           </div>
@@ -51,7 +62,7 @@ export const FleetHub: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">In Maintenance</p>
-              <p className="text-sm font-bold">5</p>
+              <p className="text-sm font-bold">{inMaintenance}</p>
             </div>
             <AlertTriangle className="w-4 h-4 text-yellow-500" />
           </div>
@@ -61,7 +72,7 @@ export const FleetHub: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Total Mileage</p>
-              <p className="text-sm font-bold">2.4M</p>
+              <p className="text-sm font-bold">{Math.round(totalMileage).toLocaleString()}</p>
             </div>
             <TrendingUp className="w-4 h-4 text-blue-800" />
           </div>
@@ -71,7 +82,7 @@ export const FleetHub: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Avg Fuel Economy</p>
-              <p className="text-sm font-bold">26.3 MPG</p>
+              <p className="text-sm font-bold">{avgFuelEconomy ? `${avgFuelEconomy.toFixed(1)} MPG` : '0 MPG'}</p>
             </div>
             <Car className="w-4 h-4 text-primary" />
           </div>

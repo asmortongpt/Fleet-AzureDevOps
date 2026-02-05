@@ -53,7 +53,8 @@ interface EmulatorSession {
 }
 
 // API base URL
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+// Use same-origin by default; if VITE_API_URL is set (typically `https://host/api`), strip `/api`.
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '')
 
 export const OBD2Dashboard: React.FC = () => {
   // State

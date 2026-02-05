@@ -108,7 +108,8 @@ export const FleetDataProvider: React.FC<FleetDataProviderProps> = ({ children }
   const [error, setError] = useState<string | null>(null);
 
   // API configuration
-  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  // Prefer same-origin `/api` (Vite proxies this in dev); allow overriding via VITE_API_URL.
+  const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
 
   const fetchFleetData = async () => {
     setIsLoading(true);

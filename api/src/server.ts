@@ -585,6 +585,53 @@ const initializeEmulatorTracking = async () => {
   } catch (err) {
     logger.warn('Failed to initialize OBD2 emulator WebSocket', { err })
   }
+
+  // Start the DB-backed fleet emulator stream (WebSocket :3004/emulator/stream) for demos.
+  // This powers the UI "Endpoint Monitor" connectivity and provides realistic live telemetry.
+  const enableEmulatorStream = enableEmulators && process.env.ENABLE_EMULATOR_STREAM !== 'false'
+  if (!enableEmulatorStream) return
+
+  try {
+    const [{ EmulatorOrchestrator }, { telemetryService: fleetTelemetryService }, path] = await Promise.all([
+      import('./emulators/EmulatorOrchestrator'),
+      import('./services/TelemetryService'),
+      import('path'),
+    ])
+
+    // Ensure TelemetryService is initialized (Orchestrator depends on it for DB-backed inventory).
+    await fleetTelemetryService.initialize({
+      query: async (sql: string, params?: any[]) => (await pool.query(sql, params)).rows,
+      execute: async (sql: string, params?: any[]) => {
+        const res = await pool.query(sql, params)
+        return { rowCount: res.rowCount ?? 0 }
+      },
+    })
+
+    const configPath = path.resolve(process.cwd(), 'src/emulators/config/default.json')
+    const orchestrator = new EmulatorOrchestrator(configPath)
+
+    const maxVehicles = Number(process.env.EMULATOR_STREAM_VEHICLE_COUNT || 50)
+    const vehicleIds = fleetTelemetryService.getVehicles().slice(0, maxVehicles).map((v) => v.id)
+
+    if (vehicleIds.length === 0) {
+      logger.warn('⚠️ Emulator stream not started: no vehicles available from DB')
+      return
+    }
+
+    // The orchestrator loads DB-backed vehicles asynchronously. Wait briefly so `start()`
+    // doesn't race the loader and produce false "Vehicle not found" warnings.
+    const startedAt = Date.now()
+    while (Date.now() - startedAt < 5_000) {
+      const total = orchestrator.getStatus()?.vehicles?.total ?? 0
+      if (total > 0) break
+      await new Promise((r) => setTimeout(r, 100))
+    }
+
+    await orchestrator.start(vehicleIds)
+    logger.info('✅ Emulator stream enabled at ws://<host>:3004/emulator/stream', { vehicles: vehicleIds.length })
+  } catch (err) {
+    logger.warn('Failed to initialize emulator stream', { err })
+  }
 }
 
 /**
@@ -650,60 +697,62 @@ const startServer = async () => {
     }
 
     server = await listenWithRetry(Number(PORT), 12)
-    server.on('listening', async () => {
-      console.log(`Server running on http://localhost:${PORT}`)
-      console.log(`Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
-      console.log(`Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
-      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
 
-      try {
-        const { initializeStartupHealthCheck } = await import('./routes/health-startup.routes')
-        const healthReport = await initializeStartupHealthCheck()
-        if (healthReport) {
-          console.log(`\nStartup Health Check: ${healthReport.overallStatus.toUpperCase()}`)
-          console.log(`View full report: http://localhost:${PORT}/api/health/startup\n`)
-        }
-      } catch (error) {
-        // Startup health check is optional. Keep startup resilient when the module is
-        // absent from the build or disabled in certain deployments.
-        console.warn('Startup health check skipped:', error)
+    // NOTE: `listenWithRetry()` resolves only after the server is already listening.
+    // Registering a `'listening'` handler *after* that can miss the event entirely.
+    // Run startup hooks immediately after the server is bound.
+    console.log(`Server running on http://localhost:${PORT}`)
+    console.log(`Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
+    console.log(`Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
+
+    try {
+      const { initializeStartupHealthCheck } = await import('./routes/health-startup.routes')
+      const healthReport = await initializeStartupHealthCheck()
+      if (healthReport) {
+        console.log(`\nStartup Health Check: ${healthReport.overallStatus.toUpperCase()}`)
+        console.log(`View full report: http://localhost:${PORT}/api/health/startup\n`)
       }
+    } catch (error) {
+      // Startup health check is optional. Keep startup resilient when the module is
+      // absent from the build or disabled in certain deployments.
+      console.warn('Startup health check skipped:', error)
+    }
 
-      // ARCHITECTURE FIX: Initialize process-level error handlers
-      initializeProcessErrorHandlers(server)
+    // ARCHITECTURE FIX: Initialize process-level error handlers
+    initializeProcessErrorHandlers(server)
 
-      // Initialize Bull job processors
-      initializeJobProcessors()
+    // Initialize Bull job processors
+    initializeJobProcessors()
 
-      // Track server startup in both monitoring systems
-      telemetryService.trackEvent('ServerStartup', {
-        port: PORT,
-        nodeVersion: process.version,
-        environment: process.env.NODE_ENV || 'development',
-        telemetryEnabled: telemetryService.isActive(),
-        sentryEnabled: !!process.env.SENTRY_DSN,
-        jobProcessorsEnabled: true
-      })
-
-      // Also track in Sentry
-      sentryService.captureMessage('Server started successfully', 'info')
-      sentryService.addBreadcrumb('Server startup', 'lifecycle', {
-        port: PORT,
-        environment: process.env.NODE_ENV || 'development'
-      })
-
-      // Initialize emulator tracking
-      initializeEmulatorTracking()
-
-      // Initialize Real-Time Collaboration Service
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { collaborationService } = require('./services/collaboration/real-time.service')
-        collaborationService.initialize(server)
-      } catch (err) {
-        console.error('Failed to initialize Collaboration Service:', err)
-      }
+    // Track server startup in both monitoring systems
+    telemetryService.trackEvent('ServerStartup', {
+      port: PORT,
+      nodeVersion: process.version,
+      environment: process.env.NODE_ENV || 'development',
+      telemetryEnabled: telemetryService.isActive(),
+      sentryEnabled: !!process.env.SENTRY_DSN,
+      jobProcessorsEnabled: true
     })
+
+    // Also track in Sentry
+    sentryService.captureMessage('Server started successfully', 'info')
+    sentryService.addBreadcrumb('Server startup', 'lifecycle', {
+      port: PORT,
+      environment: process.env.NODE_ENV || 'development'
+    })
+
+    // Initialize emulator tracking
+    initializeEmulatorTracking()
+
+    // Initialize Real-Time Collaboration Service
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { collaborationService } = require('./services/collaboration/real-time.service')
+      collaborationService.initialize(server)
+    } catch (err) {
+      console.error('Failed to initialize Collaboration Service:', err)
+    }
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);
