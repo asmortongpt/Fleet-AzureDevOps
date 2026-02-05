@@ -227,13 +227,39 @@ ALTER TABLE certifications
 ADD CONSTRAINT chk_certification_dates
 CHECK (expiry_date >= issued_date);
 
-ALTER TABLE dispatches
-ADD CONSTRAINT chk_dispatch_times
-CHECK (actual_start_time IS NULL OR actual_start_time >= scheduled_start_time - INTERVAL '1 hour');
+DO $do$
+BEGIN
+  IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'dispatches') THEN
+    -- Prefer the schema in this repo's current DB (dispatched_at/completed_at). Fall back to
+    -- older scheduled/actual naming if present.
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'dispatches' AND column_name = 'actual_start_time')
+      AND EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'dispatches' AND column_name = 'scheduled_start_time')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_dispatch_times') THEN
+      ALTER TABLE dispatches
+        ADD CONSTRAINT chk_dispatch_times
+        CHECK (actual_start_time IS NULL OR actual_start_time >= scheduled_start_time - INTERVAL '1 hour');
+    ELSIF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'dispatches' AND column_name = 'dispatched_at')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_dispatch_times') THEN
+      ALTER TABLE dispatches
+        ADD CONSTRAINT chk_dispatch_times
+        CHECK (dispatched_at <= NOW() + INTERVAL '5 minutes');
+    END IF;
 
-ALTER TABLE dispatches
-ADD CONSTRAINT chk_dispatch_end_times
-CHECK (actual_end_time IS NULL OR actual_end_time >= actual_start_time);
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'dispatches' AND column_name = 'actual_end_time')
+      AND EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'dispatches' AND column_name = 'actual_start_time')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_dispatch_end_times') THEN
+      ALTER TABLE dispatches
+        ADD CONSTRAINT chk_dispatch_end_times
+        CHECK (actual_end_time IS NULL OR actual_end_time >= actual_start_time);
+    ELSIF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'dispatches' AND column_name = 'completed_at')
+      AND EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'dispatches' AND column_name = 'dispatched_at')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_dispatch_end_times') THEN
+      ALTER TABLE dispatches
+        ADD CONSTRAINT chk_dispatch_end_times
+        CHECK (completed_at IS NULL OR completed_at >= dispatched_at);
+    END IF;
+  END IF;
+END $do$;
 
 ALTER TABLE announcements
 ADD CONSTRAINT chk_announcement_dates
