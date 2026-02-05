@@ -1899,7 +1899,7 @@ app.get('/api/charging-sessions', async (req, res) => {
 // Start server
 async function startServer() {
   try {
-    // Check database connection (skip if using mock data)
+    // Check database connection
     const useMockData = process.env.USE_MOCK_DATA === 'true';
 
     if (!useMockData) {

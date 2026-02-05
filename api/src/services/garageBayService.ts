@@ -2,7 +2,6 @@
  * Garage Bay Service
  *
  * Provides business logic and data access for garage bay operations
- * Includes comprehensive mock data for testing
  */
 
 import { Pool, PoolClient } from 'pg'
@@ -34,7 +33,7 @@ export interface WorkOrder {
   description: string
   type: 'preventive' | 'corrective' | 'inspection' | 'emergency'
   priority: 'low' | 'medium' | 'high' | 'critical'
-  status: 'open' | 'in_progress' | 'on_hold' | 'completed' | 'cancelled'
+  status: 'pending' | 'in_progress' | 'on_hold' | 'completed' | 'cancelled' | 'failed'
   vehicle: Vehicle
   primary_technician: Technician
   parts: Part[]
@@ -199,9 +198,153 @@ export class GarageBayService {
     bayId: string,
     tenantId: string
   ): Promise<WorkOrder[]> {
-    // This would be implemented with actual database queries
-    // For now, returning mock data structure
-    return []
+    const workOrdersResult = await client.query(
+      `SELECT
+          wo.id,
+          wo.work_order_number as wo_number,
+          wo.title,
+          wo.description,
+          wo.type,
+          wo.priority,
+          wo.status,
+          wo.created_date,
+          wo.scheduled_start,
+          wo.scheduled_end,
+          wo.estimated_completion,
+          wo.actual_start,
+          wo.actual_end,
+          wo.progress_percentage,
+          wo.estimated_cost,
+          wo.actual_cost,
+          wo.notes,
+          wo.vehicle_id,
+          v.number as vehicle_number,
+          v.make as vehicle_make,
+          v.model as vehicle_model,
+          v.year as vehicle_year,
+          v.vin,
+          v.license_plate,
+          v.odometer as odometer_reading,
+          v.engine_hours,
+          t.id as technician_id,
+          t.first_name || ' ' || t.last_name as technician_name,
+          t.email as technician_email,
+          t.phone as technician_phone,
+          t.avatar as technician_avatar,
+          t.role as technician_role,
+          t.certifications as technician_certifications
+        FROM work_orders wo
+        LEFT JOIN vehicles v ON wo.vehicle_id = v.id
+        LEFT JOIN users t ON wo.assigned_technician_id = t.id
+        WHERE wo.garage_bay_id = $1
+          AND wo.tenant_id = $2
+          AND wo.status IN ('pending', 'in_progress', 'on_hold')
+        ORDER BY
+          CASE wo.priority
+            WHEN 'critical' THEN 1
+            WHEN 'high' THEN 2
+            WHEN 'medium' THEN 3
+            WHEN 'low' THEN 4
+          END,
+          wo.created_date ASC`,
+      [bayId, tenantId]
+    )
+
+    const workOrders: WorkOrder[] = []
+    for (const wo of workOrdersResult.rows) {
+      const partsResult = await client.query(
+        `SELECT
+            p.id,
+            p.name,
+            p.part_number,
+            wop.quantity,
+            wop.quantity_in_stock,
+            wop.unit_cost,
+            s.name as supplier,
+            s.contact_name as supplier_contact,
+            s.contact_phone as supplier_phone,
+            s.contact_email as supplier_email,
+            wop.delivery_date,
+            wop.status
+          FROM work_order_parts wop
+          JOIN parts_inventory p ON wop.part_id = p.id
+          LEFT JOIN suppliers s ON wop.supplier_id = s.id
+          WHERE wop.work_order_id = $1
+          ORDER BY p.name ASC`,
+        [wo.id]
+      )
+
+      const laborResult = await client.query(
+        `SELECT
+            wol.id,
+            wol.technician_id,
+            u.first_name || ' ' || u.last_name as technician_name,
+            u.avatar as technician_avatar,
+            wol.hours_logged,
+            wol.hours_estimated,
+            wol.rate,
+            wol.date,
+            wol.task_description,
+            wol.status
+          FROM work_order_labor wol
+          LEFT JOIN users u ON wol.technician_id = u.id
+          WHERE wol.work_order_id = $1
+          ORDER BY wol.date DESC`,
+        [wo.id]
+      )
+
+      const notesResult = await client.query(
+        `SELECT note
+         FROM work_order_notes
+         WHERE work_order_id = $1
+         ORDER BY created_at DESC`,
+        [wo.id]
+      )
+
+      workOrders.push({
+        id: wo.id,
+        wo_number: wo.wo_number,
+        title: wo.title,
+        description: wo.description,
+        type: wo.type,
+        priority: wo.priority,
+        status: wo.status,
+        vehicle: {
+          id: wo.vehicle_id,
+          vehicle_number: wo.vehicle_number,
+          make: wo.vehicle_make,
+          model: wo.vehicle_model,
+          year: wo.vehicle_year,
+          vin: wo.vin,
+          license_plate: wo.license_plate,
+          odometer_reading: wo.odometer_reading,
+          engine_hours: wo.engine_hours,
+        },
+        primary_technician: {
+          id: wo.technician_id,
+          name: wo.technician_name,
+          email: wo.technician_email,
+          phone: wo.technician_phone,
+          avatar: wo.technician_avatar,
+          role: wo.technician_role,
+          certifications: wo.technician_certifications || [],
+        },
+        parts: partsResult.rows,
+        labor: laborResult.rows,
+        created_date: wo.created_date,
+        scheduled_start: wo.scheduled_start,
+        scheduled_end: wo.scheduled_end,
+        estimated_completion: wo.estimated_completion,
+        actual_start: wo.actual_start,
+        actual_end: wo.actual_end,
+        progress_percentage: wo.progress_percentage,
+        estimated_cost: wo.estimated_cost,
+        actual_cost: wo.actual_cost,
+        notes: notesResult.rows.map((r) => r.note).filter(Boolean),
+      })
+    }
+
+    return workOrders
   }
 
   /**

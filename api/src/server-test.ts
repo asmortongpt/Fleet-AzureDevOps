@@ -1,7 +1,7 @@
 /**
  * Test Server - Loads all routes for comprehensive endpoint testing
  * This server is designed to run without external dependencies (database, redis)
- * by catching connection errors and continuing with mock data
+ * by catching connection errors and returning explicit 503s for unavailable routes.
  */
 
 import cors from 'cors';
