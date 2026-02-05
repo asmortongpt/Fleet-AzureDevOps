@@ -262,7 +262,7 @@ router.get('/stats',
         // Work order stats - using index idx_work_orders_tenant_status
         pool.query(`
           SELECT
-            COUNT(*) FILTER (WHERE status IN ('open', 'pending', 'on_hold'))::integer as open,
+            COUNT(*) FILTER (WHERE status IN ('pending', 'on_hold'))::integer as open,
             COUNT(*) FILTER (WHERE status = 'in_progress')::integer as in_progress
           FROM work_orders
           WHERE tenant_id = $1::uuid
