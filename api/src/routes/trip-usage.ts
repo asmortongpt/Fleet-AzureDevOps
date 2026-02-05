@@ -242,15 +242,15 @@ router.get(
         offset = 0
       } = req.query as any
 
-      let query = `
-      SELECT t.*,
-             u.name as driver_name,
-             v.vehicle_number as vehicle_number
-      FROM trip_usage_classification t
-      LEFT JOIN users u ON t.driver_id = u.id
-      LEFT JOIN vehicles v ON t.vehicle_id = v.id
-      WHERE t.tenant_id = $1
-    `
+	      let query = `
+	      SELECT t.*,
+	             NULLIF(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))), '') as driver_name,
+	             COALESCE(v.number, v.name) as vehicle_number
+	      FROM trip_usage_classification t
+	      LEFT JOIN users u ON t.driver_id = u.id
+	      LEFT JOIN vehicles v ON t.vehicle_id = v.id
+	      WHERE t.tenant_id = $1
+	    `
       const params: any[] = [req.user!.tenant_id]
       let paramCount = 1
 
@@ -302,13 +302,10 @@ router.get(
         params.push(year)
       }
 
-      query += ` ORDER BY t.trip_date DESC, t.created_at DESC`
+	      query += ` ORDER BY t.trip_date DESC, t.created_at DESC`
 
-      // Get total count
-      const countResult = await pool.query(
-        query.replace(`SELECT t.*, u.name as driver_name, v.vehicle_number as vehicle_number`, `SELECT COUNT(*)`),
-        params
-      )
+	      // Get total count
+	      const countResult = await pool.query(`SELECT COUNT(*) FROM (${query}) q`, params)
 
       // Add pagination
       paramCount++
@@ -363,18 +360,18 @@ router.get(
   }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
-        `SELECT t.*,
-              u.name as driver_name,
-              v.vehicle_number as vehicle_number,
-              approver.name as approver_name
-       FROM trip_usage_classification t
-       LEFT JOIN users u ON t.driver_id = u.id
-       LEFT JOIN vehicles v ON t.vehicle_id = v.id
-       LEFT JOIN users approver ON t.approved_by_user_id = approver.id
-       WHERE t.id = $1 AND t.tenant_id = $2`,
-        [req.params.id, req.user!.tenant_id]
-      )
+	      const result = await pool.query(
+	        `SELECT t.*,
+	              NULLIF(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))), '') as driver_name,
+	              COALESCE(v.number, v.name) as vehicle_number,
+	              NULLIF(TRIM(CONCAT(COALESCE(approver.first_name, ''), ' ', COALESCE(approver.last_name, ''))), '') as approver_name
+	       FROM trip_usage_classification t
+	       LEFT JOIN users u ON t.driver_id = u.id
+	       LEFT JOIN vehicles v ON t.vehicle_id = v.id
+	       LEFT JOIN users approver ON t.approved_by_user_id = approver.id
+	       WHERE t.id = $1 AND t.tenant_id = $2`,
+	        [req.params.id, req.user!.tenant_id]
+	      )
 
       if (result.rows.length === 0) {
         return res.status(404).json({ error: `Trip usage classification not found` })
@@ -494,16 +491,16 @@ router.get(
     try {
       const { limit = 50, offset = 0 } = req.query
 
-      const result = await pool.query(
-        `SELECT t.*,
-                u.name as driver_name,
-                u.email as driver_email,
-                v.vehicle_number as vehicle_number,
-                v.make, v.model, v.year
-         FROM trip_usage_classification t
-         JOIN users u ON t.driver_id = u.id
-         JOIN vehicles v ON t.vehicle_id = v.id
-         WHERE t.tenant_id = $1
+	      const result = await pool.query(
+	        `SELECT t.*,
+	                NULLIF(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))), '') as driver_name,
+	                u.email as driver_email,
+	                COALESCE(v.number, v.name) as vehicle_number,
+	                v.make, v.model, v.year
+	         FROM trip_usage_classification t
+	         JOIN users u ON t.driver_id = u.id
+	         JOIN vehicles v ON t.vehicle_id = v.id
+	         WHERE t.tenant_id = $1
            AND t.approval_status = $2
          ORDER BY t.trip_date DESC, t.created_at ASC
          LIMIT $3 OFFSET $4`,

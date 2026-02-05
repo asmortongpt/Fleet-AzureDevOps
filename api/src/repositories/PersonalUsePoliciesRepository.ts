@@ -92,7 +92,11 @@ export class PersonalUsePoliciesRepository extends BaseRepository<PersonalUsePol
   async getPolicyByTenant(context: QueryContext): Promise<PersonalUsePolicy | null> {
     const dbPool = this.getPool(context);
     const result = await dbPool.query(
-      `SELECT p.*, u.name as created_by_name FROM personal_use_policies p LEFT JOIN users u ON p.created_by_user_id = u.id WHERE p.tenant_id = $1`,
+      `SELECT p.*,
+              NULLIF(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))), '') as created_by_name
+       FROM personal_use_policies p
+       LEFT JOIN users u ON p.created_by_user_id = u.id
+       WHERE p.tenant_id = $1`,
       [context.tenantId]
     );
     return result.rows[0] || null;
@@ -128,7 +132,9 @@ export class PersonalUsePoliciesRepository extends BaseRepository<PersonalUsePol
   async getDriverByIdAndTenant(driverId: string, context: QueryContext): Promise<{ id: string; name: string } | null> {
     const dbPool = this.getPool(context);
     const result = await dbPool.query(
-      `SELECT id, name FROM users WHERE id = $1 AND tenant_id = $2`,
+      `SELECT id, NULLIF(TRIM(CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, ''))), '') as name
+       FROM users
+       WHERE id = $1 AND tenant_id = $2`,
       [driverId, context.tenantId]
     );
     return result.rows[0] || null;
@@ -173,7 +179,23 @@ export class PersonalUsePoliciesRepository extends BaseRepository<PersonalUsePol
   async getDriversAtLimit(monthlyLimit: number, currentMonth: string, threshold: number, context: QueryContext): Promise<DriverAtLimit[]> {
     const dbPool = this.getPool(context);
     const result = await dbPool.query(
-      `SELECT u.id as driver_id, u.name as driver_name, u.email as driver_email, COALESCE(SUM(t.miles_personal), 0) as personal_miles, $1 as monthly_limit, ROUND((COALESCE(SUM(t.miles_personal), 0) / $1 * 100)::numeric, 2) as percentage_used, CASE WHEN COALESCE(SUM(t.miles_personal), 0) > $1 THEN true ELSE false END as exceeds_limit FROM users u LEFT JOIN trip_usage_classification t ON u.id = t.driver_id AND TO_CHAR(t.trip_date, 'YYYY-MM') = $2 AND t.approval_status \!= 'rejected' WHERE u.tenant_id = $3 GROUP BY u.id, u.name, u.email HAVING COALESCE(SUM(t.miles_personal), 0) / $1 * 100 >= $4 ORDER BY percentage_used DESC`,
+      `SELECT
+         u.id as driver_id,
+         NULLIF(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))), '') as driver_name,
+         u.email as driver_email,
+         COALESCE(SUM(t.miles_personal), 0) as personal_miles,
+         $1 as monthly_limit,
+         ROUND((COALESCE(SUM(t.miles_personal), 0) / $1 * 100)::numeric, 2) as percentage_used,
+         CASE WHEN COALESCE(SUM(t.miles_personal), 0) > $1 THEN true ELSE false END as exceeds_limit
+       FROM users u
+       LEFT JOIN trip_usage_classification t
+         ON u.id = t.driver_id
+        AND TO_CHAR(t.trip_date, 'YYYY-MM') = $2
+        AND t.approval_status \!= 'rejected'
+       WHERE u.tenant_id = $3
+       GROUP BY u.id, u.first_name, u.last_name, u.email
+       HAVING COALESCE(SUM(t.miles_personal), 0) / $1 * 100 >= $4
+       ORDER BY percentage_used DESC`,
       [monthlyLimit, currentMonth, context.tenantId, threshold]
     );
     return result.rows;
