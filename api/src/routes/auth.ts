@@ -1228,7 +1228,7 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
     }
 
     const userResult = await pool.query(
-      'SELECT id, email, first_name, last_name, role, tenant_id FROM users WHERE email = $1',
+      'SELECT id, email, first_name, last_name, role, tenant_id FROM users WHERE lower(email) = $1',
       [email]
     )
 
@@ -1243,6 +1243,27 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
       user = insertResult.rows[0]
     } else {
       user = userResult.rows[0]
+
+      // Demo/dev safety: ensure SSO users land in the intended demo tenant.
+      // If the same email existed in an older seed tenant, move it to the resolved tenant
+      // (typically CTA) so the UI consistently shows Tallahassee CTA data.
+      if (process.env.NODE_ENV !== 'production' && user.tenant_id !== tenantId) {
+        logger.warn('[Auth Exchange] User exists in different tenant; re-homing to resolved tenant (dev/demo)', {
+          email,
+          fromTenant: user.tenant_id,
+          toTenant: tenantId,
+        })
+
+        const updateResult = await pool.query(
+          `UPDATE users
+           SET tenant_id = $1, updated_at = NOW()
+           WHERE id = $2
+           RETURNING id, email, first_name, last_name, role, tenant_id`,
+          [tenantId, user.id]
+        )
+
+        user = updateResult.rows[0] || user
+      }
     }
 
     const token = FIPSJWTService.generateAccessToken(

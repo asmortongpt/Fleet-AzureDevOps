@@ -38,79 +38,27 @@ const router = Router();
  *   }
  * }
  */
-router.get('/',
+router.get(
+  '/',
   asyncHandler(async (req: Request, res: Response) => {
-    logger.info(`Fetching dashboard summary (public endpoint)`);
+    // SECURITY: Avoid leaking fleet size / operational status publicly.
+    // Return only a capability document here; the real stats are available at
+    // `/api/dashboard/stats` behind authentication + tenant isolation.
+    logger.info(`Fetching dashboard summary (capabilities endpoint)`);
 
-    try {
-      // Quick summary counts (public data) - gracefully handle missing tables
-      let vehicleCount = 0;
-      let driverCount = 0;
-      let workOrderCount = 0;
-
-      try {
-        const vehicleResult = await pool.query('SELECT COUNT(*)::integer as count FROM vehicles');
-        vehicleCount = vehicleResult.rows[0]?.count || 0;
-      } catch (e) {
-        logger.debug('vehicles table not found or inaccessible');
-      }
-
-      try {
-        const driverResult = await pool.query('SELECT COUNT(*)::integer as count FROM drivers');
-        driverCount = driverResult.rows[0]?.count || 0;
-      } catch (e) {
-        logger.debug('drivers table not found or inaccessible');
-      }
-
-      try {
-        const workOrderResult = await pool.query(`
-          SELECT COUNT(*)::integer as count
-          FROM work_orders
-          WHERE status IN ('in_progress', 'pending')
-        `);
-        workOrderCount = workOrderResult.rows[0]?.count || 0;
-      } catch (e) {
-        logger.debug('work_orders table not found or inaccessible');
-      }
-
-      res.json({
-        message: 'Fleet Management Dashboard API',
-        version: '1.0.0',
-        endpoints: [
-          '/api/dashboard/maintenance/alerts',
-          '/api/dashboard/fleet/stats',
-          '/api/dashboard/costs/summary',
-          '/api/dashboard/drivers/me/vehicle',
-          '/api/dashboard/drivers/me/trips/today'
-        ],
-        summary: {
-          total_vehicles: vehicleCount,
-          active_drivers: driverCount,
-          open_work_orders: workOrderCount
-        },
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      logger.error('Dashboard summary error:', error);
-      // Even if database fails, return the API info
-      res.json({
-        message: 'Fleet Management Dashboard API',
-        version: '1.0.0',
-        endpoints: [
-          '/api/dashboard/maintenance/alerts',
-          '/api/dashboard/fleet/stats',
-          '/api/dashboard/costs/summary',
-          '/api/dashboard/drivers/me/vehicle',
-          '/api/dashboard/drivers/me/trips/today'
-        ],
-        summary: {
-          total_vehicles: 0,
-          active_drivers: 0,
-          open_work_orders: 0
-        },
-        timestamp: new Date().toISOString()
-      });
-    }
+    return res.json({
+      message: 'Fleet Management Dashboard API',
+      version: '1.0.0',
+      endpoints: [
+        '/api/dashboard/maintenance/alerts',
+        '/api/dashboard/fleet/stats',
+        '/api/dashboard/costs/summary',
+        '/api/dashboard/drivers/me/vehicle',
+        '/api/dashboard/drivers/me/trips/today',
+        '/api/dashboard/stats'
+      ],
+      timestamp: new Date().toISOString()
+    });
   })
 );
 
