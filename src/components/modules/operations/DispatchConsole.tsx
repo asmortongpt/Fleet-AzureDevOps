@@ -82,16 +82,20 @@ export default function DispatchConsole() {
     onEmergencyAlert: (alert) => {
       logger.debug('Emergency alert received:', alert);
     },
-    onTransmission: (transmission) => {
-      logger.debug('Transmission update:', transmission);
-    }
   });
+
+  // Ensure we join the selected channel as soon as the socket is connected.
+  useEffect(() => {
+    if (!selectedChannelId) return;
+    if (!dispatch.isConnected) return;
+    dispatch.subscribeToChannel(selectedChannelId);
+  }, [dispatch.isConnected, selectedChannelId]);
 
   // PTT functionality
   const ptt = usePTT({
     onAudioChunk: (audioData) => {
-      if (ptt.currentTransmissionId) {
-        dispatch.sendAudioChunk(audioData, ptt.currentTransmissionId);
+      if (dispatch.activeTransmission?.id) {
+        dispatch.sendAudioChunk(audioData, dispatch.activeTransmission.id);
       }
     },
     onTransmissionStart: (transmissionId) => {
@@ -99,7 +103,7 @@ export default function DispatchConsole() {
     },
     onTransmissionEnd: (audioBlob) => {
       logger.debug(`PTT ended, blob size: ${audioBlob.size}`);
-      const transmissionId = ptt.currentTransmissionId;
+      const transmissionId = dispatch.activeTransmission?.id;
       if (transmissionId) {
         // Convert blob to base64 and send
         const reader = new FileReader();
@@ -119,15 +123,13 @@ export default function DispatchConsole() {
 
   // Load channels
   useEffect(() => {
-        const loadChannels = async () => {
+    const loadChannels = async () => {
       try {
         const response = await fetch('/api/dispatch/channels', { credentials: 'include' });
         const data = await response.json();
         if (data.success) {
           setChannels(data.channels);
-          if (data.channels.length > 0 && !selectedChannelId) {
-            setSelectedChannelId(data.channels[0].id);
-          }
+          if (data.channels.length > 0) setSelectedChannelId((prev) => prev || data.channels[0].id);
         }
       } catch (error) {
         logger.error('Failed to load channels:', error);
@@ -135,7 +137,7 @@ export default function DispatchConsole() {
     };
 
     loadChannels();
-  }, [selectedChannelId]);
+  }, []);
 
   // Handle channel selection
   const handleChannelSelect = (channelId: string) => {

@@ -38,21 +38,27 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
         channelId: selectedChannelId || undefined,
         autoConnect: open, // Only connect when panel is open to save resources
         onEmergencyAlert: (alert) => logger.info('Emergency alert:', alert),
-        onTransmission: (t) => logger.info('Transmission:', t)
     });
+
+    useEffect(() => {
+        if (!open) return;
+        if (!selectedChannelId) return;
+        if (!dispatch.isConnected) return;
+        dispatch.subscribeToChannel(selectedChannelId);
+    }, [dispatch.isConnected, open, selectedChannelId]);
 
     const ptt = usePTT({
         onAudioChunk: (data) => {
-            if (ptt.currentTransmissionId) dispatch.sendAudioChunk(data, ptt.currentTransmissionId);
+            if (dispatch.activeTransmission?.id) dispatch.sendAudioChunk(data, dispatch.activeTransmission.id);
         },
         onTransmissionStart: () => logger.info('PTT Start'),
         onTransmissionEnd: (blob) => {
             logger.info('PTT End');
-            if (ptt.currentTransmissionId) {
+            if (dispatch.activeTransmission?.id) {
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     const base64 = (reader.result as string).split(',')[1];
-                    dispatch.endTransmission(ptt.currentTransmissionId!, base64);
+                    dispatch.endTransmission(dispatch.activeTransmission!.id, base64);
                 };
                 reader.readAsDataURL(blob);
             }
@@ -60,16 +66,31 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
         enableKeyboardShortcut: open // Only enable shortcut when open
     });
 
-    // Mock channels if API fails or for immediate feedback
+    // Load channels from DB-backed API when the panel opens.
     useEffect(() => {
-        setChannels([
-            { id: 'ch-1', name: 'Operations Main', status: 'ACTIVE', frequency: '450.025' },
-            { id: 'ch-2', name: 'Maintenance', status: 'ACTIVE', frequency: '451.100' },
-            { id: 'ch-3', name: 'Security', status: 'BUSY', frequency: '452.325' },
-            { id: 'ch-4', name: 'Logistics', status: 'ACTIVE', frequency: '453.550' }
-        ]);
-        setSelectedChannelId('ch-1');
-    }, []);
+        if (!open) return;
+        let cancelled = false;
+
+        const loadChannels = async () => {
+            try {
+                const res = await fetch('/api/dispatch/channels', { credentials: 'include' });
+                const json = await res.json();
+                if (!cancelled && json?.success) {
+                    setChannels(Array.isArray(json.channels) ? json.channels : []);
+                    if (Array.isArray(json.channels) && json.channels.length > 0) {
+                        setSelectedChannelId((prev) => prev || json.channels[0].id);
+                    }
+                }
+            } catch (err) {
+                logger.error('[DispatchPanel] Failed to load channels', err);
+            }
+        };
+
+        loadChannels();
+        return () => {
+            cancelled = true;
+        };
+    }, [open]);
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
@@ -153,7 +174,10 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                                     {channels.map(channel => (
                                         <button
                                             key={channel.id}
-                                            onClick={() => setSelectedChannelId(channel.id)}
+                                            onClick={() => {
+                                                setSelectedChannelId(channel.id);
+                                                dispatch.subscribeToChannel(channel.id);
+                                            }}
                                             className={`
                                         w-full text-left p-2 rounded-md text-sm transition-colors flex items-center justify-between
                                         ${selectedChannelId === channel.id
@@ -162,7 +186,9 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                                     `}
                                         >
                                             <span>{channel.name}</span>
-                                            {channel.status === 'BUSY' && <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />}
+                                            {String(channel.channel_type || channel.status || '').toUpperCase() === 'EMERGENCY' && (
+                                                <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                            )}
                                         </button>
                                     ))}
                                 </div>
@@ -174,21 +200,28 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                             <div className="p-3 text-xs font-semibold text-muted-foreground uppercase bg-muted/10 border-b">Recent Activity</div>
                             <ScrollArea className="flex-1">
                                 <div className="divide-y">
-                                    {/* Mock history items */}
-                                    {[1, 2, 3].map((_, i) => (
-                                        <div key={i} className="p-3 hover:bg-muted/5">
-                                            <div className="flex items-center justify-between mb-1">
-                                                <span className="text-xs font-bold">Unit 45</span>
-                                                <span className="text-[10px] text-muted-foreground">10:42 AM</span>
+                                    {dispatch.recentTransmissions.length === 0 ? (
+                                        <div className="p-3 text-xs text-muted-foreground">No recent transmissions.</div>
+                                    ) : (
+                                        dispatch.recentTransmissions.slice(0, 10).map((t) => (
+                                            <div key={t.id} className="p-3 hover:bg-muted/5">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="text-xs font-bold">{t.username || 'Unit'}</span>
+                                                    <span className="text-[10px] text-muted-foreground">
+                                                        {new Date(t.startedAt).toLocaleTimeString()}
+                                                    </span>
+                                                </div>
+                                                <div className="text-xs text-muted-foreground line-clamp-2">
+                                                    Transmission {t.id}
+                                                </div>
+                                                <div className="flex items-center gap-1 mt-1">
+                                                    <Badge variant="outline" className="text-[10px] h-4 px-1">
+                                                        {t.isEmergency ? 'Emergency' : 'Normal'}
+                                                    </Badge>
+                                                </div>
                                             </div>
-                                            <div className="text-xs text-muted-foreground line-clamp-2">
-                                                "Arrived at destination. Offloading cargo now."
-                                            </div>
-                                            <div className="flex items-center gap-1 mt-1">
-                                                <Badge variant="outline" className="text-[10px] h-4 px-1">Normal</Badge>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        ))
+                                    )}
                                 </div>
                             </ScrollArea>
                         </div>
