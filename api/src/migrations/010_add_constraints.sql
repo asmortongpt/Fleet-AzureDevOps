@@ -309,9 +309,21 @@ ALTER TABLE fuel_transactions
 ADD CONSTRAINT chk_fuel_total_cost_positive
 CHECK (total_cost > 0);
 
-ALTER TABLE fuel_transactions
-ADD CONSTRAINT chk_fuel_odometer_positive
-CHECK (odometer_reading IS NULL OR odometer_reading >= 0);
+DO $do$
+BEGIN
+  IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'fuel_transactions')
+    AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_fuel_odometer_positive') THEN
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'fuel_transactions' AND column_name = 'odometer_reading') THEN
+      ALTER TABLE fuel_transactions
+        ADD CONSTRAINT chk_fuel_odometer_positive
+        CHECK (odometer_reading IS NULL OR odometer_reading >= 0);
+    ELSIF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'fuel_transactions' AND column_name = 'odometer') THEN
+      ALTER TABLE fuel_transactions
+        ADD CONSTRAINT chk_fuel_odometer_positive
+        CHECK (odometer >= 0);
+    END IF;
+  END IF;
+END $do$;
 
 ALTER TABLE parts_inventory
 ADD CONSTRAINT chk_part_cost_positive
