@@ -97,7 +97,7 @@ async function main() {
       : {
           // Fast path for UI crawl runs: apply only the minimum known-critical migration(s).
           // Set BOOTSTRAP_DB=true to apply the full migration backlog.
-          MIGRATIONS_ALLOWLIST: '20260205_costs_unified_view.sql',
+          MIGRATIONS_ALLOWLIST: '20260205_costs_unified_view.sql,20260205_outlook_folders_local.sql',
         }
 
     const migrate = spawnLoggedCwd('migrate', 'npm', ['run', 'migrate'], 'api', migrateEnv)
