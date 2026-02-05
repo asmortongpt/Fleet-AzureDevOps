@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { toast } from 'sonner';
 
 import { secureFetch } from '@/hooks/use-api';
+import { useAuth } from '@/hooks/useAuth';
 import { Policy, PolicyMode, PolicyStatus, PolicyType } from '@/lib/policy-engine/types';
 import logger from '@/utils/logger';
 
@@ -195,6 +196,7 @@ const buildPolicyPayload = (policy: Partial<Policy>) => {
 };
 
 export const PolicyProvider: React.FC<PolicyProviderProps> = ({ children }) => {
+  const { isAuthenticated } = useAuth();
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -378,8 +380,13 @@ export const PolicyProvider: React.FC<PolicyProviderProps> = ({ children }) => {
   }, [getActivePolicies, evaluatePolicy]);
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      // Avoid noisy 401s during login flow; refetch once auth is established.
+      setPolicies([]);
+      return;
+    }
     fetchPolicies();
-  }, [fetchPolicies]);
+  }, [fetchPolicies, isAuthenticated]);
 
   const value: PolicyContextValue = {
     policies,

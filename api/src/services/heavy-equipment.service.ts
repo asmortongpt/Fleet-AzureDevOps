@@ -765,7 +765,7 @@ export class HeavyEquipmentService {
       JOIN drivers d ON eoc.driver_id = d.id
       WHERE eoc.tenant_id = $1
         AND eoc.status = 'active'
-        AND eoc.expiry_date BETWEEN CURRENT_DATE AND CURRENT_DATE + $2
+        AND eoc.expiry_date BETWEEN CURRENT_DATE AND (CURRENT_DATE + ($2::int * INTERVAL '1 day'))::date
       ORDER BY eoc.expiry_date ASC`,
       [tenantId, daysThreshold]
     )
@@ -858,4 +858,3 @@ export class HeavyEquipmentService {
 
 const heavyEquipmentService = new HeavyEquipmentService(pool)
 export default heavyEquipmentService
-

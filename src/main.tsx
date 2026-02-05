@@ -87,6 +87,7 @@ import { BrandingProvider } from "./shared/branding/BrandingProvider"
 
 // Core Tailwind v4 + Enterprise Design System
 import "./index.css"
+import "./styles/pro-max.css"
 
 // Responsive Utilities
 import "./styles/design-tokens-responsive.css"

@@ -8,6 +8,51 @@ const router = express.Router()
 
 router.use(authenticateJWT)
 
+// GET /api/hazard-zones
+router.get('/', async (req: AuthRequest, res: Response) => {
+  try {
+    const tenantId = req.user?.tenant_id
+    const result = await pool.query(
+      `SELECT id, name, type, center_lat, center_lng, radius, metadata, created_at, updated_at
+       FROM geofences
+       WHERE tenant_id = $1 AND is_active = true
+       ORDER BY created_at DESC
+       LIMIT 500`,
+      [tenantId]
+    )
+
+    const zones = result.rows.map((row: any) => {
+      const metadata = row.metadata || {}
+      const hazardType = metadata.hazard_type || 'environmental'
+      const severity = metadata.severity || 'medium'
+
+      return {
+        id: row.id,
+        name: row.name,
+        type: hazardType,
+        severity,
+        location: {
+          lat: Number(row.center_lat),
+          lng: Number(row.center_lng),
+          address: metadata.address
+        },
+        radius: row.radius ? Number(row.radius) : 0,
+        restrictions: metadata.restrictions || [],
+        activeFrom: metadata.active_from || row.created_at,
+        activeTo: metadata.active_to,
+        description: metadata.description,
+        createdBy: metadata.created_by,
+        createdDate: row.created_at,
+        lastUpdated: row.updated_at
+      }
+    })
+
+    res.json({ data: zones })
+  } catch (error: any) {
+    return res.status(500).json({ error: 'Failed to fetch hazard zones' })
+  }
+})
+
 function haversineDistanceMeters(
   lat1: number,
   lng1: number,
