@@ -4,7 +4,9 @@
  */
 
 import { motion } from 'framer-motion'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { BarChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+// Avoid Recharts chunk circularity warnings by importing Bar directly.
+import { Bar } from 'recharts/es6/cartesian/Bar.js'
 
 import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
