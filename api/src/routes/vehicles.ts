@@ -53,45 +53,22 @@ router.get("/",
 
     // Wave 12 (Revised): Cache-aside pattern
     // Version cache keys so response shape changes don't serve stale payloads.
-    const cacheKey = `vehicles:v2:list:${tenantId}:${page}:${limit}:${search || ''}:${status || ''}`
+    // v3: vehicles now include `location` and `locationAddress` fields (avoid serving stale v2 payloads)
+    const cacheKey = `vehicles:v3:list:${tenantId}:${page}:${limit}:${search || ''}:${status || ''}`
     const cached = await cacheService.get<{ data: any[], total: number }>(cacheKey)
 
     if (cached) {
       return res.json(cached)
     }
 
-    // Use DI-resolved VehicleService instead of emulator
+    // Use DI-resolved VehicleService
     const vehicleService = container.get<VehicleService>(TYPES.VehicleService)
-
-    // Get all vehicles for this tenant
-    let vehicles = await vehicleService.getAllVehicles(tenantId)
-
-    // Apply filters (in future, move this to service layer)
-    if (search && typeof search === 'string') {
-      const searchLower = search.toLowerCase()
-      vehicles = vehicles.filter((v: any) =>
-        v.make?.toLowerCase().includes(searchLower) ||
-        v.model?.toLowerCase().includes(searchLower) ||
-        v.vin?.toLowerCase().includes(searchLower) ||
-        v.license_plate?.toLowerCase().includes(searchLower)
-      )
-    }
-
-    if (status && typeof status === 'string') {
-      vehicles = vehicles.filter((v: any) => v.status === status)
-    }
-
-    // Apply pagination
-    const total = vehicles.length
-    const offset = (page - 1) * limit
-    const data = vehicles.slice(offset, offset + limit)
-
-    const result = { data, total }
+    const result = await vehicleService.listVehicles(tenantId, { page, limit, search, status })
 
     // Cache for 5 minutes (300 seconds)
     await cacheService.set(cacheKey, result, 300)
 
-    logger.info('Fetched vehicles', { tenantId, count: data.length, total })
+    logger.info('Fetched vehicles', { tenantId, count: result.data.length, total: result.total })
     res.json(result)
   })
 )

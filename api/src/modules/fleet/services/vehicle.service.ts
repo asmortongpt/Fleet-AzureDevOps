@@ -31,6 +31,15 @@ export class VehicleService extends BaseService {
     });
   }
 
+  async listVehicles(
+    tenantId: string,
+    opts: { page?: number; limit?: number; search?: string; status?: string; sortBy?: string; sortOrder?: string } = {}
+  ): Promise<{ data: any[]; total: number }> {
+    return this.executeInTransaction(async () => {
+      return await this.vehicleRepository.listByTenant(tenantId, opts);
+    });
+  }
+
   async getVehicleById(id: string, tenantId: string): Promise<any | null> {
     return this.executeInTransaction(async () => {
       return await this.vehicleRepository.findById(id, tenantId);

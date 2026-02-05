@@ -47,6 +47,26 @@ interface MarkerWithInfo {
   infoWindow?: google.maps.InfoWindow
 }
 
+function getVehicleLatLng(vehicle: any): { lat: number; lng: number } | null {
+  const latRaw =
+    vehicle?.location?.lat ??
+    vehicle?.location?.latitude ??
+    vehicle?.latitude ??
+    vehicle?.coordinates?.lat ??
+    vehicle?.coordinates?.latitude
+  const lngRaw =
+    vehicle?.location?.lng ??
+    vehicle?.location?.longitude ??
+    vehicle?.longitude ??
+    vehicle?.coordinates?.lng ??
+    vehicle?.coordinates?.longitude
+
+  const lat = Number(latRaw)
+  const lng = Number(lngRaw)
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
+  return { lat, lng }
+}
+
 /**
  * Google Maps API loading state
  */
@@ -402,10 +422,11 @@ export function GoogleMap({
       // Add vehicle markers
       if (showVehicles && vehicles.length > 0) {
         vehicles.forEach(vehicle => {
-          if (!vehicle.location?.lat || !vehicle.location?.lng) return
+          const coords = getVehicleLatLng(vehicle)
+          if (!coords) return
 
           const marker = new google.maps.Marker({
-            position: { lat: vehicle.location?.lat, lng: vehicle.location?.lng },
+            position: coords,
             map: mapInstanceRef.current,
             title: vehicle.name,
             optimized: true,
@@ -439,7 +460,7 @@ export function GoogleMap({
           })
 
           newMarkers.push({ marker, infoWindow })
-          bounds.extend({ lat: vehicle.location?.lat, lng: vehicle.location?.lng })
+          bounds.extend(coords)
           hasMarkers = true
         })
       }
@@ -755,10 +776,10 @@ function getVehicleColor(status: Vehicle["status"]): string {
  * @returns HTML string for info window
  */
 function createVehicleInfoHTML(vehicle: Vehicle): string {
-  const location = vehicle.location?.address ||
-    (vehicle.location?.lat && vehicle.location?.lng
-      ? `${vehicle.location?.lat.toFixed(4)}, ${vehicle.location?.lng.toFixed(4)}`
-      : "Unknown")
+  const coords = getVehicleLatLng(vehicle as any)
+  const location =
+    (vehicle as any)?.location?.address ||
+    (coords ? `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` : "Unknown")
 
   return `
     <div data-testid="marker-popup" style="padding: 14px; min-width: 220px; max-width: 320px; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;">
