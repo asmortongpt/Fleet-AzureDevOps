@@ -124,7 +124,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
             <div
                 aria-label="Application sidebar"
                 className={cn(
-                    "z-20 flex flex-col h-full bg-minimalist-secondary border-r border-minimalist-medium transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                    "z-20 flex flex-col h-full backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border-r border-white/20 dark:border-slate-800/20 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-pro",
                     isSidebarOpen ? "w-56" : "w-16"
                 )}
             >

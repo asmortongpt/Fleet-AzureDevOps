@@ -39,7 +39,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
     return (
         <header className="relative shrink-0">
             <div className={cn(
-                "h-16 border-b border-border/50 bg-card/95 backdrop-blur-sm z-30 flex items-center justify-between transition-all duration-200",
+                "h-16 border-b border-white/20 dark:border-slate-800/20 backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 z-30 flex items-center justify-between transition-all duration-200 shadow-pro-sm",
                 isMobile ? "px-4" : "px-4"
             )}>
                 {/* Left: CTA Branding */}
