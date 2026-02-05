@@ -961,24 +961,47 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     const microsoftUser = userInfoResponse.data
     const email = (microsoftUser.mail || microsoftUser.userPrincipalName).toLowerCase()
 
-    // SECURITY: Restrict SSO to @capitaltechalliance.com domain
-    if (!email.endsWith('@capitaltechalliance.com')) {
-      logger.warn(`[AUTH] SSO login attempt from unauthorized domain: ${email}`)
-      const acceptsJson = req.headers.accept?.includes('application/json')
-      if (acceptsJson) {
-        return res.status(403).json({
-          error: 'Access Denied',
-          message: 'Only users with @capitaltechalliance.com email addresses can log in'
-        })
-      } else {
-        return res.redirect('/login?error=unauthorized_domain')
+    // Domain allowlist (prod-safe; dev-friendly).
+    // In production, require explicit allowlist (default: capitaltechalliance.com).
+    // In development/staging, allow all domains unless SSO_ALLOWED_DOMAINS is set.
+    const isProduction = process.env.NODE_ENV === 'production'
+    const configuredDomains = (process.env.SSO_ALLOWED_DOMAINS || '')
+      .split(',')
+      .map(domain => domain.trim().toLowerCase())
+      .filter(Boolean)
+    const defaultDomains = ['capitaltechalliance.com']
+    const allowedDomains = configuredDomains.length > 0
+      ? configuredDomains
+      : (isProduction ? defaultDomains : [])
+
+    if (allowedDomains.length > 0) {
+      const emailDomain = (email.split('@')[1] || '').toLowerCase()
+      const isAllowed = allowedDomains.some(domain => emailDomain === domain)
+      if (!isAllowed) {
+        logger.warn(`[AUTH] SSO login attempt from unauthorized domain: ${email}`)
+        const acceptsJson = req.headers.accept?.includes('application/json')
+        if (acceptsJson) {
+          return res.status(403).json({
+            error: 'Access Denied',
+            message: `Only users with ${allowedDomains.map(d => `@${d}`).join(', ')} email addresses can log in`
+          })
+        } else {
+          return res.redirect('/login?error=unauthorized_domain')
+        }
       }
     }
 
-    // Get default tenant
-    // SECURITY NOTE: This query is safe - tenants table doesn't need tenant_id filter
-    // It's the root of the tenant hierarchy
-    const tenantResult = await pool.query('SELECT id FROM tenants ORDER BY created_at LIMIT 1')
+    // Resolve default tenant for SSO-provisioned users.
+    // Prefer explicit DEFAULT_TENANT_SLUG/DEFAULT_TENANT_ID when set (demo/prod),
+    // otherwise fall back to the earliest-created tenant (legacy behavior).
+    const defaultTenantId = process.env.DEFAULT_TENANT_ID || null
+    const defaultTenantSlug = process.env.DEFAULT_TENANT_SLUG || null
+
+    const tenantResult = defaultTenantId
+      ? await pool.query('SELECT id FROM tenants WHERE id = $1 LIMIT 1', [defaultTenantId])
+      : defaultTenantSlug
+        ? await pool.query('SELECT id FROM tenants WHERE slug = $1 LIMIT 1', [defaultTenantSlug])
+        : await pool.query('SELECT id FROM tenants ORDER BY created_at LIMIT 1')
     if (tenantResult.rows.length === 0) {
       return res.redirect('/login?error=no_tenant')
     }
