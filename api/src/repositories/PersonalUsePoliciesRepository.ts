@@ -95,11 +95,37 @@ export class PersonalUsePoliciesRepository extends BaseRepository<PersonalUsePol
       `SELECT p.*,
               NULLIF(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))), '') as created_by_name
        FROM personal_use_policies p
-       LEFT JOIN users u ON p.created_by_user_id = u.id
-       WHERE p.tenant_id = $1`,
+       LEFT JOIN users u ON p.created_by = u.id
+       WHERE p.tenant_id = $1 AND p.is_active = true
+       ORDER BY p.effective_date DESC NULLS LAST, p.created_at DESC
+       LIMIT 1`,
       [context.tenantId]
     );
-    return result.rows[0] || null;
+
+    const row = result.rows[0];
+    if (!row) return null;
+
+    const meta = (row.metadata && typeof row.metadata === 'object') ? row.metadata : {};
+
+    return {
+      id: row.id,
+      tenant_id: row.tenant_id,
+      allow_personal_use: meta.allow_personal_use ?? true,
+      require_approval: meta.require_approval ?? true,
+      max_personal_miles_per_month: row.max_personal_miles_monthly != null ? Number(row.max_personal_miles_monthly) : undefined,
+      max_personal_miles_per_year: meta.max_personal_miles_per_year != null ? Number(meta.max_personal_miles_per_year) : undefined,
+      charge_personal_use: meta.charge_personal_use ?? (row.personal_use_rate != null && Number(row.personal_use_rate) > 0),
+      personal_use_rate_per_mile: row.personal_use_rate != null ? Number(row.personal_use_rate) : undefined,
+      reporting_required: meta.reporting_required ?? true,
+      approval_workflow: meta.approval_workflow ?? ApprovalWorkflow.MANAGER,
+      notification_settings: meta.notification_settings ?? {},
+      auto_approve_under_miles: meta.auto_approve_under_miles != null ? Number(meta.auto_approve_under_miles) : undefined,
+      effective_date: row.effective_date ? String(row.effective_date).slice(0, 10) : new Date().toISOString().slice(0, 10),
+      expiration_date: row.expiration_date ? String(row.expiration_date).slice(0, 10) : undefined,
+      created_by_user_id: row.created_by,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+    };
   }
 
   async policyExists(context: QueryContext): Promise<boolean> {
@@ -113,20 +139,84 @@ export class PersonalUsePoliciesRepository extends BaseRepository<PersonalUsePol
 
   async createPolicy(data: PersonalUsePolicyCreate, context: QueryContext): Promise<PersonalUsePolicy> {
     const dbPool = this.getPool(context);
+    const metadata = {
+      allow_personal_use: data.allow_personal_use,
+      require_approval: data.require_approval,
+      charge_personal_use: data.charge_personal_use,
+      reporting_required: data.reporting_required ?? true,
+      approval_workflow: data.approval_workflow || ApprovalWorkflow.MANAGER,
+      notification_settings: data.notification_settings || {},
+      auto_approve_under_miles: data.auto_approve_under_miles ?? null,
+      max_personal_miles_per_year: data.max_personal_miles_per_year ?? null,
+    };
     const result = await dbPool.query(
-      `INSERT INTO personal_use_policies (tenant_id, allow_personal_use, require_approval, max_personal_miles_per_month, max_personal_miles_per_year, charge_personal_use, personal_use_rate_per_mile, reporting_required, approval_workflow, notification_settings, auto_approve_under_miles, effective_date, expiration_date, created_by_user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
-      [context.tenantId, data.allow_personal_use, data.require_approval, data.max_personal_miles_per_month || null, data.max_personal_miles_per_year || null, data.charge_personal_use, data.personal_use_rate_per_mile || null, data.reporting_required ?? true, data.approval_workflow || ApprovalWorkflow.MANAGER, JSON.stringify(data.notification_settings || {}), data.auto_approve_under_miles || null, data.effective_date, data.expiration_date || null, context.userId]
+      `INSERT INTO personal_use_policies (
+         tenant_id,
+         policy_name,
+         description,
+         max_personal_miles_monthly,
+         personal_use_rate,
+         is_active,
+         effective_date,
+         expiration_date,
+         metadata,
+         created_by
+       ) VALUES ($1, $2, $3, $4, $5, true, $6, $7, $8, $9)
+       RETURNING *`,
+      [
+        context.tenantId,
+        'Personal Use Policy',
+        'Tenant personal use policy configuration',
+        data.max_personal_miles_per_month || null,
+        data.personal_use_rate_per_mile || null,
+        data.effective_date,
+        data.expiration_date || null,
+        metadata,
+        context.userId,
+      ]
     );
-    return result.rows[0];
+    // Re-load through the normalized reader
+    return (await this.getPolicyByTenant(context))!;
   }
 
   async updatePolicy(data: PersonalUsePolicyUpdate, context: QueryContext): Promise<PersonalUsePolicy> {
     const dbPool = this.getPool(context);
-    const result = await dbPool.query(
-      `UPDATE personal_use_policies SET allow_personal_use = $1, require_approval = $2, max_personal_miles_per_month = $3, max_personal_miles_per_year = $4, charge_personal_use = $5, personal_use_rate_per_mile = $6, reporting_required = $7, approval_workflow = $8, notification_settings = $9, auto_approve_under_miles = $10, effective_date = $11, expiration_date = $12, updated_at = NOW() WHERE tenant_id = $13 RETURNING *`,
-      [data.allow_personal_use, data.require_approval, data.max_personal_miles_per_month || null, data.max_personal_miles_per_year || null, data.charge_personal_use, data.personal_use_rate_per_mile || null, data.reporting_required ?? true, data.approval_workflow || ApprovalWorkflow.MANAGER, JSON.stringify(data.notification_settings || {}), data.auto_approve_under_miles || null, data.effective_date, data.expiration_date || null, context.tenantId]
+    const current = await dbPool.query(
+      `SELECT metadata FROM personal_use_policies WHERE tenant_id = $1`,
+      [context.tenantId]
     );
-    return result.rows[0];
+    const existingMeta = (current.rows[0]?.metadata && typeof current.rows[0].metadata === 'object') ? current.rows[0].metadata : {};
+    const mergedMeta = {
+      ...existingMeta,
+      ...(data.allow_personal_use !== undefined ? { allow_personal_use: data.allow_personal_use } : {}),
+      ...(data.require_approval !== undefined ? { require_approval: data.require_approval } : {}),
+      ...(data.charge_personal_use !== undefined ? { charge_personal_use: data.charge_personal_use } : {}),
+      ...(data.reporting_required !== undefined ? { reporting_required: data.reporting_required } : {}),
+      ...(data.approval_workflow !== undefined ? { approval_workflow: data.approval_workflow } : {}),
+      ...(data.notification_settings !== undefined ? { notification_settings: data.notification_settings } : {}),
+      ...(data.auto_approve_under_miles !== undefined ? { auto_approve_under_miles: data.auto_approve_under_miles } : {}),
+      ...(data.max_personal_miles_per_year !== undefined ? { max_personal_miles_per_year: data.max_personal_miles_per_year } : {}),
+    };
+
+    await dbPool.query(
+      `UPDATE personal_use_policies
+         SET max_personal_miles_monthly = COALESCE($1, max_personal_miles_monthly),
+             personal_use_rate = COALESCE($2, personal_use_rate),
+             effective_date = COALESCE($3, effective_date),
+             expiration_date = $4,
+             metadata = $5,
+             updated_at = NOW()
+       WHERE tenant_id = $6`,
+      [
+        data.max_personal_miles_per_month ?? null,
+        data.personal_use_rate_per_mile ?? null,
+        data.effective_date ?? null,
+        data.expiration_date ?? null,
+        mergedMeta,
+        context.tenantId,
+      ]
+    );
+    return (await this.getPolicyByTenant(context))!;
   }
 
   async getDriverByIdAndTenant(driverId: string, context: QueryContext): Promise<{ id: string; name: string } | null> {
@@ -161,7 +251,21 @@ export class PersonalUsePoliciesRepository extends BaseRepository<PersonalUsePol
   async getPolicyForLimits(context: QueryContext): Promise<any> {
     const dbPool = this.getPool(context);
     const result = await dbPool.query(
-      `SELECT id, tenant_id, allow_personal_use, require_approval, charge_personal_use, max_personal_miles_per_month, max_personal_miles_per_year FROM personal_use_policies WHERE tenant_id = $1`,
+      `SELECT
+         id,
+         tenant_id,
+         COALESCE((metadata->>'allow_personal_use')::boolean, true) as allow_personal_use,
+         COALESCE((metadata->>'require_approval')::boolean, true) as require_approval,
+         COALESCE(
+           (metadata->>'charge_personal_use')::boolean,
+           (personal_use_rate IS NOT NULL AND personal_use_rate > 0)
+         ) as charge_personal_use,
+         max_personal_miles_monthly as max_personal_miles_per_month,
+         NULLIF(metadata->>'max_personal_miles_per_year', '')::numeric as max_personal_miles_per_year
+       FROM personal_use_policies
+       WHERE tenant_id = $1 AND is_active = true
+       ORDER BY effective_date DESC NULLS LAST, created_at DESC
+       LIMIT 1`,
       [context.tenantId]
     );
     return result.rows[0] || null;
@@ -170,7 +274,15 @@ export class PersonalUsePoliciesRepository extends BaseRepository<PersonalUsePol
   async getPolicyWithLimits(context: QueryContext): Promise<any> {
     const dbPool = this.getPool(context);
     const result = await dbPool.query(
-      `SELECT id, tenant_id, max_personal_miles_per_month, max_personal_miles_per_year FROM personal_use_policies WHERE tenant_id = $1`,
+      `SELECT
+         id,
+         tenant_id,
+         max_personal_miles_monthly as max_personal_miles_per_month,
+         NULLIF(metadata->>'max_personal_miles_per_year', '')::numeric as max_personal_miles_per_year
+       FROM personal_use_policies
+       WHERE tenant_id = $1 AND is_active = true
+       ORDER BY effective_date DESC NULLS LAST, created_at DESC
+       LIMIT 1`,
       [context.tenantId]
     );
     return result.rows[0] || null;
