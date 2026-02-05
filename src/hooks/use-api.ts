@@ -274,6 +274,17 @@ interface Route {
   updated_at: string;
 }
 
+function buildQueryString(filters: Record<string, unknown>): string {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(filters)) {
+    if (value === undefined || value === null) continue;
+    if (typeof value === 'string' && value.trim() === '') continue;
+    params.set(key, String(value));
+  }
+  const qs = params.toString();
+  return qs ? `?${qs}` : '';
+}
+
 // Stable default filter objects to avoid queryKey churn / React Query loops.
 const DEFAULT_VEHICLE_FILTERS: VehicleFilters = { tenant_id: '' }
 const DEFAULT_DRIVER_FILTERS: DriverFilters = { tenant_id: '' }
@@ -304,8 +315,8 @@ export function useIncidents(filters: { tenant_id: string; [key: string]: string
   return useQuery<any[], Error>({
     queryKey: queryKeyFactory.incidents(filters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as unknown as Record<string, string>)
-      const res = await secureFetch(`/api/incidents?${params}`)
+      const qs = buildQueryString(filters as unknown as Record<string, unknown>)
+      const res = await secureFetch(`/api/incidents${qs}`)
       if (!res.ok) throw new Error('Network response was not ok')
       const payload = await res.json()
       return payload?.data ?? payload
@@ -335,8 +346,8 @@ export function useInspections(filters: { tenant_id: string; [key: string]: stri
   return useQuery<any[], Error>({
     queryKey: queryKeyFactory.inspections(filters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as unknown as Record<string, string>)
-      const res = await secureFetch(`/api/inspections?${params}`)
+      const qs = buildQueryString(filters as unknown as Record<string, unknown>)
+      const res = await secureFetch(`/api/inspections${qs}`)
       if (!res.ok) throw new Error('Network response was not ok')
       const payload = await res.json()
       return payload?.data ?? payload
@@ -351,8 +362,8 @@ export function useVehicles(filters: VehicleFilters = DEFAULT_VEHICLE_FILTERS) {
   return useQuery<Vehicle[], Error>({
     queryKey: queryKeyFactory.vehicles(filters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
-      const res = await secureFetch(`/api/vehicles?${params}`, { method: 'GET' });
+      const qs = buildQueryString(filters as unknown as Record<string, unknown>)
+      const res = await secureFetch(`/api/vehicles${qs}`, { method: 'GET' });
       if (!res.ok) throw new Error('Network response was not ok');
       const payload = await res.json();
       // Support both legacy shapes:
@@ -372,8 +383,8 @@ export function useDrivers(filters: DriverFilters = DEFAULT_DRIVER_FILTERS) {
   return useQuery<Driver[], Error>({
     queryKey: queryKeyFactory.drivers(filters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
-      const res = await secureFetch(`/api/drivers?${params}`);
+      const qs = buildQueryString(filters as unknown as Record<string, unknown>)
+      const res = await secureFetch(`/api/drivers${qs}`);
       if (!res.ok) throw new Error('Network response was not ok');
       const payload = await res.json();
       const rows = Array.isArray(payload) ? payload : (payload?.data || []);
@@ -411,8 +422,8 @@ export function useMaintenance(filters: MaintenanceFilters = DEFAULT_MAINTENANCE
   return useQuery<Maintenance[], Error>({
     queryKey: queryKeyFactory.maintenance(filters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as unknown as Record<string, string>);
-      const res = await secureFetch(`/api/maintenance?${params}`);
+      const qs = buildQueryString(filters as unknown as Record<string, unknown>)
+      const res = await secureFetch(`/api/maintenance${qs}`);
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
     },
@@ -426,8 +437,8 @@ export function useWorkOrders(filters: WorkOrderFilters = DEFAULT_WORK_ORDER_FIL
   return useQuery<WorkOrder[], Error>({
     queryKey: queryKeyFactory.workOrders(filters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
-      const res = await secureFetch(`/api/work-orders?${params}`);
+      const qs = buildQueryString(filters as unknown as Record<string, unknown>)
+      const res = await secureFetch(`/api/work-orders${qs}`);
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
     },
@@ -441,8 +452,8 @@ export function useFuelTransactions(filters: FuelTransactionFilters = DEFAULT_FU
   return useQuery<FuelTransaction[], Error>({
     queryKey: queryKeyFactory.fuelTransactions(filters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
-      const res = await secureFetch(`/api/fuel-transactions?${params}`);
+      const qs = buildQueryString(filters as unknown as Record<string, unknown>)
+      const res = await secureFetch(`/api/fuel-transactions${qs}`);
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
     },
@@ -456,8 +467,8 @@ export function useFacilities(filters: FacilityFilters = DEFAULT_FACILITY_FILTER
   return useQuery<Facility[], Error>({
     queryKey: queryKeyFactory.facilities(filters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
-      const res = await secureFetch(`/api/facilities?${params}`);
+      const qs = buildQueryString(filters as unknown as Record<string, unknown>)
+      const res = await secureFetch(`/api/facilities${qs}`);
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
     },
@@ -471,8 +482,8 @@ export function useMaintenanceSchedules(filters: MaintenanceScheduleFilters = DE
   return useQuery<MaintenanceSchedule[], Error>({
     queryKey: queryKeyFactory.maintenanceSchedules(filters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
-      const res = await secureFetch(`/api/maintenance-schedules?${params}`);
+      const qs = buildQueryString(filters as unknown as Record<string, unknown>)
+      const res = await secureFetch(`/api/maintenance-schedules${qs}`);
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
     },
@@ -486,8 +497,8 @@ export function useRoutes(filters: RouteFilters = DEFAULT_ROUTE_FILTERS) {
   return useQuery<Route[], Error>({
     queryKey: queryKeyFactory.routes(filters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
-      const res = await secureFetch(`/api/routes?${params}`);
+      const qs = buildQueryString(filters as unknown as Record<string, unknown>)
+      const res = await secureFetch(`/api/routes${qs}`);
       if (!res.ok) throw new Error('Network response was not ok');
       const payload = await res.json();
       return (payload?.data ?? payload) as Route[];
@@ -839,8 +850,8 @@ export function usePolicies(filters: PolicyFilters = { tenant_id: '' }) {
   return useQuery<Policy[], Error>({
     queryKey: ['policies', filters] as QueryKey,
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
-      const res = await secureFetch(`/api/policies?${params}`);
+      const qs = buildQueryString(filters as unknown as Record<string, unknown>)
+      const res = await secureFetch(`/api/policies${qs}`);
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
     },
