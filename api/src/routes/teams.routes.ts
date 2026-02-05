@@ -19,6 +19,7 @@ import logger from '../config/logger'
 import { pool } from '../config/database'
 import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
+import { setTenantContext } from '../middleware/tenant-context'
 import teamsService from '../services/teams.service'
 import {
   SendMessageRequest,
@@ -49,6 +50,7 @@ function getTenantId(req: AuthRequest): string | null {
 
 // Apply authentication middleware to all routes
 router.use(authenticateJWT)
+router.use(setTenantContext)
 
 /**
  * @openapi
