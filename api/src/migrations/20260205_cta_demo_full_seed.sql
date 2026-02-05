@@ -58,9 +58,9 @@ INSERT INTO users (
 SELECT
   (SELECT tenant_id FROM cta),
   -- Unique and clearly demo-scoped
-  format('cta.staff.%03s@cta-fleet.local', (SELECT start_idx FROM missing) + s.seq),
+  'cta.staff.' || lpad(((SELECT start_idx FROM missing) + s.seq)::text, 3, '0') || '@cta-fleet.local',
   '$2b$12$.N3w8k/dGtbbLVChW.xX7OH7f3dZ8.v34QqKaDGkzSEj6I8pWZhEO',
-  format('CTA%03s', (SELECT start_idx FROM missing) + s.seq),
+  'CTA' || lpad(((SELECT start_idx FROM missing) + s.seq)::text, 3, '0'),
   CASE
     WHEN s.seq % 11 = 0 THEN 'Rivera'
     WHEN s.seq % 11 = 1 THEN 'Patel'
@@ -90,7 +90,7 @@ WHERE NOT EXISTS (
   SELECT 1
   FROM users u
   WHERE u.tenant_id = (SELECT tenant_id FROM cta)
-    AND u.email = format('cta.staff.%03s@cta-fleet.local', (SELECT start_idx FROM missing) + s.seq)
+    AND u.email = ('cta.staff.' || lpad(((SELECT start_idx FROM missing) + s.seq)::text, 3, '0') || '@cta-fleet.local')
 );
 
 -- ============================================================================
