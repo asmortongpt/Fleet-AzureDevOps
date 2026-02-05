@@ -8,7 +8,8 @@ import './i18n/config'
 
 // Initialize axe-core accessibility testing in development
 import { initializeAxe } from './lib/accessibility/axe-init'
-if (import.meta.env.DEV) {
+// Only enable when explicitly requested; axe logs to console.error by design.
+if (import.meta.env.DEV && import.meta.env.VITE_ENABLE_AXE === 'true') {
   initializeAxe()
 }
 
