@@ -6,6 +6,7 @@ import { auditLog } from '../middleware/audit';
 import { AuthRequest, authenticateJWT } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
 import { requirePermission } from '../middleware/permissions';
+import { setTenantContext } from '../middleware/tenant-context';
 import { QueryContext } from '../repositories/BaseRepository';
 import { PersonalUsePoliciesRepository } from '../repositories/PersonalUsePoliciesRepository';
 import { TYPES } from '../types';
@@ -13,6 +14,7 @@ import { ApprovalWorkflow, DriverUsageLimits } from '../types/trip-usage';
 
 const router = express.Router();
 router.use(authenticateJWT);
+router.use(setTenantContext);
 
 // Get repository from DI container
 const repository = container.get<PersonalUsePoliciesRepository>(TYPES.PersonalUsePoliciesRepository);
