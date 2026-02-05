@@ -7,7 +7,7 @@ import logger from '../config/logger'; // Wave 18: Add Winston logger
  * Provides endpoints for cost tracking, budgeting, and analytics
  */
 
-import { costEmulator } from '../emulators/cost/CostEmulator'
+import { getCostEmulator } from '../emulators/cost/CostEmulator'
 import type { BudgetTracking } from '../emulators/cost/CostEmulator'
 import { csrfProtection } from '../middleware/csrf'
 import { asyncHandler } from '../middleware/errorHandler'
@@ -15,6 +15,7 @@ import { authenticateJWT } from '../middleware/auth'
 
 
 const router = Router()
+const costEmulator = getCostEmulator()
 
 // Apply authentication to all routes
 router.use(authenticateJWT)
@@ -735,6 +736,7 @@ router.get('/dashboard', async (_req, res) => {
 });
 
 // Start the cost emulator
-costEmulator.start().catch(console.error)
+// Never auto-start synthetic cost generation at module import time.
+// If this router is mounted for a demo, the caller can explicitly start it.
 
 export default router

@@ -101,22 +101,30 @@ export class CostEmulator extends EventEmitter {
 
   private departments = ['Operations', 'Delivery', 'Sales', 'Service', 'Executive', 'Maintenance']
 
-  constructor() {
+  constructor(private options: { seedSyntheticData?: boolean } = {}) {
     super()
-    this.initializeHistoricalData()
-    this.initializeBudgets()
+    // IMPORTANT:
+    // This emulator can generate synthetic cost data for demos, but production
+    // and "real data" demo environments must not create random in-memory costs.
+    // Only seed synthetic data when explicitly enabled.
+    if (this.options.seedSyntheticData) {
+      this.initializeHistoricalData()
+      this.initializeBudgets()
+    }
   }
 
   public async start(): Promise<void> {
     if (this.isRunning) {
-return
-}
+      return
+    }
     this.isRunning = true
 
-    // Generate new costs periodically
-    this.updateInterval = setInterval(() => {
-      this.generateRandomCost()
-    }, 30000) // Every 30 seconds
+    // Only generate synthetic costs if explicitly enabled.
+    if (this.options.seedSyntheticData) {
+      this.updateInterval = setInterval(() => {
+        this.generateRandomCost()
+      }, 30000) // Every 30 seconds
+    }
 
     console.log('Cost Emulator started')
   }
@@ -776,4 +784,18 @@ return 1.10
 }
 
 // Export singleton instance
-export const costEmulator = new CostEmulator()
+let _singleton: CostEmulator | null = null
+
+/**
+ * Lazy singleton accessor.
+ *
+ * NOTE: Synthetic generation is disabled by default.
+ * Enable only for dedicated demo environments:
+ *   ENABLE_COST_EMULATOR=true
+ */
+export function getCostEmulator(): CostEmulator {
+  if (!_singleton) {
+    _singleton = new CostEmulator({ seedSyntheticData: process.env.ENABLE_COST_EMULATOR === 'true' })
+  }
+  return _singleton
+}

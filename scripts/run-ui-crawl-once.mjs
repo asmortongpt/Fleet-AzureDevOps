@@ -1,9 +1,29 @@
 import { spawn } from 'node:child_process'
-
-const API_URL = process.env.API_URL || 'http://localhost:3001'
-const UI_URL = process.env.UI_URL || 'http://localhost:5173'
+import net from 'node:net'
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
+async function getFreePort(preferred) {
+  const tryListen = (port) =>
+    new Promise((resolve, reject) => {
+      const s = net.createServer()
+      s.unref()
+      s.on('error', reject)
+      s.listen(port, '127.0.0.1', () => {
+        const addr = s.address()
+        s.close(() => resolve(addr.port))
+      })
+    })
+
+  if (preferred) {
+    try {
+      return await tryListen(preferred)
+    } catch (e) {
+      // Fall back to ephemeral port.
+    }
+  }
+  return await tryListen(0)
+}
 
 async function waitForHttp(url, timeoutMs) {
   const start = Date.now()
@@ -57,17 +77,37 @@ process.on('SIGINT', () => process.exit(130))
 process.on('SIGTERM', () => process.exit(143))
 
 async function main() {
+  const apiPort = await getFreePort(Number(process.env.API_PORT || 3001))
+  const uiPort = await getFreePort(Number(process.env.UI_PORT || 5173))
+  const API_URL = `http://127.0.0.1:${apiPort}`
+  const UI_URL = `http://127.0.0.1:${uiPort}`
+
+  // Ensure critical migrations are applied for a working demo (idempotent).
+  {
+    const migrate = spawnLoggedCwd('migrate', 'npm', ['run', 'migrate'], 'api', {
+      MIGRATIONS_ALLOWLIST: '20260205_costs_unified_view.sql',
+    })
+    children.push(migrate)
+    const migrateCode = await new Promise((resolve) => migrate.on('exit', (c) => resolve(c ?? 1)))
+    if (migrateCode !== 0) {
+      console.error('Migrations failed; refusing to start services.')
+      process.exit(migrateCode)
+    }
+  }
+
   // Start API (loads env from api/.env via DOTENV_CONFIG_PATH).
   children.push(
     spawnLoggedCwd('api', 'npm', ['run', 'dev:nowatch'], 'api', {
       DOTENV_CONFIG_PATH: 'api/.env',
-      PORT: process.env.API_PORT || '3001',
+      PORT: String(apiPort),
     })
   )
 
   // Start UI
   children.push(
-    spawnLogged('ui', 'npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', '5173', '--strictPort'])
+    spawnLogged('ui', 'npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', String(uiPort), '--strictPort'], {
+      API_URL,
+    })
   )
 
   const apiOk = await waitForHttp(`${API_URL}/health`, 90_000)
@@ -85,6 +125,7 @@ async function main() {
   // Run the crawl.
   const crawl = spawnLogged('crawl', 'node', ['scripts/ui-crawl.mjs'], {
     BASE_URL: UI_URL,
+    API_URL,
   })
   children.push(crawl)
   const exitCode = await new Promise((resolve) => crawl.on('exit', (c) => resolve(c ?? 1)))

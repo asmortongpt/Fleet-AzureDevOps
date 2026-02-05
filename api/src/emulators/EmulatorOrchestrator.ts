@@ -16,7 +16,7 @@ import { telemetryService, TelemetryVehicle } from '../services/TelemetryService
 import { DispatchEmulator } from './DispatchEmulator'
 import { InventoryEmulator } from './InventoryEmulator'
 import { generateVehiclesConfig, generateRoutesConfig, EmulatorVehicle, EmulatorRoute, EmulatorGeofence } from './config/generateDynamicConfig'
-import { CostEmulator } from './cost/CostEmulator'
+import type { CostEmulator } from './cost/CostEmulator'
 import { DriverBehaviorEmulator } from './driver/DriverBehaviorEmulator'
 import { EVChargingEmulator } from './evcharging/EVChargingEmulator'
 import { FuelEmulator } from './fuel/FuelEmulator'
@@ -612,16 +612,21 @@ export class EmulatorOrchestrator extends EventEmitter {
     this.routeEmulators.set(vehicleId, routeEmulator)
     await routeEmulator.start()
 
-    // Cost Emulator
-    const costEmulator = new CostEmulator()
-    costEmulator.on('data', (data) => this.emit('cost', {
-      type: 'cost',
-      vehicleId,
-      timestamp: new Date(),
-      data
-    }))
-    this.costEmulators.set(vehicleId, costEmulator)
-    await costEmulator.start()
+    // Cost Emulator (synthetic) - disabled by default.
+    // Fleet-CTA demo environments should use DB-backed cost sources instead.
+    if (process.env.ENABLE_COST_EMULATOR === 'true' && process.env.NODE_ENV !== 'production') {
+      // Dynamic import avoids module side-effects (and any accidental construction) unless explicitly enabled.
+      const { CostEmulator } = await import('./cost/CostEmulator')
+      const costEmulator = new CostEmulator({ seedSyntheticData: true })
+      costEmulator.on('data', (data) => this.emit('cost', {
+        type: 'cost',
+        vehicleId,
+        timestamp: new Date(),
+        data
+      }))
+      this.costEmulators.set(vehicleId, costEmulator)
+      await costEmulator.start()
+    }
 
     // IoT Emulator
     if (vehicle.features.includes('iot')) {
