@@ -112,6 +112,27 @@ CREATE TABLE IF NOT EXISTS warranty_claims (
 -- If the table already existed (from prior runs/unversioned scripts), ensure key columns exist.
 ALTER TABLE warranty_claims ADD COLUMN IF NOT EXISTS work_order_id UUID;
 
+-- Some environments may have a pre-existing `warranty_claims` table created outside this
+-- migration. `CREATE TABLE IF NOT EXISTS` will not add missing columns, so guard index
+-- creation by adding any required columns if absent.
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'warranty_claims') THEN
+        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'warranty_claims' AND column_name = 'claim_date') THEN
+            ALTER TABLE warranty_claims ADD COLUMN claim_date DATE;
+        END IF;
+        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'warranty_claims' AND column_name = 'status') THEN
+            ALTER TABLE warranty_claims ADD COLUMN status VARCHAR(50) DEFAULT 'submitted';
+        END IF;
+        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'warranty_claims' AND column_name = 'tenant_id') THEN
+            ALTER TABLE warranty_claims ADD COLUMN tenant_id UUID;
+        END IF;
+        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'warranty_claims' AND column_name = 'warranty_id') THEN
+            ALTER TABLE warranty_claims ADD COLUMN warranty_id UUID;
+        END IF;
+    END IF;
+END $$;
+
 -- ============================================================================
 -- 3. ALTER WORK_ORDERS TABLE (if exists)
 -- ============================================================================
