@@ -25,13 +25,14 @@ function buildKPIs(stats: {
   active_vehicles?: number
   maintenance_vehicles?: number
   total_drivers?: number
+  total_staff?: number
   open_work_orders?: number
   open_incidents?: number
 }): KPIChip[] {
   const total = stats.total_vehicles ?? 0
   const active = stats.active_vehicles ?? 0
   const maint = stats.maintenance_vehicles ?? 0
-  const drivers = stats.total_drivers ?? 0
+  const personnel = stats.total_staff ?? stats.total_drivers ?? 0
   const workOrders = stats.open_work_orders ?? 0
   // Kept for future "Incidents" chip expansion.
   const incidents = stats.open_incidents ?? 0
@@ -81,7 +82,7 @@ function buildKPIs(stats: {
     },
     {
       label: 'Personnel',
-      value: drivers,
+      value: personnel,
       icon: <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
       moduleId: 'driver-mgmt',
       color: '#38BDF8',

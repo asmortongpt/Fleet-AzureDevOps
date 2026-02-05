@@ -238,7 +238,7 @@ router.get('/stats',
       // Set statement timeout to 5 seconds to prevent hanging
       await pool.query('SET statement_timeout = 5000');
 
-      const [vehicleStats, driverStats, workOrderStats] = await Promise.all([
+      const [vehicleStats, driverStats, staffStats, workOrderStats] = await Promise.all([
         // Vehicle stats - using index idx_vehicles_tenant_status
         pool.query(`
           SELECT
@@ -258,6 +258,16 @@ router.get('/stats',
           FROM drivers
           WHERE tenant_id = $1::uuid
         `, [tenantId]),
+
+        // Personnel/staff stats - users represent workforce accounts (not just drivers)
+        pool.query(
+          `
+          SELECT COUNT(*)::integer as total
+          FROM users
+          WHERE tenant_id = $1::uuid
+        `,
+          [tenantId]
+        ),
 
         // Work order stats - using index idx_work_orders_tenant_status
         pool.query(`
@@ -279,6 +289,7 @@ router.get('/stats',
         idle_vehicles: vehicleStats.rows[0]?.idle || 0,
         total_drivers: driverStats.rows[0]?.total || 0,
         active_drivers: driverStats.rows[0]?.active || 0,
+        total_staff: staffStats.rows[0]?.total || 0,
         open_work_orders: workOrderStats.rows[0]?.open || 0,
         in_progress_work_orders: workOrderStats.rows[0]?.in_progress || 0
       };

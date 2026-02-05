@@ -210,6 +210,15 @@ export const PolicyProvider: React.FC<PolicyProviderProps> = ({ children }) => {
       const response = await secureFetch('/api/policies');
 
       if (!response.ok) {
+        // Policies are an admin/config surface. In non-admin roles, the backend will
+        // correctly return 403. Treat that as "no policies visible" rather than
+        // breaking the whole UI with toasts/section errors.
+        if (response.status === 401 || response.status === 403) {
+          setPolicies([]);
+          setError(null);
+          return;
+        }
+
         throw new Error('Failed to fetch policies');
       }
 
@@ -222,6 +231,7 @@ export const PolicyProvider: React.FC<PolicyProviderProps> = ({ children }) => {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(errorMessage);
       logger.error('Failed to fetch policies', { error: errorMessage });
+      // Avoid noisy UX for expected permission states (handled above).
       toast.error('Failed to load policies');
     } finally {
       setLoading(false);
