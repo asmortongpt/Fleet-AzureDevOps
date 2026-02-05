@@ -16,6 +16,7 @@
 import { Router, Response } from 'express'
 
 import logger from '../config/logger'
+import { pool } from '../config/database'
 import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import teamsService from '../services/teams.service'
@@ -29,6 +30,13 @@ import {
 import { getErrorMessage } from '../utils/error-handler'
 
 const router = Router()
+
+function resolveTeamsSource(req: AuthRequest): 'local' | 'graph' {
+  const q = String(req.query.source || '').toLowerCase()
+  const env = String(process.env.TEAMS_SOURCE || '').toLowerCase()
+  const source = (q || env || 'local').trim()
+  return source === 'graph' ? 'graph' : 'local'
+}
 
 // Apply authentication middleware to all routes
 router.use(authenticateJWT)
@@ -71,6 +79,19 @@ router.use(authenticateJWT)
  */
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
+    const useLocal = resolveTeamsSource(req) === 'local'
+    if (useLocal) {
+      const tenantId = req.user!.tenant_id
+      const result = await pool.query(
+        `SELECT id, name AS "displayName", description
+         FROM teams
+         WHERE tenant_id = $1 AND is_active = true
+         ORDER BY name`,
+        [tenantId]
+      )
+      return res.json({ success: true, teams: result.rows })
+    }
+
     const teams = await teamsService.getTeams()
 
     res.json({
@@ -88,6 +109,83 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       error: 'Failed to retrieve teams'
     })
   }
+})
+
+// ----------------------------------------------------------------------------
+// Legacy/query-param aliases (avoid /:teamId catching /channels, /messages, /files)
+// ----------------------------------------------------------------------------
+
+router.get('/channels', async (req: AuthRequest, res: Response) => {
+  try {
+    const teamId = String(req.query.teamId || '')
+    if (!teamId) return res.status(400).json({ success: false, error: 'teamId is required' })
+
+    const useLocal = resolveTeamsSource(req) === 'local'
+    if (useLocal) {
+      const tenantId = req.user!.tenant_id
+      const result = await pool.query(
+        `SELECT channel_id AS id, display_name AS "displayName", description
+         FROM teams_channels
+         WHERE tenant_id = $1 AND team_id = $2
+         ORDER BY display_name`,
+        [tenantId, teamId]
+      )
+      return res.json({ success: true, channels: result.rows })
+    }
+
+    const channels = await teamsService.getChannels(teamId)
+    return res.json({ success: true, channels })
+  } catch (error) {
+    logger.error('Error getting channels (alias)', {
+      error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
+      userId: req.user?.id
+    })
+    return res.status(500).json({ success: false, error: 'Failed to retrieve channels' })
+  }
+})
+
+router.get('/messages', async (req: AuthRequest, res: Response) => {
+  try {
+    const teamId = String(req.query.teamId || '')
+    const channelId = String(req.query.channelId || '')
+    if (!teamId || !channelId) {
+      return res.status(400).json({ success: false, error: 'teamId and channelId are required' })
+    }
+    const limit = Math.min(200, Math.max(1, Number(req.query.limit || 50)))
+
+    const useLocal = resolveTeamsSource(req) === 'local'
+    if (useLocal) {
+      const tenantId = req.user!.tenant_id
+      const result = await pool.query(
+        `SELECT
+           message_id AS id,
+           sender_name,
+           body,
+           sent_at,
+           metadata
+         FROM teams_messages
+         WHERE tenant_id = $1 AND team_id = $2 AND channel_id = $3
+         ORDER BY sent_at DESC NULLS LAST, created_at DESC
+         LIMIT $4`,
+        [tenantId, teamId, channelId, limit]
+      )
+      return res.json({ success: true, messages: result.rows })
+    }
+
+    const messages = await teamsService.getMessages(teamId, channelId, limit)
+    return res.json({ success: true, messages })
+  } catch (error) {
+    logger.error('Error getting messages (alias)', {
+      error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
+      userId: req.user?.id
+    })
+    return res.status(500).json({ success: false, error: 'Failed to retrieve messages' })
+  }
+})
+
+router.get('/files', async (_req: AuthRequest, res: Response) => {
+  // Avoid throwing from route fall-through. File operations require Graph/SharePoint wiring.
+  return res.status(501).json({ success: false, error: 'Teams files not implemented for local demo mode' })
 })
 
 /**
@@ -116,6 +214,22 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 router.get('/:teamId', async (req: AuthRequest, res: Response) => {
   try {
     const { teamId } = req.params
+    const useLocal = resolveTeamsSource(req) === 'local'
+    if (useLocal) {
+      const tenantId = req.user!.tenant_id
+      const result = await pool.query(
+        `SELECT id, name AS "displayName", description
+         FROM teams
+         WHERE tenant_id = $1 AND id = $2
+         LIMIT 1`,
+        [tenantId, teamId]
+      )
+      if (result.rows.length === 0) {
+        return res.status(404).json({ success: false, error: 'Team not found' })
+      }
+      return res.json({ success: true, team: result.rows[0] })
+    }
+
     const team = await teamsService.getTeam(teamId)
 
     res.json({
@@ -163,6 +277,19 @@ router.get('/:teamId', async (req: AuthRequest, res: Response) => {
 router.get('/:teamId/channels', async (req: AuthRequest, res: Response) => {
   try {
     const { teamId } = req.params
+
+    const useLocal = resolveTeamsSource(req) === 'local'
+    if (useLocal) {
+      const tenantId = req.user!.tenant_id
+      const result = await pool.query(
+        `SELECT channel_id AS id, display_name AS "displayName", description
+         FROM teams_channels
+         WHERE tenant_id = $1 AND team_id = $2
+         ORDER BY display_name`,
+        [tenantId, teamId]
+      )
+      return res.json({ success: true, channels: result.rows })
+    }
 
     const channels = await teamsService.getChannels(teamId)
 
@@ -220,7 +347,26 @@ router.get('/:teamId/channels', async (req: AuthRequest, res: Response) => {
 router.get('/:teamId/channels/:channelId/messages', async (req: AuthRequest, res: Response) => {
   try {
     const { teamId, channelId } = req.params
-    const limit = parseInt(req.query.limit as string) || 50
+    const limit = Math.min(200, Math.max(1, parseInt(req.query.limit as string) || 50))
+
+    const useLocal = resolveTeamsSource(req) === 'local'
+    if (useLocal) {
+      const tenantId = req.user!.tenant_id
+      const result = await pool.query(
+        `SELECT
+           message_id AS id,
+           sender_name,
+           body,
+           sent_at,
+           metadata
+         FROM teams_messages
+         WHERE tenant_id = $1 AND team_id = $2 AND channel_id = $3
+         ORDER BY sent_at DESC NULLS LAST, created_at DESC
+         LIMIT $4`,
+        [tenantId, teamId, channelId, limit]
+      )
+      return res.json({ success: true, messages: result.rows })
+    }
 
     const messages = await teamsService.getMessages(teamId, channelId, limit)
 
