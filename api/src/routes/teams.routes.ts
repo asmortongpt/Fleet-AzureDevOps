@@ -38,6 +38,10 @@ function resolveTeamsSource(req: AuthRequest): 'local' | 'graph' {
   return source === 'graph' ? 'graph' : 'local'
 }
 
+function getTenantId(req: AuthRequest): string | null {
+  return (req.user as any)?.tenant_id || (req.user as any)?.tenantId || null
+}
+
 // Apply authentication middleware to all routes
 router.use(authenticateJWT)
 
@@ -81,7 +85,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const useLocal = resolveTeamsSource(req) === 'local'
     if (useLocal) {
-      const tenantId = req.user!.tenant_id
+      const tenantId = getTenantId(req)
+      if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
       const result = await pool.query(
         `SELECT id, name AS "displayName", description
          FROM teams
@@ -122,7 +127,8 @@ router.get('/channels', async (req: AuthRequest, res: Response) => {
 
     const useLocal = resolveTeamsSource(req) === 'local'
     if (useLocal) {
-      const tenantId = req.user!.tenant_id
+      const tenantId = getTenantId(req)
+      if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
       const result = await pool.query(
         `SELECT channel_id AS id, display_name AS "displayName", description
          FROM teams_channels
@@ -155,7 +161,8 @@ router.get('/messages', async (req: AuthRequest, res: Response) => {
 
     const useLocal = resolveTeamsSource(req) === 'local'
     if (useLocal) {
-      const tenantId = req.user!.tenant_id
+      const tenantId = getTenantId(req)
+      if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
       const result = await pool.query(
         `SELECT
            message_id AS id,
@@ -216,7 +223,8 @@ router.get('/:teamId', async (req: AuthRequest, res: Response) => {
     const { teamId } = req.params
     const useLocal = resolveTeamsSource(req) === 'local'
     if (useLocal) {
-      const tenantId = req.user!.tenant_id
+      const tenantId = getTenantId(req)
+      if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
       const result = await pool.query(
         `SELECT id, name AS "displayName", description
          FROM teams
@@ -280,7 +288,8 @@ router.get('/:teamId/channels', async (req: AuthRequest, res: Response) => {
 
     const useLocal = resolveTeamsSource(req) === 'local'
     if (useLocal) {
-      const tenantId = req.user!.tenant_id
+      const tenantId = getTenantId(req)
+      if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
       const result = await pool.query(
         `SELECT channel_id AS id, display_name AS "displayName", description
          FROM teams_channels
@@ -351,7 +360,8 @@ router.get('/:teamId/channels/:channelId/messages', async (req: AuthRequest, res
 
     const useLocal = resolveTeamsSource(req) === 'local'
     if (useLocal) {
-      const tenantId = req.user!.tenant_id
+      const tenantId = getTenantId(req)
+      if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
       const result = await pool.query(
         `SELECT
            message_id AS id,
