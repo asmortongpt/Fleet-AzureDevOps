@@ -98,7 +98,7 @@ interface ChargingSession {
 const fetcher = (url: string) =>
   fetch(url)
     .then((r) => r.json())
-    .then((data) => data?.data ?? data)
+    .then((data) => data?.data?.data ?? data?.data ?? data)
 
 export function EVChargingManagement() {
   const { policies } = usePolicies()

@@ -39,7 +39,12 @@ router.get("/",
   }),
   validateQuery(vehicleQuerySchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const { page = 1, pageSize = 20, search, status } = req.query
+    // Support both `limit` (current API schema) and `pageSize` (legacy UI).
+    const page = Number((req.query as any).page ?? 1)
+    const rawLimit = (req.query as any).pageSize ?? (req.query as any).limit ?? 20
+    const limit = Math.min(Number(rawLimit) || 20, 200)
+    const search = (req.query as any).search
+    const status = (req.query as any).status
     const tenantId = (req as any).user?.tenant_id
 
     if (!tenantId) {
@@ -47,7 +52,7 @@ router.get("/",
     }
 
     // Wave 12 (Revised): Cache-aside pattern
-    const cacheKey = `vehicles:list:${tenantId}:${page}:${pageSize}:${search || ''}:${status || ''}`
+    const cacheKey = `vehicles:list:${tenantId}:${page}:${limit}:${search || ''}:${status || ''}`
     const cached = await cacheService.get<{ data: any[], total: number }>(cacheKey)
 
     if (cached) {
@@ -77,8 +82,8 @@ router.get("/",
 
     // Apply pagination
     const total = vehicles.length
-    const offset = (Number(page) - 1) * Number(pageSize)
-    const data = vehicles.slice(offset, offset + Number(pageSize))
+    const offset = (page - 1) * limit
+    const data = vehicles.slice(offset, offset + limit)
 
     const result = { data, total }
 

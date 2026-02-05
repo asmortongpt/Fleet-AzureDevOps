@@ -57,6 +57,14 @@ async function getOrchestrator(): Promise<EmulatorOrchestrator> {
   await ensureInitialized()
 
   if (!orchestrator) {
+    // Reuse the orchestrator instance created during API startup (server.ts) to avoid
+    // double-binding the emulator WebSocket port (and crashing with EADDRINUSE).
+    const globalOrchestrator = (globalThis as any).__fleetEmulatorOrchestrator as EmulatorOrchestrator | undefined
+    if (globalOrchestrator) {
+      orchestrator = globalOrchestrator
+      return orchestrator
+    }
+
     // When running from bundled `dist/`, __dirname points at dist/ and the default config path
     // inside EmulatorOrchestrator won't exist. Provide an explicit path to the source config.
     const configPath = path.resolve(process.cwd(), 'src/emulators/config/default.json')

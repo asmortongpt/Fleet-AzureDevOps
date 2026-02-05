@@ -609,6 +609,7 @@ const initializeEmulatorTracking = async () => {
 
     const configPath = path.resolve(process.cwd(), 'src/emulators/config/default.json')
     const orchestrator = new EmulatorOrchestrator(configPath)
+    ;(globalThis as any).__fleetEmulatorOrchestrator = orchestrator
 
     const maxVehicles = Number(process.env.EMULATOR_STREAM_VEHICLE_COUNT || 50)
     const vehicleIds = fleetTelemetryService.getVehicles().slice(0, maxVehicles).map((v) => v.id)
