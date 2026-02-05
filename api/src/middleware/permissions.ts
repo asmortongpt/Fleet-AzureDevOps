@@ -42,6 +42,22 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
   }
 
   try {
+    // ----------------------------------------------------------------------------
+    // Role-column fallback (bootstrap compatibility)
+    // ----------------------------------------------------------------------------
+    // This codebase has two parallel authorization models:
+    // 1) `users.role` (enum user_role) used across many flows (SSO, seed scripts, UI).
+    // 2) `permissions` + `role_permissions` + `user_roles` used by the RBAC middleware.
+    //
+    // In fresh/dev/demo databases it is common for (2) to be empty even when `users.role`
+    // is populated (e.g. seeded Admin). Without a fallback, many endpoints become
+    // unusable (403) and UI appears "broken" (no vehicles/markers, section errors).
+    //
+    // Best practice is to have a single source of truth; until the DB-role model is
+    // fully wired for all seed paths, we treat `users.role` as a safe bootstrap
+    // default and *union* it with DB-assigned permissions when present.
+    // ----------------------------------------------------------------------------
+
     // DEVELOPMENT MODE: Grant dev user all permissions
     if (process.env.NODE_ENV === 'development' && userId === '00000000-0000-0000-0000-000000000001') {
       const allPermissions = new Set(['*'])
@@ -64,6 +80,73 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
       return allPermissions
     }
 
+    // Admins should be able to operate the system by default.
+    // We use '*' rather than enumerating every permission string so new permissions
+    // are included automatically.
+    if (userRole === 'admin') {
+      const allPermissions = new Set(['*'])
+      permissionCache.set(cacheKey, allPermissions)
+      setTimeout(() => permissionCache.delete(cacheKey), CACHE_TTL)
+      return allPermissions
+    }
+
+    // Read-oriented defaults for other roles (only used if DB-assigned permissions are empty).
+    // Keep these conservative; routes can still require explicit permissions in DB if desired.
+    const defaultRolePermissions: Record<string, string[]> = {
+      manager: [
+        'vehicle:read',
+        'driver:read',
+        'facility:read',
+        'route:read',
+        'maintenance:read',
+        'work_order:read',
+        'fuel:read',
+        'report:view',
+        'document:read',
+      ],
+      supervisor: [
+        'vehicle:read',
+        'driver:read',
+        'facility:read',
+        'route:read',
+        'maintenance:read',
+        'work_order:read',
+        'fuel:read',
+        'report:view',
+        'document:read',
+      ],
+      dispatcher: [
+        'vehicle:read',
+        'driver:read',
+        'facility:read',
+        'route:read',
+        'work_order:read',
+        'report:view',
+      ],
+      mechanic: [
+        'vehicle:read',
+        'maintenance:read',
+        'work_order:read',
+        'document:read',
+      ],
+      driver: [
+        'vehicle:read',
+        'route:read',
+        'document:read',
+      ],
+      viewer: [
+        'vehicle:read',
+        'driver:read',
+        'facility:read',
+        'route:read',
+        'maintenance:read',
+        'work_order:read',
+        'fuel:read',
+        'report:view',
+        'document:read',
+      ],
+    }
+
     const result = await pool.query(`
       SELECT DISTINCT p.name
       FROM permissions p
@@ -75,6 +158,14 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
     `, [userId])
 
     const permissions = new Set(result.rows.map(row => row.name))
+
+    // If DB permissions are empty, fall back to role defaults (bootstrap).
+    // If DB permissions exist, union them with role defaults so adding a DB role
+    // doesn't accidentally remove baseline access.
+    const roleDefaults = userRole ? (defaultRolePermissions[userRole] || []) : []
+    if (roleDefaults.length > 0) {
+      for (const p of roleDefaults) permissions.add(p)
+    }
 
     // Cache the permissions
     permissionCache.set(cacheKey, permissions)

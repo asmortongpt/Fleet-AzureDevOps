@@ -339,7 +339,8 @@ export function requireTenantIsolation(resourceType?: string) {
     }
 
     // Admin users bypass tenant isolation (they can access all tenants)
-    if (req.user.role === Role.ADMIN) {
+    // Normalize role values (DB enum uses capitalized strings like "Admin").
+    if (hasRole(req.user.role, [Role.SUPERADMIN, Role.ADMIN])) {
       return next()
     }
 
