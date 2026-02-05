@@ -92,7 +92,7 @@ async function main() {
           MIGRATIONS_BOOTSTRAP: 'true',
           // Some migrations are "nice to have" but currently not compatible with all DB snapshots.
           // Skipping them allows bootstrapping the rest of the schema for a working demo.
-          MIGRATIONS_SKIP: '010_add_constraints.sql',
+          MIGRATIONS_SKIP: '010_add_constraints.sql,011_add_partitioning.sql',
         }
       : {
           // Fast path for UI crawl runs: apply only the minimum known-critical migration(s).
