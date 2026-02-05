@@ -113,6 +113,7 @@ test-results/
 playwright-report/
 output/playwright/
 output/playwright/*.png
+output/audit/
 
 # Build outputs
 build/

@@ -82,16 +82,35 @@ async function main() {
   const API_URL = `http://127.0.0.1:${apiPort}`
   const UI_URL = `http://127.0.0.1:${uiPort}`
 
-  // Ensure critical migrations are applied for a working demo (idempotent).
+  const bootstrapDb = String(process.env.BOOTSTRAP_DB || '').toLowerCase() === 'true'
+  const seedDb = String(process.env.SEED_DB || '').toLowerCase() === 'true'
+
+  // Ensure DB schema is applied for a working demo (idempotent).
   {
-    const migrate = spawnLoggedCwd('migrate', 'npm', ['run', 'migrate'], 'api', {
-      MIGRATIONS_ALLOWLIST: '20260205_costs_unified_view.sql',
-    })
+    const migrateEnv = bootstrapDb
+      ? {}
+      : {
+          // Fast path for UI crawl runs: apply only the minimum known-critical migration(s).
+          // Set BOOTSTRAP_DB=true to apply the full migration backlog.
+          MIGRATIONS_ALLOWLIST: '20260205_costs_unified_view.sql',
+        }
+
+    const migrate = spawnLoggedCwd('migrate', 'npm', ['run', 'migrate'], 'api', migrateEnv)
     children.push(migrate)
     const migrateCode = await new Promise((resolve) => migrate.on('exit', (c) => resolve(c ?? 1)))
     if (migrateCode !== 0) {
       console.error('Migrations failed; refusing to start services.')
       process.exit(migrateCode)
+    }
+  }
+
+  if (seedDb) {
+    const seed = spawnLoggedCwd('seed', 'npm', ['run', 'seed'], 'api')
+    children.push(seed)
+    const seedCode = await new Promise((resolve) => seed.on('exit', (c) => resolve(c ?? 1)))
+    if (seedCode !== 0) {
+      console.error('Seed failed; refusing to start services.')
+      process.exit(seedCode)
     }
   }
 
@@ -120,6 +139,24 @@ async function main() {
   if (!uiOk) {
     console.error('UI did not become ready in time.')
     process.exit(1)
+  }
+
+  // Static audit of UI → API references (writes to output/audit/).
+  {
+    const audit = spawnLogged('audit', 'node', ['scripts/audit-ui-api.mjs'])
+    children.push(audit)
+    const auditCode = await new Promise((resolve) => audit.on('exit', (c) => resolve(c ?? 1)))
+    if (auditCode !== 0) process.exit(auditCode)
+  }
+
+  // Runtime API smoke (derived from UI references; fails the run on any 5xx).
+  {
+    const smoke = spawnLogged('api-smoke', 'node', ['scripts/api-smoke-from-ui.mjs'], {
+      API_URL,
+    })
+    children.push(smoke)
+    const smokeCode = await new Promise((resolve) => smoke.on('exit', (c) => resolve(c ?? 1)))
+    if (smokeCode !== 0) process.exit(smokeCode)
   }
 
   // Run the crawl.

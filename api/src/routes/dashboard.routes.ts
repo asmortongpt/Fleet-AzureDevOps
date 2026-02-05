@@ -340,48 +340,65 @@ router.get('/maintenance/alerts',
   }),
   asyncHandler(async (req: Request, res: Response) => {
     const userId = (req as any).user?.id;
-    const tenantId = (req as any).user?.tenantId || 1;
+    const tenantId = (req as any).user?.tenant_id || (req as any).user?.tenantId;
 
     logger.info(`Fetching maintenance alerts for user ${userId}, tenant ${tenantId}`);
+    if (!tenantId) {
+      return res.status(401).json({ error: 'Tenant ID required' });
+    }
 
-    // Query overdue maintenance (past next_due date)
-    const overdueResult = await pool.query(`
+    // Query overdue maintenance based on production table `maintenance_schedules`.
+    const overdueResult = await pool.query(
+      `
       SELECT
-        mr.id,
-        mr.vehicle_id,
-        v.vehicle_number as vehicle_name,
-        mr.service_type as type,
-        EXTRACT(DAY FROM (NOW() - mr.next_due))::integer as days_overdue
-      FROM maintenance_records mr
-      JOIN vehicles v ON v.id = mr.vehicle_id
-      WHERE mr.next_due < NOW()
-        AND mr.status IN ('scheduled', 'pending')
-      ORDER BY mr.next_due ASC
+        ms.id,
+        ms.vehicle_id,
+        COALESCE(v.number, v.name) as vehicle_name,
+        ms.type as type,
+        EXTRACT(DAY FROM (NOW() - ms.next_service_date))::integer as days_overdue
+      FROM maintenance_schedules ms
+      JOIN vehicles v ON v.id = ms.vehicle_id
+      WHERE ms.tenant_id = $1::uuid
+        AND ms.is_active = true
+        AND ms.next_service_date IS NOT NULL
+        AND ms.next_service_date < NOW()
+      ORDER BY ms.next_service_date ASC
       LIMIT 10
-    `);
+    `,
+      [tenantId]
+    );
 
     // Query upcoming maintenance (next 7 days)
-    const upcomingResult = await pool.query(`
+    const upcomingResult = await pool.query(
+      `
       SELECT
-        mr.id,
-        mr.vehicle_id,
-        v.vehicle_number as vehicle_name,
-        mr.service_type as type,
-        mr.next_due as scheduled_date
-      FROM maintenance_records mr
-      JOIN vehicles v ON v.id = mr.vehicle_id
-      WHERE mr.next_due BETWEEN NOW() AND NOW() + INTERVAL '7 days'
-        AND mr.status IN ('scheduled', 'pending')
-      ORDER BY mr.next_due ASC
+        ms.id,
+        ms.vehicle_id,
+        COALESCE(v.number, v.name) as vehicle_name,
+        ms.type as type,
+        ms.next_service_date as scheduled_date
+      FROM maintenance_schedules ms
+      JOIN vehicles v ON v.id = ms.vehicle_id
+      WHERE ms.tenant_id = $1::uuid
+        AND ms.is_active = true
+        AND ms.next_service_date IS NOT NULL
+        AND ms.next_service_date BETWEEN NOW() AND NOW() + INTERVAL '7 days'
+      ORDER BY ms.next_service_date ASC
       LIMIT 20
-    `);
+    `,
+      [tenantId]
+    );
 
     // Query open work orders count
-    const workOrdersResult = await pool.query(`
+    const workOrdersResult = await pool.query(
+      `
       SELECT COUNT(*)::integer as count
-      FROM maintenance_records
-      WHERE status IN ('in_progress', 'pending')
-    `);
+      FROM work_orders
+      WHERE tenant_id = $1::uuid
+        AND status IN ('pending', 'in_progress', 'on_hold')
+    `,
+      [tenantId]
+    );
 
     res.json({
       overdue_count: overdueResult.rows.length,

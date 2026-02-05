@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express'
 
 import logger from '../config/logger'; // Wave 25: Add Winston logger
 import { ValidationError } from '../errors/app-error'
+import pool from '../config/database'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import {
@@ -74,14 +75,53 @@ router.post('/events',csrfProtection, authenticateJWT, async (req: Request, res:
  */
 router.get('/events', authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const { userId, startDate, endDate } = req.query
+    const userId = (req.query.userId as string | undefined) || (req as any).user?.id
+    const { startDate, endDate } = req.query
 
     if (!userId || !startDate || !endDate) {
-      throw new ValidationError("Missing required query parameters: userId, startDate, endDate")
+      return res.status(400).json({
+        error: 'Missing required query parameters: startDate, endDate',
+        details: 'Provide startDate/endDate, and optionally userId (defaults to authenticated user).',
+      })
     }
 
     const start = new Date(startDate as string)
     const end = new Date(endDate as string)
+
+    // Default to DB-backed calendar events unless the caller explicitly requests Graph.
+    // This keeps demos functional without requiring external integrations.
+    const useLocal = req.query.source === 'local' || process.env.CALENDAR_SOURCE !== 'graph'
+    if (useLocal) {
+      const tenantId = (req as any).user?.tenant_id
+      if (!tenantId) return res.status(401).json({ error: 'Tenant ID required' })
+
+      const result = await pool.query(
+        `SELECT
+           id,
+           title as subject,
+           description,
+           start_time as start,
+           end_time as "end",
+           location,
+           attendees,
+           event_type,
+           status,
+           metadata
+         FROM calendar_events
+         WHERE tenant_id = $1
+           AND start_time <= $3
+           AND end_time >= $2
+         ORDER BY start_time ASC
+         LIMIT 500`,
+        [tenantId, start, end]
+      )
+
+      return res.json({
+        success: true,
+        count: result.rows.length,
+        events: result.rows
+      })
+    }
 
     const events = await getEvents(userId as string, start, end)
 
@@ -91,8 +131,17 @@ router.get('/events', authenticateJWT, async (req: Request, res: Response) => {
       events
     })
   } catch (error: any) {
+    if (error instanceof ValidationError) {
+      return res.status(400).json({ error: error.message })
+    }
     logger.error('Error fetching calendar events:', getErrorMessage(error)) // Wave 25: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) })
+    // If Microsoft calendar integration is not configured, return a non-5xx response
+    // so the UI can degrade gracefully in demo/prod without crashing panels.
+    const msg = getErrorMessage(error)
+    if (/not configured|missing|client id|client secret|tenant|invalidauthenticationtoken|unauthorized|forbidden/i.test(msg)) {
+      return res.status(501).json({ error: 'Calendar integration not configured', details: msg })
+    }
+    res.status(500).json({ error: msg })
   }
 })
 

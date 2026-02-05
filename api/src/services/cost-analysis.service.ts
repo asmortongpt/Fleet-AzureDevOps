@@ -572,7 +572,7 @@ export class CostAnalysisService {
          uc.amount::text AS amount,
          uc.description,
          uc.invoice_number,
-         v.vehicle_number AS vehicle_number,
+         COALESCE(v.number, v.name) AS vehicle_number,
          d.name AS driver_name,
          vn.name AS vendor_name
        FROM unified_costs uc
@@ -621,4 +621,3 @@ export class CostAnalysisService {
 import { pool } from '../db'
 const costAnalysisService = new CostAnalysisService(pool as any)
 export default costAnalysisService
-

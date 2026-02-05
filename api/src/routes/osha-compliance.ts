@@ -43,7 +43,7 @@ router.get(
       let query = `
         SELECT o.*,
                u.first_name || ' ' || u.last_name as employee_full_name,
-               v.unit_number as vehicle_unit
+               v.number as vehicle_unit
         FROM osha_logs o
         LEFT JOIN users u ON o.employee_id = u.id
         LEFT JOIN vehicles v ON o.vehicle_id = v.id
@@ -64,7 +64,7 @@ router.get(
         paramIndex++
       }
 
-      query += ` ORDER BY o.date_of_injury DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+      query += ` ORDER BY o.incident_date DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
       params.push(limit, offset)
 
       const result = await pool.query(query, params)
@@ -102,7 +102,7 @@ router.get(
       const result = await pool.query(
         `SELECT o.*,
                 u.first_name || ' ' || u.last_name as employee_full_name,
-                v.unit_number as vehicle_unit
+                v.number as vehicle_unit
          FROM osha_logs o
          LEFT JOIN users u ON o.employee_id = u.id
          LEFT JOIN vehicles v ON o.vehicle_id = v.id
