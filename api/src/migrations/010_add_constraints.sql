@@ -60,29 +60,54 @@ ADD CONSTRAINT chk_gps_tracks_longitude_valid
 CHECK (longitude >= -180 AND longitude <= 180);
 
 -- Telemetry Data table
-ALTER TABLE telemetry_data
-ADD CONSTRAINT chk_telemetry_rpm_valid
-CHECK (engine_rpm IS NULL OR engine_rpm >= 0);
+DO $do$
+BEGIN
+  -- This repo has multiple telemetry schemas across migrations; only add constraints when the
+  -- target table/columns exist (otherwise this migration blocks DB bootstrap).
+  IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'telemetry_data') THEN
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'telemetry_data' AND column_name = 'engine_rpm')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_telemetry_rpm_valid') THEN
+      ALTER TABLE telemetry_data
+        ADD CONSTRAINT chk_telemetry_rpm_valid
+        CHECK (engine_rpm IS NULL OR engine_rpm >= 0);
+    END IF;
 
-ALTER TABLE telemetry_data
-ADD CONSTRAINT chk_telemetry_temp_valid
-CHECK (engine_temperature IS NULL OR engine_temperature >= -50);
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'telemetry_data' AND column_name = 'engine_temperature')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_telemetry_temp_valid') THEN
+      ALTER TABLE telemetry_data
+        ADD CONSTRAINT chk_telemetry_temp_valid
+        CHECK (engine_temperature IS NULL OR engine_temperature >= -50);
+    END IF;
 
-ALTER TABLE telemetry_data
-ADD CONSTRAINT chk_telemetry_speed_valid
-CHECK (vehicle_speed IS NULL OR vehicle_speed >= 0);
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'telemetry_data' AND column_name = 'vehicle_speed')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_telemetry_speed_valid') THEN
+      ALTER TABLE telemetry_data
+        ADD CONSTRAINT chk_telemetry_speed_valid
+        CHECK (vehicle_speed IS NULL OR vehicle_speed >= 0);
+    END IF;
 
-ALTER TABLE telemetry_data
-ADD CONSTRAINT chk_telemetry_throttle_valid
-CHECK (throttle_position IS NULL OR (throttle_position >= 0 AND throttle_position <= 100));
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'telemetry_data' AND column_name = 'throttle_position')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_telemetry_throttle_valid') THEN
+      ALTER TABLE telemetry_data
+        ADD CONSTRAINT chk_telemetry_throttle_valid
+        CHECK (throttle_position IS NULL OR (throttle_position >= 0 AND throttle_position <= 100));
+    END IF;
 
-ALTER TABLE telemetry_data
-ADD CONSTRAINT chk_telemetry_fuel_valid
-CHECK (fuel_level IS NULL OR (fuel_level >= 0 AND fuel_level <= 100));
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'telemetry_data' AND column_name = 'fuel_level')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_telemetry_fuel_valid') THEN
+      ALTER TABLE telemetry_data
+        ADD CONSTRAINT chk_telemetry_fuel_valid
+        CHECK (fuel_level IS NULL OR (fuel_level >= 0 AND fuel_level <= 100));
+    END IF;
 
-ALTER TABLE telemetry_data
-ADD CONSTRAINT chk_telemetry_odometer_positive
-CHECK (odometer IS NULL OR odometer >= 0);
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'telemetry_data' AND column_name = 'odometer')
+      AND NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'chk_telemetry_odometer_positive') THEN
+      ALTER TABLE telemetry_data
+        ADD CONSTRAINT chk_telemetry_odometer_positive
+        CHECK (odometer IS NULL OR odometer >= 0);
+    END IF;
+  END IF;
+END $do$;
 
 -- Assets table
 ALTER TABLE assets
