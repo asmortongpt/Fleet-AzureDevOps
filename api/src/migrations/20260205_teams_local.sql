@@ -6,7 +6,9 @@
 CREATE TABLE IF NOT EXISTS teams_channels (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-  team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
+  -- Avoid FK to `teams` to keep migrations runnable with restricted DB roles in demo/dev.
+  -- The API enforces tenant/team integrity at the application layer.
+  team_id UUID NOT NULL,
   channel_id VARCHAR(255) NOT NULL,
   display_name VARCHAR(255) NOT NULL,
   description TEXT,
@@ -20,7 +22,7 @@ CREATE INDEX IF NOT EXISTS idx_teams_channels_tenant_team ON teams_channels(tena
 CREATE TABLE IF NOT EXISTS teams_messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-  team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
+  team_id UUID NOT NULL,
   channel_id VARCHAR(255) NOT NULL,
   message_id VARCHAR(255) NOT NULL,
   sender_name VARCHAR(255),
@@ -91,4 +93,3 @@ WHERE t.is_active = true
 ORDER BY COALESCE(w.updated_at, w.created_at) DESC NULLS LAST
 LIMIT 50
 ON CONFLICT (tenant_id, team_id, channel_id, message_id) DO NOTHING;
-
