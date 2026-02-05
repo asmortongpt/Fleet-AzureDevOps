@@ -111,6 +111,8 @@ benchmarks/reports/*.html
 # Testing artifacts
 test-results/
 playwright-report/
+output/playwright/
+output/playwright/*.png
 
 # Build outputs
 build/
