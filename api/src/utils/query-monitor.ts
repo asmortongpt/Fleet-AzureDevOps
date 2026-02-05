@@ -308,13 +308,19 @@ export class QueryMonitor {
             }
           });
 
+          // `trackDependency.data` must be a valid URL for the AI shim.
+          // Never pass raw SQL here (it triggers Invalid URL errors and can leak sensitive data).
+          const dbTarget = process.env.APPLICATIONINSIGHTS_DB_TARGET || 'postgresql://fleet-db'
           appInsights.defaultClient.trackDependency({
-            name: queryKey,
-            data: query,
+            name: this.extractOperation(query),
+            data: dbTarget,
             duration: ctx.duration,
             resultCode: 0,
             success: true,
-            dependencyTypeName: 'postgresql'
+            dependencyTypeName: 'postgresql',
+            properties: {
+              query: queryKey,
+            },
           });
         }
 
