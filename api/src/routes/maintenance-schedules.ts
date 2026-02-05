@@ -135,6 +135,10 @@ router.get(
           code: 'MISSING_DB_CLIENT'
         })
       }
+      const tenantId = req.user?.tenant_id
+      if (!tenantId) {
+        return res.status(401).json({ error: 'Authentication required' })
+      }
 
       const paginationParams = getPaginationParams(req)
       const {
@@ -143,9 +147,11 @@ router.get(
       } = req.query
 
       // Build filters - RLS handles tenant filtering
-      let filters = ''
-      const params: any[] = []
-      let paramIndex = 1
+      // NOTE: RLS is not enabled on all tables in local/demo environments.
+      // Always enforce tenant isolation in the query itself.
+      let filters = 'WHERE tenant_id = $1'
+      const params: any[] = [tenantId]
+      let paramIndex = 2
 
       if (vehicle_id) {
         filters += `${filters ? ' AND' : 'WHERE'} vehicle_id = $${paramIndex++}`
@@ -200,6 +206,10 @@ router.get(
           code: 'MISSING_DB_CLIENT'
         })
       }
+      const tenantId = req.user?.tenant_id
+      if (!tenantId) {
+        return res.status(401).json({ error: 'Authentication required' })
+      }
 
       // RLS handles tenant filtering
       const result = await client.query(
@@ -207,8 +217,8 @@ router.get(
                 interval_miles, interval_days, last_service_date, last_service_mileage,
                 next_service_date, next_service_mileage, estimated_cost, estimated_duration,
                 is_active, metadata, created_at, updated_at
-         FROM maintenance_schedules WHERE id = $1`,
-        [req.params.id]
+         FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2`,
+        [req.params.id, tenantId]
       )
 
       if (result.rows.length === 0) {
