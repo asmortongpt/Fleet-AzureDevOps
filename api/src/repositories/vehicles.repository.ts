@@ -60,7 +60,29 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
       cacheKey,
       async () => {
         const result = await this.pool.query(
-          'SELECT id, vin, license_plate AS "licensePlate", make, model, year, status, odometer, fuel_level AS "fuelLevel", fuel_type AS "fuelType", latitude, longitude, assigned_driver_id AS "assignedDriverId", assigned_facility_id AS "assignedFacilityId", tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM vehicles WHERE id = $1 AND tenant_id = $2',
+          `SELECT
+             id,
+             vin,
+             name,
+             number,
+             type,
+             license_plate AS "licensePlate",
+             make,
+             model,
+             year,
+             status,
+             odometer,
+             fuel_level::float8 AS "fuelLevel",
+             fuel_type AS "fuelType",
+             latitude::float8 AS latitude,
+             longitude::float8 AS longitude,
+             assigned_driver_id AS "assignedDriverId",
+             assigned_facility_id AS "assignedFacilityId",
+             tenant_id AS "tenantId",
+             created_at AS "createdAt",
+             updated_at AS "updatedAt"
+           FROM vehicles
+           WHERE id = $1 AND tenant_id = $2`,
           [id, tenantId]
         )
         return result.rows[0] || null
@@ -88,9 +110,30 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
     const safeSortOrder = sortOrder?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC'
 
     const result = await this.pool.query(
-      `SELECT id, vin, license_plate AS "licensePlate", make, model, year, status, odometer, fuel_level AS "fuelLevel", fuel_type AS "fuelType", tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM vehicles 
-       WHERE tenant_id = $1 
-       ORDER BY ${safeSortBy} ${safeSortOrder} 
+      `SELECT
+         id,
+         vin,
+         name,
+         number,
+         type,
+         license_plate AS "licensePlate",
+         make,
+         model,
+         year,
+         status,
+         odometer,
+         fuel_level::float8 AS "fuelLevel",
+         fuel_type AS "fuelType",
+         latitude::float8 AS latitude,
+         longitude::float8 AS longitude,
+         assigned_driver_id AS "assignedDriverId",
+         assigned_facility_id AS "assignedFacilityId",
+         tenant_id AS "tenantId",
+         created_at AS "createdAt",
+         updated_at AS "updatedAt"
+       FROM vehicles
+       WHERE tenant_id = $1
+       ORDER BY ${safeSortBy} ${safeSortOrder}
        LIMIT $2 OFFSET $3`,
       [tenantId, limit, offset]
     )
@@ -105,7 +148,27 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
    */
   async findByVIN(vin: string, tenantId: string): Promise<Vehicle | null> {
     const result = await this.pool.query(
-      'SELECT id, vin, license_plate AS "licensePlate", make, model, year, status, odometer, tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM vehicles WHERE vin = $1 AND tenant_id = $2',
+      `SELECT
+         id,
+         vin,
+         name,
+         number,
+         type,
+         license_plate AS "licensePlate",
+         make,
+         model,
+         year,
+         status,
+         odometer,
+         fuel_level::float8 AS "fuelLevel",
+         fuel_type AS "fuelType",
+         latitude::float8 AS latitude,
+         longitude::float8 AS longitude,
+         tenant_id AS "tenantId",
+         created_at AS "createdAt",
+         updated_at AS "updatedAt"
+       FROM vehicles
+       WHERE vin = $1 AND tenant_id = $2`,
       [vin, tenantId]
     )
     return result.rows[0] || null
@@ -122,7 +185,28 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
     tenantId: string
   ): Promise<Vehicle[]> {
     const result = await this.pool.query(
-      'SELECT id, vin, license_plate AS "licensePlate", make, model, year, status, odometer, tenant_id AS "tenantId", created_at AS "createdAt", updated_at AS "updatedAt" FROM vehicles WHERE status = $1 AND tenant_id = $2 ORDER BY created_at DESC',
+      `SELECT
+         id,
+         vin,
+         name,
+         number,
+         type,
+         license_plate AS "licensePlate",
+         make,
+         model,
+         year,
+         status,
+         odometer,
+         fuel_level::float8 AS "fuelLevel",
+         fuel_type AS "fuelType",
+         latitude::float8 AS latitude,
+         longitude::float8 AS longitude,
+         tenant_id AS "tenantId",
+         created_at AS "createdAt",
+         updated_at AS "updatedAt"
+       FROM vehicles
+       WHERE status = $1 AND tenant_id = $2
+       ORDER BY created_at DESC`,
       [status, tenantId]
     )
     return result.rows

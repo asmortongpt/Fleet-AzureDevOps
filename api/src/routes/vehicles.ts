@@ -52,7 +52,8 @@ router.get("/",
     }
 
     // Wave 12 (Revised): Cache-aside pattern
-    const cacheKey = `vehicles:list:${tenantId}:${page}:${limit}:${search || ''}:${status || ''}`
+    // Version cache keys so response shape changes don't serve stale payloads.
+    const cacheKey = `vehicles:v2:list:${tenantId}:${page}:${limit}:${search || ''}:${status || ''}`
     const cached = await cacheService.get<{ data: any[], total: number }>(cacheKey)
 
     if (cached) {

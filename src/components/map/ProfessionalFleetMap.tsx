@@ -76,8 +76,10 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
 
   // Normalize coordinates - map lat/lng to grid position
   const normalizePosition = (vehicle: Vehicle, index: number) => {
-    const lat = vehicle.latitude ?? vehicle.location?.lat ?? 0;
-    const lng = vehicle.longitude ?? vehicle.location?.lng ?? 0;
+    const latRaw = vehicle.latitude ?? vehicle.location?.lat ?? 0;
+    const lngRaw = vehicle.longitude ?? vehicle.location?.lng ?? 0;
+    const lat = typeof latRaw === 'string' ? parseFloat(latRaw) : Number(latRaw);
+    const lng = typeof lngRaw === 'string' ? parseFloat(lngRaw) : Number(lngRaw);
     // For demo, spread them across the map area
     const baseLeft = ((lng + 180) / 360) * 100;
     const baseTop = ((90 - lat) / 180) * 100;
