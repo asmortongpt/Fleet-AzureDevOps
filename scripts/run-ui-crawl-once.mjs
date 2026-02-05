@@ -88,7 +88,9 @@ async function main() {
   // Ensure DB schema is applied for a working demo (idempotent).
   {
     const migrateEnv = bootstrapDb
-      ? {}
+      ? {
+          MIGRATIONS_BOOTSTRAP: 'true',
+        }
       : {
           // Fast path for UI crawl runs: apply only the minimum known-critical migration(s).
           // Set BOOTSTRAP_DB=true to apply the full migration backlog.
