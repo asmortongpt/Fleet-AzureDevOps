@@ -41,6 +41,9 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
     return cached
   }
 
+  // NOTE: This function must be resilient. Many request paths rely on it and we
+  // prefer returning conservative role-based defaults over failing closed due to
+  // a transient DB error (which would make the UI look broken).
   try {
     // ----------------------------------------------------------------------------
     // Role-column fallback (bootstrap compatibility)
@@ -67,9 +70,15 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
       return allPermissions
     }
 
-    // Check if user is SuperAdmin
-    const userResult = await pool.query('SELECT role FROM users WHERE id = $1', [userId])
-    const userRole = userResult.rows[0]?.role?.toLowerCase()
+    // Resolve role from the users table (source of truth for bootstrap defaults)
+    let userRole: string | undefined
+    try {
+      const userResult = await pool.query('SELECT role FROM users WHERE id = $1', [userId])
+      userRole = userResult.rows[0]?.role?.toLowerCase()
+    } catch (error) {
+      logger.error('Failed to resolve user role for permissions bootstrap', { error, userId })
+      userRole = undefined
+    }
 
     if (userRole === 'superadmin') {
       // For SuperAdmin, we can return a special set or all pins
@@ -147,17 +156,25 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
       ],
     }
 
-    const result = await pool.query(`
-      SELECT DISTINCT p.name
-      FROM permissions p
-      JOIN role_permissions rp ON p.id = rp.permission_id
-      JOIN user_roles ur ON rp.role_id = ur.role_id
-      WHERE ur.user_id = $1
-      AND ur.is_active = true
-      AND (ur.expires_at IS NULL OR ur.expires_at > NOW())
-    `, [userId])
+    const permissions = new Set<string>()
+    try {
+      const result = await pool.query(`
+        SELECT DISTINCT p.name
+        FROM permissions p
+        JOIN role_permissions rp ON p.id = rp.permission_id
+        JOIN user_roles ur ON rp.role_id = ur.role_id
+        WHERE ur.user_id = $1
+        AND ur.is_active = true
+        AND (ur.expires_at IS NULL OR ur.expires_at > NOW())
+      `, [userId])
 
-    const permissions = new Set(result.rows.map(row => row.name))
+      for (const row of result.rows) {
+        if (row?.name) permissions.add(row.name)
+      }
+    } catch (error) {
+      // Still continue with role defaults below.
+      logger.error('Failed to fetch DB-assigned user permissions; falling back to role defaults', { error, userId })
+    }
 
     // If DB permissions are empty, fall back to role defaults (bootstrap).
     // If DB permissions exist, union them with role defaults so adding a DB role
