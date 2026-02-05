@@ -197,6 +197,7 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
         'maintenance_schedule:view:fleet',
         'incident:view:global',
         'inspection:read',
+        'inspection:view:global',
         'fuel:read',
         'fuel_transaction:view:fleet',
         'report:view',

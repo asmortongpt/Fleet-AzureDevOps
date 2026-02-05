@@ -208,7 +208,8 @@ router.get('/fleet-metrics',
 // =============================================================================
 router.get('/stats',
   requireRBAC({
-    roles: [Role.ADMIN, Role.MANAGER, Role.USER],
+    // The map-first UI uses these stats for top-level KPIs; allow read-only roles too.
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.VIEWER, Role.GUEST],
     permissions: [PERMISSIONS.VEHICLE_READ],
     enforceTenantIsolation: true
   }),

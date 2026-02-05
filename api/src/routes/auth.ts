@@ -1190,11 +1190,41 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
     }
 
     if (!tenantId) {
-      const tenantResult = await pool.query('SELECT id FROM tenants ORDER BY created_at LIMIT 1')
-      if (tenantResult.rows.length === 0) {
-        return res.status(500).json({ error: 'No tenant configured' })
+      // Prefer an explicit default tenant for demos and controlled environments.
+      // This avoids accidentally provisioning SSO users into a non-demo tenant.
+      const envDefaultTenantId = process.env.DEFAULT_TENANT_ID
+      const envDefaultTenantSlug = process.env.DEFAULT_TENANT_SLUG
+
+      if (envDefaultTenantId) {
+        const tenantResult = await pool.query('SELECT id FROM tenants WHERE id = $1', [envDefaultTenantId])
+        if (tenantResult.rows.length > 0) {
+          tenantId = tenantResult.rows[0].id
+        }
       }
-      tenantId = tenantResult.rows[0].id
+
+      if (!tenantId && envDefaultTenantSlug) {
+        const tenantResult = await pool.query('SELECT id FROM tenants WHERE slug = $1', [envDefaultTenantSlug])
+        if (tenantResult.rows.length > 0) {
+          tenantId = tenantResult.rows[0].id
+        }
+      }
+
+      // Dev convenience: if the CTA demo tenant exists, use it by default.
+      if (!tenantId && process.env.NODE_ENV !== 'production') {
+        const tenantResult = await pool.query('SELECT id FROM tenants WHERE slug = $1', ['cta-fleet'])
+        if (tenantResult.rows.length > 0) {
+          tenantId = tenantResult.rows[0].id
+        }
+      }
+
+      // Fallback: first created tenant.
+      if (!tenantId) {
+        const tenantResult = await pool.query('SELECT id FROM tenants ORDER BY created_at LIMIT 1')
+        if (tenantResult.rows.length === 0) {
+          return res.status(500).json({ error: 'No tenant configured' })
+        }
+        tenantId = tenantResult.rows[0].id
+      }
     }
 
     const userResult = await pool.query(
