@@ -94,6 +94,9 @@ export class TelemetryService extends EventEmitter {
   private isInitialized: boolean = false
   private canPersistGps: boolean = false
   private canPersistObd2: boolean = false
+  private hasRoutes: boolean = false
+  private hasGeofences: boolean = false
+  private hasRadioChannels: boolean = false
 
   // Batch write buffers
   private gpsBuffer: any[] = []
@@ -144,6 +147,22 @@ export class TelemetryService extends EventEmitter {
       this.canPersistGps = false
       this.canPersistObd2 = false
       console.warn('TelemetryService: table detection failed; telemetry persistence disabled', error)
+    }
+
+    // Detect optional configuration tables (routes/geofences/radio channels). Keep service resilient
+    // when demo DBs are missing some tables.
+    try {
+      const [routesTable] = await this.db.query(`SELECT to_regclass('public.routes') AS name`)
+      const [geofencesTable] = await this.db.query(`SELECT to_regclass('public.geofences') AS name`)
+      const [radioChannelsTable] = await this.db.query(`SELECT to_regclass('public.radio_channels') AS name`)
+      this.hasRoutes = Boolean(routesTable?.name)
+      this.hasGeofences = Boolean(geofencesTable?.name)
+      this.hasRadioChannels = Boolean(radioChannelsTable?.name)
+    } catch (error) {
+      this.hasRoutes = false
+      this.hasGeofences = false
+      this.hasRadioChannels = false
+      console.warn('TelemetryService: optional table detection failed; continuing with minimal telemetry', error)
     }
 
     // Load initial data
@@ -263,26 +282,103 @@ export class TelemetryService extends EventEmitter {
     if (!this.db) {
       throw new Error('Database connection not available')
     }
+    if (!this.hasRoutes) return
 
     try {
-      const results = await this.db.query(`
-        SELECT * FROM routes WHERE is_active = true ORDER BY id
-      `)
+      // Support multiple schemas (the project contains both `route_name/total_distance` and `name/estimated_distance` styles).
+      // Prefer the "current" schema used by seeded demo DBs (name, description, type, estimated_distance).
+      let results: any[] = []
+      try {
+        results = await this.db.query(`
+          SELECT
+            id,
+            name,
+            description,
+            type,
+            status,
+            estimated_duration,
+            estimated_distance,
+            actual_distance,
+            waypoints
+          FROM routes
+          WHERE status::text NOT IN ('cancelled')
+          ORDER BY scheduled_start_time NULLS LAST, created_at DESC, id
+          LIMIT 250
+        `)
+      } catch (err: any) {
+        // Fall back to older schema (route_name/total_distance, start/end_location, notes).
+        results = await this.db.query(`
+          SELECT
+            id,
+            route_name,
+            status,
+            start_location,
+            end_location,
+            estimated_duration,
+            total_distance,
+            waypoints,
+            notes
+          FROM routes
+          WHERE status::text NOT IN ('cancelled')
+          ORDER BY planned_start_time NULLS LAST, created_at DESC, id
+          LIMIT 250
+        `)
+      }
 
       for (const row of results) {
+        const id = String(row.id)
+        const name = String(row.name || row.route_name || `Route ${id.slice(0, 8)}`)
+        const estimatedDuration = Number(row.estimated_duration ?? row.actual_duration ?? 0) || 0
+        const estimatedDistance =
+          Number(row.estimated_distance ?? row.total_distance ?? row.actual_distance ?? 0) || 0
+
+        const descriptionParts = [
+          row.description ? String(row.description) : null,
+          row.start_location ? `From ${row.start_location}` : null,
+          row.end_location ? `to ${row.end_location}` : null,
+          row.notes ? String(row.notes) : null,
+        ].filter(Boolean) as string[]
+
+        const waypointsRaw = Array.isArray(row.waypoints) ? row.waypoints : []
+        const waypoints = waypointsRaw
+          .map((w: any, idx: number) => {
+            const lat = Number(w.lat ?? w.latitude ?? w.center_lat ?? w.center_latitude)
+            const lng = Number(w.lng ?? w.lon ?? w.longitude ?? w.center_lng ?? w.center_longitude)
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
+
+            const typeRaw = String(w.type || 'waypoint').toLowerCase()
+            const type =
+              typeRaw === 'depot' ||
+              typeRaw === 'delivery' ||
+              typeRaw === 'service' ||
+              typeRaw === 'break' ||
+              typeRaw === 'pickup' ||
+              typeRaw === 'emergency' ||
+              typeRaw === 'waypoint'
+                ? typeRaw
+                : 'waypoint'
+
+            return {
+              lat,
+              lng,
+              name: String(w.name ?? w.address ?? w.location ?? `Stop ${idx + 1}`),
+              type,
+              stopDuration: Number(w.stopDuration ?? w.stop_duration ?? 0) || 0,
+            }
+          })
+          .filter(Boolean) as TelemetryRoute['waypoints']
+
         const route: TelemetryRoute = {
-          id: row.route_id,
-          routeId: row.route_id,
-          name: row.name,
-          description: row.description,
-          type: row.type,
-          estimatedDuration: row.estimated_duration,
-          estimatedDistance: parseFloat(row.estimated_distance),
-          waypoints: row.waypoints || [],
-          roadTypes: row.road_types || [],
-          trafficPatterns: row.traffic_patterns || {},
-          priority: row.priority,
-          frequency: row.frequency
+          id,
+          routeId: id,
+          name,
+          description: descriptionParts.join(' ') || name,
+          type: this.normalizeRouteType(String(row.type || ''), name, estimatedDistance),
+          estimatedDuration,
+          estimatedDistance,
+          waypoints,
+          roadTypes: [],
+          trafficPatterns: {},
         }
         this.routeCache.set(route.id, route)
       }
@@ -295,6 +391,24 @@ export class TelemetryService extends EventEmitter {
     }
   }
 
+  private normalizeRouteType(raw: string, name: string, estimatedDistanceMiles: number): TelemetryRoute['type'] {
+    const normalized = raw.toLowerCase()
+    if (normalized === 'delivery' || normalized === 'longhaul' || normalized === 'service' || normalized === 'shuttle' || normalized === 'emergency') {
+      return normalized
+    }
+    return this.inferRouteType(name, estimatedDistanceMiles)
+  }
+
+  private inferRouteType(name: string, estimatedDistanceMiles: number): TelemetryRoute['type'] {
+    const n = name.toLowerCase()
+    if (n.includes('emerg')) return 'emergency'
+    if (n.includes('shuttle')) return 'shuttle'
+    if (n.includes('service') || n.includes('maintenance') || n.includes('repair')) return 'service'
+    if (n.includes('delivery') || n.includes('drop') || n.includes('pickup')) return 'delivery'
+    if (estimatedDistanceMiles >= 80) return 'longhaul'
+    return 'delivery'
+  }
+
 
   /**
    * Load radio channels
@@ -303,6 +417,7 @@ export class TelemetryService extends EventEmitter {
     if (!this.db) {
       throw new Error('Database connection not available')
     }
+    if (!this.hasRadioChannels) return
 
     try {
       const results = await this.db.query(`
@@ -340,21 +455,45 @@ export class TelemetryService extends EventEmitter {
     if (!this.db) {
       throw new Error('Database connection not available')
     }
+    if (!this.hasGeofences) return
 
     try {
       const results = await this.db.query(`
-        SELECT * FROM geofences WHERE is_active = true ORDER BY id
+        SELECT
+          id,
+          name,
+          type,
+          center_lat,
+          center_lng,
+          center_latitude,
+          center_longitude,
+          radius,
+          radius_meters,
+          notify_on_entry,
+          notify_on_exit,
+          alert_on_entry,
+          alert_on_exit
+        FROM geofences
+        WHERE is_active = true
+        ORDER BY created_at, id
       `)
 
       for (const row of results) {
+        const lat = Number(row.center_lat ?? row.center_latitude)
+        const lng = Number(row.center_lng ?? row.center_longitude)
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue
+
         const geofence: Geofence = {
-          id: row.geofence_id,
-          name: row.name,
-          type: row.type,
-          center: { lat: parseFloat(row.center_lat), lng: parseFloat(row.center_lng) },
-          radius: parseFloat(row.radius),
-          alertOnEntry: row.alert_on_entry,
-          alertOnExit: row.alert_on_exit
+          id: String(row.id),
+          name: String(row.name),
+          type: this.inferGeofenceType(`${row.type ?? ''} ${row.name ?? ''}`),
+          center: {
+            lat,
+            lng,
+          },
+          radius: Number(row.radius_meters ?? row.radius) || 0,
+          alertOnEntry: Boolean(row.alert_on_entry ?? row.notify_on_entry),
+          alertOnExit: Boolean(row.alert_on_exit ?? row.notify_on_exit),
         }
         this.geofenceCache.set(geofence.id, geofence)
       }
@@ -365,6 +504,12 @@ export class TelemetryService extends EventEmitter {
       // Geofences are optional - continue without them
       console.log('Continuing without geofences')
     }
+  }
+
+  private inferGeofenceType(name: string): Geofence['type'] {
+    const n = name.toLowerCase()
+    if (n.includes('restrict') || n.includes('no-go') || n.includes('nog o') || n.includes('secure')) return 'restricted'
+    return 'operational'
   }
 
   // ============================================================================
