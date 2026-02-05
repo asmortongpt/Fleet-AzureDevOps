@@ -220,11 +220,22 @@ router.post(
       })
     }
   }
-)
+	)
 
 // ============================================================================
 // Get Single Email
 // ============================================================================
+
+// Legacy alias: ensure `/messages/search` is handled before the `/messages/:messageId` route.
+// (Otherwise Express treats "search" as a messageId.)
+router.get(
+  '/messages/search',
+  authorize('admin', 'fleet_manager', 'dispatcher'),
+  auditLog({ action: 'READ', resourceType: 'outlook_search' }),
+  async (req: AuthRequest, res: Response) => {
+    await handleSearch(req, res)
+  }
+)
 
 router.get(
   '/messages/:messageId',
