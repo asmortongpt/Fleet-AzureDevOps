@@ -130,7 +130,8 @@ import healthSystemRouter from './routes/health-system.routes' // Comprehensive 
 import healthRouter from './routes/health.routes' // Microsoft integration health
 import heavyEquipmentRouter from './routes/heavy-equipment.routes'
 import incidentsRouter from './routes/incidents'
-import inspectionsRouter from './routes/inspections'
+import incidentManagementRouter from './routes/incident-management'
+import inspectionsRouter from './routes/inspections-simple'
 import hazardZonesRouter from './routes/hazard-zones'
 import invoicesRouter from './routes/invoices'
 import integrationsHealthRouter from './routes/integrations-health'
@@ -353,6 +354,7 @@ app.use('/api/vehicle-contracts', vehicleContractsRouter)
 app.use('/api/vendor-management', vendorManagementRouter)
 app.use('/api/maintenance', maintenanceRouter)
 app.use('/api/incidents', incidentsRouter)
+app.use('/api/incident-management', incidentManagementRouter)
 app.use('/api/parts', partsRouter)
 app.use('/api/inventory', inventoryRouter) // Registered here as core
 app.use('/api/vendors', vendorsRouter)

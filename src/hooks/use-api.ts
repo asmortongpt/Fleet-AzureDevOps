@@ -274,6 +274,16 @@ interface Route {
   updated_at: string;
 }
 
+// Stable default filter objects to avoid queryKey churn / React Query loops.
+const DEFAULT_VEHICLE_FILTERS: VehicleFilters = { tenant_id: '' }
+const DEFAULT_DRIVER_FILTERS: DriverFilters = { tenant_id: '' }
+const DEFAULT_WORK_ORDER_FILTERS: WorkOrderFilters = { tenant_id: '' }
+const DEFAULT_FUEL_TRANSACTION_FILTERS: FuelTransactionFilters = { tenant_id: '' }
+const DEFAULT_FACILITY_FILTERS: FacilityFilters = { tenant_id: '' }
+const DEFAULT_MAINTENANCE_SCHEDULE_FILTERS: MaintenanceScheduleFilters = { tenant_id: '' }
+const DEFAULT_ROUTE_FILTERS: RouteFilters = { tenant_id: '' }
+const DEFAULT_MAINTENANCE_FILTERS: MaintenanceFilters = { tenant_id: '', startDate: '', endDate: '' }
+
 const queryKeyFactory = {
   vehicles: (filters: VehicleFilters) => ['vehicles', filters] as QueryKey,
   drivers: (filters: DriverFilters) => ['drivers', filters] as QueryKey,
@@ -283,9 +293,61 @@ const queryKeyFactory = {
   facilities: (filters: FacilityFilters) => ['facilities', filters] as QueryKey,
   maintenanceSchedules: (filters: MaintenanceScheduleFilters) => ['maintenanceSchedules', filters] as QueryKey,
   routes: (filters: RouteFilters) => ['routes', filters] as QueryKey,
+  incidents: (filters: { tenant_id: string; [key: string]: string | number | undefined }) => ['incidents', filters] as QueryKey,
+  hazardZones: (filters: { tenant_id: string; [key: string]: string | number | undefined }) => ['hazardZones', filters] as QueryKey,
+  inspections: (filters: { tenant_id: string; [key: string]: string | number | undefined }) => ['inspections', filters] as QueryKey,
 };
 
-export function useVehicles(filters: VehicleFilters = { tenant_id: '' }) {
+const DEFAULT_GENERIC_FILTERS = { tenant_id: '' as string }
+
+export function useIncidents(filters: { tenant_id: string; [key: string]: string | number | undefined } = DEFAULT_GENERIC_FILTERS) {
+  return useQuery<any[], Error>({
+    queryKey: queryKeyFactory.incidents(filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters as unknown as Record<string, string>)
+      const res = await secureFetch(`/api/incidents?${params}`)
+      if (!res.ok) throw new Error('Network response was not ok')
+      const payload = await res.json()
+      return payload?.data ?? payload
+    },
+    staleTime: 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  })
+}
+
+export function useHazardZones(filters: { tenant_id: string; [key: string]: string | number | undefined } = DEFAULT_GENERIC_FILTERS) {
+  return useQuery<any[], Error>({
+    queryKey: queryKeyFactory.hazardZones(filters),
+    queryFn: async () => {
+      const res = await secureFetch('/api/hazard-zones')
+      if (!res.ok) throw new Error('Network response was not ok')
+      const payload = await res.json()
+      return payload?.data ?? payload
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  })
+}
+
+export function useInspections(filters: { tenant_id: string; [key: string]: string | number | undefined } = DEFAULT_GENERIC_FILTERS) {
+  return useQuery<any[], Error>({
+    queryKey: queryKeyFactory.inspections(filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters as unknown as Record<string, string>)
+      const res = await secureFetch(`/api/inspections?${params}`)
+      if (!res.ok) throw new Error('Network response was not ok')
+      const payload = await res.json()
+      return payload?.data ?? payload
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  })
+}
+
+export function useVehicles(filters: VehicleFilters = DEFAULT_VEHICLE_FILTERS) {
   return useQuery<Vehicle[], Error>({
     queryKey: queryKeyFactory.vehicles(filters),
     queryFn: async () => {
@@ -302,7 +364,7 @@ export function useVehicles(filters: VehicleFilters = { tenant_id: '' }) {
   });
 }
 
-export function useDrivers(filters: DriverFilters = { tenant_id: '' }) {
+export function useDrivers(filters: DriverFilters = DEFAULT_DRIVER_FILTERS) {
   return useQuery<Driver[], Error>({
     queryKey: queryKeyFactory.drivers(filters),
     queryFn: async () => {
@@ -341,7 +403,7 @@ export function useDrivers(filters: DriverFilters = { tenant_id: '' }) {
   });
 }
 
-export function useMaintenance(filters: MaintenanceFilters = { tenant_id: '', startDate: '', endDate: '' }) {
+export function useMaintenance(filters: MaintenanceFilters = DEFAULT_MAINTENANCE_FILTERS) {
   return useQuery<Maintenance[], Error>({
     queryKey: queryKeyFactory.maintenance(filters),
     queryFn: async () => {
@@ -356,7 +418,7 @@ export function useMaintenance(filters: MaintenanceFilters = { tenant_id: '', st
   });
 }
 
-export function useWorkOrders(filters: WorkOrderFilters = { tenant_id: '' }) {
+export function useWorkOrders(filters: WorkOrderFilters = DEFAULT_WORK_ORDER_FILTERS) {
   return useQuery<WorkOrder[], Error>({
     queryKey: queryKeyFactory.workOrders(filters),
     queryFn: async () => {
@@ -371,7 +433,7 @@ export function useWorkOrders(filters: WorkOrderFilters = { tenant_id: '' }) {
   });
 }
 
-export function useFuelTransactions(filters: FuelTransactionFilters = { tenant_id: '' }) {
+export function useFuelTransactions(filters: FuelTransactionFilters = DEFAULT_FUEL_TRANSACTION_FILTERS) {
   return useQuery<FuelTransaction[], Error>({
     queryKey: queryKeyFactory.fuelTransactions(filters),
     queryFn: async () => {
@@ -386,7 +448,7 @@ export function useFuelTransactions(filters: FuelTransactionFilters = { tenant_i
   });
 }
 
-export function useFacilities(filters: FacilityFilters = { tenant_id: '' }) {
+export function useFacilities(filters: FacilityFilters = DEFAULT_FACILITY_FILTERS) {
   return useQuery<Facility[], Error>({
     queryKey: queryKeyFactory.facilities(filters),
     queryFn: async () => {
@@ -401,7 +463,7 @@ export function useFacilities(filters: FacilityFilters = { tenant_id: '' }) {
   });
 }
 
-export function useMaintenanceSchedules(filters: MaintenanceScheduleFilters = { tenant_id: '' }) {
+export function useMaintenanceSchedules(filters: MaintenanceScheduleFilters = DEFAULT_MAINTENANCE_SCHEDULE_FILTERS) {
   return useQuery<MaintenanceSchedule[], Error>({
     queryKey: queryKeyFactory.maintenanceSchedules(filters),
     queryFn: async () => {
@@ -416,7 +478,7 @@ export function useMaintenanceSchedules(filters: MaintenanceScheduleFilters = { 
   });
 }
 
-export function useRoutes(filters: RouteFilters = { tenant_id: '' }) {
+export function useRoutes(filters: RouteFilters = DEFAULT_ROUTE_FILTERS) {
   return useQuery<Route[], Error>({
     queryKey: queryKeyFactory.routes(filters),
     queryFn: async () => {

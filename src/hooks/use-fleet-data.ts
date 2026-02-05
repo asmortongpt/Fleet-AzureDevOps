@@ -19,7 +19,10 @@ import {
   useMaintenanceSchedules,
   useRoutes,
   useRouteMutations,
-  useMaintenanceMutations
+  useMaintenanceMutations,
+  useIncidents,
+  useHazardZones,
+  useInspections
 } from '@/hooks/use-api'
 import { Vehicle, Driver, WorkOrder, GISFacility } from '@/lib/types'
 import logger from '@/utils/logger'
@@ -41,6 +44,9 @@ export function useFleetData() {
   const { data: facilitiesData, isLoading: facilitiesLoading, error: facilitiesError } = useFacilities()
   const { data: maintenanceData, isLoading: _maintenanceLoading, error: _maintenanceError } = useMaintenanceSchedules()
   const { data: routesData, isLoading: routesLoading, error: _routesError } = useRoutes()
+  const { data: incidentsData, isLoading: incidentsLoading, error: _incidentsError } = useIncidents()
+  const { data: hazardZonesData, isLoading: hazardZonesLoading, error: _hazardZonesError } = useHazardZones()
+  const { data: inspectionsData, isLoading: inspectionsLoading, error: _inspectionsError } = useInspections()
 
   // Mutation hooks
   const vehicleMutations = useVehicleMutations()
@@ -195,10 +201,10 @@ export function useFleetData() {
     return fuelTransactions.filter((t: any) => t.type === 'mileage')
   }, [fuelTransactions])
 
-  // Safety data - fetched from API (empty if not implemented yet)
-  const incidents = useMemo(() => [], [])
-  const hazardZones = useMemo(() => [], [])
-  const inspections = useMemo(() => [], [])
+  // Safety data - fetched from API
+  const incidents = useMemo(() => unwrapArray<any>(incidentsData), [incidentsData])
+  const hazardZones = useMemo(() => unwrapArray<any>(hazardZonesData), [hazardZonesData])
+  const inspections = useMemo(() => unwrapArray<any>(inspectionsData), [inspectionsData])
 
   return {
     vehicles,
@@ -216,7 +222,15 @@ export function useFleetData() {
     maintenanceRequests: maintenanceSchedules,
     routes,
     dataInitialized: true,
-    isLoading: vehiclesLoading || driversLoading || workOrdersLoading || fuelLoading || routesLoading,
+    isLoading:
+      vehiclesLoading ||
+      driversLoading ||
+      workOrdersLoading ||
+      fuelLoading ||
+      routesLoading ||
+      incidentsLoading ||
+      hazardZonesLoading ||
+      inspectionsLoading,
     initializeData,
     addVehicle,
     updateVehicle,

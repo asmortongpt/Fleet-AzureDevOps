@@ -140,7 +140,7 @@ export function IncidentManagement() {
   // Fetch incidents on component mount
   useEffect(() => {
     fetchIncidents()
-  }, [])
+  }, [filterSeverity, filterStatus])
 
   const fetchIncidents = async () => {
     try {
@@ -213,10 +213,7 @@ export function IncidentManagement() {
     }
 
     try {
-      await apiClient.get(`/api/incident-management/${selectedIncident.id}/actions`, {
-        method: "POST",
-        body: JSON.stringify(newAction)
-      })
+      await apiClient.post(`/api/incident-management/${selectedIncident.id}/actions`, newAction)
 
       fetchIncidentDetails(selectedIncident.id)
       setNewAction({
@@ -241,10 +238,7 @@ export function IncidentManagement() {
     }
 
     try {
-      await apiClient.get(`/api/incident-management/${selectedIncident.id}/close`, {
-        method: "POST",
-        body: JSON.stringify(closureData)
-      })
+      await apiClient.post(`/api/incident-management/${selectedIncident.id}/close`, closureData)
 
       fetchIncidents()
       setIsCloseDialogOpen(false)

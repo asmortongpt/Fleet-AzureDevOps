@@ -149,26 +149,28 @@ export function AdvancedRouteOptimization() {
    * Using useMemo to avoid extra renders from intermediate state
    */
   const transformedRoutes = useMemo(() => {
+    if (!dbRoutes.length) {
+      return { routes: [] as OptimizedRoute[], error: null as string | null }
+    }
+
     try {
-      if (dbRoutes.length > 0) {
-        return dbRoutes.map((route: any) => ({
-          id: route.id,
-          vehicleId: route.vehicle_id || "Unknown",
-          driverId: route.driver_id || "Unknown",
-          stops: route.waypoints || [],
-          totalDistance: route.total_distance || 0,
-          totalDuration: route.estimated_duration || 0,
-          estimatedFuel: (route.total_distance || 0) / 18, // Estimate: 18 mpg average
-          estimatedCost: ((route.total_distance || 0) / 18) * 3.85, // Estimate: $3.85/gal
-          optimizationScore: route.status === 'completed' ? 95 : route.status === 'in_progress' ? 92 : 88,
-          constraints: route.constraints || []
-        }))
-      }
-      return []
+      const routes = dbRoutes.map((route: any) => ({
+        id: route.id,
+        vehicleId: route.vehicle_id || "Unknown",
+        driverId: route.driver_id || "Unknown",
+        stops: route.waypoints || [],
+        totalDistance: route.total_distance || 0,
+        totalDuration: route.estimated_duration || 0,
+        estimatedFuel: (route.total_distance || 0) / 18, // Estimate: 18 mpg average
+        estimatedCost: ((route.total_distance || 0) / 18) * 3.85, // Estimate: $3.85/gal
+        optimizationScore: route.status === 'completed' ? 95 : route.status === 'in_progress' ? 92 : 88,
+        constraints: route.constraints || []
+      }))
+
+      return { routes, error: null as string | null }
     } catch (err) {
       logger.error("Error transforming routes:", err)
-      setError("Failed to load routes")
-      return []
+      return { routes: [] as OptimizedRoute[], error: "Failed to load routes" }
     }
   }, [dbRoutes])
 
@@ -176,10 +178,14 @@ export function AdvancedRouteOptimization() {
    * Sync transformed routes to state and initialize selectedRoute
    */
   useEffect(() => {
-    if (transformedRoutes.length > 0) {
-      setRoutes(transformedRoutes)
+    if (transformedRoutes.error) {
+      setError(transformedRoutes.error)
+    }
+
+    if (transformedRoutes.routes.length > 0) {
+      setRoutes(transformedRoutes.routes)
       if (!selectedRoute) {
-        setSelectedRoute(transformedRoutes[0].id)
+        setSelectedRoute(transformedRoutes.routes[0].id)
       }
     } else {
       setRoutes([])
@@ -195,7 +201,7 @@ export function AdvancedRouteOptimization() {
         abortControllerRef.current.abort()
       }
     }
-  }, [config, dbRoutes])
+  }, [])
 
   // ==================== Computed Values ====================
 

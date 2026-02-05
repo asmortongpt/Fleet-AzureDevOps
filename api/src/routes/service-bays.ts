@@ -67,7 +67,7 @@ router.get(
         occ.scheduled_end as occupancy_end,
         occ.vehicle_id as occupancy_vehicle_id,
         v.number as occupancy_vehicle_number,
-        u.name as occupancy_technician_name,
+        TRIM(COALESCE(u.first_name, '') || ' ' || COALESCE(u.last_name, '')) as occupancy_technician_name,
         at.name as occupancy_service_type
       FROM service_bays sb
       JOIN facilities f
@@ -135,4 +135,3 @@ router.get(
 )
 
 export default router
-

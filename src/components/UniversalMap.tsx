@@ -461,6 +461,7 @@ export function UniversalMap(props: UniversalMapProps) {
     clusterThreshold = DEFAULT_CLUSTER_THRESHOLD,
     enablePerformanceMonitoring = import.meta.env.DEV,
     showPerformanceMonitor = import.meta.env.DEV,
+    mapStyle,
   } = props
 
   // Test environment data injection

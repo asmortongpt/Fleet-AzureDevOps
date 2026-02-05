@@ -4,6 +4,9 @@ import { PoolClient } from 'pg'
 
 import pool from '../config/database'
 import logger from '../config/logger'
+import jwtConfig from '../config/jwt-config'
+import AzureADTokenValidator from '../services/azure-ad-token-validator'
+import { FIPSJWTService } from '../services/fips-jwt.service'
 
 export interface AuthRequest extends Request {
   user?: {
@@ -67,7 +70,6 @@ export const authenticateJWT = async (
     logger.info('🔑 AUTH MIDDLEWARE - Attempting token validation')
 
     // First, try to decode token to identify its type
-    const { FIPSJWTService } = await import('../services/fips-jwt.service')
     const decoded = FIPSJWTService.decode(token)
 
     // Check if token is from Azure AD (has 'tid' claim) or local (has 'type' claim)
@@ -79,8 +81,6 @@ export const authenticateJWT = async (
     if (isAzureADToken) {
       // Azure AD token validation
       logger.info('🔵 AUTH MIDDLEWARE - Detected Azure AD token, validating...')
-      const { default: AzureADTokenValidator } = await import('../services/azure-ad-token-validator')
-      const { default: jwtConfig } = await import('../config/jwt-config')
 
       const validationResult = await AzureADTokenValidator.validateToken(token, {
         tenantId: jwtConfig.azureAD.tenantId,
