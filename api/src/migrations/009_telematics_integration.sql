@@ -336,7 +336,7 @@ CREATE INDEX IF NOT EXISTS idx_webhook_events_provider_type ON telematics_webhoo
 -- ============================================================================
 
 -- Function to update updated_at timestamp
-DO $$
+DO $do$
 BEGIN
   -- If this helper already exists (created by an earlier migration/user), avoid
   -- CREATE OR REPLACE which can fail when the current role is not the owner.
@@ -357,7 +357,7 @@ BEGIN
       $body$ LANGUAGE plpgsql;
     $$;
   END IF;
-END $$;
+END $do$;
 
 -- Trigger for vehicle_telematics_connections
 CREATE TRIGGER update_vehicle_telematics_updated_at
