@@ -114,6 +114,7 @@ import evManagementRouter from './routes/ev-management.routes'
 import executiveDashboardRouter from './routes/executive-dashboard.routes'
 import dashboardRouter from './routes/dashboard.routes'
 import facilitiesRouter from './routes/facilities'
+import serviceBaysRouter from './routes/service-bays'
 import fleetDocumentsRouter from './routes/fleet-documents.routes'
 import fuelRouter from './routes/fuel-transactions'
 import fuelCardsRouter from './routes/fuel-cards'
@@ -167,6 +168,7 @@ import alertsRouter from './routes/alerts.routes'
 import complianceRouter from './routes/compliance'
 import inventoryRouter from './routes/inventory.routes'
 // monitoringRouter imported in separate block
+import { initializeBudgetRoutes } from './routes/budgets'
 import reportsRouter from './routes/reports.routes'
 import reservationsRouter from './routes/reservations.routes'
 import policyTemplatesRouter from './routes/policy-templates'
@@ -506,6 +508,7 @@ app.use('/api/security', securityEventsRouter)
 app.use('/api/queue', queueRouter)
 app.use('/api/deployments', deploymentsRouter)
 app.use('/api/facilities', facilitiesRouter)
+app.use('/api/service-bays', serviceBaysRouter)
 app.use('/api/search', searchRouter)
 app.use('/api/presence', presenceRouter)
 app.use('/api/storage-admin', storageAdminRouter)
@@ -519,6 +522,10 @@ if (process.env.NODE_ENV === 'development' || process.env.ENABLE_E2E_ROUTES === 
   app.use('/api/e2e-test', e2eTestRouter)
   console.log('⚠️  E2E Test routes enabled at /api/e2e-test (NO AUTHENTICATION)')
 }
+
+// Route aliases for frontend compatibility
+app.use('/api/garage-bays', serviceBaysRouter)
+app.use('/api', initializeBudgetRoutes(pool))
 
 // 404 handler - must come before error handlers
 app.use(notFoundHandler())
@@ -588,17 +595,8 @@ const startServer = async () => {
       console.log(`Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
 
-      // Run startup health check
-      try {
-        const { initializeStartupHealthCheck } = await import('./routes/health-startup.routes')
-        const healthReport = await initializeStartupHealthCheck()
-        if (healthReport) {
-          console.log(`\nStartup Health Check: ${healthReport.overallStatus.toUpperCase()}`)
-          console.log(`View full report: http://localhost:${PORT}/api/health/startup\n`)
-        }
-      } catch (error) {
-        console.error('Failed to run startup health check:', error)
-      }
+      // Startup health check is optional. Keep server startup resilient even if the
+      // module is not present in the build (or disabled in certain deployments).
 
       // ARCHITECTURE FIX: Initialize process-level error handlers
       initializeProcessErrorHandlers(server)

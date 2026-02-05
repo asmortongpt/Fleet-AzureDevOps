@@ -62,7 +62,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
         status: req.query.status as any,
       };
 
-      const pool = (req as any).pool as Pool;
+      // pool is available from initializeBudgetRoutes closure
       let query = 'SELECT * FROM budgets WHERE tenant_id = $1';
       const params: any[] = [tenantId];
       let paramCount = 1;
@@ -121,7 +121,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
       if (!tenantId) throw new Error('Tenant ID is required');
 
       const input: BudgetCreateInput = req.body;
-      const pool = (req as any).pool as Pool;
+      // pool is available from initializeBudgetRoutes closure
 
       const result = await pool.query<Budget>(
         `INSERT INTO budgets (
@@ -163,7 +163,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     asyncHandler(async (req: Request, res: Response) => {
       const tenantId = (req as any).user?.tenant_id;
       const budgetId = req.params.id as UUID;
-      const pool = (req as any).pool as Pool;
+      // pool is available from initializeBudgetRoutes closure
 
       const result = await pool.query<Budget>(
         'SELECT * FROM budgets WHERE id = $1 AND tenant_id = $2',
@@ -202,7 +202,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
       const tenantId = (req as any).user?.tenant_id;
       const budgetId = req.params.id as UUID;
       const input: BudgetUpdateInput = req.body;
-      const pool = (req as any).pool as Pool;
+      // pool is available from initializeBudgetRoutes closure
 
       const setClauses: string[] = [];
       const params: any[] = [];
@@ -344,7 +344,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
       if (!tenantId) throw new Error('Tenant ID is required');
 
       const input: PurchaseRequisitionCreateInput = req.body;
-      const pool = (req as any).pool as Pool;
+      // pool is available from initializeBudgetRoutes closure
 
       // Generate requisition number
       const reqNumberResult = await pool.query(
@@ -400,7 +400,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     asyncHandler(async (req: Request, res: Response) => {
       const tenantId = (req as any).user?.tenant_id;
       const requisitionId = req.params.id as UUID;
-      const pool = (req as any).pool as Pool;
+      // pool is available from initializeBudgetRoutes closure
 
       const result = await pool.query<PurchaseRequisition>(
         'SELECT * FROM purchase_requisitions WHERE id = $1 AND tenant_id = $2',
@@ -495,7 +495,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
       const userId = (req as any).user?.id;
       const requisitionId = req.params.id as UUID;
       const input: ConvertToPOInput = req.body;
-      const pool = (req as any).pool as Pool;
+      // pool is available from initializeBudgetRoutes closure
 
       // Get requisition
       const reqResult = await pool.query<PurchaseRequisition>(
