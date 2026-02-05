@@ -7,6 +7,11 @@
 import cors from 'cors';
 import express, { Express, Request, Response, NextFunction } from 'express';
 
+if (process.env.NODE_ENV === 'production' && process.env.ENABLE_LEGACY_API !== 'true') {
+  console.error('Legacy server-test entrypoint is disabled in production. Set ENABLE_LEGACY_API=true to override.');
+  process.exit(1);
+}
+
 // Create Express app
 const app: Express = express();
 

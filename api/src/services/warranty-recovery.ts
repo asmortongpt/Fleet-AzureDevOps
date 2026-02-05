@@ -462,7 +462,7 @@ export class WarrantyRecoveryService {
     /**
      * Alert on stale claims (submitted > 30 days ago with no update)
      */
-    async getS taleClaims(tenantId: string, daysThreshold: number = 30): Promise<WarrantyClaim[]> {
+    async getStaleClaims(tenantId: string, daysThreshold: number = 30): Promise<WarrantyClaim[]> {
         const result = await this.db.query<WarrantyClaim>(`
             SELECT * FROM warranty_claims
             WHERE tenant_id = $1

@@ -21,55 +21,66 @@ router.get(
       const { page = 1, limit = 50, status, severity, type, date_from, date_to } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
+      const where: string[] = ['i.tenant_id = $1']
       let query = `
         SELECT i.*,
-               v.unit_number as vehicle_unit,
+               v.number as vehicle_unit,
                d.first_name || ' ' || d.last_name as driver_name,
                u.first_name || ' ' || u.last_name as reported_by_name
         FROM incidents i
         LEFT JOIN vehicles v ON i.vehicle_id = v.id
         LEFT JOIN drivers d ON i.driver_id = d.id
         LEFT JOIN users u ON i.reported_by_id = u.id
-        WHERE i.tenant_id = $1
       `
       const params: any[] = [req.user!.tenant_id]
       let paramIndex = 2
 
       if (status) {
-        query += ` AND i.status = $${paramIndex}`
-        params.push(status)
-        paramIndex++
+        if (status === 'open') {
+          // UI compatibility: treat "open" as any non-terminal status for the generic `status` enum.
+          where.push(`i.status = ANY($${paramIndex}::status[])`)
+          params.push(['pending', 'in_progress', 'on_hold'])
+          paramIndex++
+        } else if (status === 'closed') {
+          where.push(`i.status = ANY($${paramIndex}::status[])`)
+          params.push(['completed', 'cancelled', 'failed'])
+          paramIndex++
+        } else {
+          where.push(`i.status = $${paramIndex}`)
+          params.push(status)
+          paramIndex++
+        }
       }
       if (severity) {
-        query += ` AND i.severity = $${paramIndex}`
+        where.push(`i.severity = $${paramIndex}`)
         params.push(severity)
         paramIndex++
       }
       if (type) {
-        query += ` AND i.type = $${paramIndex}`
+        where.push(`i.type = $${paramIndex}`)
         params.push(type)
         paramIndex++
       }
       if (date_from) {
-        query += ` AND i.incident_date >= $${paramIndex}`
+        where.push(`i.incident_date >= $${paramIndex}`)
         params.push(date_from)
         paramIndex++
       }
       if (date_to) {
-        query += ` AND i.incident_date <= $${paramIndex}`
+        where.push(`i.incident_date <= $${paramIndex}`)
         params.push(date_to)
         paramIndex++
       }
 
+      query += ` WHERE ${where.join(' AND ')}`
       query += ` ORDER BY i.incident_date DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
       params.push(limit, offset)
 
       const result = await pool.query(query, params)
 
-      const countResult = await pool.query(
-        `SELECT COUNT(*) FROM incidents WHERE tenant_id = $1`,
-        [req.user!.tenant_id]
-      )
+      const countSql = `SELECT COUNT(*) FROM incidents i WHERE ${where.join(' AND ')}`
+      const countParams = params.slice(0, paramIndex - 1) // exclude LIMIT/OFFSET
+      const countResult = await pool.query(countSql, countParams)
 
       res.json({
         data: result.rows,

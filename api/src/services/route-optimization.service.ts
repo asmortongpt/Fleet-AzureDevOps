@@ -178,7 +178,7 @@ export class RouteOptimizationService {
 
       const vehicleCount = Math.min(
         vehicles.length || 1,
-        options.maxVehicles ?? vehicles.length || 1,
+        (options.maxVehicles ?? vehicles.length) || 1,
         Math.max(1, Math.ceil(stops.length / Math.max(1, options.maxStopsPerRoute ?? stops.length)))
       )
 
