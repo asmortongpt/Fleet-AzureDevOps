@@ -139,6 +139,168 @@ const cacheMiddleware = (keyPrefix: string) => {
 }
 
 /**
+ * GET /analytics/dashboard
+ * Returns fleet-wide KPIs for the analytics dashboard (DB-backed).
+ *
+ * Query params:
+ * - days: number (default 30) lookback window
+ */
+router.get('/dashboard', cacheMiddleware('analytics:dashboard'), async (req: Request, res: Response) => {
+    try {
+        const tenantId = (req as any).user?.tenant_id
+        if (!tenantId) return res.status(401).json({ error: 'Unauthorized' })
+
+        const daysRaw = Array.isArray(req.query.days) ? req.query.days[0] : req.query.days
+        const days = Math.max(1, Math.min(365, parseInt(String(daysRaw ?? '30'), 10) || 30))
+        const end = new Date()
+        const start = new Date(end.getTime() - days * 24 * 60 * 60 * 1000)
+
+        const [fleetResult, driversResult, tripsResult, fuelResult, maintenanceResult, byFuelTypeResult] = await Promise.all([
+            db.query(
+                `
+                SELECT
+                    COUNT(*)::int AS total_vehicles,
+                    COUNT(*) FILTER (WHERE status = 'active')::int AS active_vehicles,
+                    COUNT(*) FILTER (WHERE status IN ('maintenance', 'service'))::int AS in_maintenance
+                FROM vehicles
+                WHERE tenant_id = $1
+                `,
+                [tenantId]
+            ),
+            db.query(
+                `
+                SELECT
+                    COUNT(*)::int AS total_drivers,
+                    COUNT(*) FILTER (WHERE status = 'active')::int AS active_drivers
+                FROM drivers
+                WHERE tenant_id = $1
+                `,
+                [tenantId]
+            ),
+            db.query(
+                `
+                SELECT
+                    COUNT(*)::int AS total_trips,
+                    COALESCE(SUM(distance_miles), 0)::numeric AS total_miles,
+                    COALESCE(AVG(distance_miles), 0)::numeric AS avg_trip_distance
+                FROM mobile_trips
+                WHERE tenant_id = $1
+                  AND start_time >= $2
+                `,
+                [tenantId, start]
+            ),
+            db.query(
+                `
+                SELECT
+                    COALESCE(SUM(total_cost), 0)::numeric AS total_cost,
+                    COALESCE(SUM(gallons), 0)::numeric AS total_gallons,
+                    COALESCE(AVG(cost_per_gallon), 0)::numeric AS avg_price_per_gallon,
+                    COUNT(*)::int AS transactions
+                FROM fuel_transactions
+                WHERE tenant_id = $1
+                  AND transaction_date >= $2
+                `,
+                [tenantId, start]
+            ),
+            db.query(
+                `
+                SELECT
+                    COALESCE(SUM(COALESCE(actual_cost, estimated_cost, 0)), 0)::numeric AS total_cost,
+                    COUNT(*)::int AS total_records
+                FROM work_orders
+                WHERE tenant_id = $1
+                  AND created_at >= $2
+                `,
+                [tenantId, start]
+            ),
+            db.query(
+                `
+                SELECT
+                    fuel_type AS fuel_type,
+                    COUNT(*)::int AS count
+                FROM vehicles
+                WHERE tenant_id = $1
+                GROUP BY fuel_type
+                ORDER BY count DESC
+                `,
+                [tenantId]
+            ),
+        ])
+
+        const fleetRow = fleetResult.rows[0] || { total_vehicles: 0, active_vehicles: 0, in_maintenance: 0 }
+        const driversRow = driversResult.rows[0] || { total_drivers: 0, active_drivers: 0 }
+        const tripsRow = tripsResult.rows[0] || { total_trips: 0, total_miles: 0, avg_trip_distance: 0 }
+        const fuelRow = fuelResult.rows[0] || { total_cost: 0, total_gallons: 0, avg_price_per_gallon: 0, transactions: 0 }
+        const maintRow = maintenanceResult.rows[0] || { total_cost: 0, total_records: 0 }
+
+        const totalVehicles = Number(fleetRow.total_vehicles || 0)
+        const activeVehicles = Number(fleetRow.active_vehicles || 0)
+        const inMaintenance = Number(fleetRow.in_maintenance || 0)
+        const utilizationRate = totalVehicles > 0 ? (activeVehicles / totalVehicles) * 100 : 0
+
+        const totalTrips = Number(tripsRow.total_trips || 0)
+        const totalMiles = Number(tripsRow.total_miles || 0)
+        const avgTripDistance = Number(tripsRow.avg_trip_distance || 0)
+
+        const fuelTotalCost = Number(fuelRow.total_cost || 0)
+        const fuelTotalGallons = Number(fuelRow.total_gallons || 0)
+        const avgPricePerGallon = Number(fuelRow.avg_price_per_gallon || 0)
+        const fuelTransactions = Number(fuelRow.transactions || 0)
+
+        const maintenanceTotalCost = Number(maintRow.total_cost || 0)
+        const maintenanceTotalRecords = Number(maintRow.total_records || 0)
+
+        const totalOperatingCost = fuelTotalCost + maintenanceTotalCost
+        const costPerMile = totalMiles > 0 ? totalOperatingCost / totalMiles : 0
+
+        res.json({
+            fleet: {
+                totalVehicles,
+                activeVehicles,
+                inMaintenance,
+                utilizationRate: Number(utilizationRate.toFixed(1)),
+            },
+            drivers: {
+                totalDrivers: Number(driversRow.total_drivers || 0),
+                activeDrivers: Number(driversRow.active_drivers || 0),
+            },
+            trips: {
+                totalTrips,
+                totalMiles: Number(totalMiles.toFixed(1)),
+                avgTripDistance: Number(avgTripDistance.toFixed(1)),
+            },
+            fuel: {
+                totalCost: Number(fuelTotalCost.toFixed(2)),
+                totalGallons: Number(fuelTotalGallons.toFixed(3)),
+                avgPricePerGallon: Number(avgPricePerGallon.toFixed(3)),
+                transactions: fuelTransactions,
+            },
+            maintenance: {
+                totalCost: Number(maintenanceTotalCost.toFixed(2)),
+                totalRecords: maintenanceTotalRecords,
+            },
+            financials: {
+                costPerMile: Number(costPerMile.toFixed(3)),
+                totalOperatingCost: Number(totalOperatingCost.toFixed(2)),
+            },
+            vehiclesByFuelType: (byFuelTypeResult.rows || []).map((r: any) => ({
+                fuelType: r.fuel_type,
+                count: Number(r.count || 0),
+            })),
+            period: {
+                start: start.toISOString(),
+                end: end.toISOString(),
+                days,
+            },
+            generatedAt: new Date().toISOString(),
+        })
+    } catch (error) {
+        console.error('Error generating analytics dashboard:', error)
+        res.status(500).json({ error: 'Internal server error', details: String(error) })
+    }
+})
+
+/**
  * GET /analytics/cost
  * Returns cost analytics data with breakdown by category
  */
