@@ -26,6 +26,23 @@ interface Driver {
   photoUrl?: string;
   status?: string;
   department?: string;
+  // Medical Certification
+  medical_expiry_date?: string;
+  medical_card_number?: string;
+  medical_restrictions?: string;
+  // CDL Endorsements
+  endorsement_hazmat?: boolean;
+  endorsement_tanker?: boolean;
+  endorsement_passenger?: boolean;
+  // Drug Testing
+  last_drug_test_date?: string;
+  last_drug_test_result?: string;
+  clearinghouse_last_query_date?: string;
+  // Address
+  address?: string;
+  city?: string;
+  state?: string;
+  zip_code?: string;
   [key: string]: any;
 }
 
@@ -146,6 +163,11 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
   const licenseExpiry = driver.licenseExpiry || driver.license_expiry_date
   const licenseExpired = licenseExpiry ? new Date(licenseExpiry) < new Date() : false
 
+  const medicalExpiry = driver.medical_expiry_date
+  const medicalExpirySoon = medicalExpiry ?
+    (new Date(medicalExpiry).getTime() - Date.now()) / (1000 * 60 * 60 * 24) < 60 : false
+  const medicalExpired = medicalExpiry ? new Date(medicalExpiry) < new Date() : false
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'valid':
@@ -238,7 +260,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
 
           {/* Profile Tab */}
           <TabsContent value="profile" className="space-y-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -284,35 +306,134 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                 <CardContent className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">License Number:</span>
-                    <span className="font-mono">{driver.licenseNumber || 'N/A'}</span>
+                    <span className="font-mono">{driver.licenseNumber || driver.license_number || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Class:</span>
-                    <span className="font-medium">Class B CDL</span>
+                    <span className="font-medium">{driver.license_class || 'Class B CDL'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Issued:</span>
-                    <span className="font-medium">2023-01-15</span>
+                    <span className="font-medium">{formatDate(driver.license_issue_date) || '2023-01-15'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Expires:</span>
-                    <span className="font-medium">{driver.licenseExpiry || '2028-01-15'}</span>
+                    <span className="font-medium">{formatDate(licenseExpiry) || '2028-01-15'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Endorsements:</span>
                     <div className="flex gap-1">
-                      <Badge variant="secondary" className="text-xs">H</Badge>
-                      <Badge variant="secondary" className="text-xs">P</Badge>
+                      {driver.endorsement_hazmat && <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-800">H</Badge>}
+                      {driver.endorsement_tanker && <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">N</Badge>}
+                      {driver.endorsement_passenger && <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-800">P</Badge>}
+                      {!driver.endorsement_hazmat && !driver.endorsement_tanker && !driver.endorsement_passenger && <span className="text-muted-foreground">None</span>}
                     </div>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Status:</span>
-                    <Badge variant="default" className="bg-green-500">Valid</Badge>
+                    {licenseExpired ? (
+                      <Badge variant="destructive">Expired</Badge>
+                    ) : (
+                      <Badge variant="default" className="bg-green-500">Valid</Badge>
+                    )}
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="md:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Shield className="w-4 h-4" />
+                    Medical Certification
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Card Number:</span>
+                    <span className="font-mono">{driver.medical_card_number || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Expiry Date:</span>
+                    <span className="font-medium">{formatDate(medicalExpiry) || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Status:</span>
+                    {medicalExpired ? (
+                      <Badge variant="destructive"><AlertTriangle className="w-3 h-3 mr-1" />Expired</Badge>
+                    ) : medicalExpirySoon ? (
+                      <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                        <AlertTriangle className="w-3 h-3 mr-1" />Expires Soon
+                      </Badge>
+                    ) : (
+                      <Badge variant="default" className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" />Valid</Badge>
+                    )}
+                  </div>
+                  {driver.medical_restrictions && (
+                    <div className="pt-2 border-t">
+                      <span className="text-muted-foreground">Restrictions:</span>
+                      <p className="text-sm mt-1">{driver.medical_restrictions}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4" />
+                    Drug Testing
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Last Test Date:</span>
+                    <span className="font-medium">{formatDate(driver.last_drug_test_date) || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Last Result:</span>
+                    {driver.last_drug_test_result === 'negative' || driver.last_drug_test_result === 'pass' ? (
+                      <Badge variant="default" className="bg-green-500">Negative</Badge>
+                    ) : driver.last_drug_test_result === 'positive' || driver.last_drug_test_result === 'fail' ? (
+                      <Badge variant="destructive">Positive</Badge>
+                    ) : (
+                      <span className="text-muted-foreground">N/A</span>
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Clearinghouse Query:</span>
+                    <span className="font-medium">{formatDate(driver.clearinghouse_last_query_date) || 'N/A'}</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Address
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Street:</span>
+                    <span className="font-medium">{driver.address || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">City:</span>
+                    <span className="font-medium">{driver.city || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">State:</span>
+                    <span className="font-medium">{driver.state || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">ZIP Code:</span>
+                    <span className="font-medium">{driver.zip_code || 'N/A'}</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="md:col-span-2 lg:col-span-3">
                 <CardHeader>
                   <CardTitle className="text-sm flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4" />

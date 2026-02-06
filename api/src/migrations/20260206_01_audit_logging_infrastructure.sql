@@ -10,7 +10,7 @@
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS audit_trail (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL,
 
     -- What changed
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS audit_trail (
     business_justification TEXT,
 
     -- Reversal & corrections
-    reversal_of UUID REFERENCES audit_trail(id), -- Links to reversed transaction
+    reversal_of UUID,                         -- Links to reversed transaction (can't FK on partitioned table)
     reversed BOOLEAN DEFAULT FALSE,
     reversed_at TIMESTAMPTZ,
     reversed_by UUID,
@@ -58,7 +58,9 @@ CREATE TABLE IF NOT EXISTS audit_trail (
     statement_timestamp TIMESTAMPTZ,          -- Transaction start time
     application_name VARCHAR(100),            -- Connecting app
 
-    metadata JSONB DEFAULT '{}'
+    metadata JSONB DEFAULT '{}',
+
+    PRIMARY KEY (id, performed_at)
 ) PARTITION BY RANGE (performed_at);
 
 -- Create partitions for current and next 24 months

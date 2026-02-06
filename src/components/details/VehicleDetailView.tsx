@@ -28,6 +28,21 @@ interface Vehicle {
   assignedDriver?: string;
   department?: string;
   location?: string;
+  // DOT Compliance
+  gvwr?: number;
+  dot_number?: string;
+  dot_inspection_due_date?: string;
+  // Specifications
+  engine_size?: string;
+  horsepower?: number;
+  transmission_type?: string;
+  drivetrain?: string;
+  body_style?: string;
+  // Telematics
+  telematics_provider?: string;
+  telematics_device_id?: string;
+  last_telematics_sync?: string;
+  [key: string]: any;
 }
 
 interface VehicleDetailViewProps {
@@ -78,6 +93,9 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
     const date = new Date(value)
     return Number.isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString()
   }
+
+  const dotInspectionDue = vehicle.dot_inspection_due_date
+  const dotInspectionOverdue = dotInspectionDue ? new Date(dotInspectionDue) < new Date() : false
 
   const serviceHistory = useMemo(() => {
     return workOrders
@@ -309,6 +327,101 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Status:</span>
                     {getStatusBadge(vehicle.status)}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Shield className="w-4 h-4" />
+                    DOT Compliance
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">GVWR:</span>
+                    <span className="font-medium">{vehicle.gvwr ? `${vehicle.gvwr.toLocaleString()} lbs` : 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">DOT Number:</span>
+                    <span className="font-mono">{vehicle.dot_number || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Inspection Due:</span>
+                    <span className="font-medium">{formatDate(dotInspectionDue)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Status:</span>
+                    {dotInspectionOverdue ? (
+                      <Badge variant="destructive"><AlertTriangle className="w-3 h-3 mr-1" />Overdue</Badge>
+                    ) : dotInspectionDue ? (
+                      <Badge variant="default" className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" />Current</Badge>
+                    ) : (
+                      <span className="text-muted-foreground">N/A</span>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Car className="w-4 h-4" />
+                    Specifications
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Engine:</span>
+                    <span className="font-medium">{vehicle.engine_size || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Horsepower:</span>
+                    <span className="font-medium">{vehicle.horsepower ? `${vehicle.horsepower} HP` : 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Transmission:</span>
+                    <span className="font-medium">{vehicle.transmission_type || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Drivetrain:</span>
+                    <span className="font-medium">{vehicle.drivetrain || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Body Style:</span>
+                    <span className="font-medium">{vehicle.body_style || 'N/A'}</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Activity className="w-4 h-4" />
+                    Telematics
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Provider:</span>
+                    <span className="font-medium">{vehicle.telematics_provider || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Device ID:</span>
+                    <span className="font-mono text-xs">{vehicle.telematics_device_id || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Last Sync:</span>
+                    <span className="font-medium">{formatDate(vehicle.last_telematics_sync)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Status:</span>
+                    {vehicle.last_telematics_sync ? (
+                      <Badge variant="default" className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" />Active</Badge>
+                    ) : (
+                      <Badge variant="secondary"><XCircle className="w-3 h-3 mr-1" />Inactive</Badge>
+                    )}
                   </div>
                 </CardContent>
               </Card>
