@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react"
 
 
-import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
+import { Vehicle, GISFacility, TrafficCamera, Geofence } from "@/lib/types"
 import logger from '@/utils/logger';
 /**
  * Props for the GoogleMap component
@@ -13,12 +13,16 @@ export interface GoogleMapProps {
   facilities?: GISFacility[]
   /** Array of traffic cameras to display on the map */
   cameras?: TrafficCamera[]
+  /** Array of geofences to display on the map */
+  geofences?: Geofence[]
   /** Whether to show vehicle markers */
   showVehicles?: boolean
   /** Whether to show facility markers */
   showFacilities?: boolean
   /** Whether to show camera markers */
   showCameras?: boolean
+  /** Whether to show geofences */
+  showGeofences?: boolean
   /** Whether to show routes between markers */
   showRoutes?: boolean
   /** Map display style */
@@ -33,10 +37,12 @@ export interface GoogleMapProps {
   onReady?: () => void
   /** Callback when an error occurs */
   onError?: (error: Error) => void
-  /** Force the simulated grid view (fallback) */
-  forceSimulatedView?: boolean
   /** Callback when a vehicle action is triggered from the popup */
   onVehicleAction?: (action: string, vehicleId: string) => void
+  /** Callback when a vehicle marker is selected */
+  onVehicleSelect?: (vehicleId: string) => void
+  /** Callback when a geofence is selected */
+  onGeofenceSelect?: (geofence: Geofence) => void
 }
 
 /**
@@ -65,6 +71,82 @@ function getVehicleLatLng(vehicle: any): { lat: number; lng: number } | null {
   const lng = Number(lngRaw)
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
   return { lat, lng }
+}
+
+function getFacilityLatLng(facility: any): { lat: number; lng: number } | null {
+  const latRaw =
+    facility?.location?.lat ??
+    facility?.location?.latitude ??
+    facility?.lat ??
+    facility?.latitude ??
+    facility?.gps_latitude ??
+    facility?.gps_lat ??
+    facility?.gpsLat ??
+    facility?.center_lat ??
+    facility?.centerLat
+  const lngRaw =
+    facility?.location?.lng ??
+    facility?.location?.longitude ??
+    facility?.lng ??
+    facility?.longitude ??
+    facility?.gps_longitude ??
+    facility?.gps_lng ??
+    facility?.gpsLng ??
+    facility?.center_lng ??
+    facility?.centerLng
+
+  const lat = Number(latRaw)
+  const lng = Number(lngRaw)
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
+  return { lat, lng }
+}
+
+function getGeofenceCenter(geofence: any): google.maps.LatLngLiteral | null {
+  const center =
+    geofence?.center ||
+    (geofence?.center_lat != null && geofence?.center_lng != null
+      ? { lat: geofence.center_lat, lng: geofence.center_lng }
+      : null) ||
+    (geofence?.center_latitude != null && geofence?.center_longitude != null
+      ? { lat: geofence.center_latitude, lng: geofence.center_longitude }
+      : null)
+
+  const latRaw = center?.lat ?? center?.latitude ?? geofence?.latitude
+  const lngRaw = center?.lng ?? center?.longitude ?? geofence?.longitude
+
+  const lat = Number(latRaw)
+  const lng = Number(lngRaw)
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
+  return { lat, lng }
+}
+
+function normalizeGeofencePath(coordinates: any): google.maps.LatLngLiteral[] | null {
+  if (!coordinates) return null
+  if (!Array.isArray(coordinates)) return null
+
+  // GeoJSON-style: [{ lat, lng }] or [[lng, lat]]
+  const path: google.maps.LatLngLiteral[] = []
+  for (const point of coordinates) {
+    if (!point) continue
+    if (Array.isArray(point) && point.length >= 2) {
+      const [lng, lat] = point
+      const latNum = Number(lat)
+      const lngNum = Number(lng)
+      if (Number.isFinite(latNum) && Number.isFinite(lngNum)) {
+        path.push({ lat: latNum, lng: lngNum })
+      }
+      continue
+    }
+    if (typeof point === 'object') {
+      const latNum = Number(point.lat ?? point.latitude)
+      const lngNum = Number(point.lng ?? point.longitude)
+      if (Number.isFinite(latNum) && Number.isFinite(lngNum)) {
+        path.push({ lat: latNum, lng: lngNum })
+      }
+    }
+  }
+
+  return path.length >= 3 ? path : null
 }
 
 /**
@@ -101,7 +183,7 @@ let googleMapsLoadingState: LoadingState = "idle"
  *   facilities={facilities}
  *   showVehicles={true}
  *   mapStyle="roadmap"
- *   center={[-98.5795, 39.8283]}
+ *   center={[39.8283, -98.5795]}
  *   zoom={4}
  * />
  * ```
@@ -110,35 +192,38 @@ export function GoogleMap({
   vehicles = [],
   facilities = [],
   cameras = [],
+  geofences = [],
   showVehicles = true,
   showFacilities = true,
   showCameras = false,
+  showGeofences = false,
   showRoutes: _showRoutes = false,
   mapStyle = "roadmap",
-  center = [-84.2807, 30.4383], // Tallahassee, FL [lng, lat]
+  center = [30.4383, -84.2807], // Tallahassee, FL [lat, lng]
   zoom = 12, // Focused on Tallahassee area
   className = "",
   onReady,
   onError,
-  forceSimulatedView = false,
   onVehicleAction,
+  onVehicleSelect,
+  onGeofenceSelect,
 }: GoogleMapProps) {
   // Refs for DOM and map instances
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
   const markersRef = useRef<MarkerWithInfo[]>([])
+  const geofenceOverlaysRef = useRef<Array<google.maps.Circle | google.maps.Polygon>>([])
   const boundsListenerRef = useRef<google.maps.MapsEventListener | null>(null)
 
   // Component state
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [retryCount, setRetryCount] = useState(0)
-  const [forceFallback, setForceFallback] = useState(false)
 
   // Get and validate Google Maps API key
   // Try runtime config first (window._env_), then fall back to build-time env
   const apiKey = ((window as any)._env_?.VITE_GOOGLE_MAPS_API_KEY || import.meta.env.VITE_GOOGLE_MAPS_API_KEY)?.trim() || ""
-  const hasValidApiKey = apiKey.length > 0 && !forceFallback && !forceSimulatedView
+  const hasValidApiKey = apiKey.length > 0
 
   // Handle global auth failure (Google Maps specific)
   useEffect(() => {
@@ -146,7 +231,7 @@ export function GoogleMap({
     if (!(window as any).gm_authFailure) {
       (window as any).gm_authFailure = () => {
         logger.error("Google Maps Authentication Failure detected")
-        setForceFallback(true) // Switch to fallback view
+        setError("Google Maps authentication failed")
         setIsLoading(false)
       }
     }
@@ -306,7 +391,7 @@ export function GoogleMap({
 
 
         mapInstanceRef.current = new google.maps.Map(mapRef.current, {
-          center: { lat: center[1], lng: center[0] },
+          center: { lat: center[0], lng: center[1] },
           zoom: zoom,
           mapTypeId: mapStyle as google.maps.MapTypeId,
           zoomControl: true,
@@ -380,7 +465,7 @@ export function GoogleMap({
       }
     } else {
       // Update existing map settings
-      mapInstanceRef.current.setCenter({ lat: center[1], lng: center[0] })
+      mapInstanceRef.current.setCenter({ lat: center[0], lng: center[1] })
       mapInstanceRef.current.setZoom(zoom)
       mapInstanceRef.current.setMapTypeId(mapStyle as google.maps.MapTypeId)
     }
@@ -399,6 +484,13 @@ export function GoogleMap({
       marker.setMap(null)
     })
     markersRef.current = []
+  }, [])
+
+  const clearGeofences = useCallback(() => {
+    geofenceOverlaysRef.current.forEach((overlay) => {
+      overlay.setMap(null)
+    })
+    geofenceOverlaysRef.current = []
   }, [])
 
   /**
@@ -429,15 +521,16 @@ export function GoogleMap({
             position: coords,
             map: mapInstanceRef.current,
             title: vehicle.name,
-            optimized: true,
+            optimized: false,
             icon: {
               path: google.maps.SymbolPath.CIRCLE,
               fillColor: getVehicleColor(vehicle.status),
-              fillOpacity: 1,
-              strokeColor: "#ffffff",
+              fillOpacity: 0.95,
+              strokeColor: "#0f172a",
               strokeWeight: 2,
-              scale: 8,
+              scale: 10,
             },
+            zIndex: 1000,
           })
 
           // Add data-testid to marker element when DOM is ready
@@ -457,6 +550,7 @@ export function GoogleMap({
             // Close all other info windows
             markersRef.current.forEach(({ infoWindow: iw }) => iw?.close())
             infoWindow.open(mapInstanceRef.current, marker)
+            onVehicleSelect?.(String(vehicle.id))
           })
 
           newMarkers.push({ marker, infoWindow })
@@ -468,22 +562,24 @@ export function GoogleMap({
       // Add facility markers
       if (showFacilities && facilities.length > 0) {
         facilities.forEach(facility => {
-          if (!facility.location?.lat || !facility.location?.lng) return
+          const coords = getFacilityLatLng(facility)
+          if (!coords) return
 
           const marker = new google.maps.Marker({
-            position: { lat: facility.location?.lat, lng: facility.location?.lng },
+            position: coords,
             map: mapInstanceRef.current,
             title: facility.name,
-            optimized: true,
+            optimized: false,
             icon: {
               path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
               fillColor: facility.status === "operational" ? "#10b981" : "#f59e0b",
-              fillOpacity: 1,
-              strokeColor: "#ffffff",
+              fillOpacity: 0.95,
+              strokeColor: "#0f172a",
               strokeWeight: 2,
-              scale: 6,
+              scale: 7,
               rotation: 0,
             },
+            zIndex: 900,
           })
 
           const infoWindow = new google.maps.InfoWindow({
@@ -496,7 +592,7 @@ export function GoogleMap({
           })
 
           newMarkers.push({ marker, infoWindow })
-          bounds.extend({ lat: facility.location?.lat, lng: facility.location?.lng })
+          bounds.extend(coords)
           hasMarkers = true
         })
       }
@@ -510,15 +606,16 @@ export function GoogleMap({
             position: { lat: camera.latitude, lng: camera.longitude },
             map: mapInstanceRef.current,
             title: camera.name,
-            optimized: true,
+            optimized: false,
             icon: {
               path: google.maps.SymbolPath.CIRCLE,
               fillColor: camera.operational ? "#3b82f6" : "#6b7280",
-              fillOpacity: 1,
-              strokeColor: "#ffffff",
+              fillOpacity: 0.95,
+              strokeColor: "#0f172a",
               strokeWeight: 2,
-              scale: 7,
+              scale: 8,
             },
+            zIndex: 800,
           })
 
           const infoWindow = new google.maps.InfoWindow({
@@ -594,6 +691,75 @@ export function GoogleMap({
   ])
 
   /**
+   * Update geofence overlays when data changes
+   */
+  useEffect(() => {
+    if (!mapInstanceRef.current || !window.google?.maps || isLoading || error) {
+      return
+    }
+
+    clearGeofences()
+
+    if (!showGeofences || geofences.length === 0) {
+      return
+    }
+
+    const overlays: Array<google.maps.Circle | google.maps.Polygon> = []
+
+    geofences.forEach((geofence) => {
+      const color = geofence.color || "#3b82f6"
+
+      if (geofence.type === "circle") {
+        const center = getGeofenceCenter(geofence)
+        if (!center) return
+        const radius = Number(geofence.radius ?? geofence.radius_meters ?? 0)
+        if (!Number.isFinite(radius) || radius <= 0) return
+
+        const circle = new google.maps.Circle({
+          map: mapInstanceRef.current || undefined,
+          center,
+          radius,
+          fillColor: color,
+          fillOpacity: 0.2,
+          strokeColor: color,
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          clickable: true,
+        })
+
+        circle.addListener("click", () => onGeofenceSelect?.(geofence))
+        overlays.push(circle)
+        return
+      }
+
+      const path = normalizeGeofencePath(
+        geofence.coordinates ?? geofence.polygon ?? geofence.polygon_coordinates
+      )
+      if (!path) return
+
+      const polygon = new google.maps.Polygon({
+        map: mapInstanceRef.current || undefined,
+        paths: path,
+        fillColor: color,
+        fillOpacity: 0.2,
+        strokeColor: color,
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        clickable: true,
+      })
+
+      polygon.addListener("click", () => onGeofenceSelect?.(geofence))
+      overlays.push(polygon)
+    })
+
+    geofenceOverlaysRef.current = overlays
+
+    return () => {
+      clearGeofences()
+    }
+  }, [geofences, showGeofences, onGeofenceSelect, isLoading, error, clearGeofences])
+
+  /**
    * Cleanup map instance on unmount
    * Empty dependency array ensures cleanup only runs on unmount
    */
@@ -609,84 +775,19 @@ export function GoogleMap({
     }
   }, [])
 
-  /**
-   * Render error state for missing API key
-   */
-  /**
-   * Render "Tactical Grid View" (Fallback for missing API key)
-   */
   if (!hasValidApiKey) {
     return (
       <div
         className={`relative w-full h-full min-h-[500px] bg-slate-950 overflow-hidden ${className}`}
       >
-        {/* Grid Background */}
-        <div className="absolute inset-0"
-          style={{
-            backgroundImage: 'linear-gradient(rgba(51, 65, 85, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(51, 65, 85, 0.3) 1px, transparent 1px)',
-            backgroundSize: '40px 40px'
-          }}
-        />
-
-        {/* Radar Sweep Effect */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent animate-spin-slow opacity-20" style={{ animationDuration: '8s' }} />
-
-        {/* Center Crosshair */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-64 h-64 border border-emerald-500/20 rounded-full flex items-center justify-center">
-            <div className="w-48 h-48 border border-emerald-500/20 rounded-full flex items-center justify-center">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="bg-slate-900/80 border border-slate-700 rounded-lg p-4 text-center max-w-md">
+            <div className="text-sm font-semibold text-slate-100">Google Maps API key required</div>
+            <div className="text-xs text-slate-400 mt-2">
+              Set `VITE_GOOGLE_MAPS_API_KEY` to render the live CTA map.
             </div>
           </div>
-          {/* Cross lines */}
-          <div className="absolute w-full h-px bg-emerald-500/20" />
-          <div className="absolute h-full w-px bg-emerald-500/20" />
         </div>
-
-        {/* Simulated Vehicle Markers (Kinetic Movement) */}
-        {vehicles.map((v) => {
-          // Deterministic pseudo-random position based on ID
-          const hash = v.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-          const top = (hash * 17) % 70 + 15; // 15-85%
-          const left = (hash * 31) % 70 + 15; // 15-85%
-
-          // Generate a random duration for the patrol loop
-          const duration = 20 + (hash % 15);
-          const delay = -(hash % 20);
-
-          return (
-            <div
-              key={v.id}
-              className="absolute transform -translate-x-1/2 -translate-y-1/2 group cursor-pointer animate-patrol"
-              style={{
-                top: `${top}%`,
-                left: `${left}%`,
-                animationDuration: `${duration}s`,
-                animationDelay: `${delay}s`,
-                '--tx-1': `${(hash % 50) - 25}px`,
-                '--ty-1': `${(hash % 40) - 20}px`,
-                '--tx-2': `${(hash % 60) - 30}px`,
-                '--ty-2': `${(hash % 50) - 25}px`,
-                '--tx-3': `${(hash % 40) - 20}px`,
-                '--ty-3': `${(hash % 60) - 30}px`,
-              } as any}
-            >
-              <div className="relative">
-                <div className={`w-3 h-3 rounded-full ${v.status === 'active' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-slate-500'} transition-all`} />
-                <div className="absolute -inset-2 border border-emerald-500/30 rounded-full opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300" />
-
-                {/* Tooltip */}
-                <div className="absolute left-4 top-0 bg-slate-900 border border-emerald-500/30 px-2 py-1 rounded text-[10px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none backdrop-blur-md shadow-sm">
-                  <div className="text-emerald-700 font-bold">{v.name}</div>
-                  <div className="text-slate-700">{v.status.toUpperCase()}</div>
-                  <div className="text-[9px] text-gray-800 mt-1">
-                    LAT: {typeof v.location?.lat === 'number' ? v.location.lat.toFixed(4) : 'N/A'}
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
       </div>
     )
   }
@@ -708,12 +809,6 @@ export function GoogleMap({
             className="px-2 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
           >
             Retry Loading
-          </button>
-          <button
-            onClick={() => setForceFallback(true)}
-            className="ml-2 px-2 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 transition-colors text-sm font-medium"
-          >
-            Switch to Grid View
           </button>
           {retryCount > 0 && (
             <p className="text-xs text-muted-foreground mt-2">

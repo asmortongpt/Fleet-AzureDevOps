@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 
 import { MapFirstLayout } from '../layout/MapFirstLayout';
-import { ProfessionalFleetMap } from '../map/ProfessionalFleetMap';
+import { UniversalMap } from '../UniversalMap';
 import { MobileMapControls } from '../mobile/MobileMapControls';
 import { MobileQuickActions } from '../mobile/MobileQuickActions';
 import { MobileVehicleCard } from '../mobile/MobileVehicleCard';
@@ -12,21 +12,17 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
-import { GeofenceLayer } from '@/components/layers/GeofenceLayer';
-import { TrafficCameraLayer } from '@/components/layers/TrafficCameraLayer';
 import { MapLayerControl } from '@/components/map/MapLayerControl';
 import { DriverControlPanel } from '@/components/panels/DriverControlPanel';
 import { DriverDetailPanel } from '@/components/panels/DriverDetailPanel';
 import { GeofenceControlPanel } from '@/components/panels/GeofenceControlPanel';
 import { GeofenceIntelligencePanel } from '@/components/panels/GeofenceIntelligencePanel';
 import { TrafficCameraControlPanel } from '@/components/panels/TrafficCameraControlPanel';
-import { useVehicles, useDrivers } from '@/hooks/use-api';
+import { useNavigation } from '@/contexts';
+import { useVehicles, useDrivers, useFacilities } from '@/hooks/use-api';
 import { useGeofenceBreachDetector } from '@/hooks/use-geofence-breach';
 import { Geofence, Driver } from '@/lib/types';
-import logger from '@/utils/logger';
 
-
-const LOADING_TIMEOUT = 5000; // 5 seconds timeout
 
 interface LiveFleetDashboardProps {
   initialLayer?: string;
@@ -91,61 +87,17 @@ const normalizeGeofence = (row: any): Geofence => {
 
 export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initialLayer }: LiveFleetDashboardProps = {}) {
 
+  const { navigateTo } = useNavigation();
   const { data: vehiclesData, isLoading: apiLoading, error: apiError } = useVehicles();
   const { data: driversData } = useDrivers();
-  const [vehicles, setVehicles] = useState<any[]>([]);
-  const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: facilitiesData } = useFacilities();
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
-
+  const vehicles = Array.isArray(vehiclesData) ? vehiclesData : [];
+  const drivers = Array.isArray(driversData) ? driversData : [];
+  const facilities = Array.isArray(facilitiesData) ? facilitiesData : [];
+  const isLoading = apiLoading && vehicles.length === 0;
+  const hasVehicleError = Boolean(apiError);
   // -- Data Sync --
-  useEffect(() => {
-    if (driversData) {
-      // Extract array from API response structure {data: [], meta: {}}
-      const driversArray = Array.isArray(driversData)
-        ? driversData
-        : ((driversData as any)?.data || []);
-      const normalized = driversArray.map((row: any) => {
-        const metadata = row?.metadata && typeof row.metadata === 'object'
-          ? row.metadata
-          : row?.metadata
-            ? (() => {
-                try {
-                  return JSON.parse(row.metadata);
-                } catch {
-                  return {};
-                }
-              })()
-            : {};
-        const status =
-          row.status === 'inactive'
-            ? 'off-duty'
-            : row.status === 'on_leave'
-              ? 'on-leave'
-              : row.status === 'suspended'
-                ? 'suspended'
-                : 'active';
-        return {
-          id: row.id,
-          tenantId: row.tenant_id,
-          employeeId: row.employee_number || '',
-          name: row.name || `${row.first_name || ''} ${row.last_name || ''}`.trim() || row.email,
-          firstName: row.first_name,
-          lastName: row.last_name,
-          email: row.email,
-          phone: row.phone,
-          department: metadata.department || '',
-          licenseType: row.cdl ? 'CDL' : 'Standard',
-          licenseExpiry: row.license_expiry_date,
-          safetyScore: row.performance_score ? Number(row.performance_score) : 100,
-          certifications: metadata.certifications || [],
-          status
-        } as Driver;
-      });
-      setDrivers(normalized);
-    }
-  }, [driversData]);
-
   // -- Traffic Camera State --
   const [searchParams] = useSearchParams();
   const [showTrafficCameras, setShowTrafficCameras] = useState(false);
@@ -154,12 +106,24 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
     status: "all" as "all" | "operational" | "offline",
     source: "all"
   });
-  const [selectedCameraId, setSelectedCameraId] = useState<string>();
   const { data: trafficCamerasResponse } = useSWR(showTrafficCameras ? '/api/traffic-cameras' : null, geofenceFetcher);
   const trafficCameraRows = Array.isArray(trafficCamerasResponse)
     ? trafficCamerasResponse
     : (trafficCamerasResponse?.data || []);
   const trafficCameraCount = trafficCameraRows.length;
+  const filteredCameras = trafficCameraRows.filter((camera: any) => {
+    if (trafficCameraFilters.status === "operational" && !camera.operational) return false
+    if (trafficCameraFilters.status === "offline" && camera.operational) return false
+    if (trafficCameraFilters.source !== "all" && camera.sourceId !== trafficCameraFilters.source) return false
+    if (trafficCameraFilters.search) {
+      const search = trafficCameraFilters.search.toLowerCase()
+      return (
+        camera.name?.toLowerCase().includes(search) ||
+        camera.address?.toLowerCase().includes(search)
+      )
+    }
+    return true
+  })
 
   // -- Geofence State --
   const [showGeofences, setShowGeofences] = useState(false);
@@ -200,57 +164,6 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   }, [searchParams, initialLayer]);
 
 
-  // Timeout fallback - removed to comply with "no mock data" policy
-  useEffect(() => {
-    // Check for test data injection first
-    if (typeof window !== 'undefined' && (window as any).__TEST_DATA__?.vehicles) {
-      setVehicles((window as any).__TEST_DATA__.vehicles);
-      setIsLoading(false);
-      return;
-    }
-
-    const timeoutId = setTimeout(() => {
-      if (isLoading && vehicles.length === 0) {
-        logger.warn('[LiveFleetDashboard] API timeout - checked for data');
-        setIsLoading(false);
-      }
-    }, LOADING_TIMEOUT);
-
-    return () => clearTimeout(timeoutId);
-  }, [isLoading, vehicles.length]);
-
-  // Handle API data updates
-  useEffect(() => {
-    // Check for test data injection first (priority)
-    if (typeof window !== 'undefined' && (window as any).__TEST_DATA__?.vehicles) {
-      return; // Skip API updates if test data is present
-    }
-
-    if (!apiLoading) {
-      if (apiError) {
-        logger.error('[LiveFleetDashboard] API error:', apiError);
-        setIsLoading(false);
-      } else if (vehiclesData) {
-        // Handle both direct array and nested data structure
-        let vehicleArray: any[] = [];
-
-        if (Array.isArray(vehiclesData)) {
-          vehicleArray = vehiclesData;
-        } else if (typeof vehiclesData === 'object' && 'data' in vehiclesData && Array.isArray((vehiclesData as any).data)) {
-          vehicleArray = (vehiclesData as any).data;
-        }
-
-        if (vehicleArray.length > 0) {
-          logger.info(`[LiveFleetDashboard] API data loaded successfully: ${vehicleArray.length} vehicles`);
-          setVehicles(vehicleArray);
-          setIsLoading(false);
-        } else {
-          setIsLoading(false);
-        }
-      }
-    }
-  }, [apiLoading, apiError, vehiclesData]);
-
   const selectedVehicle = vehicles.find((v: any) => v.id === selectedVehicleId) || vehicles[0];
 
   // Quick stats - handle both 'active' and 'service' status
@@ -266,26 +179,26 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
       id: 'dispatch',
       label: 'Dispatch',
       icon: <Truck className="h-5 w-5" />,
-      onClick: () => console.log('Dispatch clicked')
+      onClick: () => navigateTo('dispatch-console')
     },
     {
       id: 'maintenance',
       label: 'Maintenance',
       icon: <Wrench className="h-5 w-5" />,
-      onClick: () => console.log('Maintenance clicked')
+      onClick: () => navigateTo('maintenance-scheduling')
     },
     {
       id: 'alerts',
       label: 'Alerts',
       icon: <AlertCircle className="h-5 w-5" />,
-      onClick: () => console.log('Alerts clicked'),
+      onClick: () => navigateTo('safety-alerts'),
       badge: maintenanceCount
     },
     {
       id: 'fuel',
       label: 'Fuel',
       icon: <Fuel className="h-5 w-5" />,
-      onClick: () => console.log('Fuel clicked')
+      onClick: () => navigateTo('fuel')
     }
   ];
 
@@ -320,7 +233,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
       </div>
 
       {/* Selected Vehicle Info */}
-      {selectedVehicle && (
+        {selectedVehicle && (
         <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-slate-200 dark:border-slate-700 shadow-sm">
           <CardHeader className="pb-3 border-b border-slate-100 dark:border-slate-800">
             <CardTitle className="text-sm flex items-center justify-between">
@@ -483,6 +396,17 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
     </div>
   );
 
+  if (hasVehicleError) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-2" />
+          <p className="text-slate-700">Unable to load fleet data. Please refresh.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -508,20 +432,19 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
     <div className="relative h-full w-full">
       <MapFirstLayout
         mapComponent={
-          <ProfessionalFleetMap onVehicleSelect={setSelectedVehicleId}>
-            <TrafficCameraLayer
-              visible={showTrafficCameras}
-              filters={trafficCameraFilters}
-              onCameraSelect={(cam) => setSelectedCameraId(cam.id)}
-              selectedCameraId={selectedCameraId}
-            />
-            <GeofenceLayer
-              visible={showGeofences}
-              geofences={geofences}
-              onGeofenceSelect={setSelectedGeofenceForIntelligence}
-              breachedGeofenceIds={breachedGeofenceIds}
-            />
-          </ProfessionalFleetMap>
+          <UniversalMap
+            vehicles={vehicles}
+            facilities={facilities}
+            cameras={filteredCameras}
+            geofences={geofences}
+            showVehicles={true}
+            showFacilities={true}
+            showCameras={showTrafficCameras}
+            showGeofences={showGeofences}
+            onGeofenceSelect={setSelectedGeofenceForIntelligence}
+            mapStyle="roadmap"
+            className="h-full w-full"
+          />
         }
         sidePanel={sidePanel}
         drawerContent={drawerContent}
@@ -556,7 +479,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
         drivers={drivers}
         onDriverSelect={setSelectedDriverForDetail}
         onClose={() => setShowDrivers(false)}
-        onDriversChange={setDrivers}
+        onDriversChange={() => {}}
       />
 
       <DriverDetailPanel

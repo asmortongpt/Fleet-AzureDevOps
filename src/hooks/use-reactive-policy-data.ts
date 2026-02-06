@@ -4,9 +4,9 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+import { secureFetch } from '@/hooks/use-api'
 
 interface Policy {
   id: string
@@ -57,13 +57,27 @@ interface PolicyCompliance {
 export function useReactivePolicyData() {
   const [realTimeUpdate, setRealTimeUpdate] = useState(0)
 
+  const fetchList = useMemo(() => {
+    return async <T,>(path: string): Promise<T[]> => {
+      try {
+        const response = await secureFetch(path, { method: 'GET' })
+        if (!response.ok) return []
+        const payload = await response.json()
+        const data = payload?.data ?? payload
+        if (Array.isArray(data)) return data as T[]
+        if (data?.data && Array.isArray(data.data)) return data.data as T[]
+        return []
+      } catch {
+        return []
+      }
+    }
+  }, [])
+
   // Fetch policies
   const { data: policies = [], isLoading: policiesLoading } = useQuery<Policy[]>({
     queryKey: ['policies', realTimeUpdate],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/policies`)
-      if (!response.ok) throw new Error('Failed to fetch policies')
-      return response.json()
+      return fetchList<Policy>('/api/policies')
     },
     refetchInterval: 10000,
     staleTime: 5000,
@@ -73,9 +87,7 @@ export function useReactivePolicyData() {
   const { data: procedures = [], isLoading: proceduresLoading } = useQuery<Procedure[]>({
     queryKey: ['procedures', realTimeUpdate],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/procedures`)
-      if (!response.ok) throw new Error('Failed to fetch procedures')
-      return response.json()
+      return fetchList<Procedure>('/api/procedures')
     },
     refetchInterval: 10000,
     staleTime: 5000,
@@ -85,9 +97,7 @@ export function useReactivePolicyData() {
   const { data: policyUpdates = [], isLoading: updatesLoading } = useQuery<PolicyUpdate[]>({
     queryKey: ['policy-updates', realTimeUpdate],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/policy-updates`)
-      if (!response.ok) throw new Error('Failed to fetch policy updates')
-      return response.json()
+      return fetchList<PolicyUpdate>('/api/policy-updates')
     },
     refetchInterval: 10000,
     staleTime: 5000,
@@ -97,9 +107,7 @@ export function useReactivePolicyData() {
   const { data: complianceRecords = [], isLoading: complianceLoading } = useQuery<PolicyCompliance[]>({
     queryKey: ['policy-compliance', realTimeUpdate],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/policy-compliance`)
-      if (!response.ok) throw new Error('Failed to fetch policy compliance')
-      return response.json()
+      return fetchList<PolicyCompliance>('/api/policy-compliance')
     },
     refetchInterval: 10000,
     staleTime: 5000,
@@ -143,23 +151,53 @@ export function useReactivePolicyData() {
     return acc
   }, {} as Record<string, number>)
 
-  // Compliance trend data (mock - would calculate from timestamps)
-  const complianceTrendData = [
-    { name: 'Week 1', acknowledgement: 85, training: 78, violations: 5 },
-    { name: 'Week 2', acknowledgement: 88, training: 82, violations: 3 },
-    { name: 'Week 3', acknowledgement: 91, training: 85, violations: 2 },
-    { name: 'Week 4', acknowledgement: 93, training: 88, violations: 1 },
-  ]
+  // Compliance trend data (last 4 weeks)
+  const complianceTrendData = (() => {
+    const buckets = Array.from({ length: 4 }, (_, index) => {
+      const end = new Date()
+      end.setDate(end.getDate() - index * 7)
+      const start = new Date(end)
+      start.setDate(end.getDate() - 7)
+      return { start, end }
+    }).reverse()
+
+    return buckets.map((bucket, idx) => {
+      const acknowledgements = complianceRecords.filter((record) => {
+        if (!record.acknowledgedAt) return false
+        const ts = new Date(record.acknowledgedAt)
+        return ts >= bucket.start && ts < bucket.end
+      }).length
+
+      const trainings = complianceRecords.filter((record) => {
+        if (!record.trainingCompletedAt) return false
+        const ts = new Date(record.trainingCompletedAt)
+        return ts >= bucket.start && ts < bucket.end
+      }).length
+
+      return {
+        name: `Week ${idx + 1}`,
+        acknowledgement: acknowledgements,
+        training: trainings,
+        violations: 0
+      }
+    })
+  })()
 
   // Policy adoption rate by category
-  const adoptionByCategory = [
-    { name: 'Safety', adopted: 95, total: 100, rate: 95 },
-    { name: 'Compliance', adopted: 88, total: 92, rate: 96 },
-    { name: 'Operational', adopted: 82, total: 90, rate: 91 },
-    { name: 'HR', adopted: 78, total: 85, rate: 92 },
-    { name: 'Environmental', adopted: 65, total: 70, rate: 93 },
-    { name: 'Security', adopted: 72, total: 75, rate: 96 },
-  ]
+  const adoptionByCategory = Object.entries(categoryDistribution).map(([category, totalPolicies]) => {
+    const categoryPolicies = policies.filter((p) => p.category === category)
+    const policyIds = new Set(categoryPolicies.map((p) => p.id))
+    const relevant = complianceRecords.filter((record) => policyIds.has(record.policyId))
+    const adopted = relevant.filter((record) => record.acknowledged).length
+    const total = relevant.length
+    const rate = total > 0 ? Math.round((adopted / total) * 100) : 0
+    return {
+      name: category.charAt(0).toUpperCase() + category.slice(1),
+      adopted,
+      total,
+      rate
+    }
+  })
 
   // Get policies needing review (within 30 days)
   const policiesNeedingReview = policies.filter((p) => {

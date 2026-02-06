@@ -14,7 +14,7 @@ import { LeafletMap } from "./LeafletMap"
 import { PerformanceMonitor } from "./PerformanceMonitor"
 
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
-import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
+import { Vehicle, GISFacility, TrafficCamera, Geofence } from "@/lib/types"
 import logger from '@/utils/logger';
 import { getMarkerOptimizationSuggestions } from "@/utils/performance"
 
@@ -47,6 +47,9 @@ export interface UniversalMapProps {
   /** Array of traffic cameras to display on the map */
   cameras?: TrafficCamera[]
 
+  /** Array of geofences to display on the map */
+  geofences?: Geofence[]
+
   /** Whether to show vehicle markers (default: true) */
   showVehicles?: boolean
 
@@ -55,6 +58,9 @@ export interface UniversalMapProps {
 
   /** Whether to show camera markers (default: true) */
   showCameras?: boolean
+
+  /** Whether to show geofences (default: false) */
+  showGeofences?: boolean
 
   /** Whether to show routes between points (default: false) */
   showRoutes?: boolean
@@ -97,6 +103,15 @@ export interface UniversalMapProps {
 
   /** Currently selected camera */
   selectedCamera?: TrafficCamera | null
+
+  /** Callback when a vehicle marker is selected */
+  onVehicleSelect?: (vehicleId: string) => void
+
+  /** Callback when a vehicle action is triggered from the popup (Google Maps only) */
+  onVehicleAction?: (action: string, vehicleId: string) => void
+
+  /** Callback when a geofence is clicked */
+  onGeofenceSelect?: (geofence: Geofence) => void
 }
 
 /**
@@ -447,15 +462,20 @@ export function UniversalMap(props: UniversalMapProps) {
     vehicles: propVehicles = [],
     facilities: propFacilities = [],
     cameras: propCameras = [],
+    geofences: propGeofences = [],
     showVehicles = true,
     showFacilities = true,
     showCameras = true,
+    showGeofences = false,
     showRoutes = false,
     center = DEFAULT_CENTER,
     zoom = DEFAULT_ZOOM,
     className = "",
     onMapReady,
     onMapError,
+    onGeofenceSelect,
+    onVehicleSelect,
+    onVehicleAction,
     forceProvider,
     enableClustering = true,
     clusterThreshold = DEFAULT_CLUSTER_THRESHOLD,
@@ -464,11 +484,10 @@ export function UniversalMap(props: UniversalMapProps) {
     mapStyle,
   } = props
 
-  // Test environment data injection
-  const testData = (typeof window !== 'undefined' && (window as any).__TEST_DATA__) || {}
-  const vehicles = testData.vehicles || propVehicles
-  const facilities = testData.facilities || propFacilities
-  const cameras = testData.cameras || propCameras
+  const vehicles = propVehicles
+  const facilities = propFacilities
+  const cameras = propCameras
+  const geofences = propGeofences
 
   // --------------------------------------------------------------------------
   // State Management
@@ -695,14 +714,18 @@ export function UniversalMap(props: UniversalMapProps) {
     vehicles,
     facilities,
     cameras,
+    geofences,
     showVehicles,
     showFacilities,
     showCameras,
+    showGeofences,
     showRoutes,
     center: validatedCenter,
     zoom: validatedZoom,
     mapStyle,
     className,
+    onGeofenceSelect,
+    onVehicleSelect,
   }
 
   return (
@@ -727,6 +750,7 @@ export function UniversalMap(props: UniversalMapProps) {
             key="google-map"
             onError={handleMapError}
             onReady={handleMapReady}
+            onVehicleAction={onVehicleAction}
           />
         ) : (
           <LeafletMap

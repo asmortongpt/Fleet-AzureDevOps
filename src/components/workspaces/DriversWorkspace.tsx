@@ -30,6 +30,14 @@ export function DriversWorkspace() {
     const [searchQuery, setSearchQuery] = useState('')
     const [statusFilter, setStatusFilter] = useState('all')
 
+    const driverMap = useMemo(() => {
+        return new Map(drivers.map((driver) => [driver.id, driver]))
+    }, [drivers])
+
+    const vehicleMap = useMemo(() => {
+        return new Map(vehicles.map((vehicle: any) => [vehicle.id, vehicle]))
+    }, [vehicles])
+
     const filteredDrivers = useMemo(() => {
         return drivers.filter(driver => {
             const matchesSearch = driver.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -45,25 +53,21 @@ export function DriversWorkspace() {
     )
 
     const selectedDriverVehicle = useMemo(() => {
-        if (!selectedDriver?.assignedVehicle) return null
-        // Assuming vehicle ID matches or we find by name/license. 
-        // In a real app, we'd have a direct link ID.
-        // For this mock, we'll try to find a vehicle that looks assigned.
-        return vehicles.find(v => v.id === selectedDriver.assignedVehicle || v.name === selectedDriver.assignedVehicle)
+        if (!selectedDriver) return null
+        return vehicles.find((vehicle: any) =>
+            vehicle.assigned_driver_id === selectedDriver.id ||
+            vehicle.assignedDriverId === selectedDriver.id ||
+            vehicle.driver_id === selectedDriver.id ||
+            vehicle.driverId === selectedDriver.id
+        )
     }, [selectedDriver, vehicles])
 
-    // Map drivers to vehicles for the map
     const mapVehicles = useMemo(() => {
-        return drivers.map(d => {
-            // Find the vehicle this driver is assigned to, or create a mock position if they have a location string
-            // This is a bit of a hack for the visual transition, usually you'd plot vehicles.
-            // Here we want to see WHERE the drivers are.
-            // If the driver is assigned to a vehicle, we use that vehicle's position.
-            const vehicle = vehicles.find(v => v.id === d.assignedVehicle)
-            if (vehicle) return { ...vehicle, driver: d.name } // Enrich with driver name
-            return null
-        }).filter(Boolean) as Vehicle[]
-    }, [drivers, vehicles])
+        return vehicles.map((vehicle: any) => {
+            const driver = driverMap.get(vehicle.assigned_driver_id || vehicle.assignedDriverId || vehicle.driver_id || vehicle.driverId)
+            return driver ? { ...vehicle, driver: driver.name } : vehicle
+        }) as Vehicle[]
+    }, [vehicles, driverMap])
 
     return (
         <div className="flex h-screen w-full flex-col overflow-hidden bg-background">
@@ -97,11 +101,12 @@ export function DriversWorkspace() {
                             <ProfessionalFleetMap
                                 vehicles={mapVehicles}
                                 onVehicleSelect={(vid) => {
-                                    // Try to find driver by vehicle ID
-                                    const driver = drivers.find(d => d.assignedVehicle === vid)
-                                    if (driver) setSelectedDriverId(driver.id)
+                                    const vehicle = vehicleMap.get(vid)
+                                    const driverId = vehicle?.assigned_driver_id || vehicle?.assignedDriverId || vehicle?.driver_id || vehicle?.driverId
+                                    if (driverId && driverMap.has(driverId)) {
+                                        setSelectedDriverId(driverId)
+                                    }
                                 }}
-                                forceSimulatedView={false} // Use the robust fallback we built!
                             />
                             {/* Overlay Driver List for Map View */}
                             <div className="absolute top-4 left-4 w-80 flex flex-col gap-2 pointer-events-none">

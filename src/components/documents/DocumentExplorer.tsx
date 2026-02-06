@@ -151,6 +151,7 @@ export function DocumentExplorer({
     <div className="flex h-full bg-background">
       {/* Sidebar */}
       <DocumentSidebar
+        documents={documents}
         currentFolderId={currentFolderId}
         onFolderSelect={setCurrentFolderId}
         className="w-64 border-r"

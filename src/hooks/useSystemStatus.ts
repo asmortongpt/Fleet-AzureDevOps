@@ -263,16 +263,16 @@ export function useSystemStatus(options: UseSystemStatusOptions = {}) {
     return () => clearInterval(interval)
   }, [enabled, pollInterval])
 
-  // Generate mock insights from telemetry data
+  // Generate heuristic insights from telemetry data
   useEffect(() => {
     if (!vehicleTelemetry.vehicles.length) return
 
-    const mockInsights: AIInsight[] = []
+    const heuristicInsights: AIInsight[] = []
 
     // Check for low fuel vehicles
     const lowFuelVehicles = vehicleTelemetry.vehicles.filter(v => v.fuelLevel < 20)
     if (lowFuelVehicles.length > 0) {
-      mockInsights.push({
+      heuristicInsights.push({
         id: `low-fuel-${Date.now()}`,
         type: 'alert',
         title: 'Low Fuel Alert',
@@ -287,7 +287,7 @@ export function useSystemStatus(options: UseSystemStatusOptions = {}) {
     // Check for vehicles needing service
     const serviceVehicles = vehicleTelemetry.vehicles.filter(v => v.status === 'service')
     if (serviceVehicles.length > 0) {
-      mockInsights.push({
+      heuristicInsights.push({
         id: `service-needed-${Date.now()}`,
         type: 'recommendation',
         title: 'Service Recommended',
@@ -301,7 +301,7 @@ export function useSystemStatus(options: UseSystemStatusOptions = {}) {
 
     // Add optimization insights
     if (vehicleTelemetry.vehicles.length > 5) {
-      mockInsights.push({
+      heuristicInsights.push({
         id: `route-optimization-${Date.now()}`,
         type: 'optimization',
         title: 'Route Optimization Opportunity',
@@ -315,7 +315,7 @@ export function useSystemStatus(options: UseSystemStatusOptions = {}) {
 
     setAIInsights(prev => {
       // Merge with existing, keep only last 20
-      const merged = [...mockInsights, ...prev]
+      const merged = [...heuristicInsights, ...prev]
       return merged.slice(0, 20)
     })
   }, [vehicleTelemetry.vehicles])

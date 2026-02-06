@@ -178,6 +178,7 @@ const WarrantyRecallDashboard: React.FC = () => {
 
     try {
       const claimId = await WarrantyRecallService.submitWarrantyClaim({
+        warrantyId: selectedWarranty.id,
         claimNumber: newClaim.claimNumber,
         dateSubmitted: new Date().toISOString(),
         issueDescription: newClaim.issueDescription,

@@ -55,6 +55,10 @@ const validateTransaction = [
   body('quantity').isInt({ min: -1000000, max: 1000000 }).withMessage('Quantity must be a valid integer'),
   body('unit_cost').isFloat({ min: 0 }).withMessage('Unit cost must be positive'),
   body('reason').trim().notEmpty().withMessage('Reason is required'),
+  body('vehicle_id').optional().isUUID().withMessage('Vehicle ID must be a valid UUID'),
+  body('work_order_id').optional().isUUID().withMessage('Work order ID must be a valid UUID'),
+  body('reference_number').optional().isLength({ max: 100 }).withMessage('Reference number must be 100 characters or less'),
+  body('notes').optional().isLength({ max: 2000 }).withMessage('Notes must be 2000 characters or less'),
 ];
 
 const validateReservation = [
@@ -62,6 +66,232 @@ const validateReservation = [
   body('quantity').isInt({ min: 1 }).withMessage('Quantity must be positive'),
   body('reserved_for').isIn(['work_order', 'maintenance', 'project', 'other']).withMessage('Invalid reservation type'),
 ];
+
+// =============================================================================
+// PREDICTIVE REORDERING (REAL DATA, NO MOCKS)
+// =============================================================================
+
+const normalizeNumber = (value: any, fallback = 0): number => {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : fallback;
+};
+
+const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value));
+
+const calculateStockoutRisk = (avgMonthlyUsage: number, currentStock: number, averageLeadTime: number, leadTimeVariability: number): number => {
+  const dailyUsage = avgMonthlyUsage / 30;
+  if (dailyUsage <= 0) return 0;
+  const daysOfStock = currentStock / dailyUsage;
+  const riskThreshold = averageLeadTime + leadTimeVariability;
+
+  if (daysOfStock <= riskThreshold) {
+    return clamp((riskThreshold - daysOfStock) / riskThreshold + 0.5, 0, 1);
+  }
+  return clamp(0.5 - (daysOfStock - riskThreshold) / (riskThreshold * 2), 0, 1);
+};
+
+const determineUrgency = (stockoutRisk: number, criticalityScore: number): 'critical' | 'high' | 'medium' | 'low' => {
+  const score = stockoutRisk * criticalityScore;
+  if (score > 7) return 'critical';
+  if (score > 4) return 'high';
+  if (score > 2) return 'medium';
+  return 'low';
+};
+
+const determineAction = (stockoutRisk: number, currentStock: number, reorderPoint: number): 'reorder_now' | 'reorder_soon' | 'monitor' | 'reduce_stock' => {
+  if (currentStock <= reorderPoint * 0.5 || stockoutRisk > 0.7) return 'reorder_now';
+  if (currentStock <= reorderPoint || stockoutRisk > 0.4) return 'reorder_soon';
+  if (currentStock > reorderPoint * 2) return 'reduce_stock';
+  return 'monitor';
+};
+
+router.get('/predictive/recommendations', asyncHandler(async (req: Request, res: Response) => {
+  const tenantId = (req as any).user?.tenant_id;
+  if (!tenantId) {
+    return res.status(400).json({ success: false, message: 'Tenant ID is required' });
+  }
+
+  const patternsQuery = `
+    WITH usage AS (
+      SELECT
+        it.item_id,
+        date_trunc('month', it.timestamp) AS month,
+        SUM(ABS(it.quantity)) AS qty
+      FROM inventory_transactions it
+      WHERE it.tenant_id = $1
+        AND it.transaction_type = 'usage'
+        AND it.timestamp >= NOW() - INTERVAL '180 days'
+      GROUP BY it.item_id, date_trunc('month', it.timestamp)
+    ),
+    usage_stats AS (
+      SELECT
+        item_id,
+        AVG(qty) AS avg_monthly_usage,
+        COALESCE(STDDEV_POP(qty), 0) AS variability,
+        SUM(CASE WHEN month >= date_trunc('month', NOW()) - INTERVAL '30 days' THEN qty ELSE 0 END) AS last_30,
+        SUM(CASE WHEN month < date_trunc('month', NOW()) - INTERVAL '30 days'
+                 AND month >= date_trunc('month', NOW()) - INTERVAL '60 days'
+            THEN qty ELSE 0 END) AS prev_30
+      FROM usage
+      GROUP BY item_id
+    ),
+    vehicle_usage AS (
+      SELECT
+        it.item_id,
+        ARRAY_AGG(DISTINCT v.number) FILTER (WHERE v.number IS NOT NULL) AS associated_vehicles
+      FROM inventory_transactions it
+      LEFT JOIN vehicles v ON v.id = it.vehicle_id
+      WHERE it.tenant_id = $1
+        AND it.transaction_type = 'usage'
+      GROUP BY it.item_id
+    ),
+    supplier_perf AS (
+      SELECT
+        vp.vendor_id,
+        MAX(vp.on_time_percentage) AS on_time_percentage,
+        MAX(vp.pricing_competitiveness) AS pricing_competitiveness,
+        MAX(vp.overall_score) AS overall_score
+      FROM vendor_performance vp
+      WHERE vp.tenant_id = $1
+      GROUP BY vp.vendor_id
+    )
+    SELECT
+      i.id AS part_id,
+      i.part_number,
+      i.name,
+      i.category,
+      COALESCE(u.avg_monthly_usage, 0) AS average_monthly_usage,
+      COALESCE(u.variability, 0) AS usage_variability,
+      COALESCE(u.last_30, 0) AS last_30,
+      COALESCE(u.prev_30, 0) AS prev_30,
+      i.quantity_on_hand AS current_stock,
+      i.reorder_point AS reorder_point,
+      i.reorder_quantity AS economic_order_quantity,
+      i.lead_time_days AS average_lead_time,
+      i.unit_cost,
+      i.list_price,
+      i.primary_supplier_id,
+      i.primary_supplier_name,
+      COALESCE(vu.associated_vehicles, ARRAY[]::text[]) AS associated_vehicles,
+      COALESCE(sp.on_time_percentage, 0) AS supplier_on_time,
+      COALESCE(sp.pricing_competitiveness, 0) AS pricing_competitiveness,
+      COALESCE(sp.overall_score, 0) AS overall_score
+    FROM inventory_items i
+    LEFT JOIN usage_stats u ON u.item_id = i.id
+    LEFT JOIN vehicle_usage vu ON vu.item_id = i.id
+    LEFT JOIN supplier_perf sp ON sp.vendor_id = i.primary_supplier_id
+    WHERE i.tenant_id = $1 AND i.is_active = true
+  `;
+
+  const vendorsQuery = `
+    SELECT
+      v.id,
+      v.name,
+      v.rating,
+      COALESCE(vp.on_time_percentage, 0) AS on_time_percentage,
+      COALESCE(vp.pricing_competitiveness, 0) AS pricing_competitiveness,
+      COALESCE(vp.overall_score, 0) AS overall_score
+    FROM vendors v
+    LEFT JOIN vendor_performance vp
+      ON vp.vendor_id = v.id
+      AND vp.tenant_id = $1
+    WHERE v.tenant_id = $1 AND v.is_active = true
+    ORDER BY COALESCE(vp.overall_score, v.rating) DESC NULLS LAST
+  `;
+
+  const [patternResult, vendorResult] = await Promise.all([
+    pool.query(patternsQuery, [tenantId]),
+    pool.query(vendorsQuery, [tenantId]),
+  ]);
+
+  const vendors = vendorResult.rows;
+
+  const recommendations = patternResult.rows.map((row: any) => {
+    const averageMonthlyUsage = normalizeNumber(row.average_monthly_usage);
+    const usageVariability = normalizeNumber(row.usage_variability);
+    const currentStock = normalizeNumber(row.current_stock);
+    const reorderPoint = normalizeNumber(row.reorder_point);
+    const economicOrderQuantity = normalizeNumber(row.economic_order_quantity);
+    const averageLeadTime = normalizeNumber(row.average_lead_time, 7);
+    const leadTimeVariability = Math.max(1, Math.round(averageLeadTime * 0.25));
+    const unitCost = normalizeNumber(row.unit_cost);
+
+    const last30 = normalizeNumber(row.last_30);
+    const prev30 = normalizeNumber(row.prev_30);
+    const seasonalityFactor = averageMonthlyUsage > 0 ? clamp(last30 / averageMonthlyUsage, 0.5, 1.5) : 1;
+
+    let trendDirection: 'stable' | 'increasing' | 'decreasing' = 'stable';
+    if (prev30 > 0) {
+      if (last30 > prev30 * 1.1) trendDirection = 'increasing';
+      else if (last30 < prev30 * 0.9) trendDirection = 'decreasing';
+    }
+
+    const supplierReliability = Math.max(
+      normalizeNumber(row.supplier_on_time) / 100,
+      normalizeNumber(row.overall_score) / 5
+    );
+
+    const criticalityScore = clamp(
+      Math.round((unitCost / 25) + (averageMonthlyUsage / 5) + (reorderPoint / 10)),
+      1,
+      10
+    );
+
+    const stockoutRisk = calculateStockoutRisk(averageMonthlyUsage, currentStock, averageLeadTime, leadTimeVariability);
+    const urgencyLevel = determineUrgency(stockoutRisk, criticalityScore);
+    const recommendedAction = determineAction(stockoutRisk, currentStock, reorderPoint);
+
+    const suggestedOrderDate = new Date();
+    if (averageMonthlyUsage > 0) {
+      const daysOfStock = currentStock / (averageMonthlyUsage / 30);
+      const daysUntilOrder = Math.max(0, daysOfStock - (averageLeadTime + leadTimeVariability));
+      suggestedOrderDate.setDate(suggestedOrderDate.getDate() + Math.floor(daysUntilOrder));
+    }
+
+    const recommendedSuppliers = vendors.slice(0, 3).map((vendor: any) => ({
+      name: vendor.name,
+      price: normalizeNumber(row.list_price || row.unit_cost),
+      leadTime: averageLeadTime,
+      totalScore: Math.max(normalizeNumber(vendor.overall_score) / 5, normalizeNumber(vendor.rating) / 5)
+    }));
+
+    return {
+      partId: row.part_id,
+      partNumber: row.part_number,
+      name: row.name,
+      recommendedQuantity: economicOrderQuantity || Math.max(1, reorderPoint),
+      estimatedCost: (economicOrderQuantity || Math.max(1, reorderPoint)) * unitCost,
+      recommendedAction,
+      urgencyLevel,
+      confidence: clamp((supplierReliability + (1 - (usageVariability / Math.max(averageMonthlyUsage, 1)))) / 2, 0.5, 0.95),
+      stockoutRisk,
+      suggestedOrderDate,
+      predictionFactors: {
+        upcomingMaintenance: 0,
+        historicalTrend: seasonalityFactor,
+        seasonalAdjustment: seasonalityFactor,
+        supplierLeadTime: averageLeadTime,
+      },
+      recommendedSuppliers,
+      metadata: {
+        category: row.category,
+        trendDirection,
+        currentStock,
+        reorderPoint,
+        averageMonthlyUsage,
+        usageVariability,
+        supplierReliability,
+        associatedVehicles: row.associated_vehicles || [],
+      },
+    };
+  });
+
+  res.json({
+    success: true,
+    generatedAt: new Date().toISOString(),
+    data: recommendations,
+  });
+}));
 
 // =============================================================================
 // GET ALL INVENTORY ITEMS (with filtering, search, pagination)
@@ -463,10 +693,14 @@ router.delete('/items/:id', [
 
 router.get('/transactions', [
   query('item_id').optional().isUUID(),
+  query('vehicle_id').optional().isUUID(),
+  query('work_order_id').optional().isUUID(),
   query('transaction_type').optional().isIn(['purchase', 'usage', 'return', 'adjustment', 'transfer', 'disposal', 'stocktake']),
 ], asyncHandler(async (req: Request, res: Response) => {
   const {
     item_id,
+    vehicle_id,
+    work_order_id,
     transaction_type,
     start_date,
     end_date,
@@ -485,6 +719,16 @@ router.get('/transactions', [
   if (item_id) {
     conditions.push(`t.item_id = $${paramIndex++}`);
     params.push(item_id);
+  }
+
+  if (vehicle_id) {
+    conditions.push(`t.vehicle_id = $${paramIndex++}`);
+    params.push(vehicle_id);
+  }
+
+  if (work_order_id) {
+    conditions.push(`t.work_order_id = $${paramIndex++}`);
+    params.push(work_order_id);
   }
 
   if (transaction_type) {

@@ -55,7 +55,7 @@ router.use(authenticateJWT)
  */
 router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
-    const { type, status, location, assigned_to, search } = req.query
+    const { type, status, location, assigned_to, facility_id, search } = req.query
     const tenantId = req.user?.tenant_id
 
     let query = `
@@ -117,6 +117,12 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
       paramCount++
       query += ` AND a.assigned_to_id = $${paramCount}`
       params.push(assigned_to)
+    }
+
+    if (facility_id) {
+      paramCount++
+      query += ` AND a.assigned_facility_id = $${paramCount}`
+      params.push(facility_id)
     }
 
     if (search) {

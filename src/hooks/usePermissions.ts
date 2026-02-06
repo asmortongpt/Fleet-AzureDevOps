@@ -28,16 +28,17 @@ export interface ModuleConfig {
 export interface UserPermissions {
   user_id: string;
   roles: UserRole[];
-  visible_modules: string[];
-  module_configs: Record<string, ModuleConfig>;
-  permissions: {
-    can_access_admin: boolean;
-    can_manage_users: boolean;
-    can_view_financial: boolean;
-    can_manage_maintenance: boolean;
-    can_view_safety_data: boolean;
-    is_auditor: boolean;
+  permissions: string[];
+  scope?: {
+    level?: string;
+    facility_ids?: string[];
+    team_driver_ids?: string[];
+    team_vehicle_ids?: string[];
+    approval_limit?: number;
   };
+  // Optional fields for backwards compatibility
+  visible_modules?: string[];
+  module_configs?: Record<string, ModuleConfig>;
 }
 
 export interface PermissionCheckRequest {
@@ -56,16 +57,36 @@ export interface PermissionCheckResponse {
  * Fetch user permissions from API
  */
 async function fetchPermissions(): Promise<UserPermissions> {
-  const response = await axios.get('/api/v1/me/permissions');
-  return response.data;
+  const response = await axios.get('/api/permissions/me', { withCredentials: true });
+  const data = response.data || {};
+
+  const roles = Array.isArray(data.roles)
+    ? data.roles.map((role: any) => role.name).filter(Boolean)
+    : [];
+
+  const permissions = Array.isArray(data.permissions)
+    ? data.permissions
+    : [];
+
+  return {
+    user_id: data.user?.id || '',
+    roles,
+    permissions,
+    scope: data.scope,
+    visible_modules: data.visible_modules || [],
+    module_configs: data.module_configs || {},
+  };
 }
 
 /**
  * Check permission for a specific action
  */
 async function checkPermission(request: PermissionCheckRequest): Promise<PermissionCheckResponse> {
-  const response = await axios.post('/api/v1/permissions/check', request);
-  return response.data;
+  if (request.action) {
+    const response = await axios.get(`/api/permissions/check/${encodeURIComponent(request.action)}`, { withCredentials: true });
+    return response.data;
+  }
+  return { allowed: false, reason: 'Missing action' };
 }
 
 /**
@@ -94,8 +115,8 @@ export function usePermissions() {
     () => (action: string, resource?: any) => {
       if (!permissions) return false;
 
-      // Admin can do everything
-      if (permissions.roles.includes('Admin')) return true;
+      // Admin or wildcard permissions can do everything
+      if (permissions.roles.includes('Admin') || permissions.permissions.includes('*')) return true;
 
       // Map common actions to permission checks
       const actionRoleMap: Record<string, UserRole[]> = {
@@ -142,7 +163,8 @@ export function usePermissions() {
   const hasModule = useMemo(
     () => (moduleName: string) => {
       if (!permissions) return false;
-      return permissions.visible_modules.includes(moduleName);
+      if (permissions.permissions.includes('*') || permissions.roles.includes('Admin')) return true;
+      return permissions.visible_modules?.includes(moduleName) ?? false;
     },
     [permissions]
   );

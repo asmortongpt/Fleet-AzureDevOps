@@ -71,13 +71,8 @@ import {
   AreaChart
 } from 'recharts';
 
-import {
-  predictiveReorderingService,
-  ReorderRecommendation,
-  PartUsagePattern,
-  MaintenanceScheduleInput,
-  SupplierRecommendation
-} from '../../../services/inventory/PredictiveReorderingService';
+import type { InventoryRecommendation } from '@/hooks/useInventoryRecommendations';
+import { useInventoryRecommendations } from '@/hooks/useInventoryRecommendations';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -96,137 +91,28 @@ const TabPanel = (props: TabPanelProps) => {
 
 const PredictiveReorderingDashboard: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
-  const [recommendations, setRecommendations] = useState<ReorderRecommendation[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedRecommendation, setSelectedRecommendation] = useState<ReorderRecommendation | null>(null);
+  const { data: recommendations = [], isLoading: loading, refetch } = useInventoryRecommendations();
+  const [selectedRecommendation, setSelectedRecommendation] = useState<InventoryRecommendation | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [autoReorderEnabled, setAutoReorderEnabled] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
-    loadRecommendations();
-    loadSampleData();
-  }, []);
-
-  const loadSampleData = () => {
-    // Load sample usage patterns
-    const samplePatterns: PartUsagePattern[] = [
-      {
-        partId: 'P001',
-        partNumber: 'OF-2234',
-        name: 'Oil Filter',
-        category: 'Filters',
-        averageMonthlyUsage: 25,
-        usageVariability: 5,
-        seasonalityFactor: 1.1,
-        trendDirection: 'stable',
-        currentStock: 15,
-        safetyStock: 10,
-        reorderPoint: 20,
-        economicOrderQuantity: 50,
-        averageLeadTime: 3,
-        leadTimeVariability: 1,
-        supplierReliability: 0.95,
-        associatedVehicles: ['V001', 'V002', 'V003'],
-        criticalityScore: 8,
-        unitCost: 25.99,
-        carryingCostRate: 0.25,
-        stockoutCostEstimate: 500
-      },
-      {
-        partId: 'P002',
-        partNumber: 'BP-5567',
-        name: 'Brake Pads Set',
-        category: 'Brakes',
-        averageMonthlyUsage: 12,
-        usageVariability: 3,
-        seasonalityFactor: 1.0,
-        trendDirection: 'increasing',
-        currentStock: 8,
-        safetyStock: 5,
-        reorderPoint: 15,
-        economicOrderQuantity: 30,
-        averageLeadTime: 5,
-        leadTimeVariability: 2,
-        supplierReliability: 0.92,
-        associatedVehicles: ['V001', 'V004', 'V005'],
-        criticalityScore: 9,
-        unitCost: 45.99,
-        carryingCostRate: 0.25,
-        stockoutCostEstimate: 1200
-      },
-      {
-        partId: 'P003',
-        partNumber: 'TR-225-65R17',
-        name: '225/65R17 All-Season Tire',
-        category: 'Tires',
-        averageMonthlyUsage: 8,
-        usageVariability: 4,
-        seasonalityFactor: 1.3,
-        trendDirection: 'stable',
-        currentStock: 12,
-        safetyStock: 4,
-        reorderPoint: 10,
-        economicOrderQuantity: 20,
-        averageLeadTime: 7,
-        leadTimeVariability: 3,
-        supplierReliability: 0.88,
-        associatedVehicles: ['V002', 'V003'],
-        criticalityScore: 7,
-        unitCost: 125.99,
-        carryingCostRate: 0.20,
-        stockoutCostEstimate: 800
-      }
-    ];
-
-    // Load sample maintenance schedule
-    const sampleSchedule: MaintenanceScheduleInput[] = [
-      {
-        vehicleId: 'V001',
-        scheduledMaintenanceDate: new Date('2024-02-15'),
-        maintenanceType: 'Regular Service',
-        requiredParts: [
-          { partNumber: 'OF-2234', quantity: 1, criticality: 'critical' },
-          { partNumber: 'AF-8901', quantity: 1, criticality: 'routine' }
-        ]
-      },
-      {
-        vehicleId: 'V002',
-        scheduledMaintenanceDate: new Date('2024-02-20'),
-        maintenanceType: 'Brake Service',
-        requiredParts: [
-          { partNumber: 'BP-5567', quantity: 1, criticality: 'critical' }
-        ]
-      }
-    ];
-
-    predictiveReorderingService.updateUsagePatterns(samplePatterns);
-    predictiveReorderingService.loadMaintenanceSchedule(sampleSchedule);
-  };
-
-  const loadRecommendations = async () => {
-    setLoading(true);
-    try {
-      const recs = await predictiveReorderingService.generateReorderRecommendations();
-      setRecommendations(recs);
+    if (recommendations.length > 0) {
       setLastUpdated(new Date());
-    } catch (error) {
-      console.error('Error loading recommendations:', error);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [recommendations]);
 
-  const handleViewDetails = (recommendation: ReorderRecommendation) => {
+  const handleViewDetails = (recommendation: InventoryRecommendation) => {
     setSelectedRecommendation(recommendation);
     setDetailsDialogOpen(true);
   };
 
-  const handleApproveOrder = async (recommendation: ReorderRecommendation) => {
+  const handleApproveOrder = async (recommendation: InventoryRecommendation) => {
     // Integrate with purchase order system
     // console.log('Approving order for:', recommendation.partNumber);
     // Remove from recommendations after approval
-    setRecommendations(prev => prev.filter(r => r.partId !== recommendation.partId));
+    refetch();
   };
 
   const getUrgencyColor = (urgency: string) => {
@@ -391,7 +277,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
                     <Typography variant="body2" color="textSecondary">
                       Last updated: {lastUpdated?.toLocaleTimeString() || 'Never'}
                     </Typography>
-                    <Button variant="outlined" onClick={loadRecommendations} disabled={loading}>
+                    <Button variant="outlined" onClick={() => refetch()} disabled={loading}>
                       Refresh AI Analysis
                     </Button>
                     <FormControlLabel
@@ -485,7 +371,9 @@ const PredictiveReorderingDashboard: React.FC = () => {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {rec.suggestedOrderDate.toLocaleDateString()}
+                            {rec.suggestedOrderDate
+                              ? new Date(rec.suggestedOrderDate).toLocaleDateString()
+                              : '—'}
                           </TableCell>
                           <TableCell>
                             <Box display="flex" gap={1}>

@@ -29,12 +29,14 @@ import {
 } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import { toast } from 'sonner'
+import { useQuery } from '@tanstack/react-query'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useFleetData } from '@/hooks/use-fleet-data'
+import { secureFetch } from '@/hooks/use-api'
 
 
 // IRS Standard Mileage Rates (Updated 2024)
@@ -74,11 +76,39 @@ interface VehicleCostData {
   variance: number
 }
 
+interface Budget {
+  id: string
+  budgeted_amount: number
+  budget_period: 'monthly' | 'quarterly' | 'annual'
+  status: string
+  department?: string
+  period_start?: string
+  period_end?: string
+}
+
 export default function CostAnalyticsPage() {
   const fleetData = useFleetData()
   const [timeframe, setTimeframe] = useState('month')
   const [department, setDepartment] = useState('all')
   const [sortBy, setSortBy] = useState<'cost' | 'variance' | 'costPerMile'>('cost')
+
+  const { data: budgets = [] } = useQuery<Budget[]>({
+    queryKey: ['budgets', timeframe, department],
+    queryFn: async () => {
+      const params = new URLSearchParams()
+      params.set('status', 'active')
+      if (department !== 'all') params.set('department', department)
+      const response = await secureFetch(`/api/budgets?${params.toString()}`, { method: 'GET' })
+      if (!response.ok) return []
+      const payload = await response.json()
+      const data = payload?.data ?? payload
+      if (Array.isArray(data)) return data as Budget[]
+      if (data?.data && Array.isArray(data.data)) return data.data as Budget[]
+      return []
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000
+  })
 
   // Calculate cost metrics from real fleet data
   const costMetrics = useMemo<CostMetric[]>(() => {
@@ -105,10 +135,17 @@ export default function CostAnalyticsPage() {
     // Cost per mile
     const costPerMile = totalMiles > 0 ? totalCost / totalMiles : 0
 
-    // Budget variance (mock budget for demo - in production this would come from API)
-    const monthlyBudget = 150000
+    // Budget variance from active budgets
+    const monthlyBudget = budgets.reduce((sum, budget) => {
+      const amount = Number(budget.budgeted_amount) || 0
+      if (budget.budget_period === 'annual') return sum + amount / 12
+      if (budget.budget_period === 'quarterly') return sum + amount / 3
+      return sum + amount
+    }, 0)
     const currentSpend = totalCost
-    const budgetVariance = ((currentSpend - monthlyBudget) / monthlyBudget) * 100
+    const budgetVariance = monthlyBudget > 0
+      ? ((currentSpend - monthlyBudget) / monthlyBudget) * 100
+      : 0
 
     // IRS standard rate comparison
     const irsStandardCost = totalMiles * CURRENT_IRS_RATE
@@ -120,9 +157,11 @@ export default function CostAnalyticsPage() {
         label: 'Total Operating Cost',
         value: `$${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
         change: budgetVariance,
-        changeLabel: `${Math.abs(budgetVariance).toFixed(1)}% ${budgetVariance > 0 ? 'over' : 'under'} budget`,
+        changeLabel: monthlyBudget > 0
+          ? `${Math.abs(budgetVariance).toFixed(1)}% ${budgetVariance > 0 ? 'over' : 'under'} budget`
+          : 'Budget not configured',
         icon: <DollarSign className="w-3 h-3" />,
-        variant: budgetVariance > 10 ? 'danger' : budgetVariance > 5 ? 'warning' : 'success'
+        variant: monthlyBudget === 0 ? 'info' : budgetVariance > 10 ? 'danger' : budgetVariance > 5 ? 'warning' : 'success'
       },
       {
         label: 'Cost Per Mile',
@@ -149,7 +188,7 @@ export default function CostAnalyticsPage() {
         variant: 'warning'
       }
     ]
-  }, [fleetData])
+  }, [fleetData, budgets])
 
   // Calculate cost breakdown by category
   const costBreakdown = useMemo<CostBreakdown[]>(() => {

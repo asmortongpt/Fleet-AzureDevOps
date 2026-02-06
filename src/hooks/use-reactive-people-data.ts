@@ -4,9 +4,9 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+import { secureFetch } from '@/hooks/use-api'
 
 interface Employee {
   id: string
@@ -49,13 +49,27 @@ interface PerformanceReview {
 export function useReactivePeopleData() {
   const [realTimeUpdate, setRealTimeUpdate] = useState(0)
 
+  const fetchList = useMemo(() => {
+    return async <T,>(path: string): Promise<T[]> => {
+      try {
+        const response = await secureFetch(path, { method: 'GET' })
+        if (!response.ok) return []
+        const payload = await response.json()
+        const data = payload?.data ?? payload?.teams ?? payload
+        if (Array.isArray(data)) return data as T[]
+        if (data?.data && Array.isArray(data.data)) return data.data as T[]
+        return []
+      } catch {
+        return []
+      }
+    }
+  }, [])
+
   // Fetch employees
   const { data: employees = [], isLoading: employeesLoading } = useQuery<Employee[]>({
     queryKey: ['employees', realTimeUpdate],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/employees`)
-      if (!response.ok) throw new Error('Failed to fetch employees')
-      return response.json()
+      return fetchList<Employee>('/api/employees')
     },
     refetchInterval: 10000,
     staleTime: 5000,
@@ -65,9 +79,7 @@ export function useReactivePeopleData() {
   const { data: teams = [], isLoading: teamsLoading } = useQuery<Team[]>({
     queryKey: ['teams', realTimeUpdate],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/teams`)
-      if (!response.ok) throw new Error('Failed to fetch teams')
-      return response.json()
+      return fetchList<Team>('/api/teams')
     },
     refetchInterval: 10000,
     staleTime: 5000,
@@ -77,9 +89,7 @@ export function useReactivePeopleData() {
   const { data: reviews = [], isLoading: reviewsLoading } = useQuery<PerformanceReview[]>({
     queryKey: ['performance-reviews', realTimeUpdate],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/performance-reviews`)
-      if (!response.ok) throw new Error('Failed to fetch performance reviews')
-      return response.json()
+      return fetchList<PerformanceReview>('/api/performance-reviews')
     },
     refetchInterval: 10000,
     staleTime: 5000,
@@ -132,15 +142,33 @@ export function useReactivePeopleData() {
     needsImprovement: employees.filter((e) => e.performanceRating < 60).length,
   }
 
-  // Performance trend data (mock - would come from API with historical data)
-  const performanceTrendData = [
-    { name: 'Jan', avgRating: 82, reviews: 15 },
-    { name: 'Feb', avgRating: 85, reviews: 18 },
-    { name: 'Mar', avgRating: 84, reviews: 16 },
-    { name: 'Apr', avgRating: 87, reviews: 20 },
-    { name: 'May', avgRating: 86, reviews: 17 },
-    { name: 'Jun', avgRating: 89, reviews: 22 },
-  ]
+  // Performance trend data (last 6 months from reviews)
+  const performanceTrendData = (() => {
+    const now = new Date()
+    const months = Array.from({ length: 6 }, (_, index) => {
+      const date = new Date(now.getFullYear(), now.getMonth() - (5 - index), 1)
+      return date
+    })
+
+    return months.map((month) => {
+      const nextMonth = new Date(month.getFullYear(), month.getMonth() + 1, 1)
+      const monthReviews = reviews.filter((review) => {
+        if (!review.date) return false
+        const ts = new Date(review.date)
+        return ts >= month && ts < nextMonth
+      })
+
+      const avgRating = monthReviews.length > 0
+        ? Math.round(monthReviews.reduce((sum, review) => sum + (review.rating || 0), 0) / monthReviews.length)
+        : 0
+
+      return {
+        name: month.toLocaleDateString(undefined, { month: 'short' }),
+        avgRating,
+        reviews: monthReviews.length
+      }
+    })
+  })()
 
   // Department performance data (top departments by avg rating)
   const departmentPerformanceData = Object.entries(

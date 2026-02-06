@@ -10,6 +10,7 @@ import { NotFoundError } from '../errors/app-error'
 import { createAuditLog } from '../middleware/audit'
 import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
+import { getUserPermissions } from '../middleware/permissions'
 
 
 // CRIT-F-004: Updated to use centralized rate limiters
@@ -24,10 +25,15 @@ const setAuthCookie = (res: Response, token: string) => {
   const cookieDomain = process.env.AUTH_COOKIE_DOMAIN || undefined
 
   const sameSiteEnv = (process.env.AUTH_COOKIE_SAMESITE || '').toLowerCase()
-  const sameSite: 'lax' | 'none' = sameSiteEnv === 'none' ? 'none' : 'lax'
-
   const secureEnv = process.env.AUTH_COOKIE_SECURE === 'true'
-  const secure = secureEnv || (isProduction && sameSite === 'none')
+
+  // Default: in development (http://localhost) use Lax + insecure cookies so auth works.
+  // In production, default to None + Secure for cross-site SSO.
+  const sameSite: 'lax' | 'none' = isProduction
+    ? (sameSiteEnv === 'lax' ? 'lax' : 'none')
+    : 'lax'
+
+  const secure = secureEnv || isProduction
 
   res.cookie('auth_token', token, {
     httpOnly: true,
@@ -217,6 +223,17 @@ router.post('/dev-login', async (req: Request, res: Response) => {
 
     setAuthCookie(res, token)
 
+    let permissions: string[] = []
+    try {
+      const permissionSet = await getUserPermissions(user.id)
+      permissions = Array.from(permissionSet)
+    } catch (permissionError: any) {
+      logger.warn('Dev login: failed to resolve permissions (falling back to empty list)', {
+        userId: user.id,
+        error: permissionError?.message || permissionError
+      })
+    }
+
     res.json({
       token,
       refreshToken,
@@ -229,6 +246,7 @@ router.post('/dev-login', async (req: Request, res: Response) => {
         last_name: user.last_name,
         role: user.role,
         phone: user.phone,
+        permissions,
         created_at: user.created_at,
         updated_at: user.updated_at,
       }
@@ -420,20 +438,18 @@ router.post('/login', ...loginMiddleware, async (req: Request, res: Response) =>
     )
 
     // SECURITY: Set httpOnly cookie for session persistence (CRIT-F-001)
-    // FIX: Configure cookie for localhost development with proper domain setting
-    const isDevelopment = process.env.NODE_ENV === 'development'
-    logger.info('Setting auth cookie', {
-      secure: !isDevelopment,
-      nodeEnv: process.env.NODE_ENV,
-      domain: isDevelopment ? 'localhost' : undefined
-    });
-    res.cookie('auth_token', token, {
-      httpOnly: true,
-      secure: !isDevelopment, // Use secure cookies outside localhost
-      sameSite: 'lax',
-      domain: isDevelopment ? 'localhost' : undefined, // Explicit localhost domain for development
-      maxAge: 15 * 60 * 1000 // 15 minutes matching token expiry
-    })
+    setAuthCookie(res, token)
+
+    let permissions: string[] = []
+    try {
+      const permissionSet = await getUserPermissions(user.id)
+      permissions = Array.from(permissionSet)
+    } catch (permissionError: any) {
+      logger.warn('Login: failed to resolve permissions (falling back to empty list)', {
+        userId: user.id,
+        error: permissionError?.message || permissionError
+      })
+    }
 
     res.json({
       token,
@@ -445,7 +461,8 @@ router.post('/login', ...loginMiddleware, async (req: Request, res: Response) =>
         first_name: user.first_name,
         last_name: user.last_name,
         role: user.role,
-        tenant_id: user.tenant_id
+        tenant_id: user.tenant_id,
+        permissions
       }
     })
   } catch (error) {
@@ -847,6 +864,17 @@ router.get('/me', async (req: Request, res: Response) => {
 
     const user = userResult.rows[0]
 
+    let permissions: string[] = []
+    try {
+      const permissionSet = await getUserPermissions(user.id)
+      permissions = Array.from(permissionSet)
+    } catch (permissionError: any) {
+      logger.warn('Auth /me failed to resolve permissions (falling back to empty list)', {
+        userId: user.id,
+        error: permissionError?.message || permissionError
+      })
+    }
+
     // Return user info and the token (so frontend can store it)
     res.json({
       user: {
@@ -858,6 +886,7 @@ router.get('/me', async (req: Request, res: Response) => {
         tenant_id: user.tenant_id,
         tenant_name: user.tenant_name,
         tenant_domain: user.tenant_domain,
+        permissions,
         created_at: user.created_at,
         updated_at: user.updated_at
       },
@@ -1298,6 +1327,17 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
       sameSite: (process.env.AUTH_COOKIE_SAMESITE || 'lax').toLowerCase()
     })
 
+    let permissions: string[] = []
+    try {
+      const permissionSet = await getUserPermissions(user.id)
+      permissions = Array.from(permissionSet)
+    } catch (permissionError: any) {
+      logger.warn('[Auth Exchange] Failed to resolve permissions (falling back to empty list)', {
+        userId: user.id,
+        error: permissionError?.message || permissionError
+      })
+    }
+
     return res.json({
       token,
       refreshToken,
@@ -1307,7 +1347,8 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
         first_name: user.first_name,
         last_name: user.last_name,
         role: user.role,
-        tenant_id: user.tenant_id
+        tenant_id: user.tenant_id,
+        permissions
       }
     })
   } catch (error: any) {

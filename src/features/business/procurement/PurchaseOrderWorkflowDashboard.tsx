@@ -52,7 +52,10 @@ import {
   Avatar
 } from '@mui/material';
 import { format, parseISO, differenceInHours } from 'date-fns';
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
+
+import { useAuth } from '@/contexts/AuthContext';
+import PurchaseOrderWorkflowService from '@/features/services/procurement/PurchaseOrderWorkflowService';
 
 // Types for Purchase Order Workflow
 type POStatus = 'DRAFT' | 'SUBMITTED' | 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED' | 'ON_HOLD' | 'CANCELLED' | 'ISSUED' | 'RECEIVED' | 'CLOSED';
@@ -146,25 +149,7 @@ interface WorkflowAnalytics {
   complianceMetrics: ComplianceMetrics;
 }
 
-// Mock service implementation
-const PurchaseOrderWorkflowService = {
-  initializeData: async () => {},
-  getPurchaseOrdersByStatus: async (_status: POStatus): Promise<PurchaseOrder[]> => [],
-  getPendingApprovals: async (_userId: string): Promise<PurchaseOrder[]> => [],
-  getWorkflowAnalytics: async (): Promise<WorkflowAnalytics> => ({
-    totalPOs: 0,
-    averageApprovalTime: 0,
-    approvalRateByStep: [],
-    bottlenecks: [],
-    budgetUtilization: [],
-    complianceMetrics: { slaCompliance: 0, budgetCompliance: 0, procurementCompliance: 0 }
-  }),
-  approvePurchaseOrder: async (_id: string, _userId: string, _comments: string) => {},
-  rejectPurchaseOrder: async (_id: string, _userId: string, _reason: string) => {},
-  delegateApproval: async (_id: string, _fromUser: string, _toUser: string, _toUserName: string) => {},
-  addComment: async (_id: string, _userId: string, _userName: string, _comment: string) => {},
-  getPurchaseOrder: async (_id: string): Promise<PurchaseOrder | null> => null
-};
+
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -203,7 +188,8 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
   const [delegateToUser, setDelegateToUser] = useState('');
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
-  const [currentUserId] = useState('user004'); // Mock current user
+  const { user } = useAuth();
+  const currentUserId = useMemo(() => user?.id ?? '', [user]);
 
   useEffect(() => {
     initializeData();
@@ -216,7 +202,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
 
       const [allPOs, pendingPOs, analyticsData] = await Promise.all([
         PurchaseOrderWorkflowService.getPurchaseOrdersByStatus('PENDING_APPROVAL'),
-        PurchaseOrderWorkflowService.getPendingApprovals(currentUserId),
+        PurchaseOrderWorkflowService.getPendingApprovals(currentUserId || ''),
         PurchaseOrderWorkflowService.getWorkflowAnalytics()
       ]);
 

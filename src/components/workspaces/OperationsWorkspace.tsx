@@ -31,29 +31,69 @@ import { useFleetData } from '@/hooks/use-fleet-data';
 import { cn } from '@/lib/utils';
 
 export function OperationsWorkspace() {
-  const { vehicles, routes } = useFleetData();
+  const { vehicles, routes, drivers } = useFleetData();
   const [activeTab, setActiveTab] = useState('all');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // active tasks generation (mocked from vehicles/routes if real routes are empty)
-  const tasks = useMemo(() => {
-    // If we have actual routes, use them. Otherwise simulate tasks from active vehicles.
-    const sourceData = routes.length > 0 ? routes : vehicles.slice(0, 15);
+  const vehicleMap = useMemo(() => {
+    return new Map(vehicles.map((vehicle: any) => [vehicle.id, vehicle]));
+  }, [vehicles]);
 
-    return sourceData.map((item: any, i) => ({
-      id: item.id || `task-${i}`,
-      title: item.name || `Route #${2039 + i} - ${item.destination || 'Downtown Logistics'}`,
-      vehicle: item.vehicleNumber || item.number || 'Unassigned',
-      driver: item.driverName || 'Pending',
-      status: i % 4 === 0 ? 'delayed' : i % 3 === 0 ? 'completed' : i % 5 === 0 ? 'pending' : 'active',
-      time: '10:42 AM',
-      type: 'delivery'
-    })).filter(t => {
+  const driverMap = useMemo(() => {
+    return new Map(drivers.map((driver: any) => [driver.id, driver]));
+  }, [drivers]);
+
+  const resolveDriverName = (driver: any) => {
+    if (!driver) return 'Unassigned';
+    return (
+      driver.name ||
+      `${driver.first_name || driver.firstName || ''} ${driver.last_name || driver.lastName || ''}`.trim() ||
+      driver.email ||
+      'Unassigned'
+    );
+  };
+
+  const formatTime = (value?: string) => {
+    if (!value) return '—';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '—';
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  // active tasks generation from real route data only
+  const tasks = useMemo(() => {
+    if (!routes.length) return [];
+
+    return routes.map((route: any, i: number) => {
+      const vehicle = vehicleMap.get(route.vehicleId || route.assigned_vehicle_id);
+      const driver = driverMap.get(route.driverId || route.assigned_driver_id);
+      const statusRaw = route.status || 'scheduled';
+      const status =
+        statusRaw === 'in_transit' ? 'active'
+        : statusRaw === 'scheduled' ? 'pending'
+        : statusRaw === 'delayed' ? 'delayed'
+        : statusRaw === 'completed' ? 'completed'
+        : statusRaw;
+
+      const title =
+        route.name ||
+        route.route_number ||
+        `Route ${route.id ? String(route.id).slice(0, 8) : i + 1}`;
+
+      return {
+        id: route.id || route.routeId || `route-${i}`,
+        title,
+        vehicle: vehicle?.number || vehicle?.unit_number || vehicle?.name || 'Unassigned',
+        driver: resolveDriverName(driver),
+        status,
+        time: formatTime(route.startTime || route.schedule || route.created_at),
+        type: route.type || 'route'
+      };
+    }).filter(t => {
       if (activeTab === 'all') return true;
       if (activeTab === 'pending') return t.status === 'pending';
-      if (activeTab === 'alerts') return t.status === 'delayed';
-      // For demo, "Active" tab shows active + completed to fill space
+      if (activeTab === 'alerts') return t.status === 'delayed' || t.status === 'cancelled';
       if (activeTab === 'active') return t.status === 'active' || t.status === 'completed';
       return true;
     }).filter(t => {

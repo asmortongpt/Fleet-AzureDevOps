@@ -302,4 +302,84 @@ router.get(
   }
 )
 
+// ============================================================================
+// Recall Actions (Compliance Updates)
+// ============================================================================
+router.post(
+  '/recalls/actions',
+  csrfProtection,
+  requirePermission('inventory:update:global'),
+  auditLog({ action: 'UPDATE', resourceType: 'recall_actions' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { recallId, partId, actionTaken, actionBy } = req.body || {}
+
+      if (!recallId || !partId || !actionTaken) {
+        return res.status(400).json({
+          error: 'recallId, partId, and actionTaken are required'
+        })
+      }
+
+      // Ensure recall belongs to tenant
+      const recallCheck = await pool.query(
+        `SELECT id FROM recall_notices WHERE id = $1 AND tenant_id = $2`,
+        [recallId, req.user!.tenant_id]
+      )
+      if (recallCheck.rows.length === 0) {
+        return res.status(404).json({ error: 'Recall not found' })
+      }
+
+      // Ensure inventory item belongs to tenant (optional if partId is null)
+      const partCheck = await pool.query(
+        `SELECT id FROM inventory_items WHERE id = $1 AND tenant_id = $2`,
+        [partId, req.user!.tenant_id]
+      )
+      if (partCheck.rows.length === 0) {
+        return res.status(404).json({ error: 'Inventory item not found' })
+      }
+
+      const existing = await pool.query(
+        `SELECT id FROM recall_actions
+         WHERE tenant_id = $1 AND recall_id = $2 AND inventory_item_id = $3`,
+        [req.user!.tenant_id, recallId, partId]
+      )
+
+      let result
+      if (existing.rows.length > 0) {
+        result = await pool.query(
+          `UPDATE recall_actions
+           SET action_taken = $1,
+               action_by = $2,
+               compliance_status = 'COMPLETED',
+               completed_at = NOW(),
+               updated_at = NOW()
+           WHERE id = $3
+           RETURNING *`,
+          [actionTaken, actionBy || null, existing.rows[0].id]
+        )
+      } else {
+        result = await pool.query(
+          `INSERT INTO recall_actions (
+             tenant_id,
+             recall_id,
+             inventory_item_id,
+             action_required,
+             compliance_status,
+             action_taken,
+             action_by,
+             completed_at
+           ) VALUES ($1, $2, $3, $4, 'COMPLETED', $5, $6, NOW())
+           RETURNING *`,
+          [req.user!.tenant_id, recallId, partId, actionTaken, actionTaken, actionBy || null]
+        )
+      }
+
+      res.status(200).json({ data: result.rows[0] })
+    } catch (error) {
+      logger.error('Recall action update error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
 export default router

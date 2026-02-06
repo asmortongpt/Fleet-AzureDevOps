@@ -3,7 +3,7 @@ import {
   Clock, Fuel, Gauge, AlertTriangle, CheckCircle,
   Flag, XCircle
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -36,54 +36,70 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
   const [playbackPosition, setPlaybackPosition] = useState([0]);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
 
-  // Mock comprehensive route data
-  const routeOverview = {
-    totalDistance: 145.8,
-    totalDuration: '4h 23m',
-    avgSpeed: 33.2,
-    maxSpeed: 65,
-    stops: 12,
-    idleTime: '32m',
-    fuelUsed: 8.5,
-    fuelEfficiency: 17.2
-  };
+  const stops = useMemo(() => {
+    if (Array.isArray((route as any).stops)) return (route as any).stops
+    if (Array.isArray((route as any).waypoints)) return (route as any).waypoints
+    return []
+  }, [route])
 
-  const stops = [
-    { id: '1', name: 'Depot - Start', address: '123 Main St', arrivalTime: '08:00', departureTime: '08:15', duration: '15m', type: 'start', lat: 30.2672, lng: -97.7431 },
-    { id: '2', name: 'Customer Site A', address: '456 Oak Ave', arrivalTime: '08:45', departureTime: '09:20', duration: '35m', type: 'delivery', lat: 30.2850, lng: -97.7350 },
-    { id: '3', name: 'Customer Site B', address: '789 Elm St', arrivalTime: '09:55', departureTime: '10:15', duration: '20m', type: 'delivery', lat: 30.2950, lng: -97.7250 },
-    { id: '4', name: 'Fuel Station', address: '321 Gas Rd', arrivalTime: '11:00', departureTime: '11:12', duration: '12m', type: 'fuel', lat: 30.3050, lng: -97.7150 },
-    { id: '5', name: 'Customer Site C', address: '654 Pine Ln', arrivalTime: '11:45', departureTime: '12:30', duration: '45m', type: 'service', lat: 30.3150, lng: -97.7050 },
-    { id: '6', name: 'Depot - End', address: '123 Main St', arrivalTime: '13:00', departureTime: null, duration: null, type: 'end', lat: 30.2672, lng: -97.7431 }
-  ];
+  const events = useMemo(() => {
+    const routeEvents = (route as any).events || (route as any).metadata?.events
+    return Array.isArray(routeEvents) ? routeEvents : []
+  }, [route])
 
-  const events = [
-    { time: '08:32', type: 'speed', severity: 'low', description: 'Speed exceeded 5 mph over limit', location: 'Highway 183' },
-    { time: '09:15', type: 'idle', severity: 'info', description: 'Extended idle time (8 minutes)', location: 'Customer Site A' },
-    { time: '10:45', type: 'harsh-brake', severity: 'medium', description: 'Harsh braking detected', location: 'Intersection of Oak & Elm' },
-    { time: '12:15', type: 'geofence', severity: 'info', description: 'Entered restricted zone', location: 'Downtown Construction Area' }
-  ];
+  const normalizedStops = useMemo(() => {
+    return stops.map((stop: any, index: number) => ({
+      id: stop.id || `stop-${index}`,
+      name: stop.name || stop.address || `Stop ${index + 1}`,
+      address: stop.address || stop.location || '',
+      arrivalTime: stop.arrivalTime || stop.estimatedArrival || stop.estimated_arrival,
+      departureTime: stop.departureTime || stop.departedAt || stop.departure_time,
+      duration: stop.duration,
+      type: stop.type || stop.status || 'stop'
+    }))
+  }, [stops])
 
-  const _telemetryData = [
-    { time: '08:00', speed: 0, fuel: 95, rpm: 0 },
-    { time: '08:15', speed: 35, fuel: 94, rpm: 1800 },
-    { time: '08:30', speed: 55, fuel: 92, rpm: 2200 },
-    { time: '08:45', speed: 30, fuel: 90, rpm: 1500 },
-    { time: '09:00', speed: 0, fuel: 90, rpm: 800 },
-    { time: '09:20', speed: 40, fuel: 88, rpm: 1900 },
-    { time: '09:55', speed: 35, fuel: 85, rpm: 1700 },
-    { time: '10:15', speed: 45, fuel: 83, rpm: 2000 },
-    { time: '11:00', speed: 50, fuel: 80, rpm: 2100 },
-    { time: '11:45', speed: 35, fuel: 78, rpm: 1600 },
-    { time: '12:30', speed: 40, fuel: 75, rpm: 1800 },
-    { time: '13:00', speed: 0, fuel: 73, rpm: 0 }
-  ];
+  const normalizedEvents = useMemo(() => {
+    return events.map((event: any, index: number) => ({
+      id: event.id || `event-${index}`,
+      time: event.time || event.timestamp || event.created_at,
+      type: event.type || event.event_type || 'event',
+      severity: event.severity || 'info',
+      description: event.description || event.details || '',
+      location: event.location || event.address || ''
+    }))
+  }, [events])
 
-  const geofences = [
-    { id: '1', name: 'Service Area North', type: 'allowed', interactions: 5 },
-    { id: '2', name: 'Downtown Core', type: 'restricted', interactions: 1 },
-    { id: '3', name: 'Highway Corridor', type: 'preferred', interactions: 8 }
-  ];
+  const geofences = useMemo(() => {
+    const routeGeofences = (route as any).geofences || (route as any).metadata?.geofences
+    return Array.isArray(routeGeofences) ? routeGeofences : []
+  }, [route])
+
+  const formatDuration = (minutes?: number) => {
+    if (!minutes || Number.isNaN(minutes)) return 'N/A'
+    const hours = Math.floor(minutes / 60)
+    const mins = Math.round(minutes % 60)
+    return `${hours}h ${mins}m`
+  }
+
+  const routeOverview = useMemo(() => {
+    const distance = Number(route.distance ?? route.total_distance ?? route.actual_distance ?? route.estimated_distance ?? 0)
+    const durationMinutes = Number(route.actualDuration ?? route.actual_duration ?? route.estimatedDuration ?? route.estimated_duration ?? 0)
+    const avgSpeed = durationMinutes > 0 ? Number((distance / (durationMinutes / 60)).toFixed(1)) : 0
+    const fuelUsed = Number((route as any).fuelUsed ?? (route as any).fuel_used ?? 0)
+    const fuelEfficiency = fuelUsed > 0 ? Number((distance / fuelUsed).toFixed(1)) : 0
+
+    return {
+      totalDistance: distance,
+      totalDuration: formatDuration(durationMinutes),
+      avgSpeed,
+      maxSpeed: Number((route as any).maxSpeed ?? (route as any).max_speed ?? 0),
+      stops: stops.length,
+      idleTime: (route as any).idleTime || (route as any).idle_time || 'N/A',
+      fuelUsed,
+      fuelEfficiency
+    }
+  }, [route, stops])
 
   const getStopIcon = (type: string) => {
     switch (type) {
@@ -196,7 +212,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                     <MapPin className="w-12 h-9 text-gray-700 mx-auto mb-2" />
                     <p className="text-sm text-gray-700">Interactive map would display here</p>
                     <p className="text-xs text-gray-700 mt-1">
-                      Route from {stops[0]?.name ?? 'Start'} to {stops[stops.length - 1]?.name ?? 'End'}
+                      Route from {normalizedStops[0]?.name ?? 'Start'} to {normalizedStops[normalizedStops.length - 1]?.name ?? 'End'}
                     </p>
                   </div>
                 </div>
@@ -293,49 +309,53 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                   <MapPin className="w-3 h-3" />
                   Route Stops
                 </CardTitle>
-                <CardDescription>{stops.length} stops along this route</CardDescription>
+                <CardDescription>{normalizedStops.length} stops along this route</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="relative space-y-3">
-                  {stops.map((stop, index) => (
-                    <div key={stop.id} className="flex gap-2">
-                      <div className="flex flex-col items-center">
-                        <div className="w-4 h-4 rounded-full bg-cyan-100 dark:bg-cyan-900 flex items-center justify-center">
-                          {getStopIcon(stop.type)}
-                        </div>
-                        {index < stops.length - 1 && (
-                          <div className="w-px h-full bg-cyan-200 dark:bg-cyan-800 my-1" />
-                        )}
-                      </div>
-                      <div className="flex-1 pb-2">
-                        <div className="flex items-start justify-between mb-1">
-                          <div>
-                            <p className="font-semibold">{stop.name}</p>
-                            <p className="text-sm text-muted-foreground">{stop.address}</p>
+                  {normalizedStops.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">No stops available for this route.</p>
+                  ) : (
+                    normalizedStops.map((stop, index) => (
+                      <div key={stop.id} className="flex gap-2">
+                        <div className="flex flex-col items-center">
+                          <div className="w-4 h-4 rounded-full bg-cyan-100 dark:bg-cyan-900 flex items-center justify-center">
+                            {getStopIcon(stop.type)}
                           </div>
-                          <Badge variant="secondary" className="text-xs capitalize">{stop.type}</Badge>
-                        </div>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2 text-xs">
-                          <div>
-                            <span className="text-muted-foreground">Arrival:</span>
-                            <p className="font-medium">{stop.arrivalTime}</p>
-                          </div>
-                          {stop.departureTime && (
-                            <>
-                              <div>
-                                <span className="text-muted-foreground">Departure:</span>
-                                <p className="font-medium">{stop.departureTime}</p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">Duration:</span>
-                                <p className="font-medium">{stop.duration ?? 'N/A'}</p>
-                              </div>
-                            </>
+                          {index < normalizedStops.length - 1 && (
+                            <div className="w-px h-full bg-cyan-200 dark:bg-cyan-800 my-1" />
                           )}
                         </div>
+                        <div className="flex-1 pb-2">
+                          <div className="flex items-start justify-between mb-1">
+                            <div>
+                              <p className="font-semibold">{stop.name}</p>
+                              <p className="text-sm text-muted-foreground">{stop.address || 'N/A'}</p>
+                            </div>
+                            <Badge variant="secondary" className="text-xs capitalize">{stop.type}</Badge>
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2 text-xs">
+                            <div>
+                              <span className="text-muted-foreground">Arrival:</span>
+                              <p className="font-medium">{stop.arrivalTime || 'N/A'}</p>
+                            </div>
+                            {stop.departureTime && (
+                              <>
+                                <div>
+                                  <span className="text-muted-foreground">Departure:</span>
+                                  <p className="font-medium">{stop.departureTime}</p>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Duration:</span>
+                                  <p className="font-medium">{stop.duration ?? 'N/A'}</p>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -349,25 +369,29 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                   <AlertTriangle className="w-3 h-3" />
                   Route Events
                 </CardTitle>
-                <CardDescription>{events.length} events recorded during this route</CardDescription>
+                <CardDescription>{normalizedEvents.length} events recorded during this route</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {events.map((event, index) => (
-                    <div key={index} className="border-b border-gray-200 dark:border-gray-700 pb-3 last:border-b-0">
-                      <div className="flex items-start justify-between mb-1">
-                        <div>
-                          <p className="font-semibold capitalize">{event.type.replace('-', ' ')}</p>
-                          <p className="text-sm text-muted-foreground">{event.description}</p>
+                  {normalizedEvents.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">No events recorded for this route.</p>
+                  ) : (
+                    normalizedEvents.map((event) => (
+                      <div key={event.id} className="border-b border-gray-200 dark:border-gray-700 pb-3 last:border-b-0">
+                        <div className="flex items-start justify-between mb-1">
+                          <div>
+                            <p className="font-semibold capitalize">{event.type.replace('-', ' ')}</p>
+                            <p className="text-sm text-muted-foreground">{event.description}</p>
+                          </div>
+                          {getEventBadge(event.severity)}
                         </div>
-                        {getEventBadge(event.severity)}
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span>{event.time || 'N/A'}</span>
+                          <span>{event.location || 'N/A'}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{event.time}</span>
-                        <span>{event.location}</span>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -388,25 +412,30 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                   <div className="space-y-2">
                     <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-lg">
                       <p className="text-sm font-medium mb-1">Fuel Efficiency</p>
-                      <p className="text-sm font-bold">{routeOverview.fuelEfficiency} MPG</p>
-                      <p className="text-xs text-muted-foreground mt-1">Industry avg: 15.5 MPG</p>
+                      <p className="text-sm font-bold">{routeOverview.fuelEfficiency || 0} MPG</p>
+                      <p className="text-xs text-muted-foreground mt-1">Benchmark data not available</p>
                     </div>
                     <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-lg">
                       <p className="text-sm font-medium mb-1">Idle Time Ratio</p>
-                      <p className="text-sm font-bold">12%</p>
-                      <p className="text-xs text-muted-foreground mt-1">Target: &lt;10%</p>
+                      <p className="text-sm font-bold">{routeOverview.idleTime || 'N/A'}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Target thresholds configurable</p>
                     </div>
                     <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-lg">
                       <p className="text-sm font-medium mb-1">Speed Compliance</p>
-                      <p className="text-sm font-bold">94%</p>
-                      <p className="text-xs text-muted-foreground mt-1">1 minor violation recorded</p>
+                      <p className="text-sm font-bold">
+                        {normalizedEvents.length > 0
+                          ? Math.max(0, Math.round((1 - normalizedEvents.filter(e => e.type === 'speed').length / normalizedEvents.length) * 100))
+                          : 100}%\n                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {normalizedEvents.filter(e => e.type === 'speed').length} speed events recorded
+                      </p>
                     </div>
                   </div>
                   <div className="bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center p-2">
                     <div className="text-center">
                       <Gauge className="w-12 h-9 text-gray-700 mx-auto mb-2" />
-                      <p className="text-sm text-gray-700">Performance charts would display here</p>
-                      <p className="text-xs text-gray-700 mt-1">Speed, fuel consumption, and RPM over time</p>
+                      <p className="text-sm text-gray-700">Analytics charts unavailable</p>
+                      <p className="text-xs text-gray-700 mt-1">Enable telemetry history to view charts</p>
                     </div>
                   </div>
                 </div>
@@ -426,19 +455,27 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {geofences.map(geofence => (
-                    <div key={geofence.id} className="border border-gray-200 dark:border-gray-700 rounded-md p-3">
-                      <div className="flex items-start justify-between mb-1">
-                        <div>
-                          <p className="font-semibold">{geofence.name}</p>
-                          <p className="text-sm text-muted-foreground capitalize">{geofence.type} zone</p>
+                  {geofences.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">No geofence interactions recorded.</p>
+                  ) : (
+                    geofences.map((geofence: any) => {
+                      const interactions = Number(geofence.interactions ?? geofence.entry_count ?? 0)
+                      const type = geofence.type || geofence.zone_type || 'allowed'
+                      return (
+                        <div key={geofence.id} className="border border-gray-200 dark:border-gray-700 rounded-md p-3">
+                          <div className="flex items-start justify-between mb-1">
+                            <div>
+                              <p className="font-semibold">{geofence.name || 'Geofence'}</p>
+                              <p className="text-sm text-muted-foreground capitalize">{type} zone</p>
+                            </div>
+                            <Badge variant={type === 'restricted' ? 'destructive' : 'secondary'}>
+                              {interactions} {interactions === 1 ? 'entry' : 'entries'}
+                            </Badge>
+                          </div>
                         </div>
-                        <Badge variant={geofence.type === 'restricted' ? 'destructive' : 'secondary'}>
-                          {geofence.interactions} {geofence.interactions === 1 ? 'entry' : 'entries'}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
+                      )
+                    })
+                  )}
                 </div>
               </CardContent>
             </Card>

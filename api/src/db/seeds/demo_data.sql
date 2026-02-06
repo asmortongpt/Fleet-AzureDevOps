@@ -22,11 +22,29 @@ WITH tenant AS (
 )
 INSERT INTO users (tenant_id, email, password_hash, first_name, last_name, role, phone, is_active)
 VALUES
-  ((SELECT tenant_id FROM tenant), 'admin@capitaltechalliance.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5eck/gHVMxDAq', 'Alex', 'Morgan', 'Admin', '(850) 555-0101', true),
-  ((SELECT tenant_id FROM tenant), 'dispatcher@capitaltechalliance.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5eck/gHVMxDAq', 'Jordan', 'Lee', 'Dispatcher', '(850) 555-0102', true),
-  ((SELECT tenant_id FROM tenant), 'mechanic@capitaltechalliance.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5eck/gHVMxDAq', 'Casey', 'Patel', 'Mechanic', '(850) 555-0103', true),
-  ((SELECT tenant_id FROM tenant), 'safety@capitaltechalliance.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5eck/gHVMxDAq', 'Riley', 'Nguyen', 'Manager', '(850) 555-0104', true),
-  ((SELECT tenant_id FROM tenant), 'finance@capitaltechalliance.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5eck/gHVMxDAq', 'Taylor', 'Brooks', 'Manager', '(850) 555-0105', true)
+  ((SELECT tenant_id FROM tenant), 'admin@capitaltechalliance.com', '$2b$12$wyRFQUqpoKyvx5Y.vQcs9u.gforA75U1JxwL92pveoB7bzdBXetvW', 'Alex', 'Morgan', 'Admin', '(850) 555-0101', true),
+  ((SELECT tenant_id FROM tenant), 'dispatcher@capitaltechalliance.com', '$2b$12$wyRFQUqpoKyvx5Y.vQcs9u.gforA75U1JxwL92pveoB7bzdBXetvW', 'Jordan', 'Lee', 'Dispatcher', '(850) 555-0102', true),
+  ((SELECT tenant_id FROM tenant), 'mechanic@capitaltechalliance.com', '$2b$12$wyRFQUqpoKyvx5Y.vQcs9u.gforA75U1JxwL92pveoB7bzdBXetvW', 'Casey', 'Patel', 'Mechanic', '(850) 555-0103', true),
+  ((SELECT tenant_id FROM tenant), 'safety@capitaltechalliance.com', '$2b$12$wyRFQUqpoKyvx5Y.vQcs9u.gforA75U1JxwL92pveoB7bzdBXetvW', 'Riley', 'Nguyen', 'Manager', '(850) 555-0104', true),
+  ((SELECT tenant_id FROM tenant), 'finance@capitaltechalliance.com', '$2b$12$wyRFQUqpoKyvx5Y.vQcs9u.gforA75U1JxwL92pveoB7bzdBXetvW', 'Taylor', 'Brooks', 'Manager', '(850) 555-0105', true)
+ON CONFLICT (tenant_id, email) DO NOTHING;
+
+-- Additional CTA staff accounts (target: 100 total staff)
+WITH tenant AS (
+  SELECT id AS tenant_id FROM tenants WHERE slug = 'cta-fleet' LIMIT 1
+)
+INSERT INTO users (tenant_id, email, password_hash, first_name, last_name, role, phone, is_active)
+SELECT
+  tenant.tenant_id,
+  'staff' || gs || '@capitaltechalliance.com',
+  '$2b$12$wyRFQUqpoKyvx5Y.vQcs9u.gforA75U1JxwL92pveoB7bzdBXetvW',
+  (ARRAY['Avery','Quinn','Skylar','Parker','Jamie','Sam','Morgan','Jordan','Casey','Riley'])[((gs - 1) % 10) + 1],
+  (ARRAY['Harper','Rivera','Reed','Morales','Griffin','Hayes','Patel','Nguyen','Brooks','Collins'])[((gs - 1) % 10) + 1],
+  (ARRAY['User','User','Manager','Supervisor','Analyst'])[((gs - 1) % 5) + 1],
+  '(850) 555-' || LPAD((2000 + gs)::text, 4, '0'),
+  true
+FROM tenant
+CROSS JOIN generate_series(1, 95) AS gs
 ON CONFLICT (tenant_id, email) DO NOTHING;
 
 -- Facilities (if none exist for tenant)
@@ -83,7 +101,7 @@ SELECT
   (ARRAY['active','active','active','training','on_leave'])[((gs - 1) % 5) + 1]::driver_status,
   NOW() - (gs * 15 || ' days')::interval
 FROM tenant
-CROSS JOIN generate_series(1, 10) AS gs
+CROSS JOIN generate_series(1, 50) AS gs
 WHERE NOT EXISTS (
   SELECT 1 FROM drivers WHERE tenant_id = tenant.tenant_id
 );
@@ -117,7 +135,7 @@ SELECT
   f.id,
   NOW() - (gs * 2 || ' days')::interval
 FROM tenant
-CROSS JOIN generate_series(1, 20) AS gs
+CROSS JOIN generate_series(1, 50) AS gs
 CROSS JOIN LATERAL (
   SELECT id FROM facilities WHERE tenant_id = tenant.tenant_id ORDER BY random() LIMIT 1
 ) AS f

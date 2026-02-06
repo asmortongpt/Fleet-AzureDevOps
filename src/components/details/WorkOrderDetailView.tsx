@@ -2,13 +2,15 @@ import {
   Wrench, Clock, CheckCircle, XCircle,
   AlertTriangle, User, Package, Image as ImageIcon
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { secureFetch } from '@/hooks/use-api';
 
 interface WorkOrder {
   id: string;
@@ -30,60 +32,147 @@ interface WorkOrderDetailViewProps {
 
 export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewProps) {
   const [activeTab, setActiveTab] = useState('overview');
+  const { data: parts = [] } = useQuery({
+    queryKey: ['work-order', workOrder.id, 'parts'],
+    queryFn: async () => {
+      const response = await secureFetch(`/api/work-orders/${workOrder.id}/parts`)
+      if (!response.ok) return []
+      const payload = await response.json()
+      return payload?.data ?? payload ?? []
+    },
+    enabled: !!workOrder.id
+  })
 
-  // Mock comprehensive work order data
-  const parts = [
-    { id: '1', partNumber: 'BP-4523', name: 'Brake Pads - Front Set', quantity: 1, unitCost: 89.99, totalCost: 89.99, status: 'installed' },
-    { id: '2', partNumber: 'BR-7821', name: 'Brake Rotors - Front Pair', quantity: 2, unitCost: 125.00, totalCost: 250.00, status: 'installed' },
-    { id: '3', partNumber: 'BF-1105', name: 'Brake Fluid - DOT 4', quantity: 1, unitCost: 12.50, totalCost: 12.50, status: 'installed' },
-    { id: '4', partNumber: 'GS-2240', name: 'Gasket Set', quantity: 1, unitCost: 24.99, totalCost: 24.99, status: 'ordered' }
-  ];
+  const { data: labor = [] } = useQuery({
+    queryKey: ['work-order', workOrder.id, 'labor'],
+    queryFn: async () => {
+      const response = await secureFetch(`/api/work-orders/${workOrder.id}/labor`)
+      if (!response.ok) return []
+      const payload = await response.json()
+      return payload?.data ?? payload ?? []
+    },
+    enabled: !!workOrder.id
+  })
 
-  const labor = [
-    { id: '1', task: 'Remove old brake pads and rotors', technician: 'Mike Johnson', hours: 1.5, rate: 85.00, total: 127.50, status: 'completed' },
-    { id: '2', task: 'Install new brake pads and rotors', technician: 'Mike Johnson', hours: 1.0, rate: 85.00, total: 85.00, status: 'completed' },
-    { id: '3', task: 'Brake system inspection and testing', technician: 'Mike Johnson', hours: 0.5, rate: 85.00, total: 42.50, status: 'completed' },
-    { id: '4', task: 'Road test and final inspection', technician: 'Sarah Williams', hours: 0.5, rate: 95.00, total: 47.50, status: 'in-progress' }
-  ];
+  const { data: documents = [] } = useQuery({
+    queryKey: ['work-order', workOrder.id, 'documents'],
+    queryFn: async () => {
+      const response = await secureFetch(`/api/documents?work_order_id=${workOrder.id}`)
+      if (!response.ok) return []
+      const payload = await response.json()
+      return payload?.data ?? payload ?? []
+    },
+    enabled: !!workOrder.id
+  })
 
-  const timeline = [
-    { date: '2025-12-15 08:00', event: 'Work order created', user: 'System', type: 'created' },
-    { date: '2025-12-15 08:15', event: 'Assigned to Mike Johnson', user: 'Fleet Manager', type: 'assigned' },
-    { date: '2025-12-15 09:00', event: 'Parts ordered', user: 'Mike Johnson', type: 'parts' },
-    { date: '2025-12-15 14:30', event: 'Parts received', user: 'Inventory', type: 'parts' },
-    { date: '2025-12-16 08:00', event: 'Work started', user: 'Mike Johnson', type: 'progress' },
-    { date: '2025-12-16 12:00', event: 'Front brakes completed', user: 'Mike Johnson', type: 'progress' },
-    { date: '2025-12-16 14:00', event: 'Quality inspection requested', user: 'Mike Johnson', type: 'inspection' }
-  ];
+  const photos = useMemo(() => {
+    return documents
+      .filter((doc: any) => (doc.mime_type || doc.type || '').startsWith('image'))
+      .map((doc: any) => ({
+        id: doc.id,
+        url: doc.file_url || doc.storage_path || '#',
+        caption: doc.description || doc.name || doc.title || 'Photo',
+        timestamp: doc.created_at || doc.uploaded_at
+      }))
+  }, [documents])
 
-  const photos = [
-    { id: '1', url: '/placeholder-brake-before.jpg', caption: 'Worn brake pads - before', timestamp: '2025-12-15 09:00' },
-    { id: '2', url: '/placeholder-rotor-damage.jpg', caption: 'Rotor damage assessment', timestamp: '2025-12-15 09:15' },
-    { id: '3', url: '/placeholder-installation.jpg', caption: 'New parts installation', timestamp: '2025-12-16 10:30' },
-    { id: '4', url: '/placeholder-completed.jpg', caption: 'Completed installation', timestamp: '2025-12-16 12:00' }
-  ];
+  const totals = useMemo(() => {
+    const partsCost = parts.reduce((sum: number, part: any) => {
+      const qty = Number(part.quantity ?? 0)
+      const unitCost = Number(part.unit_cost ?? part.unitCost ?? 0)
+      const total = Number(part.total_cost ?? part.totalCost ?? (qty * unitCost))
+      return sum + (Number.isFinite(total) ? total : 0)
+    }, 0)
+    const laborCost = labor.reduce((sum: number, entry: any) => {
+      const hours = Number(entry.hours ?? 0)
+      const rate = Number(entry.rate ?? 0)
+      const total = Number(entry.total ?? entry.total_cost ?? (hours * rate))
+      return sum + (Number.isFinite(total) ? total : 0)
+    }, 0)
+    const taxRate = Number((workOrder as any).taxRate || (workOrder as any).metadata?.taxRate || 0)
+    const tax = Number.isFinite(taxRate) && taxRate > 0 ? (partsCost + laborCost) * (taxRate / 100) : 0
+    const totalCost = partsCost + laborCost + tax
+    return { partsCost, laborCost, tax, totalCost, taxRate }
+  }, [parts, labor, workOrder])
 
-  const totals = {
-    partsCost: parts.reduce((sum, p) => sum + p.totalCost, 0),
-    laborCost: labor.reduce((sum, l) => sum + l.total, 0),
-    tax: 0,
-    totalCost: 0
-  };
-  totals.tax = (totals.partsCost + totals.laborCost) * 0.08;
-  totals.totalCost = totals.partsCost + totals.laborCost + totals.tax;
+  const normalizedParts = useMemo(() => {
+    return parts.map((part: any) => {
+      const qty = Number(part.quantity ?? 0)
+      const unitCost = Number(part.unit_cost ?? part.unitCost ?? 0)
+      const totalCost = Number(part.total_cost ?? part.totalCost ?? (qty * unitCost))
+      return {
+        id: part.id,
+        name: part.name || part.part_name || part.part_number || part.sku || 'Part',
+        partNumber: part.part_number || part.partNumber || part.sku || 'N/A',
+        quantity: qty,
+        unitCost,
+        totalCost,
+        status: part.status
+      }
+    })
+  }, [parts])
+
+  const normalizedLabor = useMemo(() => {
+    return labor.map((entry: any) => {
+      const hours = Number(entry.hours ?? 0)
+      const rate = Number(entry.rate ?? 0)
+      const total = Number(entry.total ?? entry.total_cost ?? (hours * rate))
+      return {
+        id: entry.id,
+        task: entry.task || entry.description || 'Labor',
+        technician: entry.technician_name || entry.technician || entry.user_name || 'Technician',
+        hours,
+        rate,
+        total,
+        status: entry.status,
+        date: entry.date
+      }
+    })
+  }, [labor])
+
+  const timeline = useMemo(() => {
+    const events: { date: string; event: string; user: string; type: string }[] = []
+    const createdDate = workOrder.createdDate || (workOrder as any).created_at
+    if (createdDate) {
+      events.push({ date: createdDate, event: 'Work order created', user: 'System', type: 'created' })
+    }
+    const updatedDate = (workOrder as any).updated_at
+    if (updatedDate) {
+      events.push({ date: updatedDate, event: 'Work order updated', user: 'System', type: 'updated' })
+    }
+    parts.forEach((part: any) => {
+      events.push({
+        date: part.created_at || createdDate || new Date().toISOString(),
+        event: `Part ${part.part_number || part.name} added`,
+        user: part.user_name || 'Inventory',
+        type: 'parts'
+      })
+    })
+    labor.forEach((entry: any) => {
+      events.push({
+        date: entry.date || createdDate || new Date().toISOString(),
+        event: `Labor recorded: ${entry.task || 'Work performed'}`,
+        user: entry.technician_name || entry.technician || 'Technician',
+        type: 'labor'
+      })
+    })
+    return events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  }, [workOrder, parts, labor])
 
   const getStatusBadge = (status: string) => {
+    const normalized = status === 'in_progress' ? 'in-progress' : status
     switch (status) {
       case 'completed':
         return <Badge variant="default" className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" />Completed</Badge>;
       case 'in-progress':
+      case 'in_progress':
         return <Badge variant="default" className="bg-blue-500"><Clock className="w-3 h-3 mr-1" />In Progress</Badge>;
       case 'ordered':
         return <Badge variant="secondary"><Package className="w-3 h-3 mr-1" />Ordered</Badge>;
       case 'pending':
         return <Badge variant="outline"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
       default:
-        return <Badge variant="secondary">{status}</Badge>;
+        return <Badge variant="secondary">{normalized}</Badge>;
     }
   };
 
@@ -98,6 +187,20 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
         return <Badge variant="secondary">Low</Badge>;
     }
   };
+
+  const createdAt = workOrder.createdDate || (workOrder as any).created_at
+  const dueAt = workOrder.dueDate || (workOrder as any).scheduled_end || (workOrder as any).scheduled_end_date
+  const vehicleLabel = workOrder.vehicleId || (workOrder as any).vehicle_id || 'N/A'
+  const assignedToLabel = workOrder.assignedTo || (workOrder as any).assigned_to || (workOrder as any).assigned_technician_id || 'Unassigned'
+
+  const statusProgress = (() => {
+    const status = (workOrder.status || '').toLowerCase()
+    if (status === 'completed') return 100
+    if (status === 'in_progress' || status === 'in-progress') return 60
+    if (status === 'on_hold') return 30
+    if (status === 'cancelled') return 0
+    return 10
+  })()
 
   return (
     <div className="h-full overflow-y-auto bg-gray-50 dark:bg-gray-900">
@@ -123,11 +226,11 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
               </div>
               <div>
                 <p className="text-xs text-orange-200">Created</p>
-                <p className="text-sm font-semibold">{workOrder.createdDate || 'N/A'}</p>
+                <p className="text-sm font-semibold">{createdAt ? new Date(createdAt).toLocaleString() : 'N/A'}</p>
               </div>
               <div>
                 <p className="text-xs text-orange-200">Due Date</p>
-                <p className="text-sm font-semibold">{workOrder.dueDate || 'N/A'}</p>
+                <p className="text-sm font-semibold">{dueAt ? new Date(dueAt).toLocaleString() : 'N/A'}</p>
               </div>
             </div>
           </div>
@@ -169,12 +272,12 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Vehicle:</span>
                     <Button variant="link" size="sm" className="h-auto p-0 text-blue-800">
-                      {workOrder.vehicleId || 'N/A'}
+                      {vehicleLabel}
                     </Button>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Assigned To:</span>
-                    <span className="font-medium">{workOrder.assignedTo || 'Unassigned'}</span>
+                    <span className="font-medium">{assignedToLabel}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -193,7 +296,7 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                     <span className="font-medium">${totals.laborCost.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Tax (8%):</span>
+                    <span className="text-muted-foreground">Tax {totals.taxRate ? `(${totals.taxRate}%)` : ''}:</span>
                     <span className="font-medium">${totals.tax.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between pt-2 border-t font-bold">
@@ -212,13 +315,15 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                     <div>
                       <div className="flex justify-between mb-1 text-sm">
                         <span className="text-muted-foreground">Completion</span>
-                        <span className="font-medium">75%</span>
+                        <span className="font-medium">{statusProgress}%</span>
                       </div>
-                      <Progress value={75} />
+                      <Progress value={statusProgress} />
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      Estimated completion: 2025-12-16 16:00
-                    </div>
+                    {dueAt && (
+                      <div className="text-xs text-muted-foreground">
+                        Estimated completion: {new Date(dueAt).toLocaleString()}
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -243,18 +348,21 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {parts.map((part) => (
+                  {normalizedParts.length === 0 && (
+                    <div className="text-sm text-muted-foreground">No parts recorded for this work order.</div>
+                  )}
+                  {normalizedParts.map((part) => (
                     <div key={part.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <p className="font-medium text-sm">{part.name}</p>
-                          {getStatusBadge(part.status)}
+                          {part.status && getStatusBadge(part.status)}
                         </div>
                         <p className="text-xs text-muted-foreground">Part #: {part.partNumber} | Qty: {part.quantity}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium">${part.totalCost.toFixed(2)}</p>
-                        <p className="text-xs text-muted-foreground">${part.unitCost} each</p>
+                        <p className="font-medium">${Number(part.totalCost || 0).toFixed(2)}</p>
+                        <p className="text-xs text-muted-foreground">${Number(part.unitCost || 0).toFixed(2)} each</p>
                       </div>
                     </div>
                   ))}
@@ -276,13 +384,16 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {labor.map((item) => (
+                  {normalizedLabor.length === 0 && (
+                    <div className="text-sm text-muted-foreground">No labor recorded for this work order.</div>
+                  )}
+                  {normalizedLabor.map((item) => (
                     <div key={item.id} className="border rounded-lg p-3">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <p className="font-medium text-sm">{item.task}</p>
-                            {getStatusBadge(item.status)}
+                            {item.status && getStatusBadge(item.status)}
                           </div>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <User className="w-3 h-3" />
@@ -290,7 +401,7 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium">${item.total.toFixed(2)}</p>
+                          <p className="font-medium">${Number(item.total || 0).toFixed(2)}</p>
                           <p className="text-xs text-muted-foreground">{item.hours}h × ${item.rate}/hr</p>
                         </div>
                       </div>
@@ -347,11 +458,18 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                  {photos.length === 0 && (
+                    <div className="text-sm text-muted-foreground">No photos uploaded for this work order.</div>
+                  )}
                   {photos.map((photo) => (
                     <div key={photo.id} className="border rounded-lg overflow-hidden">
-                      <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                        <ImageIcon className="w-12 h-9 text-gray-700" />
-                      </div>
+                      {photo.url && photo.url !== '#' ? (
+                        <img src={photo.url} alt={photo.caption} className="w-full h-48 object-cover" />
+                      ) : (
+                        <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                          <ImageIcon className="w-12 h-9 text-gray-700" />
+                        </div>
+                      )}
                       <div className="p-3">
                         <p className="text-sm font-medium mb-1">{photo.caption}</p>
                         <p className="text-xs text-muted-foreground">{photo.timestamp}</p>

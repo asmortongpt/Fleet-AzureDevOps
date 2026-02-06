@@ -25,12 +25,6 @@ export default defineConfig({
         secure: false,
         ws: true,
       },
-      '/auth': {
-        target: 'http://localhost:3001',
-        changeOrigin: false,
-        secure: false,
-        ws: true,
-      },
     },
   },
   resolve: {

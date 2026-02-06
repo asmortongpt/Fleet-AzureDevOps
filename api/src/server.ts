@@ -83,6 +83,7 @@ import assetsMobileRouter from './routes/assets-mobile.routes'
 import assignmentReportingRouter from './routes/assignment-reporting.routes'
 import auditLogsRouter from './routes/audit-logs'
 import authRouter from './routes/auth'
+import employeesRouter from './routes/employees.routes'
 
 // Task & Schedule Management Routes
 
@@ -146,6 +147,7 @@ import maintenanceRouter from './modules/maintenance/routes/maintenance.routes'
 import maintenanceDrilldownsRouter from './routes/maintenance-drilldowns'
 import maintenanceSchedulesRouter from './routes/maintenance-schedules'
 import microsoftAuthRouter from './routes/microsoft-auth'
+import performanceReviewsRouter from './routes/performance-reviews.routes'
 import mileageReimbursementRouter from './routes/mileage-reimbursement'
 import meRouter from './routes/me'
 import mobileAssignmentRouter from './routes/mobile-assignment.routes'
@@ -491,6 +493,8 @@ app.use('/auth', authRouter) // Alias without /api prefix for backward compatibi
 app.use('/api/auth', microsoftAuthRouter) // Microsoft SSO: /microsoft, /microsoft/callback
 app.use('/auth', microsoftAuthRouter) // Microsoft SSO without /api prefix for frontend calls
 app.use('/api/auth', sessionRevocationRouter) // Session revocation endpoints (/revoke, /revoke/status)
+app.use('/api/employees', employeesRouter)
+app.use('/api/performance-reviews', performanceReviewsRouter)
 app.use('/api/break-glass', breakGlassRouter)
 
 // External Integrations Routes

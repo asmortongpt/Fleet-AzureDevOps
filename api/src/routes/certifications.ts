@@ -16,22 +16,33 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'certifications' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { page = 1, limit = 50 } = req.query
+      const { page = 1, limit = 50, driver_id } = req.query
       const offset = (Number(page) - 1) * Number(limit)
+
+      const conditions: string[] = ['tenant_id = $1']
+      const params: any[] = [req.user!.tenant_id]
+      let idx = 2
+
+      if (driver_id) {
+        conditions.push(`driver_id = $${idx++}`)
+        params.push(driver_id)
+      }
+
+      const whereClause = `WHERE ${conditions.join(' AND ')}`
 
       const result = await pool.query(
         `SELECT id, tenant_id, driver_id, type, number, issuing_authority,
                 issued_date, expiry_date, status, document_url, created_at, updated_at
          FROM certifications
-         WHERE tenant_id = $1
+         ${whereClause}
          ORDER BY expiry_date ASC NULLS LAST
          LIMIT $2 OFFSET $3`,
-        [req.user!.tenant_id, limit, offset]
+        [...params, limit, offset]
       )
 
       const countResult = await pool.query(
-        `SELECT COUNT(*) FROM certifications WHERE tenant_id = $1`,
-        [req.user!.tenant_id]
+        `SELECT COUNT(*) FROM certifications ${whereClause}`,
+        params
       )
 
       res.json({

@@ -8,6 +8,7 @@ import { Suspense, memo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { GoogleMap } from '@/components/GoogleMap'
 import type { Vehicle } from '@/lib/types'
+import { useAuth } from '@/hooks/useAuth'
 import { secureFetch } from '@/hooks/use-api'
 
 function MapLoadingFallback() {
@@ -25,8 +26,9 @@ function MapLoadingFallback() {
 }
 
 export const MapCanvas = memo(function MapCanvas() {
+  const { isAuthenticated } = useAuth()
   const { data: vehicles = [] } = useQuery<Vehicle[]>({
-    queryKey: ['map', 'vehicles'],
+    queryKey: ['map', 'vehicles', isAuthenticated ? 'auth' : 'anon'],
     queryFn: async () => {
       const response = await secureFetch('/api/vehicles?limit=200', { method: 'GET' })
       if (!response.ok) return []
@@ -52,6 +54,7 @@ export const MapCanvas = memo(function MapCanvas() {
     },
     staleTime: 30_000,
     refetchInterval: 30_000,
+    enabled: isAuthenticated,
   })
 
   return (
@@ -62,7 +65,7 @@ export const MapCanvas = memo(function MapCanvas() {
           showVehicles={true}
           showFacilities={true}
           mapStyle="roadmap"
-          center={[-84.2807, 30.4383]}
+          center={[30.4383, -84.2807]}
           zoom={12}
           className="w-full h-full"
         />

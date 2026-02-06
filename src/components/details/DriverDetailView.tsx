@@ -3,7 +3,8 @@ import {
   CheckCircle, XCircle, Car, Clock, Star, Shield,
   GraduationCap, Phone, Mail
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +13,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDrilldown } from '@/contexts/DrilldownContext';
+import { useFleetData } from '@/hooks/use-fleet-data';
+import { secureFetch } from '@/hooks/use-api';
 
 interface Driver {
   id: string;
@@ -34,41 +37,114 @@ interface DriverDetailViewProps {
 export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
   const { push } = useDrilldown();
   const [activeTab, setActiveTab] = useState('profile');
+  const { vehicles, incidents: allIncidents } = useFleetData();
 
-  // Mock comprehensive driver data
-  const certifications = [
-    { id: '1', name: 'Commercial Driver\'s License (CDL)', type: 'Class B', issued: '2023-01-15', expires: '2028-01-15', status: 'valid' },
-    { id: '2', name: 'Hazmat Endorsement', type: 'H', issued: '2023-02-20', expires: '2026-02-20', status: 'valid' },
-    { id: '3', name: 'Passenger Endorsement', type: 'P', issued: '2023-01-15', expires: '2028-01-15', status: 'valid' },
-    { id: '4', name: 'Defensive Driving Certificate', type: 'Training', issued: '2025-06-01', expires: '2026-06-01', status: 'valid' }
-  ];
+  const { data: certifications = [] } = useQuery({
+    queryKey: ['driver-certifications', driver.id],
+    queryFn: async () => {
+      const response = await secureFetch(`/api/certifications?driver_id=${driver.id}`)
+      if (!response.ok) return []
+      const payload = await response.json()
+      return payload?.data ?? payload ?? []
+    },
+    enabled: !!driver.id
+  })
 
+  const { data: trainingProgress = [] } = useQuery({
+    queryKey: ['driver-training-progress', driver.id],
+    queryFn: async () => {
+      const response = await secureFetch(`/api/training/progress?driverId=${driver.id}`)
+      if (!response.ok) return []
+      const payload = await response.json()
+      return payload?.data ?? payload ?? []
+    },
+    enabled: !!driver.id
+  })
+
+  const { data: trainingCourses = [] } = useQuery({
+    queryKey: ['training-courses'],
+    queryFn: async () => {
+      const response = await secureFetch(`/api/training/courses?limit=200`)
+      if (!response.ok) return []
+      const payload = await response.json()
+      return payload?.data ?? payload ?? []
+    },
+    staleTime: 5 * 60 * 1000
+  })
+
+  const formatDate = (value?: string) => {
+    if (!value) return 'N/A'
+    const date = new Date(value)
+    return Number.isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString()
+  }
+
+  const assignments = useMemo(() => {
+    return vehicles
+      .filter((vehicle: any) => (vehicle.assignedDriverId || vehicle.assigned_driver_id) === driver.id)
+      .map((vehicle: any) => ({
+        vehicleId: vehicle.number || vehicle.id,
+        make: vehicle.make,
+        model: vehicle.model,
+        assignedDate: formatDate(vehicle.updatedAt || vehicle.updated_at || vehicle.createdAt || vehicle.created_at),
+        status: vehicle.status || 'active',
+        milesDriven: vehicle.odometer || 0
+      }))
+  }, [vehicles, driver.id])
+
+  const trainingRecords = useMemo(() => {
+    const coursesById = new Map(trainingCourses.map((course: any) => [course.id, course]))
+    return trainingProgress.map((progress: any) => {
+      const course = coursesById.get(progress.course_id)
+      const completed = Number(progress.progress || 0) >= 100
+      return {
+        id: progress.id,
+        course: course?.title || 'Training Course',
+        date: formatDate(progress.last_accessed || course?.created_at),
+        instructor: course?.instructor?.name || course?.instructor?.title || 'Training Team',
+        score: progress.score ?? null,
+        status: completed ? 'completed' : 'in_progress'
+      }
+    })
+  }, [trainingProgress, trainingCourses])
+
+  const certificationRecords = useMemo(() => {
+    return certifications.map((cert: any) => ({
+      id: cert.id,
+      name: cert.type || cert.name || 'Certification',
+      type: cert.number || cert.issuing_authority || cert.type || '',
+      issued: formatDate(cert.issued_date || cert.issuedDate),
+      expires: formatDate(cert.expiry_date || cert.expiryDate),
+      status: cert.status || 'valid'
+    }))
+  }, [certifications])
+
+  const incidents = useMemo(() => {
+    return allIncidents
+      .filter((incident: any) => incident.driver_id === driver.id || incident.driverId === driver.id)
+      .map((incident: any) => ({
+        id: incident.id,
+        date: incident.incident_date || incident.date,
+        type: incident.type || incident.category || 'Incident',
+        description: incident.description || incident.summary || '',
+        severity: incident.severity || 'low',
+        resolved: incident.status === 'completed' || incident.status === 'resolved'
+      }))
+  }, [allIncidents, driver.id])
+
+  const performanceScore = Number(driver.performance_score ?? driver.performanceScore ?? driver.metadata?.performance_score ?? 0)
   const performanceMetrics = {
-    safetyScore: 94,
-    fuelEfficiency: 87,
-    onTimePerformance: 96,
-    customerSatisfaction: 92,
-    maintenanceCompliance: 98,
-    overallRating: 4.7
-  };
+    safetyScore: performanceScore,
+    fuelEfficiency: performanceScore,
+    onTimePerformance: performanceScore,
+    customerSatisfaction: performanceScore,
+    maintenanceCompliance: performanceScore,
+    overallRating: Number((performanceScore / 20).toFixed(1)) || 0
+  }
 
-  const assignments = [
-    { vehicleId: 'V-001', make: 'Ford', model: 'F-150', assignedDate: '2025-01-01', status: 'active', milesDriven: 12450 },
-    { vehicleId: 'V-015', make: 'Chevrolet', model: 'Silverado', assignedDate: '2024-06-01', endDate: '2024-12-31', status: 'completed', milesDriven: 28900 },
-    { vehicleId: 'V-008', make: 'Ram', model: '1500', assignedDate: '2024-01-01', endDate: '2024-05-31', status: 'completed', milesDriven: 15200 }
-  ];
-
-  const trainingRecords = [
-    { id: '1', course: 'Winter Driving Safety', date: '2025-11-15', instructor: 'John Smith', score: 95, status: 'completed' },
-    { id: '2', course: 'Emergency Response Procedures', date: '2025-08-20', instructor: 'Sarah Johnson', score: 88, status: 'completed' },
-    { id: '3', course: 'Vehicle Pre-Trip Inspection', date: '2025-05-10', instructor: 'Mike Williams', score: 92, status: 'completed' },
-    { id: '4', course: 'DOT Compliance Update', date: '2026-01-15', instructor: 'TBD', score: null, status: 'scheduled' }
-  ];
-
-  const incidents = [
-    { id: '1', date: '2025-10-12', type: 'Minor Accident', description: 'Backing incident in parking lot', severity: 'low', resolved: true },
-    { id: '2', date: '2025-06-05', type: 'Traffic Violation', description: 'Speeding - 5 mph over limit', severity: 'low', resolved: true }
-  ];
+  const hireDate = driver.hireDate || driver.hire_date || driver.metadata?.hire_date
+  const yearsOfService = hireDate ? ((Date.now() - new Date(hireDate).getTime()) / (1000 * 60 * 60 * 24 * 365)).toFixed(1) : 'N/A'
+  const licenseExpiry = driver.licenseExpiry || driver.license_expiry_date
+  const licenseExpired = licenseExpiry ? new Date(licenseExpiry) < new Date() : false
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -140,11 +216,11 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
             <p className="text-xs text-indigo-200">License Status</p>
-            <p className="text-sm font-bold">Valid</p>
+            <p className="text-sm font-bold">{licenseExpired ? 'Expired' : 'Valid'}</p>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
             <p className="text-xs text-indigo-200">Years of Service</p>
-            <p className="text-sm font-bold">5.2</p>
+            <p className="text-sm font-bold">{yearsOfService}</p>
           </div>
         </div>
       </div>
@@ -246,23 +322,27 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {incidents.map((incident) => (
-                      <div key={incident.id} className="flex items-start justify-between p-3 border rounded-lg">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="font-medium text-sm">{incident.type}</p>
-                            <Badge variant={incident.severity === 'low' ? 'secondary' : 'destructive'} className="text-xs">
-                              {incident.severity}
-                            </Badge>
+                    {incidents.length === 0 ? (
+                      <p className="text-xs text-muted-foreground">No incidents recorded.</p>
+                    ) : (
+                      incidents.map((incident) => (
+                        <div key={incident.id} className="flex items-start justify-between p-3 border rounded-lg">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="font-medium text-sm">{incident.type}</p>
+                              <Badge variant={incident.severity === 'low' ? 'secondary' : 'destructive'} className="text-xs">
+                                {incident.severity}
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-1">{incident.description}</p>
+                            <p className="text-xs text-muted-foreground">Date: {incident.date}</p>
                           </div>
-                          <p className="text-xs text-muted-foreground mb-1">{incident.description}</p>
-                          <p className="text-xs text-muted-foreground">Date: {incident.date}</p>
+                          {incident.resolved && (
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                          )}
                         </div>
-                        {incident.resolved && (
-                          <CheckCircle className="w-3 h-3 text-green-500" />
-                        )}
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -277,33 +357,37 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                   <Award className="w-3 h-3" />
                   Licenses & Certifications
                 </CardTitle>
-                <CardDescription>{certifications.length} active certifications</CardDescription>
+                <CardDescription>{certificationRecords.length} active certifications</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {certifications.map((cert) => (
-                    <div key={cert.id} className="border rounded-lg p-2">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-semibold">{cert.name}</h4>
-                            {getStatusBadge(cert.status)}
+                  {certificationRecords.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">No certifications on file.</p>
+                  ) : (
+                    certificationRecords.map((cert) => (
+                      <div key={cert.id} className="border rounded-lg p-2">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-semibold">{cert.name}</h4>
+                              {getStatusBadge(cert.status)}
+                            </div>
+                            <p className="text-sm text-muted-foreground">Type: {cert.type}</p>
                           </div>
-                          <p className="text-sm text-muted-foreground">Type: {cert.type}</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs mt-3 pt-3 border-t">
+                          <div>
+                            <span className="text-muted-foreground">Issued:</span>
+                            <p className="font-medium">{cert.issued}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Expires:</span>
+                            <p className="font-medium">{cert.expires}</p>
+                          </div>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs mt-3 pt-3 border-t">
-                        <div>
-                          <span className="text-muted-foreground">Issued:</span>
-                          <p className="font-medium">{cert.issued}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Expires:</span>
-                          <p className="font-medium">{cert.expires}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -377,30 +461,34 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {assignments.map((assignment) => (
-                    <div key={assignment.vehicleId} className="border rounded-lg p-2">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-semibold">{assignment.make} {assignment.model}</h4>
-                            {getStatusBadge(assignment.status)}
+                  {assignments.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">No vehicle assignments found.</p>
+                  ) : (
+                    assignments.map((assignment) => (
+                      <div key={assignment.vehicleId} className="border rounded-lg p-2">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-semibold">{assignment.make} {assignment.model}</h4>
+                              {getStatusBadge(assignment.status)}
+                            </div>
+                            <p className="text-sm text-muted-foreground">ID: {assignment.vehicleId}</p>
                           </div>
-                          <p className="text-sm text-muted-foreground">ID: {assignment.vehicleId}</p>
+                          <p className="text-sm font-medium">{Number(assignment.milesDriven || 0).toLocaleString()} mi</p>
                         </div>
-                        <p className="text-sm font-medium">{assignment.milesDriven.toLocaleString()} mi</p>
+                        <div className="grid grid-cols-2 gap-2 text-xs mt-3 pt-3 border-t">
+                          <div>
+                            <span className="text-muted-foreground">Assigned:</span>
+                            <p className="font-medium">{assignment.assignedDate}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">End Date:</span>
+                            <p className="font-medium">{assignment.endDate || 'Current'}</p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs mt-3 pt-3 border-t">
-                        <div>
-                          <span className="text-muted-foreground">Assigned:</span>
-                          <p className="font-medium">{assignment.assignedDate}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">End Date:</span>
-                          <p className="font-medium">{assignment.endDate || 'Current'}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -418,28 +506,32 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {trainingRecords.map((record) => (
-                    <div key={record.id} className="border rounded-lg p-2">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-semibold">{record.course}</h4>
-                            {getStatusBadge(record.status)}
+                  {trainingRecords.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">No training records found.</p>
+                  ) : (
+                    trainingRecords.map((record) => (
+                      <div key={record.id} className="border rounded-lg p-2">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-semibold">{record.course}</h4>
+                              {getStatusBadge(record.status)}
+                            </div>
+                            <p className="text-sm text-muted-foreground">Instructor: {record.instructor}</p>
                           </div>
-                          <p className="text-sm text-muted-foreground">Instructor: {record.instructor}</p>
+                          {record.score !== null && record.score !== undefined && (
+                            <div className={`font-bold text-sm ${getScoreColor(record.score)}`}>
+                              {record.score}%
+                            </div>
+                          )}
                         </div>
-                        {record.score && (
-                          <div className={`font-bold text-sm ${getScoreColor(record.score)}`}>
-                            {record.score}%
-                          </div>
-                        )}
+                        <div className="text-xs mt-3 pt-3 border-t">
+                          <span className="text-muted-foreground">Date:</span>
+                          <span className="font-medium ml-1">{record.date}</span>
+                        </div>
                       </div>
-                      <div className="text-xs mt-3 pt-3 border-t">
-                        <span className="text-muted-foreground">Date:</span>
-                        <span className="font-medium ml-1">{record.date}</span>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>

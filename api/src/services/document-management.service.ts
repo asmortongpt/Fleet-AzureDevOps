@@ -306,6 +306,9 @@ export class DocumentManagementService {
       search?: string
       status?: string
       uploadedBy?: string
+      vehicleId?: string
+      driverId?: string
+      workOrderId?: string
       limit?: number
       offset?: number
     }
@@ -345,6 +348,24 @@ export class DocumentManagementService {
       paramCount++
       query += ` AND d.uploaded_by = $${paramCount}`
       params.push(filters.uploadedBy)
+    }
+
+    if (filters?.vehicleId) {
+      paramCount++
+      query += ` AND d.vehicle_id = $${paramCount}`
+      params.push(filters.vehicleId)
+    }
+
+    if (filters?.driverId) {
+      paramCount++
+      query += ` AND d.driver_id = $${paramCount}`
+      params.push(filters.driverId)
+    }
+
+    if (filters?.workOrderId) {
+      paramCount++
+      query += ` AND d.work_order_id = $${paramCount}`
+      params.push(filters.workOrderId)
     }
 
     if (filters?.tags && filters.tags.length > 0) {

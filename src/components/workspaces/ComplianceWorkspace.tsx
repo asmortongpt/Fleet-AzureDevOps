@@ -15,7 +15,6 @@ import {
   Plus
 } from "lucide-react"
 import { useState, useMemo } from "react"
-import useSWR from "swr"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -30,8 +29,16 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useVehicles, useDrivers, useWorkOrders } from "@/hooks/use-api"
-import { swrFetcher } from "@/lib/fetcher"
+import {
+  useVehicles,
+  useDrivers,
+  useIncidents,
+  useInspections,
+  useCertifications,
+  useTrainingProgress,
+  useDocuments,
+  useInsurancePolicies
+} from "@/hooks/use-api"
 import { cn } from "@/lib/utils"
 
 // Document Management Panel
@@ -40,12 +47,7 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
   const [documentType, setDocumentType] = useState('all')
   const [sortBy, setSortBy] = useState('date')
 
-  const { data: documentsResponse } = useSWR<{ data: any[] }>(
-    '/api/documents?limit=200',
-    swrFetcher
-  )
-
-  const documents = documentsResponse?.data || []
+  const { data: documents = [] } = useDocuments({ limit: 200 })
 
   const vehicleMap = useMemo(() => {
     return new Map(
@@ -76,6 +78,7 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
         else if ((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <= 30) status = 'expiring'
       }
 
+      const uploadedAt = doc.uploaded_at || doc.created_at
       return {
         id: doc.id,
         name: doc.file_name || doc.name || doc.title || 'Untitled Document',
@@ -85,7 +88,8 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
         vehicle: doc.vehicle_id ? vehicleMap.get(doc.vehicle_id) : undefined,
         driver: doc.driver_id ? driverMap.get(doc.driver_id) : undefined,
         uploadedBy: doc.uploaded_by_name || 'System',
-        uploadedDate: doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString() : (doc.created_at ? new Date(doc.created_at).toLocaleDateString() : 'N/A')
+        uploadedDate: uploadedAt ? new Date(uploadedAt).toLocaleDateString() : 'N/A',
+        uploadedAt: uploadedAt ? new Date(uploadedAt) : null
       }
     })
   }, [documents, vehicleMap, driverMap])
@@ -107,7 +111,7 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
     if (sortBy === 'status') {
       return docs.sort((a, b) => a.status.localeCompare(b.status))
     }
-    return docs.sort((a, b) => new Date(b.uploadedDate).getTime() - new Date(a.uploadedDate).getTime())
+    return docs.sort((a, b) => (b.uploadedAt?.getTime() || 0) - (a.uploadedAt?.getTime() || 0))
   }, [filteredDocuments, sortBy])
 
   const getStatusVariant = (status: string): "default" | "destructive" | "outline" | "secondary" => {
@@ -247,42 +251,26 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
 // Incident Tracking Panel
 const IncidentTracking = () => {
   const [statusFilter, setStatusFilter] = useState('all')
+  const { data: incidents = [] } = useIncidents()
 
-  // Mock incidents
-  const mockIncidents = [
-    {
-      id: '1',
-      title: 'Minor Collision - Parking Lot',
-      type: 'collision',
-      severity: 'minor',
-      status: 'under_review',
-      vehicle: 'FL-123',
-      driver: 'John Doe',
-      date: '2024-12-10',
-      location: 'Main Office Parking'
-    },
-    {
-      id: '2',
-      title: 'Speeding Violation - Highway',
-      type: 'violation',
-      severity: 'low',
-      status: 'resolved',
-      vehicle: 'FL-456',
-      driver: 'Jane Smith',
-      date: '2024-12-08',
-      location: 'I-95 North'
-    },
-    {
-      id: '3',
-      title: 'Equipment Damage - Forklift',
-      type: 'damage',
-      severity: 'moderate',
-      status: 'open',
-      vehicle: 'EQ-789',
-      date: '2024-12-14',
-      location: 'Warehouse B'
-    }
-  ]
+  const normalizedIncidents = useMemo(() => {
+    return incidents.map((incident: any) => ({
+      id: incident.id,
+      title: incident.title || incident.number || incident.description || 'Incident',
+      type: incident.type || 'incident',
+      severity: incident.severity || 'low',
+      status: incident.status || 'open',
+      vehicle: incident.vehicle_unit || incident.vehicle_number || incident.vehicle_id || incident.vehicleId || 'Unknown',
+      driver: incident.driver_name || incident.driverName,
+      date: incident.incident_date ? new Date(incident.incident_date).toLocaleDateString() : 'N/A',
+      location: incident.location || 'Unknown'
+    }))
+  }, [incidents])
+
+  const filteredIncidents = useMemo(() => {
+    if (statusFilter === 'all') return normalizedIncidents
+    return normalizedIncidents.filter((incident) => incident.status === statusFilter)
+  }, [normalizedIncidents, statusFilter])
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -326,7 +314,7 @@ const IncidentTracking = () => {
 
         {/* Incident List */}
         <div className="space-y-3">
-          {mockIncidents.map(incident => (
+          {filteredIncidents.map(incident => (
             <Card key={incident.id} data-testid={`incident-card-${incident.id}`}>
               <CardContent className="p-2">
                 <div className="flex items-start justify-between">
@@ -354,6 +342,9 @@ const IncidentTracking = () => {
               </CardContent>
             </Card>
           ))}
+          {filteredIncidents.length === 0 && (
+            <div className="text-sm text-muted-foreground">No incidents match the selected filter.</div>
+          )}
         </div>
       </div>
     </ScrollArea>
@@ -361,38 +352,84 @@ const IncidentTracking = () => {
 }
 
 // Safety Compliance Panel
-const SafetyCompliance = ({ vehicles, drivers }: { vehicles?: unknown[]; drivers?: unknown[] }) => {
-  const _totalVehicles = vehicles?.length || 0
-  const _totalDrivers = drivers?.length || 0
+const SafetyCompliance = ({
+  vehicles = [],
+  drivers = [],
+  inspections = [],
+  certifications = [],
+  trainingProgress = [],
+  insurancePolicies = []
+}: {
+  vehicles?: any[];
+  drivers?: any[];
+  inspections?: any[];
+  certifications?: any[];
+  trainingProgress?: any[];
+  insurancePolicies?: any[];
+}) => {
+  const totalVehicles = vehicles.length
+  const totalDrivers = drivers.length
+
+  const completedInspections = inspections.filter((inspection: any) =>
+    inspection.status === 'completed' || inspection.completed_at || inspection.completedAt
+  ).length
+
+  const activeCertifications = certifications.filter((cert: any) => {
+    if (cert.status && cert.status !== 'active') return false
+    if (!cert.expiry_date && !cert.expiryDate) return true
+    const expiry = new Date(cert.expiry_date || cert.expiryDate)
+    return expiry.getTime() >= Date.now()
+  })
+
+  const certifiedDrivers = new Set(activeCertifications.map((cert: any) => cert.driver_id || cert.driverId)).size
+
+  const trainedDrivers = new Set(
+    trainingProgress
+      .filter((progress: any) => Number(progress.progress || 0) >= 100 || Number(progress.score || 0) >= 70)
+      .map((progress: any) => progress.driver_id || progress.driverId)
+  ).size
+
+  const coveredVehiclesRaw = insurancePolicies.reduce((sum: number, policy: any) => {
+    const count = Number(policy.active_vehicle_count ?? policy.covered_vehicle_count ?? 0)
+    return sum + (Number.isFinite(count) ? count : 0)
+  }, 0)
+  const coveredVehicles = Math.min(totalVehicles, coveredVehiclesRaw)
+
+  const buildStatus = (percentage: number) => {
+    if (percentage >= 95) return 'excellent'
+    if (percentage >= 85) return 'good'
+    if (percentage >= 70) return 'warning'
+    return 'critical'
+  }
 
   const complianceMetrics = [
     {
       title: "Vehicle Inspections",
-      completed: 45,
-      total: 50,
-      percentage: 90,
-      status: 'good'
+      completed: completedInspections,
+      total: totalVehicles,
+      percentage: totalVehicles > 0 ? Math.round((completedInspections / totalVehicles) * 100) : 0,
+      status: buildStatus(totalVehicles > 0 ? (completedInspections / totalVehicles) * 100 : 0)
     },
     {
       title: "Driver Certifications",
-      completed: 38,
-      total: 42,
-      percentage: 90,
-      status: 'good'
+      completed: certifiedDrivers,
+      total: totalDrivers,
+      percentage: totalDrivers > 0 ? Math.round((certifiedDrivers / totalDrivers) * 100) : 0,
+      status: buildStatus(totalDrivers > 0 ? (certifiedDrivers / totalDrivers) * 100 : 0)
     },
     {
       title: "Insurance Coverage",
-      completed: 48,
-      total: 50,
-      percentage: 96,
-      status: 'excellent'
+      completed: coveredVehicles,
+      total: totalVehicles,
+      percentage: totalVehicles > 0 ? Math.round((coveredVehicles / totalVehicles) * 100) : 0,
+      status: buildStatus(totalVehicles > 0 ? (coveredVehicles / totalVehicles) * 100 : 0)
     },
     {
       title: "Safety Training",
-      completed: 32,
-      total: 42,
-      percentage: 76,
-      status: 'warning'
+      completed: trainedDrivers,
+      total: totalDrivers,
+      percentage: totalDrivers > 0 ? Math.round((trainedDrivers / totalDrivers) * 100) : 0,
+      status: buildStatus(totalDrivers > 0 ? (trainedDrivers / totalDrivers) * 100 : 0)
     }
   ]
 
@@ -457,12 +494,19 @@ const SafetyCompliance = ({ vehicles, drivers }: { vehicles?: unknown[]; drivers
 export function ComplianceWorkspace() {
   const { data: vehiclesData } = useVehicles()
   const { data: driversData } = useDrivers()
-  const { data: workOrders } = useWorkOrders()
+  const { data: inspectionsData } = useInspections()
+  const { data: certificationsData } = useCertifications()
+  const { data: trainingProgressData } = useTrainingProgress()
+  const { data: insurancePoliciesData } = useInsurancePolicies()
   const [activeView, setActiveView] = useState<'documents' | 'safety'>('documents')
 
   // Extract arrays from API response structure {data: [], meta: {}}
   const vehicles = Array.isArray(vehiclesData) ? vehiclesData : ((vehiclesData as any)?.data || [])
   const drivers = Array.isArray(driversData) ? driversData : ((driversData as any)?.data || [])
+  const inspections = Array.isArray(inspectionsData) ? inspectionsData : ((inspectionsData as any)?.data || [])
+  const certifications = Array.isArray(certificationsData) ? certificationsData : ((certificationsData as any)?.data || [])
+  const trainingProgress = Array.isArray(trainingProgressData) ? trainingProgressData : ((trainingProgressData as any)?.data || [])
+  const insurancePolicies = Array.isArray(insurancePoliciesData) ? insurancePoliciesData : ((insurancePoliciesData as any)?.data || [])
 
   return (
     <div className="h-screen flex flex-col">
@@ -476,7 +520,16 @@ export function ComplianceWorkspace() {
       </div>
       <div className="flex-1 overflow-hidden">
         {activeView === 'documents' && <DocumentManagement vehicles={vehicles} drivers={drivers} />}
-        {activeView === 'safety' && <SafetyCompliance vehicles={vehicles} drivers={drivers} />}
+        {activeView === 'safety' && (
+          <SafetyCompliance
+            vehicles={vehicles}
+            drivers={drivers}
+            inspections={inspections}
+            certifications={certifications}
+            trainingProgress={trainingProgress}
+            insurancePolicies={insurancePolicies}
+          />
+        )}
       </div>
     </div>
   )

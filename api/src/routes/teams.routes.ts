@@ -96,10 +96,19 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
       const client = (req as any).dbClient || pool
       const result = await client.query(
-        `SELECT id, name AS "displayName", description
-         FROM teams
-         WHERE tenant_id = $1 AND is_active = true
-         ORDER BY name`,
+        `SELECT
+           t.id,
+           t.name AS name,
+           t.description,
+           t.team_type AS department,
+           t.team_lead_id AS "managerId",
+           t.created_at AS "createdAt",
+           COUNT(tm.id)::int AS "memberCount"
+         FROM teams t
+         LEFT JOIN team_members tm ON tm.team_id = t.id AND tm.is_active = true
+         WHERE t.tenant_id = $1 AND t.is_active = true
+         GROUP BY t.id
+         ORDER BY t.name`,
         [tenantId]
       )
       return res.json({ success: true, teams: result.rows })

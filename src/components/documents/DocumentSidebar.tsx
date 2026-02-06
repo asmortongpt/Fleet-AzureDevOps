@@ -19,7 +19,7 @@ import {
   Tag as TagIcon,
   FileText
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,84 +31,99 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Folder as FolderType } from '@/lib/documents/types';
+import { DocumentMetadata, Folder as FolderType } from '@/lib/documents/types';
 import { cn } from '@/lib/utils';
 
 interface DocumentSidebarProps {
+  documents?: DocumentMetadata[];
   currentFolderId?: string;
   onFolderSelect: (folderId: string | undefined) => void;
   className?: string;
 }
 
-// Mock folder data - replace with actual data
-const mockFolders: FolderType[] = [
-  {
-    id: 'incidents',
-    name: 'Incident Reports',
-    path: '/incidents',
-    color: 'text-red-500',
-    icon: 'alert-circle',
-    documentCount: 24,
-    createdAt: new Date(),
-    modifiedAt: new Date(),
-  },
-  {
-    id: 'evidence',
-    name: 'Evidence',
-    path: '/evidence',
-    color: 'text-blue-800',
-    icon: 'camera',
-    documentCount: 156,
-    createdAt: new Date(),
-    modifiedAt: new Date(),
-  },
-  {
-    id: 'vehicles',
-    name: 'Vehicle Documents',
-    path: '/vehicles',
-    color: 'text-green-500',
-    icon: 'truck',
-    documentCount: 89,
-    createdAt: new Date(),
-    modifiedAt: new Date(),
-  },
-  {
-    id: 'maintenance',
-    name: 'Maintenance Records',
-    parentId: 'vehicles',
-    path: '/vehicles/maintenance',
-    documentCount: 45,
-    createdAt: new Date(),
-    modifiedAt: new Date(),
-  },
-  {
-    id: 'insurance',
-    name: 'Insurance',
-    path: '/insurance',
-    color: 'text-purple-500',
-    icon: 'shield',
-    documentCount: 32,
-    createdAt: new Date(),
-    modifiedAt: new Date(),
-  },
-  {
-    id: 'contracts',
-    name: 'Contracts',
-    path: '/contracts',
-    color: 'text-orange-500',
-    icon: 'file-text',
-    documentCount: 18,
-    createdAt: new Date(),
-    modifiedAt: new Date(),
-  },
-];
+const CATEGORY_META: Record<string, { label: string; color: string; path: string }> = {
+  'incident-reports': { label: 'Incident Reports', color: 'text-red-500', path: '/incidents' },
+  evidence: { label: 'Evidence', color: 'text-blue-800', path: '/evidence' },
+  'vehicle-docs': { label: 'Vehicle Documents', color: 'text-green-500', path: '/vehicles' },
+  maintenance: { label: 'Maintenance Records', color: 'text-amber-500', path: '/maintenance' },
+  insurance: { label: 'Insurance', color: 'text-purple-500', path: '/insurance' },
+  contracts: { label: 'Contracts', color: 'text-orange-500', path: '/contracts' },
+  legal: { label: 'Legal', color: 'text-rose-500', path: '/legal' },
+  personal: { label: 'Personnel', color: 'text-slate-600', path: '/personnel' },
+  uncategorized: { label: 'Uncategorized', color: 'text-slate-400', path: '/uncategorized' }
+};
+
+function formatBytes(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes <= 0) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let value = bytes;
+  let unitIndex = 0;
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
+  }
+  return `${value.toFixed(value >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+}
 
 export function DocumentSidebar({
+  documents = [],
   currentFolderId,
   onFolderSelect,
   className
 }: DocumentSidebarProps) {
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['vehicles']));
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+
+  const folderData = useMemo(() => {
+    const folderMap = new Map<string, FolderType>();
+
+    documents.forEach((doc) => {
+      const category = doc.category || 'uncategorized';
+      const meta = CATEGORY_META[category] || {
+        label: category
+          .split('-')
+          .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+          .join(' '),
+        color: 'text-slate-500',
+        path: `/${category}`,
+      };
+
+      const existing = folderMap.get(category);
+      if (existing) {
+        existing.documentCount += 1;
+        existing.modifiedAt = doc.modifiedAt > existing.modifiedAt ? doc.modifiedAt : existing.modifiedAt;
+      } else {
+        folderMap.set(category, {
+          id: category,
+          name: meta.label,
+          path: meta.path,
+          color: meta.color,
+          documentCount: 1,
+          createdAt: doc.createdAt,
+          modifiedAt: doc.modifiedAt,
+        });
+      }
+    });
+
+    return Array.from(folderMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [documents]);
+
+  const quickStats = useMemo(() => {
+    const total = documents.length;
+    const now = new Date();
+    const recentCutoff = new Date(now);
+    recentCutoff.setDate(now.getDate() - 30);
+
+    const favorites = documents.filter((doc) =>
+      (doc.tags || []).some((tag) => ['favorite', 'starred', 'important'].includes(tag.toLowerCase()))
+    ).length;
+
+    const recent = documents.filter((doc) => doc.createdAt && doc.createdAt >= recentCutoff).length;
+    const shared = documents.filter((doc) => doc.isShared).length;
+    const tagged = documents.filter((doc) => (doc.tags || []).length > 0).length;
+    const totalSize = documents.reduce((sum, doc) => sum + (doc.size || 0), 0);
+
+    return { total, favorites, recent, shared, tagged, totalSize };
+  }, [documents]);
 
   const toggleFolder = (folderId: string) => {
     const newExpanded = new Set(expandedFolders);
@@ -120,8 +135,8 @@ export function DocumentSidebar({
     setExpandedFolders(newExpanded);
   };
 
-  const rootFolders = mockFolders.filter(f => !f.parentId);
-  const getChildFolders = (parentId: string) => mockFolders.filter(f => f.parentId === parentId);
+  const rootFolders = folderData;
+  const getChildFolders = (_parentId: string) => [] as FolderType[];
 
   return (
     <aside className={cn('flex flex-col bg-sidebar border-r', className)}>
@@ -139,29 +154,29 @@ export function DocumentSidebar({
           <QuickLink
             icon={FileText}
             label="All Documents"
-            count={319}
+            count={quickStats.total}
             active={!currentFolderId}
             onClick={() => onFolderSelect(undefined)}
           />
           <QuickLink
             icon={Star}
             label="Favorites"
-            count={12}
+            count={quickStats.favorites}
           />
           <QuickLink
             icon={Clock}
             label="Recent"
-            count={24}
+            count={quickStats.recent}
           />
           <QuickLink
             icon={Share2}
             label="Shared"
-            count={8}
+            count={quickStats.shared}
           />
           <QuickLink
             icon={TagIcon}
             label="Tagged"
-            count={156}
+            count={quickStats.tagged}
           />
         </div>
       </div>
@@ -216,10 +231,7 @@ export function DocumentSidebar({
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Storage used</span>
-            <span className="font-medium">2.4 GB / 10 GB</span>
-          </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-primary w-[24%]" />
+            <span className="font-medium">{formatBytes(quickStats.totalSize)}</span>
           </div>
         </div>
       </div>

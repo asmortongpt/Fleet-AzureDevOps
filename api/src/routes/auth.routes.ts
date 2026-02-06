@@ -39,8 +39,7 @@ const mfaVerifySchema = z.object({
 export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditService): Router {
   const router = Router();
 
-// Apply authentication to all routes
-router.use(authenticateJWT)
+// Note: Do not apply authentication globally. Login/register must be public.
   const authService = new AuthenticationService(pool, redis);
 
   /**
@@ -129,7 +128,7 @@ router.use(authenticateJWT)
    * POST /auth/logout
    * Revoke current session
    */
-  router.post('/logout', async (req: Request, res: Response, next) => {
+  router.post('/logout', authenticateJWT, async (req: Request, res: Response, next) => {
     try {
       const user = (req as any).user;
       if (!user || !user.sessionUuid) {
@@ -164,7 +163,7 @@ router.use(authenticateJWT)
    * POST /auth/refresh
    * Refresh access token using refresh token
    */
-  router.post('/refresh', async (req: Request, res: Response, next) => {
+  router.post('/refresh', authenticateJWT, async (req: Request, res: Response, next) => {
     try {
       const { refreshToken } = req.body;
       if (!refreshToken) {
@@ -186,7 +185,7 @@ router.use(authenticateJWT)
    * POST /auth/mfa/setup
    * Setup MFA for authenticated user
    */
-  router.post('/mfa/setup', async (req: Request, res: Response, next) => {
+  router.post('/mfa/setup', authenticateJWT, async (req: Request, res: Response, next) => {
     try {
       const user = (req as any).user;
       if (!user) {
@@ -212,7 +211,7 @@ router.use(authenticateJWT)
    * POST /auth/mfa/verify
    * Verify and enable MFA
    */
-  router.post('/mfa/verify', async (req: Request, res: Response, next) => {
+  router.post('/mfa/verify', authenticateJWT, async (req: Request, res: Response, next) => {
     try {
       const user = (req as any).user;
       if (!user) {
@@ -247,7 +246,7 @@ router.use(authenticateJWT)
    * GET /auth/me
    * Get current authenticated user info
    */
-  router.get('/me', async (req: Request, res: Response, next) => {
+  router.get('/me', authenticateJWT, async (req: Request, res: Response, next) => {
     try {
       const user = (req as any).user;
       if (!user) {

@@ -1,7 +1,7 @@
 /**
  * useInventory Hook
  *
- * React hook for managing inventory with API integration and emulator support.
+ * React hook for managing inventory with API integration.
  * Provides comprehensive parts management, transactions, and stock tracking.
  *
  * Features:
@@ -18,9 +18,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-import { apiClient } from "@/lib/api-client"
 import { Part, InventoryTransaction } from "@/lib/types"
 import logger from '@/utils/logger';
+import { secureFetch } from "@/hooks/use-api"
 export interface InventoryStats {
   totalParts: number
   totalValue: number
@@ -32,15 +32,74 @@ export interface InventoryStats {
 /**
  * Fetch all parts
  */
+const unwrapRows = <T,>(payload: any): T[] => {
+  if (Array.isArray(payload)) return payload as T[]
+  if (payload?.data && Array.isArray(payload.data)) return payload.data as T[]
+  if (payload?.data?.data && Array.isArray(payload.data.data)) return payload.data.data as T[]
+  return []
+}
+
+const mapCategory = (category?: string): Part['category'] => {
+  switch (category) {
+    case 'fluids':
+      return 'fluids'
+    case 'tires':
+      return 'tires'
+    case 'filters':
+      return 'filters'
+    case 'electrical':
+    case 'lighting':
+    case 'batteries':
+      return 'electrical'
+    case 'brakes':
+      return 'brakes'
+    case 'engine':
+      return 'engine'
+    case 'transmission':
+      return 'transmission'
+    default:
+      return 'other'
+  }
+}
+
+const mapInventoryItemToPart = (row: any): Part => {
+  const quantityOnHand = Number(row.quantity_on_hand ?? row.quantityOnHand ?? 0)
+  const reorderPoint = Number(row.reorder_point ?? row.reorderPoint ?? 0)
+  const reorderQuantity = Number(row.reorder_quantity ?? 0)
+  return {
+    id: row.id,
+    partNumber: row.part_number || row.partNumber || row.sku || '',
+    name: row.name,
+    description: row.description || '',
+    category: mapCategory(row.category),
+    manufacturer: row.manufacturer || row.primary_supplier_name || 'Unknown',
+    compatibleVehicles: row.compatible_models || row.compatible_vehicles || [],
+    quantityOnHand,
+    minStockLevel: reorderPoint,
+    maxStockLevel: reorderPoint + (reorderQuantity || 0),
+    reorderPoint,
+    unitCost: Number(row.unit_cost ?? row.unitCost ?? 0),
+    location: row.warehouse_location || row.bin_location || row.location || '',
+    preferredVendorId: row.primary_supplier_id,
+    alternateVendors: [],
+    lastOrdered: row.last_ordered || row.last_restocked,
+    lastUsed: row.last_used,
+    imageUrl: row.metadata?.image_url
+  }
+}
+
 async function fetchParts(): Promise<Part[]> {
   try {
-    // Try API first
-    const response = await apiClient.get<Part[]>("/api/v1/inventory/parts")
-    return response
+    const response = await secureFetch("/api/inventory/items?limit=200")
+    if (!response.ok) {
+      throw new Error(`Failed to fetch inventory items (${response.status})`)
+    }
+    const payload = await response.json()
+    const rows = unwrapRows<any>(payload)
+    return rows.map(mapInventoryItemToPart)
   } catch (error) {
-    // Fallback to emulator data
-    logger.warn("API unavailable, using emulator data")
-    return generateEmulatorParts()
+    logger.error("Inventory API unavailable", error)
+    return []
   }
 }
 
@@ -48,14 +107,8 @@ async function fetchParts(): Promise<Part[]> {
  * Fetch inventory stats
  */
 async function fetchInventoryStats(): Promise<InventoryStats> {
-  try {
-    const response = await apiClient.get<InventoryStats>("/api/v1/inventory/stats")
-    return response
-  } catch (error) {
-    logger.warn("Stats API unavailable, calculating from parts")
-    const parts = await fetchParts()
-    return calculateStats(parts)
-  }
+  const parts = await fetchParts()
+  return calculateStats(parts)
 }
 
 /**
@@ -64,12 +117,29 @@ async function fetchInventoryStats(): Promise<InventoryStats> {
 async function fetchTransactions(partId?: string): Promise<InventoryTransaction[]> {
   try {
     const url = partId
-      ? `/api/v1/inventory/transactions?partId=${partId}`
-      : "/api/v1/inventory/transactions"
-    const response = await apiClient.get<InventoryTransaction[]>(url)
-    return response
+      ? `/api/inventory/transactions?item_id=${encodeURIComponent(partId)}`
+      : "/api/inventory/transactions"
+    const response = await secureFetch(url)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch inventory transactions (${response.status})`)
+    }
+    const payload = await response.json()
+    const rows = unwrapRows<any>(payload)
+    return rows.map((row: any) => ({
+      id: row.id,
+      partId: row.item_id,
+      partNumber: row.part_number || row.sku || '',
+      type: row.transaction_type,
+      quantity: Number(row.quantity ?? 0),
+      date: row.timestamp || row.date || row.created_at,
+      reference: row.reference_number,
+      workOrderId: row.work_order_id,
+      cost: Number(row.total_cost ?? row.unit_cost ?? 0),
+      performedBy: row.user_name || 'Unknown',
+      notes: row.notes
+    }))
   } catch (error) {
-    logger.warn("Transactions API unavailable")
+    logger.error("Transactions API unavailable", error)
     return []
   }
 }
@@ -78,34 +148,60 @@ async function fetchTransactions(partId?: string): Promise<InventoryTransaction[
  * Create a new part
  */
 async function createPart(part: Partial<Part>): Promise<Part> {
-  const response = await apiClient.post<Part>("/api/v1/inventory/parts", part)
-  return response
+  const response = await secureFetch("/api/inventory/items", {
+    method: 'POST',
+    body: JSON.stringify(part)
+  })
+  if (!response.ok) throw new Error('Failed to create inventory item')
+  const payload = await response.json()
+  return mapInventoryItemToPart(payload.data || payload)
 }
 
 /**
  * Update a part
  */
 async function updatePart(partId: string, updates: Partial<Part>): Promise<Part> {
-  const response = await apiClient.put<Part>(`/api/v1/inventory/parts/${partId}`, updates)
-  return response
+  const response = await secureFetch(`/api/inventory/items/${partId}`, {
+    method: 'PUT',
+    body: JSON.stringify(updates)
+  })
+  if (!response.ok) throw new Error('Failed to update inventory item')
+  const payload = await response.json()
+  return mapInventoryItemToPart(payload.data || payload)
 }
 
 /**
  * Delete a part
  */
 async function deletePart(partId: string): Promise<void> {
-  await apiClient.delete(`/api/v1/inventory/parts/${partId}`)
+  const response = await secureFetch(`/api/inventory/items/${partId}`, { method: 'DELETE' })
+  if (!response.ok) throw new Error('Failed to delete inventory item')
 }
 
 /**
  * Create an inventory transaction
  */
 async function createTransaction(transaction: Partial<InventoryTransaction>): Promise<InventoryTransaction> {
-  const response = await apiClient.post<InventoryTransaction>(
-    "/api/v1/inventory/transactions",
-    transaction
-  )
-  return response
+  const response = await secureFetch("/api/inventory/transactions", {
+    method: 'POST',
+    body: JSON.stringify(transaction)
+  })
+  if (!response.ok) throw new Error('Failed to create inventory transaction')
+  const payload = await response.json()
+  const row = payload.data || payload
+  return {
+    id: row.id,
+    partId: row.item_id,
+    partNumber: row.part_number || row.sku || '',
+    type: row.transaction_type,
+    quantity: Number(row.quantity ?? 0),
+    date: row.timestamp || row.date || row.created_at,
+    reference: row.reference_number,
+    workOrderId: row.work_order_id,
+    cost: Number(row.total_cost ?? row.unit_cost ?? 0),
+    performedBy: row.user_name || 'Unknown',
+    notes: row.notes
+  }
 }
 
 /**
@@ -119,142 +215,6 @@ function calculateStats(parts: Part[]): InventoryStats {
     outOfStockCount: parts.filter(p => p.quantityOnHand === 0).length,
     overstockedCount: parts.filter(p => p.quantityOnHand >= p.maxStockLevel).length
   }
-}
-
-/**
- * Generate emulator parts data
- */
-function generateEmulatorParts(): Part[] {
-  return [
-    {
-      id: "part-1",
-      partNumber: "OIL-FILTER-001",
-      name: "Engine Oil Filter",
-      description: "High-performance oil filter for fleet vehicles",
-      category: "filters",
-      manufacturer: "ACDelco",
-      compatibleVehicles: ["vehicle-1", "vehicle-2", "vehicle-3"],
-      quantityOnHand: 45,
-      minStockLevel: 20,
-      maxStockLevel: 100,
-      reorderPoint: 30,
-      unitCost: 12.99,
-      location: "Shelf A-12",
-      alternateVendors: ["vendor-1", "vendor-2"]
-    },
-    {
-      id: "part-2",
-      partNumber: "BRAKE-PAD-002",
-      name: "Front Brake Pads",
-      description: "Ceramic brake pads for heavy-duty vehicles",
-      category: "brakes",
-      manufacturer: "Brembo",
-      compatibleVehicles: ["vehicle-1", "vehicle-4"],
-      quantityOnHand: 12,
-      minStockLevel: 10,
-      maxStockLevel: 50,
-      reorderPoint: 15,
-      unitCost: 89.99,
-      location: "Shelf B-5",
-      alternateVendors: ["vendor-3"]
-    },
-    {
-      id: "part-3",
-      partNumber: "AIR-FILTER-003",
-      name: "Engine Air Filter",
-      description: "Premium air filter for optimal engine performance",
-      category: "filters",
-      manufacturer: "K&N",
-      compatibleVehicles: ["vehicle-1", "vehicle-2", "vehicle-3", "vehicle-5"],
-      quantityOnHand: 8,
-      minStockLevel: 15,
-      maxStockLevel: 75,
-      reorderPoint: 20,
-      unitCost: 24.99,
-      location: "Shelf A-15",
-      alternateVendors: ["vendor-1"]
-    },
-    {
-      id: "part-4",
-      partNumber: "TIRE-ALL-004",
-      name: "All-Season Tire LT275/65R18",
-      description: "Commercial-grade all-season tire",
-      category: "tires",
-      manufacturer: "Michelin",
-      compatibleVehicles: ["vehicle-3", "vehicle-4"],
-      quantityOnHand: 0,
-      minStockLevel: 8,
-      maxStockLevel: 32,
-      reorderPoint: 12,
-      unitCost: 189.99,
-      location: "Tire Rack 1",
-      alternateVendors: ["vendor-4", "vendor-5"]
-    },
-    {
-      id: "part-5",
-      partNumber: "WIPER-BLADE-005",
-      name: "Windshield Wiper Blade 22in",
-      description: "Heavy-duty wiper blade",
-      category: "other",
-      manufacturer: "Bosch",
-      compatibleVehicles: ["vehicle-1", "vehicle-2", "vehicle-3", "vehicle-4", "vehicle-5"],
-      quantityOnHand: 28,
-      minStockLevel: 12,
-      maxStockLevel: 60,
-      reorderPoint: 18,
-      unitCost: 19.99,
-      location: "Shelf C-8",
-      alternateVendors: ["vendor-1", "vendor-2"]
-    },
-    {
-      id: "part-6",
-      partNumber: "BATTERY-006",
-      name: "Heavy-Duty Battery 12V 850CCA",
-      description: "Maintenance-free battery for fleet vehicles",
-      category: "electrical",
-      manufacturer: "Interstate",
-      compatibleVehicles: ["vehicle-1", "vehicle-3", "vehicle-4"],
-      quantityOnHand: 3,
-      minStockLevel: 5,
-      maxStockLevel: 20,
-      reorderPoint: 8,
-      unitCost: 149.99,
-      location: "Battery Cabinet",
-      alternateVendors: ["vendor-3", "vendor-4"]
-    },
-    {
-      id: "part-7",
-      partNumber: "COOLANT-007",
-      name: "Engine Coolant 1 Gallon",
-      description: "Extended life antifreeze/coolant",
-      category: "fluids",
-      manufacturer: "Prestone",
-      compatibleVehicles: ["vehicle-1", "vehicle-2", "vehicle-3", "vehicle-4", "vehicle-5"],
-      quantityOnHand: 65,
-      minStockLevel: 25,
-      maxStockLevel: 100,
-      reorderPoint: 35,
-      unitCost: 14.99,
-      location: "Fluids Storage",
-      alternateVendors: ["vendor-1", "vendor-2"]
-    },
-    {
-      id: "part-8",
-      partNumber: "SPARK-PLUG-008",
-      name: "Iridium Spark Plug",
-      description: "Long-life iridium spark plug",
-      category: "engine",
-      manufacturer: "NGK",
-      compatibleVehicles: ["vehicle-1", "vehicle-2"],
-      quantityOnHand: 42,
-      minStockLevel: 20,
-      maxStockLevel: 80,
-      reorderPoint: 30,
-      unitCost: 8.99,
-      location: "Shelf A-3",
-      alternateVendors: ["vendor-2", "vendor-3"]
-    }
-  ]
 }
 
 /**
@@ -389,16 +349,13 @@ export function usePart(partId: string) {
   const { data, isLoading, error } = useQuery<Part>({
     queryKey: ["inventory", "parts", partId],
     queryFn: async () => {
-      try {
-        const response = await apiClient.get<Part>(`/api/v1/inventory/parts/${partId}`)
-        return response
-      } catch (error) {
-        // Fallback to finding in emulator data
-        const parts = generateEmulatorParts()
-        const part = parts.find(p => p.id === partId)
-        if (!part) throw new Error("Part not found")
-        return part
+      const response = await secureFetch(`/api/inventory/items/${partId}`)
+      if (!response.ok) {
+        throw new Error(`Failed to fetch inventory item (${response.status})`)
       }
+      const payload = await response.json()
+      const row = payload.data || payload
+      return mapInventoryItemToPart(row)
     },
     enabled: !!partId,
     staleTime: 60 * 1000

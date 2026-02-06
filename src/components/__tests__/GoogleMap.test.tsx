@@ -132,7 +132,7 @@ describe('GoogleMap', () => {
     })
 
     it('should initialize map with custom center', async () => {
-      const customCenter: [number, number] = [-84.2807, 30.4383] // [lng, lat]
+      const customCenter: [number, number] = [30.4383, -84.2807] // [lat, lng]
       render(<GoogleMap center={customCenter} />)
 
       await waitFor(() => {

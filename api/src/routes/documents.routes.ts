@@ -167,13 +167,26 @@ router.get('/',
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
-      const { categoryId, search, status, uploadedBy, limit, offset } = req.query
+      const {
+        categoryId,
+        search,
+        status,
+        uploadedBy,
+        vehicle_id,
+        driver_id,
+        work_order_id,
+        limit,
+        offset
+      } = req.query
 
       const result = await documentManagementService.getDocuments(tenantId, {
         categoryId: categoryId as string,
         search: search as string,
         status: status as string,
         uploadedBy: uploadedBy as string,
+        vehicleId: vehicle_id as string,
+        driverId: driver_id as string,
+        workOrderId: work_order_id as string,
         limit: limit ? parseInt(limit as string) : 50,
         offset: offset ? parseInt(offset as string) : 0
       })

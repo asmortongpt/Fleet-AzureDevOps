@@ -13,7 +13,7 @@ import { MaintenanceRequestDialog } from '../modules/maintenance/MaintenanceRequ
 import { Badge } from '../ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 
-import { UnifiedFleetMap } from './UnifiedFleetMap'
+import { UniversalMap } from '../UniversalMap'
 
 import { useFleetData } from '@/hooks/use-fleet-data'
 import { Vehicle, GISFacility } from '@/lib/types'
@@ -39,8 +39,6 @@ export interface ProfessionalFleetMapProps {
   enableRealTime?: boolean
   /** Visual variant */
   variant?: 'default' | 'immersive'
-  /** Force the simulated grid view (fallback) */
-  forceSimulatedView?: boolean
 }
 
 /**
@@ -62,7 +60,6 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
   showLegend = true,
   enableRealTime = true,
   variant = 'default',
-  forceSimulatedView = false
 }) => {
   const fleetData = useFleetData()
   const [maintenanceDialogOpen, setMaintenanceDialogOpen] = React.useState(false)
@@ -153,14 +150,14 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
       <div className="relative w-full h-full">
         {/* Map Container */}
         <div style={{ height }} className="w-full">
-          <UnifiedFleetMap
+          <UniversalMap
             vehicles={vehicles}
             facilities={facilities}
-            enableRealTime={enableRealTime}
+            showVehicles={true}
+            showFacilities={true}
             onVehicleSelect={onVehicleSelect}
-            height={height}
-            forceSimulatedView={forceSimulatedView}
             onVehicleAction={handleVehicleAction}
+            className="h-full"
           />
         </div>
 
@@ -239,14 +236,14 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
         <div className="relative">
           {/* Map Container */}
           <div style={{ height }} className="w-full">
-            <UnifiedFleetMap
+            <UniversalMap
               vehicles={vehicles}
               facilities={facilities}
-              enableRealTime={enableRealTime}
+              showVehicles={true}
+              showFacilities={true}
               onVehicleSelect={onVehicleSelect}
-              height={height}
-              forceSimulatedView={forceSimulatedView}
               onVehicleAction={handleVehicleAction}
+              className="h-full"
             />
 
             {/* Maintenance Request Dialog */}

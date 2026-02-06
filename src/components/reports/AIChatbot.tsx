@@ -103,15 +103,14 @@ export function AIChatbot() {
     } catch (err) {
       logger.error('Chat error:', err);
 
-      // Mock response for demo
-      const mockResponse: Message = {
+      const errorResponse: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: `I understand you're asking about: "${input}". Here's what I found:\n\n• Total records: 156\n• Average value: $12,450\n• Top category: Maintenance (45%)\n\nWould you like me to generate a detailed report on this?`,
+        content: 'I could not reach the AI service right now. Please try again in a moment.',
         timestamp: new Date()
       };
 
-      setMessages((prev) => [...prev, mockResponse]);
+      setMessages((prev) => [...prev, errorResponse]);
     } finally {
       setSending(false);
     }

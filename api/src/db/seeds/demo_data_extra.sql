@@ -233,17 +233,34 @@ BEGIN
       );
   END IF;
 
-  -- Inventory Items (for inventory API / barcode scans)
+  -- Inventory Items (target: 100 small/portable items)
   IF (SELECT COUNT(*) FROM inventory_items WHERE tenant_id = tenant_id_var) = 0 THEN
     INSERT INTO inventory_items (
       tenant_id, sku, part_number, name, description, category, manufacturer,
       quantity_on_hand, reorder_point, reorder_quantity, unit_cost, list_price,
       warehouse_location, bin_location, primary_supplier_name, last_restocked
     )
-    VALUES
-      (tenant_id_var, 'BRK-1001', 'BRK-1001', 'Brake Pad Set', 'Heavy duty brake pads', 'parts', 'AutoParts Co', 42, 10, 25, 89.99, 129.99, 'WH-A', 'BIN-12', 'AutoParts Co', NOW() - INTERVAL '15 days'),
-      (tenant_id_var, 'OIL-2002', 'OIL-2002', 'Engine Oil 5W-30', 'Synthetic oil', 'fluids', 'LubeMax', 120, 40, 80, 18.50, 24.99, 'WH-B', 'BIN-03', 'LubeMax', NOW() - INTERVAL '7 days'),
-      (tenant_id_var, 'TIR-3003', 'TIR-3003', 'All-Season Tire', 'All season radial tire', 'tires', 'TireWorld', 16, 8, 12, 142.00, 199.00, 'WH-C', 'BIN-21', 'TireWorld', NOW() - INTERVAL '30 days');
+    SELECT
+      tenant_id_var,
+      'CTA-' || LPAD(gs::text, 4, '0'),
+      'CTA-' || LPAD(gs::text, 4, '0'),
+      (ARRAY[
+        'Portable Generator','Mobile Welder','Air Compressor','Hydraulic Jack','Cordless Drill',
+        'Impact Wrench','Pressure Washer','Light Tower','Safety Barrier','Battery Charger'
+      ])[((gs - 1) % 10) + 1] || ' ' || gs,
+      'CTA inventory item for field operations',
+      (ARRAY['equipment','tools','fluids','parts','safety','electrical'])[((gs - 1) % 6) + 1],
+      (ARRAY['CTA Supply','Gulf Tooling','Panhandle Industrial','Tallahassee Equip','Capital Fleet Parts'])[((gs - 1) % 5) + 1],
+      5 + (gs % 40),
+      5 + (gs % 15),
+      10 + (gs % 20),
+      75 + (gs * 3 % 250),
+      95 + (gs * 4 % 350),
+      (ARRAY['WH-A','WH-B','WH-C','WH-D'])[((gs - 1) % 4) + 1],
+      'BIN-' || LPAD((gs % 40)::text, 2, '0'),
+      (ARRAY['CTA Supply','Gulf Tooling','Panhandle Industrial','Tallahassee Equip','Capital Fleet Parts'])[((gs - 1) % 5) + 1],
+      NOW() - ((gs % 45) || ' days')::interval
+    FROM generate_series(1, 100) AS gs;
   END IF;
 
   -- Warranty Records & Claims
@@ -483,6 +500,199 @@ BEGIN
     SELECT tenant_id_var, (SELECT id FROM report_templates WHERE tenant_id = tenant_id_var LIMIT 1),
            'Maintenance Summary', NOW() - INTERVAL '1 day', admin_user_var, 'pdf', 245678, 'completed',
            '/api/reports/download/maintenance-summary.pdf';
+  END IF;
+
+  -- Employees (staff directory, target 100)
+  IF (SELECT COUNT(*) FROM employees WHERE tenant_id = tenant_id_var) = 0 THEN
+    INSERT INTO employees (
+      tenant_id, user_id, first_name, last_name, email, phone, role, department,
+      status, employee_type, hire_date, manager_id, performance_rating,
+      certifications, last_review_date, next_review_date
+    )
+    SELECT
+      tenant_id_var,
+      u.id,
+      u.first_name,
+      u.last_name,
+      u.email,
+      u.phone,
+      COALESCE(u.role, 'User'),
+      (ARRAY['Operations','Maintenance','Dispatch','Safety','Administration','Logistics'])[((rn - 1) % 6) + 1],
+      CASE WHEN rn % 12 = 0 THEN 'on_leave'
+           WHEN rn % 25 = 0 THEN 'inactive'
+           ELSE 'active'
+      END,
+      (ARRAY['full_time','full_time','full_time','part_time','contractor'])[((rn - 1) % 5) + 1],
+      (CURRENT_DATE - ((rn * 13) % 2200) * INTERVAL '1 day')::date,
+      admin_user_var,
+      70 + ((rn * 3) % 30),
+      ARRAY['OSHA-10','DOT-Compliance','Defensive Driving'],
+      (CURRENT_DATE - ((rn * 7) % 360) * INTERVAL '1 day')::date,
+      (CURRENT_DATE + ((rn * 11) % 360) * INTERVAL '1 day')::date
+    FROM (
+      SELECT u.*, ROW_NUMBER() OVER (ORDER BY u.created_at) AS rn
+      FROM users u
+      WHERE u.tenant_id = tenant_id_var
+      ORDER BY u.created_at
+      LIMIT 100
+    ) u;
+  END IF;
+
+  -- Teams (organizational) + Members
+  IF (SELECT COUNT(*) FROM teams WHERE tenant_id = tenant_id_var) = 0 THEN
+    INSERT INTO teams (
+      tenant_id, name, description, team_type, team_lead_id, email, phone,
+      location, facility_id, shift_start, shift_end, timezone, is_active
+    )
+    SELECT
+      tenant_id_var,
+      t.name,
+      t.description,
+      t.team_type,
+      admin_user_var,
+      t.email,
+      t.phone,
+      t.location,
+      facility_id_var,
+      t.shift_start,
+      t.shift_end,
+      'America/New_York',
+      true
+    FROM (
+      VALUES
+        ('Operations Dispatch', 'City-wide dispatch coordination', 'operations', 'dispatch@cta-fleet.local', '(850) 555-0301', 'Central Ops', '06:00'::time, '18:00'::time),
+        ('Maintenance Crew A', 'Fleet preventive maintenance', 'maintenance', 'maintenance-a@cta-fleet.local', '(850) 555-0302', 'North Yard', '07:00'::time, '15:00'::time),
+        ('Maintenance Crew B', 'Heavy equipment service', 'maintenance', 'maintenance-b@cta-fleet.local', '(850) 555-0303', 'South Yard', '12:00'::time, '20:00'::time),
+        ('Safety & Compliance', 'Safety training and audits', 'safety', 'safety@cta-fleet.local', '(850) 555-0304', 'Operations Center', '08:00'::time, '16:00'::time),
+        ('Logistics Planning', 'Route planning and resource allocation', 'logistics', 'logistics@cta-fleet.local', '(850) 555-0305', 'Operations Center', '06:00'::time, '14:00'::time),
+        ('Fleet Admin', 'Admin & finance support', 'administration', 'admin@cta-fleet.local', '(850) 555-0306', 'HQ', '08:00'::time, '17:00'::time)
+    ) AS t(name, description, team_type, email, phone, location, shift_start, shift_end);
+  END IF;
+
+  IF (SELECT COUNT(*) FROM team_members tm JOIN teams t ON t.id = tm.team_id WHERE t.tenant_id = tenant_id_var) = 0 THEN
+    INSERT INTO team_members (team_id, user_id, role, joined_at, is_active)
+    SELECT
+      t.id,
+      u.id,
+      CASE WHEN u.id = t.team_lead_id THEN 'lead' ELSE 'member' END,
+      NOW() - ((row_number() OVER ()) % 180) * INTERVAL '1 day',
+      true
+    FROM teams t
+    JOIN LATERAL (
+      SELECT id
+      FROM users
+      WHERE tenant_id = tenant_id_var
+      ORDER BY random()
+      LIMIT 12
+    ) u ON true
+    WHERE t.tenant_id = tenant_id_var;
+  END IF;
+
+  -- Assets (heavy equipment + tools)
+  IF (SELECT COUNT(*) FROM assets WHERE tenant_id = tenant_id_var AND type = 'equipment') = 0 THEN
+    WITH new_assets AS (
+      INSERT INTO assets (
+        tenant_id, asset_number, name, description, type, category, manufacturer, model,
+        serial_number, purchase_date, purchase_price, current_value, status, condition,
+        assigned_facility_id, last_maintenance_date, next_maintenance_date, metadata
+      )
+      SELECT
+        tenant_id_var,
+        'EQP-' || LPAD(gs::text, 4, '0'),
+        (ARRAY['Excavator','Bulldozer','Crane','Loader','Backhoe','Dump Truck','Forklift'])[((gs - 1) % 7) + 1] || ' ' || gs,
+        'CTA heavy equipment asset',
+        'equipment',
+        'heavy',
+        (ARRAY['Caterpillar','John Deere','Komatsu','Volvo','JCB'])[((gs - 1) % 5) + 1],
+        'Series ' || ((gs - 1) % 5 + 1),
+        'SN-EQP-' || LPAD(gs::text, 6, '0'),
+        (CURRENT_DATE - ((gs * 37) % 2200) * INTERVAL '1 day')::date,
+        75000 + (gs * 1200 % 110000),
+        42000 + (gs * 900 % 80000),
+        CASE WHEN gs % 12 = 0 THEN 'maintenance' ELSE 'active' END,
+        (ARRAY['excellent','good','good','fair'])[((gs - 1) % 4) + 1],
+        facility_id_var,
+        (CURRENT_DATE - ((gs * 9) % 180) * INTERVAL '1 day')::date,
+        (CURRENT_DATE + ((gs * 11) % 180) * INTERVAL '1 day')::date,
+        jsonb_build_object('yard','Tallahassee','gps','enabled')
+      FROM generate_series(1, 70) AS gs
+      RETURNING id
+    )
+    INSERT INTO heavy_equipment (
+      tenant_id, asset_id, equipment_type, model_year, engine_hours, engine_type,
+      weight_capacity_lbs, load_capacity, reach_distance_ft, inspection_required,
+      last_inspection_date, next_inspection_date, certification_number,
+      requires_certification, operator_license_type, metadata, created_by
+    )
+    SELECT
+      tenant_id_var,
+      id,
+      (ARRAY['excavator','bulldozer','crane','loader','backhoe','dump_truck','forklift'])[((ROW_NUMBER() OVER ()) - 1) % 7 + 1],
+      2016 + ((ROW_NUMBER() OVER ()) % 8),
+      1200 + ((ROW_NUMBER() OVER ()) * 37 % 2200),
+      (ARRAY['diesel','diesel','hybrid'])[((ROW_NUMBER() OVER ()) - 1) % 3 + 1],
+      12000 + ((ROW_NUMBER() OVER ()) * 200 % 16000),
+      8000 + ((ROW_NUMBER() OVER ()) * 150 % 9000),
+      18 + ((ROW_NUMBER() OVER ()) % 12),
+      true,
+      CURRENT_DATE - ((ROW_NUMBER() OVER ()) % 120) * INTERVAL '1 day',
+      CURRENT_DATE + ((ROW_NUMBER() OVER ()) % 180) * INTERVAL '1 day',
+      'CTA-CERT-' || LPAD((ROW_NUMBER() OVER ())::text, 4, '0'),
+      true,
+      'Class A',
+      jsonb_build_object('inspector','CTA Safety'),
+      admin_user_var
+    FROM new_assets;
+  END IF;
+
+  IF (SELECT COUNT(*) FROM assets WHERE tenant_id = tenant_id_var AND type = 'tool') = 0 THEN
+    INSERT INTO assets (
+      tenant_id, asset_number, name, description, type, category, manufacturer, model,
+      serial_number, purchase_date, purchase_price, current_value, status, condition,
+      assigned_facility_id, last_maintenance_date, next_maintenance_date, metadata
+    )
+    SELECT
+      tenant_id_var,
+      'TOOL-' || LPAD(gs::text, 4, '0'),
+      (ARRAY['Generator','Welder','Compressor','Light Tower','Pressure Washer','Hydraulic Jack','Saw','Pump'])[((gs - 1) % 8) + 1] || ' ' || gs,
+      'CTA portable asset',
+      'tool',
+      'portable',
+      (ARRAY['Milwaukee','DeWalt','Honda','Caterpillar','Makita'])[((gs - 1) % 5) + 1],
+      'Model ' || ((gs - 1) % 6 + 1),
+      'SN-TOOL-' || LPAD(gs::text, 6, '0'),
+      (CURRENT_DATE - ((gs * 21) % 1400) * INTERVAL '1 day')::date,
+      1200 + (gs * 35 % 5000),
+      600 + (gs * 25 % 2800),
+      CASE WHEN gs % 10 = 0 THEN 'maintenance' ELSE 'active' END,
+      (ARRAY['excellent','good','good','fair'])[((gs - 1) % 4) + 1],
+      facility_id_var,
+      (CURRENT_DATE - ((gs * 5) % 180) * INTERVAL '1 day')::date,
+      (CURRENT_DATE + ((gs * 7) % 180) * INTERVAL '1 day')::date,
+      jsonb_build_object('portable',true)
+    FROM generate_series(1, 100) AS gs;
+  END IF;
+
+  -- Performance Reviews
+  IF (SELECT COUNT(*) FROM performance_reviews WHERE tenant_id = tenant_id_var) = 0 THEN
+    INSERT INTO performance_reviews (
+      tenant_id, employee_id, reviewer_id, rating, review_date, status, notes
+    )
+    SELECT
+      tenant_id_var,
+      e.id,
+      e.manager_id,
+      70 + ((ROW_NUMBER() OVER ()) * 3 % 30),
+      (CURRENT_DATE - ((ROW_NUMBER() OVER ()) * 11 % 360) * INTERVAL '1 day')::date,
+      CASE WHEN (ROW_NUMBER() OVER ()) % 12 = 0 THEN 'scheduled'
+           WHEN (ROW_NUMBER() OVER ()) % 19 = 0 THEN 'overdue'
+           ELSE 'completed'
+      END,
+      'Quarterly performance review'
+    FROM employees e
+    WHERE e.tenant_id = tenant_id_var
+    ORDER BY e.created_at
+    LIMIT 60;
   END IF;
 
   -- Performance Metrics (add CPU/requests for trend)

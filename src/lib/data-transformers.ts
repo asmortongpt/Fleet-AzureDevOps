@@ -13,13 +13,13 @@ export function transformVehicle(apiVehicle: any): Vehicle {
   return {
     id: apiVehicle?.id?.toString() || '',
     tenantId: apiVehicle?.tenant_id?.toString() || '',
-    number: apiVehicle?.vehicle_number || apiVehicle?.unit_number || apiVehicle?.id?.toString() || '',
-    type: normalizeVehicleType(apiVehicle?.vehicle_type) || 'sedan',
+    number: apiVehicle?.number || apiVehicle?.vehicle_number || apiVehicle?.unit_number || apiVehicle?.id?.toString() || '',
+    type: normalizeVehicleType(apiVehicle?.type || apiVehicle?.vehicle_type) || 'sedan',
     make: apiVehicle?.make || '',
     model: apiVehicle?.model || '',
     year: apiVehicle?.year || 0,
     vin: apiVehicle?.vin || '',
-    licensePlate: apiVehicle?.license_plate || '',
+    licensePlate: apiVehicle?.license_plate || apiVehicle?.licensePlate || '',
     status: normalizeStatus(apiVehicle?.status) || 'idle',
     location: parseLocation(apiVehicle),
     region: apiVehicle?.region || '',
@@ -124,8 +124,22 @@ function normalizeStatus(status: string | undefined): Vehicle['status'] {
 
 function parseLocation(apiVehicle: any) {
   // Try to get lat/lng from dedicated fields
-  let lat = parseFloat(apiVehicle?.location_lat || '0')
-  let lng = parseFloat(apiVehicle?.location_lng || '0')
+  let lat = parseFloat(
+    apiVehicle?.location_lat ??
+    apiVehicle?.latitude ??
+    apiVehicle?.lat ??
+    apiVehicle?.location?.lat ??
+    apiVehicle?.location?.latitude ??
+    '0'
+  )
+  let lng = parseFloat(
+    apiVehicle?.location_lng ??
+    apiVehicle?.longitude ??
+    apiVehicle?.lng ??
+    apiVehicle?.location?.lng ??
+    apiVehicle?.location?.longitude ??
+    '0'
+  )
 
   const hasLat = Number.isFinite(lat) && lat !== 0
   const hasLng = Number.isFinite(lng) && lng !== 0
@@ -135,7 +149,7 @@ function parseLocation(apiVehicle: any) {
   }
 
   // Get address
-  let address = apiVehicle?.location
+  let address = apiVehicle?.location || apiVehicle?.location_address
   if (typeof address !== 'string') {
     address = apiVehicle?.address || [apiVehicle?.city, apiVehicle?.state].filter(Boolean).join(', ')
   }

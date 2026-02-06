@@ -1,6 +1,9 @@
 /**
- * Warranty and Recall Service - Types and Mock Implementation
+ * Warranty and Recall Service - API Implementation
  */
+
+import { secureFetch } from '@/hooks/use-api'
+import logger from '@/utils/logger'
 
 export interface WarrantyClaim {
   id: string;
@@ -48,9 +51,9 @@ export interface RecallAffectedInventory {
 
 export interface VendorContact {
   name: string;
-  department: string;
+  department?: string;
   email: string;
-  phone: string;
+  phone?: string;
 }
 
 export interface RecallInfo {
@@ -118,279 +121,309 @@ export interface ComplianceReport {
   recallAnalytics: RecallAnalytics;
 }
 
-// Mock data storage
-const mockWarranties: Map<string, WarrantyInfo> = new Map();
-const mockRecalls: Map<string, RecallInfo> = new Map();
+const unwrapRows = <T,>(payload: any): T[] => {
+  if (Array.isArray(payload)) return payload as T[]
+  if (payload?.data && Array.isArray(payload.data)) return payload.data as T[]
+  if (payload?.data?.data && Array.isArray(payload.data.data)) return payload.data.data as T[]
+  return []
+}
 
-// Initialize mock data
-const initializeMockData = () => {
-  // Mock warranties
-  const warranties: WarrantyInfo[] = [
-    {
-      id: 'w1',
-      partId: 'p1',
-      partNumber: 'BRK-2024-001',
-      partName: 'Heavy Duty Brake Pads',
-      vendorId: 'v1',
-      vendorName: 'AutoParts Pro',
-      warrantyType: 'MANUFACTURER',
-      warrantyStartDate: '2024-01-15',
-      warrantyEndDate: '2025-01-15',
-      coverageDetails: 'Full replacement for manufacturing defects',
-      terms: '12-month coverage from date of purchase',
-      status: 'ACTIVE',
-      claimHistory: [
-        {
-          id: 'c1',
-          claimNumber: 'CLM-2024-001',
-          dateSubmitted: '2024-06-15',
-          issueDescription: 'Premature wear on front brake pads',
-          claimType: 'DEFECT',
-          status: 'RESOLVED',
-          resolution: 'Full replacement provided',
-          attachments: []
-        }
-      ],
-      notifications: [
-        {
-          id: 'n1',
-          type: 'EXPIRY_WARNING',
-          message: 'Warranty expiring in 30 days',
-          acknowledged: false,
-          date: '2024-12-15'
-        }
-      ]
-    },
-    {
-      id: 'w2',
-      partId: 'p2',
-      partNumber: 'ENG-2024-002',
-      partName: 'Engine Oil Filter',
-      vendorId: 'v2',
-      vendorName: 'FilterMax Industries',
-      warrantyType: 'PARTS',
-      warrantyStartDate: '2024-03-01',
-      warrantyEndDate: '2025-03-01',
-      coverageDetails: 'Replacement for defective filters',
-      terms: '12-month coverage',
-      status: 'ACTIVE',
-      claimHistory: [],
-      notifications: []
-    },
-    {
-      id: 'w3',
-      partId: 'p3',
-      partNumber: 'TIR-2024-003',
-      partName: 'All-Season Tires',
-      vendorId: 'v3',
-      vendorName: 'TireWorld Global',
-      warrantyType: 'COMPREHENSIVE',
-      warrantyStartDate: '2024-02-01',
-      warrantyEndDate: '2024-02-15',
-      coverageDetails: 'Full coverage including road hazards',
-      terms: '24-month or 50,000 mile coverage',
-      status: 'EXPIRED',
-      claimHistory: [
-        {
-          id: 'c2',
-          claimNumber: 'CLM-2024-002',
-          dateSubmitted: '2024-05-20',
-          issueDescription: 'Sidewall damage',
-          claimType: 'DAMAGE',
-          status: 'APPROVED',
-          resolution: 'Pro-rated replacement',
-          attachments: []
-        }
-      ],
-      notifications: []
+const unwrapData = <T,>(payload: any): T => {
+  if (payload?.data !== undefined) return payload.data as T
+  return payload as T
+}
+
+const parseJsonArray = (value: any): string[] => {
+  if (Array.isArray(value)) return value as string[]
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value)
+      return Array.isArray(parsed) ? parsed : []
+    } catch {
+      return []
     }
-  ];
+  }
+  return []
+}
 
-  warranties.forEach(w => mockWarranties.set(w.id, w));
+const createExpiryNotifications = (warranty: WarrantyInfo): WarrantyNotification[] => {
+  if (!warranty.warrantyEndDate) return []
+  const endDate = new Date(warranty.warrantyEndDate)
+  const now = new Date()
+  const daysRemaining = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
 
-  // Mock recalls
-  const recalls: RecallInfo[] = [
-    {
-      id: 'r1',
-      recallNumber: 'RCL-2024-001',
-      title: 'Brake Caliper Safety Recall',
-      description: 'Potential brake caliper mounting bolt loosening under extreme conditions',
-      severity: 'SAFETY',
-      urgency: 'IMMEDIATE',
-      issuedBy: 'NHTSA',
-      dateIssued: '2024-06-01',
-      effectiveDate: '2024-06-15',
-      complianceDeadline: '2024-09-01',
-      affectedParts: ['BRK-CAL-001', 'BRK-CAL-002', 'BRK-CAL-003'],
-      affectedInventory: [
-        {
-          partId: 'inv1',
-          partNumber: 'BRK-CAL-001',
-          location: 'Warehouse A',
-          actionRequired: 'REPLACE',
-          complianceStatus: 'PENDING'
-        },
-        {
-          partId: 'inv2',
-          partNumber: 'BRK-CAL-002',
-          location: 'Warehouse B',
-          actionRequired: 'INSPECT',
-          complianceStatus: 'COMPLETED'
-        }
-      ],
-      remedyDescription: 'Replace affected brake calipers with updated units. Inspect all mounting hardware.',
-      vendorContact: {
-        name: 'John Smith',
-        department: 'Safety Compliance',
-        email: 'jsmith@autopartspro.com',
-        phone: '555-123-4567'
-      },
-      status: 'ACTIVE'
-    },
-    {
-      id: 'r2',
-      recallNumber: 'RCL-2024-002',
-      title: 'Fuel Line Connector Quality Issue',
-      description: 'Some fuel line connectors may develop micro-cracks over time',
-      severity: 'QUALITY',
-      urgency: 'MODERATE',
-      issuedBy: 'Manufacturer',
-      dateIssued: '2024-07-15',
-      effectiveDate: '2024-08-01',
-      affectedParts: ['FUEL-CON-001'],
-      affectedInventory: [
-        {
-          partId: 'inv3',
-          partNumber: 'FUEL-CON-001',
-          location: 'Warehouse C',
-          actionRequired: 'INSPECT',
-          complianceStatus: 'IN_PROGRESS'
-        }
-      ],
-      remedyDescription: 'Inspect all fuel line connectors from affected batch. Replace if any damage found.',
-      vendorContact: {
-        name: 'Sarah Johnson',
-        department: 'Quality Assurance',
-        email: 'sjohnson@fuelparts.com',
-        phone: '555-987-6543'
-      },
-      status: 'ACTIVE'
-    }
-  ];
+  if (daysRemaining <= 0) return []
+  if (daysRemaining > 90) return []
 
-  recalls.forEach(r => mockRecalls.set(r.id, r));
-};
+  return [{
+    id: `${warranty.id}-expiry-${daysRemaining}`,
+    type: daysRemaining <= 30 ? 'EXPIRY_WARNING' : 'EXPIRY_NOTICE',
+    message: `Warranty expires in ${daysRemaining} day${daysRemaining === 1 ? '' : 's'}.`,
+    acknowledged: false,
+    date: now.toISOString()
+  }]
+}
 
 class WarrantyRecallServiceClass {
-  warranties: Map<string, WarrantyInfo> = mockWarranties;
-  recalls: Map<string, RecallInfo> = mockRecalls;
-
   async initializeWarranties(): Promise<void> {
-    if (mockWarranties.size === 0) {
-      initializeMockData();
-    }
-    this.warranties = mockWarranties;
+    return
   }
 
   async initializeRecalls(): Promise<void> {
-    if (mockRecalls.size === 0) {
-      initializeMockData();
-    }
-    this.recalls = mockRecalls;
+    return
   }
 
   async getAllWarranties(): Promise<WarrantyInfo[]> {
-    return Array.from(this.warranties.values());
+    try {
+      const response = await secureFetch('/api/warranty/warranties?limit=200')
+      if (!response.ok) {
+        throw new Error(`Failed to fetch warranties (${response.status})`)
+      }
+      const payload = await response.json()
+      const rows = unwrapRows<any>(payload)
+      return rows.map((row: any) => {
+        const warranty: WarrantyInfo = {
+          id: row.id,
+          partId: row.inventory_item_id,
+          partNumber: row.part_number,
+          partName: row.part_name,
+          vendorId: row.vendor_id,
+          vendorName: row.vendor_name,
+          warrantyType: row.warranty_type,
+          warrantyStartDate: row.warranty_start_date,
+          warrantyEndDate: row.warranty_end_date,
+          coverageDetails: row.coverage_details,
+          terms: row.terms,
+          status: row.status,
+          claimHistory: (row.claim_history || []).map((claim: any) => ({
+            id: claim.id,
+            claimNumber: claim.claimNumber || claim.claim_number,
+            dateSubmitted: claim.dateSubmitted || claim.date_submitted,
+            issueDescription: claim.issueDescription || claim.issue_description,
+            claimType: claim.claimType || claim.claim_type,
+            status: claim.status,
+            resolution: claim.resolution,
+            attachments: claim.attachments || []
+          })),
+          notifications: []
+        }
+        warranty.notifications = createExpiryNotifications(warranty)
+        return warranty
+      })
+    } catch (error) {
+      logger.error('Failed to load warranties', error)
+      return []
+    }
   }
 
   async getWarrantyAnalytics(): Promise<WarrantyAnalytics> {
-    const warranties = Array.from(this.warranties.values());
-    const now = new Date();
+    try {
+      const [analyticsResponse, warranties] = await Promise.all([
+        secureFetch('/api/warranty/warranties/analytics'),
+        this.getAllWarranties()
+      ])
 
-    const activeWarranties = warranties.filter(w => w.status === 'ACTIVE').length;
-    const expiringWithin30Days = warranties.filter(w => {
-      const endDate = new Date(w.warrantyEndDate);
-      const daysRemaining = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      return daysRemaining > 0 && daysRemaining <= 30;
-    }).length;
+      if (!analyticsResponse.ok) {
+        throw new Error(`Failed to fetch warranty analytics (${analyticsResponse.status})`)
+      }
 
-    const allClaims = warranties.flatMap(w => w.claimHistory);
-    const approvedClaims = allClaims.filter(c => c.status === 'APPROVED' || c.status === 'RESOLVED').length;
+      const analyticsPayload = await analyticsResponse.json()
+      const analyticsData = unwrapData<any>(analyticsPayload)
 
-    return {
-      activeWarranties,
-      expiringWithin30Days,
-      expiringWithin90Days: 5,
-      totalClaims: allClaims.length,
-      pendingClaims: allClaims.filter(c => c.status === 'PENDING').length,
-      approvedClaims,
-      rejectedClaims: allClaims.filter(c => c.status === 'REJECTED').length,
-      claimSuccessRate: allClaims.length > 0 ? (approvedClaims / allClaims.length) * 100 : 0,
-      averageClaimProcessingTime: 14,
-      topClaimReasons: [
-        { reason: 'Manufacturing Defect', count: 8 },
-        { reason: 'Premature Failure', count: 5 },
-        { reason: 'Performance Issue', count: 3 }
-      ],
-      vendorPerformance: [
-        {
-          vendorId: 'v1',
-          vendorName: 'AutoParts Pro',
-          totalWarranties: 15,
-          claimRate: 12.5,
-          averageResolutionTime: 10,
-          customerSatisfaction: 4.5
-        },
-        {
-          vendorId: 'v2',
-          vendorName: 'FilterMax Industries',
-          totalWarranties: 8,
-          claimRate: 5.0,
-          averageResolutionTime: 7,
-          customerSatisfaction: 4.8
-        },
-        {
-          vendorId: 'v3',
-          vendorName: 'TireWorld Global',
-          totalWarranties: 12,
-          claimRate: 18.0,
-          averageResolutionTime: 14,
-          customerSatisfaction: 3.9
+      const claims = warranties.flatMap(w => w.claimHistory)
+      const claimReasonCounts = claims.reduce((acc, claim) => {
+        const reason = claim.claimType || 'UNKNOWN'
+        acc.set(reason, (acc.get(reason) ?? 0) + 1)
+        return acc
+      }, new Map<string, number>())
+
+      const topClaimReasons = Array.from(claimReasonCounts.entries()).map(([reason, count]) => ({
+        reason,
+        count
+      }))
+
+      const vendorStats = warranties.reduce((acc, warranty) => {
+        const key = warranty.vendorId || warranty.vendorName
+        if (!key) return acc
+        if (!acc.has(key)) {
+          acc.set(key, {
+            vendorId: warranty.vendorId,
+            vendorName: warranty.vendorName,
+            totalWarranties: 0,
+            totalClaims: 0,
+            approvedClaims: 0,
+            totalResolutionDays: 0,
+            resolvedClaims: 0
+          })
         }
-      ]
-    };
+        const vendor = acc.get(key)!
+        vendor.totalWarranties += 1
+        warranty.claimHistory.forEach((claim) => {
+          vendor.totalClaims += 1
+          if (claim.status === 'APPROVED' || claim.status === 'RESOLVED') {
+            vendor.approvedClaims += 1
+          }
+          if (claim.dateSubmitted) {
+            const daysOpen = (Date.now() - new Date(claim.dateSubmitted).getTime()) / (1000 * 60 * 60 * 24)
+            vendor.totalResolutionDays += daysOpen
+            vendor.resolvedClaims += 1
+          }
+        })
+        return acc
+      }, new Map<string, any>())
+
+      const vendorPerformance: VendorPerformance[] = Array.from(vendorStats.values()).map((vendor) => ({
+        vendorId: vendor.vendorId || vendor.vendorName,
+        vendorName: vendor.vendorName,
+        totalWarranties: vendor.totalWarranties,
+        claimRate: vendor.totalWarranties > 0 ? Number(((vendor.totalClaims / vendor.totalWarranties) * 100).toFixed(1)) : 0,
+        averageResolutionTime: vendor.resolvedClaims > 0
+          ? Number((vendor.totalResolutionDays / vendor.resolvedClaims).toFixed(1))
+          : 0,
+        customerSatisfaction: 0
+      }))
+
+      return {
+        activeWarranties: Number(analyticsData.activeWarranties) || 0,
+        expiringWithin30Days: Number(analyticsData.expiringWithin30Days) || 0,
+        expiringWithin90Days: Number(analyticsData.expiringWithin90Days) || 0,
+        totalClaims: Number(analyticsData.totalClaims) || claims.length,
+        pendingClaims: Number(analyticsData.pendingClaims) || claims.filter(c => c.status === 'PENDING').length,
+        approvedClaims: Number(analyticsData.approvedClaims) || claims.filter(c => c.status === 'APPROVED' || c.status === 'RESOLVED').length,
+        rejectedClaims: Number(analyticsData.rejectedClaims) || claims.filter(c => c.status === 'REJECTED').length,
+        claimSuccessRate: Number(analyticsData.claimSuccessRate) || 0,
+        averageClaimProcessingTime: vendorPerformance.reduce((sum, v) => sum + v.averageResolutionTime, 0) / (vendorPerformance.length || 1),
+        topClaimReasons,
+        vendorPerformance
+      }
+    } catch (error) {
+      logger.error('Failed to load warranty analytics', error)
+      return {
+        activeWarranties: 0,
+        expiringWithin30Days: 0,
+        expiringWithin90Days: 0,
+        totalClaims: 0,
+        pendingClaims: 0,
+        approvedClaims: 0,
+        rejectedClaims: 0,
+        claimSuccessRate: 0,
+        averageClaimProcessingTime: 0,
+        topClaimReasons: [],
+        vendorPerformance: []
+      }
+    }
+  }
+
+  async getAllRecalls(): Promise<RecallInfo[]> {
+    try {
+      const response = await secureFetch('/api/warranty/recalls?limit=200')
+      if (!response.ok) {
+        throw new Error(`Failed to fetch recalls (${response.status})`)
+      }
+      const payload = await response.json()
+      const rows = unwrapRows<any>(payload)
+      return rows.map((row: any) => ({
+        id: row.id,
+        recallNumber: row.recall_number,
+        title: row.title,
+        description: row.description,
+        severity: row.severity,
+        urgency: row.urgency,
+        issuedBy: row.issued_by,
+        dateIssued: row.date_issued,
+        effectiveDate: row.effective_date,
+        complianceDeadline: row.compliance_deadline,
+        affectedParts: parseJsonArray(row.affected_parts),
+        affectedInventory: (row.affected_inventory || []).map((item: any) => ({
+          partId: item.partId || item.part_id || item.inventory_item_id,
+          partNumber: item.partNumber || item.part_number,
+          location: item.location,
+          actionRequired: item.actionRequired || item.action_required,
+          complianceStatus: item.complianceStatus || item.compliance_status
+        })),
+        remedyDescription: row.remedy_description,
+        vendorContact: row.vendor_contact || { name: '', email: '' },
+        status: row.status
+      }))
+    } catch (error) {
+      logger.error('Failed to load recalls', error)
+      return []
+    }
   }
 
   async getActiveRecalls(): Promise<RecallInfo[]> {
-    return Array.from(this.recalls.values()).filter(r => r.status === 'ACTIVE');
+    const recalls = await this.getAllRecalls()
+    return recalls.filter(r => r.status === 'ACTIVE')
   }
 
   async getRecallAnalytics(): Promise<RecallAnalytics> {
-    const recalls = Array.from(this.recalls.values());
-    const activeRecalls = recalls.filter(r => r.status === 'ACTIVE');
-    const affectedItems = activeRecalls.flatMap(r => r.affectedInventory);
-    const completedItems = affectedItems.filter(i => i.complianceStatus === 'COMPLETED').length;
+    try {
+      const [analyticsResponse, recalls] = await Promise.all([
+        secureFetch('/api/warranty/recalls/analytics'),
+        this.getAllRecalls()
+      ])
 
-    return {
-      totalRecalls: recalls.length,
-      activeRecalls: activeRecalls.length,
-      completedRecalls: recalls.filter(r => r.status === 'COMPLETED').length,
-      affectedItemsCount: affectedItems.length,
-      complianceRate: affectedItems.length > 0 ? (completedItems / affectedItems.length) * 100 : 100,
-      overdueActions: 1,
-      recallsBySeverity: {
-        SAFETY: 1,
-        PERFORMANCE: 0,
-        QUALITY: 1,
-        REGULATORY: 0
+      if (!analyticsResponse.ok) {
+        throw new Error(`Failed to fetch recall analytics (${analyticsResponse.status})`)
       }
-    };
+
+      const analyticsPayload = await analyticsResponse.json()
+      const analyticsData = unwrapData<any>(analyticsPayload)
+
+      const recallsBySeverity = recalls.reduce((acc, recall) => {
+        acc[recall.severity] = (acc[recall.severity] || 0) + 1
+        return acc
+      }, {} as Record<string, number>)
+
+      return {
+        totalRecalls: Number(analyticsData.totalRecalls) || recalls.length,
+        activeRecalls: Number(analyticsData.activeRecalls) || recalls.filter(r => r.status === 'ACTIVE').length,
+        completedRecalls: Number(analyticsData.completedRecalls) || recalls.filter(r => r.status === 'COMPLETED').length,
+        affectedItemsCount: Number(analyticsData.affectedItemsCount) || recalls.reduce((sum, r) => sum + r.affectedInventory.length, 0),
+        complianceRate: Number(analyticsData.complianceRate) || 0,
+        overdueActions: Number(analyticsData.overdueActions) || 0,
+        recallsBySeverity
+      }
+    } catch (error) {
+      logger.error('Failed to load recall analytics', error)
+      return {
+        totalRecalls: 0,
+        activeRecalls: 0,
+        completedRecalls: 0,
+        affectedItemsCount: 0,
+        complianceRate: 0,
+        overdueActions: 0,
+        recallsBySeverity: {}
+      }
+    }
   }
 
-  async submitWarrantyClaim(claim: Omit<WarrantyClaim, 'id' | 'status'>): Promise<string> {
-    const claimId = `claim-${Date.now()}`;
-    // In a real implementation, this would save to a database
-    return claimId;
+  async submitWarrantyClaim(claim: {
+    warrantyId: string
+    claimNumber: string
+    dateSubmitted: string
+    issueDescription: string
+    claimType: WarrantyClaim['claimType']
+    attachments: string[]
+  }): Promise<string> {
+    const response = await secureFetch('/api/warranty/warranties/claims', {
+      method: 'POST',
+      body: JSON.stringify({
+        warrantyId: claim.warrantyId,
+        claimNumber: claim.claimNumber,
+        dateSubmitted: claim.dateSubmitted,
+        issueDescription: claim.issueDescription,
+        claimType: claim.claimType,
+        attachments: claim.attachments
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to submit warranty claim (${response.status})`)
+    }
+
+    const payload = await response.json()
+    return payload?.data?.id || payload?.id
   }
 
   async processRecallAction(
@@ -398,31 +431,39 @@ class WarrantyRecallServiceClass {
     partId: string,
     action: { actionTaken: string; actionBy: string }
   ): Promise<void> {
-    const recall = this.recalls.get(recallId);
-    if (recall) {
-      const item = recall.affectedInventory.find(i => i.partId === partId);
-      if (item) {
-        item.complianceStatus = 'COMPLETED';
-      }
+    const response = await secureFetch('/api/warranty/recalls/actions', {
+      method: 'POST',
+      body: JSON.stringify({
+        recallId,
+        partId,
+        actionTaken: action.actionTaken,
+        actionBy: action.actionBy
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to process recall action (${response.status})`)
     }
   }
 
   async generateComplianceReport(): Promise<ComplianceReport> {
-    const [warrantyAnalytics, recallAnalytics] = await Promise.all([
+    const [warranties, recalls, warrantyAnalytics, recallAnalytics] = await Promise.all([
+      this.getAllWarranties(),
+      this.getAllRecalls(),
       this.getWarrantyAnalytics(),
       this.getRecallAnalytics()
-    ]);
+    ])
 
     return {
       reportId: `RPT-${Date.now()}`,
       generatedAt: new Date().toISOString(),
-      warranties: Array.from(this.warranties.values()),
-      recalls: Array.from(this.recalls.values()),
+      warranties,
+      recalls,
       warrantyAnalytics,
       recallAnalytics
-    };
+    }
   }
 }
 
-const WarrantyRecallService = new WarrantyRecallServiceClass();
-export default WarrantyRecallService;
+const WarrantyRecallService = new WarrantyRecallServiceClass()
+export default WarrantyRecallService

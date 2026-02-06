@@ -6,29 +6,9 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
+import { secureFetch } from '@/hooks/use-api';
+import { usePermissions } from '@/hooks/usePermissions';
 import logger from '@/utils/logger';
-
-// Mock hooks for auth and permissions
-interface AuthUser {
-  id: string;
-  name: string;
-}
-
-interface Permissions {
-  can: (permission: string) => boolean;
-  isAdmin: boolean;
-  isFleetManager: boolean;
-}
-
-const useAuth = () => ({
-  user: { id: 'mock-user-id', name: 'Mock User' } as AuthUser,
-});
-
-const usePermissions = () => ({
-  can: (_permission: string) => true,
-  isAdmin: true,
-  isFleetManager: true,
-} as Permissions);
 
 // StatusChip Component
 type AssignmentStatus = 'designated'|'on_call'|'temporary'|'active'|'approved'|'submitted'|'denied'|'terminated'|'draft';
@@ -103,7 +83,9 @@ interface ComplianceException {
 }
 
 const VehicleAssignmentManagement: React.FC = () => {
-  const { can, isAdmin, isFleetManager } = usePermissions();
+  const { can, hasRole } = usePermissions();
+  const isAdmin = hasRole('Admin');
+  const isFleetManager = hasRole('FleetManager');
   const [activeTab, setActiveTab] = useState<'assignments' | 'on-call' | 'compliance' | 'reports'>('assignments');
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
@@ -162,9 +144,7 @@ const VehicleAssignmentManagement: React.FC = () => {
   const fetchAssignments = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/vehicle-assignments?limit=100', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-      });
+      const response = await secureFetch('/api/vehicle-assignments?limit=100', { method: 'GET' });
       const data = await response.json();
       setAssignments(data.assignments || []);
     } catch (err: unknown) {
@@ -176,9 +156,7 @@ const VehicleAssignmentManagement: React.FC = () => {
 
   const fetchOnCallPeriods = async () => {
     try {
-      const response = await fetch('/api/on-call-periods/active/current', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-      });
+      const response = await secureFetch('/api/on-call-periods/active/current', { method: 'GET' });
       const data = await response.json();
       setOnCallPeriods(data || []);
     } catch (err: unknown) {
@@ -188,9 +166,7 @@ const VehicleAssignmentManagement: React.FC = () => {
 
   const fetchComplianceExceptions = async () => {
     try {
-      const response = await fetch('/api/reports/policy-compliance', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-      });
+      const response = await secureFetch('/api/reports/policy-compliance', { method: 'GET' });
       const data = await response.json();
       setComplianceExceptions(data.exceptions || []);
     } catch (err: unknown) {
@@ -200,12 +176,8 @@ const VehicleAssignmentManagement: React.FC = () => {
 
   const handleApproveAssignment = async (assignmentId: string) => {
     try {
-      const response = await fetch(`/api/vehicle-assignments/${assignmentId}/approve`, {
+      const response = await secureFetch(`/api/vehicle-assignments/${assignmentId}/approve`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
         body: JSON.stringify({ action: 'approve' }),
       });
       if (response.ok) fetchAssignments();
@@ -216,12 +188,8 @@ const VehicleAssignmentManagement: React.FC = () => {
 
   const handleDenyAssignment = async (assignmentId: string, reason: string) => {
     try {
-      const response = await fetch(`/api/vehicle-assignments/${assignmentId}/approve`, {
+      const response = await secureFetch(`/api/vehicle-assignments/${assignmentId}/approve`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
         body: JSON.stringify({ action: 'deny', notes: reason }),
       });
       if (response.ok) fetchAssignments();

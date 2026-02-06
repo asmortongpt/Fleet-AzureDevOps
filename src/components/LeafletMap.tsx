@@ -3,7 +3,7 @@ import type { DependencyList } from "react"
 
 import { useAccessibility } from "@/hooks/useAccessibility"
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
-import type { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
+import type { Vehicle, GISFacility, TrafficCamera, Geofence } from "@/lib/types"
 import logger from '@/utils/logger';
 // ============================================================================
 // Dependency Validation & Dynamic Imports
@@ -94,12 +94,16 @@ export interface LeafletMapProps {
   facilities?: GISFacility[]
   /** Array of traffic cameras to display on map */
   cameras?: TrafficCamera[]
+  /** Array of geofences to display on map */
+  geofences?: Geofence[]
   /** Toggle vehicle markers visibility (default: true) */
   showVehicles?: boolean
   /** Toggle facility markers visibility (default: true) */
   showFacilities?: boolean
   /** Toggle camera markers visibility (default: false) */
   showCameras?: boolean
+  /** Toggle geofence visibility (default: false) */
+  showGeofences?: boolean
   /** Toggle route lines visibility - future feature (default: false) */
   showRoutes?: boolean
   /** Map visual style theme (default: "osm") */
@@ -112,6 +116,10 @@ export interface LeafletMapProps {
   className?: string
   /** Callback fired when marker is clicked */
   onMarkerClick?: (id: string, type: MarkerType) => void
+  /** Callback fired when a vehicle marker is selected */
+  onVehicleSelect?: (vehicleId: string) => void
+  /** Callback when a geofence is selected */
+  onGeofenceSelect?: (geofence: Geofence) => void
   /** Enable marker clustering for better performance with many markers (default: false) */
   enableClustering?: boolean
   /** Enable auto-fit to show all markers (default: true) */
@@ -182,6 +190,54 @@ const TILE_LAYERS: Record<MapStyle, TileLayerConfig> = {
   },
 }
 
+function getVehicleLatLng(vehicle: any): { lat: number; lng: number } | null {
+  const latRaw =
+    vehicle?.location?.lat ??
+    vehicle?.location?.latitude ??
+    vehicle?.latitude ??
+    vehicle?.coordinates?.lat ??
+    vehicle?.coordinates?.latitude
+  const lngRaw =
+    vehicle?.location?.lng ??
+    vehicle?.location?.longitude ??
+    vehicle?.longitude ??
+    vehicle?.coordinates?.lng ??
+    vehicle?.coordinates?.longitude
+
+  const lat = Number(latRaw)
+  const lng = Number(lngRaw)
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
+  return { lat, lng }
+}
+
+function getFacilityLatLng(facility: any): { lat: number; lng: number } | null {
+  const latRaw =
+    facility?.location?.lat ??
+    facility?.location?.latitude ??
+    facility?.lat ??
+    facility?.latitude ??
+    facility?.gps_latitude ??
+    facility?.gps_lat ??
+    facility?.gpsLat ??
+    facility?.center_lat ??
+    facility?.centerLat
+  const lngRaw =
+    facility?.location?.lng ??
+    facility?.location?.longitude ??
+    facility?.lng ??
+    facility?.longitude ??
+    facility?.gps_longitude ??
+    facility?.gps_lng ??
+    facility?.gpsLng ??
+    facility?.center_lng ??
+    facility?.centerLng
+
+  const lat = Number(latRaw)
+  const lng = Number(lngRaw)
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
+  return { lat, lng }
+}
+
 /**
  * Global map configuration constants
  */
@@ -217,6 +273,46 @@ const VEHICLE_STATUS_COLORS: Record<Vehicle["status"], string> = {
   emergency: "#ef4444", // red-500 - emergency/breakdown
   offline: "#374151", // gray-700 - no connection/inactive
 } as const
+
+function getGeofenceCenter(geofence: Geofence): { lat: number; lng: number } | null {
+  const center =
+    geofence.center ||
+    (geofence as any).center_lat != null && (geofence as any).center_lng != null
+      ? { lat: (geofence as any).center_lat, lng: (geofence as any).center_lng }
+      : null
+
+  const latRaw = (center as any)?.lat ?? (center as any)?.latitude ?? (geofence as any).latitude
+  const lngRaw = (center as any)?.lng ?? (center as any)?.longitude ?? (geofence as any).longitude
+  const lat = Number(latRaw)
+  const lng = Number(lngRaw)
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
+  return { lat, lng }
+}
+
+function normalizeGeofencePath(coordinates: any): [number, number][] | null {
+  if (!coordinates || !Array.isArray(coordinates)) return null
+  const path: [number, number][] = []
+  for (const point of coordinates) {
+    if (!point) continue
+    if (Array.isArray(point) && point.length >= 2) {
+      const [lng, lat] = point
+      const latNum = Number(lat)
+      const lngNum = Number(lng)
+      if (Number.isFinite(latNum) && Number.isFinite(lngNum)) {
+        path.push([latNum, lngNum])
+      }
+      continue
+    }
+    if (typeof point === 'object') {
+      const latNum = Number(point.lat ?? point.latitude)
+      const lngNum = Number(point.lng ?? point.longitude)
+      if (Number.isFinite(latNum) && Number.isFinite(lngNum)) {
+        path.push([latNum, lngNum])
+      }
+    }
+  }
+  return path.length >= 3 ? path : null
+}
 
 /**
  * Emoji icons for different vehicle types
@@ -347,14 +443,18 @@ export function LeafletMap({
   vehicles = [],
   facilities = [],
   cameras = [],
+  geofences = [],
   showVehicles = true,
   showFacilities = true,
   showCameras = false,
+  showGeofences = false,
   mapStyle = "osm",
   center = MAP_CONFIG.defaultCenter,
   zoom = MAP_CONFIG.defaultZoom,
   className = "",
   onMarkerClick,
+  onVehicleSelect,
+  onGeofenceSelect,
   enableClustering = false,
   autoFitBounds = true,
   minHeight = 500,
@@ -396,6 +496,7 @@ export function LeafletMap({
   const vehicleLayerRef = useRef<any>(null)
   const facilityLayerRef = useRef<any>(null)
   const cameraLayerRef = useRef<any>(null)
+  const geofenceLayerRef = useRef<any>(null)
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isMountedRef = useRef(true)
 
@@ -476,6 +577,7 @@ export function LeafletMap({
       vehicleLayerRef.current = L.layerGroup().addTo(map)
       facilityLayerRef.current = L.layerGroup().addTo(map)
       cameraLayerRef.current = L.layerGroup().addTo(map)
+      geofenceLayerRef.current = L.layerGroup().addTo(map)
 
       // Mark as ready
       if (loadingTimeoutRef.current) {
@@ -519,33 +621,36 @@ export function LeafletMap({
     vehicleLayerRef.current?.clearLayers()
     facilityLayerRef.current?.clearLayers()
     cameraLayerRef.current?.clearLayers()
+    geofenceLayerRef.current?.clearLayers()
 
     // Add vehicle markers
     if (showVehicles && vehicles.length > 0) {
       vehicles.forEach((vehicle) => {
-        if (vehicle.location?.latitude && vehicle.location?.longitude) {
-          const lat = vehicle.location.latitude
-          const lng = vehicle.location.longitude
+        const coords = getVehicleLatLng(vehicle)
+        if (!coords) return
+        const { lat, lng } = coords
 
-          // Validate coordinates
-          if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-            const color = VEHICLE_STATUS_COLORS[vehicle.status] || VEHICLE_STATUS_COLORS.offline
-            const emoji = VEHICLE_TYPE_EMOJI[vehicle.type as keyof typeof VEHICLE_TYPE_EMOJI] || '🚗'
+        // Validate coordinates
+        if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+          const color = VEHICLE_STATUS_COLORS[vehicle.status] || VEHICLE_STATUS_COLORS.offline
+          const emoji = VEHICLE_TYPE_EMOJI[vehicle.type as keyof typeof VEHICLE_TYPE_EMOJI] || '🚗'
 
-            const icon = Leaflet.divIcon({
-              className: 'vehicle-marker',
-              html: `<div style="background-color: ${color}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${emoji}</div>`,
-              iconSize: [32, 32],
-              iconAnchor: [16, 16],
+          const icon = Leaflet.divIcon({
+            className: 'vehicle-marker',
+            html: `<div style="background-color: ${color}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${emoji}</div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+          })
+
+          const marker = Leaflet.marker([lat, lng], { icon })
+            .bindPopup(`<b>${vehicle.name}</b><br/>Status: ${vehicle.status}`)
+            .on('click', () => {
+              onMarkerClick?.(vehicle.id, 'vehicle')
+              onVehicleSelect?.(vehicle.id)
             })
 
-            const marker = Leaflet.marker([lat, lng], { icon })
-              .bindPopup(`<b>${vehicle.name}</b><br/>Status: ${vehicle.status}`)
-              .on('click', () => onMarkerClick?.(vehicle.id, 'vehicle'))
-
-            marker.addTo(vehicleLayerRef.current)
-            bounds.push([lat, lng])
-          }
+          marker.addTo(vehicleLayerRef.current)
+          bounds.push([lat, lng])
         }
       })
     }
@@ -553,27 +658,26 @@ export function LeafletMap({
     // Add facility markers
     if (showFacilities && facilities.length > 0) {
       facilities.forEach((facility) => {
-        if (facility.location?.lat && facility.location?.lng) {
-          const lat = facility.location.lat
-          const lng = facility.location.lng
+        const coords = getFacilityLatLng(facility)
+        if (!coords) return
+        const { lat, lng } = coords
 
-          if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-            const emoji = FACILITY_TYPE_ICONS[facility.type] || '🏢'
+        if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+          const emoji = FACILITY_TYPE_ICONS[facility.type] || '🏢'
 
-            const icon = Leaflet.divIcon({
-              className: 'facility-marker',
-              html: `<div style="background-color: #2563eb; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 18px;">${emoji}</div>`,
-              iconSize: [36, 36],
-              iconAnchor: [18, 18],
-            })
+          const icon = Leaflet.divIcon({
+            className: 'facility-marker',
+            html: `<div style="background-color: #2563eb; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 18px;">${emoji}</div>`,
+            iconSize: [36, 36],
+            iconAnchor: [18, 18],
+          })
 
-            const marker = Leaflet.marker([lat, lng], { icon })
-              .bindPopup(`<b>${facility.name}</b><br/>Type: ${facility.type}`)
-              .on('click', () => onMarkerClick?.(facility.id, 'facility'))
+          const marker = Leaflet.marker([lat, lng], { icon })
+            .bindPopup(`<b>${facility.name}</b><br/>Type: ${facility.type}`)
+            .on('click', () => onMarkerClick?.(facility.id, 'facility'))
 
-            marker.addTo(facilityLayerRef.current)
-            bounds.push([lat, lng])
-          }
+          marker.addTo(facilityLayerRef.current)
+          bounds.push([lat, lng])
         }
       })
     }
@@ -604,6 +708,47 @@ export function LeafletMap({
       })
     }
 
+    // Add geofence shapes
+    if (showGeofences && geofences.length > 0) {
+      geofences.forEach((geofence) => {
+        const color = geofence.color || "#3b82f6"
+
+        if (geofence.type === "circle") {
+          const center = getGeofenceCenter(geofence)
+          const radius = Number((geofence as any).radius ?? (geofence as any).radius_meters ?? geofence.radius)
+          if (!center || !Number.isFinite(radius) || radius <= 0) return
+
+          const circle = Leaflet.circle([center.lat, center.lng], {
+            radius,
+            color,
+            fillColor: color,
+            fillOpacity: 0.2,
+            weight: 2,
+          })
+
+          circle.on("click", () => onGeofenceSelect?.(geofence))
+          circle.addTo(geofenceLayerRef.current)
+          bounds.push([center.lat, center.lng])
+          return
+        }
+
+        const path = normalizeGeofencePath(
+          (geofence as any).coordinates ?? (geofence as any).polygon ?? (geofence as any).polygon_coordinates
+        )
+        if (!path) return
+
+        const polygon = Leaflet.polygon(path, {
+          color,
+          fillColor: color,
+          fillOpacity: 0.2,
+          weight: 2,
+        })
+        polygon.on("click", () => onGeofenceSelect?.(geofence))
+        polygon.addTo(geofenceLayerRef.current)
+        path.forEach(([lat, lng]) => bounds.push([lat, lng]))
+      })
+    }
+
     // Auto-fit bounds
     if (autoFitBounds && bounds.length > 0 && mapInstanceRef.current) {
       const latLngBounds = Leaflet.latLngBounds(bounds)
@@ -623,7 +768,7 @@ export function LeafletMap({
     if (isReady) {
       updateMarkers()
     }
-  }, [isReady, vehicles, facilities, cameras, showVehicles, showFacilities, showCameras, updateMarkers])
+  }, [isReady, vehicles, facilities, cameras, geofences, showVehicles, showFacilities, showCameras, showGeofences, updateMarkers])
 
   // Update tile layer when style changes
   useEffect(() => {

@@ -100,7 +100,7 @@ export function GeofenceIntelligencePanel({
                                 </CardContent>
                             </Card>
 
-                            {/* Analytics Grid */}
+                            {/* Analytics Grid (real-time from available data) */}
                             <div className="grid grid-cols-2 gap-2">
                                 <Card>
                                     <CardContent className="p-2">
@@ -108,18 +108,18 @@ export function GeofenceIntelligencePanel({
                                             <Clock className="w-4 h-4" />
                                             <span className="text-xs font-semibold uppercase">Avg Dwell</span>
                                         </div>
-                                        <div className="text-sm font-bold">14m</div>
-                                        <div className="text-xs text-green-600 font-medium">↓ 2m vs avg</div>
+                                        <div className="text-sm font-bold">—</div>
+                                        <div className="text-xs text-slate-500">No dwell telemetry available</div>
                                     </CardContent>
                                 </Card>
                                 <Card>
                                     <CardContent className="p-2">
                                         <div className="flex items-center gap-2 text-slate-500 mb-2">
                                             <ShieldAlert className="w-4 h-4" />
-                                            <span className="text-xs font-semibold uppercase">Alerts (24h)</span>
+                                            <span className="text-xs font-semibold uppercase">Active Breaches</span>
                                         </div>
-                                        <div className="text-sm font-bold text-amber-600">3</div>
-                                        <div className="text-xs text-slate-700">2 entry, 1 dwell</div>
+                                        <div className="text-sm font-bold text-amber-600">{breachedVehicles.length}</div>
+                                        <div className="text-xs text-slate-700">Vehicles currently inside</div>
                                     </CardContent>
                                 </Card>
                             </div>
@@ -151,21 +151,14 @@ export function GeofenceIntelligencePanel({
 
                             <Separator />
 
-                            {/* History Timeline */}
+                            {/* History Timeline (requires geofence event telemetry) */}
                             <div className="space-y-2">
                                 <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                                     <History className="w-4 h-4 text-slate-500" />
                                     Recent Activity
                                 </h3>
-                                <div className="relative pl-2 border-l border-slate-200 space-y-2">
-                                    {[1, 2, 3].map((i) => (
-                                        <div key={i} className="relative">
-                                            <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-slate-300 border-2 border-white" />
-                                            <div className="text-xs text-slate-500 mb-0.5">Today, {10 + i}:30 AM</div>
-                                            <div className="text-sm font-medium text-slate-800">Vehicle {100 + i} Entered Area</div>
-                                            <div className="text-xs text-slate-500">Duration: 45m • Driver: John Doe</div>
-                                        </div>
-                                    ))}
+                                <div className="text-xs text-slate-500">
+                                    Geofence event history will appear here when telemetry is available.
                                 </div>
                             </div>
                         </div>

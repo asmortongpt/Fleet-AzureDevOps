@@ -138,10 +138,58 @@ router.get('/fleet-metrics',
       );
       metrics.criticalAlerts = parseInt(alertStats.rows[0].total) || 0;
 
-      // Mock financial data (would require complex joins in real scenario)
-      metrics.fuelEfficiency = 8.5; // MPG
-      metrics.totalCostThisMonth = 12500.00;
-      metrics.costPerMile = 0.45;
+      // Financial metrics (DB-backed)
+      const [fuelStats, maintenanceStats, mileageStats] = await Promise.all([
+        pool.query(
+          `
+          SELECT
+            COALESCE(SUM(total_cost), 0) AS fuel_cost,
+            COALESCE(SUM(gallons), 0) AS gallons
+          FROM fuel_transactions
+          WHERE tenant_id = $1
+            AND transaction_date >= date_trunc('month', NOW())
+        `,
+          [tenantId]
+        ),
+        pool.query(
+          `
+          SELECT
+            COALESCE(SUM(actual_cost), 0) AS maintenance_cost
+          FROM work_orders
+          WHERE tenant_id = $1
+            AND actual_cost IS NOT NULL
+            AND (actual_end_date >= date_trunc('month', NOW()) OR updated_at >= date_trunc('month', NOW()))
+        `,
+          [tenantId]
+        ),
+        pool.query(
+          `
+          SELECT
+            COALESCE(SUM(max_odo - min_odo), 0) AS miles
+          FROM (
+            SELECT
+              vehicle_id,
+              MIN(odometer) AS min_odo,
+              MAX(odometer) AS max_odo
+            FROM fuel_transactions
+            WHERE tenant_id = $1
+              AND transaction_date >= date_trunc('month', NOW())
+            GROUP BY vehicle_id
+          ) t
+        `,
+          [tenantId]
+        )
+      ])
+
+      const fuelCost = Number(fuelStats.rows[0]?.fuel_cost || 0)
+      const gallons = Number(fuelStats.rows[0]?.gallons || 0)
+      const maintenanceCost = Number(maintenanceStats.rows[0]?.maintenance_cost || 0)
+      const miles = Number(mileageStats.rows[0]?.miles || 0)
+
+      const totalCost = fuelCost + maintenanceCost
+      metrics.fuelEfficiency = gallons > 0 ? Number((miles / gallons).toFixed(2)) : 0
+      metrics.totalCostThisMonth = Number(totalCost.toFixed(2))
+      metrics.costPerMile = miles > 0 ? Number((totalCost / miles).toFixed(2)) : 0
 
       res.json(metrics);
     } catch (error) {

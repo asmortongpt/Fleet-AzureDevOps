@@ -1,19 +1,17 @@
 
 /**
- * Environment-based Authentication Provider Switcher
+ * Authentication Provider Switcher
  * DCF ITB 2425-077 Fleet Management System
- * Automatically switches between mock and production auth based on environment
+ * Uses the primary AuthContext for runtime authentication.
  */
 
 import type { ReactNode } from 'react';
 import React from "react";
 
-import { MockAuthProvider, useMockAuth, MockAuthLoading, MockLoginPrompt, MockRoleSwitcher } from './MockAuthProvider';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AuthProviderSwitcherProps {
  children: ReactNode;
- defaultRole?: 'admin' | 'legislature' | 'department' | 'driver';
- forceMode?: 'mock' | 'okta';
 }
 
 // Universal auth interface that works with both providers
@@ -26,95 +24,48 @@ interface UniversalAuthContext {
  hasPermission: (permission: string) => boolean;
  hasRole: (role: any) => boolean;
  getAuthHeaders: () => Promise<Record<string, string>>;
- authMode: 'mock' | 'okta';
+ authMode: 'okta';
 }
 
 // Hook that works with either auth provider
 export const useUniversalAuth = (): UniversalAuthContext => {
- const authMode = getAuthMode();
- 
- try {
- if (authMode === 'mock') {
- const mockAuth = useMockAuth();
- return {
- ...mockAuth,
- authMode: 'mock'
+ const auth = useAuth();
+  return {
+  user: auth.user,
+  isLoading: auth.isLoading,
+  isAuthenticated: auth.isAuthenticated,
+  login: async () => {
+    auth.loginWithMicrosoft();
+  },
+  logout: auth.logout,
+  hasPermission: (permission: string) => auth.hasPermission(permission),
+  hasRole: (role: any) => auth.hasRole(role),
+  getAuthHeaders: async () => ({}),
+  authMode: 'okta'
  };
- } else {
- // For now, fallback to mock auth if Okta not available
- const mockAuth = useMockAuth();
- return {
- ...mockAuth,
- authMode: 'okta'
- };
- }
- } catch (error) {
- // If hook is called outside provider, return a fallback
- return {
- user: null, isLoading: false,
- isAuthenticated: false, login: async() => {},
- logout: async() => {},
- hasPermission: () => false,
- hasRole: () => false,
- getAuthHeaders: async() => ({}),
- authMode: 'mock'
- };
- }
-};
-
-// Determine auth mode from environment
-const getAuthMode = (): 'mock' | 'okta' => {
- const envMode = import.meta.env.VITE_AUTH_MODE?.toLowerCase();
- 
- // Check various conditions for mock mode
- const isTestMode = typeof window !== 'undefined' &&
- (window.location.href.includes('playwright') ||
- window.location.href.includes('test') ||
- navigator.userAgent.includes('Playwright'));
- 
- const isDevelopment = import.meta.env.MODE === 'development';
- const isStorybook = typeof window !== 'undefined' && window.location.href.includes('storybook');
- 
- // Force mock mode in certain conditions
- if (isTestMode || isStorybook || envMode === 'mock') {
- return 'mock';
- }
- 
- // Use Okta in production or when explicitly set
- if (envMode === 'okta' || import.meta.env.MODE === 'production') {
- return 'okta';
- }
- 
- // Default to mock for development
- return 'mock';
 };
 
 // Loading component that shows appropriate loader
 export const UniversalAuthLoading: React.FC = () => {
- const authMode = getAuthMode();
- 
- if (authMode === 'mock') {
- return <MockAuthLoading />;
- } else {
- return <MockAuthLoading />; // Fallback to mock loading
- }
+ return (
+  <div className="flex items-center justify-center h-full w-full">
+   <div className="text-sm text-slate-600">Signing you in…</div>
+  </div>
+ );
 };
 
 // Login prompt that shows appropriate form
 export const UniversalLoginPrompt: React.FC = () => {
- const authMode = getAuthMode();
- 
- if (authMode === 'mock') {
- return <MockLoginPrompt />;
- } else {
- return <MockLoginPrompt />; // Fallback to mock login
- }
+ return (
+  <div className="flex items-center justify-center h-full w-full">
+   <div className="text-sm text-slate-600">Authentication required. Please sign in.</div>
+  </div>
+ );
 };
 
 // Auth status component for development
 export const AuthStatus: React.FC = () => {
  const auth = useUniversalAuth();
- const authMode = getAuthMode();
  
  if (!auth.isAuthenticated) return null;
  
@@ -133,7 +84,7 @@ export const AuthStatus: React.FC = () => {
  fontSize: '12px'
  }}>
  <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
- Auth Status ({authMode.toUpperCase()})
+ Auth Status (SSO)
  </div>
  <div>User: {auth.user?.firstName}, {auth.user?.lastName}</div>
  <div>Role: {auth.user?.role}</div>
@@ -202,26 +153,9 @@ export const RequireAuth: React.FC<RequireAuthProps> = ({ children, permissions 
 };
 
 // Main provider component that chooses the right auth system
-export const AuthProviderSwitcher: React.FC<AuthProviderSwitcherProps> = ({ children, defaultRole = 'admin',
- forceMode 
-}) => {
- const authMode = forceMode || getAuthMode();
- 
- // logger.debug(`🔐 Auth mode: ${authMode.toUpperCase()}`);
- 
- if (authMode === 'mock') {
- return (
- <MockAuthProvider defaultRole={defaultRole} autoLogin={true}>
- {children}
- </MockAuthProvider>
- );
- } else {
- return (
- <MockAuthProvider defaultRole={defaultRole} autoLogin={true}>
- {children}
- </MockAuthProvider>
- );
- }
+export const AuthProviderSwitcher: React.FC<AuthProviderSwitcherProps> = ({ children }) => {
+  // Mock auth is not allowed in runtime builds. Use the primary AuthProvider instead.
+  return <>{children}</>;
 };
 
 // Content wrapper that includes appropriate role switcher for dev
@@ -231,22 +165,12 @@ interface AuthenticatedContentProps {
  showRoleSwitcher?: boolean;
 }
 
-export const AuthenticatedContent: React.FC<AuthenticatedContentProps> = ({ children, showAuthStatus = true,
- showRoleSwitcher = true 
-}) => {
- const authMode = getAuthMode();
- 
- return (
- <>
- {children}
- 
- {/* Show role switcher only in mock mode for development */}
- {authMode === 'mock' && showRoleSwitcher && <MockRoleSwitcher />}
- {/* Show auth status in development */}
- {showAuthStatus && import.meta.env.MODE === 'development' && <AuthStatus />}
- </>
- );
+export const AuthenticatedContent: React.FC<AuthenticatedContentProps> = ({ children, showAuthStatus = true }) => {
+  return (
+    <>
+      {children}
+      {showAuthStatus && import.meta.env.MODE === 'development' && <AuthStatus />}
+    </>
+  );
 };
-// Export convenience components
-export { MockRoleSwitcher };
 export type { UniversalAuthContext };

@@ -1,0 +1,490 @@
+// CTA Fleet Management System - Entity Relationship Diagram
+// Core Entities and Relationships
+// Database: PostgreSQL 14+ with 89 tables
+
+// ========================================
+// CORE MULTI-TENANCY
+// ========================================
+
+tenants [icon: building, color: blue] {
+  id string pk
+  name string
+  domain string
+  is_active boolean
+  created_at datetime
+}
+
+// ========================================
+// CORE ENTITIES
+// ========================================
+
+users [icon: user, color: green] {
+  id string pk
+  tenant_id string
+  email string
+  password_hash string
+  first_name string
+  last_name string
+  role string
+  is_active boolean
+  mfa_enabled boolean
+  created_at datetime
+}
+
+vehicles [icon: truck, color: orange] {
+  id string pk
+  tenant_id string
+  vin string
+  make string
+  model string
+  year int
+  status string
+  odometer decimal
+  assigned_driver_id string
+  assigned_facility_id string
+  location geography
+  created_at datetime
+}
+
+drivers [icon: id-card, color: purple] {
+  id string pk
+  tenant_id string
+  user_id string
+  license_number string
+  license_expiration date
+  safety_score decimal
+  incidents_count int
+  created_at datetime
+}
+
+facilities [icon: warehouse, color: cyan] {
+  id string pk
+  tenant_id string
+  name string
+  facility_type string
+  location geography
+  capacity int
+  service_bays int
+  is_active boolean
+}
+
+vendors [icon: store, color: pink] {
+  id string pk
+  tenant_id string
+  vendor_name string
+  vendor_type string
+  contact_email string
+  is_active boolean
+}
+
+// ========================================
+// MAINTENANCE & WORK ORDERS
+// ========================================
+
+work_orders [icon: wrench, color: red] {
+  id string pk
+  tenant_id string
+  work_order_number string
+  vehicle_id string
+  facility_id string
+  assigned_technician_id string
+  type string
+  priority string
+  status string
+  labor_cost decimal
+  parts_cost decimal
+  total_cost decimal
+  created_at datetime
+}
+
+maintenance_schedules [icon: calendar, color: yellow] {
+  id string pk
+  tenant_id string
+  vehicle_id string
+  schedule_type string
+  interval_miles int
+  interval_days int
+  next_due_date date
+  status string
+}
+
+// ========================================
+// TELEMETRY & TRACKING
+// ========================================
+
+vehicle_locations [icon: map-pin, color: teal] {
+  id string pk
+  tenant_id string
+  vehicle_id string
+  latitude decimal
+  longitude decimal
+  speed decimal
+  heading decimal
+  recorded_at datetime
+}
+
+telemetry_data [icon: activity, color: indigo] {
+  id string pk
+  tenant_id string
+  vehicle_id string
+  latitude decimal
+  longitude decimal
+  harsh_braking boolean
+  harsh_acceleration boolean
+  speeding boolean
+  timestamp datetime
+}
+
+trips [icon: route, color: lime] {
+  id string pk
+  tenant_id string
+  vehicle_id string
+  driver_id string
+  start_time datetime
+  end_time datetime
+  distance decimal
+  duration decimal
+}
+
+// ========================================
+// ROUTES & GEOFENCES
+// ========================================
+
+routes [icon: navigation, color: amber] {
+  id string pk
+  tenant_id string
+  route_name string
+  vehicle_id string
+  driver_id string
+  status string
+  total_distance decimal
+  created_at datetime
+}
+
+geofences [icon: hexagon, color: emerald] {
+  id string pk
+  tenant_id string
+  name string
+  geometry geography
+  alert_on_entry boolean
+  alert_on_exit boolean
+  is_active boolean
+}
+
+geofence_events [icon: bell, color: rose] {
+  id string pk
+  tenant_id string
+  geofence_id string
+  vehicle_id string
+  driver_id string
+  event_type string
+  event_time datetime
+}
+
+// ========================================
+// FINANCIAL MANAGEMENT
+// ========================================
+
+expenses [icon: dollar-sign, color: green] {
+  id string pk
+  tenant_id string
+  expense_number string
+  vehicle_id string
+  driver_id string
+  submitted_by_user_id string
+  amount decimal
+  reimbursement_status string
+  created_at datetime
+}
+
+invoices [icon: file-text, color: slate] {
+  id string pk
+  tenant_id string
+  vendor_id string
+  invoice_number string
+  amount decimal
+  status string
+  due_date date
+}
+
+fuel_transactions [icon: fuel, color: orange] {
+  id string pk
+  tenant_id string
+  vehicle_id string
+  driver_id string
+  gallons decimal
+  price_per_gallon decimal
+  total_cost decimal
+  transaction_date datetime
+}
+
+fuel_stations [icon: map, color: blue] {
+  id string pk
+  tenant_id string
+  station_name string
+  lat decimal
+  lng decimal
+  accepts_fleet_cards boolean
+}
+
+// ========================================
+// DOCUMENTS & RAG
+// ========================================
+
+documents [icon: file, color: violet] {
+  id string pk
+  tenant_id string
+  file_name string
+  file_type string
+  file_size bigint
+  uploaded_by string
+  extracted_text text
+  embedding_status string
+  created_at datetime
+}
+
+document_embeddings [icon: layers, color: purple] {
+  id string pk
+  document_id string
+  chunk_text text
+  chunk_index int
+  embedding vector
+  created_at datetime
+}
+
+// ========================================
+// AI/ML INFRASTRUCTURE
+// ========================================
+
+ml_models [icon: cpu, color: blue] {
+  id string pk
+  tenant_id string
+  model_name string
+  model_type string
+  version string
+  algorithm string
+  status string
+  is_active boolean
+  created_at datetime
+}
+
+predictions [icon: trending-up, color: green] {
+  id string pk
+  tenant_id string
+  model_id string
+  prediction_type string
+  entity_type string
+  entity_id string
+  prediction_value json
+  confidence_score decimal
+  created_at datetime
+}
+
+cognition_insights [icon: brain, color: indigo] {
+  id string pk
+  tenant_id string
+  insight_type string
+  severity string
+  description text
+  recommended_actions json
+  is_acknowledged boolean
+  created_at datetime
+}
+
+// ========================================
+// SAFETY & COMPLIANCE
+// ========================================
+
+incidents [icon: alert-triangle, color: red] {
+  id string pk
+  tenant_id string
+  incident_title string
+  vehicle_id string
+  driver_id string
+  severity string
+  status string
+  incident_date date
+  injuries_reported boolean
+  property_damage boolean
+}
+
+inspections [icon: clipboard, color: cyan] {
+  id string pk
+  tenant_id string
+  vehicle_id string
+  inspector_id string
+  inspection_date date
+  status string
+  results json
+}
+
+damage_reports [icon: tool, color: orange] {
+  id string pk
+  tenant_id string
+  vehicle_id string
+  damage_type string
+  description text
+  estimated_cost decimal
+}
+
+// ========================================
+// TASKS & OPERATIONS
+// ========================================
+
+tasks [icon: check-square, color: blue] {
+  id string pk
+  tenant_id string
+  task_title string
+  task_type string
+  priority string
+  status string
+  assigned_to string
+  vehicle_id string
+  due_date date
+  created_at datetime
+}
+
+// ========================================
+// ASSETS
+// ========================================
+
+assets [icon: box, color: amber] {
+  id string pk
+  tenant_id string
+  asset_tag string
+  asset_name string
+  asset_type string
+  purchase_price decimal
+  status string
+  assigned_to string
+  created_at datetime
+}
+
+// ========================================
+// COMMUNICATIONS
+// ========================================
+
+notifications [icon: bell, color: yellow] {
+  id string pk
+  tenant_id string
+  user_id string
+  notification_type string
+  title string
+  message text
+  is_read boolean
+  created_at datetime
+}
+
+alerts [icon: alert-circle, color: red] {
+  id string pk
+  tenant_id string
+  severity string
+  message text
+  is_acknowledged boolean
+  triggered_at datetime
+}
+
+// ========================================
+// ANALYTICS
+// ========================================
+
+driver_scores [icon: award, color: gold] {
+  id string pk
+  tenant_id string
+  driver_id string
+  safety_score decimal
+  efficiency_score decimal
+  overall_score decimal
+  period_start date
+  period_end date
+}
+
+utilization_metrics [icon: pie-chart, color: teal] {
+  id string pk
+  tenant_id string
+  vehicle_id string
+  utilization_rate decimal
+  total_miles decimal
+  period_start date
+  period_end date
+}
+
+// ========================================
+// RELATIONSHIPS
+// ========================================
+
+// Multi-Tenancy Root
+tenants.id < users.tenant_id
+tenants.id < vehicles.tenant_id
+tenants.id < drivers.tenant_id
+tenants.id < facilities.tenant_id
+tenants.id < vendors.tenant_id
+tenants.id < work_orders.tenant_id
+tenants.id < expenses.tenant_id
+tenants.id < documents.tenant_id
+tenants.id < ml_models.tenant_id
+tenants.id < incidents.tenant_id
+tenants.id < tasks.tenant_id
+tenants.id < notifications.tenant_id
+
+// Core Entity Relationships
+users.id < drivers.user_id [color: green]
+drivers.id < vehicles.assigned_driver_id [color: orange]
+facilities.id < vehicles.assigned_facility_id [color: cyan]
+
+// Maintenance
+vehicles.id < work_orders.vehicle_id [color: red]
+facilities.id < work_orders.facility_id [color: cyan]
+users.id < work_orders.assigned_technician_id [color: green]
+vehicles.id < maintenance_schedules.vehicle_id [color: yellow]
+
+// Telemetry
+vehicles.id < vehicle_locations.vehicle_id [color: teal]
+vehicles.id < telemetry_data.vehicle_id [color: indigo]
+vehicles.id < trips.vehicle_id [color: lime]
+drivers.id < trips.driver_id [color: purple]
+
+// Routes & Geofences
+vehicles.id < routes.vehicle_id [color: amber]
+drivers.id < routes.driver_id [color: purple]
+geofences.id < geofence_events.geofence_id [color: emerald]
+vehicles.id < geofence_events.vehicle_id [color: orange]
+drivers.id < geofence_events.driver_id [color: purple]
+
+// Financial
+vehicles.id < expenses.vehicle_id [color: orange]
+drivers.id < expenses.driver_id [color: purple]
+users.id < expenses.submitted_by_user_id [color: green]
+vendors.id < invoices.vendor_id [color: pink]
+vehicles.id < fuel_transactions.vehicle_id [color: orange]
+drivers.id < fuel_transactions.driver_id [color: purple]
+fuel_stations.id < fuel_transactions.station_id [color: blue]
+
+// Documents & RAG
+users.id < documents.uploaded_by [color: green]
+documents.id < document_embeddings.document_id [color: violet]
+
+// AI/ML
+ml_models.id < predictions.model_id [color: blue]
+users.id < cognition_insights.acknowledged_by [color: green]
+
+// Safety & Compliance
+vehicles.id < incidents.vehicle_id [color: orange]
+drivers.id < incidents.driver_id [color: purple]
+vehicles.id < inspections.vehicle_id [color: orange]
+users.id < inspections.inspector_id [color: green]
+vehicles.id < damage_reports.vehicle_id [color: orange]
+
+// Tasks
+users.id < tasks.assigned_to [color: green]
+vehicles.id < tasks.vehicle_id [color: orange]
+
+// Assets
+users.id < assets.assigned_to [color: green]
+
+// Communications
+users.id < notifications.user_id [color: green]
+
+// Analytics
+drivers.id < driver_scores.driver_id [color: purple]
+vehicles.id < utilization_metrics.vehicle_id [color: orange]

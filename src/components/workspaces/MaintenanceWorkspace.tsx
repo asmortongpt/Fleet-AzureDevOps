@@ -530,7 +530,6 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
           onVehicleSelect={handleVehicleSelect}
           showLegend={true}
           enableRealTime={isRealtimeConnected}
-          forceSimulatedView={viewMode === 'tactical'}
         />
 
         {/* Maintenance Status Overlay */}

@@ -4,9 +4,9 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+import { secureFetch } from '@/hooks/use-api'
 
 interface ConfigurationItem {
   id: string
@@ -47,19 +47,27 @@ interface MonitoringMetric {
 export function useReactiveCTAConfigurationData() {
   const [realTimeUpdate, setRealTimeUpdate] = useState(0)
 
+  const fetchList = useMemo(() => {
+    return async <T,>(path: string): Promise<T[]> => {
+      try {
+        const response = await secureFetch(path, { method: 'GET' })
+        if (!response.ok) return []
+        const payload = await response.json()
+        const data = payload?.data ?? payload
+        if (Array.isArray(data)) return data as T[]
+        if (data?.data && Array.isArray(data.data)) return data.data as T[]
+        return []
+      } catch {
+        return []
+      }
+    }
+  }, [])
+
   // Fetch configuration items
   const { data: configItems = [], isLoading: configLoading } = useQuery<ConfigurationItem[]>({
     queryKey: ['cta-configuration', realTimeUpdate],
     queryFn: async () => {
-      try {
-        const response = await fetch(`${API_BASE}/configuration`)
-        if (!response.ok) {
-          return []
-        }
-        return response.json()
-      } catch {
-        return []
-      }
+      return fetchList<ConfigurationItem>('/api/configuration')
     },
     refetchInterval: 30000,
     staleTime: 15000,
@@ -69,15 +77,7 @@ export function useReactiveCTAConfigurationData() {
   const { data: integrations = [], isLoading: integrationsLoading } = useQuery<Integration[]>({
     queryKey: ['cta-integrations', realTimeUpdate],
     queryFn: async () => {
-      try {
-        const response = await fetch(`${API_BASE}/integrations`)
-        if (!response.ok) {
-          return []
-        }
-        return response.json()
-      } catch {
-        return []
-      }
+      return fetchList<Integration>('/api/integrations')
     },
     refetchInterval: 30000,
     staleTime: 15000,
@@ -87,15 +87,7 @@ export function useReactiveCTAConfigurationData() {
   const { data: monitoringMetrics = [], isLoading: monitoringLoading } = useQuery<MonitoringMetric[]>({
     queryKey: ['cta-monitoring', realTimeUpdate],
     queryFn: async () => {
-      try {
-        const response = await fetch(`${API_BASE}/monitoring/metrics`)
-        if (!response.ok) {
-          return []
-        }
-        return response.json()
-      } catch {
-        return []
-      }
+      return fetchList<MonitoringMetric>('/api/monitoring/metrics')
     },
     refetchInterval: 10000,
     staleTime: 5000,
@@ -126,16 +118,33 @@ export function useReactiveCTAConfigurationData() {
     return acc
   }, {} as Record<string, number>)
 
-  // Configuration trend (last 7 days - mock data)
-  const configTrendData = [
-    { name: 'Mon', configured: 45, policyDriven: 12, default: 8 },
-    { name: 'Tue', configured: 47, policyDriven: 13, default: 5 },
-    { name: 'Wed', configured: 48, policyDriven: 14, default: 3 },
-    { name: 'Thu', configured: 50, policyDriven: 15, default: 0 },
-    { name: 'Fri', configured: 52, policyDriven: 15, default: 0 },
-    { name: 'Sat', configured: 52, policyDriven: 16, default: 0 },
-    { name: 'Sun', configured: 53, policyDriven: 17, default: 0 },
-  ]
+  // Configuration trend (last 7 days)
+  const configTrendData = (() => {
+    const days = Array.from({ length: 7 }, (_, index) => {
+      const day = new Date()
+      day.setHours(0, 0, 0, 0)
+      day.setDate(day.getDate() - (6 - index))
+      return day
+    })
+
+    return days.map((day) => {
+      const nextDay = new Date(day)
+      nextDay.setDate(day.getDate() + 1)
+
+      const itemsForDay = configItems.filter((item) => {
+        if (!item.lastModified) return false
+        const ts = new Date(item.lastModified)
+        return ts >= day && ts < nextDay
+      })
+
+      return {
+        name: day.toLocaleDateString(undefined, { weekday: 'short' }),
+        configured: itemsForDay.filter((item) => item.status === 'configured').length,
+        policyDriven: itemsForDay.filter((item) => item.status === 'policy_driven').length,
+        default: itemsForDay.filter((item) => item.status === 'default').length,
+      }
+    })
+  })()
 
   // Integration status distribution
   const integrationStatusData = Object.entries(

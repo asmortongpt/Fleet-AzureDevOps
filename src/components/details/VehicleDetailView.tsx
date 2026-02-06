@@ -3,7 +3,8 @@ import {
   TrendingUp, AlertTriangle, CheckCircle, XCircle, Clock,
   Gauge, Fuel, ThermometerSun, Activity, Download, ExternalLink
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDrilldown } from '@/contexts/DrilldownContext';
+import { useFleetData } from '@/hooks/use-fleet-data';
+import { secureFetch } from '@/hooks/use-api';
 
 interface Vehicle {
   id: string;
@@ -35,72 +38,118 @@ interface VehicleDetailViewProps {
 export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) {
   const { push } = useDrilldown();
   const [activeTab, setActiveTab] = useState('overview');
+  const { workOrders, fuelTransactions, maintenanceSchedules } = useFleetData();
 
-  // Mock data for comprehensive detail - in production, fetch from API
-  const serviceHistory = [
-    {
-      id: '1',
-      date: '2025-12-15',
-      type: 'Scheduled Maintenance',
-      description: '25,000 mile service - oil change, filter replacement',
-      cost: 450.00,
-      facility: 'Main Service Center',
-      technician: 'Mike Johnson',
-      status: 'completed'
+  const { data: documents = [] } = useQuery({
+    queryKey: ['vehicle-documents', vehicle.id],
+    queryFn: async () => {
+      const response = await secureFetch(`/api/documents?vehicle_id=${vehicle.id}`)
+      if (!response.ok) return []
+      const payload = await response.json()
+      return payload?.data ?? payload ?? []
     },
-    {
-      id: '2',
-      date: '2025-11-28',
-      type: 'Repair',
-      description: 'Brake pad replacement - front',
-      cost: 325.50,
-      facility: 'Main Service Center',
-      technician: 'Sarah Williams',
-      status: 'completed'
+    enabled: !!vehicle.id
+  })
+
+  const { data: telemetryStats } = useQuery({
+    queryKey: ['vehicle-telemetry-stats', vehicle.id],
+    queryFn: async () => {
+      const response = await secureFetch(`/api/telematics/vehicles/${vehicle.id}/stats`)
+      if (!response.ok) return null
+      return await response.json()
     },
-    {
-      id: '3',
-      date: '2025-12-20',
-      type: 'Scheduled Maintenance',
-      description: '30,000 mile service - comprehensive inspection',
-      cost: 0,
-      facility: 'Main Service Center',
-      technician: 'TBD',
-      status: 'scheduled'
+    enabled: !!vehicle.id,
+    refetchInterval: 10000
+  })
+
+  const { data: telemetryLocation } = useQuery({
+    queryKey: ['vehicle-telemetry-location', vehicle.id],
+    queryFn: async () => {
+      const response = await secureFetch(`/api/telematics/vehicles/${vehicle.id}/location`)
+      if (!response.ok) return null
+      return await response.json()
+    },
+    enabled: !!vehicle.id,
+    refetchInterval: 10000
+  })
+
+  const formatDate = (value?: string) => {
+    if (!value) return 'N/A'
+    const date = new Date(value)
+    return Number.isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString()
+  }
+
+  const serviceHistory = useMemo(() => {
+    return workOrders
+      .filter((order: any) => order.vehicle_id === vehicle.id || order.vehicleId === vehicle.id)
+      .map((order: any) => ({
+        id: order.id,
+        date: order.actual_end || order.actual_end_date || order.created_at || order.createdAt,
+        type: order.type || 'maintenance',
+        description: order.description || order.title || 'Service event',
+        cost: Number(order.actual_cost || order.estimated_cost || 0),
+        facility: order.facility_name || order.facility || 'N/A',
+        technician: order.assigned_technician_id || order.assigned_technician || 'Unassigned',
+        status: order.status || 'scheduled'
+      }))
+  }, [workOrders, vehicle.id])
+
+  const maintenanceSchedule = useMemo(() => {
+    return maintenanceSchedules
+      .filter((schedule: any) => schedule.vehicle_id === vehicle.id || schedule.vehicleId === vehicle.id)
+      .map((schedule: any) => ({
+        service: schedule.name || schedule.type || 'Maintenance',
+        nextDue: formatDate(schedule.next_service_date),
+        milesDue: schedule.next_service_mileage ?? schedule.interval_miles ?? 0,
+        status: schedule.next_service_date && new Date(schedule.next_service_date) < new Date() ? 'overdue' : 'upcoming'
+      }))
+  }, [maintenanceSchedules, vehicle.id])
+
+  const telemetryData = useMemo(() => {
+    if (!telemetryStats && !telemetryLocation) return null
+    return {
+      speed: telemetryLocation?.speed_mph ?? 0,
+      rpm: telemetryStats?.engine_rpm ?? 0,
+      fuelLevel: telemetryStats?.fuel_percent ?? 0,
+      engineTemp: telemetryStats?.temperature_f ?? 0,
+      oilPressure: telemetryStats?.oil_life_percent ?? 0,
+      batteryVoltage: telemetryStats?.battery_voltage_12v ?? 0,
+      lastUpdate: telemetryStats?.timestamp || telemetryLocation?.timestamp || null
     }
-  ];
+  }, [telemetryStats, telemetryLocation])
 
-  const documents = [
-    { id: '1', name: 'Registration', type: 'PDF', date: '2025-01-15', expires: '2026-01-15' },
-    { id: '2', name: 'Insurance Certificate', type: 'PDF', date: '2025-06-01', expires: '2026-06-01' },
-    { id: '3', name: 'Inspection Report', type: 'PDF', date: '2025-12-01', expires: '2026-12-01' },
-    { id: '4', name: 'Warranty Documentation', type: 'PDF', date: '2024-03-20', expires: '2027-03-20' }
-  ];
+  const costAnalysis = useMemo(() => {
+    const vehicleWorkOrders = workOrders.filter((order: any) => order.vehicle_id === vehicle.id || order.vehicleId === vehicle.id)
+    const vehicleFuel = fuelTransactions.filter((tx: any) => tx.vehicle_id === vehicle.id || tx.vehicleId === vehicle.id)
 
-  const telemetryData = {
-    speed: 45,
-    rpm: 2100,
-    fuelLevel: 78,
-    engineTemp: 195,
-    oilPressure: 45,
-    batteryVoltage: 13.8,
-    lastUpdate: '2025-12-28 15:30:00'
-  };
+    const totalMaintenance = vehicleWorkOrders.reduce((sum: number, order: any) => sum + Number(order.actual_cost || order.estimated_cost || 0), 0)
+    const totalRepairs = vehicleWorkOrders
+      .filter((order: any) => order.type === 'corrective')
+      .reduce((sum: number, order: any) => sum + Number(order.actual_cost || order.estimated_cost || 0), 0)
+    const totalFuel = vehicleFuel.reduce((sum: number, tx: any) => sum + Number(tx.total_cost || tx.cost || tx.amount || 0), 0)
+    const totalCost = totalMaintenance + totalFuel
+    const mileage = Number(vehicle.mileage || (vehicle as any).odometer || 0)
+    const costPerMile = mileage > 0 ? totalCost / mileage : 0
 
-  const maintenanceSchedule = [
-    { service: 'Oil Change', nextDue: '2026-01-15', milesDue: 28000, status: 'upcoming' },
-    { service: 'Tire Rotation', nextDue: '2026-02-01', milesDue: 30000, status: 'upcoming' },
-    { service: 'Brake Inspection', nextDue: '2025-12-30', milesDue: 25500, status: 'overdue' },
-    { service: 'Air Filter', nextDue: '2026-03-15', milesDue: 35000, status: 'upcoming' }
-  ];
+    return {
+      totalMaintenance,
+      totalFuel,
+      totalRepairs,
+      averageMonthly: 0,
+      costPerMile
+    }
+  }, [workOrders, fuelTransactions, vehicle])
 
-  const costAnalysis = {
-    totalMaintenance: 15420.50,
-    totalFuel: 8230.75,
-    totalRepairs: 2140.30,
-    averageMonthly: 720.35,
-    costPerMile: 0.42
-  };
+  const documentItems = useMemo(() => {
+    return documents.map((doc: any) => ({
+      id: doc.id,
+      name: doc.name || doc.title || doc.file_name || 'Document',
+      type: doc.document_type || doc.type || doc.mime_type || 'Document',
+      date: formatDate(doc.created_at || doc.uploaded_at),
+      expires: formatDate(doc.expiry_date || doc.expires_at),
+      url: doc.file_url || doc.storage_path || '#'
+    }))
+  }, [documents])
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -275,48 +324,52 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {serviceHistory.map((service) => (
-                    <div
-                      key={service.id}
-                      className="border rounded-lg p-2 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
-                      onClick={() => push({
-                        id: `work-order-${service.id}`,
-                        type: 'work-order',
-                        label: service.description,
-                        data: service
-                      })}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Wrench className="w-4 h-4 text-blue-800" />
-                            <h4 className="font-semibold">{service.type}</h4>
-                            {getStatusBadge(service.status)}
+                  {serviceHistory.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">No service history found.</p>
+                  ) : (
+                    serviceHistory.map((service) => (
+                      <div
+                        key={service.id}
+                        className="border rounded-lg p-2 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
+                        onClick={() => push({
+                          id: `work-order-${service.id}`,
+                          type: 'work-order',
+                          label: service.description,
+                          data: service
+                        })}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Wrench className="w-4 h-4 text-blue-800" />
+                              <h4 className="font-semibold">{service.type}</h4>
+                              {getStatusBadge(service.status)}
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-2">{service.description}</p>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                              <div>
+                                <span className="text-muted-foreground">Date:</span>
+                                <p className="font-medium">{formatDate(service.date)}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Facility:</span>
+                                <p className="font-medium">{service.facility}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Technician:</span>
+                                <p className="font-medium">{service.technician}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Cost:</span>
+                                <p className="font-medium">${Number(service.cost || 0).toFixed(2)}</p>
+                              </div>
+                            </div>
                           </div>
-                          <p className="text-sm text-muted-foreground mb-2">{service.description}</p>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                            <div>
-                              <span className="text-muted-foreground">Date:</span>
-                              <p className="font-medium">{service.date}</p>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Facility:</span>
-                              <p className="font-medium">{service.facility}</p>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Technician:</span>
-                              <p className="font-medium">{service.technician}</p>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Cost:</span>
-                              <p className="font-medium">${service.cost.toFixed(2)}</p>
-                            </div>
-                          </div>
+                          <ExternalLink className="w-4 h-4 text-muted-foreground" />
                         </div>
-                        <ExternalLink className="w-4 h-4 text-muted-foreground" />
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -327,29 +380,33 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
             <Card>
               <CardHeader>
                 <CardTitle>Vehicle Documents</CardTitle>
-                <CardDescription>{documents.length} documents on file</CardDescription>
+                <CardDescription>{documentItems.length} documents on file</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {documents.map((doc) => (
-                    <div
-                      key={doc.id}
-                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
-                    >
-                      <div className="flex items-center gap-3">
-                        <FileText className="w-3 h-3 text-blue-800" />
-                        <div>
-                          <p className="font-medium text-sm">{doc.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            Uploaded: {doc.date} | Expires: {doc.expires}
-                          </p>
+                  {documentItems.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">No documents available.</p>
+                  ) : (
+                    documentItems.map((doc) => (
+                      <div
+                        key={doc.id}
+                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                      >
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-3 h-3 text-blue-800" />
+                          <div>
+                            <p className="font-medium text-sm">{doc.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Uploaded: {doc.date} | Expires: {doc.expires}
+                            </p>
+                          </div>
                         </div>
+                        <Button variant="ghost" size="sm">
+                          <Download className="w-4 h-4" />
+                        </Button>
                       </div>
-                      <Button variant="ghost" size="sm">
-                        <Download className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -360,9 +417,14 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
             <Card>
               <CardHeader>
                 <CardTitle>Live Vehicle Telemetry</CardTitle>
-                <CardDescription>Last updated: {telemetryData.lastUpdate}</CardDescription>
+                <CardDescription>
+                  Last updated: {telemetryData?.lastUpdate ? formatDate(telemetryData.lastUpdate) : 'N/A'}
+                </CardDescription>
               </CardHeader>
               <CardContent>
+                {!telemetryData ? (
+                  <p className="text-xs text-muted-foreground">No telemetry data available.</p>
+                ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -422,6 +484,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                     <Progress value={telemetryData.batteryVoltage} max={16} className="w-full" />
                   </div>
                 </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -435,32 +498,36 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {maintenanceSchedule.map((item, index) => (
-                    <div
-                      key={index}
-                      className="border rounded-lg p-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Wrench className="w-4 h-4 text-blue-800" />
-                            <h4 className="font-semibold">{item.service}</h4>
-                            {getStatusBadge(item.status)}
-                          </div>
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-                            <div>
-                              <span className="text-muted-foreground">Next Due:</span>
-                              <p className="font-medium">{item.nextDue}</p>
+                  {maintenanceSchedule.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">No maintenance schedule available.</p>
+                  ) : (
+                    maintenanceSchedule.map((item, index) => (
+                      <div
+                        key={index}
+                        className="border rounded-lg p-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Wrench className="w-4 h-4 text-blue-800" />
+                              <h4 className="font-semibold">{item.service}</h4>
+                              {getStatusBadge(item.status)}
                             </div>
-                            <div>
-                              <span className="text-muted-foreground">Miles Due:</span>
-                              <p className="font-medium">{item.milesDue.toLocaleString()} mi</p>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                              <div>
+                                <span className="text-muted-foreground">Next Due:</span>
+                                <p className="font-medium">{item.nextDue}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Miles Due:</span>
+                                <p className="font-medium">{Number(item.milesDue || 0).toLocaleString()} mi</p>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>

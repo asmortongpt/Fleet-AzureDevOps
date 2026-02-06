@@ -6,7 +6,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+import { secureFetch } from '@/hooks/use-api'
 
 interface Asset {
   id: string
@@ -43,14 +43,21 @@ interface InventoryItem {
 export function useReactiveAssetsData() {
   const [realTimeUpdate, setRealTimeUpdate] = useState(0)
 
+  const unwrapRows = <T,>(payload: any): T[] => {
+    if (Array.isArray(payload)) return payload as T[]
+    if (payload?.data && Array.isArray(payload.data)) return payload.data as T[]
+    if (payload?.data?.data && Array.isArray(payload.data.data)) return payload.data.data as T[]
+    return []
+  }
+
   // Fetch assets
   const { data: assets = [], isLoading: assetsLoading } = useQuery<Asset[]>({
     queryKey: ['assets', realTimeUpdate],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/assets`, { credentials: 'include' })
+      const response = await secureFetch(`/api/assets`)
       if (!response.ok) throw new Error('Failed to fetch assets')
       const payload = await response.json()
-      const rows = payload?.data ?? payload ?? []
+      const rows = unwrapRows<any>(payload)
       return rows.map((row: any) => ({
         id: row.id,
         name: row.asset_name || row.name,
@@ -78,10 +85,10 @@ export function useReactiveAssetsData() {
   const { data: inventory = [], isLoading: inventoryLoading } = useQuery<InventoryItem[]>({
     queryKey: ['inventory', realTimeUpdate],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/inventory/items?limit=200`, { credentials: 'include' })
+      const response = await secureFetch(`/api/inventory/items?limit=200`)
       if (!response.ok) throw new Error('Failed to fetch inventory')
       const payload = await response.json()
-      const rows = payload?.data ?? payload ?? []
+      const rows = unwrapRows<any>(payload)
       return rows.map((row: any) => ({
         id: row.id,
         sku: row.sku,

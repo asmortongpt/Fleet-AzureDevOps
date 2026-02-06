@@ -2,7 +2,8 @@ import {
   Building2, Users, Car, Package, TrendingUp, MapPin, Phone,
   Mail, CheckCircle, Wrench, BarChart3, XCircle
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDrilldown } from '@/contexts/DrilldownContext';
+import { useFleetData } from '@/hooks/use-fleet-data';
+import { secureFetch } from '@/hooks/use-api';
 
 interface Facility {
   id: string;
@@ -34,50 +37,130 @@ interface FacilityDetailViewProps {
 export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProps) {
   const { push } = useDrilldown();
   const [activeTab, setActiveTab] = useState('overview');
+  const { vehicles, drivers } = useFleetData();
 
-  // Mock comprehensive facility data
-  const capacityMetrics = {
-    vehicleCapacity: 50,
-    currentVehicles: 42,
-    availableSpaces: 8,
-    utilizationRate: 84,
-    maintenanceBays: 8,
-    activeBays: 6,
-    bayUtilization: 75,
-    staffCapacity: 25,
-    currentStaff: 22,
-    staffUtilization: 88
-  };
+  const { data: serviceBays = [] } = useQuery({
+    queryKey: ['service-bays', facility.id],
+    queryFn: async () => {
+      const response = await secureFetch(`/api/service-bays?facility_id=${facility.id}`)
+      if (!response.ok) return []
+      const payload = await response.json()
+      return payload?.data ?? payload ?? []
+    },
+    enabled: !!facility.id
+  })
 
-  const assignedVehicles = [
-    { id: 'V-001', make: 'Ford', model: 'F-150', year: 2024, status: 'active', assignedDate: '2025-01-15', driver: 'John Smith' },
-    { id: 'V-003', make: 'Chevrolet', model: 'Silverado', year: 2024, status: 'maintenance', assignedDate: '2025-02-01', driver: 'Sarah Johnson' },
-    { id: 'V-005', make: 'Ram', model: '1500', year: 2023, status: 'active', assignedDate: '2024-11-20', driver: 'Mike Williams' },
-    { id: 'V-007', make: 'Toyota', model: 'Tacoma', year: 2024, status: 'active', assignedDate: '2025-03-10', driver: 'Emily Davis' }
-  ];
+  const { data: assets = [] } = useQuery({
+    queryKey: ['facility-assets', facility.id],
+    queryFn: async () => {
+      const response = await secureFetch(`/api/assets`)
+      if (!response.ok) return []
+      const payload = await response.json()
+      return payload?.data ?? payload ?? []
+    },
+    enabled: true
+  })
 
-  const staff = [
-    { id: '1', name: 'Mike Johnson', role: 'Lead Technician', department: 'Maintenance', shift: 'Day', certifications: ['ASE Master', 'Diesel'], phone: '555-0101' },
-    { id: '2', name: 'Sarah Williams', role: 'Senior Technician', department: 'Maintenance', shift: 'Day', certifications: ['ASE'], phone: '555-0102' },
-    { id: '3', name: 'Robert Brown', role: 'Technician', department: 'Maintenance', shift: 'Night', certifications: ['ASE'], phone: '555-0103' },
-    { id: '4', name: 'Jennifer Davis', role: 'Parts Manager', department: 'Inventory', shift: 'Day', certifications: [], phone: '555-0104' },
-    { id: '5', name: 'David Miller', role: 'Facility Manager', department: 'Operations', shift: 'Day', certifications: ['Safety'], phone: '555-0105' }
-  ];
+  const formatDate = (value?: string) => {
+    if (!value) return 'N/A'
+    const date = new Date(value)
+    return Number.isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString()
+  }
 
-  const equipment = [
-    { id: '1', name: '4-Post Vehicle Lift', type: 'Lift', bay: 1, status: 'operational', lastService: '2025-11-15', nextService: '2026-02-15' },
-    { id: '2', name: '2-Post Vehicle Lift', type: 'Lift', bay: 2, status: 'operational', lastService: '2025-10-20', nextService: '2026-01-20' },
-    { id: '3', name: 'Tire Changing Machine', type: 'Tire Equipment', bay: 3, status: 'operational', lastService: '2025-12-01', nextService: '2026-03-01' },
-    { id: '4', name: 'Wheel Balancer', type: 'Tire Equipment', bay: 3, status: 'operational', lastService: '2025-12-01', nextService: '2026-03-01' },
-    { id: '5', name: 'Diagnostic Scanner', type: 'Diagnostic', bay: 'Mobile', status: 'operational', lastService: '2025-09-15', nextService: '2026-12-15' },
-    { id: '6', name: 'Air Compressor', type: 'Shop Equipment', bay: 'All', status: 'maintenance', lastService: '2025-11-30', nextService: '2025-12-30' }
-  ];
+  const assignedVehicles = useMemo(() => {
+    const driversById = new Map(drivers.map(driver => [driver.id, driver]))
+    return vehicles
+      .filter((vehicle: any) =>
+        vehicle.assignedFacilityId === facility.id || vehicle.assigned_facility_id === facility.id
+      )
+      .map((vehicle: any) => {
+        const driverId = vehicle.assignedDriverId || vehicle.assigned_driver_id
+        const driver = driverId ? driversById.get(driverId) : undefined
+        const driverName = driver
+          ? driver.name || `${driver.firstName || ''} ${driver.lastName || ''}`.trim()
+          : 'Unassigned'
 
-  const utilizationHistory = [
-    { month: 'Nov', vehicles: 38, staff: 20, bays: 72 },
-    { month: 'Dec', vehicles: 42, staff: 22, bays: 75 },
-    { month: 'Jan', vehicles: 45, staff: 23, bays: 78 }
-  ];
+        return {
+          id: vehicle.id,
+          make: vehicle.make,
+          model: vehicle.model,
+          year: vehicle.year,
+          status: vehicle.status || 'active',
+          assignedDate: formatDate(vehicle.updatedAt || vehicle.updated_at || vehicle.createdAt || vehicle.created_at),
+          driver: driverName
+        }
+      })
+  }, [vehicles, drivers, facility.id])
+
+  const staff = useMemo(() => {
+    const assignedDriverIds = new Set(
+      vehicles
+        .filter((vehicle: any) =>
+          vehicle.assignedFacilityId === facility.id || vehicle.assigned_facility_id === facility.id
+        )
+        .map((vehicle: any) => vehicle.assignedDriverId || vehicle.assigned_driver_id)
+        .filter(Boolean)
+    )
+
+    return drivers
+      .filter(driver => assignedDriverIds.has(driver.id))
+      .map((driver: any) => ({
+        id: driver.id,
+        name: driver.name || `${driver.firstName || ''} ${driver.lastName || ''}`.trim(),
+        role: driver.role || driver.metadata?.role || 'Driver',
+        department: driver.department || driver.metadata?.department || 'Operations',
+        shift: driver.metadata?.shift || 'Day',
+        certifications: driver.metadata?.certifications || [],
+        phone: driver.phone || ''
+      }))
+  }, [drivers, vehicles, facility.id])
+
+  const equipment = useMemo(() => {
+    return (assets || [])
+      .filter((asset: any) => asset.assigned_facility_id === facility.id || asset.assignedFacilityId === facility.id)
+      .map((asset: any) => ({
+        id: asset.id,
+        name: asset.asset_name || asset.name,
+        type: asset.asset_type || asset.type,
+        bay: asset.location || 'N/A',
+        status: asset.status || 'active',
+        lastService: formatDate(asset.last_maintenance || asset.last_maintenance_date),
+        nextService: formatDate(asset.next_maintenance || asset.next_maintenance_date)
+      }))
+  }, [assets, facility.id])
+
+  const capacityMetrics = useMemo(() => {
+    const vehicleCapacity = Number(facility.capacity ?? 0)
+    const currentVehicles = assignedVehicles.length
+    const availableSpaces = vehicleCapacity > 0 ? Math.max(vehicleCapacity - currentVehicles, 0) : 0
+    const utilizationRate = vehicleCapacity > 0 ? Math.round((currentVehicles / vehicleCapacity) * 100) : 0
+
+    const maintenanceBays = serviceBays.length
+    const activeBays = serviceBays.filter((bay: any) => bay.status !== 'closed').length
+    const bayUtilization = maintenanceBays > 0 ? Math.round((activeBays / maintenanceBays) * 100) : 0
+
+    const currentStaff = staff.length
+    const staffCapacity = Number((facility as any).staffCapacity || facility.metadata?.staff_capacity || currentStaff || 0)
+    const staffUtilization = staffCapacity > 0 ? Math.round((currentStaff / staffCapacity) * 100) : 0
+
+    return {
+      vehicleCapacity,
+      currentVehicles,
+      availableSpaces,
+      utilizationRate,
+      maintenanceBays,
+      activeBays,
+      bayUtilization,
+      staffCapacity,
+      currentStaff,
+      staffUtilization
+    }
+  }, [facility, assignedVehicles, serviceBays, staff])
+
+  const utilizationHistory = useMemo(() => {
+    const history = (facility as any).utilization_history || facility.metadata?.utilization_history
+    return Array.isArray(history) ? history : []
+  }, [facility])
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -241,21 +324,29 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2 text-sm">
-                    {utilizationHistory.map((month) => (
-                      <div key={month.month} className="flex justify-between items-center">
-                        <span className="text-muted-foreground w-12">{month.month}</span>
-                        <div className="flex gap-3 text-xs">
-                          <span>V: {month.vehicles}</span>
-                          <span>S: {month.staff}</span>
-                          <span>B: {month.bays}%</span>
-                        </div>
+                  {utilizationHistory.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">
+                      No utilization trend data available yet.
+                    </p>
+                  ) : (
+                    <>
+                      <div className="space-y-2 text-sm">
+                        {utilizationHistory.map((month: any) => (
+                          <div key={month.month} className="flex justify-between items-center">
+                            <span className="text-muted-foreground w-12">{month.month}</span>
+                            <div className="flex gap-3 text-xs">
+                              <span>V: {month.vehicles}</span>
+                              <span>S: {month.staff}</span>
+                              <span>B: {month.bays}%</span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-3 pt-3 border-t">
-                    V = Vehicles, S = Staff, B = Bay Utilization
-                  </p>
+                      <p className="text-xs text-muted-foreground mt-3 pt-3 border-t">
+                        V = Vehicles, S = Staff, B = Bay Utilization
+                      </p>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -337,21 +428,25 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {assignedVehicles.map((vehicle) => (
-                    <div key={vehicle.id} className="border rounded-md p-3 text-sm">
-                      <div className="flex justify-between items-center mb-2">
-                        <div className="font-medium">
-                          {vehicle.year} {vehicle.make} {vehicle.model}
+                  {assignedVehicles.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">No vehicles assigned to this facility.</p>
+                  ) : (
+                    assignedVehicles.map((vehicle) => (
+                      <div key={vehicle.id} className="border rounded-md p-3 text-sm">
+                        <div className="flex justify-between items-center mb-2">
+                          <div className="font-medium">
+                            {vehicle.year} {vehicle.make} {vehicle.model}
+                          </div>
+                          {getStatusBadge(vehicle.status)}
                         </div>
-                        {getStatusBadge(vehicle.status)}
+                        <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                          <div>ID: {vehicle.id}</div>
+                          <div>Assigned: {vehicle.assignedDate}</div>
+                          <div>Driver: {vehicle.driver}</div>
+                        </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                        <div>ID: {vehicle.id}</div>
-                        <div>Assigned: {vehicle.assignedDate}</div>
-                        <div>Driver: {vehicle.driver}</div>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -368,28 +463,32 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {staff.map((member) => (
-                    <div key={member.id} className="border rounded-md p-3 text-sm">
-                      <div className="flex justify-between items-center mb-2">
-                        <div className="font-medium">{member.name}</div>
-                        <div className="text-xs text-muted-foreground">{member.shift} Shift</div>
+                  {staff.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">No staff assigned to this facility.</p>
+                  ) : (
+                    staff.map((member) => (
+                      <div key={member.id} className="border rounded-md p-3 text-sm">
+                        <div className="flex justify-between items-center mb-2">
+                          <div className="font-medium">{member.name}</div>
+                          <div className="text-xs text-muted-foreground">{member.shift} Shift</div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="text-muted-foreground">Role:</div>
+                          <div>{member.role}</div>
+                          <div className="text-muted-foreground">Department:</div>
+                          <div>{member.department}</div>
+                          <div className="text-muted-foreground">Phone:</div>
+                          <div>{member.phone}</div>
+                          {member.certifications.length > 0 && (
+                            <>
+                              <div className="text-muted-foreground">Certifications:</div>
+                              <div>{member.certifications.join(', ')}</div>
+                            </>
+                          )}
+                        </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className="text-muted-foreground">Role:</div>
-                        <div>{member.role}</div>
-                        <div className="text-muted-foreground">Department:</div>
-                        <div>{member.department}</div>
-                        <div className="text-muted-foreground">Phone:</div>
-                        <div>{member.phone}</div>
-                        {member.certifications.length > 0 && (
-                          <>
-                            <div className="text-muted-foreground">Certifications:</div>
-                            <div>{member.certifications.join(', ')}</div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -406,24 +505,28 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {equipment.map((item) => (
-                    <div key={item.id} className="border rounded-md p-3 text-sm">
-                      <div className="flex justify-between items-center mb-2">
-                        <div className="font-medium">{item.name}</div>
-                        {getStatusBadge(item.status)}
+                  {equipment.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">No equipment assigned to this facility.</p>
+                  ) : (
+                    equipment.map((item) => (
+                      <div key={item.id} className="border rounded-md p-3 text-sm">
+                        <div className="flex justify-between items-center mb-2">
+                          <div className="font-medium">{item.name}</div>
+                          {getStatusBadge(item.status)}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="text-muted-foreground">Type:</div>
+                          <div>{item.type}</div>
+                          <div className="text-muted-foreground">Bay:</div>
+                          <div>{item.bay}</div>
+                          <div className="text-muted-foreground">Last Service:</div>
+                          <div>{item.lastService}</div>
+                          <div className="text-muted-foreground">Next Service:</div>
+                          <div>{item.nextService}</div>
+                        </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className="text-muted-foreground">Type:</div>
-                        <div>{item.type}</div>
-                        <div className="text-muted-foreground">Bay:</div>
-                        <div>{item.bay}</div>
-                        <div className="text-muted-foreground">Last Service:</div>
-                        <div>{item.lastService}</div>
-                        <div className="text-muted-foreground">Next Service:</div>
-                        <div>{item.nextService}</div>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>

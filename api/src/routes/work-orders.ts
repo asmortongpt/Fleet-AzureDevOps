@@ -72,7 +72,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'work_orders' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { page = 1, limit = 50, status, priority, facility_id } = req.query
+      const { page = 1, limit = 50, status, priority, vehicle_id, facility_id } = req.query
       const offset = (Number(page) - 1) * Number(limit)
       const isDevelopment = process.env.NODE_ENV === 'development'
 
@@ -103,6 +103,10 @@ router.get(
       if (priority) {
         queryParams.push(priority)
         whereClause += (whereClause ? ' AND' : 'WHERE') + ` priority = $${queryParams.length}`
+      }
+      if (vehicle_id) {
+        queryParams.push(vehicle_id)
+        whereClause += (whereClause ? ' AND' : 'WHERE') + ` vehicle_id = $${queryParams.length}`
       }
       // Note: facility_id filter removed - column doesn't exist in work_orders table
 
