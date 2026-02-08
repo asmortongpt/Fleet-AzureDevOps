@@ -20,7 +20,7 @@ export default defineConfig({
     strictPort: false,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:3001', // Updated to match backend PORT in .env
         changeOrigin: false,
         secure: false,
         ws: true,

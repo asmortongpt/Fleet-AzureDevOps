@@ -37,7 +37,7 @@ tail -f logs/auth.log | grep -E "microsoft|exchange|SSO"
 
 ```bash
 # Test backend endpoint directly (need real ID token from browser)
-curl -X POST http://localhost:3000/api/auth/microsoft/exchange \
+curl -X POST http://localhost:3001/api/auth/microsoft/exchange \
   -H "Content-Type: application/json" \
   -d '{
     "idToken": "eyJ0eXAiOiJKV1QiLCJhbGc..."
